@@ -5,22 +5,28 @@ import {
   type LegendListRef,
   type LegendListRenderItemProps,
 } from "@legendapp/list"
+import { useStore } from "@nanostores/react"
 import { PressableFeedback } from "heroui-native"
 import {
   View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  type RefreshControlProps,
   type StyleProp,
   type ViewStyle,
 } from "react-native"
 
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { playTrack, type Track } from "@/modules/player/player.store"
+import {
+  $currentTrack,
+  playTrack,
+  type Track,
+} from "@/modules/player/player.store"
 import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import { TrackActionSheet } from "@/components/blocks/track-action-sheet"
 import { TrackRow } from "@/components/patterns"
-import { EmptyState } from "@/components/ui"
+import { EmptyState, ScaleLoader } from "@/components/ui"
 
 interface TrackListProps {
   data: Track[]
@@ -39,7 +45,7 @@ interface TrackListProps {
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onMomentumScrollEnd?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
-  refreshControl?: React.ReactElement | null
+  refreshControl?: React.ReactElement<RefreshControlProps> | null
   resetScrollKey?: string
   renderItemPrefix?: (
     track: Track,
@@ -74,6 +80,7 @@ export const TrackList: React.FC<TrackListProps> = ({
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const listRef = useRef<LegendListRef | null>(null)
   const isCompactNumberedList = hideCover && showNumbers
+  const currentTrack = useStore($currentTrack)
 
   useEffect(() => {
     if (!resetScrollKey) {
@@ -132,6 +139,12 @@ export const TrackList: React.FC<TrackListProps> = ({
         }
         showCover={!hideCover}
         showArtist={!hideArtist}
+        titleClassName={
+          currentTrack?.id === item.id ? "text-accent" : undefined
+        }
+        imageOverlay={
+          currentTrack?.id === item.id ? <ScaleLoader size={16} /> : undefined
+        }
         rightAction={
           <PressableFeedback
             onPress={(event) => {
@@ -194,7 +207,7 @@ export const TrackList: React.FC<TrackListProps> = ({
         onScrollEndDrag={onScrollEndDrag}
         onMomentumScrollEnd={onMomentumScrollEnd}
         scrollEventThrottle={scrollEventThrottle}
-        refreshControl={refreshControl}
+        refreshControl={refreshControl || undefined}
         recycleItems={true}
         initialContainerPoolRatio={3}
         estimatedItemSize={68}

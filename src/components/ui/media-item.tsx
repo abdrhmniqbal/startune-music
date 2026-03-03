@@ -69,12 +69,14 @@ function MediaItemRoot({
 type MediaItemImageProps = ViewProps & {
   icon?: ReactNode
   image?: string
+  overlay?: ReactNode
 }
 
 function MediaItemImage({
   className,
   icon,
   image,
+  overlay,
   children,
   ...props
 }: MediaItemImageProps) {
@@ -94,6 +96,7 @@ function MediaItemImage({
       ) : (
         icon || children
       )}
+      {overlay}
     </View>
   )
 }

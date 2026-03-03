@@ -19,6 +19,7 @@ import {
 import LocalCancelIcon from "@/components/icons/local/cancel"
 import LocalDragDropVerticalIcon from "@/components/icons/local/drag-drop-vertical"
 import { TrackRow } from "@/components/patterns"
+import { ScaleLoader } from "@/components/ui"
 
 interface QueueItemProps {
   track: Track
@@ -63,6 +64,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({
         isPlayedTrack && "opacity-45"
       )}
       imageClassName="h-12 w-12 bg-white/10"
+      imageOverlay={isCurrentTrack ? <ScaleLoader size={16} /> : undefined}
       titleClassName={isCurrentTrack ? "text-white" : "text-white/90"}
       descriptionClassName="text-white/50 text-sm"
       rightAction={

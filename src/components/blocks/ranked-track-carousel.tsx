@@ -1,9 +1,15 @@
 import type { ReactNode } from "react"
+import { useStore } from "@nanostores/react"
 import { View } from "react-native"
 
-import { playTrack, type Track } from "@/modules/player/player.store"
+import {
+  $currentTrack,
+  playTrack,
+  type Track,
+} from "@/modules/player/player.store"
 import { chunkArray } from "@/utils/array"
 import { TrackRow } from "@/components/patterns"
+import { ScaleLoader } from "@/components/ui"
 
 import { MediaCarousel } from "./media-carousel"
 
@@ -28,6 +34,7 @@ export function RankedTrackCarousel({
   onItemPress,
   className,
 }: RankedTrackCarouselProps) {
+  const currentTrack = useStore($currentTrack)
   const chunks = chunkArray(data, chunkSize)
 
   const handlePress = (track: Track) => {
@@ -54,6 +61,14 @@ export function RankedTrackCarousel({
               track={track}
               rank={chunkIndex * chunkSize + index + 1}
               onPress={() => handlePress(track)}
+              titleClassName={
+                currentTrack?.id === track.id ? "text-accent" : undefined
+              }
+              imageOverlay={
+                currentTrack?.id === track.id ? (
+                  <ScaleLoader size={16} />
+                ) : undefined
+              }
             />
           ))}
         </View>

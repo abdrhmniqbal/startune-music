@@ -11,7 +11,7 @@ import {
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { $indexerState } from "@/modules/indexer"
 import { useHomeScreen } from "@/modules/library/hooks/use-home-screen"
-import { playTrack, type Track } from "@/modules/player/player.store"
+import { $currentTrack, playTrack, type Track } from "@/modules/player/player.store"
 import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import {
@@ -21,6 +21,7 @@ import {
   RankedTrackCarousel,
 } from "@/components/blocks"
 import { TrackRow } from "@/components/patterns"
+import { ScaleLoader } from "@/components/ui"
 
 const CHUNK_SIZE = 5
 
@@ -28,6 +29,7 @@ export default function HomeScreen() {
   const router = useRouter()
   const theme = useThemeColors()
   const indexerState = useStore($indexerState)
+  const currentTrack = useStore($currentTrack)
   const { recentlyPlayedTracks, topTracks, isLoading, refresh } =
     useHomeScreen()
 
@@ -45,6 +47,12 @@ export default function HomeScreen() {
         track={item}
         variant="grid"
         onPress={() => playTrack(item, recentlyPlayedTracks)}
+        titleClassName={
+          currentTrack?.id === item.id ? "text-accent" : undefined
+        }
+        imageOverlay={
+          currentTrack?.id === item.id ? <ScaleLoader size={16} /> : undefined
+        }
       />
     )
   }

@@ -1,5 +1,6 @@
 import * as React from "react"
 import { useState } from "react"
+import { useStore } from "@nanostores/react"
 import { Image } from "expo-image"
 import { LinearGradient } from "expo-linear-gradient"
 import { Stack, useRouter } from "expo-router"
@@ -29,6 +30,7 @@ import {
   TRACK_SORT_OPTIONS,
   type SortField,
 } from "@/modules/library/library-sort.store"
+import { $currentTrack } from "@/modules/player/player.store"
 import { cn } from "@/utils/common"
 import LocalArrowLeftIcon from "@/components/icons/local/arrow-left"
 import LocalChevronLeftIcon from "@/components/icons/local/chevron-left"
@@ -41,7 +43,7 @@ import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import { TrackList } from "@/components/blocks/track-list"
 import { TrackRow } from "@/components/patterns"
-import { SectionTitle } from "@/components/ui"
+import { ScaleLoader, SectionTitle } from "@/components/ui"
 
 const SCREEN_WIDTH = Dimensions.get("window").width
 const HEADER_COLLAPSE_THRESHOLD = SCREEN_WIDTH - 120
@@ -57,6 +59,7 @@ export default function ArtistDetailsScreen() {
 
   const [isHeaderSolid, setIsHeaderSolid] = useState(false)
   const scrollY = useSharedValue(0)
+  const currentTrack = useStore($currentTrack)
   const {
     name,
     isLoading,
@@ -278,6 +281,16 @@ export default function ArtistDetailsScreen() {
                       key={track.id}
                       track={track}
                       onPress={() => playArtistTrack(track)}
+                      titleClassName={
+                        currentTrack?.id === track.id
+                          ? "text-accent"
+                          : undefined
+                      }
+                      imageOverlay={
+                        currentTrack?.id === track.id ? (
+                          <ScaleLoader size={16} />
+                        ) : undefined
+                      }
                     />
                   ))}
                 </View>

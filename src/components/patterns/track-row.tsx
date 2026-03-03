@@ -19,6 +19,7 @@ interface TrackRowProps {
   rightAction?: ReactNode
   className?: string
   imageClassName?: string
+  imageOverlay?: ReactNode
   titleClassName?: string
   descriptionClassName?: string
 }
@@ -35,6 +36,7 @@ export function TrackRow({
   rightAction,
   className,
   imageClassName,
+  imageOverlay,
   titleClassName,
   descriptionClassName,
 }: TrackRowProps) {
@@ -63,6 +65,7 @@ export function TrackRow({
           }
           image={track.image}
           className={imageClassName}
+          overlay={imageOverlay}
         />
       ) : null}
       {rank !== undefined && rank !== null ? (

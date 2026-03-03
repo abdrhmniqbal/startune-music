@@ -23,3 +23,4 @@ export {
   MediaItemTitle as ItemTitle,
 } from "./media-item"
 export { SectionHeader, SectionTitle } from "./section-header"
+export { ScaleLoader } from "./scale-loader"
