@@ -1,9 +1,8 @@
 import * as React from "react"
 import { useCallback, useRef } from "react"
 import { useBottomSheetInternal } from "@gorhom/bottom-sheet"
-import { Input, TextField } from "heroui-native"
+import { Input, PressableFeedback, TextField } from "heroui-native"
 import {
-  Pressable,
   TextInput,
   View,
   findNodeHandle,
@@ -82,7 +81,7 @@ export function SheetSearchInput({
           />
         </View>
         {searchQuery.length > 0 ? (
-          <Pressable
+          <PressableFeedback
             className="absolute right-3 p-1"
             onPress={() => {
               inputRef.current?.clear()
@@ -96,7 +95,7 @@ export function SheetSearchInput({
               height={18}
               color={theme.muted}
             />
-          </Pressable>
+          </PressableFeedback>
         ) : null}
       </View>
     </TextField>

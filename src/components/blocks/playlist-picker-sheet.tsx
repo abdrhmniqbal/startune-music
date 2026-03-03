@@ -1,9 +1,15 @@
 import { useCallback, useRef, useState } from "react"
 import { useBottomSheetInternal } from "@gorhom/bottom-sheet"
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
-import { BottomSheet, Button, Checkbox, Input, TextField } from "heroui-native"
 import {
-  Pressable,
+  BottomSheet,
+  Button,
+  Checkbox,
+  Input,
+  PressableFeedback,
+  TextField,
+} from "heroui-native"
+import {
   Text,
   TextInput,
   View,
@@ -111,7 +117,7 @@ function PlaylistPickerSearchInput({
           />
         </View>
         {searchQuery.length > 0 ? (
-          <Pressable
+          <PressableFeedback
             className="absolute right-3 p-1"
             onPress={() => {
               inputRef.current?.clear()
@@ -125,7 +131,7 @@ function PlaylistPickerSearchInput({
               height={18}
               color={theme.muted}
             />
-          </Pressable>
+          </PressableFeedback>
         ) : null}
       </View>
     </TextField>

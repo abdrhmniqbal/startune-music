@@ -1,8 +1,8 @@
 import * as React from "react"
 import { useState } from "react"
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
-import { Chip } from "heroui-native"
-import { Pressable, ScrollView, Text, View } from "react-native"
+import { Chip, PressableFeedback } from "heroui-native"
+import { ScrollView, Text, View } from "react-native"
 
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
@@ -186,9 +186,9 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
               {item.title}
             </Text>
             {item.showSeeMore && onSeeMoreTracks && (
-              <Pressable onPress={onSeeMoreTracks}>
+              <PressableFeedback onPress={onSeeMoreTracks}>
                 <Text className="text-xs text-muted">See more</Text>
-              </Pressable>
+              </PressableFeedback>
             )}
           </View>
         )

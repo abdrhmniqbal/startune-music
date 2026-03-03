@@ -2,8 +2,16 @@ import * as React from "react"
 import { useEffect, useState } from "react"
 import { Image } from "expo-image"
 import { useRouter } from "expo-router"
-import { BottomSheet, Button, Card, Chip, Toast, useToast } from "heroui-native"
-import { Linking, Pressable, Text, View } from "react-native"
+import {
+  BottomSheet,
+  Button,
+  Card,
+  Chip,
+  PressableFeedback,
+  Toast,
+  useToast,
+} from "heroui-native"
+import { Linking, Text, View } from "react-native"
 import { open as openFileViewer } from "react-native-file-viewer-turbo"
 import { cn } from "tailwind-variants"
 
@@ -582,13 +590,13 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
                   }
 
                   return (
-                    <Pressable
+                    <PressableFeedback
                       key={item.label}
                       onPress={item.onPress}
                       className={cn(containerClassName, "active:opacity-80")}
                     >
                       {content}
-                    </Pressable>
+                    </PressableFeedback>
                   )
                 })}
               </View>

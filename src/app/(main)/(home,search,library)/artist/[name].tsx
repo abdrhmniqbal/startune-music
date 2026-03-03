@@ -4,8 +4,8 @@ import { useStore } from "@nanostores/react"
 import { Image } from "expo-image"
 import { LinearGradient } from "expo-linear-gradient"
 import { Stack, useRouter } from "expo-router"
-import { Button } from "heroui-native"
-import { Dimensions, Pressable, ScrollView, Text, View } from "react-native"
+import { Button, PressableFeedback } from "heroui-native"
+import { Dimensions, ScrollView, Text, View } from "react-native"
 import Animated, {
   Extrapolation,
   interpolate,
@@ -345,7 +345,7 @@ export default function ArtistDetailsScreen() {
                 >
                   <View className="mb-6 flex-row items-center justify-between">
                     <View className="flex-row items-center gap-3">
-                      <Pressable
+                      <PressableFeedback
                         onPress={() => navigateTo("overview")}
                         className="mr-2 active:opacity-50"
                       >
@@ -355,7 +355,7 @@ export default function ArtistDetailsScreen() {
                           height={20}
                           color={theme.muted}
                         />
-                      </Pressable>
+                      </PressableFeedback>
                       <Text className="text-lg font-bold text-foreground">
                         All Tracks
                       </Text>
@@ -402,7 +402,7 @@ export default function ArtistDetailsScreen() {
                 >
                   <View className="mb-6 flex-row items-center justify-between">
                     <View className="flex-row items-center gap-3">
-                      <Pressable
+                      <PressableFeedback
                         onPress={() => navigateTo("overview")}
                         className="mr-2 active:opacity-50"
                       >
@@ -412,7 +412,7 @@ export default function ArtistDetailsScreen() {
                           height={20}
                           color={theme.muted}
                         />
-                      </Pressable>
+                      </PressableFeedback>
                       <Text className="text-lg font-bold text-foreground">
                         All Albums
                       </Text>

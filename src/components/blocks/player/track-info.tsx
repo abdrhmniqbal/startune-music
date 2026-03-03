@@ -1,6 +1,6 @@
 import * as React from "react"
 import { PressableFeedback } from "heroui-native"
-import { Pressable, View } from "react-native"
+import { View } from "react-native"
 import Animated, { Layout } from "react-native-reanimated"
 import { cn } from "tailwind-variants"
 
@@ -46,9 +46,9 @@ export const TrackInfo: React.FC<TrackInfoProps> = ({
       <View className="mr-4 flex-1">
         <MarqueeText text={track.title} className={titleClassName} />
         {isArtistPressable ? (
-          <Pressable onPress={onPressArtist} hitSlop={8}>
+          <PressableFeedback onPress={onPressArtist} hitSlop={8}>
             <MarqueeText text={artistName} className={artistClassName} />
-          </Pressable>
+          </PressableFeedback>
         ) : (
           <MarqueeText text={artistName} className={artistClassName} />
         )}
