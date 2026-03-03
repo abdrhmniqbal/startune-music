@@ -1,4 +1,5 @@
 import { atom } from "nanostores"
+import { processColor } from "react-native"
 
 import { queryClient } from "@/lib/tanstack-query"
 import { toggleFavoriteDB } from "@/modules/favorites/favorites.api"
@@ -258,6 +259,7 @@ export async function setupPlayer() {
         Capability.SkipToPrevious,
       ],
       progressUpdateEventInterval: 1,
+      color: processColor("#0088F6") as number,
     })
 
     isPlayerReady = true
