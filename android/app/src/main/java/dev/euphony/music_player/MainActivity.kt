@@ -1,4 +1,4 @@
-package id.euphony.music
+package com.startune.music
 
 import android.os.Build
 import android.os.Bundle

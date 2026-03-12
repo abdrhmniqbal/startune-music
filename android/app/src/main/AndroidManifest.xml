@@ -41,7 +41,7 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="acme"/>
-        <data android:scheme="exp+emp"/>
+        <data android:scheme="exp+startune-music"/>
       </intent-filter>
     </activity>
   </application>

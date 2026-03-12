@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'id.euphony.music'
+    namespace 'com.startune.music'
     defaultConfig {
-        applicationId 'id.euphony.music'
+        applicationId 'com.startune.music'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

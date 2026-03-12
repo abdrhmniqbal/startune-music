@@ -10,12 +10,12 @@ import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export default function AboutSettingsScreen() {
   const theme = useThemeColors()
-  const appName = Constants.expoConfig?.name || "Euphony Music"
+  const appName = Constants.expoConfig?.name || "Startune Music"
   const version =
     Application.nativeApplicationVersion ||
     Constants.nativeAppVersion ||
     Constants.expoConfig?.version
-  const repositoryUrl = "https://github.com/abdrhmniqbal/euphony-music"
+  const repositoryUrl = "https://github.com/abdrhmniqbal/startune-music"
 
   return (
     <ScrollView className="flex-1 bg-background">

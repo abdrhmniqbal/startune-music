@@ -1,14 +1,14 @@
 {
   "expo": {
     "newArchEnabled": true,
-    "scheme": "euphony-music",
+    "scheme": "startune-music",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
     "web": {
       "output": "static"
     },
-    "name": "Euphony Music",
-    "slug": "emp",
+    "name": "Startune Music",
+    "slug": "startune-music",
     "extra": {
       "eas": {
         "projectId": "5db0649c-cba6-4a3a-b862-40d8e83f4e2c"
@@ -19,13 +19,13 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "id.euphony.music",
+      "bundleIdentifier": "com.startune.music",
       "infoPlist": {
         "UIBackgroundModes": ["audio"]
       }
     },
     "android": {
-      "package": "id.euphony.music",
+      "package": "com.startune.music",
       "permissions": [
         "WAKE_LOCK",
         "FOREGROUND_SERVICE",

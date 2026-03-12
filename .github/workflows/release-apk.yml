@@ -161,7 +161,7 @@ jobs:
 
           DIST_DIR="app/build/outputs/apk/dist"
           RELEASE_DIR="app/build/outputs/apk/release"
-          APK_PREFIX="euphony-music-${RELEASE_TAG}"
+          APK_PREFIX="startune-music-${RELEASE_TAG}"
           ./gradlew clean
           mkdir -p "${DIST_DIR}"
           rm -f "${DIST_DIR}"/*.apk

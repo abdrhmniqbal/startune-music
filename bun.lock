@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "euphony-music",
+      "name": "startune-music",
       "dependencies": {
         "@animatereactnative/marquee": "^0.5.2",
         "@expo/vector-icons": "^15.0.3",

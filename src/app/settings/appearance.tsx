@@ -38,7 +38,7 @@ export default function AppearanceSettingsScreen() {
             Theme Mode
           </Text>
           <Text className="text-[13px] leading-5 text-muted">
-            Choose how Euphony Music looks across the app.
+            Choose how Startune Music looks across the app.
           </Text>
         </View>
         {APPEARANCE_OPTIONS.map((option) => (
