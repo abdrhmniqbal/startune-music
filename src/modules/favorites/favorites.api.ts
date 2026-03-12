@@ -78,7 +78,11 @@ export async function isFavorite(
     switch (type) {
       case "track":
         result = await db.query.tracks.findFirst({
-          where: and(eq(tracks.id, id), eq(tracks.isFavorite, 1)),
+          where: and(
+            eq(tracks.id, id),
+            eq(tracks.isFavorite, 1),
+            eq(tracks.isDeleted, 0)
+          ),
         })
         break
       case "artist":
@@ -112,7 +116,7 @@ export async function getFavorites(
 
     if (!type || type === "track") {
       const favTracks = await db.query.tracks.findMany({
-        where: eq(tracks.isFavorite, 1),
+        where: and(eq(tracks.isFavorite, 1), eq(tracks.isDeleted, 0)),
         orderBy: [desc(tracks.favoritedAt)],
       })
       favorites.push(

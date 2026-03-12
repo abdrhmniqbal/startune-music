@@ -7,6 +7,7 @@ import { View } from "react-native"
 import { requestMediaLibraryPermission } from "@/core/storage/media-library.service"
 import { startIndexing } from "@/modules/indexer"
 import { removeFromQueue } from "@/modules/player/queue.store"
+import { hardDeleteTrack } from "@/modules/tracks/track-cleanup.api"
 
 interface DeleteTrackDialogProps {
   track: Track | null
@@ -66,6 +67,12 @@ export function DeleteTrackDialog({
         await removeFromQueue(track.id)
       } catch {
         // Queue cleanup failure should not block deletion flow.
+      }
+
+      try {
+        await hardDeleteTrack(track.id)
+      } catch {
+        // DB cleanup failure should not block deletion success feedback.
       }
 
       onOpenChange(false)

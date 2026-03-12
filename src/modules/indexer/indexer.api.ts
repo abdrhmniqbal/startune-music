@@ -20,6 +20,7 @@ import {
   isAssetAllowedByTrackDuration,
 } from "@/modules/indexer/track-duration-filter"
 import { logError } from "@/modules/logging"
+import { removeTracksFromFavoritesAndPlaylists } from "@/modules/tracks/track-cleanup.api"
 import { extractMetadata, saveArtworkToCache } from "./metadata.api"
 
 const BATCH_SIZE = 10
@@ -84,6 +85,7 @@ export async function scanMediaLibrary(
     .map((t) => t.id)
 
   if (deletedTrackIds.length > 0) {
+    await removeTracksFromFavoritesAndPlaylists(deletedTrackIds)
     await db
       .update(tracks)
       .set({ isDeleted: 1 })
