@@ -15,6 +15,7 @@ import { Linking, Text, View } from "react-native"
 import { open as openFileViewer } from "react-native-file-viewer-turbo"
 import { cn } from "tailwind-variants"
 
+import { DeleteTrackDialog } from "@/components/blocks/delete-track-dialog"
 import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalFavouriteIcon from "@/components/icons/local/favourite"
@@ -43,6 +44,7 @@ import {
 } from "@/modules/tracks/track-metadata.utils"
 import { resolvePlayableFileUri } from "@/utils/file-path"
 import { formatDuration } from "@/utils/format"
+import LocalDeleteSolidIcon from "../icons/local/delete-solid"
 
 interface TrackActionSheetProps {
   track: Track | null
@@ -66,6 +68,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
   const addTrackToPlaylistMutation = useAddTrackToPlaylist()
   const removeTrackFromPlaylistMutation = useRemoveTrackFromPlaylist()
   const [isPlaylistPickerOpen, setIsPlaylistPickerOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [favoriteOverrides, setFavoriteOverrides] = useState<
     Record<string, boolean>
   >({})
@@ -129,7 +132,17 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     setIsPlaylistPickerOpen(true)
   }
 
-  const showPlaylistToast = (title: string, description?: string) => {
+  const handleOpenDeleteDialog = () => {
+    if (!track) {
+      return
+    }
+
+    setIsPlaylistPickerOpen(false)
+    setIsDeleteDialogOpen(true)
+    onClose()
+  }
+
+  const showActionToast = (title: string, description?: string) => {
     toast.show({
       duration: 1800,
       component: (props) => (
@@ -143,6 +156,10 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
         </Toast>
       ),
     })
+  }
+
+  const showPlaylistToast = (title: string, description?: string) => {
+    showActionToast(title, description)
   }
 
   const handleSelectPlaylist = async ({
@@ -432,7 +449,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
             backgroundClassName="bg-surface"
           >
             <View className="mb-5 flex-row items-center gap-4">
-              <View className="h-[72px] w-[72px] overflow-hidden rounded-xl bg-default">
+              <View className="h-18 w-18 overflow-hidden rounded-xl bg-default">
                 {track.image ? (
                   <Image
                     source={{ uri: track.image }}
@@ -556,6 +573,24 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
               </View>
             </Button>
 
+            <Button
+              variant="danger"
+              onPress={handleOpenDeleteDialog}
+              className="mb-2 h-11 w-full"
+            >
+              <View className="flex-row items-center gap-2">
+                <LocalDeleteSolidIcon
+                  fill="none"
+                  width={20}
+                  height={20}
+                  color="white"
+                />
+                <Text className="font-semibold text-white">
+                  Delete from Device
+                </Text>
+              </View>
+            </Button>
+
             <View className="mt-2 border-t border-border/60 pt-3">
               <View className="mb-3 flex-row flex-wrap gap-2">
                 {quickFacts.map((fact) => (
@@ -613,6 +648,16 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
           </BottomSheet.Content>
         </BottomSheet.Portal>
       </BottomSheet>
+
+      <DeleteTrackDialog
+        track={track}
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onDeleted={() => {
+          setIsPlaylistPickerOpen(false)
+          onClose()
+        }}
+      />
 
       <PlaylistPickerSheet
         isOpen={isPlaylistPickerOpen}

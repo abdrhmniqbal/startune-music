@@ -1,8 +1,8 @@
 import type { IndexerScanProgress } from "./indexer.types"
 import { and, eq, inArray, sql } from "drizzle-orm"
 
-import * as MediaLibrary from "expo-media-library"
 import { File } from "expo-file-system"
+import * as MediaLibrary from "expo-media-library"
 import { db } from "@/db/client"
 import { albums, artists, genres, trackGenres, tracks } from "@/db/schema"
 import {
