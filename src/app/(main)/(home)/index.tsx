@@ -75,7 +75,9 @@ export default function HomeScreen() {
         <RefreshControl
           refreshing={indexerState.isIndexing}
           onRefresh={refresh}
+          colors={[theme.accent]}
           tintColor={theme.accent}
+          progressBackgroundColor={theme.default}
         />
       }
     >

@@ -12,6 +12,7 @@ import * as React from "react"
 import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  type RefreshControlProps,
   type StyleProp,
   View,
   type ViewStyle,
@@ -39,6 +40,7 @@ interface FavoritesListProps {
   data: FavoriteEntry[]
   scrollEnabled?: boolean
   contentContainerStyle?: StyleProp<ViewStyle>
+  refreshControl?: React.ReactElement<RefreshControlProps> | null
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
@@ -149,6 +151,7 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
   data,
   scrollEnabled = true,
   contentContainerStyle,
+  refreshControl,
   onScroll,
   onScrollBeginDrag,
   onScrollEndDrag,
@@ -257,6 +260,7 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
         onScrollEndDrag={onScrollEndDrag}
         onMomentumScrollEnd={onMomentumScrollEnd}
         scrollEventThrottle={16}
+        refreshControl={refreshControl || undefined}
         recycleItems={true}
         initialContainerPoolRatio={3}
         estimatedItemSize={68}

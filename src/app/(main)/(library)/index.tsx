@@ -4,6 +4,7 @@ import * as React from "react"
 import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  RefreshControl,
   Text,
   View,
 } from "react-native"
@@ -24,6 +25,8 @@ import {
   handleScrollStart,
   handleScrollStop,
 } from "@/hooks/scroll-bars.store"
+import { useThemeColors } from "@/hooks/use-theme-colors"
+import { $indexerState, startIndexing } from "@/modules/indexer"
 import {
   LIBRARY_TAB_SORT_OPTIONS,
   LIBRARY_TABS,
@@ -33,12 +36,15 @@ import {
 import { $currentTrack } from "@/modules/player/player.store"
 
 export default function LibraryScreen() {
+  const theme = useThemeColors()
   const insets = useSafeAreaInsets()
   const currentTrack = useStore($currentTrack)
+  const indexerState = useStore($indexerState)
   const tabBarHeight = getTabBarHeight(insets.bottom)
   const hasMiniPlayer = currentTrack !== null
   const libraryListBottomPadding =
     tabBarHeight + (hasMiniPlayer ? MINI_PLAYER_HEIGHT : 0) + 200
+  const [isPullRefreshing, setIsPullRefreshing] = React.useState(false)
 
   const {
     activeTab,
@@ -73,6 +79,32 @@ export default function LibraryScreen() {
   const handleListScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     handleScroll(event.nativeEvent.contentOffset.y)
   }
+  const isRefreshing = isPullRefreshing || indexerState.isIndexing
+
+  async function handleRefresh() {
+    if (indexerState.isIndexing) {
+      return
+    }
+
+    setIsPullRefreshing(true)
+    try {
+      await startIndexing(false, true)
+    } finally {
+      setIsPullRefreshing(false)
+    }
+  }
+
+  const refreshControl = (
+    <RefreshControl
+      refreshing={isRefreshing}
+      onRefresh={() => {
+        void handleRefresh()
+      }}
+      colors={[theme.accent]}
+      tintColor={theme.accent}
+      progressBackgroundColor={theme.default}
+    />
+  )
 
   function renderTabContent() {
     switch (activeTab) {
@@ -82,6 +114,7 @@ export default function LibraryScreen() {
             sortConfig={sortConfig}
             onTrackPress={playSingleTrack}
             contentBottomPadding={libraryListBottomPadding}
+            refreshControl={refreshControl}
             onScroll={handleListScroll}
             onScrollBeginDrag={handleScrollStart}
             onScrollEndDrag={handleScrollStop}
@@ -94,6 +127,7 @@ export default function LibraryScreen() {
             sortConfig={sortConfig}
             onAlbumPress={(album) => openAlbum(album.title)}
             contentBottomPadding={libraryListBottomPadding}
+            refreshControl={refreshControl}
             onScroll={handleListScroll}
             onScrollBeginDrag={handleScrollStart}
             onScrollEndDrag={handleScrollStop}
@@ -106,6 +140,7 @@ export default function LibraryScreen() {
             sortConfig={sortConfig}
             onArtistPress={(artist) => openArtist(artist.name)}
             contentBottomPadding={libraryListBottomPadding}
+            refreshControl={refreshControl}
             onScroll={handleListScroll}
             onScrollBeginDrag={handleScrollStart}
             onScrollEndDrag={handleScrollStop}
@@ -120,6 +155,7 @@ export default function LibraryScreen() {
             onPlaylistPress={(playlist) => openPlaylist(playlist.id)}
             contentContainerStyle={{ paddingBottom: libraryListBottomPadding }}
             resetScrollKey={`${sortConfig.field}-${sortConfig.order}`}
+            refreshControl={refreshControl}
             onScroll={handleListScroll}
             onScrollBeginDrag={handleScrollStart}
             onScrollEndDrag={handleScrollStop}
@@ -138,6 +174,7 @@ export default function LibraryScreen() {
             onTrackPress={playFolderTrack}
             contentContainerStyle={{ paddingBottom: libraryListBottomPadding }}
             resetScrollKey={`${sortConfig.field}-${sortConfig.order}`}
+            refreshControl={refreshControl}
             onScroll={handleListScroll}
             onScrollBeginDrag={handleScrollStart}
             onScrollEndDrag={handleScrollStop}
@@ -149,6 +186,7 @@ export default function LibraryScreen() {
           <FavoritesList
             data={favorites}
             contentContainerStyle={{ paddingBottom: libraryListBottomPadding }}
+            refreshControl={refreshControl}
             onScroll={handleListScroll}
             onScrollBeginDrag={handleScrollStart}
             onScrollEndDrag={handleScrollStop}

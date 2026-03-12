@@ -1,4 +1,8 @@
-import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native"
+import type {
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  RefreshControlProps,
+} from "react-native"
 import * as React from "react"
 
 import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
@@ -16,6 +20,7 @@ interface AlbumsTabProps {
   onAlbumPress?: (album: Album) => void
   sortConfig?: SortConfig
   contentBottomPadding?: number
+  refreshControl?: React.ReactElement<RefreshControlProps> | null
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
@@ -26,6 +31,7 @@ export const AlbumsTab: React.FC<AlbumsTabProps> = ({
   onAlbumPress,
   sortConfig,
   contentBottomPadding = 0,
+  refreshControl,
   onScroll,
   onScrollBeginDrag,
   onScrollEndDrag,
@@ -92,6 +98,7 @@ export const AlbumsTab: React.FC<AlbumsTabProps> = ({
       onAlbumPress={handleAlbumPress}
       contentContainerStyle={{ paddingBottom: contentBottomPadding }}
       resetScrollKey={`${effectiveSortConfig.field}-${effectiveSortConfig.order}`}
+      refreshControl={refreshControl}
       onScroll={onScroll}
       onScrollBeginDrag={onScrollBeginDrag}
       onScrollEndDrag={onScrollEndDrag}

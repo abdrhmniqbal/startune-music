@@ -9,6 +9,7 @@ import {
   Dimensions,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  type RefreshControlProps,
   type StyleProp,
   View,
   type ViewStyle,
@@ -44,6 +45,7 @@ interface ArtistGridProps {
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onMomentumScrollEnd?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  refreshControl?: React.ReactElement<RefreshControlProps> | null
 }
 
 const GAP = 12
@@ -63,6 +65,7 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
   onScrollBeginDrag,
   onScrollEndDrag,
   onMomentumScrollEnd,
+  refreshControl,
 }) => {
   const theme = useThemeColors()
   const listRef = useRef<LegendListRef | null>(null)
@@ -173,6 +176,7 @@ export const ArtistGrid: React.FC<ArtistGridProps> = ({
         onScrollEndDrag={onScrollEndDrag}
         onMomentumScrollEnd={onMomentumScrollEnd}
         scrollEventThrottle={16}
+        refreshControl={refreshControl || undefined}
         style={{ flex: 1, minHeight: 1 }}
         recycleItems={true}
         initialContainerPoolRatio={2.5}

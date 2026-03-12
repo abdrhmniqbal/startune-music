@@ -1,4 +1,8 @@
-import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native"
+import type {
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  RefreshControlProps,
+} from "react-native"
 import type { Track } from "@/modules/player/player.store"
 
 import type { DBTrack } from "@/types/database"
@@ -19,6 +23,7 @@ interface TracksTabProps {
   onTrackPress?: (track: Track, queue: Track[]) => void
   sortConfig?: SortConfig
   contentBottomPadding?: number
+  refreshControl?: React.ReactElement<RefreshControlProps> | null
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
@@ -29,6 +34,7 @@ export const TracksTab: React.FC<TracksTabProps> = ({
   onTrackPress,
   sortConfig,
   contentBottomPadding = 0,
+  refreshControl,
   onScroll,
   onScrollBeginDrag,
   onScrollEndDrag,
@@ -76,6 +82,7 @@ export const TracksTab: React.FC<TracksTabProps> = ({
       onTrackPress={handleTrackPress}
       contentContainerStyle={{ paddingBottom: contentBottomPadding }}
       resetScrollKey={`${effectiveSortConfig.field}-${effectiveSortConfig.order}`}
+      refreshControl={refreshControl}
       onScroll={onScroll}
       onScrollBeginDrag={onScrollBeginDrag}
       onScrollEndDrag={onScrollEndDrag}

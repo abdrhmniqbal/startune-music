@@ -11,6 +11,7 @@ import { useEffect, useRef } from "react"
 import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  type RefreshControlProps,
   ScrollView,
   type StyleProp,
   Text,
@@ -58,6 +59,7 @@ interface FolderListProps {
   onBreadcrumbPress?: (path: string) => void
   contentContainerStyle?: StyleProp<ViewStyle>
   resetScrollKey?: string
+  refreshControl?: React.ReactElement<RefreshControlProps> | null
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
@@ -78,6 +80,7 @@ export const FolderList: React.FC<FolderListProps> = ({
   onBreadcrumbPress,
   contentContainerStyle,
   resetScrollKey,
+  refreshControl,
   onScroll,
   onScrollBeginDrag,
   onScrollEndDrag,
@@ -233,6 +236,7 @@ export const FolderList: React.FC<FolderListProps> = ({
         onScrollEndDrag={onScrollEndDrag}
         onMomentumScrollEnd={onMomentumScrollEnd}
         scrollEventThrottle={16}
+        refreshControl={refreshControl || undefined}
         recycleItems={true}
         initialContainerPoolRatio={3}
         estimatedItemSize={68}

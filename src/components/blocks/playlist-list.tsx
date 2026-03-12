@@ -8,6 +8,7 @@ import { useEffect, useRef } from "react"
 import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  type RefreshControlProps,
   type StyleProp,
   View,
   type ViewStyle,
@@ -47,6 +48,7 @@ interface PlaylistListProps {
   scrollEnabled?: boolean
   contentContainerStyle?: StyleProp<ViewStyle>
   resetScrollKey?: string
+  refreshControl?: React.ReactElement<RefreshControlProps> | null
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
@@ -60,6 +62,7 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
   scrollEnabled = true,
   contentContainerStyle,
   resetScrollKey,
+  refreshControl,
   onScroll,
   onScrollBeginDrag,
   onScrollEndDrag,
@@ -168,6 +171,7 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
           onScrollEndDrag={onScrollEndDrag}
           onMomentumScrollEnd={onMomentumScrollEnd}
           scrollEventThrottle={16}
+          refreshControl={refreshControl || undefined}
           recycleItems={true}
           initialContainerPoolRatio={3}
           ListEmptyComponent={
@@ -219,6 +223,7 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
         onScrollEndDrag={onScrollEndDrag}
         onMomentumScrollEnd={onMomentumScrollEnd}
         scrollEventThrottle={16}
+        refreshControl={refreshControl || undefined}
         recycleItems={true}
         initialContainerPoolRatio={3}
         estimatedItemSize={68}
