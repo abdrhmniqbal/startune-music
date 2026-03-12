@@ -50,7 +50,11 @@ export const ArtistsTab: React.FC<ArtistsTabProps> = ({
       id: artist.id,
       name: artist.name,
       trackCount: artist.trackCount || 0,
-      image: artist.artwork || artist.albumArtwork || undefined,
+      image:
+        artist.artwork ||
+        artist.trackArtwork ||
+        artist.albumArtwork ||
+        undefined,
       dateAdded: 0,
     })) || []
   const sortedArtists = sortArtists(artists, effectiveSortConfig) as Artist[]

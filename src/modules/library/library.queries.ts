@@ -2,7 +2,18 @@ import type { Track } from "@/modules/player/player.types"
 import { useDebouncedValue } from "@tanstack/react-pacer/debouncer"
 import { useQuery } from "@tanstack/react-query"
 
-import { and, asc, desc, eq, gt, inArray, like, or, sql } from "drizzle-orm"
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gt,
+  inArray,
+  isNotNull,
+  like,
+  or,
+  sql,
+} from "drizzle-orm"
 import { db } from "@/db/client"
 import { albums, artists, playlists, playlistTracks, tracks } from "@/db/schema"
 import { transformDBTrackToTrack } from "@/utils/transformers"
@@ -66,6 +77,13 @@ export function useArtists(
             },
             limit: 1,
           },
+          tracks: {
+            where: and(eq(tracks.isDeleted, 0), isNotNull(tracks.artwork)),
+            columns: {
+              artwork: true,
+            },
+            limit: 1,
+          },
         },
         orderBy,
       })
@@ -77,6 +95,7 @@ export function useArtists(
         artwork: artist.artwork,
         createdAt: artist.createdAt,
         albumArtwork: artist.albums[0]?.artwork || null,
+        trackArtwork: artist.tracks[0]?.artwork || null,
         trackCount: artist.trackCount || 0,
       }))
     },
@@ -434,6 +453,13 @@ export function useSearch(query: string) {
                 },
                 limit: 1,
               },
+              tracks: {
+                where: and(eq(tracks.isDeleted, 0), isNotNull(tracks.artwork)),
+                columns: {
+                  artwork: true,
+                },
+                limit: 1,
+              },
             },
             orderBy: [asc(sql`lower(coalesce(${artists.name}, ''))`)],
             limit: 10,
@@ -535,7 +561,11 @@ export function useSearch(query: string) {
             type: "Artist",
             followerCount: 0,
             isVerified: false,
-            image: artist.artwork || artist.albums[0]?.artwork || undefined,
+            image:
+              artist.artwork ||
+              artist.tracks[0]?.artwork ||
+              artist.albums[0]?.artwork ||
+              undefined,
           })),
           albums: albumResults.map((album) => ({
             id: album.id,

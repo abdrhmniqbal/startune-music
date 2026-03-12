@@ -4,9 +4,9 @@ import { Image } from "expo-image"
 import { PressableFeedback } from "heroui-native"
 import { Linking, ScrollView, Text, View } from "react-native"
 
+import appIcon from "@/assets/icon.png"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import appIcon from "@/assets/icon.png"
 
 export default function AboutSettingsScreen() {
   const theme = useThemeColors()
