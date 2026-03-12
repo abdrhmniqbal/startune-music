@@ -261,13 +261,11 @@ export async function restorePlaybackSession(): Promise<void> {
     $duration.set(currentTrack?.duration || 0)
     $repeatMode.set(snapshot.repeatMode)
 
-    if (snapshot.wasPlaying) {
-      await TrackPlayer.play()
-      $isPlaying.set(true)
-    } else {
-      await TrackPlayer.pause()
-      $isPlaying.set(false)
-    }
+    // Do not auto-play from persisted snapshot state.
+    // Auto-resume should only happen when playback is already active in the
+    // native player process (handled by the nativeQueue branch above).
+    await TrackPlayer.pause()
+    $isPlaying.set(false)
 
     await persistPlaybackSession({ force: true })
   } catch {}
