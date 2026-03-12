@@ -27,6 +27,9 @@ export const $indexerState = atom<IndexerState>({
 let abortController: AbortController | null = null
 let runToken = 0
 let completePhaseTimeout: ReturnType<typeof setTimeout> | null = null
+let queuedScanRequested = false
+let queuedForceFullScan = false
+let queuedShowProgress = false
 
 function updateState(updates: Partial<IndexerState>) {
   $indexerState.set({ ...$indexerState.get(), ...updates })
@@ -37,7 +40,14 @@ export async function startIndexing(
   showProgress = true
 ) {
   const current = $indexerState.get()
-  if (current.isIndexing) return
+  if (current.isIndexing) {
+    // Queue the next run so library changes that happen during indexing
+    // (including deletions) are not dropped.
+    queuedScanRequested = true
+    queuedForceFullScan = queuedForceFullScan || forceFullScan
+    queuedShowProgress = queuedShowProgress || showProgress
+    return
+  }
 
   if (completePhaseTimeout) {
     clearTimeout(completePhaseTimeout)
@@ -123,6 +133,20 @@ export async function startIndexing(
     if (abortController === controller) {
       abortController = null
     }
+
+    const shouldRunQueuedScan =
+      queuedScanRequested &&
+      currentRunToken === runToken &&
+      !controller.signal.aborted
+
+    if (shouldRunQueuedScan) {
+      const nextForceFullScan = queuedForceFullScan
+      const nextShowProgress = queuedShowProgress
+      queuedScanRequested = false
+      queuedForceFullScan = false
+      queuedShowProgress = false
+      void startIndexing(nextForceFullScan, nextShowProgress)
+    }
   }
 }
 
@@ -132,6 +156,9 @@ export async function forceReindexLibrary(showProgress = true) {
 
 export function stopIndexing() {
   runToken += 1
+  queuedScanRequested = false
+  queuedForceFullScan = false
+  queuedShowProgress = false
 
   if (completePhaseTimeout) {
     clearTimeout(completePhaseTimeout)

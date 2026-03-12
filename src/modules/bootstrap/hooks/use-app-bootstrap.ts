@@ -10,27 +10,34 @@ export function useAppBootstrap() {
   const [isInitialized, setIsInitialized] = useState(false)
   const lastAutoScanAtRef = useRef(0)
 
-  const runAutoScan = useCallback(async () => {
-    const now = Date.now()
-    const MIN_AUTO_SCAN_INTERVAL_MS = 5000
-    if (now - lastAutoScanAtRef.current < MIN_AUTO_SCAN_INTERVAL_MS) {
-      return
-    }
+  const runAutoScan = useCallback(
+    async (options?: { bypassThrottle?: boolean }) => {
+      const bypassThrottle = options?.bypassThrottle === true
+      const now = Date.now()
+      const MIN_AUTO_SCAN_INTERVAL_MS = 5000
+      if (
+        !bypassThrottle &&
+        now - lastAutoScanAtRef.current < MIN_AUTO_SCAN_INTERVAL_MS
+      ) {
+        return
+      }
 
-    const isAutoScanEnabled = await ensureAutoScanConfigLoaded()
-    if (!isAutoScanEnabled) {
-      return
-    }
+      const isAutoScanEnabled = await ensureAutoScanConfigLoaded()
+      if (!isAutoScanEnabled) {
+        return
+      }
 
-    const { status } = await requestMediaLibraryPermission()
-    if (status !== "granted") {
-      return
-    }
+      const { status } = await requestMediaLibraryPermission()
+      if (status !== "granted") {
+        return
+      }
 
-    lastAutoScanAtRef.current = now
-    // Auto-scan only checks and processes changed files.
-    await startIndexing(false, false)
-  }, [])
+      lastAutoScanAtRef.current = now
+      // Auto-scan only checks and processes changed files.
+      await startIndexing(false, false)
+    },
+    []
+  )
 
   useEffect(() => {
     let isMounted = true
@@ -76,8 +83,11 @@ export function useAppBootstrap() {
   }, [runAutoScan])
 
   useEffect(() => {
-    const subscription = MediaLibrary.addListener(() => {
-      void runAutoScan()
+    const subscription = MediaLibrary.addListener((event) => {
+      const hasDeletedAssets =
+        event.hasIncrementalChanges === false ||
+        (event.deletedAssets?.length ?? 0) > 0
+      void runAutoScan({ bypassThrottle: hasDeletedAssets })
     })
 
     return () => {
