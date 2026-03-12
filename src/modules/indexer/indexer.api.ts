@@ -2,6 +2,7 @@ import type { IndexerScanProgress } from "./indexer.types"
 import { and, eq, inArray, sql } from "drizzle-orm"
 
 import * as MediaLibrary from "expo-media-library"
+import { File } from "expo-file-system"
 import { db } from "@/db/client"
 import { albums, artists, genres, trackGenres, tracks } from "@/db/schema"
 import {
@@ -90,15 +91,13 @@ export async function scanMediaLibrary(
   }
 
   // Filter assets to process
+  const currentAssetHashMap = new Map<string, string>()
   const assetsToProcess = forceFullScan
     ? scopedAssets
     : scopedAssets.filter((asset) => {
         const existingHash = existingTrackMap.get(asset.id)
-        const currentHash = generateFileHash(
-          asset.uri,
-          asset.modificationTime,
-          asset.duration
-        )
+        const currentHash = generateAssetHash(asset)
+        currentAssetHashMap.set(asset.id, currentHash)
         return !existingHash || existingHash !== currentHash
       })
 
@@ -118,7 +117,8 @@ export async function scanMediaLibrary(
           currentFile: asset.filename || "Unknown",
         })
       },
-      signal
+      signal,
+      currentAssetHashMap
     )
   }
 
@@ -145,7 +145,8 @@ export async function scanMediaLibrary(
 async function processBatch(
   assets: MediaLibrary.Asset[],
   onFileStart?: (asset: MediaLibrary.Asset) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  precomputedHashMap?: Map<string, string>
 ): Promise<void> {
   for (const asset of assets) {
     if (signal?.aborted) return
@@ -153,6 +154,8 @@ async function processBatch(
     onFileStart?.(asset)
 
     try {
+      const fileHash =
+        precomputedHashMap?.get(asset.id) || generateAssetHash(asset)
       const metadata = await extractMetadata(
         asset.uri,
         asset.filename || "",
@@ -204,11 +207,7 @@ async function processBatch(
           discNumber: metadata.discNumber,
           year: metadata.year,
           filename: asset.filename || "",
-          fileHash: generateFileHash(
-            asset.uri,
-            asset.modificationTime,
-            asset.duration
-          ),
+          fileHash,
           audioBitrate: metadata.bitrate || null,
           audioSampleRate: metadata.sampleRate || null,
           audioCodec: metadata.codec || null,
@@ -237,11 +236,7 @@ async function processBatch(
             trackNumber: metadata.trackNumber,
             discNumber: metadata.discNumber,
             year: metadata.year,
-            fileHash: generateFileHash(
-              asset.uri,
-              asset.modificationTime,
-              asset.duration
-            ),
+            fileHash,
             audioBitrate: metadata.bitrate || null,
             audioSampleRate: metadata.sampleRate || null,
             audioCodec: metadata.codec || null,
@@ -491,8 +486,50 @@ async function updateGenreCounts(): Promise<void> {
   `)
 }
 
-function generateFileHash(uri: string, modTime: number, size: number): string {
-  return `${uri}-${modTime}-${size}`.replace(/[^a-z0-9]/gi, "_").slice(0, 64)
+function generateAssetHash(asset: MediaLibrary.Asset): string {
+  const info = getFileInfo(asset.uri)
+  const modificationTime =
+    info?.modificationTime ?? asset.modificationTime ?? asset.creationTime ?? 0
+  const size = info?.size ?? asset.duration ?? 0
+
+  return generateFileHash(
+    asset.uri,
+    modificationTime,
+    size,
+    asset.filename || ""
+  )
+}
+
+function getFileInfo(
+  uri: string
+): { size: number; modificationTime: number | null } | null {
+  try {
+    const file = new File(uri)
+    return file.info()
+  } catch {
+    return null
+  }
+}
+
+function generateFileHash(
+  uri: string,
+  modTime: number,
+  size: number,
+  filename: string
+): string {
+  const fingerprint = `${uri}|${modTime}|${size}|${filename}`
+  let hashA = 5381
+  let hashB = 52711
+
+  for (let i = 0; i < fingerprint.length; i++) {
+    const char = fingerprint.charCodeAt(i)
+    hashA = ((hashA << 5) + hashA) ^ char
+    hashB = ((hashB << 5) + hashB) ^ char
+  }
+
+  const partA = (hashA >>> 0).toString(16).padStart(8, "0")
+  const partB = (hashB >>> 0).toString(16).padStart(8, "0")
+  return `${partA}${partB}`
 }
 
 function generateSortName(name: string): string {
