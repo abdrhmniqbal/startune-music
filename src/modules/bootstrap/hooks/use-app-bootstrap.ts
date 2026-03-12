@@ -5,6 +5,7 @@ import { AppState, type AppStateStatus } from "react-native"
 import { requestMediaLibraryPermission } from "@/core/storage/media-library.service"
 import { bootstrapApp } from "@/modules/bootstrap/bootstrap.utils"
 import { ensureAutoScanConfigLoaded, startIndexing } from "@/modules/indexer"
+import { initializeLogging, logError } from "@/modules/logging"
 
 export function useAppBootstrap() {
   const [isInitialized, setIsInitialized] = useState(false)
@@ -44,9 +45,10 @@ export function useAppBootstrap() {
 
     async function initialize() {
       try {
+        await initializeLogging()
         await bootstrapApp()
       } catch (error) {
-        console.error("App bootstrap failed", error)
+        logError("App bootstrap failed", error)
       } finally {
         if (isMounted) {
           setIsInitialized(true)

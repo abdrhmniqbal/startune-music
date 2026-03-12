@@ -16,6 +16,7 @@ import {
 } from "drizzle-orm"
 import { db } from "@/db/client"
 import { albums, artists, playlists, playlistTracks, tracks } from "@/db/schema"
+import { logError } from "@/modules/logging"
 import { transformDBTrackToTrack } from "@/utils/transformers"
 
 const ARTISTS_KEY = "artists"
@@ -603,7 +604,7 @@ export function useSearch(query: string) {
           }),
         }
       } catch (error) {
-        console.error("Search query failed", error)
+        logError("Search query failed", error, { query: normalizedQuery })
         return emptyResults
       }
     },

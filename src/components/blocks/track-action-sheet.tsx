@@ -28,12 +28,12 @@ import {
   useAddTrackToPlaylist,
   useRemoveTrackFromPlaylist,
 } from "@/modules/playlist/playlist.queries"
-import { useTrack } from "@/modules/tracks/tracks.queries"
 import {
   formatQualityLabel,
   normalizeCodecLabel,
   resolveAudioFormat,
 } from "@/modules/tracks/track-metadata.utils"
+import { useTrack } from "@/modules/tracks/tracks.queries"
 import { resolvePlayableFileUri } from "@/utils/file-path"
 import { formatDuration } from "@/utils/format"
 import LocalDeleteSolidIcon from "../icons/local/delete-solid"

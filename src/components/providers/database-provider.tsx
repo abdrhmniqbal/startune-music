@@ -4,6 +4,7 @@ import { Text, View } from "react-native"
 
 import { db } from "@/db/client"
 import migrations from "@/db/migrations/migrations"
+import { logError } from "@/modules/logging"
 import { loadTracks } from "@/modules/player/player.store"
 
 export function DatabaseProvider({
@@ -28,7 +29,7 @@ export function DatabaseProvider({
         await loadTracks()
         setHasLoadedTracks(true)
       } catch (dataError) {
-        console.error("Database data loading failed", dataError)
+        logError("Database data loading failed", dataError)
         setLoadError(dataError as Error)
       }
     }

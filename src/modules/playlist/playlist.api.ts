@@ -2,6 +2,7 @@ import { eq, inArray } from "drizzle-orm"
 
 import { db } from "@/db/client"
 import { playlists, playlistTracks, tracks } from "@/db/schema"
+import { logError } from "@/modules/logging"
 
 function generateId(): string {
   if (globalThis.crypto && globalThis.crypto.randomUUID) {
@@ -44,7 +45,10 @@ export async function createPlaylist(
       )
     }
   } catch (e) {
-    console.error("Failed to create playlist", e)
+    logError("Failed to create playlist", e, {
+      name,
+      trackCount: trackIds.length,
+    })
     throw e
   }
 }
@@ -85,7 +89,11 @@ export async function updatePlaylist(
       )
     }
   } catch (e) {
-    console.error("Failed to update playlist", e)
+    logError("Failed to update playlist", e, {
+      id,
+      name,
+      trackCount: trackIds.length,
+    })
     throw e
   }
 }

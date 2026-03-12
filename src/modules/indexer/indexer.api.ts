@@ -19,6 +19,7 @@ import {
   ensureTrackDurationFilterConfigLoaded,
   isAssetAllowedByTrackDuration,
 } from "@/modules/indexer/track-duration-filter"
+import { logError } from "@/modules/logging"
 import { extractMetadata, saveArtworkToCache } from "./metadata.api"
 
 const BATCH_SIZE = 10
@@ -265,10 +266,9 @@ async function processBatch(
         if (signal?.aborted) return
       }
     } catch (error) {
-      console.error("Failed to index asset", {
+      logError("Failed to index asset", error, {
         assetId: asset.id,
         filename: asset.filename,
-        error,
       })
     }
   }
