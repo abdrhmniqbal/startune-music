@@ -25,6 +25,8 @@ jobs:
           fetch-depth: 0
 
       - name: Generate release body (categorized)
+        env:
+          GH_TOKEN: ${{ secrets.token }}
         run: |
           set -euo pipefail
           CURRENT_TAG="${{ inputs.release_tag }}"
@@ -43,21 +45,62 @@ jobs:
           CHANGES_FILE="$(mktemp)"
           FIXES_FILE="$(mktemp)"
 
+          resolve_author_ref() {
+            local commit_sha="$1"
+            local commit_author_name="$2"
+            local commit_author_email="$3"
+
+            if [[ "${commit_author_email}" =~ ^([0-9]+\+)?([A-Za-z0-9-]+)@users\.noreply\.github\.com$ ]]; then
+              echo "@${BASH_REMATCH[2]}"
+              return
+            fi
+
+            if [[ "${commit_author_name}" =~ ^@ ]]; then
+              echo "${commit_author_name}"
+              return
+            fi
+
+            local api_login=""
+            api_login="$(
+              curl -fsSL \
+                -H "Authorization: Bearer ${GH_TOKEN}" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${commit_sha}" \
+                | jq -r '.author.login // empty' \
+                || true
+            )"
+
+            if [ -n "${api_login}" ]; then
+              echo "@${api_login}"
+              return
+            fi
+
+            echo "${commit_author_name}"
+          }
+
+          to_sentence_case() {
+            local value="$1"
+            if [ -z "${value}" ]; then
+              echo "${value}"
+              return
+            fi
+
+            local first_char="${value:0:1}"
+            local rest="${value:1}"
+            echo "${first_char^^}${rest}"
+          }
+
           while IFS=$'\t' read -r sha subject author_name author_email; do
             if [ -z "${sha}" ]; then
               continue
             fi
 
-            author_ref="${author_name}"
-            if [[ "${author_email}" =~ ^([0-9]+\+)?([A-Za-z0-9-]+)@users\.noreply\.github\.com$ ]]; then
-              author_ref="@${BASH_REMATCH[2]}"
-            elif [[ "${author_name}" =~ ^@ ]]; then
-              author_ref="${author_name}"
-            fi
+            author_ref="$(resolve_author_ref "${sha}" "${author_name}" "${author_email}")"
 
             clean_subject="${subject}"
             if [[ "${subject}" =~ ^feat(\(.+\))?:\ (.+)$ ]]; then
               clean_subject="${BASH_REMATCH[2]}"
+              clean_subject="$(to_sentence_case "${clean_subject}")"
               first_word="$(echo "${clean_subject}" | awk '{print $1}')"
               if [[ "${first_word,,}" == "add" ]]; then
                 printf -- '- %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${FEATURES_FILE}"
@@ -66,9 +109,10 @@ jobs:
               fi
             elif [[ "${subject}" =~ ^fix(\(.+\))?:\ (.+)$ ]]; then
               clean_subject="${BASH_REMATCH[2]}"
-              printf -- '- %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${FIXES_FILE}"
+              clean_subject="$(to_sentence_case "${clean_subject}")"
+              printf -- '- Fix %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${FIXES_FILE}"
             fi
-          done < <(git log --no-merges --pretty=format:'%h%x09%s%x09%an%x09%ae' "${RANGE}")
+          done < <(git log --no-merges --pretty=format:'%H%x09%s%x09%an%x09%ae' "${RANGE}")
 
           {
             echo "Check out the [past release notes](https://github.com/${GITHUB_REPOSITORY}/releases) if you're upgrading from an earlier version."
