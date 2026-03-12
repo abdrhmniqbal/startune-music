@@ -137,7 +137,18 @@ export function useLibraryScreen() {
     playTrack(track, folderTracks)
   }
 
-  function playSingleTrack(track: Track) {
+  function playSingleTrack(track: Track, queue?: Track[]) {
+    if (queue && queue.length > 0) {
+      playTrack(track, queue)
+      return
+    }
+
+    const sortedTracksQueue = sortTracks(tracks, allSortConfigs.Tracks)
+    if (sortedTracksQueue.length > 0) {
+      playTrack(track, sortedTracksQueue)
+      return
+    }
+
     playTrack(track)
   }
 

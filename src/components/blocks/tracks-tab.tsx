@@ -16,7 +16,7 @@ import { useTracks } from "@/modules/tracks/tracks.queries"
 import { transformDBTrackToTrack } from "@/utils/transformers"
 
 interface TracksTabProps {
-  onTrackPress?: (track: Track) => void
+  onTrackPress?: (track: Track, queue: Track[]) => void
   sortConfig?: SortConfig
   contentBottomPadding?: number
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
@@ -46,7 +46,7 @@ export const TracksTab: React.FC<TracksTabProps> = ({
   const sortedTracks = sortTracks(tracks, effectiveSortConfig)
 
   const handleTrackPress = (track: Track) => {
-    onTrackPress?.(track)
+    onTrackPress?.(track, sortedTracks)
   }
 
   if (isLoading || isPending) {
