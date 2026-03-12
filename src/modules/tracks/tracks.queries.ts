@@ -104,14 +104,22 @@ export function useTracks(filters?: TrackFilter) {
 }
 
 export function useTrack(id: string) {
+  const normalizedId = id.trim()
+
   return useQuery({
-    queryKey: [TRACKS_KEY, id],
+    queryKey: [TRACKS_KEY, normalizedId],
+    enabled: normalizedId.length > 0,
     queryFn: async () => {
       return db.query.tracks.findFirst({
-        where: eq(tracks.id, id),
+        where: eq(tracks.id, normalizedId),
         with: {
           artist: true,
           album: {
+            with: {
+              artist: true,
+            },
+          },
+          featuredArtists: {
             with: {
               artist: true,
             },

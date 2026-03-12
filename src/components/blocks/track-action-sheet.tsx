@@ -1,19 +1,10 @@
 import { Image } from "expo-image"
 import { useRouter } from "expo-router"
-import {
-  BottomSheet,
-  Button,
-  Card,
-  Chip,
-  PressableFeedback,
-  Toast,
-  useToast,
-} from "heroui-native"
+import { BottomSheet, Button, Card, Chip, Toast, useToast } from "heroui-native"
 import * as React from "react"
 import { useEffect, useState } from "react"
 import { Linking, Text, View } from "react-native"
 import { open as openFileViewer } from "react-native-file-viewer-turbo"
-import { cn } from "tailwind-variants"
 
 import { DeleteTrackDialog } from "@/components/blocks/delete-track-dialog"
 import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
@@ -37,6 +28,7 @@ import {
   useAddTrackToPlaylist,
   useRemoveTrackFromPlaylist,
 } from "@/modules/playlist/playlist.queries"
+import { useTrack } from "@/modules/tracks/tracks.queries"
 import {
   formatQualityLabel,
   normalizeCodecLabel,
@@ -45,6 +37,11 @@ import {
 import { resolvePlayableFileUri } from "@/utils/file-path"
 import { formatDuration } from "@/utils/format"
 import LocalDeleteSolidIcon from "../icons/local/delete-solid"
+
+interface MetadataValueSegment {
+  value: string
+  onPress?: () => void
+}
 
 interface TrackActionSheetProps {
   track: Track | null
@@ -81,6 +78,7 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     ? (favoriteOverrides[track.id] ?? Boolean(isFavoriteData))
     : false
   const [resolvedFileUri, setResolvedFileUri] = useState<string | null>(null)
+  const { data: fullTrackData } = useTrack(track?.id ?? "")
 
   const handlePlay = async () => {
     if (track) {
@@ -220,27 +218,29 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     router.push("/playlist/form")
   }
 
-  const handleOpenArtist = () => {
-    if (!track?.artist?.trim()) {
+  const handleOpenArtist = (artistName: string) => {
+    const normalizedArtistName = artistName.trim()
+    if (!normalizedArtistName) {
       return
     }
 
     onClose()
     router.push({
       pathname: "/artist/[name]",
-      params: { name: track.artist.trim() },
+      params: { name: normalizedArtistName },
     })
   }
 
-  const handleOpenAlbum = () => {
-    if (!track?.album?.trim()) {
+  const handleOpenAlbum = (albumName: string) => {
+    const normalizedAlbumName = albumName.trim()
+    if (!normalizedAlbumName) {
       return
     }
 
     onClose()
     router.push({
       pathname: "/album/[name]",
-      params: { name: track.album.trim() },
+      params: { name: normalizedAlbumName },
     })
   }
 
@@ -362,6 +362,65 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
     track.audioBitrate
   )
   const durationLabel = formatDuration(track.duration || 0)
+  const splitCommaValues = (value: string | undefined) =>
+    (value || "")
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0)
+  const dedupeValues = (values: string[]) => {
+    const seen = new Set<string>()
+    return values.filter((value) => {
+      const key = value.toLowerCase()
+      if (seen.has(key)) {
+        return false
+      }
+
+      seen.add(key)
+      return true
+    })
+  }
+  const artistNames = (() => {
+    const relationNames = [
+      fullTrackData?.artist?.name?.trim(),
+      ...(fullTrackData?.featuredArtists?.map((entry) =>
+        entry.artist?.name?.trim()
+      ) ?? []),
+    ].filter((value): value is string => Boolean(value))
+
+    if (relationNames.length > 0) {
+      return dedupeValues(relationNames)
+    }
+
+    const fallbackNames = splitCommaValues(track.artist)
+    return fallbackNames.length > 0 ? dedupeValues(fallbackNames) : []
+  })()
+  const albumNames = (() => {
+    const relationAlbumName = fullTrackData?.album?.title?.trim()
+    if (relationAlbumName) {
+      return [relationAlbumName]
+    }
+
+    const fallbackAlbumName = track.album?.trim()
+    return fallbackAlbumName ? [fallbackAlbumName] : []
+  })()
+  const genreNames = (() => {
+    const names =
+      fullTrackData?.genres
+        ?.map((entry) => entry.genre?.name?.trim())
+        .filter((value): value is string => Boolean(value))
+        .filter((value, index, all) => all.indexOf(value) === index) ?? []
+
+    if (names.length > 0) {
+      return names.slice(0, 2)
+    }
+
+    const fallbackGenreNames = splitCommaValues(track.genre)
+    if (fallbackGenreNames.length > 0) {
+      return dedupeValues(fallbackGenreNames).slice(0, 2)
+    }
+
+    return []
+  })()
   const quickFacts = [
     { label: "Quality", value: qualityLabel },
     { label: "Codec", value: codecLabel || "Unknown" },
@@ -370,64 +429,96 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
 
   const metadataItems: Array<{
     label: string
-    value: string
+    segments: MetadataValueSegment[]
     fullWidth?: boolean
-    onPress?: () => void
   }> = [
     {
       label: "Artist",
-      value: fallbackArtist,
-      fullWidth: fallbackArtist.length > 24,
-      onPress: track.artist?.trim() ? handleOpenArtist : undefined,
+      segments:
+        artistNames.length > 0
+          ? artistNames.map((name) => ({
+              value: name,
+              onPress: () => handleOpenArtist(name),
+            }))
+          : [{ value: "Unknown Artist" }],
+      fullWidth:
+        (artistNames.length > 0 ? artistNames.join(", ") : "Unknown Artist")
+          .length > 24,
     },
     {
       label: "Album",
-      value: fallbackAlbum,
-      fullWidth: fallbackAlbum.length > 24,
-      onPress: track.album?.trim() ? handleOpenAlbum : undefined,
+      segments:
+        albumNames.length > 0
+          ? albumNames.map((name) => ({
+              value: name,
+              onPress: () => handleOpenAlbum(name),
+            }))
+          : [{ value: "Unknown Album" }],
+      fullWidth:
+        (albumNames.length > 0 ? albumNames.join(", ") : "Unknown Album")
+          .length > 24,
     },
     {
       label: "Genre",
-      value: track.genre || "Unknown",
-      fullWidth: (track.genre || "Unknown").length > 24,
-      onPress: track.genre?.trim()
-        ? () => {
-            onClose()
-            router.push({
-              pathname: "/(main)/(search)/genre/[name]",
-              params: { name: track.genre!.trim() },
-            })
-          }
-        : undefined,
+      segments:
+        genreNames.length > 0
+          ? genreNames.map((genreName) => ({
+              value: genreName,
+              onPress: () => {
+                onClose()
+                router.push({
+                  pathname: "/(main)/(search)/genre/[name]",
+                  params: { name: genreName },
+                })
+              },
+            }))
+          : [{ value: "Unknown" }],
+      fullWidth:
+        (genreNames.length > 0 ? genreNames.join(", ") : "Unknown").length > 24,
     },
-    { label: "Year", value: track.year ? String(track.year) : "Unknown" },
+    {
+      label: "Year",
+      segments: [{ value: track.year ? String(track.year) : "Unknown" }],
+    },
     {
       label: "Track / Disc",
-      value:
-        track.trackNumber || track.discNumber
-          ? `${track.trackNumber ?? "?"} / ${track.discNumber ?? "?"}`
-          : "Unknown",
+      segments: [
+        {
+          value:
+            track.trackNumber || track.discNumber
+              ? `${track.trackNumber ?? "?"} / ${track.discNumber ?? "?"}`
+              : "Unknown",
+        },
+      ],
     },
-    { label: "Duration", value: durationLabel },
-    { label: "Play Count", value: String(track.playCount || 0) },
+    { label: "Duration", segments: [{ value: durationLabel }] },
+    {
+      label: "Play Count",
+      segments: [{ value: String(track.playCount || 0) }],
+    },
     {
       label: "Last Played",
-      value: lastPlayed,
+      segments: [{ value: lastPlayed }],
       fullWidth: true,
     },
     {
       label: "File",
-      value: filePath,
+      segments: [
+        {
+          value: filePath,
+          onPress: track.uri
+            ? () => {
+                void handleOpenFile()
+              }
+            : undefined,
+        },
+      ],
       fullWidth: true,
-      onPress: track.uri
-        ? () => {
-            void handleOpenFile()
-          }
-        : undefined,
     },
   ]
   const metadataLayoutItems = metadataItems.map((item) => ({
     ...item,
+    displayValue: item.segments.map((segment) => segment.value).join(", "),
     isFullWidth: Boolean(item.fullWidth),
   }))
 
@@ -645,9 +736,13 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
                   const containerClassName = item.isFullWidth
                     ? "w-full"
                     : "w-[48.5%]"
-                  const navigableTextStyle = item.onPress
+                  const hasNavigableValues = item.segments.some((segment) =>
+                    Boolean(segment.onPress)
+                  )
+                  const navigableTextStyle = hasNavigableValues
                     ? {
                         textDecorationLine: "underline" as const,
+                        textDecorationStyle: "dotted" as const,
                       }
                     : undefined
 
@@ -656,30 +751,50 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
                       <Text className="mb-1 text-xs font-medium text-muted uppercase">
                         {item.label}
                       </Text>
-                      <MarqueeText
-                        text={item.value}
-                        className="text-sm leading-5 text-foreground decoration-dotted"
-                        style={navigableTextStyle}
-                      />
+                      {hasNavigableValues ? (
+                        <Text
+                          className="text-sm leading-5 text-foreground"
+                          numberOfLines={1}
+                        >
+                          {item.segments.map((segment, segmentIndex) => (
+                            <React.Fragment
+                              key={`${item.label}-${segment.value}-${segmentIndex}`}
+                            >
+                              {segment.onPress ? (
+                                <Text
+                                  className="text-sm leading-5 text-foreground"
+                                  suppressHighlighting
+                                  style={navigableTextStyle}
+                                  onPress={segment.onPress}
+                                >
+                                  {segment.value}
+                                </Text>
+                              ) : (
+                                <Text className="text-sm leading-5 text-foreground">
+                                  {segment.value}
+                                </Text>
+                              )}
+                              {segmentIndex < item.segments.length - 1 ? (
+                                <Text className="text-sm leading-5 text-foreground">
+                                  {", "}
+                                </Text>
+                              ) : null}
+                            </React.Fragment>
+                          ))}
+                        </Text>
+                      ) : (
+                        <MarqueeText
+                          text={item.displayValue}
+                          className="text-sm leading-5 text-foreground"
+                        />
+                      )}
                     </Card>
                   )
 
-                  if (!item.onPress) {
-                    return (
-                      <View key={item.label} className={containerClassName}>
-                        {content}
-                      </View>
-                    )
-                  }
-
                   return (
-                    <PressableFeedback
-                      key={item.label}
-                      onPress={item.onPress}
-                      className={cn(containerClassName, "active:opacity-80")}
-                    >
+                    <View key={item.label} className={containerClassName}>
                       {content}
-                    </PressableFeedback>
+                    </View>
                   )
                 })}
               </View>
