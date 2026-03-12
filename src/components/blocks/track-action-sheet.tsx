@@ -426,6 +426,39 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
         : undefined,
     },
   ]
+  const metadataLayoutItems = metadataItems.map((item) => ({
+    ...item,
+    isFullWidth: Boolean(item.fullWidth),
+  }))
+
+  let pendingHalfWidthIndex: number | null = null
+  for (let i = 0; i < metadataLayoutItems.length; i += 1) {
+    const currentItem = metadataLayoutItems[i]
+    if (!currentItem) {
+      continue
+    }
+
+    if (currentItem.isFullWidth) {
+      pendingHalfWidthIndex = null
+      continue
+    }
+
+    if (pendingHalfWidthIndex !== null) {
+      pendingHalfWidthIndex = null
+      continue
+    }
+
+    const nextItem = metadataLayoutItems[i + 1]
+    const nextCanPairInSameRow = Boolean(nextItem && !nextItem.isFullWidth)
+
+    if (!nextCanPairInSameRow) {
+      currentItem.isFullWidth = true
+      pendingHalfWidthIndex = null
+      continue
+    }
+
+    pendingHalfWidthIndex = i
+  }
 
   return (
     <>
@@ -608,8 +641,8 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
               </View>
 
               <View className="flex-row flex-wrap gap-2">
-                {metadataItems.map((item) => {
-                  const containerClassName = item.fullWidth
+                {metadataLayoutItems.map((item) => {
+                  const containerClassName = item.isFullWidth
                     ? "w-full"
                     : "w-[48.5%]"
                   const navigableTextStyle = item.onPress
