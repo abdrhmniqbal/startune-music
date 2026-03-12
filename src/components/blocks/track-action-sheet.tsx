@@ -612,6 +612,11 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
                   const containerClassName = item.fullWidth
                     ? "w-full"
                     : "w-[48.5%]"
+                  const navigableTextStyle = item.onPress
+                    ? {
+                        textDecorationLine: "underline" as const,
+                      }
+                    : undefined
 
                   const content = (
                     <Card className="rounded-lg border border-border/40 bg-background/40 px-3 py-2">
@@ -620,7 +625,8 @@ export const TrackActionSheet: React.FC<TrackActionSheetProps> = ({
                       </Text>
                       <MarqueeText
                         text={item.value}
-                        className="text-sm leading-5 text-foreground"
+                        className="text-sm leading-5 text-foreground decoration-dotted"
+                        style={navigableTextStyle}
                       />
                     </Card>
                   )
