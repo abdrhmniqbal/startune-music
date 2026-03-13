@@ -4,34 +4,45 @@ import * as React from "react"
 import { View } from "react-native"
 import { cn } from "tailwind-variants"
 
-import { useComingSoonToast } from "@/components/blocks/player/use-coming-soon-toast"
 import LocalMicIcon from "@/components/icons/local/mic"
 import LocalQueueIcon from "@/components/icons/local/queue"
-import { $showPlayerQueue } from "@/hooks/scroll-bars.store"
+import { $playerExpandedView } from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export const PlayerFooter: React.FC = () => {
-  const showQueue = useStore($showPlayerQueue)
+  const playerExpandedView = useStore($playerExpandedView)
   const theme = useThemeColors()
-  const { showComingSoon } = useComingSoonToast()
 
   return (
     <View className="flex-row items-center justify-between">
       <PressableFeedback
-        onPress={() => showComingSoon("Lyrics")}
-        className="opacity-60"
+        onPress={() => {
+          $playerExpandedView.set(
+            playerExpandedView === "lyrics" ? "artwork" : "lyrics"
+          )
+        }}
+        className={cn(playerExpandedView !== "lyrics" && "opacity-60")}
       >
-        <LocalMicIcon fill="none" width={24} height={24} color="white" />
+        <LocalMicIcon
+          fill="none"
+          width={24}
+          height={24}
+          color={playerExpandedView === "lyrics" ? theme.accent : "white"}
+        />
       </PressableFeedback>
       <PressableFeedback
-        onPress={() => $showPlayerQueue.set(!showQueue)}
-        className={cn(!showQueue && "opacity-60")}
+        onPress={() => {
+          $playerExpandedView.set(
+            playerExpandedView === "queue" ? "artwork" : "queue"
+          )
+        }}
+        className={cn(playerExpandedView !== "queue" && "opacity-60")}
       >
         <LocalQueueIcon
           fill="none"
           width={24}
           height={24}
-          color={showQueue ? theme.accent : "white"}
+          color={playerExpandedView === "queue" ? theme.accent : "white"}
         />
       </PressableFeedback>
     </View>

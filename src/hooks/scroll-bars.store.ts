@@ -2,7 +2,8 @@ import { atom } from "nanostores"
 
 export const $barsVisible = atom(true)
 export const $isPlayerExpanded = atom(false)
-export const $showPlayerQueue = atom(false)
+export type PlayerExpandedView = "artwork" | "lyrics" | "queue"
+export const $playerExpandedView = atom<PlayerExpandedView>("artwork")
 
 let lastScrollY = 0
 let showTimeout: NodeJS.Timeout | null = null

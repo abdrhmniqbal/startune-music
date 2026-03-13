@@ -50,6 +50,329 @@ const metadataFields = [
   "artworkData",
 ] as const
 
+const ID3_HEADER_SIZE = 10
+const ID3_FRAME_HEADER_SIZE = 10
+const ID3_TIMESTAMP_FORMAT_MILLISECONDS = 2
+
+function decodeSyncSafeInteger(bytes: Uint8Array, offset: number) {
+  return (
+    ((bytes[offset] || 0) << 21) |
+    ((bytes[offset + 1] || 0) << 14) |
+    ((bytes[offset + 2] || 0) << 7) |
+    (bytes[offset + 3] || 0)
+  )
+}
+
+function decodeInteger(bytes: Uint8Array, offset: number) {
+  return (
+    ((bytes[offset] || 0) << 24) |
+    ((bytes[offset + 1] || 0) << 16) |
+    ((bytes[offset + 2] || 0) << 8) |
+    (bytes[offset + 3] || 0)
+  )
+}
+
+function decodeTextValue(bytes: Uint8Array, encoding: number) {
+  if (bytes.length === 0) {
+    return ""
+  }
+
+  try {
+    switch (encoding) {
+      case 0:
+        return new TextDecoder("iso-8859-1").decode(bytes)
+      case 1: {
+        if (bytes.length >= 2) {
+          const bomA = bytes[0]
+          const bomB = bytes[1]
+          if (bomA === 0xfe && bomB === 0xff) {
+            const swapped = bytes.slice(2)
+            for (let i = 0; i < swapped.length - 1; i += 2) {
+              const current = swapped[i]
+              swapped[i] = swapped[i + 1] || 0
+              swapped[i + 1] = current || 0
+            }
+            return new TextDecoder("utf-16le").decode(swapped)
+          }
+
+          if (bomA === 0xff && bomB === 0xfe) {
+            return new TextDecoder("utf-16le").decode(bytes.slice(2))
+          }
+        }
+        return new TextDecoder("utf-16le").decode(bytes)
+      }
+      case 2: {
+        const swapped = bytes.slice()
+        for (let i = 0; i < swapped.length - 1; i += 2) {
+          const current = swapped[i]
+          swapped[i] = swapped[i + 1] || 0
+          swapped[i + 1] = current || 0
+        }
+        return new TextDecoder("utf-16le").decode(swapped)
+      }
+      case 3:
+      default:
+        return new TextDecoder("utf-8").decode(bytes)
+    }
+  } catch {
+    return ""
+  }
+}
+
+function findEncodedTextTerminator(bytes: Uint8Array, encoding: number) {
+  if (encoding === 0 || encoding === 3) {
+    return bytes.indexOf(0)
+  }
+
+  for (let i = 0; i < bytes.length - 1; i += 1) {
+    if (bytes[i] === 0 && bytes[i + 1] === 0) {
+      return i
+    }
+  }
+
+  return -1
+}
+
+function formatLrcTimestamp(timeSeconds: number) {
+  const safe = Math.max(0, timeSeconds)
+  const minutes = Math.floor(safe / 60)
+  const seconds = Math.floor(safe % 60)
+  const centiseconds = Math.floor((safe - Math.floor(safe)) * 100)
+
+  return `[${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(centiseconds).padStart(2, "0")}]`
+}
+
+function extractId3SyncedLyrics(frameBytes: Uint8Array) {
+  if (frameBytes.length <= 6) {
+    return undefined
+  }
+
+  const encoding = frameBytes[0] || 0
+  const timestampFormat = frameBytes[4] || 0
+  if (timestampFormat !== ID3_TIMESTAMP_FORMAT_MILLISECONDS) {
+    return undefined
+  }
+
+  const descriptorAndData = frameBytes.slice(6)
+  const descriptorEnd = findEncodedTextTerminator(descriptorAndData, encoding)
+  const dataStart =
+    descriptorEnd >= 0
+      ? descriptorEnd + (encoding === 0 || encoding === 3 ? 1 : 2)
+      : 0
+  const payload = descriptorAndData.slice(dataStart)
+  if (payload.length === 0) {
+    return undefined
+  }
+
+  const lines: Array<{ time: number; text: string }> = []
+  let offset = 0
+  while (offset < payload.length) {
+    const remaining = payload.slice(offset)
+    const textEnd = findEncodedTextTerminator(remaining, encoding)
+    if (textEnd < 0) {
+      break
+    }
+
+    const textBytes = remaining.slice(0, textEnd)
+    const text = decodeTextValue(textBytes, encoding).trim()
+    const separatorLength = encoding === 0 || encoding === 3 ? 1 : 2
+    const timestampOffset = offset + textEnd + separatorLength
+    if (timestampOffset + 4 > payload.length) {
+      break
+    }
+
+    const timestamp = decodeInteger(payload, timestampOffset) >>> 0
+    offset = timestampOffset + 4
+
+    if (!text) {
+      continue
+    }
+
+    lines.push({
+      time: timestamp / 1000,
+      text,
+    })
+  }
+
+  if (lines.length === 0) {
+    return undefined
+  }
+
+  return lines
+    .sort((a, b) => a.time - b.time)
+    .map((line) => `${formatLrcTimestamp(line.time)}${line.text}`)
+    .join("\n")
+}
+
+function extractId3Lyrics(bytes: Uint8Array) {
+  if (
+    bytes.length < ID3_HEADER_SIZE ||
+    bytes[0] !== 0x49 ||
+    bytes[1] !== 0x44 ||
+    bytes[2] !== 0x33
+  ) {
+    return undefined
+  }
+
+  const version = bytes[3] || 0
+  const tagSize = decodeSyncSafeInteger(bytes, 6)
+  const tagEnd = Math.min(bytes.length, ID3_HEADER_SIZE + tagSize)
+  let offset = ID3_HEADER_SIZE
+
+  while (offset + ID3_FRAME_HEADER_SIZE <= tagEnd) {
+    const frameId = String.fromCharCode(
+      bytes[offset] || 0,
+      bytes[offset + 1] || 0,
+      bytes[offset + 2] || 0,
+      bytes[offset + 3] || 0
+    ).replace(/\0/g, "")
+
+    if (!frameId) {
+      break
+    }
+
+    const frameSize =
+      version === 4
+        ? decodeSyncSafeInteger(bytes, offset + 4)
+        : decodeInteger(bytes, offset + 4)
+    if (frameSize <= 0) {
+      break
+    }
+
+    const frameStart = offset + ID3_FRAME_HEADER_SIZE
+    const frameEnd = Math.min(tagEnd, frameStart + frameSize)
+    if (frameEnd <= frameStart) {
+      break
+    }
+
+    if (frameId === "SYLT") {
+      const frameBytes = bytes.slice(frameStart, frameEnd)
+      const syncedLyrics = extractId3SyncedLyrics(frameBytes)
+      if (syncedLyrics) {
+        return syncedLyrics
+      }
+    }
+
+    if (frameId === "USLT") {
+      const frameBytes = bytes.slice(frameStart, frameEnd)
+      const encoding = frameBytes[0] || 0
+      const descriptorAndLyrics = frameBytes.slice(4)
+      const descriptorEnd = findEncodedTextTerminator(
+        descriptorAndLyrics,
+        encoding
+      )
+      const lyricsStart =
+        descriptorEnd >= 0
+          ? descriptorEnd + (encoding === 0 || encoding === 3 ? 1 : 2)
+          : 0
+      const lyricsBytes = descriptorAndLyrics.slice(lyricsStart)
+      const lyrics = decodeTextValue(lyricsBytes, encoding).trim()
+      if (lyrics) {
+        return lyrics
+      }
+    }
+
+    offset = frameEnd
+  }
+
+  return undefined
+}
+
+function getAtomType(bytes: Uint8Array, offset: number) {
+  return String.fromCharCode(
+    bytes[offset] || 0,
+    bytes[offset + 1] || 0,
+    bytes[offset + 2] || 0,
+    bytes[offset + 3] || 0
+  )
+}
+
+function findMp4AtomData(
+  bytes: Uint8Array,
+  targetType: string,
+  start = 0,
+  end = bytes.length
+): Uint8Array | null {
+  let offset = start
+
+  while (offset + 8 <= end) {
+    const size = decodeInteger(bytes, offset)
+    const type = getAtomType(bytes, offset + 4)
+    if (size < 8) {
+      break
+    }
+
+    const atomEnd = Math.min(end, offset + size)
+    const childStart = type === "meta" ? offset + 12 : offset + 8
+
+    if (type === targetType) {
+      return bytes.slice(childStart, atomEnd)
+    }
+
+    if (
+      type === "moov" ||
+      type === "udta" ||
+      type === "meta" ||
+      type === "ilst"
+    ) {
+      const nested = findMp4AtomData(bytes, targetType, childStart, atomEnd)
+      if (nested) {
+        return nested
+      }
+    }
+
+    offset = atomEnd
+  }
+
+  return null
+}
+
+function extractMp4Lyrics(bytes: Uint8Array) {
+  const lyricAtom = findMp4AtomData(
+    bytes,
+    String.fromCharCode(0xa9, 0x6c, 0x79, 0x72)
+  )
+  if (!lyricAtom) {
+    return undefined
+  }
+
+  let offset = 0
+  while (offset + 16 <= lyricAtom.length) {
+    const childSize = decodeInteger(lyricAtom, offset)
+    const childType = getAtomType(lyricAtom, offset + 4)
+    if (childSize < 16) {
+      break
+    }
+
+    const childEnd = Math.min(lyricAtom.length, offset + childSize)
+    if (childType === "data") {
+      const payload = lyricAtom.slice(offset + 16, childEnd)
+      const lyrics = new TextDecoder("utf-8").decode(payload).trim()
+      if (lyrics) {
+        return lyrics
+      }
+    }
+
+    offset = childEnd
+  }
+
+  return undefined
+}
+
+async function extractEmbeddedLyrics(uri: string) {
+  try {
+    const file = new File(uri)
+    if (!file.exists) {
+      return undefined
+    }
+
+    const bytes = await file.bytes()
+    return extractId3Lyrics(bytes) || extractMp4Lyrics(bytes) || undefined
+  } catch {
+    return undefined
+  }
+}
+
 export async function extractMetadata(
   uri: string,
   filename: string,
@@ -61,6 +384,7 @@ export async function extractMetadata(
 
     // Get artwork separately
     const artwork = await getArtwork(uri).catch(() => null)
+    const lyrics = await extractEmbeddedLyrics(uri)
 
     const bitrate =
       typeof metadata.bitrate === "number" && Number.isFinite(metadata.bitrate)
@@ -98,7 +422,7 @@ export async function extractMetadata(
       format,
       composer: metadata.composer || undefined,
       comment: metadata.description || undefined,
-      lyrics: undefined,
+      lyrics: lyrics || undefined,
       artwork: artwork || undefined,
     }
   } catch {

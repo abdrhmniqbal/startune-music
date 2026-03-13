@@ -16,13 +16,13 @@ export { MiniPlayer } from "./mini-player"
 export { PlaybackActionsRow } from "./playback-actions-row"
 export {
   AlbumArtView,
+  LyricsView,
   PlaybackControls,
   PlayerActionSheet,
   PlayerFooter,
   PlayerHeader,
   ProgressBar,
   QueueView,
-  SyncedLyrics,
   TrackInfo,
 } from "./player"
 export { PlaylistActionsSheet } from "./playlist-actions-sheet"

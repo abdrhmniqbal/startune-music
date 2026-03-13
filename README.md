@@ -31,6 +31,7 @@ A beautiful and feature-rich music player.
 ### APK (recommended)
 
 Download the latest APK from:
+
 - Stable: https://github.com/abdrhmniqbal/startune-music/releases/latest
 - All releases: https://github.com/abdrhmniqbal/startune-music/releases
 
@@ -39,6 +40,7 @@ Download the latest APK from:
 Issues and pull requests are welcome.
 
 Before opening a PR:
+
 1. Keep changes scoped.
 2. Ensure lint/type checks pass locally.
 3. Include clear reproduction/verification steps for fixes.

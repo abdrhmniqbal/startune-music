@@ -18,7 +18,7 @@ export interface Track {
   audioSampleRate?: number
   audioCodec?: string
   audioFormat?: string
-  lyrics?: LyricLine[]
+  lyrics?: string
   fileHash?: string
   scanTime?: number
   isDeleted?: boolean

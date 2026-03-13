@@ -17,7 +17,7 @@ export function transformDBTrackToTrack(dbTrack: DBTrack): Track {
     audioSampleRate: dbTrack.audioSampleRate || undefined,
     audioCodec: dbTrack.audioCodec || undefined,
     audioFormat: dbTrack.audioFormat || undefined,
-    lyrics: dbTrack.lyrics ? JSON.parse(dbTrack.lyrics) : undefined,
+    lyrics: dbTrack.lyrics || undefined,
     fileHash: dbTrack.fileHash || undefined,
     scanTime: dbTrack.scanTime || undefined,
     isDeleted: Boolean(dbTrack.isDeleted),

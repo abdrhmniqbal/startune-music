@@ -6,7 +6,10 @@ import * as React from "react"
 import { useEffect, useState } from "react"
 import { StyleSheet, View } from "react-native"
 
-import { $isPlayerExpanded, $showPlayerQueue } from "@/hooks/scroll-bars.store"
+import {
+  $isPlayerExpanded,
+  $playerExpandedView,
+} from "@/hooks/scroll-bars.store"
 import {
   $currentColors,
   updateColorsForImage,
@@ -19,6 +22,7 @@ import {
 } from "@/modules/player/player.store"
 
 import { AlbumArtView } from "./album-art-view"
+import { LyricsView } from "./lyrics-view"
 import { PlaybackControls } from "./playback-controls"
 import { PlayerActionSheet } from "./player-action-sheet"
 import { PlayerFooter } from "./player-footer"
@@ -37,7 +41,7 @@ export function FullPlayer() {
   const isPlaying = useStore($isPlaying)
   const currentTimeVal = useStore($currentTime)
   const durationVal = useStore($duration)
-  const showQueue = useStore($showPlayerQueue)
+  const playerExpandedView = useStore($playerExpandedView)
   const colors = useStore($currentColors)
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false)
 
@@ -45,11 +49,18 @@ export function FullPlayer() {
     updateColorsForImage(currentTrack?.image)
   }, [currentTrack?.image])
 
-  const closePlayer = () => {
+  const dismissPlayer = () => {
     $isPlayerExpanded.set(false)
-    $showPlayerQueue.set(false)
     setIsActionSheetOpen(false)
   }
+
+  const closePlayer = () => {
+    $isPlayerExpanded.set(false)
+    $playerExpandedView.set("artwork")
+    setIsActionSheetOpen(false)
+  }
+
+  const isCompactLayout = playerExpandedView !== "artwork"
 
   const handleArtistPress = () => {
     const artistName = currentTrack?.artist?.trim()
@@ -70,7 +81,13 @@ export function FullPlayer() {
     <>
       <BottomSheet
         isOpen={isExpanded}
-        onOpenChange={(open) => !open && closePlayer()}
+        onOpenChange={(open) => {
+          $isPlayerExpanded.set(open)
+          if (!open) {
+            $playerExpandedView.set("artwork")
+            setIsActionSheetOpen(false)
+          }
+        }}
       >
         <BottomSheet.Portal disableFullWindowOverlay>
           <BottomSheet.Overlay />
@@ -78,6 +95,7 @@ export function FullPlayer() {
             index={0}
             snapPoints={FULL_PLAYER_SNAP_POINTS}
             enableDynamicSizing={false}
+            enableContentPanningGesture={playerExpandedView !== "lyrics"}
             topInset={0}
             bottomInset={0}
             backgroundClassName="bg-transparent"
@@ -102,29 +120,34 @@ export function FullPlayer() {
 
               <View className="flex-1 justify-between px-6 pt-12 pb-8">
                 <PlayerHeader
-                  onClose={closePlayer}
+                  onClose={dismissPlayer}
                   onOpenMore={() => setIsActionSheetOpen(true)}
                 />
 
-                {showQueue ? (
+                {playerExpandedView === "queue" ? (
                   <QueueView currentTrack={currentTrack} />
+                ) : playerExpandedView === "lyrics" ? (
+                  <LyricsView track={currentTrack} />
                 ) : (
                   <AlbumArtView currentTrack={currentTrack} />
                 )}
 
                 <TrackInfo
                   track={currentTrack}
-                  compact={showQueue}
+                  compact={isCompactLayout}
                   onPressArtist={handleArtistPress}
                 />
 
                 <ProgressBar
                   currentTime={currentTimeVal}
                   duration={durationVal}
-                  compact={showQueue}
+                  compact={isCompactLayout}
                 />
 
-                <PlaybackControls isPlaying={isPlaying} compact={showQueue} />
+                <PlaybackControls
+                  isPlaying={isPlaying}
+                  compact={isCompactLayout}
+                />
 
                 <PlayerFooter />
               </View>

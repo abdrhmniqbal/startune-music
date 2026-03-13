@@ -9,7 +9,10 @@ import LocalNextSolidIcon from "@/components/icons/local/next-solid"
 import LocalPauseSolidIcon from "@/components/icons/local/pause-solid"
 import LocalPlaySolidIcon from "@/components/icons/local/play-solid"
 import { MarqueeText } from "@/components/ui/marquee-text"
-import { $isPlayerExpanded, $showPlayerQueue } from "@/hooks/scroll-bars.store"
+import {
+  $isPlayerExpanded,
+  $playerExpandedView,
+} from "@/hooks/scroll-bars.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   $currentTime,
@@ -67,7 +70,10 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
 
       <View className="flex-1 flex-row items-center gap-3 px-4">
         <PressableFeedback
-          onPress={() => $isPlayerExpanded.set(true)}
+          onPress={() => {
+            $playerExpandedView.set("artwork")
+            $isPlayerExpanded.set(true)
+          }}
           className="flex-1 flex-row items-center gap-3 active:opacity-80"
         >
           <View className="h-11 w-11 items-center justify-center overflow-hidden rounded-md bg-surface">
@@ -135,7 +141,7 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
           </PressableFeedback>
           <PressableFeedback
             onPress={() => {
-              $showPlayerQueue.set(true)
+              $playerExpandedView.set("queue")
               $isPlayerExpanded.set(true)
             }}
             className="p-2 active:opacity-60"
