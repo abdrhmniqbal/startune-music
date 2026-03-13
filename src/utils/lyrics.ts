@@ -17,6 +17,10 @@ interface JsonTimedLyricEntry {
   start?: unknown
 }
 
+const LRC_METADATA_HEADER_LINE_REGEX =
+  /^\[(id|ti|ar|al|au|lr|length|by|offset|re|tool|re\/tool|ve)\s*:[^\]\r\n]*\]$/gim
+const LRC_COMMENT_LINE_REGEX = /^\s*#.*$/gm
+
 function normalizeJsonLyrics(raw: string): string | null {
   try {
     const parsed = JSON.parse(raw) as unknown
@@ -68,7 +72,8 @@ export function normalizeLyricsText(raw: string | null | undefined) {
   const normalized = source
     .replace(/^\uFEFF/, "")
     .replace(/\r\n?/g, "\n")
-    .replace(/^\[(ti|ar|al|by|offset):.*\]$/gim, "")
+    .replace(LRC_METADATA_HEADER_LINE_REGEX, "")
+    .replace(LRC_COMMENT_LINE_REGEX, "")
     .replace(/\[\d{1,2}:\d{2}(?:\.\d{1,3})?\]/g, "")
     .replace(/\n{3,}/g, "\n\n")
     .trim()
@@ -80,7 +85,8 @@ function stripLyricsMetadataHeaders(raw: string) {
   return raw
     .replace(/^\uFEFF/, "")
     .replace(/\r\n?/g, "\n")
-    .replace(/^\[(ti|ar|al|by|offset):.*\]$/gim, "")
+    .replace(LRC_METADATA_HEADER_LINE_REGEX, "")
+    .replace(LRC_COMMENT_LINE_REGEX, "")
     .trim()
 }
 
