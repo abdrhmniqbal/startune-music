@@ -296,7 +296,7 @@ export async function setupPlayer() {
         Capability.SkipToNext,
         Capability.SkipToPrevious,
       ],
-      progressUpdateEventInterval: 1,
+      progressUpdateEventInterval: 0.1,
       color: processColor("#0088F6") as number,
     })
 

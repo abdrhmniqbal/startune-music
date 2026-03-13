@@ -22,7 +22,14 @@ function getSidecarCandidates(uri: string): string[] {
   }
 
   const basePath = sanitizedUri.slice(0, lastDotIndex)
-  return [`${basePath}.lrc`, `${basePath}.LRC`]
+  return [
+    `${basePath}.ttml`,
+    `${basePath}.TTML`,
+    `${basePath}.xml`,
+    `${basePath}.XML`,
+    `${basePath}.lrc`,
+    `${basePath}.LRC`,
+  ]
 }
 
 function decodeUtf16Be(bytes: Uint8Array): string {
@@ -41,17 +48,14 @@ function decodeLyricsBytes(bytes: Uint8Array): string {
   }
 
   try {
-    // UTF-8 BOM
     if (bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
       return new TextDecoder("utf-8").decode(bytes.slice(3))
     }
 
-    // UTF-16 LE BOM
     if (bytes[0] === 0xff && bytes[1] === 0xfe) {
       return new TextDecoder("utf-16le").decode(bytes.slice(2))
     }
 
-    // UTF-16 BE BOM
     if (bytes[0] === 0xfe && bytes[1] === 0xff) {
       return decodeUtf16Be(bytes.slice(2))
     }

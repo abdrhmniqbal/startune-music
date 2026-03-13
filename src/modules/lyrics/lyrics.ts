@@ -10,6 +10,19 @@ interface SyncedLyricsLine {
   text: string
 }
 
+export interface TTMLWord {
+  text: string
+  begin: number
+  end: number
+}
+
+export interface TTMLLine {
+  id: string
+  begin: number
+  end: number
+  words: TTMLWord[]
+}
+
 interface JsonTimedLyricEntry {
   text?: unknown
   time?: unknown
@@ -209,4 +222,100 @@ export function parseSyncedLyricsLines(
   }
 
   return parsed.sort((a, b) => a.time - b.time)
+}
+
+function parseTTMLTimestamp(raw: string): number {
+  const parts = raw.split(":")
+  if (parts.length === 3) {
+    const hours = Number(parts[0] || 0)
+    const minutes = Number(parts[1] || 0)
+    const seconds = Number.parseFloat(parts[2] || "0")
+    return hours * 3600 + minutes * 60 + seconds
+  }
+  if (parts.length === 2) {
+    const minutes = Number(parts[0] || 0)
+    const seconds = Number.parseFloat(parts[1] || "0")
+    return minutes * 60 + seconds
+  }
+  return Number.parseFloat(raw) || 0
+}
+
+export function isTTML(raw: string): boolean {
+  const trimmed = raw.trim()
+  return (
+    trimmed.includes("<?xml") ||
+    trimmed.includes("<tt") ||
+    trimmed.includes("<html")
+  )
+}
+
+export function parseTTMLLines(raw: string | null | undefined): TTMLLine[] {
+  if (!raw) {
+    return []
+  }
+
+  const trimmed = raw.trim()
+  if (!isTTML(trimmed)) {
+    return []
+  }
+
+  const lines: TTMLLine[] = []
+  const pRegex =
+    /<p\s[^>]*begin="([^"]+)"[^>]*end="([^"]+)"[^>]*>([\s\S]*?)<\/p>/g
+  let pMatch: RegExpExecArray | null
+
+  let lineIndex = 0
+  while ((pMatch = pRegex.exec(trimmed)) !== null) {
+    const pBegin = parseTTMLTimestamp(pMatch[1] || "0")
+    const pEnd = parseTTMLTimestamp(pMatch[2] || "0")
+    const innerContent = pMatch[3] || ""
+
+    const words: TTMLWord[] = []
+    const spanRegex =
+      /<span\s[^>]*begin="([^"]+)"[^>]*end="([^"]+)"[^>]*>([\s\S]*?)<\/span>/g
+    let spanMatch: RegExpExecArray | null
+
+    while ((spanMatch = spanRegex.exec(innerContent)) !== null) {
+      const begin = parseTTMLTimestamp(spanMatch[1] || "0")
+      const end = parseTTMLTimestamp(spanMatch[2] || "0")
+      const text = (spanMatch[3] || "")
+        .replace(/<[^>]+>/g, "")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+
+      if (text) {
+        words.push({ text, begin, end })
+      }
+    }
+
+    if (words.length === 0) {
+      const plainText = innerContent
+        .replace(/<[^>]+>/g, "")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .trim()
+
+      if (plainText) {
+        words.push({ text: plainText, begin: pBegin, end: pEnd })
+      }
+    }
+
+    if (words.length > 0) {
+      lines.push({
+        id: `ttml-${lineIndex}`,
+        begin: pBegin,
+        end: pEnd,
+        words,
+      })
+      lineIndex++
+    }
+  }
+
+  return lines
 }
