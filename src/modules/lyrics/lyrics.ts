@@ -275,6 +275,13 @@ export function parseTTMLLines(raw: string | null | undefined): TTMLLine[] {
       /<span\s[^>]*begin="([^"]+)"[^>]*end="([^"]+)"[^>]*>([\s\S]*?)<\/span>/g
     let spanMatch: RegExpExecArray | null
 
+    // DEBUG: Log innerContent to see what we're parsing
+    const spanCount = (innerContent.match(/<span\s/g) || []).length
+    if (lineIndex === 0) {
+      console.log("[TTML] Line 0 innerContent spans found:", spanCount)
+      console.log("[TTML] Line 0 innerContent preview:", innerContent.substring(0, 200))
+    }
+
     while ((spanMatch = spanRegex.exec(innerContent)) !== null) {
       const begin = parseTTMLTimestamp(spanMatch[1] || "0")
       const end = parseTTMLTimestamp(spanMatch[2] || "0")
@@ -317,5 +324,15 @@ export function parseTTMLLines(raw: string | null | undefined): TTMLLine[] {
     }
   }
 
-  return lines
+  // DEBUG: Log word parsing details
+  if (lines.length > 0) {
+    console.log("[TTML Parser] First line words count:", lines[0].words.length)
+    if (lines[0].words.length > 0) {
+      console.log("[TTML Parser] First 3 words:", lines[0].words.slice(0, 3).map(w => ({ text: w.text, begin: w.begin, end: w.end })))
+    } else {
+      console.log("[TTML Parser] WARNING: No words parsed - using line fallback")
+    }
+  }
+
+  return lines.sort((a, b) => a.begin - b.begin)
 }

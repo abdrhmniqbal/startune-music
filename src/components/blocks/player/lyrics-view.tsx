@@ -1,7 +1,6 @@
 import type { Track } from "@/modules/player/player.store"
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet"
 import { useQuery } from "@tanstack/react-query"
-import { useProgress } from "@weights-ai/react-native-track-player"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 
@@ -61,7 +60,6 @@ const TTMLWordSpan: React.FC<{
       const elapsed = Math.max(0, currentTime - begin)
       const currentPercent = duration > 0 ? Math.min(1, elapsed / duration) : 1
 
-      // Native animation smoothly interpolates the exact 50ms gap between frames
       progress.value = withTiming(currentPercent, {
         duration: 60,
         easing: Easing.linear,
@@ -95,7 +93,6 @@ const TTMLWordSpan: React.FC<{
     }
   })
 
-  // We map regular spaces to non-breaking spaces so they are preserved accurately by onLayout
   const displayText = text.replace(/ /g, "\u00A0")
 
   return (
@@ -198,11 +195,11 @@ const TTMLLineRow: React.FC<{
 
 const ActiveTTMLLineRow: React.FC<{
   line: TTMLLine
+  currentTime: number
   fontScale: number
   onSeek: (time: number) => void
   onLayoutLine: (id: string, y: number) => void
-}> = ({ line, fontScale, onSeek, onLayoutLine }) => {
-  const { position: currentTime } = useProgress(50)
+}> = ({ line, currentTime, fontScale, onSeek, onLayoutLine }) => {
 
   const handlePress = React.useCallback(
     () => onSeek(line.begin),
@@ -253,8 +250,6 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
       staleTime: 0,
       queryFn: async () => {
         let sourceTrack = track
-        // Fast Refresh can reset in-memory Nanostores, causing the active track to lose DB-only fields like 'lyrics'
-        // If we don't have lyrics in memory, double check the DB just in case.
         if (sourceTrack?.id && !sourceTrack.lyrics) {
           try {
             const { db } = await import("@/db/client")
@@ -268,7 +263,6 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
               sourceTrack = { ...sourceTrack, lyrics: dbTrack.lyrics }
             }
           } catch (e) {
-            // Ignore fallback errors
           }
         }
 
@@ -335,12 +329,11 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
   }, [fontScale])
 
   const [activeSyncedLineIndex, setActiveSyncedLineIndex] = React.useState(-1)
+  const [currentTime, setCurrentTime] = React.useState(0)
 
   const handleSeek = React.useCallback(
     (time: number) => {
       void seekTo(time)
-
-      // Immediately override the visual state so it jumps without delay
       let newIndex = -1
       if (effectiveMode === "ttml") {
         newIndex = ttmlLines.findIndex((line, index) => {
@@ -366,6 +359,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
     }
 
     return $currentTime.subscribe((time) => {
+      setCurrentTime(time)
       let newIndex = -1
       if (effectiveMode === "ttml") {
         newIndex = ttmlLines.findIndex((line, index) => {
@@ -560,6 +554,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
                   <ActiveTTMLLineRow
                     key={line.id}
                     line={line}
+                    currentTime={currentTime}
                     fontScale={fontScale}
                     onSeek={handleSeek}
                     onLayoutLine={setSyncedLineOffset}
