@@ -27,22 +27,20 @@ export const usePlayerColorsStore = create<PlayerColorsState>(() => ({
   isLoadingColors: false,
 }))
 
-export const $currentImageUri = {
-  get: () => usePlayerColorsStore.getState().currentImageUri,
-  set: (value: string | null) =>
-    usePlayerColorsStore.setState({ currentImageUri: value }),
+function getCurrentImageUriState() {
+  return usePlayerColorsStore.getState().currentImageUri
 }
 
-export const $currentColors = {
-  get: () => usePlayerColorsStore.getState().currentColors,
-  set: (value: ColorPalette) =>
-    usePlayerColorsStore.setState({ currentColors: value }),
+function setCurrentImageUriState(value: string | null) {
+  usePlayerColorsStore.setState({ currentImageUri: value })
 }
 
-export const $isLoadingColors = {
-  get: () => usePlayerColorsStore.getState().isLoadingColors,
-  set: (value: boolean) =>
-    usePlayerColorsStore.setState({ isLoadingColors: value }),
+function setCurrentColorsState(value: ColorPalette) {
+  usePlayerColorsStore.setState({ currentColors: value })
+}
+
+function setIsLoadingColorsState(value: boolean) {
+  usePlayerColorsStore.setState({ isLoadingColors: value })
 }
 
 export async function getTrackColors(imageUri: string): Promise<ColorPalette> {
@@ -82,21 +80,21 @@ export async function getTrackColors(imageUri: string): Promise<ColorPalette> {
 
 export async function updateColorsForImage(imageUri: string | undefined) {
   if (!imageUri) {
-    $currentColors.set(DEFAULT_COLORS)
-    $currentImageUri.set(null)
+    setCurrentColorsState(DEFAULT_COLORS)
+    setCurrentImageUriState(null)
     return
   }
 
-  if (imageUri === $currentImageUri.get()) {
+  if (imageUri === getCurrentImageUriState()) {
     return
   }
 
-  $isLoadingColors.set(true)
-  $currentImageUri.set(imageUri)
+  setIsLoadingColorsState(true)
+  setCurrentImageUriState(imageUri)
 
   const colors = await getTrackColors(imageUri)
-  $currentColors.set(colors)
-  $isLoadingColors.set(false)
+  setCurrentColorsState(colors)
+  setIsLoadingColorsState(false)
 }
 
 export function getCachedColors(imageUri: string): ColorPalette | null {

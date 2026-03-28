@@ -420,6 +420,8 @@ Performance is a first-class rewrite track.
   - indexer config and state modules no longer expose `$...` wrappers
   - UI store no longer exposes `$...` wrappers
   - library sort store no longer exposes `$...` wrappers
+  - player color state no longer exposes `$...` wrappers
+  - dead computed compatibility file `src/modules/player/player.computed.ts` was removed
 
 These are now treated as groundwork, not the finish line.
 
