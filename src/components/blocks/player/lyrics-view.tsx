@@ -26,7 +26,7 @@ import {
   type TTMLLine,
 } from "@/modules/lyrics/lyrics"
 import { resolveTrackLyricsSource } from "@/modules/lyrics/lyrics-source"
-import { seekTo } from "@/modules/player/player.service"
+import { seekTo } from "@/modules/player/player-controls.service"
 import { usePlayerStore } from "@/modules/player/player.store"
 
 type LyricsMode = "static" | "synced" | "ttml"

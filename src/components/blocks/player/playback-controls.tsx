@@ -16,7 +16,7 @@ import {
   playPrevious,
   togglePlayback,
   toggleRepeatMode,
-} from "@/modules/player/player.service"
+} from "@/modules/player/player-controls.service"
 import {
   type RepeatModeType,
   usePlayerStore,

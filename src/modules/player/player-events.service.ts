@@ -1,4 +1,11 @@
 import { logError } from "@/modules/logging/logging.service"
+import {
+  pauseTrack,
+  playNext,
+  playPrevious,
+  resumeTrack,
+  seekTo,
+} from "@/modules/player/player-controls.service"
 import { setPlaybackProgress } from "@/modules/player/player-runtime-state"
 import {
   persistPlaybackSession,
@@ -7,7 +14,6 @@ import {
 import { Event, State, TrackPlayer } from "@/modules/player/player.utils"
 
 import { handleTrackActivated } from "./player-activity.service"
-import { pauseTrack, playNext, playPrevious, resumeTrack, seekTo } from "./player.service"
 import {
   getCurrentTrackState,
   getRepeatModeState,

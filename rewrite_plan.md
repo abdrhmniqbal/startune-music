@@ -153,6 +153,7 @@ Rules:
 - TrackPlayer mapping and repeat-mode adapter helpers should live outside `player.service.ts`
 - player session lifecycle should live in `player-session.service.ts`, and runtime state sync helpers should live outside `player.service.ts`
 - TrackPlayer event wiring should live outside `player.service.ts`
+- playback transport controls should live outside `player.service.ts`
 - indexer runtime controls should live in `indexer.service.ts`, while `indexer.store.ts` stays focused on indexer state
 - post-scan media reload and query invalidation should live outside `indexer.service.ts`
 - logging config state should live in `logging.store.ts`, while runtime logging, file persistence, and crash sharing should live in `logging.service.ts`

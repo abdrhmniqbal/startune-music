@@ -135,6 +135,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - active-track and playback-progress sync helpers now live in `player-runtime-state.ts`
   - TrackPlayer event wiring now lives in `player-events.service.ts`
   - track-activation side effects now live in `player-activity.service.ts`
+  - playback transport controls now live in `player-controls.service.ts`
 
 ### `playlist`
 

@@ -11,7 +11,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated"
 
-import { seekTo } from "@/modules/player/player.service"
+import { seekTo } from "@/modules/player/player-controls.service"
 import { usePlayerStore } from "@/modules/player/player.store"
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
