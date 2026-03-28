@@ -11,12 +11,12 @@ import {
   requestIgnoreBatteryOptimizations,
 } from "@/modules/device/battery-optimization"
 import { shareCrashLogs } from "@/modules/logging/logging.service"
-import { useLoggingStore } from "@/modules/logging/logging.store"
+import { useSettingsStore } from "@/modules/settings/settings.store"
 
 export default function AdvancedSettingsScreen() {
   const router = useRouter()
   const { toast } = useToast()
-  const loggingLevel = useLoggingStore((state) => state.loggingConfig.level)
+  const loggingLevel = useSettingsStore((state) => state.loggingConfig.level)
 
   const logLevelLabel = loggingLevel === "extra" ? "Extra" : "Minimal"
 

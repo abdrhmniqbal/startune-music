@@ -7,7 +7,6 @@ import {
   getDefaultTrackDurationFilterConfig,
   getTrackDurationFilterConfigState,
   setTrackDurationFilterConfigState,
-  useSettingsStore,
 } from "@/modules/settings/settings.store"
 import type {
   TrackDurationFilterConfig,
@@ -22,14 +21,6 @@ const TRACK_DURATION_FILTER_FILE = createIndexerConfigFile(
 
 let loadPromise: Promise<TrackDurationFilterConfig> | null = null
 let hasLoadedConfig = false
-
-export function useTrackDurationFilterStore<T>(
-  selector: (state: { trackDurationFilterConfig: TrackDurationFilterConfig }) => T
-) {
-  return useSettingsStore((state) =>
-    selector({ trackDurationFilterConfig: state.trackDurationFilterConfig })
-  )
-}
 
 function clampCustomSeconds(value: number): number {
   if (!Number.isFinite(value)) {

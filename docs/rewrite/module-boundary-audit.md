@@ -165,6 +165,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - settings ownership is still spread across multiple feature modules, but the store boundary is more real now
   - route metadata now lives in `src/modules/settings/settings.routes.ts`
   - shared settings row UI now lives in `src/components/patterns/settings-row.tsx`
+  - settings screens now read local preferences directly from `useSettingsStore`
   - library and logging settings screens no longer need mount-time config-loading effects
 
 ## Immediate Conclusions

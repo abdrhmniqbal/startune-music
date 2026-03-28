@@ -6,8 +6,8 @@ import { useThemeColors } from "@/modules/ui/theme"
 import {
   type AppLogLevel,
   setAppLogLevel,
-  useLoggingStore,
 } from "@/modules/logging/logging.store"
+import { useSettingsStore } from "@/modules/settings/settings.store"
 
 interface LogLevelOption {
   label: string
@@ -30,7 +30,7 @@ const LOG_LEVEL_OPTIONS: LogLevelOption[] = [
 
 export default function LogLevelSettingsScreen() {
   const theme = useThemeColors()
-  const loggingLevel = useLoggingStore((state) => state.loggingConfig.level)
+  const loggingLevel = useSettingsStore((state) => state.loggingConfig.level)
 
   async function handleSelect(level: AppLogLevel) {
     await setAppLogLevel(level)

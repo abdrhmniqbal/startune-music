@@ -7,10 +7,10 @@ import { useThemeColors } from "@/modules/ui/theme"
 import {
   setTrackDurationFilterConfig,
   type TrackDurationFilterMode,
-  useTrackDurationFilterStore,
 } from "@/modules/indexer/track-duration-filter"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
+import { useSettingsStore } from "@/modules/settings/settings.store"
 
 interface DurationOption {
   label: string
@@ -60,7 +60,7 @@ function getSliderNumericValue(value: number | number[]): number {
 export default function TrackDurationFilterScreen() {
   const theme = useThemeColors()
   const indexerState = useIndexerStore((state) => state.indexerState)
-  const config = useTrackDurationFilterStore(
+  const config = useSettingsStore(
     (state) => state.trackDurationFilterConfig
   )
   const [customSliderValue, setCustomSliderValue] = React.useState<

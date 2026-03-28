@@ -7,7 +7,6 @@ import {
   getAutoScanEnabledState,
   getDefaultAutoScanEnabled,
   setAutoScanEnabledState,
-  useSettingsStore,
 } from "@/modules/settings/settings.store"
 
 interface AutoScanConfig {
@@ -18,14 +17,6 @@ const AUTO_SCAN_FILE = createIndexerConfigFile("indexer-auto-scan.json")
 
 let loadPromise: Promise<boolean> | null = null
 let hasLoadedConfig = false
-
-export function useAutoScanStore<T>(
-  selector: (state: { autoScanEnabled: boolean }) => T
-) {
-  return useSettingsStore((state) =>
-    selector({ autoScanEnabled: state.autoScanEnabled })
-  )
-}
 
 export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
   if (hasLoadedConfig) {
