@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query"
 
 import { queryClient } from "@/lib/tanstack-query"
+import { logError, logInfo } from "@/modules/logging/logger"
 
 import { FAVORITES_KEY, invalidateFavoriteQueries } from "./favorites.keys"
 import {
@@ -25,6 +26,7 @@ export function useAddFavorite() {
         subtitle?: string
         image?: string
       }) => {
+        logInfo("Adding favorite", { type, itemId })
         const now = Date.now()
         await addFavorite({
           id: itemId,
@@ -37,8 +39,18 @@ export function useAddFavorite() {
 
         return { type, itemId, favoritedAt: now }
       },
-      onSuccess: async () => {
+      onSuccess: async (_result, variables) => {
+        logInfo("Added favorite", {
+          type: variables.type,
+          itemId: variables.itemId,
+        })
         await invalidateFavoriteQueries(queryClient)
+      },
+      onError: (error, variables) => {
+        logError("Failed to add favorite", error, {
+          type: variables.type,
+          itemId: variables.itemId,
+        })
       },
     },
     queryClient
@@ -55,12 +67,23 @@ export function useRemoveFavorite() {
         type: FavoriteType
         itemId: string
       }) => {
+        logInfo("Removing favorite", { type, itemId })
         await removeFavorite(itemId, type)
 
         return { type, itemId }
       },
-      onSuccess: async () => {
+      onSuccess: async (_result, variables) => {
+        logInfo("Removed favorite", {
+          type: variables.type,
+          itemId: variables.itemId,
+        })
         await invalidateFavoriteQueries(queryClient)
+      },
+      onError: (error, variables) => {
+        logError("Failed to remove favorite", error, {
+          type: variables.type,
+          itemId: variables.itemId,
+        })
       },
     },
     queryClient
@@ -85,6 +108,11 @@ export function useToggleFavorite() {
         subtitle?: string
         image?: string
       }) => {
+        logInfo("Toggling favorite", {
+          type,
+          itemId,
+          isCurrentlyFavorite,
+        })
         if (isCurrentlyFavorite) {
           await removeFavorite(itemId, type)
         } else {
@@ -117,13 +145,29 @@ export function useToggleFavorite() {
 
         return { previousValue }
       },
-      onError: (_error, variables, context) => {
+      onError: (error, variables, context) => {
+        logError("Failed to toggle favorite", error, {
+          type: variables.type,
+          itemId: variables.itemId,
+          isCurrentlyFavorite: variables.isCurrentlyFavorite,
+        })
         queryClient.setQueryData(
           [FAVORITES_KEY, variables.type, variables.itemId],
           context?.previousValue
         )
       },
-      onSettled: async () => {
+      onSuccess: (isFavorite, variables) => {
+        logInfo("Toggled favorite", {
+          type: variables.type,
+          itemId: variables.itemId,
+          isFavorite,
+        })
+      },
+      onSettled: async (_result, _error, variables) => {
+        logInfo("Refreshing favorite queries after toggle", {
+          type: variables.type,
+          itemId: variables.itemId,
+        })
         await invalidateFavoriteQueries(queryClient)
       },
     },

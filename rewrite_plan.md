@@ -222,7 +222,7 @@ Logging is part of the rewrite, not an optional add-on.
   - next and previous
   - resume restoration
   - notification and remote-control entry points
-- [ ] favorites and playlist mutations
+- [~] favorites and playlist mutations
 - [ ] destructive actions such as track deletion
 - [ ] route-level failures or invalid params where the user can get stuck
 
