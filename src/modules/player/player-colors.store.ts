@@ -1,4 +1,3 @@
-import { getColors } from "react-native-image-colors"
 import { create } from "zustand"
 
 export interface ColorPalette {
@@ -13,8 +12,6 @@ const DEFAULT_COLORS: ColorPalette = {
   secondary: "#000000",
 }
 
-const colorCache = new Map<string, ColorPalette>()
-
 interface PlayerColorsState {
   currentImageUri: string | null
   currentColors: ColorPalette
@@ -27,82 +24,22 @@ export const usePlayerColorsStore = create<PlayerColorsState>(() => ({
   isLoadingColors: false,
 }))
 
-function getCurrentImageUriState() {
+export function getDefaultPlayerColors() {
+  return DEFAULT_COLORS
+}
+
+export function getCurrentImageUriState() {
   return usePlayerColorsStore.getState().currentImageUri
 }
 
-function setCurrentImageUriState(value: string | null) {
+export function setCurrentImageUriState(value: string | null) {
   usePlayerColorsStore.setState({ currentImageUri: value })
 }
 
-function setCurrentColorsState(value: ColorPalette) {
+export function setCurrentColorsState(value: ColorPalette) {
   usePlayerColorsStore.setState({ currentColors: value })
 }
 
-function setIsLoadingColorsState(value: boolean) {
+export function setIsLoadingColorsState(value: boolean) {
   usePlayerColorsStore.setState({ isLoadingColors: value })
 }
-
-export async function getTrackColors(imageUri: string): Promise<ColorPalette> {
-  if (colorCache.has(imageUri)) {
-    return colorCache.get(imageUri)!
-  }
-
-  try {
-    const result = await getColors(imageUri, {
-      fallback: DEFAULT_COLORS.bg,
-      cache: true,
-      key: imageUri,
-    })
-
-    let colors: ColorPalette
-
-    if (result.platform === "android") {
-      colors = {
-        bg: (result as any).average || DEFAULT_COLORS.bg,
-        primary: (result as any).dominant || DEFAULT_COLORS.primary,
-        secondary: (result as any).darkVibrant || DEFAULT_COLORS.secondary,
-      }
-    } else {
-      colors = {
-        bg: (result as any).background || DEFAULT_COLORS.bg,
-        primary: (result as any).primary || DEFAULT_COLORS.primary,
-        secondary: (result as any).detail || DEFAULT_COLORS.secondary,
-      }
-    }
-
-    colorCache.set(imageUri, colors)
-    return colors
-  } catch {
-    return DEFAULT_COLORS
-  }
-}
-
-export async function updateColorsForImage(imageUri: string | undefined) {
-  if (!imageUri) {
-    setCurrentColorsState(DEFAULT_COLORS)
-    setCurrentImageUriState(null)
-    return
-  }
-
-  if (imageUri === getCurrentImageUriState()) {
-    return
-  }
-
-  setIsLoadingColorsState(true)
-  setCurrentImageUriState(imageUri)
-
-  const colors = await getTrackColors(imageUri)
-  setCurrentColorsState(colors)
-  setIsLoadingColorsState(false)
-}
-
-export function getCachedColors(imageUri: string): ColorPalette | null {
-  return colorCache.get(imageUri) || null
-}
-
-export function clearColorCache() {
-  colorCache.clear()
-}
-
-export const getColorCacheSize = () => colorCache.size

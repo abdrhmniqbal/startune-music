@@ -12,7 +12,7 @@ import {
   loadPlaybackSession,
   savePlaybackSession,
 } from "@/modules/player/player-session"
-import { updateColorsForImage } from "@/modules/player/player-colors.store"
+import { updateColorsForImage } from "@/modules/player/player-colors.service"
 import {
   invalidatePlayerQueries,
   optimisticallyUpdateRecentlyPlayedQueries,

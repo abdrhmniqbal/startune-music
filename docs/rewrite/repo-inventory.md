@@ -219,6 +219,7 @@ Progress:
 - favorites and playlist mutation hooks now log start, success, and failure paths
 - library sort state, sort options, and pure sorting helpers are now split into separate files
 - queue runtime commands now live in `src/modules/player/queue.service.ts`, while `src/modules/player/queue.store.ts` stays focused on derived queue state and queue assignment
+- player artwork color extraction and cache logic now live in `src/modules/player/player-colors.service.ts`, while `src/modules/player/player-colors.store.ts` stays focused on color state
 - destructive track deletion and track file opening now log native and cleanup failures
 - battery optimization helpers now log unsupported paths, requests, and failures
 - track file opening now runs through `src/modules/device/file-viewer.ts` instead of living in `track-action-sheet.tsx`
