@@ -144,7 +144,6 @@ These should still be reviewed and likely deleted or absorbed:
 These are not screen hooks anymore, but still need to be justified:
 
 - `src/modules/bootstrap/hooks/use-app-bootstrap.ts`
-- `src/modules/playlist/hooks/use-playlist-form.ts`
 - `src/hooks/use-theme-colors.ts`
 
 ### Removed unused hooks
@@ -156,6 +155,9 @@ These are not screen hooks anymore, but still need to be justified:
 - `src/modules/library/hooks/use-folder-browser.ts`
   - replaced by `src/modules/library/folder-browser.ts`
   - folder path state now lives directly in `src/app/(main)/(library)/index.tsx`
+- `src/modules/playlist/hooks/use-playlist-form.ts`
+  - replaced by screen-owned state in `src/app/(main)/(home,search,library)/playlist/form.tsx`
+  - pure helper logic moved to `src/modules/playlist/playlist-form.ts`
 
 ## Recommended Execution Order
 

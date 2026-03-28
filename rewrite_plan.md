@@ -400,6 +400,10 @@ Performance is a first-class rewrite track.
 - [x] reusable folder-browser hook flattened:
   - `src/modules/library/hooks/use-folder-browser.ts` was replaced by `src/modules/library/folder-browser.ts`
   - folder navigation state now lives directly in `src/app/(main)/(library)/index.tsx`
+- [x] playlist form screen hook flattened:
+  - `src/modules/playlist/hooks/use-playlist-form.ts` was removed
+  - playlist form screen state now lives directly in `src/app/(main)/(home,search,library)/playlist/form.tsx`
+  - pure helper logic now lives in `src/modules/playlist/playlist-form.ts`
 
 These are now treated as groundwork, not the finish line.
 
