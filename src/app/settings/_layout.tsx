@@ -3,6 +3,7 @@ import { PressableFeedback } from "heroui-native"
 
 import LocalCancelIcon from "@/components/icons/local/cancel"
 import { BackButton } from "@/components/patterns/back-button"
+import { SETTINGS_SCREEN_TITLES } from "@/modules/settings/settings.routes"
 import { useThemeColors } from "@/modules/ui/theme"
 
 export default function SettingsLayout() {
@@ -42,7 +43,7 @@ export default function SettingsLayout() {
       <Stack.Screen
         name="appearance"
         options={{
-          title: "Appearance",
+          title: SETTINGS_SCREEN_TITLES.appearance,
           headerBackButtonMenuEnabled: false,
           headerBackVisible: false,
           headerLeft: () => <BackButton className="-ml-2" />,
@@ -51,7 +52,7 @@ export default function SettingsLayout() {
       <Stack.Screen
         name="library"
         options={{
-          title: "Library",
+          title: SETTINGS_SCREEN_TITLES.library,
           headerBackButtonMenuEnabled: false,
           headerBackVisible: false,
           headerLeft: () => <BackButton className="-ml-2" />,
@@ -60,7 +61,7 @@ export default function SettingsLayout() {
       <Stack.Screen
         name="advanced"
         options={{
-          title: "Advanced",
+          title: SETTINGS_SCREEN_TITLES.advanced,
           headerBackButtonMenuEnabled: false,
           headerBackVisible: false,
           headerLeft: () => <BackButton className="-ml-2" />,
@@ -69,7 +70,7 @@ export default function SettingsLayout() {
       <Stack.Screen
         name="about"
         options={{
-          title: "About",
+          title: SETTINGS_SCREEN_TITLES.about,
           headerBackButtonMenuEnabled: false,
           headerBackVisible: false,
           headerLeft: () => <BackButton className="-ml-2" />,
@@ -78,7 +79,7 @@ export default function SettingsLayout() {
       <Stack.Screen
         name="folder-filters"
         options={{
-          title: "Folder Filters",
+          title: SETTINGS_SCREEN_TITLES["folder-filters"],
           headerBackButtonMenuEnabled: false,
           headerBackVisible: false,
           headerLeft: () => <BackButton className="-ml-2" />,
@@ -87,7 +88,7 @@ export default function SettingsLayout() {
       <Stack.Screen
         name="track-duration-filter"
         options={{
-          title: "Track Duration Filter",
+          title: SETTINGS_SCREEN_TITLES["track-duration-filter"],
           headerBackButtonMenuEnabled: false,
           headerBackVisible: false,
           headerLeft: () => <BackButton className="-ml-2" />,
@@ -96,7 +97,7 @@ export default function SettingsLayout() {
       <Stack.Screen
         name="log-level"
         options={{
-          title: "Log Level",
+          title: SETTINGS_SCREEN_TITLES["log-level"],
           headerBackButtonMenuEnabled: false,
           headerBackVisible: false,
           headerLeft: () => <BackButton className="-ml-2" />,

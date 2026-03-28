@@ -1,10 +1,9 @@
 import { useRouter } from "expo-router"
-import { Button, Dialog, PressableFeedback, Switch } from "heroui-native"
+import { Button, Dialog, Switch } from "heroui-native"
 import * as React from "react"
-import { ScrollView, Text, View } from "react-native"
+import { ScrollView, View } from "react-native"
 
-import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
-import { useThemeColors } from "@/modules/ui/theme"
+import { SettingsRow } from "@/components/patterns/settings-row"
 import {
   ensureAutoScanConfigLoaded,
   setAutoScanEnabled,
@@ -17,55 +16,6 @@ import {
   getTrackDurationFilterLabel,
   useTrackDurationFilterStore,
 } from "@/modules/indexer/track-duration-filter"
-
-interface LibrarySettingItemProps {
-  title: string
-  description?: string
-  onPress?: () => void
-  rightIcon?: React.ReactNode
-  isDisabled?: boolean
-  showChevron?: boolean
-}
-
-function LibrarySettingItem({
-  title,
-  description,
-  onPress,
-  rightIcon,
-  isDisabled = false,
-  showChevron = true,
-}: LibrarySettingItemProps) {
-  const theme = useThemeColors()
-
-  return (
-    <PressableFeedback
-      onPress={isDisabled ? undefined : onPress}
-      className={`flex-row items-center bg-background px-6 py-4 ${
-        isDisabled ? "opacity-60" : "active:opacity-70"
-      }`}
-    >
-      <View className="flex-1 gap-1">
-        <Text className="text-[17px] font-normal text-foreground">{title}</Text>
-        {description ? (
-          <Text className="text-[13px] leading-5 text-muted">
-            {description}
-          </Text>
-        ) : null}
-      </View>
-      <View className="flex-row items-center gap-2">
-        {rightIcon}
-        {showChevron ? (
-          <LocalChevronRightIcon
-            fill="none"
-            width={20}
-            height={20}
-            color={theme.muted}
-          />
-        ) : null}
-      </View>
-    </PressableFeedback>
-  )
-}
 
 export default function LibrarySettingsScreen() {
   const router = useRouter()
@@ -93,17 +43,17 @@ export default function LibrarySettingsScreen() {
         contentContainerStyle={{ paddingBottom: 40 }}
       >
         <View className="py-2">
-          <LibrarySettingItem
+          <SettingsRow
             title="Folder Filters"
             description="Whitelist or blacklist specific folders."
             onPress={() => router.push("/settings/folder-filters")}
           />
-          <LibrarySettingItem
+          <SettingsRow
             title="Track Duration Filter"
             description={getTrackDurationFilterLabel(trackDurationFilterConfig)}
             onPress={() => router.push("/settings/track-duration-filter")}
           />
-          <LibrarySettingItem
+          <SettingsRow
             title="Auto Scan"
             description={
               autoScanEnabled
@@ -112,7 +62,7 @@ export default function LibrarySettingsScreen() {
             }
             onPress={undefined}
             showChevron={false}
-            rightIcon={
+            rightContent={
               <Switch
                 isSelected={autoScanEnabled}
                 onSelectedChange={(isSelected) => {
@@ -121,7 +71,7 @@ export default function LibrarySettingsScreen() {
               />
             }
           />
-          <LibrarySettingItem
+          <SettingsRow
             title="Reindex Library"
             description={
               indexerState.isIndexing

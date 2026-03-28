@@ -149,6 +149,7 @@ Rules:
 - queue mutations should be imported from `queue.service.ts`, while derived queue state stays in `queue.store.ts`
 - player artwork color extraction and caching should live in `player-colors.service.ts`, while `player-colors.store.ts` stays state-only
 - indexer runtime controls should live in `indexer.service.ts`, while `indexer.store.ts` stays focused on indexer state
+- settings route metadata and reusable settings UI patterns should live under `src/modules/settings` and shared components, instead of being duplicated across screens
 
 ### Module Shape
 

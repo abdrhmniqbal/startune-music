@@ -1,12 +1,11 @@
 import * as Application from "expo-application"
 import Constants from "expo-constants"
 import { useRouter } from "expo-router"
-import { PressableFeedback, Toast, useToast } from "heroui-native"
+import { Toast, useToast } from "heroui-native"
 import { useEffect } from "react"
 import { Linking, Platform, ScrollView, Text, View } from "react-native"
 
-import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
-import { useThemeColors } from "@/modules/ui/theme"
+import { SettingsRow } from "@/components/patterns/settings-row"
 import {
   isIgnoringBatteryOptimizations,
   openBatteryOptimizationSettings as openNativeBatteryOptimizationSettings,
@@ -19,7 +18,6 @@ import {
 } from "@/modules/logging/logger"
 
 export default function AdvancedSettingsScreen() {
-  const theme = useThemeColors()
   const router = useRouter()
   const { toast } = useToast()
   const loggingLevel = useLoggingStore((state) => state.loggingConfig.level)
@@ -126,101 +124,47 @@ export default function AdvancedSettingsScreen() {
   return (
     <ScrollView className="flex-1 bg-background">
       <View className="py-2">
-        <PressableFeedback
+        <SettingsRow
           onPress={() => router.push("/settings/log-level")}
-          className="flex-row items-center bg-background px-6 py-4 active:opacity-70"
-        >
-          <View className="flex-1 gap-1">
-            <Text className="text-[17px] font-normal text-foreground">
-              Log Level
-            </Text>
-            <Text className="text-[13px] leading-5 text-muted">
-              {logLevelLabel === "Extra"
-                ? "Extra: capture debug, info, warnings, and errors."
-                : "Minimal: capture critical and error logs only."}
-            </Text>
-          </View>
-          <View className="flex-row items-center gap-2">
-            <LocalChevronRightIcon
-              fill="none"
-              width={20}
-              height={20}
-              color={theme.muted}
-            />
-          </View>
-        </PressableFeedback>
+          title="Log Level"
+          description={
+            logLevelLabel === "Extra"
+              ? "Extra: capture debug, info, warnings, and errors."
+              : "Minimal: capture critical and error logs only."
+          }
+        />
 
-        <PressableFeedback
+        <SettingsRow
           onPress={() => {
             void handleShareCrashLogs()
           }}
-          className="flex-row items-center bg-background px-6 py-4 active:opacity-70"
-        >
-          <View className="flex-1 gap-1">
-            <Text className="text-[17px] font-normal text-foreground">
-              Share crash logs
-            </Text>
-            <Text className="text-[13px] leading-5 text-muted">
-              Saves error logs to a local file and opens a share sheet.
-            </Text>
-          </View>
-          <LocalChevronRightIcon
-            fill="none"
-            width={20}
-            height={20}
-            color={theme.muted}
-          />
-        </PressableFeedback>
+          title="Share crash logs"
+          description="Saves error logs to a local file and opens a share sheet."
+        />
 
         <Text className="px-6 pt-4 pb-2 text-xs font-medium tracking-wide text-accent uppercase">
           Background Activity
         </Text>
 
-        <PressableFeedback
+        <SettingsRow
           onPress={() => {
             void openBatteryOptimizationSettings()
           }}
-          className="flex-row items-center bg-background px-6 py-4 active:opacity-70"
-        >
-          <View className="flex-1 gap-1">
-            <Text className="text-[17px] font-normal text-foreground">
-              Disable Battery Optimization
-            </Text>
-            <Text className="text-[13px] leading-5 text-muted">
-              {Platform.OS === "android"
-                ? "Prevent background restrictions so indexing and playback stay reliable."
-                : "Open system settings."}
-            </Text>
-          </View>
-          <LocalChevronRightIcon
-            fill="none"
-            width={20}
-            height={20}
-            color={theme.muted}
-          />
-        </PressableFeedback>
+          title="Disable Battery Optimization"
+          description={
+            Platform.OS === "android"
+              ? "Prevent background restrictions so indexing and playback stay reliable."
+              : "Open system settings."
+          }
+        />
 
-        <PressableFeedback
+        <SettingsRow
           onPress={() => {
             void openDontKillMyApp()
           }}
-          className="flex-row items-center gap-1 bg-background px-6 py-4 active:opacity-70"
-        >
-          <View className="flex-1 gap-1">
-            <Text className="text-[17px] font-normal text-foreground">
-              Don't Kill My App!
-            </Text>
-            <Text className="text-[13px] leading-5 text-muted">
-              Open device-specific battery and background process guidance.
-            </Text>
-          </View>
-          <LocalChevronRightIcon
-            fill="none"
-            width={20}
-            height={20}
-            color={theme.muted}
-          />
-        </PressableFeedback>
+          title="Don't Kill My App!"
+          description="Open device-specific battery and background process guidance."
+        />
       </View>
     </ScrollView>
   )
