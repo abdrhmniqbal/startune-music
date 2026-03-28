@@ -1,26 +1,54 @@
 import { RefreshControl, View } from "react-native"
 
-import { PlaybackActionsRow } from "@/components/blocks"
+import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
-import { EmptyState } from "@/components/ui"
+import { EmptyState } from "@/components/ui/empty-state"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
-} from "@/hooks/scroll-bars.store"
+} from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { useRecentlyPlayedScreen } from "@/modules/history/hooks/use-recently-played-screen"
+import { useRecentlyPlayedTracks } from "@/modules/history/history.queries"
+import { startIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
+import { playTrack } from "@/modules/player/player.store"
+
+const RECENTLY_PLAYED_SCREEN_LIMIT = 50
 
 export default function RecentlyPlayedScreen() {
   const theme = useThemeColors()
   const indexerState = useIndexerStore((state) => state.indexerState)
-  const { history, isLoading, refresh, playFirst, shuffle } =
-    useRecentlyPlayedScreen()
+  const { data: historyData, isLoading, isFetching, refetch } =
+    useRecentlyPlayedTracks(RECENTLY_PLAYED_SCREEN_LIMIT)
 
-  if (isLoading) {
+  const history = historyData ?? []
+
+  async function refresh() {
+    await startIndexing(false)
+    await refetch()
+  }
+
+  function playFirst() {
+    if (history.length === 0) {
+      return
+    }
+
+    playTrack(history[0], history)
+  }
+
+  function shuffle() {
+    if (history.length === 0) {
+      return
+    }
+
+    const randomIndex = Math.floor(Math.random() * history.length)
+    playTrack(history[randomIndex], history)
+  }
+
+  if ((isLoading || isFetching) && history.length === 0) {
     return (
       <View className="flex-1 bg-background px-4 pt-4">
         <LibrarySkeleton type="tracks" itemCount={10} />

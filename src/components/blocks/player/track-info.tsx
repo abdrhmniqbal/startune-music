@@ -7,11 +7,11 @@ import Animated, { Layout } from "react-native-reanimated"
 import { cn } from "tailwind-variants"
 import LocalFavouriteIcon from "@/components/icons/local/favourite"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
-import { MarqueeText } from "@/components/ui"
+import { MarqueeText } from "@/components/ui/marquee-text"
 import {
   useIsFavorite,
-  useToggleFavorite,
 } from "@/modules/favorites/favorites.queries"
+import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 
 interface TrackInfoProps {
   track: Track

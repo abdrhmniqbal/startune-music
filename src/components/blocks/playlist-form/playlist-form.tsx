@@ -10,8 +10,8 @@ import LocalAddIcon from "@/components/icons/local/add"
 import LocalCancelIcon from "@/components/icons/local/cancel"
 import LocalDragDropVerticalIcon from "@/components/icons/local/drag-drop-vertical"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import { TrackRow } from "@/components/patterns"
-import { EmptyState } from "@/components/ui"
+import { TrackRow } from "@/components/patterns/track-row"
+import { EmptyState } from "@/components/ui/empty-state"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 
 import {

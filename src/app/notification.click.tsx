@@ -1,11 +1,11 @@
 import { Redirect } from "expo-router"
 import { useEffect } from "react"
 
-import { $isPlayerExpanded } from "@/hooks/scroll-bars.store"
+import { openPlayer } from "@/modules/ui/ui.store"
 
 export default function NotificationClickRoute() {
   useEffect(() => {
-    $isPlayerExpanded.set(true)
+    openPlayer()
   }, [])
 
   return <Redirect href="/(main)/(home)" />

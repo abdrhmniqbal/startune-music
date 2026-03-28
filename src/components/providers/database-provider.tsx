@@ -4,8 +4,8 @@ import { Text, View } from "react-native"
 
 import { db } from "@/db/client"
 import migrations from "@/db/migrations/migrations"
-import { logError } from "@/modules/logging"
-import { loadTracks } from "@/modules/player/player.store"
+import { logError } from "@/modules/logging/logger"
+import { loadTracks } from "@/modules/player/player.service"
 
 export function DatabaseProvider({
   children,

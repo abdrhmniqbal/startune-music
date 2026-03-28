@@ -8,7 +8,7 @@ import * as React from "react"
 import { type Artist, ArtistGrid } from "@/components/blocks/artist-grid"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
-import { EmptyState } from "@/components/ui"
+import { EmptyState } from "@/components/ui/empty-state"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   sortArtists,

@@ -17,16 +17,16 @@ import {
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
-import { PlaylistArtwork } from "@/components/patterns"
+import { PlaylistArtwork } from "@/components/patterns/playlist-artwork"
 import {
-  EmptyState,
-  Item,
-  ItemAction,
-  ItemContent,
-  ItemDescription,
-  ItemImage,
-  ItemTitle,
-} from "@/components/ui"
+  MediaItem as Item,
+  MediaItemAction as ItemAction,
+  MediaItemContent as ItemContent,
+  MediaItemDescription as ItemDescription,
+  MediaItemImage as ItemImage,
+  MediaItemTitle as ItemTitle,
+} from "@/components/ui/media-item"
+import { EmptyState } from "@/components/ui/empty-state"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export interface Playlist {

@@ -1,6 +1,6 @@
 import { Image } from "expo-image"
 import { LinearGradient } from "expo-linear-gradient"
-import { Stack, useRouter } from "expo-router"
+import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { Button, PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { useState } from "react"
@@ -14,7 +14,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated"
 
-import { PlaybackActionsRow } from "@/components/blocks"
+import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { SortSheet } from "@/components/blocks/sort-sheet"
@@ -24,8 +24,9 @@ import LocalChevronLeftIcon from "@/components/icons/local/chevron-left"
 import LocalFavouriteIcon from "@/components/icons/local/favourite"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
-import { TrackRow } from "@/components/patterns"
-import { ScaleLoader, SectionTitle } from "@/components/ui"
+import { TrackRow } from "@/components/patterns/track-row"
+import { ScaleLoader } from "@/components/ui/scale-loader"
+import { SectionTitle } from "@/components/ui/section-header"
 import {
   screenEnterTransition,
   screenExitTransition,
@@ -34,16 +35,22 @@ import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
-} from "@/hooks/scroll-bars.store"
+} from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { useArtistDetailsScreen } from "@/modules/artists/hooks/use-artist-details-screen"
-import { useToggleFavorite } from "@/modules/favorites/favorites.queries"
+import { buildArtistAlbums } from "@/modules/artists/artists.utils"
+import { useIsFavorite } from "@/modules/favorites/favorites.queries"
+import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import {
   ALBUM_SORT_OPTIONS,
   type SortField,
+  setSortConfig,
+  sortAlbums,
+  sortTracks,
   TRACK_SORT_OPTIONS,
+  useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
-import { usePlayerStore } from "@/modules/player/player.store"
+import { useTracksByArtistName } from "@/modules/library/library.queries"
+import { playTrack, type Track, usePlayerStore } from "@/modules/player/player.store"
 import { cn } from "@/utils/common"
 
 const SCREEN_WIDTH = Dimensions.get("window").width
@@ -53,39 +60,72 @@ function setAnimatedValue<T>(target: { value: T }, nextValue: T) {
   target.value = nextValue
 }
 
+function getSafeRouteName(value: string | string[] | undefined) {
+  const raw = Array.isArray(value) ? (value[0] ?? "") : (value ?? "")
+  try {
+    return decodeURIComponent(raw)
+  } catch {
+    return raw
+  }
+}
+
 export default function ArtistDetailsScreen() {
   const theme = useThemeColors()
   const router = useRouter()
+  const { name } = useLocalSearchParams<{ name: string }>()
   const toggleFavoriteMutation = useToggleFavorite()
 
   const [isHeaderSolid, setIsHeaderSolid] = useState(false)
+  const [activeView, setActiveView] = useState<
+    "overview" | "tracks" | "albums"
+  >("overview")
+  const [sortModalVisible, setSortModalVisible] = useState(false)
   const scrollY = useSharedValue(0)
   const currentTrack = usePlayerStore((state) => state.currentTrack)
+  const allTracks = usePlayerStore((state) => state.tracks)
+  const allSortConfigs = useLibrarySortStore((state) => state.sortConfig)
+  const artistName = getSafeRouteName(name).trim() || "Unknown Artist"
+  const normalizedArtistName = artistName.toLowerCase()
   const {
-    name,
-    isLoading,
+    data: artistTracksFromQuery = [],
+    isLoading: isArtistTracksLoading,
+    isFetching: isArtistTracksFetching,
+  } = useTracksByArtistName(artistName)
+  const artistTracks =
+    artistTracksFromQuery.length > 0
+      ? artistTracksFromQuery
+      : allTracks.filter(
+          (track) =>
+            (track.artist || track.albumArtist || "").trim().toLowerCase() ===
+            normalizedArtistName
+        )
+  const artistId = artistTracks[0]?.artistId
+  const artistImage = artistTracks.find((track) => track.image)?.image
+  const { data: isArtistFavorite = false } = useIsFavorite(
+    "artist",
+    artistId || ""
+  )
+  const isLoading =
+    (isArtistTracksLoading || isArtistTracksFetching) &&
+    artistTracks.length === 0
+  const albums = buildArtistAlbums(artistTracks)
+  const sortedArtistTracks = sortTracks(
     artistTracks,
-    artistId,
-    artistImage,
-    isArtistFavorite,
-    albums,
-    sortedArtistTracks,
-    popularTracks,
-    sortedAlbums,
-    activeView,
-    sortModalVisible,
-    setSortModalVisible,
-    sortConfig,
-    navigateTo,
-    playArtistTrack,
-    playAllTracks,
-    shuffleTracks,
-    openAlbum,
-    selectSort,
-    getSortLabel,
-  } = useArtistDetailsScreen()
+    allSortConfigs.ArtistTracks
+  )
+  const popularTracks = sortedArtistTracks.slice(0, 5)
+  const sortedAlbums = sortAlbums(
+    albums.map((album) => ({ ...album, id: album.title }) as Album),
+    allSortConfigs.ArtistAlbums
+  )
+  const currentTab =
+    activeView === "tracks"
+      ? "ArtistTracks"
+      : activeView === "albums"
+        ? "ArtistAlbums"
+        : "ArtistTracks"
+  const sortConfig = allSortConfigs[currentTab]
 
-  const artistName = name || "Unknown Artist"
   const smoothScrollY = useDerivedValue(() =>
     withTiming(scrollY.value, { duration: 90 })
   )
@@ -127,7 +167,48 @@ export default function ArtistDetailsScreen() {
   }
 
   function handleSortSelect(field: SortField, order?: "asc" | "desc") {
-    selectSort(field, order)
+    setSortConfig(currentTab, field, order)
+  }
+
+  function navigateTo(view: "overview" | "tracks" | "albums") {
+    setActiveView(view)
+  }
+
+  function playArtistTrack(track: Track) {
+    playTrack(track, sortedArtistTracks)
+  }
+
+  function playAllTracks() {
+    if (sortedArtistTracks.length === 0) {
+      return
+    }
+
+    playTrack(sortedArtistTracks[0], sortedArtistTracks)
+  }
+
+  function shuffleTracks() {
+    if (sortedArtistTracks.length === 0) {
+      return
+    }
+
+    const randomIndex = Math.floor(Math.random() * sortedArtistTracks.length)
+    playTrack(sortedArtistTracks[randomIndex], sortedArtistTracks)
+  }
+
+  function openAlbum(album: Album) {
+    router.push({
+      pathname: "/album/[name]",
+      params: { name: album.title },
+    })
+  }
+
+  function getSortLabel() {
+    const options =
+      activeView === "tracks" ? TRACK_SORT_OPTIONS : ALBUM_SORT_OPTIONS
+    return (
+      options.find((option) => option.field === sortConfig.field)?.label ||
+      "Sort"
+    )
   }
 
   const renderHeroSection = () => (

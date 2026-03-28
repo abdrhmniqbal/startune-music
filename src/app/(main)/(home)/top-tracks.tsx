@@ -1,12 +1,13 @@
 import { Tabs } from "heroui-native"
+import { useState } from "react"
 import { RefreshControl, View } from "react-native"
 import Animated from "react-native-reanimated"
 
-import { PlaybackActionsRow } from "@/components/blocks"
+import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import { EmptyState } from "@/components/ui"
+import { EmptyState } from "@/components/ui/empty-state"
 import {
   screenEnterTransition,
   screenExitTransition,
@@ -15,27 +16,61 @@ import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
-} from "@/hooks/scroll-bars.store"
+} from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useTopTracksByPeriod } from "@/modules/history/history.queries"
+import { startIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import {
-  TOP_TRACKS_TABS,
-  type TopTracksTab,
-  useTopTracksScreen,
-} from "@/modules/tracks/hooks/use-top-tracks-screen"
+import { playTrack } from "@/modules/player/player.store"
+import type { HistoryTopTracksPeriod as TopTracksPeriod } from "@/modules/history/history.types"
+
+const TOP_TRACKS_TABS = ["Realtime", "Daily", "Weekly"] as const
+type TopTracksTab = (typeof TOP_TRACKS_TABS)[number]
+const TOP_TRACKS_LIMIT = 50
+
+function tabToPeriod(tab: TopTracksTab): TopTracksPeriod {
+  if (tab === "Daily") {
+    return "day"
+  }
+
+  if (tab === "Weekly") {
+    return "week"
+  }
+
+  return "all"
+}
 
 export default function TopTracksScreen() {
   const indexerState = useIndexerStore((state) => state.indexerState)
   const theme = useThemeColors()
-  const {
-    activeTab,
-    setActiveTab,
-    currentTracks,
-    isLoading,
-    refresh,
-    playAll,
-    shuffle,
-  } = useTopTracksScreen()
+  const [activeTab, setActiveTab] = useState<TopTracksTab>("Realtime")
+  const period = tabToPeriod(activeTab)
+  const { data: currentTracksData, isLoading, isFetching, refetch } =
+    useTopTracksByPeriod(period, TOP_TRACKS_LIMIT)
+
+  const currentTracks = currentTracksData ?? []
+
+  async function refresh() {
+    await startIndexing(false)
+    await refetch()
+  }
+
+  function playAll() {
+    if (currentTracks.length === 0) {
+      return
+    }
+
+    playTrack(currentTracks[0], currentTracks)
+  }
+
+  function shuffle() {
+    if (currentTracks.length === 0) {
+      return
+    }
+
+    const randomIndex = Math.floor(Math.random() * currentTracks.length)
+    playTrack(currentTracks[randomIndex], currentTracks)
+  }
 
   return (
     <View className="flex-1 bg-background">
@@ -54,7 +89,7 @@ export default function TopTracksScreen() {
         </Tabs.List>
       </Tabs>
 
-      {isLoading ? (
+      {(isLoading || isFetching) && currentTracks.length === 0 ? (
         <Animated.View
           key={`loading-${activeTab}`}
           entering={screenEnterTransition()}

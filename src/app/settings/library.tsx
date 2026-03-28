@@ -7,14 +7,15 @@ import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   ensureAutoScanConfigLoaded,
-  ensureTrackDurationFilterConfigLoaded,
-  forceReindexLibrary,
-  getTrackDurationFilterLabel,
   setAutoScanEnabled,
   useAutoScanStore,
-  useIndexerStore,
+} from "@/modules/indexer/auto-scan"
+import { forceReindexLibrary, useIndexerStore } from "@/modules/indexer/indexer.store"
+import {
+  ensureTrackDurationFilterConfigLoaded,
+  getTrackDurationFilterLabel,
   useTrackDurationFilterStore,
-} from "@/modules/indexer"
+} from "@/modules/indexer/track-duration-filter"
 
 interface LibrarySettingItemProps {
   title: string

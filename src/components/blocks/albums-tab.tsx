@@ -8,7 +8,7 @@ import * as React from "react"
 import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
-import { EmptyState } from "@/components/ui"
+import { EmptyState } from "@/components/ui/empty-state"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   sortAlbums,

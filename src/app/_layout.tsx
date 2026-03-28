@@ -6,22 +6,22 @@ import {
 import { Stack, useSegments } from "expo-router"
 import * as SplashScreen from "expo-splash-screen"
 import { HeroUINativeProvider } from "heroui-native"
-import { type ReactNode, useCallback, useEffect, useRef, useState } from "react"
+import { type ReactNode, useCallback, useRef } from "react"
 import { View } from "react-native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import Animated, {
+  useDerivedValue,
   useAnimatedStyle,
-  useSharedValue,
   withTiming,
 } from "react-native-reanimated"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useUniwind } from "uniwind"
 
-import { FullPlayer } from "@/components/blocks/full-player"
 import { IndexingProgress } from "@/components/blocks/indexing-progress"
-import { Providers } from "@/components/providers"
+import { PlayerSheet } from "@/components/blocks/player/player-sheet"
+import { RootProviders } from "@/components/providers/root-providers"
 import { getTabBarHeight, MINI_PLAYER_HEIGHT } from "@/constants/layout"
-import { useUIStore } from "@/hooks/scroll-bars.store"
+import { useUIStore } from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { useAppBootstrap } from "@/modules/bootstrap/hooks/use-app-bootstrap"
 import { usePlayerStore } from "@/modules/player/player.store"
@@ -41,13 +41,11 @@ function ToastAnimatedWrapper({
   children: ReactNode
   extraBottom: number
 }) {
-  const animatedExtraBottom = useSharedValue(extraBottom)
-
-  useEffect(() => {
-    animatedExtraBottom.value = withTiming(extraBottom, {
+  const animatedExtraBottom = useDerivedValue(() => {
+    return withTiming(extraBottom, {
       duration: TOAST_OFFSET_ANIMATION_DURATION_MS,
     })
-  }, [animatedExtraBottom, extraBottom])
+  }, [extraBottom])
 
   const animatedStyle = useAnimatedStyle(() => ({
     paddingBottom: animatedExtraBottom.value,
@@ -80,12 +78,20 @@ export default function Layout() {
   const insets = useSafeAreaInsets()
   const barsVisible = useUIStore((state) => state.barsVisible)
   const currentTrack = usePlayerStore((state) => state.currentTrack)
-  const {
-    isInitialized: isBootstrapInitialized,
-    markDatabaseReady,
-  } = useAppBootstrap()
-  const [isDatabaseReady, setIsDatabaseReady] = useState(false)
   const hasHiddenSplashRef = useRef(false)
+  const hideSplash = useCallback(() => {
+    if (hasHiddenSplashRef.current) {
+      return
+    }
+
+    hasHiddenSplashRef.current = true
+    void SplashScreen.hideAsync().catch(() => {
+      // Ignore hide race if splash is already hidden.
+    })
+  }, [])
+  const { handleDatabaseReady, handleDatabaseError } = useAppBootstrap({
+    onReady: hideSplash,
+  })
   const tabBarHeight = getTabBarHeight(insets.bottom)
   const hasMiniPlayer = currentTrack !== null
   const isMainTabsRoute = segments[0] === "(main)"
@@ -113,30 +119,6 @@ export default function Layout() {
     },
     [toastExtraBottomOffset]
   )
-
-  useEffect(() => {
-    if (
-      !isBootstrapInitialized ||
-      !isDatabaseReady ||
-      hasHiddenSplashRef.current
-    ) {
-      return
-    }
-
-    hasHiddenSplashRef.current = true
-    void SplashScreen.hideAsync().catch(() => {
-      // Ignore hide race if splash is already hidden.
-    })
-  }, [isBootstrapInitialized, isDatabaseReady])
-
-  const handleDatabaseReady = useCallback(() => {
-    setIsDatabaseReady(true)
-    markDatabaseReady()
-  }, [markDatabaseReady])
-
-  const handleDatabaseError = useCallback(() => {
-    setIsDatabaseReady(true)
-  }, [])
 
   const navigationTheme = {
     ...(currentTheme === "dark" ? DarkTheme : DefaultTheme),
@@ -167,7 +149,7 @@ export default function Layout() {
               },
             }}
           >
-            <Providers
+            <RootProviders
               onDatabaseReady={handleDatabaseReady}
               onDatabaseError={handleDatabaseError}
             >
@@ -189,9 +171,9 @@ export default function Layout() {
                   />
                 </Stack>
                 <IndexingProgress />
-                <FullPlayer />
+                <PlayerSheet />
               </View>
-            </Providers>
+            </RootProviders>
           </HeroUINativeProvider>
         </View>
       </ThemeProvider>

@@ -14,7 +14,7 @@ import Animated, {
 
 import LocalCancelIcon from "@/components/icons/local/cancel"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { stopIndexing } from "@/modules/indexer"
+import { stopIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 
 const TOAST_ID = "indexing-progress-toast"

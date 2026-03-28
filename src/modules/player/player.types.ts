@@ -3,6 +3,8 @@ export interface LyricLine {
   text: string
 }
 
+export type RepeatModeType = "off" | "track" | "queue"
+
 export interface Track {
   id: string
   title: string

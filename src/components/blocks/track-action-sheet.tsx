@@ -15,19 +15,19 @@ import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalNextSolidIcon from "@/components/icons/local/next-solid"
 import LocalPlaySolidIcon from "@/components/icons/local/play-solid"
 import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
-import { MarqueeText } from "@/components/ui"
+import { MarqueeText } from "@/components/ui/marquee-text"
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   useIsFavorite,
-  useToggleFavorite,
 } from "@/modules/favorites/favorites.queries"
+import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import { playTrack, type Track } from "@/modules/player/player.store"
 import { addToQueue, playNext } from "@/modules/player/queue.store"
 import {
   useAddTrackToPlaylist,
   useRemoveTrackFromPlaylist,
-} from "@/modules/playlist/playlist.queries"
+} from "@/modules/playlist/playlist.mutations"
 import {
   formatQualityLabel,
   normalizeCodecLabel,

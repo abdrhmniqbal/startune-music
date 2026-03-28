@@ -9,9 +9,8 @@ import LocalPauseSolidIcon from "@/components/icons/local/pause-solid"
 import LocalPlaySolidIcon from "@/components/icons/local/play-solid"
 import { MarqueeText } from "@/components/ui/marquee-text"
 import {
-  $isPlayerExpanded,
-  $playerExpandedView,
-} from "@/hooks/scroll-bars.store"
+  openPlayer,
+} from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   playNext,
@@ -31,10 +30,6 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
 }) => {
   const currentTrack = usePlayerStore((state) => state.currentTrack)
   const isPlaying = usePlayerStore((state) => state.isPlaying)
-  const currentTime = usePlayerStore((state) => state.currentTime)
-  const duration = usePlayerStore((state) => state.duration)
-
-  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0
 
   const theme = useThemeColors()
 
@@ -54,21 +49,12 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
         style={{ borderTopColor: theme.border }}
       />
 
-      <View className="absolute top-0 right-0 left-0 h-0.75 bg-surface-tertiary">
-        <View
-          style={{
-            width: `${progressPercent}%`,
-            height: "100%",
-            backgroundColor: theme.accent,
-          }}
-        />
-      </View>
+      <MiniPlayerProgress themeAccent={theme.accent} />
 
       <View className="flex-1 flex-row items-center gap-3 px-4">
         <PressableFeedback
           onPress={() => {
-            $playerExpandedView.set("artwork")
-            $isPlayerExpanded.set(true)
+            openPlayer("artwork")
           }}
           className="flex-1 flex-row items-center gap-3 active:opacity-80"
         >
@@ -137,8 +123,7 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
           </PressableFeedback>
           <PressableFeedback
             onPress={() => {
-              $playerExpandedView.set("queue")
-              $isPlayerExpanded.set(true)
+              openPlayer("queue")
             }}
             className="p-2 active:opacity-60"
           >
@@ -152,5 +137,23 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
         </View>
       </View>
     </Animated.View>
+  )
+}
+
+function MiniPlayerProgress({ themeAccent }: { themeAccent: string }) {
+  const currentTime = usePlayerStore((state) => state.currentTime)
+  const duration = usePlayerStore((state) => state.duration)
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0
+
+  return (
+    <View className="absolute top-0 right-0 left-0 h-0.75 bg-surface-tertiary">
+      <View
+        style={{
+          width: `${progressPercent}%`,
+          height: "100%",
+          backgroundColor: themeAccent,
+        }}
+      />
+    </View>
   )
 }

@@ -1,11 +1,13 @@
 import type { Track } from "@/modules/player/player.types"
 import { useDebouncedValue } from "@tanstack/react-pacer"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 
 import { useEffect, useMemo, useState } from "react"
-import { getAllTracks } from "@/modules/player/player.api"
-import { createPlaylist, updatePlaylist } from "@/modules/playlist/playlist.api"
+import { queryClient } from "@/lib/tanstack-query"
+import { getAllTracks } from "@/modules/player/player.repository"
+import { invalidatePlaylistQueries } from "@/modules/playlist/playlist.keys"
 import { usePlaylist } from "@/modules/playlist/playlist.queries"
+import { createPlaylist, updatePlaylist } from "@/modules/playlist/playlist.repository"
 import {
   clampPlaylistDescription,
   clampPlaylistName,
@@ -15,7 +17,6 @@ import {
 const SEARCH_DEBOUNCE_MS = 140
 const TRACK_PICKER_LIMIT = 20
 const LIBRARY_TRACKS_QUERY_KEY = ["library", "tracks"] as const
-const PLAYLISTS_QUERY_KEY = ["playlists"] as const
 
 interface PlaylistFormPayload {
   id?: string
@@ -51,7 +52,6 @@ export function usePlaylistFormScreen(
 ) {
   const normalizedPlaylistId = playlistId?.trim() ?? ""
   const isEditMode = normalizedPlaylistId.length > 0
-  const queryClient = useQueryClient()
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [selectedTrackIds, setSelectedTrackIds] = useState<string[]>([])
@@ -66,37 +66,44 @@ export function usePlaylistFormScreen(
   const { data: playlistToEdit, isLoading: isEditPlaylistLoading } =
     usePlaylist(normalizedPlaylistId, isEditMode)
 
-  const savePlaylistMutation = useMutation({
-    mutationFn: async (payload: PlaylistFormPayload) => {
-      if (payload.id) {
-        await updatePlaylist(
-          payload.id,
+  const savePlaylistMutation = useMutation(
+    {
+      mutationFn: async (payload: PlaylistFormPayload) => {
+        if (payload.id) {
+          await updatePlaylist(
+            payload.id,
+            payload.name,
+            payload.description,
+            payload.trackIds
+          )
+          return
+        }
+
+        await createPlaylist(
           payload.name,
           payload.description,
           payload.trackIds
         )
-        return
-      }
-
-      await createPlaylist(payload.name, payload.description, payload.trackIds)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: PLAYLISTS_QUERY_KEY })
-      if (isEditMode) {
-        queryClient.invalidateQueries({
-          queryKey: [PLAYLISTS_QUERY_KEY[0], normalizedPlaylistId],
+      },
+      onSuccess: async () => {
+        await invalidatePlaylistQueries(queryClient, {
+          playlistId: isEditMode ? normalizedPlaylistId : null,
         })
-      }
+      },
     },
-  })
+    queryClient
+  )
 
-  const { data: allTracks = [] } = useQuery<Track[]>({
-    queryKey: LIBRARY_TRACKS_QUERY_KEY,
-    queryFn: getAllTracks,
-    enabled: isTrackSheetOpen || isEditMode || selectedTrackIds.length > 0,
-    staleTime: 5 * 60 * 1000,
-    placeholderData: (previousData) => previousData,
-  })
+  const { data: allTracks = [] } = useQuery<Track[]>(
+    {
+      queryKey: LIBRARY_TRACKS_QUERY_KEY,
+      queryFn: getAllTracks,
+      enabled: isTrackSheetOpen || isEditMode || selectedTrackIds.length > 0,
+      staleTime: 5 * 60 * 1000,
+      placeholderData: (previousData) => previousData,
+    },
+    queryClient
+  )
   const [debouncedSearchQuery] = useDebouncedValue(searchQuery, {
     wait: SEARCH_DEBOUNCE_MS,
   })

@@ -16,7 +16,7 @@ import {
   ensureLoggingConfigLoaded,
   shareCrashLogs,
   useLoggingStore,
-} from "@/modules/logging"
+} from "@/modules/logging/logger"
 
 export default function AdvancedSettingsScreen() {
   const theme = useThemeColors()

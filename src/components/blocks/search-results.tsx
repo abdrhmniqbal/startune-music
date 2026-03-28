@@ -2,7 +2,7 @@ import type {
   SearchAlbumResult,
   SearchArtistResult,
   SearchPlaylistResult,
-} from "@/modules/library/library.queries"
+} from "@/modules/library/library.types"
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
 import { Chip, PressableFeedback } from "heroui-native"
 import * as React from "react"
@@ -14,15 +14,15 @@ import LocalCheckmarkCircleSolidIcon from "@/components/icons/local/checkmark-ci
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
-import { PlaylistArtwork } from "@/components/patterns"
+import { PlaylistArtwork } from "@/components/patterns/playlist-artwork"
 import {
-  Item,
-  ItemAction,
-  ItemContent,
-  ItemDescription,
-  ItemImage,
-  ItemTitle,
-} from "@/components/ui"
+  MediaItem as Item,
+  MediaItemAction as ItemAction,
+  MediaItemContent as ItemContent,
+  MediaItemDescription as ItemDescription,
+  MediaItemImage as ItemImage,
+  MediaItemTitle as ItemTitle,
+} from "@/components/ui/media-item"
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { playTrack, type Track } from "@/modules/player/player.store"

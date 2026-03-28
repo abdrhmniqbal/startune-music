@@ -7,11 +7,10 @@ import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   ensureTrackDurationFilterConfigLoaded,
   setTrackDurationFilterConfig,
-  startIndexing,
   type TrackDurationFilterMode,
-  useIndexerStore,
   useTrackDurationFilterStore,
-} from "@/modules/indexer"
+} from "@/modules/indexer/track-duration-filter"
+import { startIndexing, useIndexerStore } from "@/modules/indexer/indexer.store"
 
 interface DurationOption {
   label: string

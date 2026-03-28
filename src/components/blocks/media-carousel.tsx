@@ -2,7 +2,7 @@ import type { ReactNode } from "react"
 import { ScrollView, type StyleProp, View, type ViewStyle } from "react-native"
 import { cn } from "tailwind-variants"
 
-import { EmptyState } from "@/components/ui"
+import { EmptyState } from "@/components/ui/empty-state"
 
 interface EmptyStateConfig {
   icon: ReactNode

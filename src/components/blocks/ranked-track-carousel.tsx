@@ -1,8 +1,8 @@
 import type { ReactNode } from "react"
 import { View } from "react-native"
 
-import { TrackRow } from "@/components/patterns"
-import { ScaleLoader } from "@/components/ui"
+import { TrackRow } from "@/components/patterns/track-row"
+import { ScaleLoader } from "@/components/ui/scale-loader"
 import {
   playTrack,
   usePlayerStore,

@@ -1,11 +1,16 @@
-import { File, Paths } from "expo-file-system"
 import { create } from "zustand"
+
+import {
+  createIndexerConfigFile,
+  loadIndexerConfig,
+  saveIndexerConfig,
+} from "@/modules/indexer/indexer-config.repository"
 
 interface AutoScanConfig {
   enabled: boolean
 }
 
-const AUTO_SCAN_FILE = new File(Paths.document, "indexer-auto-scan.json")
+const AUTO_SCAN_FILE = createIndexerConfigFile("indexer-auto-scan.json")
 const DEFAULT_AUTO_SCAN_ENABLED = true
 
 interface AutoScanState {
@@ -24,19 +29,6 @@ export const $autoScanEnabled = {
 let loadPromise: Promise<boolean> | null = null
 let hasLoadedConfig = false
 
-async function persistAutoScanConfig(config: AutoScanConfig): Promise<void> {
-  if (!AUTO_SCAN_FILE.exists) {
-    AUTO_SCAN_FILE.create({
-      intermediates: true,
-      overwrite: true,
-    })
-  }
-
-  AUTO_SCAN_FILE.write(JSON.stringify(config), {
-    encoding: "utf8",
-  })
-}
-
 export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
   if (hasLoadedConfig) {
     return $autoScanEnabled.get()
@@ -47,28 +39,20 @@ export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
   }
 
   loadPromise = (async () => {
-    try {
-      if (!AUTO_SCAN_FILE.exists) {
-        $autoScanEnabled.set(DEFAULT_AUTO_SCAN_ENABLED)
-        hasLoadedConfig = true
-        return DEFAULT_AUTO_SCAN_ENABLED
-      }
+    const config = await loadIndexerConfig(
+      AUTO_SCAN_FILE,
+      { enabled: DEFAULT_AUTO_SCAN_ENABLED },
+      (parsed) => ({
+        enabled:
+          typeof parsed.enabled === "boolean"
+            ? parsed.enabled
+            : DEFAULT_AUTO_SCAN_ENABLED,
+      })
+    )
 
-      const raw = await AUTO_SCAN_FILE.text()
-      const parsed = JSON.parse(raw) as Partial<AutoScanConfig>
-      const enabled =
-        typeof parsed.enabled === "boolean"
-          ? parsed.enabled
-          : DEFAULT_AUTO_SCAN_ENABLED
-
-      $autoScanEnabled.set(enabled)
-      hasLoadedConfig = true
-      return enabled
-    } catch {
-      $autoScanEnabled.set(DEFAULT_AUTO_SCAN_ENABLED)
-      hasLoadedConfig = true
-      return DEFAULT_AUTO_SCAN_ENABLED
-    }
+    $autoScanEnabled.set(config.enabled)
+    hasLoadedConfig = true
+    return config.enabled
   })()
 
   const result = await loadPromise
@@ -80,6 +64,6 @@ export async function setAutoScanEnabled(enabled: boolean): Promise<boolean> {
   await ensureAutoScanConfigLoaded()
   $autoScanEnabled.set(enabled)
   hasLoadedConfig = true
-  await persistAutoScanConfig({ enabled })
+  await saveIndexerConfig(AUTO_SCAN_FILE, { enabled })
   return enabled
 }

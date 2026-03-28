@@ -1,4 +1,4 @@
-import type { Track } from "@/modules/player/player.store"
+import type { Track } from "@/modules/player/player.types"
 import { useRouter } from "expo-router"
 import { BottomSheet, PressableFeedback, Toast, useToast } from "heroui-native"
 import { useState } from "react"
@@ -8,7 +8,7 @@ import { PlaylistPickerSheet } from "@/components/blocks/playlist-picker-sheet"
 import {
   useAddTrackToPlaylist,
   useRemoveTrackFromPlaylist,
-} from "@/modules/playlist/playlist.queries"
+} from "@/modules/playlist/playlist.mutations"
 
 interface PlayerActionSheetProps {
   visible: boolean

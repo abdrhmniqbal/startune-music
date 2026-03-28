@@ -1,58 +1,108 @@
 import { Image } from "expo-image"
-import { Stack, useRouter } from "expo-router"
+import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { Button } from "heroui-native"
 import * as React from "react"
 import { useState } from "react"
 import { Text, View } from "react-native"
 import Animated from "react-native-reanimated"
 
-import { PlaybackActionsRow } from "@/components/blocks"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalFavouriteIcon from "@/components/icons/local/favourite"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
-import { BackButton } from "@/components/patterns"
-import { EmptyState } from "@/components/ui"
+import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
+import { BackButton } from "@/components/patterns/back-button"
+import { EmptyState } from "@/components/ui/empty-state"
 import { screenEnterTransition } from "@/constants/animations"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
-} from "@/hooks/scroll-bars.store"
+} from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { useAlbumDetailsScreen } from "@/modules/albums/hooks/use-album-details-screen"
-import { useToggleFavorite } from "@/modules/favorites/favorites.queries"
+import { formatAlbumDuration, groupTracksByDisc } from "@/modules/albums/albums.utils"
+import { useIsFavorite } from "@/modules/favorites/favorites.queries"
+import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import {
   ALBUM_TRACK_SORT_OPTIONS,
   type AlbumTrackSortField,
+  setSortConfig,
+  sortTracks,
+  useLibrarySortStore,
 } from "@/modules/library/library-sort.store"
+import { useTracksByAlbumName } from "@/modules/library/library.queries"
+import { playTrack, type Track, usePlayerStore } from "@/modules/player/player.store"
 import { mergeText } from "@/utils/merge-text"
 
 const HEADER_COLLAPSE_THRESHOLD = 120
 
+function getRandomIndex(max: number) {
+  return Math.floor(Math.random() * max)
+}
+
+function getSafeRouteName(value: string | string[] | undefined) {
+  const raw = Array.isArray(value) ? (value[0] ?? "") : (value ?? "")
+  try {
+    return decodeURIComponent(raw)
+  } catch {
+    return raw
+  }
+}
+
 export default function AlbumDetailsScreen() {
   const theme = useThemeColors()
   const router = useRouter()
+  const { name } = useLocalSearchParams<{ name: string }>()
   const toggleFavoriteMutation = useToggleFavorite()
   const [sortModalVisible, setSortModalVisible] = useState(false)
   const [showHeaderTitle, setShowHeaderTitle] = useState(false)
-
+  const allSortConfigs = useLibrarySortStore((state) => state.sortConfig)
+  const allTracks = usePlayerStore((state) => state.tracks)
+  const albumName = getSafeRouteName(name)
+  const normalizedAlbumName = albumName.trim().toLowerCase()
   const {
-    albumInfo,
-    isLoading,
-    albumId,
-    isAlbumFavorite,
-    sortedTracks,
-    sortConfig,
-    totalDurationLabel,
-    playSelectedTrack,
-    playAllTracks,
-    shuffleTracks,
-    selectSort,
-    getSortLabel,
-  } = useAlbumDetailsScreen()
+    data: albumTracksFromQuery = [],
+    isLoading: isAlbumTracksLoading,
+    isFetching: isAlbumTracksFetching,
+  } = useTracksByAlbumName(albumName)
+  const albumTracks =
+    albumTracksFromQuery.length > 0
+      ? albumTracksFromQuery
+      : allTracks.filter(
+          (track) =>
+            (track.album || "").trim().toLowerCase() === normalizedAlbumName
+        )
+  const albumInfo =
+    albumTracks.length > 0
+      ? {
+          title: albumTracks[0].album || "Unknown Album",
+          artist:
+            albumTracks[0].albumArtist ||
+            albumTracks[0].artist ||
+            "Unknown Artist",
+          image: albumTracks[0].image,
+          year: albumTracks[0].year,
+        }
+      : null
+  const totalDuration = albumTracks.reduce(
+    (sum, track) => sum + (track.duration || 0),
+    0
+  )
+  const sortConfig = allSortConfigs.AlbumTracks || {
+    field: "trackNumber" as AlbumTrackSortField,
+    order: "asc" as const,
+  }
+  const sortedTracks = sortTracks(albumTracks, sortConfig)
+  const albumId = albumTracks[0]?.albumId
+  const { data: isAlbumFavorite = false } = useIsFavorite(
+    "album",
+    albumId || ""
+  )
+  const isLoading =
+    (isAlbumTracksLoading || isAlbumTracksFetching) && albumTracks.length === 0
+  const totalDurationLabel = formatAlbumDuration(totalDuration)
   const hasMultipleDiscs =
     new Set(sortedTracks.map((track) => track.discNumber || 1)).size > 1
 
@@ -68,7 +118,7 @@ export default function AlbumDetailsScreen() {
     field: AlbumTrackSortField,
     order?: "asc" | "desc"
   ) {
-    selectSort(field, order)
+    setSortConfig("AlbumTracks", field, order)
   }
 
   function handleBack() {
@@ -91,6 +141,29 @@ export default function AlbumDetailsScreen() {
         className="mt-12"
       />
     )
+  }
+
+  function playSelectedTrack(track: Track) {
+    playTrack(track, sortedTracks)
+  }
+
+  function playAllTracks() {
+    if (sortedTracks.length > 0) {
+      playTrack(sortedTracks[0], sortedTracks)
+    }
+  }
+
+  function shuffleTracks() {
+    if (sortedTracks.length > 0) {
+      playTrack(sortedTracks[getRandomIndex(sortedTracks.length)], sortedTracks)
+    }
+  }
+
+  function getSortLabel() {
+    const option = ALBUM_TRACK_SORT_OPTIONS.find(
+      (item) => item.field === sortConfig.field
+    )
+    return option?.label || "Sort"
   }
 
   return (

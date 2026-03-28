@@ -4,7 +4,7 @@ import { View } from "react-native"
 
 import LocalSearchIcon from "@/components/icons/local/search"
 import LocalSettingsIcon from "@/components/icons/local/settings"
-import { BackButton } from "@/components/patterns"
+import { BackButton } from "@/components/patterns/back-button"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export default function HomeLayout() {

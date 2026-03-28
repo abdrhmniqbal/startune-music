@@ -1,28 +1,9 @@
-import type { GenreShape } from "./genres.constants"
 import type { Album } from "@/components/blocks/album-grid"
-import type { Track } from "@/modules/player/player.types"
-
-import {
-  type GenreAlbumInfo,
-  type GenreVisual,
-  getAlbumsByGenre,
-  getAllGenreVisuals,
-  getAllTracksByGenre,
-  getTopTracksByGenre,
-} from "@/modules/genres/genres.api"
-
-export type PatternType = GenreShape
-
-export interface GenreCategory {
-  id: string
-  title: string
-  color: string
-  pattern: PatternType
-}
-
-export async function fetchGenres(): Promise<GenreVisual[]> {
-  return getAllGenreVisuals()
-}
+import type {
+  GenreAlbumInfo,
+  GenreCategory,
+  GenreVisual,
+} from "@/modules/genres/genres.types"
 
 export function mapGenresToCategories(genres: GenreVisual[]): GenreCategory[] {
   const mapped = genres.map((genre) => ({
@@ -98,27 +79,6 @@ function getPlacementScore(
   score += sameColorCount * 3 + samePatternCount * 3
 
   return score
-}
-
-export async function fetchGenreDetails(
-  genreName: string
-): Promise<{ topTracks: Track[]; albums: GenreAlbumInfo[] }> {
-  const [topTracks, albums] = await Promise.all([
-    getTopTracksByGenre(genreName, 25),
-    getAlbumsByGenre(genreName),
-  ])
-
-  return { topTracks, albums }
-}
-
-export async function fetchGenreTopTracks(genreName: string): Promise<Track[]> {
-  return getAllTracksByGenre(genreName)
-}
-
-export async function fetchGenreAlbums(
-  genreName: string
-): Promise<GenreAlbumInfo[]> {
-  return getAlbumsByGenre(genreName)
 }
 
 export function getPreviewAlbums(

@@ -9,7 +9,7 @@ import {
   ensureLoggingConfigLoaded,
   setAppLogLevel,
   useLoggingStore,
-} from "@/modules/logging"
+} from "@/modules/logging/logger"
 
 interface LogLevelOption {
   label: string

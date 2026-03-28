@@ -1,6 +1,6 @@
 import { Stack } from "expo-router"
 
-import { BackButton } from "@/components/patterns"
+import { BackButton } from "@/components/patterns/back-button"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export default function PlaylistLayout() {

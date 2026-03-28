@@ -1,5 +1,10 @@
-import { File, Paths } from "expo-file-system"
 import { create } from "zustand"
+
+import {
+  createIndexerConfigFile,
+  loadIndexerConfig,
+  saveIndexerConfig,
+} from "@/modules/indexer/indexer-config.repository"
 
 export type TrackDurationFilterMode =
   | "off"
@@ -13,8 +18,7 @@ export interface TrackDurationFilterConfig {
   customMinimumSeconds: number
 }
 
-const TRACK_DURATION_FILTER_FILE = new File(
-  Paths.document,
+const TRACK_DURATION_FILTER_FILE = createIndexerConfigFile(
   "track-duration-filter.json"
 )
 const DEFAULT_TRACK_DURATION_FILTER: TrackDurationFilterConfig = {
@@ -69,16 +73,7 @@ function sanitizeConfig(
 }
 
 async function persistConfig(config: TrackDurationFilterConfig): Promise<void> {
-  if (!TRACK_DURATION_FILTER_FILE.exists) {
-    TRACK_DURATION_FILTER_FILE.create({
-      intermediates: true,
-      overwrite: true,
-    })
-  }
-
-  TRACK_DURATION_FILTER_FILE.write(JSON.stringify(config), {
-    encoding: "utf8",
-  })
+  await saveIndexerConfig(TRACK_DURATION_FILTER_FILE, config)
 }
 
 export async function ensureTrackDurationFilterConfigLoaded(): Promise<TrackDurationFilterConfig> {
@@ -91,24 +86,14 @@ export async function ensureTrackDurationFilterConfigLoaded(): Promise<TrackDura
   }
 
   loadPromise = (async () => {
-    try {
-      if (!TRACK_DURATION_FILTER_FILE.exists) {
-        $trackDurationFilterConfig.set(DEFAULT_TRACK_DURATION_FILTER)
-        hasLoadedConfig = true
-        return DEFAULT_TRACK_DURATION_FILTER
-      }
-
-      const raw = await TRACK_DURATION_FILTER_FILE.text()
-      const parsed = JSON.parse(raw) as Partial<TrackDurationFilterConfig>
-      const next = sanitizeConfig(parsed)
-      $trackDurationFilterConfig.set(next)
-      hasLoadedConfig = true
-      return next
-    } catch {
-      $trackDurationFilterConfig.set(DEFAULT_TRACK_DURATION_FILTER)
-      hasLoadedConfig = true
-      return DEFAULT_TRACK_DURATION_FILTER
-    }
+    const next = await loadIndexerConfig(
+      TRACK_DURATION_FILTER_FILE,
+      DEFAULT_TRACK_DURATION_FILTER,
+      sanitizeConfig
+    )
+    $trackDurationFilterConfig.set(next)
+    hasLoadedConfig = true
+    return next
   })()
 
   const result = await loadPromise

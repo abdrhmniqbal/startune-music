@@ -8,13 +8,13 @@ import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
 import LocalUserIcon from "@/components/icons/local/user"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
 import {
-  Item,
-  ItemAction,
-  ItemContent,
-  ItemDescription,
-  ItemImage,
-  ItemTitle,
-} from "@/components/ui"
+  MediaItem as Item,
+  MediaItemAction as ItemAction,
+  MediaItemContent as ItemContent,
+  MediaItemDescription as ItemDescription,
+  MediaItemImage as ItemImage,
+  MediaItemTitle as ItemTitle,
+} from "@/components/ui/media-item"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export interface RecentSearchItem {

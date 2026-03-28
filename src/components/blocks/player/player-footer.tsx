@@ -5,7 +5,10 @@ import { cn } from "tailwind-variants"
 
 import LocalMicIcon from "@/components/icons/local/mic"
 import LocalQueueIcon from "@/components/icons/local/queue"
-import { $playerExpandedView, useUIStore } from "@/hooks/scroll-bars.store"
+import {
+  togglePlayerExpandedView,
+  useUIStore,
+} from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 
 export const PlayerFooter: React.FC = () => {
@@ -15,11 +18,7 @@ export const PlayerFooter: React.FC = () => {
   return (
     <View className="flex-row items-center justify-between">
       <PressableFeedback
-        onPress={() => {
-          $playerExpandedView.set(
-            playerExpandedView === "lyrics" ? "artwork" : "lyrics"
-          )
-        }}
+        onPress={() => togglePlayerExpandedView("lyrics")}
         className={cn(playerExpandedView !== "lyrics" && "opacity-60")}
       >
         <LocalMicIcon
@@ -30,11 +29,7 @@ export const PlayerFooter: React.FC = () => {
         />
       </PressableFeedback>
       <PressableFeedback
-        onPress={() => {
-          $playerExpandedView.set(
-            playerExpandedView === "queue" ? "artwork" : "queue"
-          )
-        }}
+        onPress={() => togglePlayerExpandedView("queue")}
         className={cn(playerExpandedView !== "queue" && "opacity-60")}
       >
         <LocalQueueIcon

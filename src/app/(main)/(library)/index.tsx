@@ -1,4 +1,5 @@
 import { Tabs } from "heroui-native"
+import { useRouter } from "expo-router"
 import * as React from "react"
 import {
   type NativeScrollEvent,
@@ -10,7 +11,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { cn } from "tailwind-variants"
 
-import { PlaybackActionsRow } from "@/components/blocks"
+import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { AlbumsTab } from "@/components/blocks/albums-tab"
 import { ArtistsTab } from "@/components/blocks/artists-tab"
 import { FavoritesList } from "@/components/blocks/favorites-list"
@@ -23,63 +24,264 @@ import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
-} from "@/hooks/scroll-bars.store"
+} from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { startIndexing } from "@/modules/indexer"
+import { useFavorites } from "@/modules/favorites/favorites.queries"
+import { startIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
+import { useAlbums, useArtists } from "@/modules/library/library.queries"
 import {
-  LIBRARY_TAB_SORT_OPTIONS,
-  LIBRARY_TABS,
-  type LibraryTab,
-  useLibraryScreen,
-} from "@/modules/library/hooks/use-library-screen"
-import { usePlayerStore } from "@/modules/player/player.store"
+  ALBUM_SORT_OPTIONS,
+  ARTIST_SORT_OPTIONS,
+  FOLDER_SORT_OPTIONS,
+  PLAYLIST_SORT_OPTIONS,
+  setSortConfig,
+  sortGeneric,
+  sortTracks,
+  TRACK_SORT_OPTIONS,
+  type SortField,
+  useLibrarySortStore,
+} from "@/modules/library/library-sort.store"
+import { useFolderBrowser } from "@/modules/library/hooks/use-folder-browser"
+import { playTrack, type Track, usePlayerStore } from "@/modules/player/player.store"
+import { usePlaylistsWithOptions } from "@/modules/playlist/playlist.queries"
+import type { Playlist } from "@/components/blocks/playlist-list"
+
+const LIBRARY_TABS = [
+  "Tracks",
+  "Albums",
+  "Artists",
+  "Playlists",
+  "Folders",
+  "Favorites",
+] as const
+type LibraryTab = (typeof LIBRARY_TABS)[number]
+
+interface LibrarySortOption {
+  label: string
+  field: SortField
+}
+
+const LIBRARY_SORT_OPTIONS: Record<LibraryTab, LibrarySortOption[]> = {
+  Tracks: TRACK_SORT_OPTIONS,
+  Albums: ALBUM_SORT_OPTIONS,
+  Artists: ARTIST_SORT_OPTIONS,
+  Playlists: PLAYLIST_SORT_OPTIONS,
+  Folders: FOLDER_SORT_OPTIONS,
+  Favorites: [],
+}
 
 export default function LibraryScreen() {
+  const router = useRouter()
   const theme = useThemeColors()
   const insets = useSafeAreaInsets()
   const currentTrack = usePlayerStore((state) => state.currentTrack)
+  const tracks = usePlayerStore((state) => state.tracks)
   const indexerState = useIndexerStore((state) => state.indexerState)
   const tabBarHeight = getTabBarHeight(insets.bottom)
   const hasMiniPlayer = currentTrack !== null
   const libraryListBottomPadding =
     tabBarHeight + (hasMiniPlayer ? MINI_PLAYER_HEIGHT : 0) + 200
+  const [activeTab, setActiveTab] = React.useState<LibraryTab>("Tracks")
+  const [sortModalVisible, setSortModalVisible] = React.useState(false)
   const [isPullRefreshing, setIsPullRefreshing] = React.useState(false)
+  const allSortConfigs = useLibrarySortStore((state) => state.sortConfig)
+  const sortConfig = allSortConfigs[activeTab]
+  const shouldLoadFavorites = activeTab === "Favorites"
+  const shouldLoadAlbums = activeTab === "Albums"
+  const shouldLoadArtists = activeTab === "Artists"
+  const shouldLoadPlaylists = activeTab === "Playlists"
+
+  const { data: favorites = [] } = useFavorites(undefined, {
+    enabled: shouldLoadFavorites,
+  })
+
+  const albumOrderByField =
+    allSortConfigs.Albums.field === "artist"
+      ? "artist"
+      : allSortConfigs.Albums.field === "year"
+        ? "year"
+        : allSortConfigs.Albums.field === "trackCount"
+          ? "trackCount"
+          : allSortConfigs.Albums.field === "dateAdded"
+            ? "dateAdded"
+            : "title"
+
+  const artistOrderByField =
+    allSortConfigs.Artists.field === "trackCount"
+      ? "trackCount"
+      : allSortConfigs.Artists.field === "dateAdded"
+        ? "dateAdded"
+        : "name"
+
+  const { data: albumsData = [] } = useAlbums(
+    albumOrderByField,
+    allSortConfigs.Albums.order,
+    { enabled: shouldLoadAlbums }
+  )
+  const { data: artistsData = [] } = useArtists(
+    artistOrderByField,
+    allSortConfigs.Artists.order,
+    { enabled: shouldLoadArtists }
+  )
+  const { data: playlistsData = [] } =
+    usePlaylistsWithOptions(shouldLoadPlaylists)
+
+  const playlists: Playlist[] = sortGeneric(
+    playlistsData,
+    allSortConfigs.Playlists
+  )
 
   const {
-    activeTab,
-    setActiveTab,
-    sortModalVisible,
-    setSortModalVisible,
-    closeSortModal,
-    sortConfig,
-    favorites,
-    playlists,
     folders,
     folderTracks,
     folderBreadcrumbs,
-    openArtist,
-    openAlbum,
-    openPlaylist,
-    openPlaylistForm,
     openFolder,
     goBackFolder,
     navigateToFolderPath,
-    playFolderTrack,
-    playSingleTrack,
-    playAll,
-    shuffle,
-    handleSortSelect,
-    getSortLabel,
-    getItemCount,
-  } = useLibraryScreen()
+  } = useFolderBrowser(tracks, allSortConfigs.Folders)
 
   const showPlayButtons = activeTab === "Tracks" || activeTab === "Favorites"
-  const currentSortOptions = LIBRARY_TAB_SORT_OPTIONS[activeTab]
+  const currentSortOptions = LIBRARY_SORT_OPTIONS[activeTab]
   const handleListScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     handleScroll(event.nativeEvent.contentOffset.y)
   }
   const isRefreshing = isPullRefreshing || indexerState.isIndexing
+
+  function closeSortModal() {
+    setSortModalVisible(false)
+  }
+
+  function openArtist(name: string) {
+    router.push({
+      pathname: "/artist/[name]",
+      params: { name },
+    })
+  }
+
+  function openAlbum(title: string) {
+    router.push({
+      pathname: "/album/[name]",
+      params: { name: title },
+    })
+  }
+
+  function openPlaylist(id: string) {
+    router.push(`./playlist/${id}`)
+  }
+
+  function openPlaylistForm() {
+    router.push("/playlist/form")
+  }
+
+  function playFolderTrack(track: Track) {
+    playTrack(track, folderTracks)
+  }
+
+  function playSingleTrack(track: Track, queue?: Track[]) {
+    if (queue && queue.length > 0) {
+      playTrack(track, queue)
+      return
+    }
+
+    const sortedTracksQueue = sortTracks(tracks, allSortConfigs.Tracks)
+    if (sortedTracksQueue.length > 0) {
+      playTrack(track, sortedTracksQueue)
+      return
+    }
+
+    playTrack(track)
+  }
+
+  function playAll() {
+    if (activeTab === "Tracks") {
+      const sortedTracksQueue = sortTracks(tracks, allSortConfigs.Tracks)
+      if (sortedTracksQueue.length > 0) {
+        playTrack(sortedTracksQueue[0], sortedTracksQueue)
+      }
+      return
+    }
+
+    if (activeTab === "Favorites") {
+      const firstTrack = favorites.find((favorite) => favorite.type === "track")
+      if (firstTrack) {
+        const track = tracks.find((candidate) => candidate.id === firstTrack.id)
+        if (track) {
+          playTrack(track)
+        }
+      }
+      return
+    }
+
+    if (tracks.length > 0) {
+      playTrack(tracks[0])
+    }
+  }
+
+  function shuffle() {
+    if (activeTab === "Tracks") {
+      const sortedTracksQueue = sortTracks(tracks, allSortConfigs.Tracks)
+      if (sortedTracksQueue.length > 0) {
+        const randomIndex = Math.floor(Math.random() * sortedTracksQueue.length)
+        playTrack(sortedTracksQueue[randomIndex], sortedTracksQueue)
+      }
+      return
+    }
+
+    if (activeTab === "Favorites") {
+      const trackFavorites = favorites.filter(
+        (favorite) => favorite.type === "track"
+      )
+      if (trackFavorites.length > 0) {
+        const randomIndex = Math.floor(Math.random() * trackFavorites.length)
+        const track = tracks.find(
+          (candidate) => candidate.id === trackFavorites[randomIndex].id
+        )
+        if (track) {
+          playTrack(track)
+        }
+      }
+      return
+    }
+
+    if (tracks.length > 0) {
+      const randomIndex = Math.floor(Math.random() * tracks.length)
+      playTrack(tracks[randomIndex])
+    }
+  }
+
+  function handleSortSelect(field: SortField, order?: "asc" | "desc") {
+    setSortConfig(activeTab, field, order)
+    if (!order) {
+      setSortModalVisible(false)
+    }
+  }
+
+  function getSortLabel() {
+    const selected = currentSortOptions.find(
+      (option) => option.field === sortConfig.field
+    )
+    return selected?.label || "Sort"
+  }
+
+  function getItemCount() {
+    switch (activeTab) {
+      case "Tracks":
+        return tracks.length
+      case "Albums":
+        return albumsData.length
+      case "Artists":
+        return artistsData.length
+      case "Favorites":
+        return favorites.length
+      case "Playlists":
+        return playlists.length
+      case "Folders":
+        return folders.length + folderTracks.length
+      default:
+        return 0
+    }
+  }
 
   async function handleRefresh() {
     if (indexerState.isIndexing) {

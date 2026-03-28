@@ -1,6 +1,4 @@
-import type { RepeatModeType } from "./player.store"
-
-import type { Track } from "./player.types"
+import type { RepeatModeType, Track } from "./player.types"
 import { File, Paths } from "expo-file-system"
 
 interface PersistedPlaybackSession {

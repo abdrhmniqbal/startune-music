@@ -21,15 +21,15 @@ import {
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalCancelCircleSolidIcon from "@/components/icons/local/cancel-circle-solid"
 import LocalSearchIcon from "@/components/icons/local/search"
-import { PlaylistArtwork } from "@/components/patterns"
+import { PlaylistArtwork } from "@/components/patterns/playlist-artwork"
 import {
-  EmptyState,
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemImage,
-  ItemTitle,
-} from "@/components/ui"
+  MediaItem as Item,
+  MediaItemContent as ItemContent,
+  MediaItemDescription as ItemDescription,
+  MediaItemImage as ItemImage,
+  MediaItemTitle as ItemTitle,
+} from "@/components/ui/media-item"
+import { EmptyState } from "@/components/ui/empty-state"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { usePlaylistsForTrack } from "@/modules/playlist/playlist.queries"
 

@@ -2,24 +2,26 @@ import { useRouter } from "expo-router"
 import * as React from "react"
 import { RefreshControl, ScrollView, View } from "react-native"
 
-import {
-  ContentSection,
-  LibrarySkeleton,
-  MediaCarousel,
-  RankedTrackCarousel,
-} from "@/components/blocks"
+import { ContentSection } from "@/components/blocks/content-section"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { MediaCarousel } from "@/components/blocks/media-carousel"
+import { RankedTrackCarousel } from "@/components/blocks/ranked-track-carousel"
 import LocalClockSolidIcon from "@/components/icons/local/clock-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import { TrackRow } from "@/components/patterns"
-import { ScaleLoader } from "@/components/ui"
+import { TrackRow } from "@/components/patterns/track-row"
+import { ScaleLoader } from "@/components/ui/scale-loader"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
-} from "@/hooks/scroll-bars.store"
+} from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
+import {
+  useRecentlyPlayedTracks,
+  useTopTracksByPeriod,
+} from "@/modules/history/history.queries"
+import { startIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import { useHomeScreen } from "@/modules/library/hooks/use-home-screen"
 import {
   playTrack,
   usePlayerStore,
@@ -27,14 +29,41 @@ import {
 } from "@/modules/player/player.store"
 
 const CHUNK_SIZE = 5
+const RECENTLY_PLAYED_LIMIT = 8
+const TOP_TRACKS_LIMIT = 25
 
 export default function HomeScreen() {
   const router = useRouter()
   const theme = useThemeColors()
   const indexerState = useIndexerStore((state) => state.indexerState)
   const currentTrack = usePlayerStore((state) => state.currentTrack)
-  const { recentlyPlayedTracks, topTracks, isLoading, refresh } =
-    useHomeScreen()
+  const {
+    data: recentlyPlayedTracksData,
+    isLoading: isRecentlyPlayedLoading,
+    isFetching: isRecentlyPlayedFetching,
+    refetch: refetchRecentlyPlayedTracks,
+  } = useRecentlyPlayedTracks(RECENTLY_PLAYED_LIMIT)
+  const {
+    data: topTracksData,
+    isLoading: isTopTracksLoading,
+    isFetching: isTopTracksFetching,
+    refetch: refetchTopTracks,
+  } = useTopTracksByPeriod("all", TOP_TRACKS_LIMIT)
+
+  const recentlyPlayedTracks = recentlyPlayedTracksData ?? []
+  const topTracks = topTracksData ?? []
+  const isLoading =
+    (isRecentlyPlayedLoading ||
+      isRecentlyPlayedFetching ||
+      isTopTracksLoading ||
+      isTopTracksFetching) &&
+    recentlyPlayedTracks.length === 0 &&
+    topTracks.length === 0
+
+  async function refresh() {
+    await startIndexing(false)
+    await Promise.all([refetchRecentlyPlayedTracks(), refetchTopTracks()])
+  }
 
   if (isLoading) {
     return (

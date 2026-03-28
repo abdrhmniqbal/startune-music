@@ -23,6 +23,15 @@ export interface TTMLLine {
   words: TTMLWord[]
 }
 
+function hasMoreThanOneDistinctTime(values: number[]) {
+  const distinctValues = new Set(
+    values
+      .filter((value) => Number.isFinite(value))
+      .map((value) => Math.round(value * 1000))
+  )
+  return distinctValues.size > 1
+}
+
 interface JsonTimedLyricEntry {
   text?: unknown
   time?: unknown
@@ -224,6 +233,18 @@ export function parseSyncedLyricsLines(
   return parsed.sort((a, b) => a.time - b.time)
 }
 
+export function hasMeaningfulSyncedLyricsTiming(lines: SyncedLyricsLine[]) {
+  if (lines.length === 0) {
+    return false
+  }
+
+  if (lines.some((line) => line.time > 0)) {
+    return true
+  }
+
+  return hasMoreThanOneDistinctTime(lines.map((line) => line.time))
+}
+
 function parseTTMLTimestamp(raw: string): number {
   const parts = raw.split(":")
   if (parts.length === 3) {
@@ -275,13 +296,6 @@ export function parseTTMLLines(raw: string | null | undefined): TTMLLine[] {
       /<span\s[^>]*begin="([^"]+)"[^>]*end="([^"]+)"[^>]*>([\s\S]*?)<\/span>/g
     let spanMatch: RegExpExecArray | null
 
-    // DEBUG: Log innerContent to see what we're parsing
-    const spanCount = (innerContent.match(/<span\s/g) || []).length
-    if (lineIndex === 0) {
-      console.log("[TTML] Line 0 innerContent spans found:", spanCount)
-      console.log("[TTML] Line 0 innerContent preview:", innerContent.substring(0, 200))
-    }
-
     while ((spanMatch = spanRegex.exec(innerContent)) !== null) {
       const begin = parseTTMLTimestamp(spanMatch[1] || "0")
       const end = parseTTMLTimestamp(spanMatch[2] || "0")
@@ -324,15 +338,30 @@ export function parseTTMLLines(raw: string | null | undefined): TTMLLine[] {
     }
   }
 
-  // DEBUG: Log word parsing details
-  if (lines.length > 0) {
-    console.log("[TTML Parser] First line words count:", lines[0].words.length)
-    if (lines[0].words.length > 0) {
-      console.log("[TTML Parser] First 3 words:", lines[0].words.slice(0, 3).map(w => ({ text: w.text, begin: w.begin, end: w.end })))
-    } else {
-      console.log("[TTML Parser] WARNING: No words parsed - using line fallback")
-    }
+  return lines.sort((a, b) => a.begin - b.begin)
+}
+
+export function hasMeaningfulTTMLTiming(lines: TTMLLine[]) {
+  if (lines.length === 0) {
+    return false
   }
 
-  return lines.sort((a, b) => a.begin - b.begin)
+  const lineHasDuration = lines.some(
+    (line) => line.end > line.begin || line.begin > 0 || line.end > 0
+  )
+  if (lineHasDuration) {
+    return true
+  }
+
+  const words = lines.flatMap((line) => line.words)
+  if (
+    words.some((word) => word.end > word.begin || word.begin > 0 || word.end > 0)
+  ) {
+    return true
+  }
+
+  return (
+    hasMoreThanOneDistinctTime(lines.flatMap((line) => [line.begin, line.end])) ||
+    hasMoreThanOneDistinctTime(words.flatMap((word) => [word.begin, word.end]))
+  )
 }

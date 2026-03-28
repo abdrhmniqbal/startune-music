@@ -1,7 +1,7 @@
 import type {
   FavoriteEntry,
   FavoriteType,
-} from "@/modules/favorites/favorites.api"
+} from "@/modules/favorites/favorites.types"
 import { LegendList, type LegendListRenderItemProps } from "@legendapp/list"
 import { Image } from "expo-image"
 import { useRouter } from "expo-router"
@@ -20,19 +20,19 @@ import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
-import { PlaylistArtwork } from "@/components/patterns"
+import { PlaylistArtwork } from "@/components/patterns/playlist-artwork"
 import {
-  EmptyState,
-  Item,
-  ItemAction,
-  ItemContent,
-  ItemDescription,
-  ItemImage,
-  ItemTitle,
-} from "@/components/ui"
+  MediaItem as Item,
+  MediaItemAction as ItemAction,
+  MediaItemContent as ItemContent,
+  MediaItemDescription as ItemDescription,
+  MediaItemImage as ItemImage,
+  MediaItemTitle as ItemTitle,
+} from "@/components/ui/media-item"
+import { EmptyState } from "@/components/ui/empty-state"
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { useToggleFavorite } from "@/modules/favorites/favorites.queries"
+import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
 import { playTrack, usePlayerStore } from "@/modules/player/player.store"
 
 interface FavoritesListProps {

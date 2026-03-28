@@ -5,28 +5,38 @@ import { useState } from "react"
 import { Text, View } from "react-native"
 import Animated from "react-native-reanimated"
 
-import {
-  DeletePlaylistDialog,
-  LibrarySkeleton,
-  PlaybackActionsRow,
-  PlaylistActionsSheet,
-} from "@/components/blocks"
+import { DeletePlaylistDialog } from "@/components/blocks/delete-playlist-dialog"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
+import { PlaylistActionsSheet } from "@/components/blocks/playlist-actions-sheet"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalFavouriteIcon from "@/components/icons/local/favourite"
 import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
 import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
 import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
-import { BackButton, PlaylistArtwork } from "@/components/patterns"
-import { EmptyState } from "@/components/ui"
+import { BackButton } from "@/components/patterns/back-button"
+import { PlaylistArtwork } from "@/components/patterns/playlist-artwork"
+import { EmptyState } from "@/components/ui/empty-state"
 import { screenEnterTransition } from "@/constants/animations"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
-} from "@/hooks/scroll-bars.store"
+} from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { usePlaylistDetailsScreen } from "@/modules/playlist/hooks/use-playlist-details-screen"
+import {
+  useIsFavorite,
+} from "@/modules/favorites/favorites.queries"
+import { useToggleFavorite } from "@/modules/favorites/favorites.mutations"
+import { playTrack } from "@/modules/player/player.store"
+import { usePlaylist } from "@/modules/playlist/playlist.queries"
+import { useDeletePlaylist } from "@/modules/playlist/playlist.mutations"
 import { formatDuration } from "@/modules/playlist/playlist.utils"
+import {
+  buildPlaylistImages,
+  buildPlaylistTracks,
+  getPlaylistDuration,
+} from "@/modules/playlist/playlist.utils"
 import { mergeText } from "@/utils/merge-text"
 
 const HEADER_COLLAPSE_THRESHOLD = 120
@@ -40,21 +50,14 @@ export default function PlaylistDetailsScreen() {
   const [showHeaderTitle, setShowHeaderTitle] = useState(false)
   const [showActionSheet, setShowActionSheet] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-
-  const {
-    playlist,
-    tracks,
-    playlistImages,
-    totalDuration,
-    isLoading,
-    isFavorite,
-    playFromPlaylist,
-    playAll,
-    shuffle,
-    toggleFavorite,
-    deletePlaylist,
-    isDeleting,
-  } = usePlaylistDetailsScreen(id || "")
+  const { data: playlist, isLoading } = usePlaylist(id || "")
+  const { data: isFavoriteData = false } = useIsFavorite("playlist", id || "")
+  const toggleFavoriteMutation = useToggleFavorite()
+  const deletePlaylistMutation = useDeletePlaylist()
+  const isFavorite = Boolean(isFavoriteData)
+  const tracks = buildPlaylistTracks(playlist)
+  const playlistImages = buildPlaylistImages(playlist, tracks)
+  const totalDuration = getPlaylistDuration(tracks)
   const playlistMetaText = mergeText([
     `${tracks.length} ${tracks.length === 1 ? "track" : "tracks"}`,
     formatDuration(totalDuration),
@@ -78,6 +81,58 @@ export default function PlaylistDetailsScreen() {
         <LibrarySkeleton type="playlist-detail" />
       </View>
     )
+  }
+
+  function playFromPlaylist(trackId: string) {
+    const selectedTrack = tracks.find((track) => track.id === trackId)
+    if (selectedTrack) {
+      playTrack(selectedTrack, tracks)
+    }
+  }
+
+  function playAll() {
+    if (tracks.length === 0) {
+      return
+    }
+
+    playTrack(tracks[0], tracks)
+  }
+
+  function shuffle() {
+    if (tracks.length === 0) {
+      return
+    }
+
+    const randomIndex = Math.floor(Math.random() * tracks.length)
+    playTrack(tracks[randomIndex], tracks)
+  }
+
+  async function toggleFavorite() {
+    if (!playlist) {
+      return
+    }
+
+    await toggleFavoriteMutation.mutateAsync({
+      type: "playlist",
+      itemId: playlist.id,
+      isCurrentlyFavorite: isFavorite,
+      name: playlist.name,
+      subtitle: `${playlist.trackCount || 0} tracks`,
+      image: playlist.artwork || undefined,
+    })
+  }
+
+  async function deletePlaylist(): Promise<boolean> {
+    if (!playlist) {
+      return false
+    }
+
+    try {
+      await deletePlaylistMutation.mutateAsync(playlist.id)
+      return true
+    } catch {
+      return false
+    }
   }
 
   if (!playlist) {
@@ -229,7 +284,7 @@ export default function PlaylistDetailsScreen() {
         isOpen={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
         onConfirm={handleDeleteConfirm}
-        isDeleting={isDeleting}
+        isDeleting={deletePlaylistMutation.isPending}
       />
     </View>
   )

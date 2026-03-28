@@ -7,11 +7,13 @@ import {
   $isShuffled,
   $originalQueue,
   $queue,
-  persistPlaybackSession,
-  syncCurrentTrackFromPlayer,
   usePlayerStore,
   type Track,
 } from "./player.store"
+import {
+  persistPlaybackSession,
+  syncCurrentTrackFromPlayer,
+} from "./player.service"
 
 export { $isShuffled, $originalQueue, $queue } from "./player.store"
 
@@ -142,7 +144,6 @@ export async function clearQueue() {
 
 export function setQueue(tracks: Track[]) {
   $queue.set(tracks)
-  void persistPlaybackSession({ force: true })
 }
 
 export async function moveInQueue(fromIndex: number, toIndex: number) {

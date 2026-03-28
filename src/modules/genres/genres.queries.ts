@@ -1,41 +1,26 @@
 import { useQuery } from "@tanstack/react-query"
-import { asc, eq, sql } from "drizzle-orm"
 
-import { db } from "@/db/client"
-import { genres } from "@/db/schema"
+import { queryClient } from "@/lib/tanstack-query"
 
-const GENRES_KEY = "genres"
+import { genreKeys } from "./genres.keys"
+import { getGenreById, listGenres } from "./genres.repository"
 
 export function useGenres() {
-  return useQuery({
-    queryKey: [GENRES_KEY],
-    queryFn: async () => {
-      return db.query.genres.findMany({
-        orderBy: [asc(sql`lower(coalesce(${genres.name}, ''))`)],
-      })
+  return useQuery(
+    {
+      queryKey: genreKeys.all(),
+      queryFn: listGenres,
     },
-  })
+    queryClient
+  )
 }
 
 export function useGenre(id: string) {
-  return useQuery({
-    queryKey: [GENRES_KEY, id],
-    queryFn: async () => {
-      return db.query.genres.findFirst({
-        where: eq(genres.id, id),
-        with: {
-          tracks: {
-            with: {
-              track: {
-                with: {
-                  artist: true,
-                  album: true,
-                },
-              },
-            },
-          },
-        },
-      })
+  return useQuery(
+    {
+      queryKey: genreKeys.detail(id),
+      queryFn: async () => await getGenreById(id),
     },
-  })
+    queryClient
+  )
 }

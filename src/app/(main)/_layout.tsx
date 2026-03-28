@@ -3,10 +3,10 @@ import {
   type BottomTabBarProps,
 } from "@react-navigation/bottom-tabs"
 import { Tabs } from "expo-router"
-import { useCallback, useEffect } from "react"
+import { useCallback } from "react"
 import Animated, {
+  useDerivedValue,
   useAnimatedStyle,
-  useSharedValue,
   withTiming,
 } from "react-native-reanimated"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -23,7 +23,7 @@ import {
   getTabBarHeight,
   MINI_PLAYER_HEIGHT,
 } from "@/constants/layout"
-import { useUIStore } from "@/hooks/scroll-bars.store"
+import { useUIStore } from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 
 const TAB_HIDE_DURATION_MS = 250
@@ -36,13 +36,11 @@ export default function MainLayout() {
   const tabBarBottomPadding = getTabBarBottomPadding(insets.bottom)
   const tabBarHeight = getTabBarHeight(insets.bottom)
   const hiddenOffset = tabBarHeight + MINI_PLAYER_HEIGHT + TAB_HIDE_EXTRA_OFFSET
-  const translateY = useSharedValue(0)
-
-  useEffect(() => {
-    translateY.value = withTiming(barsVisible ? 0 : hiddenOffset, {
+  const translateY = useDerivedValue(() => {
+    return withTiming(barsVisible ? 0 : hiddenOffset, {
       duration: TAB_HIDE_DURATION_MS,
     })
-  }, [barsVisible, hiddenOffset, translateY])
+  }, [barsVisible, hiddenOffset])
 
   const animatedStyle = useAnimatedStyle(() => {
     return {

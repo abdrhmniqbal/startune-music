@@ -1,29 +1,6 @@
 import type { Album } from "@/components/blocks/album-grid"
-import type { Track } from "@/modules/player/player.types"
-import {
-  type GenreAlbumInfo as AlbumInfo,
-  getAlbumsByGenre,
-  getAllGenres,
-  getAllTracksByGenre,
-  getTopTracksByGenre,
-} from "@/modules/genres/genres.api"
 
-export type PatternType =
-  | "circles"
-  | "waves"
-  | "grid"
-  | "diamonds"
-  | "triangles"
-  | "rings"
-  | "pills"
-
-export interface Category {
-  id: string
-  title: string
-  color: string
-  pattern: PatternType
-}
-export type GenreAlbumInfo = AlbumInfo
+import type { Category, GenreAlbumInfo, PatternType } from "./search.types"
 
 const RAINBOW_COLORS = [
   "bg-rainbow-lime",
@@ -48,10 +25,6 @@ const PATTERNS: PatternType[] = [
   "pills",
 ]
 
-export async function fetchGenres(): Promise<string[]> {
-  return getAllGenres()
-}
-
 export function mapGenresToCategories(genres: string[]): Category[] {
   return genres.map((genre, index) => ({
     id: genre,
@@ -61,34 +34,16 @@ export function mapGenresToCategories(genres: string[]): Category[] {
   }))
 }
 
-export async function fetchGenreDetails(
-  genreName: string
-): Promise<{ topTracks: Track[]; albums: AlbumInfo[] }> {
-  const [topTracks, albums] = await Promise.all([
-    getTopTracksByGenre(genreName, 25),
-    getAlbumsByGenre(genreName),
-  ])
-
-  return { topTracks, albums }
-}
-
-export async function fetchGenreTopTracks(genreName: string): Promise<Track[]> {
-  return getAllTracksByGenre(genreName)
-}
-
-export async function fetchGenreAlbums(
-  genreName: string
-): Promise<AlbumInfo[]> {
-  return getAlbumsByGenre(genreName)
-}
-
-export function getPreviewAlbums(albums: AlbumInfo[], limit = 8): AlbumInfo[] {
+export function getPreviewAlbums(
+  albums: GenreAlbumInfo[],
+  limit = 8
+): GenreAlbumInfo[] {
   return [...albums]
     .sort((a, b) => (b.year || 0) - (a.year || 0))
     .slice(0, limit)
 }
 
-export function mapAlbumsToGridData(albums: AlbumInfo[]): Album[] {
+export function mapAlbumsToGridData(albums: GenreAlbumInfo[]): Album[] {
   return [...albums]
     .sort((a, b) => (b.year || 0) - (a.year || 0))
     .map((album, index) => ({

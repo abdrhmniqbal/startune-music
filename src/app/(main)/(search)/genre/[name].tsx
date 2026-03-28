@@ -1,25 +1,27 @@
-import type { GenreAlbumInfo } from "@/modules/genres/genres.api"
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { RefreshControl, ScrollView, View } from "react-native"
 
 import Animated from "react-native-reanimated"
-import {
-  ContentSection,
-  LibrarySkeleton,
-  MediaCarousel,
-  RankedTrackCarousel,
-} from "@/components/blocks"
+import { ContentSection } from "@/components/blocks/content-section"
+import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
+import { MediaCarousel } from "@/components/blocks/media-carousel"
+import { RankedTrackCarousel } from "@/components/blocks/ranked-track-carousel"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
-import { MusicCard } from "@/components/patterns"
+import { MusicCard } from "@/components/patterns/music-card"
 import { screenEnterTransition } from "@/constants/animations"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
-} from "@/hooks/scroll-bars.store"
+} from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { useGenreDetailsScreen } from "@/modules/genres/hooks/use-genre-details-screen"
+import {
+  getPreviewAlbums,
+} from "@/modules/search/search.utils"
+import { useGenreDetails } from "@/modules/search/search.queries"
+import type { GenreAlbumInfo } from "@/modules/search/search.types"
+import { startIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 
 const CHUNK_SIZE = 5
@@ -31,10 +33,17 @@ export default function GenreDetailsScreen() {
   const indexerState = useIndexerStore((state) => state.indexerState)
 
   const genreName = decodeURIComponent(name || "")
-  const { topTracks, previewAlbums, isLoading, refresh } =
-    useGenreDetailsScreen(genreName)
+  const { data, isLoading, isFetching, refetch } = useGenreDetails(genreName)
+  const topTracks = data?.topTracks ?? []
+  const albums = data?.albums ?? []
+  const previewAlbums = getPreviewAlbums(albums)
 
-  if (isLoading) {
+  async function refresh() {
+    await startIndexing(false)
+    await refetch()
+  }
+
+  if ((isLoading || isFetching) && topTracks.length === 0 && albums.length === 0) {
     return (
       <View className="flex-1 bg-background pt-5">
         <Stack.Screen
@@ -93,7 +102,7 @@ export default function GenreDetailsScreen() {
         scrollEventThrottle={16}
         refreshControl={
           <RefreshControl
-            refreshing={indexerState.isIndexing || isLoading}
+            refreshing={indexerState.isIndexing || isLoading || isFetching}
             onRefresh={refresh}
             tintColor={theme.accent}
           />

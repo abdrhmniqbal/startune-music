@@ -4,27 +4,60 @@ import { AppState, type AppStateStatus } from "react-native"
 
 import { requestMediaLibraryPermission } from "@/core/storage/media-library.service"
 import { bootstrapApp } from "@/modules/bootstrap/bootstrap.utils"
-import { ensureAutoScanConfigLoaded, startIndexing } from "@/modules/indexer"
-import { initializeLogging, logError } from "@/modules/logging"
+import { ensureAutoScanConfigLoaded } from "@/modules/indexer/auto-scan"
+import { startIndexing } from "@/modules/indexer/indexer.store"
+import { initializeLogging, logError } from "@/modules/logging/logger"
 
-export function useAppBootstrap() {
-  const [isInitialized, setIsInitialized] = useState(false)
+type DatabaseStatus = "pending" | "ready" | "error"
+
+let loggingInitializationPromise: Promise<void> | null = null
+
+function ensureLoggingInitialized() {
+  if (loggingInitializationPromise) {
+    return loggingInitializationPromise
+  }
+
+  loggingInitializationPromise = initializeLogging().catch((error) => {
+    loggingInitializationPromise = null
+    throw error
+  })
+
+  return loggingInitializationPromise
+}
+
+export function useAppBootstrap(options?: { onReady?: () => void }) {
+  const [isReady, setIsReady] = useState(false)
   const lastAutoScanAtRef = useRef(0)
-  const [isDatabaseReady, setIsDatabaseReady] = useState(false)
+  const bootstrapPromiseRef = useRef<Promise<void> | null>(null)
+  const databaseStatusRef = useRef<DatabaseStatus>("pending")
   const isBootstrappedRef = useRef(false)
+  const hasSignaledReadyRef = useRef(false)
+
+  const signalReady = useCallback(() => {
+    if (hasSignaledReadyRef.current) {
+      return
+    }
+
+    hasSignaledReadyRef.current = true
+    setIsReady(true)
+    options?.onReady?.()
+  }, [options])
 
   const runAutoScan = useCallback(
     async (options?: { bypassThrottle?: boolean }) => {
-      if (!isDatabaseReady || !isBootstrappedRef.current) {
+      if (
+        databaseStatusRef.current !== "ready" ||
+        !isBootstrappedRef.current
+      ) {
         return
       }
 
       const bypassThrottle = options?.bypassThrottle === true
       const now = Date.now()
-      const MIN_AUTO_SCAN_INTERVAL_MS = 5000
+      const minAutoScanIntervalMs = 5000
       if (
         !bypassThrottle &&
-        now - lastAutoScanAtRef.current < MIN_AUTO_SCAN_INTERVAL_MS
+        now - lastAutoScanAtRef.current < minAutoScanIntervalMs
       ) {
         return
       }
@@ -40,56 +73,41 @@ export function useAppBootstrap() {
       }
 
       lastAutoScanAtRef.current = now
-      // Auto-scan only checks and processes changed files.
       await startIndexing(false, false)
     },
-    [isDatabaseReady]
+    []
   )
 
-  useEffect(() => {
-    let isMounted = true
-
-    async function initialize() {
-      try {
-        await initializeLogging()
-      } catch (error) {
-        logError("App bootstrap failed", error)
-      }
-    }
-
-    void initialize()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!isDatabaseReady || isBootstrappedRef.current) {
+  const completeBootstrap = useCallback(async () => {
+    if (databaseStatusRef.current !== "ready") {
       return
     }
 
-    let isMounted = true
+    if (isBootstrappedRef.current) {
+      signalReady()
+      return
+    }
 
-    async function initializeAfterDatabaseReady() {
+    if (bootstrapPromiseRef.current) {
+      await bootstrapPromiseRef.current
+      return
+    }
+
+    bootstrapPromiseRef.current = (async () => {
       try {
+        await ensureLoggingInitialized()
         await bootstrapApp()
       } catch (error) {
         logError("App bootstrap failed", error)
       } finally {
-        if (isMounted) {
-          isBootstrappedRef.current = true
-          setIsInitialized(true)
-        }
+        isBootstrappedRef.current = true
+        signalReady()
+        bootstrapPromiseRef.current = null
       }
-    }
+    })()
 
-    void initializeAfterDatabaseReady()
-
-    return () => {
-      isMounted = false
-    }
-  }, [isDatabaseReady])
+    await bootstrapPromiseRef.current
+  }, [signalReady])
 
   useEffect(() => {
     let previousState: AppStateStatus = AppState.currentState
@@ -126,9 +144,22 @@ export function useAppBootstrap() {
   }, [runAutoScan])
 
   return {
-    isInitialized,
-    markDatabaseReady: useCallback(() => {
-      setIsDatabaseReady(true)
-    }, []),
+    isReady,
+    handleDatabaseReady: useCallback(() => {
+      if (databaseStatusRef.current !== "pending") {
+        return
+      }
+
+      databaseStatusRef.current = "ready"
+      void completeBootstrap()
+    }, [completeBootstrap]),
+    handleDatabaseError: useCallback(() => {
+      if (databaseStatusRef.current === "error") {
+        return
+      }
+
+      databaseStatusRef.current = "error"
+      signalReady()
+    }, [signalReady]),
   }
 }

@@ -7,8 +7,9 @@ import {
 import { requestMediaLibraryPermission } from "@/core/storage/media-library.service"
 import { db } from "@/db/client"
 import { tracks } from "@/db/schema"
-import { ensureAutoScanConfigLoaded, startIndexing } from "@/modules/indexer"
-import { restorePlaybackSession } from "@/modules/player/player.store"
+import { ensureAutoScanConfigLoaded } from "@/modules/indexer/auto-scan"
+import { startIndexing } from "@/modules/indexer/indexer.store"
+import { restorePlaybackSession } from "@/modules/player/player.service"
 
 export async function bootstrapApp(): Promise<void> {
   registerPlaybackService()

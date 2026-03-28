@@ -1,7 +1,8 @@
 import type { ReactNode } from "react"
 import { cn } from "tailwind-variants"
 
-import { EmptyState, SectionHeader } from "@/components/ui"
+import { EmptyState } from "@/components/ui/empty-state"
+import { SectionHeader } from "@/components/ui/section-header"
 
 interface EmptyStateConfig {
   icon: ReactNode

@@ -18,8 +18,9 @@ import {
 import { TrackActionSheet } from "@/components/blocks/track-action-sheet"
 import LocalMoreHorizontalCircleSolidIcon from "@/components/icons/local/more-horizontal-circle-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import { TrackRow } from "@/components/patterns"
-import { EmptyState, ScaleLoader } from "@/components/ui"
+import { TrackRow } from "@/components/patterns/track-row"
+import { EmptyState } from "@/components/ui/empty-state"
+import { ScaleLoader } from "@/components/ui/scale-loader"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   playTrack,

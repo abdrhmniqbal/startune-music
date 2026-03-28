@@ -5,7 +5,7 @@ import { Text, View } from "react-native"
 import { cn } from "tailwind-variants"
 
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import { Card } from "@/components/ui"
+import { Card } from "@/components/ui/card"
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 

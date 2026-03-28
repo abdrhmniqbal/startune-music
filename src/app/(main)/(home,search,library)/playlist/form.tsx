@@ -4,10 +4,8 @@ import * as React from "react"
 import { View } from "react-native"
 
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
-import {
-  PlaylistForm,
-  TrackPickerSheetContent,
-} from "@/components/blocks/playlist-form"
+import { PlaylistForm } from "@/components/blocks/playlist-form/playlist-form"
+import { TrackPickerSheetContent } from "@/components/blocks/playlist-form/track-picker-sheet-content"
 import LocalTickIcon from "@/components/icons/local/tick"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { usePlaylistFormScreen } from "@/modules/playlist/hooks/use-playlist-form"

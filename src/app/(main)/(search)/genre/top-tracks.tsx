@@ -2,11 +2,11 @@ import { Stack, useLocalSearchParams } from "expo-router"
 import { RefreshControl, View } from "react-native"
 import Animated from "react-native-reanimated"
 
-import { PlaybackActionsRow } from "@/components/blocks"
+import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { TrackList } from "@/components/blocks/track-list"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import { EmptyState } from "@/components/ui"
+import { EmptyState } from "@/components/ui/empty-state"
 import {
   screenEnterTransition,
   screenExitTransition,
@@ -15,10 +15,12 @@ import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
-} from "@/hooks/scroll-bars.store"
+} from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { useGenreTopTracksScreen } from "@/modules/genres/hooks/use-genre-top-tracks-screen"
+import { startIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
+import { playTrack } from "@/modules/player/player.store"
+import { useGenreTopTracks } from "@/modules/search/search.queries"
 
 export default function GenreTopTracksScreen() {
   const { name } = useLocalSearchParams<{ name: string }>()
@@ -26,10 +28,34 @@ export default function GenreTopTracksScreen() {
   const theme = useThemeColors()
 
   const genreName = decodeURIComponent(name || "")
-  const { tracks, isLoading, refresh, playAll, shuffle } =
-    useGenreTopTracksScreen(genreName)
+  const normalizedGenreName = genreName.trim()
+  const { data, isLoading, isFetching, refetch } =
+    useGenreTopTracks(normalizedGenreName)
+  const tracks = data ?? []
 
-  if (isLoading && tracks.length === 0) {
+  async function refresh() {
+    await startIndexing(false)
+    await refetch()
+  }
+
+  function playAll() {
+    if (tracks.length === 0) {
+      return
+    }
+
+    playTrack(tracks[0], tracks)
+  }
+
+  function shuffle() {
+    if (tracks.length === 0) {
+      return
+    }
+
+    const randomIndex = Math.floor(Math.random() * tracks.length)
+    playTrack(tracks[randomIndex], tracks)
+  }
+
+  if ((isLoading || isFetching) && tracks.length === 0) {
     return (
       <View className="flex-1 bg-background px-4 pt-4">
         <Stack.Screen
@@ -80,7 +106,7 @@ export default function GenreTopTracksScreen() {
           onScrollEndDrag={handleScrollStop}
           refreshControl={
             <RefreshControl
-              refreshing={indexerState.isIndexing || isLoading}
+              refreshing={indexerState.isIndexing || isLoading || isFetching}
               onRefresh={refresh}
               tintColor={theme.accent}
             />

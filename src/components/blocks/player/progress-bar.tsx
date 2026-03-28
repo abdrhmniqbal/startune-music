@@ -11,21 +11,19 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated"
 
-import { seekTo } from "@/modules/player/player.store"
+import { seekTo, usePlayerStore } from "@/modules/player/player.store"
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
 
 interface ProgressBarProps {
-  currentTime: number
-  duration: number
   compact?: boolean
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
-  currentTime,
-  duration,
   compact = false,
 }) => {
+  const currentTime = usePlayerStore((state) => state.currentTime)
+  const duration = usePlayerStore((state) => state.duration)
   const progress = useSharedValue(0)
   const isSeeking = useSharedValue(false)
   const barWidth = useSharedValue(0)

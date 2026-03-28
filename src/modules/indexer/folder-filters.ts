@@ -1,5 +1,10 @@
-import { File, Paths } from "expo-file-system"
 import { create } from "zustand"
+
+import {
+  createIndexerConfigFile,
+  loadIndexerConfig,
+  saveIndexerConfig,
+} from "@/modules/indexer/indexer-config.repository"
 
 export type FolderFilterMode = "whitelist" | "blacklist"
 
@@ -8,7 +13,7 @@ export interface FolderFilterConfig {
   blacklist: string[]
 }
 
-const FOLDER_FILTERS_FILE = new File(Paths.document, "folder-filters.json")
+const FOLDER_FILTERS_FILE = createIndexerConfigFile("folder-filters.json")
 const EMPTY_FILTER_CONFIG: FolderFilterConfig = {
   whitelist: [],
   blacklist: [],
@@ -110,16 +115,7 @@ function sanitizeConfig(config: FolderFilterConfig): FolderFilterConfig {
 }
 
 async function persistConfig(config: FolderFilterConfig): Promise<void> {
-  if (!FOLDER_FILTERS_FILE.exists) {
-    FOLDER_FILTERS_FILE.create({
-      intermediates: true,
-      overwrite: true,
-    })
-  }
-
-  FOLDER_FILTERS_FILE.write(JSON.stringify(config), {
-    encoding: "utf8",
-  })
+  await saveIndexerConfig(FOLDER_FILTERS_FILE, config)
 }
 
 export async function ensureFolderFilterConfigLoaded(): Promise<FolderFilterConfig> {
@@ -128,24 +124,17 @@ export async function ensureFolderFilterConfigLoaded(): Promise<FolderFilterConf
   }
 
   loadPromise = (async () => {
-    try {
-      if (!FOLDER_FILTERS_FILE.exists) {
-        $folderFilterConfig.set(EMPTY_FILTER_CONFIG)
-        return EMPTY_FILTER_CONFIG
-      }
-
-      const raw = await FOLDER_FILTERS_FILE.text()
-      const parsed = JSON.parse(raw) as Partial<FolderFilterConfig>
-      const next = sanitizeConfig({
-        whitelist: parsed.whitelist ?? [],
-        blacklist: parsed.blacklist ?? [],
-      })
-      $folderFilterConfig.set(next)
-      return next
-    } catch {
-      $folderFilterConfig.set(EMPTY_FILTER_CONFIG)
-      return EMPTY_FILTER_CONFIG
-    }
+    const next = await loadIndexerConfig(
+      FOLDER_FILTERS_FILE,
+      EMPTY_FILTER_CONFIG,
+      (parsed) =>
+        sanitizeConfig({
+          whitelist: parsed.whitelist ?? [],
+          blacklist: parsed.blacklist ?? [],
+        })
+    )
+    $folderFilterConfig.set(next)
+    return next
   })()
 
   const result = await loadPromise

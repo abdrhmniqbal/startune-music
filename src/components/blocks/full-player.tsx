@@ -1,1 +1,1 @@
-export { FullPlayer } from "./player/full-player"
+export { PlayerSheet as FullPlayer } from "./player/player-sheet"

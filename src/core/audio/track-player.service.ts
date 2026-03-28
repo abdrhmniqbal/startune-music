@@ -1,4 +1,7 @@
-import { PlaybackService, setupPlayer } from "@/modules/player/player.store"
+import {
+  PlaybackService,
+  setupPlayer,
+} from "@/modules/player/player.service"
 import { TrackPlayer } from "@/modules/player/player.utils"
 
 let isPlaybackServiceRegistered = false

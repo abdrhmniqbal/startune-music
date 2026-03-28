@@ -7,7 +7,7 @@ import { type Album, AlbumGrid } from "@/components/blocks/album-grid"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
-import { EmptyState } from "@/components/ui"
+import { EmptyState } from "@/components/ui/empty-state"
 import {
   screenEnterTransition,
   screenExitTransition,
@@ -16,9 +16,13 @@ import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
-} from "@/hooks/scroll-bars.store"
+} from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { useGenreAlbumsScreen } from "@/modules/genres/hooks/use-genre-albums-screen"
+import {
+  mapAlbumsToGridData,
+} from "@/modules/search/search.utils"
+import { useGenreAlbums } from "@/modules/search/search.queries"
+import { startIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import {
   ALBUM_SORT_OPTIONS,
@@ -42,10 +46,18 @@ export default function GenreAlbumsScreen() {
   })
 
   const genreName = decodeURIComponent(name || "")
-  const { albumData, isLoading, refresh } = useGenreAlbumsScreen(genreName)
+  const normalizedGenreName = genreName.trim()
+  const { data, isLoading, isFetching, refetch } =
+    useGenreAlbums(normalizedGenreName)
+  const albumData = mapAlbumsToGridData(data ?? [])
   const sortedAlbumData = sortAlbums(albumData, sortConfig) as Album[]
 
-  if (isLoading && sortedAlbumData.length === 0) {
+  async function refresh() {
+    await startIndexing(false)
+    await refetch()
+  }
+
+  if ((isLoading || isFetching) && sortedAlbumData.length === 0) {
     return (
       <View className="flex-1 bg-background px-4 pt-4">
         <Stack.Screen
@@ -136,7 +148,7 @@ export default function GenreAlbumsScreen() {
             onScrollEndDrag={handleScrollStop}
             refreshControl={
               <RefreshControl
-                refreshing={indexerState.isIndexing || isLoading}
+                refreshing={indexerState.isIndexing || isLoading || isFetching}
                 onRefresh={refresh}
                 tintColor={theme.accent}
               />

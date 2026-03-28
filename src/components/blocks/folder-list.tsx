@@ -22,14 +22,14 @@ import LocalChevronLeftIcon from "@/components/icons/local/chevron-left"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import LocalFolderSolidIcon from "@/components/icons/local/folder-solid"
 import {
-  EmptyState,
-  Item,
-  ItemAction,
-  ItemContent,
-  ItemDescription,
-  ItemImage,
-  ItemTitle,
-} from "@/components/ui"
+  MediaItem as Item,
+  MediaItemAction as ItemAction,
+  MediaItemContent as ItemContent,
+  MediaItemDescription as ItemDescription,
+  MediaItemImage as ItemImage,
+  MediaItemTitle as ItemTitle,
+} from "@/components/ui/media-item"
+import { EmptyState } from "@/components/ui/empty-state"
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { formatDuration } from "@/utils/format"

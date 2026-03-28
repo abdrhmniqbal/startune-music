@@ -6,7 +6,7 @@ import { Text, View } from "react-native"
 
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
-import { EmptyState } from "@/components/ui"
+import { EmptyState } from "@/components/ui/empty-state"
 
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { PlaylistTrackRow } from "./playlist-track-row"

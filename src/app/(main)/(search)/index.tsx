@@ -1,4 +1,3 @@
-import type { GenreCategory as Category } from "@/modules/genres/genres.utils"
 import { useRouter } from "expo-router"
 import { Input, PressableFeedback } from "heroui-native"
 import * as React from "react"
@@ -7,22 +6,32 @@ import { RefreshControl, ScrollView, Text, View } from "react-native"
 import { LibrarySkeleton } from "@/components/blocks/library-skeleton"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalSearchIcon from "@/components/icons/local/search"
-import { GenreCard } from "@/components/patterns"
-import { EmptyState } from "@/components/ui"
+import { GenreCard } from "@/components/patterns/genre-card"
+import { EmptyState } from "@/components/ui/empty-state"
 import {
   handleScroll,
   handleScrollStart,
   handleScrollStop,
-} from "@/hooks/scroll-bars.store"
+} from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
+import { useGenres } from "@/modules/search/search.queries"
+import type { Category } from "@/modules/search/search.types"
+import { mapGenresToCategories } from "@/modules/search/search.utils"
+import { startIndexing } from "@/modules/indexer/indexer.store"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import { useSearchScreen } from "@/modules/search/hooks/use-search-screen"
 
 export default function SearchScreen() {
   const theme = useThemeColors()
   const router = useRouter()
   const indexerState = useIndexerStore((state) => state.indexerState)
-  const { categories, isLoading, refresh } = useSearchScreen()
+  const { data, refetch, isLoading, isFetching } = useGenres()
+
+  const categories = mapGenresToCategories(data ?? [])
+
+  async function refresh() {
+    await startIndexing(false)
+    await refetch()
+  }
 
   function handleGenrePress(genre: Category) {
     router.push({
@@ -83,7 +92,7 @@ export default function SearchScreen() {
         Browse by Genre
       </Text>
 
-      {isLoading ? (
+      {isLoading || isFetching ? (
         <LibrarySkeleton type="genres" itemCount={8} />
       ) : categories.length > 0 ? (
         <View className="flex-row flex-wrap justify-between gap-y-4">

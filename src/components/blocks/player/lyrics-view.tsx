@@ -1,23 +1,32 @@
-import type { Track } from "@/modules/player/player.store"
+import type { Track } from "@/modules/player/player.types"
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet"
 import { useQuery } from "@tanstack/react-query"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
 
 import { Text, useWindowDimensions, View } from "react-native"
-import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated"
+import Animated, {
+  FadeIn,
+  FadeOut,
+  Layout,
+  type SharedValue,
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated"
 import LocalMicIcon from "@/components/icons/local/mic"
-import { EmptyState } from "@/components/ui"
+import { EmptyState } from "@/components/ui/empty-state"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import { queryClient } from "@/lib/tanstack-query"
 import {
+  hasMeaningfulSyncedLyricsTiming,
+  hasMeaningfulTTMLTiming,
   parseSyncedLyricsLines,
   parseTTMLLines,
   splitLyricsLines,
   type TTMLLine,
 } from "@/modules/lyrics/lyrics"
 import { resolveTrackLyricsSource } from "@/modules/lyrics/lyrics-source"
-import { $currentTime, seekTo } from "@/modules/player/player.store"
+import { seekTo, usePlayerStore } from "@/modules/player/player.store"
 
 type LyricsMode = "static" | "synced" | "ttml"
 
@@ -29,71 +38,60 @@ const AUTO_SCROLL_RESUME_DELAY_MS = 100
 const FONT_SCALE_VALUES = [1, 1.2, 1.4] as const
 type FontScaleLevel = (typeof FONT_SCALE_VALUES)[number]
 
-import {
-  cancelAnimation,
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated"
+function findTTMLLineIndex(lines: TTMLLine[], time: number) {
+  return lines.findIndex((line, index) => {
+    const nextLine = lines[index + 1]
+    return time >= line.begin && (!nextLine || time < nextLine.begin)
+  })
+}
+
+function findSyncedLineIndex(
+  lines: Array<{ time: number }>,
+  time: number
+) {
+  return lines.findIndex((line, index) => {
+    const nextLine = lines[index + 1]
+    return time >= line.time && (!nextLine || time < nextLine.time)
+  })
+}
 
 const TTMLWordSpan: React.FC<{
   text: string
   begin: number
   end: number
-  currentTime: number
+  currentTimeSv: SharedValue<number>
   lineActive: boolean
   linePast: boolean
   fontScale: number
-}> = ({ text, begin, end, currentTime, lineActive, linePast, fontScale }) => {
-  const progress = useSharedValue(
-    linePast || (lineActive && currentTime > end) ? 1 : 0
-  )
+}> = ({ text, begin, end, currentTimeSv, lineActive, linePast, fontScale }) => {
   const [textWidth, setTextWidth] = React.useState(0)
 
-  React.useEffect(() => {
-    if (linePast || (lineActive && currentTime > end)) {
-      cancelAnimation(progress)
-      progress.value = 1
-    } else if (lineActive && currentTime >= begin && currentTime <= end) {
-      const duration = end - begin
-      const elapsed = Math.max(0, currentTime - begin)
-      const currentPercent = duration > 0 ? Math.min(1, elapsed / duration) : 1
-
-      progress.value = withTiming(currentPercent, {
-        duration: 60,
-        easing: Easing.linear,
-      })
-    } else {
-      cancelAnimation(progress)
-      progress.value = 0
-    }
-  }, [currentTime, lineActive, linePast, begin, end, progress])
-
   const baseColor = lineActive
-    ? "rgba(255,255,255,0.28)"
+    ? "rgba(255,255,255,0.46)"
     : linePast
-      ? "rgba(255,255,255,0.48)"
-      : "rgba(255,255,255,0.22)"
+      ? "rgba(255,255,255,0.54)"
+      : "rgba(255,255,255,0.20)"
 
   const activeColor = "rgba(255,255,255,0.96)"
 
-  const fontSize = (lineActive ? 22 : 18) * fontScale
-  const lineHeight = (lineActive ? 34 : 28) * fontScale
+  const fontSize = (lineActive ? 24 : 18) * fontScale
+  const lineHeight = (lineActive ? 36 : 28) * fontScale
   const fontWeight = lineActive ? "700" : "600"
 
-  const foregroundStyle = useAnimatedStyle(() => {
-    return {
-      position: "absolute",
-      left: 0,
-      top: 0,
-      bottom: 0,
-      width: progress.value * textWidth,
-      overflow: "hidden",
-    }
-  })
-
   const displayText = text.replace(/ /g, "\u00A0")
+  const foregroundStyle = useAnimatedStyle(() => {
+    const wordDuration = Math.max(end - begin, 0.001)
+    const currentTime = currentTimeSv.value
+    const wordProgress = linePast
+      ? 1
+      : lineActive
+        ? Math.max(0, Math.min(1, (currentTime - begin) / wordDuration))
+        : 0
+
+    return {
+      width: wordProgress * textWidth,
+    }
+  }, [begin, end, lineActive, linePast, textWidth])
 
   return (
     <View style={{ position: "relative", justifyContent: "center" }}>
@@ -112,7 +110,18 @@ const TTMLWordSpan: React.FC<{
         {displayText}
       </Text>
       {textWidth > 0 && (
-        <Animated.View style={foregroundStyle}>
+        <Animated.View
+          style={[
+            {
+              position: "absolute",
+              left: 0,
+              top: 0,
+              bottom: 0,
+              overflow: "hidden",
+            },
+            foregroundStyle,
+          ]}
+        >
           <View
             style={{
               width: textWidth,
@@ -145,20 +154,20 @@ const TTMLWordSpan: React.FC<{
 
 const TTMLLineRow: React.FC<{
   line: TTMLLine
-  currentTime: number
   isActive: boolean
   isPast: boolean
   fontScale: number
   onSeek: (time: number) => void
   onLayoutLine: (id: string, y: number) => void
+  currentTimeSv: SharedValue<number>
 }> = ({
   line,
-  currentTime,
   isActive,
   isPast,
   fontScale,
   onSeek,
   onLayoutLine,
+  currentTimeSv,
 }) => {
   const handlePress = React.useCallback(
     () => onSeek(line.begin),
@@ -182,50 +191,9 @@ const TTMLLineRow: React.FC<{
             text={word.text}
             begin={word.begin}
             end={word.end}
-            currentTime={currentTime}
+            currentTimeSv={currentTimeSv}
             lineActive={isActive}
             linePast={isPast}
-            fontScale={fontScale}
-          />
-        ))}
-      </View>
-    </PressableFeedback>
-  )
-}
-
-const ActiveTTMLLineRow: React.FC<{
-  line: TTMLLine
-  currentTime: number
-  fontScale: number
-  onSeek: (time: number) => void
-  onLayoutLine: (id: string, y: number) => void
-}> = ({ line, currentTime, fontScale, onSeek, onLayoutLine }) => {
-
-  const handlePress = React.useCallback(
-    () => onSeek(line.begin),
-    [line.begin, onSeek]
-  )
-  const handleLayout = React.useCallback(
-    (event: any) => onLayoutLine(line.id, event.nativeEvent.layout.y),
-    [line.id, onLayoutLine]
-  )
-
-  return (
-    <PressableFeedback
-      onPress={handlePress}
-      className="py-1 active:opacity-85"
-      onLayout={handleLayout}
-    >
-      <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-        {line.words.map((word, wordIndex) => (
-          <TTMLWordSpan
-            key={`${line.id}-w${wordIndex}`}
-            text={word.text}
-            begin={word.begin}
-            end={word.end}
-            currentTime={currentTime}
-            lineActive={true}
-            linePast={false}
             fontScale={fontScale}
           />
         ))}
@@ -262,7 +230,7 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
             if (dbTrack?.lyrics) {
               sourceTrack = { ...sourceTrack, lyrics: dbTrack.lyrics }
             }
-          } catch (e) {
+          } catch {
           }
         }
 
@@ -281,19 +249,27 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
     () => (resolvedLyrics ? parseTTMLLines(resolvedLyrics) : []),
     [resolvedLyrics]
   )
+  const hasTimedTTML = React.useMemo(
+    () => hasMeaningfulTTMLTiming(ttmlLines),
+    [ttmlLines]
+  )
   const hasTTML = ttmlLines.length > 0
   const lines = hasTTML ? [] : splitLyricsLines(resolvedLyrics)
   const syncedLines = hasTTML ? [] : parseSyncedLyricsLines(resolvedLyrics)
+  const hasTimedSyncedLyrics = React.useMemo(
+    () => hasMeaningfulSyncedLyricsTiming(syncedLines),
+    [syncedLines]
+  )
 
   const hasStaticLyrics = lines.length > 0 || hasTTML
-  const hasSyncedLyrics = syncedLines.length > 0 || hasTTML
+  const hasSyncedLyrics = hasTimedSyncedLyrics || hasTimedTTML
 
   const [mode, setMode] = React.useState<LyricsMode>("static")
-  const effectiveMode: LyricsMode = hasTTML
+  const effectiveMode: LyricsMode = hasTimedTTML
     ? mode === "static"
       ? "static"
       : "ttml"
-    : mode === "synced" && syncedLines.length > 0
+    : mode === "synced" && hasTimedSyncedLyrics
       ? "synced"
       : "static"
 
@@ -301,19 +277,21 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
   const scrollViewRef = React.useRef<any>(null)
   const syncedLineOffsetRef = React.useRef<Record<string, number>>({})
   const isUserScrollingRef = React.useRef(false)
+  const activeSyncedLineIndexRef = React.useRef(-1)
   const autoScrollResumeTimeoutRef = React.useRef<ReturnType<
     typeof setTimeout
   > | null>(null)
   const [viewportHeight, setViewportHeight] = React.useState(0)
+  const currentTimeSv = useSharedValue(usePlayerStore.getState().currentTime)
 
   const handleToggleKaraoke = React.useCallback(() => {
     if (!hasSyncedLyrics) {
       return
     }
     setMode((previousMode) =>
-      previousMode === "static" ? (hasTTML ? "ttml" : "synced") : "static"
+      previousMode === "static" ? (hasTimedTTML ? "ttml" : "synced") : "static"
     )
-  }, [hasSyncedLyrics, hasTTML])
+  }, [hasSyncedLyrics, hasTimedTTML])
 
   const handleToggleFontScale = React.useCallback(() => {
     const currentIndex = FONT_SCALE_VALUES.indexOf(fontScale)
@@ -329,56 +307,54 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
   }, [fontScale])
 
   const [activeSyncedLineIndex, setActiveSyncedLineIndex] = React.useState(-1)
-  const [currentTime, setCurrentTime] = React.useState(0)
 
   const handleSeek = React.useCallback(
     (time: number) => {
       void seekTo(time)
-      let newIndex = -1
-      if (effectiveMode === "ttml") {
-        newIndex = ttmlLines.findIndex((line, index) => {
-          const nextLine = ttmlLines[index + 1]
-          return time >= line.begin && (!nextLine || time < nextLine.begin)
-        })
-      } else {
-        newIndex = syncedLines.findIndex((line, index) => {
-          const nextLine = syncedLines[index + 1]
-          return time >= line.time && (!nextLine || time < nextLine.time)
-        })
-      }
-      setActiveSyncedLineIndex(newIndex)
     },
-    [effectiveMode, ttmlLines, syncedLines]
+    []
   )
 
   React.useEffect(() => {
-    const isSyncedMode = effectiveMode === "synced" || effectiveMode === "ttml"
-    if (!isSyncedMode) {
-      setActiveSyncedLineIndex(-1)
-      return
-    }
-
-    return $currentTime.subscribe((time) => {
-      setCurrentTime(time)
-      let newIndex = -1
+    const getActiveIndex = (time: number) => {
       if (effectiveMode === "ttml") {
-        newIndex = ttmlLines.findIndex((line, index) => {
-          const nextLine = ttmlLines[index + 1]
-          return time >= line.begin && (!nextLine || time < nextLine.begin)
-        })
-      } else {
-        newIndex = syncedLines.findIndex((line, index) => {
-          const nextLine = syncedLines[index + 1]
-          return time >= line.time && (!nextLine || time < nextLine.time)
-        })
+        return findTTMLLineIndex(ttmlLines, time)
       }
 
-      setActiveSyncedLineIndex((prev) => (prev !== newIndex ? newIndex : prev))
+      if (effectiveMode === "synced") {
+        return findSyncedLineIndex(syncedLines, time)
+      }
+
+      return -1
+    }
+
+    const syncPlaybackTime = (time: number) => {
+      currentTimeSv.value = time
+      const nextIndex = getActiveIndex(time)
+
+      if (activeSyncedLineIndexRef.current !== nextIndex) {
+        activeSyncedLineIndexRef.current = nextIndex
+        setActiveSyncedLineIndex(nextIndex)
+      }
+    }
+
+    syncPlaybackTime(usePlayerStore.getState().currentTime)
+
+    const unsubscribe = usePlayerStore.subscribe((state, previousState) => {
+      if (state.currentTime === previousState.currentTime) {
+        return
+      }
+
+      syncPlaybackTime(state.currentTime)
     })
-  }, [effectiveMode, ttmlLines, syncedLines])
+
+    return unsubscribe
+  }, [currentTimeSv, effectiveMode, syncedLines, ttmlLines])
 
   React.useEffect(() => {
     syncedLineOffsetRef.current = {}
+    activeSyncedLineIndexRef.current = -1
+    setActiveSyncedLineIndex(-1)
   }, [track?.id, effectiveMode, fontScale])
 
   React.useEffect(() => {
@@ -473,10 +449,10 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
   ])
 
   React.useEffect(() => {
-    if (hasTTML) {
+    if (hasTimedTTML) {
       setMode("ttml")
     }
-  }, [hasTTML])
+  }, [hasTimedTTML])
 
   if (!track) {
     return null
@@ -549,29 +525,16 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
               const isPast =
                 activeSyncedLineIndex >= 0 && index < activeSyncedLineIndex
 
-              if (isActive) {
-                return (
-                  <ActiveTTMLLineRow
-                    key={line.id}
-                    line={line}
-                    currentTime={currentTime}
-                    fontScale={fontScale}
-                    onSeek={handleSeek}
-                    onLayoutLine={setSyncedLineOffset}
-                  />
-                )
-              }
-
               return (
                 <TTMLLineRow
                   key={line.id}
                   line={line}
-                  currentTime={0}
-                  isActive={false}
+                  isActive={isActive}
                   isPast={isPast}
                   fontScale={fontScale}
                   onSeek={handleSeek}
                   onLayoutLine={setSyncedLineOffset}
+                  currentTimeSv={currentTimeSv}
                 />
               )
             })

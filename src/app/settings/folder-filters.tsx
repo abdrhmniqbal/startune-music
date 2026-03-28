@@ -8,7 +8,7 @@ import LocalAddIcon from "@/components/icons/local/add"
 import LocalCancelIcon from "@/components/icons/local/cancel"
 import LocalFolderSolidIcon from "@/components/icons/local/folder-solid"
 import LocalTickIcon from "@/components/icons/local/tick"
-import { EmptyState } from "@/components/ui"
+import { EmptyState } from "@/components/ui/empty-state"
 import { useThemeColors } from "@/hooks/use-theme-colors"
 import {
   commitFolderFilterConfig,
@@ -18,9 +18,8 @@ import {
   getFolderNameFromPath,
   getFolderPathFromUri,
   normalizeFolderPath,
-  startIndexing,
-  useIndexerStore,
-} from "@/modules/indexer"
+} from "@/modules/indexer/folder-filters"
+import { startIndexing, useIndexerStore } from "@/modules/indexer/indexer.store"
 import { usePlayerStore } from "@/modules/player/player.store"
 
 interface FolderEntry {

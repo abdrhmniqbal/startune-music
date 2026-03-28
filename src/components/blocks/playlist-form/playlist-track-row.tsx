@@ -2,7 +2,7 @@ import type { PlaylistTrackRowProps } from "./types"
 
 import { Checkbox } from "heroui-native"
 
-import { TrackRow } from "@/components/patterns"
+import { TrackRow } from "@/components/patterns/track-row"
 
 export function PlaylistTrackRow({
   track,

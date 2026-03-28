@@ -1,8 +1,9 @@
 import { create } from "zustand"
 
 import { queryClient } from "@/lib/tanstack-query"
-import { scanMediaLibrary } from "@/modules/indexer/indexer.api"
-import { loadTracks } from "@/modules/player/player.store"
+import { invalidateIndexerQueries } from "@/modules/indexer/indexer.keys"
+import { scanMediaLibrary } from "@/modules/indexer/indexer.repository"
+import { loadTracks } from "@/modules/player/player.service"
 
 export interface IndexerState {
   isIndexing: boolean
@@ -111,17 +112,7 @@ export async function startIndexing(
       return
     }
 
-    // Invalidate only data derived from scanned media.
-    queryClient.invalidateQueries({ queryKey: ["tracks"] })
-    queryClient.invalidateQueries({ queryKey: ["library", "tracks"] })
-    queryClient.invalidateQueries({ queryKey: ["albums"] })
-    queryClient.invalidateQueries({ queryKey: ["artists"] })
-    queryClient.invalidateQueries({ queryKey: ["playlists"] })
-    queryClient.invalidateQueries({ queryKey: ["favorites"] })
-    queryClient.invalidateQueries({ queryKey: ["library", "favorites"] })
-    queryClient.invalidateQueries({ queryKey: ["search"] })
-    queryClient.invalidateQueries({ queryKey: ["home", "recently-played"] })
-    queryClient.invalidateQueries({ queryKey: ["home", "top-tracks"] })
+    await invalidateIndexerQueries(queryClient)
 
     updateState({
       phase: "complete",
