@@ -1,39 +1,22 @@
-import { create } from "zustand"
-
 import {
   createSettingsConfigFile,
   loadSettingsConfig,
   saveSettingsConfig,
 } from "@/modules/settings/settings.repository"
+import {
+  getDefaultFolderFilterConfig,
+  getFolderFilterConfigState,
+  setFolderFilterConfigState,
+} from "@/modules/settings/settings.store"
+import type {
+  FolderFilterConfig,
+  FolderFilterMode,
+} from "@/modules/settings/settings.types"
 
-export type FolderFilterMode = "whitelist" | "blacklist"
-
-export interface FolderFilterConfig {
-  whitelist: string[]
-  blacklist: string[]
-}
+export type { FolderFilterConfig, FolderFilterMode }
 
 const FOLDER_FILTERS_FILE = createSettingsConfigFile("folder-filters.json")
-const EMPTY_FILTER_CONFIG: FolderFilterConfig = {
-  whitelist: [],
-  blacklist: [],
-}
-
-interface FolderFilterStoreState {
-  folderFilterConfig: FolderFilterConfig
-}
-
-export const useFolderFilterStore = create<FolderFilterStoreState>(() => ({
-  folderFilterConfig: EMPTY_FILTER_CONFIG,
-}))
-
-function getFolderFilterConfigState() {
-  return useFolderFilterStore.getState().folderFilterConfig
-}
-
-function setFolderFilterConfigState(value: FolderFilterConfig) {
-  useFolderFilterStore.setState({ folderFilterConfig: value })
-}
+const EMPTY_FILTER_CONFIG = getDefaultFolderFilterConfig()
 
 let loadPromise: Promise<FolderFilterConfig> | null = null
 

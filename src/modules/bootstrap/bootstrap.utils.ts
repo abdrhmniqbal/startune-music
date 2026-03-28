@@ -8,6 +8,7 @@ import { requestMediaLibraryPermission } from "@/core/storage/media-library.serv
 import { db } from "@/db/client"
 import { tracks } from "@/db/schema"
 import { ensureAutoScanConfigLoaded } from "@/modules/indexer/auto-scan"
+import { ensureFolderFilterConfigLoaded } from "@/modules/indexer/folder-filters"
 import { ensureTrackDurationFilterConfigLoaded } from "@/modules/indexer/track-duration-filter"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { ensureLoggingConfigLoaded } from "@/modules/logging/logging.store"
@@ -18,6 +19,7 @@ async function preloadLocalSettings() {
   logInfo("Preloading local settings")
   await Promise.all([
     ensureAutoScanConfigLoaded(),
+    ensureFolderFilterConfigLoaded(),
     ensureTrackDurationFilterConfigLoaded(),
     ensureLoggingConfigLoaded(),
   ])

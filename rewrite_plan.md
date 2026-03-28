@@ -78,6 +78,7 @@ We do not keep code just because it already works.
 - [~] `library`, `playlist`, `tracks`, `device`, `logging`, `bootstrap`, `lyrics`, and `ui` need another cleanup pass
 - [ ] `player`, `indexer`, and `settings` still need the deepest boundary rewrite work
 - [~] `player` is improving, and queue runtime commands are now split from queue state surfaces
+- [~] `settings` is improving, and folder filter state now lives in `useSettingsStore` with the other local preferences
 
 ## Keep / Rewrite Decision Matrix
 
@@ -158,6 +159,7 @@ Rules:
 - local preference state should converge into `useSettingsStore` instead of being spread across separate per-setting Zustand stores
 - settings screens should read local preferences from `useSettingsStore` directly instead of going through per-setting selector wrappers
 - local settings persistence should converge into `settings.repository.ts` instead of being split across feature modules
+- folder filter state should live in `useSettingsStore`, even when folder-filter logic still belongs to indexer helpers
 
 ### Module Shape
 

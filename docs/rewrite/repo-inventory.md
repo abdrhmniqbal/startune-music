@@ -225,9 +225,11 @@ Progress:
 - logging config now lives in `src/modules/logging/logging.store.ts`, while runtime logging and crash-log sharing now live in `src/modules/logging/logging.service.ts`
 - settings route metadata now lives in `src/modules/settings/settings.routes.ts`, and shared settings row UI now lives in `src/components/patterns/settings-row.tsx`
 - auto scan, track duration filter, and logging config now share `src/modules/settings/settings.store.ts`
+- folder filter config now shares `src/modules/settings/settings.store.ts` too
 - settings screens now read local preferences directly from `useSettingsStore`
 - local settings persistence now shares `src/modules/settings/settings.repository.ts`
 - local settings config is now preloaded during bootstrap instead of being loaded separately by library and logging settings screens
+- `src/app/settings/folder-filters.tsx` now initializes directly from `useSettingsStore` instead of running a one-off config loading effect
 - `DatabaseProvider` now reports ready/error from the actual migration/load path instead of separate watcher effects
 - `BootstrapEffects` now delegates listener orchestration to `registerBootstrapListeners()` in `bootstrap.runtime.ts`
 - destructive track deletion and track file opening now log native and cleanup failures

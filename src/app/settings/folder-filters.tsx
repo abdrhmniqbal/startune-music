@@ -9,10 +9,8 @@ import LocalCancelIcon from "@/components/icons/local/cancel"
 import LocalFolderSolidIcon from "@/components/icons/local/folder-solid"
 import LocalTickIcon from "@/components/icons/local/tick"
 import { EmptyState } from "@/components/ui/empty-state"
-import { useThemeColors } from "@/modules/ui/theme"
 import {
   commitFolderFilterConfig,
-  ensureFolderFilterConfigLoaded,
   type FolderFilterConfig,
   type FolderFilterMode,
   getFolderNameFromPath,
@@ -22,6 +20,8 @@ import {
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import { usePlayerStore } from "@/modules/player/player.store"
+import { useSettingsStore } from "@/modules/settings/settings.store"
+import { useThemeColors } from "@/modules/ui/theme"
 
 interface FolderEntry {
   path: string
@@ -117,39 +117,30 @@ function FolderRow({
 
 const EMPTY_PENDING: FolderFilterConfig = { whitelist: [], blacklist: [] }
 
+function getModeFromConfig(config: FolderFilterConfig): FolderFilterMode {
+  if (config.whitelist.length > 0) {
+    return "whitelist"
+  }
+
+  if (config.blacklist.length > 0) {
+    return "blacklist"
+  }
+
+  return "whitelist"
+}
+
 export default function FolderFiltersScreen() {
   const insets = useSafeAreaInsets()
   const theme = useThemeColors()
   const tracks = usePlayerStore((state) => state.tracks)
+  const folderFilterConfig = useSettingsStore((state) => state.folderFilterConfig)
   const indexerState = useIndexerStore((state) => state.indexerState)
-  const [isLoaded, setIsLoaded] = React.useState(false)
   const [pendingConfig, setPendingConfig] =
-    React.useState<FolderFilterConfig>(EMPTY_PENDING)
+    React.useState<FolderFilterConfig>(folderFilterConfig)
   const [selectedMode, setSelectedMode] =
-    React.useState<FolderFilterMode>("whitelist")
+    React.useState<FolderFilterMode>(() => getModeFromConfig(folderFilterConfig))
   const [hasPendingChanges, setHasPendingChanges] = React.useState(false)
   const [isModeSheetOpen, setIsModeSheetOpen] = React.useState(false)
-
-  React.useEffect(() => {
-    let isMounted = true
-    void ensureFolderFilterConfigLoaded().then((config) => {
-      if (isMounted) {
-        setPendingConfig(config)
-        const mode =
-          config.whitelist.length > 0
-            ? "whitelist"
-            : config.blacklist.length > 0
-              ? "blacklist"
-              : "whitelist"
-        setSelectedMode(mode)
-        setIsLoaded(true)
-      }
-    })
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
 
   const allFolders = buildFolderEntries(tracks)
   const folderPaths = Array.from(
@@ -245,14 +236,6 @@ export default function FolderFiltersScreen() {
       return "Blacklist"
     }
     return "Whitelist"
-  }
-
-  if (!isLoaded) {
-    return (
-      <View className="flex-1 items-center justify-center bg-background px-6">
-        <Text className="text-sm text-muted">Loading folder filters...</Text>
-      </View>
-    )
   }
 
   return (

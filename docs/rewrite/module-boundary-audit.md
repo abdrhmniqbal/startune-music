@@ -89,7 +89,8 @@ A module is considered `aligned` only if it mostly satisfies these:
 - status: `rewrite`
 - notes:
   - store is thinner now, but the module still carries heavy runtime scheduling and refresh responsibilities overall
-  - settings-like files (`auto-scan`, `folder-filters`, `track-duration-filter`) are still spread across the indexer module
+  - `folder-filters.ts` still lives in indexer for filtering logic, but its persisted state now lives in `useSettingsStore`
+  - `auto-scan` and `track-duration-filter` are still split under indexer even though they behave like shared local preferences
   - more repository/service separation is still needed
   - logging is better, but the boundary is still too heavy
   - runtime controls are now separated into `indexer.service.ts`, which is a step toward a thinner state-only store
@@ -167,7 +168,8 @@ A module is considered `aligned` only if it mostly satisfies these:
   - route metadata now lives in `src/modules/settings/settings.routes.ts`
   - shared settings row UI now lives in `src/components/patterns/settings-row.tsx`
   - settings screens now read local preferences directly from `useSettingsStore`
-  - library and logging settings screens no longer need mount-time config-loading effects
+  - folder filter state now lives in `useSettingsStore` with the other local preferences
+  - library, logging, and folder-filter settings screens no longer need mount-time config-loading effects
 
 ## Immediate Conclusions
 

@@ -20,6 +20,13 @@ export interface LoggingConfig {
   level: AppLogLevel
 }
 
+export type FolderFilterMode = "whitelist" | "blacklist"
+
+export interface FolderFilterConfig {
+  whitelist: string[]
+  blacklist: string[]
+}
+
 export type TrackDurationFilterMode =
   | "off"
   | "min30s"
