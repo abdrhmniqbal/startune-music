@@ -1,6 +1,6 @@
 import { getColors } from "react-native-image-colors"
 
-import { logWarn } from "@/modules/logging/logger"
+import { logWarn } from "@/modules/logging/logging.service"
 
 import {
   getCurrentImageUriState,

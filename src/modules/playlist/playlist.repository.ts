@@ -2,7 +2,7 @@ import { and, asc, desc, eq, inArray } from "drizzle-orm"
 
 import { db } from "@/db/client"
 import { playlists, playlistTracks, tracks } from "@/db/schema"
-import { logError } from "@/modules/logging/logger"
+import { logError } from "@/modules/logging/logging.service"
 
 function generateId(): string {
   if (globalThis.crypto && globalThis.crypto.randomUUID) {

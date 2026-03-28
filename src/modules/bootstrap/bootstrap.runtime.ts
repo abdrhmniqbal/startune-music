@@ -9,7 +9,7 @@ import {
   logError,
   logInfo,
   logWarn,
-} from "@/modules/logging/logger"
+} from "@/modules/logging/logging.service"
 
 type DatabaseStatus = "pending" | "ready" | "error"
 

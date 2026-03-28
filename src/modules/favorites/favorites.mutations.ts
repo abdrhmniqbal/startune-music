@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query"
 
 import { queryClient } from "@/lib/tanstack-query"
-import { logError, logInfo } from "@/modules/logging/logger"
+import { logError, logInfo } from "@/modules/logging/logging.service"
 
 import { FAVORITES_KEY, invalidateFavoriteQueries } from "./favorites.keys"
 import {

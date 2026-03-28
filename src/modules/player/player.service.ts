@@ -7,7 +7,7 @@ import {
   addTrackToHistory,
   incrementTrackPlayCount,
 } from "@/modules/history/history.repository"
-import { logError, logInfo, logWarn } from "@/modules/logging/logger"
+import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 import {
   loadPlaybackSession,
   savePlaybackSession,

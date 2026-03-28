@@ -1,7 +1,7 @@
 import { Linking } from "react-native"
 import { open as openFileViewer } from "react-native-file-viewer-turbo"
 
-import { logError, logInfo, logWarn } from "@/modules/logging/logger"
+import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 import { resolvePlayableFileUri } from "@/utils/file-path"
 
 interface OpenDeviceFileOptions {

@@ -1,6 +1,6 @@
 import { getActualPath } from "@missingcore/react-native-actual-path"
 
-import { logWarn } from "@/modules/logging/logger"
+import { logWarn } from "@/modules/logging/logging.service"
 
 function toFileUri(path: string): string {
   return path.startsWith("file://") ? path : `file://${path}`

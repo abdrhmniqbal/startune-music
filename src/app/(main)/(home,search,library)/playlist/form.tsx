@@ -11,7 +11,7 @@ import { TrackPickerSheetContent } from "@/components/blocks/playlist-form/track
 import LocalTickIcon from "@/components/icons/local/tick"
 import { useThemeColors } from "@/modules/ui/theme"
 import { queryClient } from "@/lib/tanstack-query"
-import { logError } from "@/modules/logging/logger"
+import { logError } from "@/modules/logging/logging.service"
 import { getAllTracks } from "@/modules/player/player.repository"
 import type { Track } from "@/modules/player/player.types"
 import { invalidatePlaylistQueries } from "@/modules/playlist/playlist.keys"

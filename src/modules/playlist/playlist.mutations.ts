@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query"
 
 import { queryClient } from "@/lib/tanstack-query"
 import { invalidateFavoriteQueries } from "@/modules/favorites/favorites.keys"
-import { logError, logInfo } from "@/modules/logging/logger"
+import { logError, logInfo } from "@/modules/logging/logging.service"
 
 import { invalidatePlaylistQueries } from "./playlist.keys"
 import {

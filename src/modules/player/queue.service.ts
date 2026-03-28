@@ -1,6 +1,6 @@
 import { TrackPlayer } from "@/modules/player/player.utils"
 
-import { logError } from "@/modules/logging/logger"
+import { logError } from "@/modules/logging/logging.service"
 
 import {
   getCurrentTrackState,

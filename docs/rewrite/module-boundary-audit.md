@@ -97,9 +97,9 @@ A module is considered `aligned` only if it mostly satisfies these:
 
 - status: `partial`
 - notes:
-  - centralized and usable
-  - still mixes persistence, console interception, global error handling, and app state
-  - should eventually be split into clearer runtime and config responsibilities
+  - config state now lives in `logging.store.ts`
+  - runtime logging, file persistence, and crash-log sharing now live in `logging.service.ts`
+  - this is materially better, but global error and console interception still make the module runtime-heavy
 
 ### `lyrics`
 

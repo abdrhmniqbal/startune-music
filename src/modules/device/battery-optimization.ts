@@ -1,6 +1,6 @@
 import { NativeModules, Platform } from "react-native"
 
-import { logError, logInfo, logWarn } from "@/modules/logging/logger"
+import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 
 interface BatteryOptimizationNativeModule {
   isIgnoringBatteryOptimizations: (packageName?: string) => Promise<boolean>

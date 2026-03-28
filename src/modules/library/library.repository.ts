@@ -14,7 +14,7 @@ import {
 
 import { db } from "@/db/client"
 import { albums, artists, playlists, playlistTracks, tracks } from "@/db/schema"
-import { logError } from "@/modules/logging/logger"
+import { logError } from "@/modules/logging/logging.service"
 import { transformDBTrackToTrack } from "@/utils/transformers"
 
 import type { SearchResults } from "./library.types"

@@ -6,7 +6,7 @@ import { useState } from "react"
 import { View } from "react-native"
 import { requestMediaLibraryPermission } from "@/core/storage/media-library.service"
 import { startIndexing } from "@/modules/indexer/indexer.service"
-import { logError, logInfo, logWarn } from "@/modules/logging/logger"
+import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 import { removeFromQueue } from "@/modules/player/queue.service"
 import { hardDeleteTrack } from "@/modules/tracks/track-cleanup.repository"
 

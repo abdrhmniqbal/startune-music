@@ -9,7 +9,7 @@ import { db } from "@/db/client"
 import { tracks } from "@/db/schema"
 import { ensureAutoScanConfigLoaded } from "@/modules/indexer/auto-scan"
 import { startIndexing } from "@/modules/indexer/indexer.service"
-import { logInfo } from "@/modules/logging/logger"
+import { logInfo } from "@/modules/logging/logging.service"
 import { restorePlaybackSession } from "@/modules/player/player.service"
 
 export async function bootstrapApp(): Promise<void> {

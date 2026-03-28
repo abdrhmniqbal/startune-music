@@ -222,6 +222,7 @@ Progress:
 - player artwork color extraction and cache logic now live in `src/modules/player/player-colors.service.ts`, while `src/modules/player/player-colors.store.ts` stays focused on color state
 - player session persistence now lives in `src/modules/player/player-session.repository.ts`
 - indexer runtime controls now live in `src/modules/indexer/indexer.service.ts`, while `src/modules/indexer/indexer.store.ts` stays focused on indexer state
+- logging config now lives in `src/modules/logging/logging.store.ts`, while runtime logging and crash-log sharing now live in `src/modules/logging/logging.service.ts`
 - settings route metadata now lives in `src/modules/settings/settings.routes.ts`, and shared settings row UI now lives in `src/components/patterns/settings-row.tsx`
 - destructive track deletion and track file opening now log native and cleanup failures
 - battery optimization helpers now log unsupported paths, requests, and failures

@@ -11,11 +11,11 @@ import {
   openBatteryOptimizationSettings as openNativeBatteryOptimizationSettings,
   requestIgnoreBatteryOptimizations,
 } from "@/modules/device/battery-optimization"
+import { shareCrashLogs } from "@/modules/logging/logging.service"
 import {
   ensureLoggingConfigLoaded,
-  shareCrashLogs,
   useLoggingStore,
-} from "@/modules/logging/logger"
+} from "@/modules/logging/logging.store"
 
 export default function AdvancedSettingsScreen() {
   const router = useRouter()
