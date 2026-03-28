@@ -146,8 +146,11 @@ These are not screen hooks anymore, but still need to be justified:
 - `src/modules/bootstrap/hooks/use-app-bootstrap.ts`
 - `src/modules/library/hooks/use-folder-browser.ts`
 - `src/modules/playlist/hooks/use-playlist-form.ts`
-- `src/hooks/use-swipe-navigation.ts`
 - `src/hooks/use-theme-colors.ts`
+
+### Removed unused hooks
+
+- `src/hooks/use-swipe-navigation.ts`
 
 ## Recommended Execution Order
 

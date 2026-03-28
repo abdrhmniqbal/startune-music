@@ -395,6 +395,8 @@ Performance is a first-class rewrite track.
 - [x] legacy repository-style `*.api.ts` files started being normalized:
   - `src/modules/indexer/metadata.api.ts` -> `src/modules/indexer/metadata.repository.ts`
   - `src/modules/tracks/track-cleanup.api.ts` -> `src/modules/tracks/track-cleanup.repository.ts`
+- [x] unused legacy hook removed:
+  - `src/hooks/use-swipe-navigation.ts`
 
 These are now treated as groundwork, not the finish line.
 
