@@ -46,6 +46,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - runtime ownership is clearer after moving orchestration out of screen hooks
   - still depends on provider-side `useEffect` boundaries
   - local settings config is now preloaded during bootstrap, which reduces mount-time effects in settings screens
+  - listener orchestration now lives in `bootstrap.runtime.ts` instead of being duplicated inside the provider effect component
   - should be revisited together with provider simplification
 
 ### `providers`
