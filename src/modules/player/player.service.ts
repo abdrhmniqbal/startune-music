@@ -28,13 +28,19 @@ import {
 } from "@/modules/player/player.utils"
 
 import {
-  $currentTrack,
-  $duration,
-  $isPlaying,
-  $playbackRefreshVersion,
-  $queue,
-  $repeatMode,
-  $tracks,
+  getCurrentTrackState,
+  getDurationState,
+  getIsPlayingState,
+  getPlaybackRefreshVersionState,
+  getQueueState,
+  getRepeatModeState,
+  getTracksState,
+  setCurrentTrackState,
+  setDurationState,
+  setIsPlayingState,
+  setPlaybackRefreshVersionState,
+  setRepeatModeState,
+  setTracksState,
   usePlayerStore,
 } from "./player.store"
 
@@ -45,13 +51,13 @@ let lastProgressPosition = 0
 let lastProgressDuration = 0
 
 function setActiveTrack(track: Track | null) {
-  $currentTrack.set(track)
-  $duration.set(track?.duration || 0)
+  setCurrentTrackState(track)
+  setDurationState(track?.duration || 0)
   void updateColorsForImage(track?.image)
 }
 
 function bumpPlaybackRefreshVersion() {
-  $playbackRefreshVersion.set($playbackRefreshVersion.get() + 1)
+  setPlaybackRefreshVersionState(getPlaybackRefreshVersionState() + 1)
 }
 
 function setPlaybackProgress(position: number, duration: number) {
@@ -85,7 +91,7 @@ async function handleTrackActivated(track: Track) {
 
 function mapTrackPlayerTrackToTrack(track: any): Track {
   return {
-    ...$tracks.get().find((item) => item.id === String(track.id)),
+    ...getTracksState().find((item) => item.id === String(track.id)),
     id: String(track.id),
     title: typeof track.title === "string" ? track.title : "Unknown Track",
     artist: track.artist,
@@ -141,7 +147,7 @@ export async function syncCurrentTrackFromPlayer(): Promise<void> {
   try {
     const activeIndex = await TrackPlayer.getCurrentTrack()
     if (activeIndex !== null && activeIndex >= 0) {
-      const queueTrack = $queue.get()[activeIndex]
+      const queueTrack = getQueueState()[activeIndex]
       if (queueTrack) {
         setActiveTrack(queueTrack)
         return
@@ -185,14 +191,14 @@ export async function persistPlaybackSession(options?: {
     const currentTrackId =
       currentIndex !== null && currentIndex >= 0 && currentIndex < queue.length
         ? (queue[currentIndex]?.id ?? null)
-        : ($currentTrack.get()?.id ?? null)
+        : (getCurrentTrackState()?.id ?? null)
 
     await savePlaybackSession({
       queue,
       currentTrackId,
       positionSeconds,
-      repeatMode: $repeatMode.get(),
-      wasPlaying: $isPlaying.get(),
+      repeatMode: getRepeatModeState(),
+      wasPlaying: getIsPlayingState(),
       savedAt: now,
     })
     lastPlaybackSessionSavedAt = now
@@ -237,9 +243,9 @@ export async function restorePlaybackSession(): Promise<void> {
         TrackPlayer.getRepeatMode(),
       ])
 
-      setPlaybackProgress(position, $currentTrack.get()?.duration || 0)
-      $isPlaying.set(playbackState === State.Playing)
-      $repeatMode.set(mapTrackPlayerRepeatMode(repeatMode))
+      setPlaybackProgress(position, getCurrentTrackState()?.duration || 0)
+      setIsPlayingState(playbackState === State.Playing)
+      setRepeatModeState(mapTrackPlayerRepeatMode(repeatMode))
       await persistPlaybackSession({ force: true })
       return
     }
@@ -275,10 +281,10 @@ export async function restorePlaybackSession(): Promise<void> {
     await setQueueStore(snapshot.queue)
     setActiveTrack(currentTrack)
     setPlaybackProgress(targetPosition, currentTrack?.duration || 0)
-    $repeatMode.set(snapshot.repeatMode)
+    setRepeatModeState(snapshot.repeatMode)
 
     await TrackPlayer.pause()
-    $isPlaying.set(false)
+    setIsPlayingState(false)
 
     await persistPlaybackSession({ force: true })
   } catch (error) {
@@ -352,15 +358,15 @@ export async function PlaybackService() {
   })
 
   TrackPlayer.addEventListener(Event.PlaybackState, (event) => {
-    $isPlaying.set(event.state === State.Playing)
+    setIsPlayingState(event.state === State.Playing)
     void persistPlaybackSession()
   })
 
   TrackPlayer.addEventListener(Event.PlaybackTrackChanged, async () => {
-    const previousTrackId = $currentTrack.get()?.id ?? null
+    const previousTrackId = getCurrentTrackState()?.id ?? null
     await syncCurrentTrackFromPlayer()
-    const currentTrack = $currentTrack.get()
-    const isTrackRepeat = $repeatMode.get() === "track"
+    const currentTrack = getCurrentTrackState()
+    const isTrackRepeat = getRepeatModeState() === "track"
     if (
       !currentTrack ||
       (currentTrack.id === previousTrackId && !isTrackRepeat)
@@ -389,11 +395,11 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
   try {
     logInfo("Playing track", {
       trackId: track.id,
-      queueLength: playlistTracks?.length ?? $tracks.get().length,
+      queueLength: playlistTracks?.length ?? getTracksState().length,
     })
     await TrackPlayer.reset()
 
-    const tracks = playlistTracks || $tracks.get()
+    const tracks = playlistTracks || getTracksState()
     const selectedTrackIndex = tracks.findIndex((t) => t.id === track.id)
     const currentTrackIndex = selectedTrackIndex >= 0 ? selectedTrackIndex : 0
 
@@ -408,7 +414,7 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
     setActiveTrack(track)
 
     await TrackPlayer.play()
-    $isPlaying.set(true)
+    setIsPlayingState(true)
     setPlaybackProgress(0, track.duration || 0)
     await handleTrackActivated(track)
     await persistPlaybackSession({ force: true })
@@ -421,7 +427,7 @@ export async function pauseTrack() {
   try {
     logInfo("Pausing playback")
     await TrackPlayer.pause()
-    $isPlaying.set(false)
+    setIsPlayingState(false)
     await persistPlaybackSession({ force: true })
   } catch (error) {
     logError("Failed to pause playback", error)
@@ -432,7 +438,7 @@ export async function resumeTrack() {
   try {
     logInfo("Resuming playback")
     await TrackPlayer.play()
-    $isPlaying.set(true)
+    setIsPlayingState(true)
     await persistPlaybackSession({ force: true })
   } catch (error) {
     logError("Failed to resume playback", error)
@@ -457,7 +463,7 @@ export async function playNext() {
     logWarn("Failed to skip to next track, falling back to queue restart", {
       error: error instanceof Error ? error.message : String(error),
     })
-    const queue = $queue.get()
+    const queue = getQueueState()
     if (queue.length > 0) {
       await playTrack(queue[0], queue)
     }
@@ -495,7 +501,7 @@ export async function setRepeatMode(mode: RepeatModeType) {
   try {
     logInfo("Updating repeat mode", { mode })
     await TrackPlayer.setRepeatMode(mapRepeatMode(mode))
-    $repeatMode.set(mode)
+    setRepeatModeState(mode)
     await persistPlaybackSession({ force: true })
   } catch (error) {
     logError("Failed to update repeat mode", error, { mode })
@@ -503,14 +509,14 @@ export async function setRepeatMode(mode: RepeatModeType) {
 }
 
 export async function toggleRepeatMode() {
-  const currentMode = $repeatMode.get()
+  const currentMode = getRepeatModeState()
   const nextMode: RepeatModeType =
     currentMode === "off" ? "track" : currentMode === "track" ? "queue" : "off"
   await setRepeatMode(nextMode)
 }
 
 export function toggleFavorite(trackId: string) {
-  const tracks = $tracks.get()
+  const tracks = getTracksState()
   const index = tracks.findIndex((track) => track.id === trackId)
   if (index === -1) {
     return
@@ -524,9 +530,9 @@ export function toggleFavorite(trackId: string) {
   const newStatus = !track.isFavorite
   const newTracks = [...tracks]
   newTracks[index] = { ...track, isFavorite: newStatus }
-  $tracks.set(newTracks)
+  setTracksState(newTracks)
 
-  const current = $currentTrack.get()
+  const current = getCurrentTrackState()
   if (current?.id === trackId) {
     setActiveTrack({ ...current, isFavorite: newStatus })
   }
@@ -540,7 +546,7 @@ export async function loadTracks() {
   try {
     const { getAllTracks } = await import("./player.repository")
     const trackList = await getAllTracks()
-    $tracks.set(trackList)
+    setTracksState(trackList)
     logInfo("Loaded tracks into player store", { trackCount: trackList.length })
   } catch (error) {
     logError("Failed to load tracks into player store", error)

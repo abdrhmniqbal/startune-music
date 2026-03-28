@@ -14,7 +14,7 @@ import { TrackRow } from "@/components/patterns/track-row"
 import { ScaleLoader } from "@/components/ui/scale-loader"
 import { playTrack, type Track } from "@/modules/player/player.store"
 import {
-  $queue,
+  getQueueState,
   moveInQueue,
   removeFromQueue,
   useQueueInfo,
@@ -129,7 +129,7 @@ export const QueueView: React.FC<QueueViewProps> = ({ currentTrack }) => {
   }
 
   const handlePlayFromQueue = (track: Track) => {
-    void playTrack(track, $queue.get())
+    void playTrack(track, getQueueState())
   }
 
   return (

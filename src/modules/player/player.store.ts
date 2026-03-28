@@ -35,65 +35,88 @@ export const usePlayerStore = create<PlayerState>(() => ({
   isShuffled: false,
 }))
 
-export const $tracks = {
-  get: () => usePlayerStore.getState().tracks,
-  set: (value: Track[]) => usePlayerStore.setState({ tracks: value }),
+export function getTracksState() {
+  return usePlayerStore.getState().tracks
 }
 
-export const $currentTrack = {
-  get: () => usePlayerStore.getState().currentTrack,
-  set: (value: Track | null) => usePlayerStore.setState({ currentTrack: value }),
+export function setTracksState(value: Track[]) {
+  usePlayerStore.setState({ tracks: value })
 }
 
-export const $isPlaying = {
-  get: () => usePlayerStore.getState().isPlaying,
-  set: (value: boolean) => usePlayerStore.setState({ isPlaying: value }),
+export function getCurrentTrackState() {
+  return usePlayerStore.getState().currentTrack
 }
 
-export const $currentTime = {
-  get: () => usePlayerStore.getState().currentTime,
-  set: (value: number) => {
-    if (usePlayerStore.getState().currentTime === value) {
-      return
-    }
-    usePlayerStore.setState({ currentTime: value })
-  },
+export function setCurrentTrackState(value: Track | null) {
+  usePlayerStore.setState({ currentTrack: value })
 }
 
-export const $duration = {
-  get: () => usePlayerStore.getState().duration,
-  set: (value: number) => {
-    if (usePlayerStore.getState().duration === value) {
-      return
-    }
-    usePlayerStore.setState({ duration: value })
-  },
+export function getIsPlayingState() {
+  return usePlayerStore.getState().isPlaying
 }
 
-export const $playbackRefreshVersion = {
-  get: () => usePlayerStore.getState().playbackRefreshVersion,
-  set: (value: number) =>
-    usePlayerStore.setState({ playbackRefreshVersion: value }),
+export function setIsPlayingState(value: boolean) {
+  usePlayerStore.setState({ isPlaying: value })
 }
 
-export const $repeatMode = {
-  get: () => usePlayerStore.getState().repeatMode,
-  set: (value: RepeatModeType) => usePlayerStore.setState({ repeatMode: value }),
+export function setCurrentTimeState(value: number) {
+  if (usePlayerStore.getState().currentTime === value) {
+    return
+  }
+
+  usePlayerStore.setState({ currentTime: value })
 }
 
-export const $queue = {
-  get: () => usePlayerStore.getState().queue,
-  set: (value: Track[]) => usePlayerStore.setState({ queue: value }),
+export function setDurationState(value: number) {
+  if (usePlayerStore.getState().duration === value) {
+    return
+  }
+
+  usePlayerStore.setState({ duration: value })
 }
 
-export const $originalQueue = {
-  get: () => usePlayerStore.getState().originalQueue,
-  set: (value: Track[]) => usePlayerStore.setState({ originalQueue: value }),
+export function getDurationState() {
+  return usePlayerStore.getState().duration
 }
 
-export const $isShuffled = {
-  get: () => usePlayerStore.getState().isShuffled,
-  set: (value: boolean) => usePlayerStore.setState({ isShuffled: value }),
+export function setPlaybackRefreshVersionState(value: number) {
+  usePlayerStore.setState({ playbackRefreshVersion: value })
+}
+
+export function getPlaybackRefreshVersionState() {
+  return usePlayerStore.getState().playbackRefreshVersion
+}
+
+export function getRepeatModeState() {
+  return usePlayerStore.getState().repeatMode
+}
+
+export function setRepeatModeState(value: RepeatModeType) {
+  usePlayerStore.setState({ repeatMode: value })
+}
+
+export function getQueueState() {
+  return usePlayerStore.getState().queue
+}
+
+export function setQueueState(value: Track[]) {
+  usePlayerStore.setState({ queue: value })
+}
+
+export function getOriginalQueueState() {
+  return usePlayerStore.getState().originalQueue
+}
+
+export function setOriginalQueueState(value: Track[]) {
+  usePlayerStore.setState({ originalQueue: value })
+}
+
+export function getIsShuffledState() {
+  return usePlayerStore.getState().isShuffled
+}
+
+export function setIsShuffledState(value: boolean) {
+  usePlayerStore.setState({ isShuffled: value })
 }
 
 export {

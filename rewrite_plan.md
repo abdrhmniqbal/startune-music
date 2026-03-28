@@ -135,6 +135,7 @@ Rules:
 - services own imperative runtime integration
 - presentational components should not know how persistence works
 - compatibility-style `$...` exports should keep shrinking until they are gone
+- player state helpers should use explicit getters and setters instead of compatibility-shaped wrapper objects
 
 ### Module Shape
 

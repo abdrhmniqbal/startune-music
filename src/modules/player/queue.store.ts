@@ -3,10 +3,13 @@ import { useMemo } from "react"
 import { TrackPlayer } from "@/modules/player/player.utils"
 
 import {
-  $currentTrack,
-  $isShuffled,
-  $originalQueue,
-  $queue,
+  getCurrentTrackState,
+  getIsShuffledState,
+  getOriginalQueueState,
+  getQueueState,
+  setIsShuffledState,
+  setOriginalQueueState,
+  setQueueState,
   usePlayerStore,
   type Track,
 } from "./player.store"
@@ -14,8 +17,6 @@ import {
   persistPlaybackSession,
   syncCurrentTrackFromPlayer,
 } from "./player.service"
-
-export { $isShuffled, $originalQueue, $queue } from "./player.store"
 
 function buildQueueInfo(queue: Track[], currentTrack: Track | null) {
   const currentIndex = currentTrack
@@ -32,11 +33,6 @@ function buildQueueInfo(queue: Track[], currentTrack: Track | null) {
   }
 }
 
-export const $queueInfo = {
-  get: () =>
-    buildQueueInfo($queue.get(), $currentTrack.get()),
-}
-
 export function useQueueInfo() {
   const queue = usePlayerStore((state) => state.queue)
   const currentTrack = usePlayerStore((state) => state.currentTrack)
@@ -48,10 +44,10 @@ export function useQueueInfo() {
 }
 
 export async function addToQueue(track: Track) {
-  const queue = $queue.get()
+  const queue = getQueueState()
   if (queue.some((t) => t.id === track.id)) return
 
-  $queue.set([...queue, track])
+  setQueueState([...queue, track])
 
   await TrackPlayer.add({
     id: track.id,
@@ -66,13 +62,13 @@ export async function addToQueue(track: Track) {
 }
 
 export async function playNext(track: Track) {
-  const queue = $queue.get()
-  const currentTrack = $currentTrack.get()
+  const queue = getQueueState()
+  const currentTrack = getCurrentTrackState()
 
   const filteredQueue = queue.filter((t) => t.id !== track.id)
 
   if (!currentTrack) {
-    $queue.set([track, ...filteredQueue])
+    setQueueState([track, ...filteredQueue])
   } else {
     const currentIndex = filteredQueue.findIndex(
       (t) => t.id === currentTrack.id
@@ -82,7 +78,7 @@ export async function playNext(track: Track) {
       track,
       ...filteredQueue.slice(currentIndex + 1),
     ]
-    $queue.set(newQueue)
+    setQueueState(newQueue)
   }
 
   const tpQueue = await TrackPlayer.getQueue()
@@ -106,8 +102,8 @@ export async function playNext(track: Track) {
 }
 
 export async function removeFromQueue(trackId: string) {
-  const queue = $queue.get()
-  $queue.set(queue.filter((t) => t.id !== trackId))
+  const queue = getQueueState()
+  setQueueState(queue.filter((t) => t.id !== trackId))
 
   const tpQueue = await TrackPlayer.getQueue()
   const index = tpQueue.findIndex((t) => t.id === trackId)
@@ -118,12 +114,12 @@ export async function removeFromQueue(trackId: string) {
 }
 
 export async function clearQueue() {
-  const currentTrack = $currentTrack.get()
+  const currentTrack = getCurrentTrackState()
 
   if (currentTrack) {
-    $queue.set([currentTrack])
+    setQueueState([currentTrack])
   } else {
-    $queue.set([])
+    setQueueState([])
   }
 
   await TrackPlayer.reset()
@@ -143,11 +139,11 @@ export async function clearQueue() {
 }
 
 export function setQueue(tracks: Track[]) {
-  $queue.set(tracks)
+  setQueueState(tracks)
 }
 
 export async function moveInQueue(fromIndex: number, toIndex: number) {
-  const previousQueue = $queue.get()
+  const previousQueue = getQueueState()
   if (
     fromIndex < 0 ||
     toIndex < 0 ||
@@ -165,27 +161,27 @@ export async function moveInQueue(fromIndex: number, toIndex: number) {
   }
 
   queue.splice(toIndex, 0, moved)
-  $queue.set(queue)
+  setQueueState(queue)
 
   try {
     await TrackPlayer.move(fromIndex, toIndex)
     await syncCurrentTrackFromPlayer()
     await persistPlaybackSession({ force: true })
   } catch {
-    $queue.set(previousQueue)
+    setQueueState(previousQueue)
   }
 }
 
 export async function toggleShuffle() {
-  const isShuffled = $isShuffled.get()
-  const queue = $queue.get()
-  const currentTrack = $currentTrack.get()
+  const isShuffled = getIsShuffledState()
+  const queue = getQueueState()
+  const currentTrack = getCurrentTrackState()
 
   if (queue.length <= 1) return
 
   if (!isShuffled) {
     // Store original queue before shuffling
-    $originalQueue.set([...queue])
+    setOriginalQueueState([...queue])
 
     // Find current track position
     const currentIndex = currentTrack
@@ -203,8 +199,8 @@ export async function toggleShuffle() {
     }
 
     const shuffledQueue = [...playedAndCurrent, ...upcoming]
-    $queue.set(shuffledQueue)
-    $isShuffled.set(true)
+    setQueueState(shuffledQueue)
+    setIsShuffledState(true)
 
     // Update TrackPlayer queue without interrupting playback
     // Remove all tracks after current and add shuffled upcoming tracks
@@ -233,7 +229,7 @@ export async function toggleShuffle() {
     }
   } else {
     // Restore original queue order
-    const originalQueue = $originalQueue.get()
+    const originalQueue = getOriginalQueueState()
     const currentIndex = currentTrack
       ? originalQueue.findIndex((t) => t.id === currentTrack.id)
       : 0
@@ -243,8 +239,8 @@ export async function toggleShuffle() {
     const originalUpcoming = originalQueue.slice(currentIndex + 1)
 
     const restoredQueue = [...playedAndCurrent, ...originalUpcoming]
-    $queue.set(restoredQueue)
-    $isShuffled.set(false)
+    setQueueState(restoredQueue)
+    setIsShuffledState(false)
 
     // Update TrackPlayer queue without interrupting playback
     const tpQueue = await TrackPlayer.getQueue()

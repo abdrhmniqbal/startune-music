@@ -188,6 +188,8 @@ Progress:
 - logging, UI, and library sort modules no longer use `$...` compatibility helpers internally
 - player color state no longer uses `$...` compatibility helpers internally
 - dead compatibility file `src/modules/player/player.computed.ts` was removed
+- player state and queue helpers no longer expose `$...` compatibility wrappers internally
+- `src/modules/player/queue.store.ts` no longer maintains the legacy `$queueInfo` export
 
 ### Slice 5
 
