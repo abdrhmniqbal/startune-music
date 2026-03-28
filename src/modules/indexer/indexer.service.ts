@@ -1,15 +1,17 @@
 import { refreshIndexedMediaState } from "@/modules/indexer/indexer-refresh.service"
 import { scanMediaLibrary } from "@/modules/indexer/indexer.repository"
+import {
+  consumeQueuedIndexerRun,
+  finishIndexerRunRuntime,
+  isIndexerRunStale,
+  queueIndexerRun,
+  scheduleIndexerCompletePhaseReset,
+  startIndexerRunRuntime,
+  stopIndexerRunRuntime,
+} from "@/modules/indexer/indexer-runtime"
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 
 import { getDefaultIndexerState, getIndexerState, updateIndexerState } from "./indexer.store"
-
-let abortController: AbortController | null = null
-let runToken = 0
-let completePhaseTimeout: ReturnType<typeof setTimeout> | null = null
-let queuedScanRequested = false
-let queuedForceFullScan = false
-let queuedShowProgress = false
 
 export async function startIndexing(
   forceFullScan = false,
@@ -17,9 +19,7 @@ export async function startIndexing(
 ) {
   const currentState = getIndexerState()
   if (currentState.isIndexing) {
-    queuedScanRequested = true
-    queuedForceFullScan = queuedForceFullScan || forceFullScan
-    queuedShowProgress = queuedShowProgress || showProgress
+    queueIndexerRun(forceFullScan, showProgress)
     logInfo("Indexer run queued while another run is active", {
       forceFullScan,
       showProgress,
@@ -27,15 +27,7 @@ export async function startIndexing(
     return
   }
 
-  if (completePhaseTimeout) {
-    clearTimeout(completePhaseTimeout)
-    completePhaseTimeout = null
-  }
-
-  const controller = new AbortController()
-  abortController = controller
-  runToken += 1
-  const currentRunToken = runToken
+  const { controller, runToken: currentRunToken } = startIndexerRunRuntime()
 
   updateIndexerState({
     ...getDefaultIndexerState(),
@@ -48,7 +40,7 @@ export async function startIndexing(
   try {
     await scanMediaLibrary(
       (progress) => {
-        if (controller.signal.aborted || currentRunToken !== runToken) {
+        if (isIndexerRunStale(controller, currentRunToken)) {
           return
         }
 
@@ -65,7 +57,7 @@ export async function startIndexing(
       controller.signal
     )
 
-    if (controller.signal.aborted || currentRunToken !== runToken) {
+    if (isIndexerRunStale(controller, currentRunToken)) {
       return
     }
 
@@ -82,16 +74,11 @@ export async function startIndexing(
       totalFiles: getIndexerState().totalFiles,
     })
 
-    completePhaseTimeout = setTimeout(() => {
-      if (currentRunToken !== runToken) {
-        return
-      }
-
+    scheduleIndexerCompletePhaseReset(currentRunToken, () => {
       updateIndexerState({ phase: "idle", showProgress: false })
-      completePhaseTimeout = null
-    }, 3000)
+    })
   } catch (error) {
-    if (controller.signal.aborted || currentRunToken !== runToken) {
+    if (isIndexerRunStale(controller, currentRunToken)) {
       return
     }
 
@@ -102,29 +89,18 @@ export async function startIndexing(
       showProgress: false,
     })
   } finally {
-    if (abortController === controller) {
-      abortController = null
-    }
+    finishIndexerRunRuntime(controller)
 
-    const shouldRunQueuedScan =
-      queuedScanRequested &&
-      currentRunToken === runToken &&
-      !controller.signal.aborted
-
-    if (!shouldRunQueuedScan) {
+    const nextQueuedRun = consumeQueuedIndexerRun(controller, currentRunToken)
+    if (!nextQueuedRun) {
       return
     }
 
-    const nextForceFullScan = queuedForceFullScan
-    const nextShowProgress = queuedShowProgress
-    queuedScanRequested = false
-    queuedForceFullScan = false
-    queuedShowProgress = false
     logInfo("Starting queued indexer run", {
-      forceFullScan: nextForceFullScan,
-      showProgress: nextShowProgress,
+      forceFullScan: nextQueuedRun.forceFullScan,
+      showProgress: nextQueuedRun.showProgress,
     })
-    void startIndexing(nextForceFullScan, nextShowProgress)
+    void startIndexing(nextQueuedRun.forceFullScan, nextQueuedRun.showProgress)
   }
 }
 
@@ -134,20 +110,7 @@ export async function forceReindexLibrary(showProgress = true) {
 
 export function stopIndexing() {
   logWarn("Indexer stopped")
-  runToken += 1
-  queuedScanRequested = false
-  queuedForceFullScan = false
-  queuedShowProgress = false
-
-  if (completePhaseTimeout) {
-    clearTimeout(completePhaseTimeout)
-    completePhaseTimeout = null
-  }
-
-  if (abortController) {
-    abortController.abort()
-    abortController = null
-  }
+  stopIndexerRunRuntime()
 
   updateIndexerState({
     ...getDefaultIndexerState(),

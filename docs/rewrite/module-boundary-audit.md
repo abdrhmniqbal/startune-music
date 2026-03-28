@@ -94,6 +94,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - logging is better, but the boundary is still too heavy
   - runtime controls are now separated into `indexer.service.ts`, which is a step toward a thinner state-only store
   - post-scan media reload and query invalidation now live in `indexer-refresh.service.ts`
+  - abort token, queued-run, and completion-timeout coordination now live in `indexer-runtime.ts`
 
 ### `library`
 

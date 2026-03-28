@@ -253,6 +253,7 @@ Progress:
 - track-activation side effects now live in `src/modules/player/player-activity.service.ts`
 - playback transport controls now live in `src/modules/player/player-controls.service.ts`
 - post-scan media reload and query invalidation now live in `src/modules/indexer/indexer-refresh.service.ts`
+- indexer run coordination state now lives in `src/modules/indexer/indexer-runtime.ts`
 
 ### Slice 5
 
