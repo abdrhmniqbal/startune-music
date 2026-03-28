@@ -148,6 +148,7 @@ Rules:
 - player runtime commands should be imported from `player.service.ts`, not re-exported through `player.store.ts`
 - queue mutations should be imported from `queue.service.ts`, while derived queue state stays in `queue.store.ts`
 - player artwork color extraction and caching should live in `player-colors.service.ts`, while `player-colors.store.ts` stays state-only
+- player session persistence should live in `player-session.repository.ts`
 - indexer runtime controls should live in `indexer.service.ts`, while `indexer.store.ts` stays focused on indexer state
 - settings route metadata and reusable settings UI patterns should live under `src/modules/settings` and shared components, instead of being duplicated across screens
 

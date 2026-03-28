@@ -119,6 +119,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - playback commands are no longer re-exported through `player.store.ts`
   - queue runtime commands are now separated into `queue.service.ts` instead of living beside derived queue state
   - artwork color extraction and cache logic are now separated into `player-colors.service.ts`
+  - player session persistence now lives in `player-session.repository.ts`
 
 ### `playlist`
 

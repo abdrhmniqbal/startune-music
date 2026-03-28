@@ -11,7 +11,7 @@ import { logError, logInfo, logWarn } from "@/modules/logging/logger"
 import {
   loadPlaybackSession,
   savePlaybackSession,
-} from "@/modules/player/player-session"
+} from "@/modules/player/player-session.repository"
 import { updateColorsForImage } from "@/modules/player/player-colors.service"
 import {
   invalidatePlayerQueries,
