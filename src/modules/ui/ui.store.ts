@@ -14,28 +14,28 @@ export const useUIStore = create<UIState>(() => ({
   playerExpandedView: "artwork",
 }))
 
-export const $barsVisible = {
-  get: () => useUIStore.getState().barsVisible,
-  set: (value: boolean) => useUIStore.setState({ barsVisible: value }),
+function setBarsVisibleState(value: boolean) {
+  useUIStore.setState({ barsVisible: value })
 }
 
-export const $isPlayerExpanded = {
-  get: () => useUIStore.getState().isPlayerExpanded,
-  set: (value: boolean) => useUIStore.setState({ isPlayerExpanded: value }),
+function setIsPlayerExpandedState(value: boolean) {
+  useUIStore.setState({ isPlayerExpanded: value })
 }
 
-export const $playerExpandedView = {
-  get: () => useUIStore.getState().playerExpandedView,
-  set: (value: PlayerExpandedView) =>
-    useUIStore.setState({ playerExpandedView: value }),
+function getPlayerExpandedViewState() {
+  return useUIStore.getState().playerExpandedView
+}
+
+function setPlayerExpandedViewState(value: PlayerExpandedView) {
+  useUIStore.setState({ playerExpandedView: value })
 }
 
 export function setBarsVisible(value: boolean) {
-  $barsVisible.set(value)
+  setBarsVisibleState(value)
 }
 
 export function setPlayerExpandedView(value: PlayerExpandedView) {
-  $playerExpandedView.set(value)
+  setPlayerExpandedViewState(value)
 }
 
 export function openPlayer(view: PlayerExpandedView = "artwork") {
@@ -53,8 +53,8 @@ export function closePlayer() {
 }
 
 export function togglePlayerExpandedView(value: PlayerExpandedView) {
-  const currentView = useUIStore.getState().playerExpandedView
-  $playerExpandedView.set(currentView === value ? "artwork" : value)
+  const currentView = getPlayerExpandedViewState()
+  setPlayerExpandedViewState(currentView === value ? "artwork" : value)
 }
 
 let lastScrollY = 0

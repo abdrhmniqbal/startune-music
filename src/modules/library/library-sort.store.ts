@@ -66,10 +66,12 @@ export const useLibrarySortStore = create<LibrarySortState>(() => ({
   sortConfig: DEFAULT_SORT_CONFIG,
 }))
 
-export const $sortConfig = {
-  get: () => useLibrarySortStore.getState().sortConfig,
-  set: (value: Record<TabName, SortConfig>) =>
-    useLibrarySortStore.setState({ sortConfig: value }),
+function getSortConfigState() {
+  return useLibrarySortStore.getState().sortConfig
+}
+
+function setSortConfigState(value: Record<TabName, SortConfig>) {
+  useLibrarySortStore.setState({ sortConfig: value })
 }
 
 export function setSortConfig(
@@ -77,15 +79,15 @@ export function setSortConfig(
   field: SortField,
   order?: SortOrder
 ) {
-  const current = $sortConfig.get()[tab]
+  const current = getSortConfigState()[tab]
   if (current.field === field && !order) {
-    $sortConfig.set({
-      ...$sortConfig.get(),
+    setSortConfigState({
+      ...getSortConfigState(),
       [tab]: { field, order: current.order === "asc" ? "desc" : "asc" },
     })
   } else {
-    $sortConfig.set({
-      ...$sortConfig.get(),
+    setSortConfigState({
+      ...getSortConfigState(),
       [tab]: { field, order: order || "asc" },
     })
   }

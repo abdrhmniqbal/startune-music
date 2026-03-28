@@ -35,9 +35,12 @@ export const useLoggingStore = create<LoggingStoreState>(() => ({
   loggingConfig: DEFAULT_LOGGING_CONFIG,
 }))
 
-export const $loggingConfig = {
-  get: () => useLoggingStore.getState().loggingConfig,
-  set: (value: LoggingConfig) => useLoggingStore.setState({ loggingConfig: value }),
+function getLoggingConfigState() {
+  return useLoggingStore.getState().loggingConfig
+}
+
+function setLoggingConfigState(value: LoggingConfig) {
+  useLoggingStore.setState({ loggingConfig: value })
 }
 
 let configLoadPromise: Promise<LoggingConfig> | null = null
@@ -79,7 +82,7 @@ async function persistConfig(config: LoggingConfig): Promise<void> {
 }
 
 function shouldPersistLog(severity: LogSeverity): boolean {
-  const config = $loggingConfig.get()
+  const config = getLoggingConfigState()
   if (config.level === "extra") {
     return true
   }
@@ -232,7 +235,7 @@ function installGlobalErrorHandler() {
 
 export async function ensureLoggingConfigLoaded(): Promise<LoggingConfig> {
   if (hasLoadedConfig) {
-    return $loggingConfig.get()
+    return getLoggingConfigState()
   }
 
   if (configLoadPromise) {
@@ -242,18 +245,18 @@ export async function ensureLoggingConfigLoaded(): Promise<LoggingConfig> {
   configLoadPromise = (async () => {
     try {
       if (!LOG_CONFIG_FILE.exists) {
-        $loggingConfig.set(DEFAULT_LOGGING_CONFIG)
+        setLoggingConfigState(DEFAULT_LOGGING_CONFIG)
         hasLoadedConfig = true
         return DEFAULT_LOGGING_CONFIG
       }
 
       const raw = await LOG_CONFIG_FILE.text()
       const parsed = sanitizeConfig(JSON.parse(raw) as Partial<LoggingConfig>)
-      $loggingConfig.set(parsed)
+      setLoggingConfigState(parsed)
       hasLoadedConfig = true
       return parsed
     } catch {
-      $loggingConfig.set(DEFAULT_LOGGING_CONFIG)
+      setLoggingConfigState(DEFAULT_LOGGING_CONFIG)
       hasLoadedConfig = true
       return DEFAULT_LOGGING_CONFIG
     }
@@ -268,8 +271,8 @@ export async function setAppLogLevel(
   level: AppLogLevel
 ): Promise<LoggingConfig> {
   await ensureLoggingConfigLoaded()
-  const next = sanitizeConfig({ ...$loggingConfig.get(), level })
-  $loggingConfig.set(next)
+  const next = sanitizeConfig({ ...getLoggingConfigState(), level })
+  setLoggingConfigState(next)
   hasLoadedConfig = true
   await persistConfig(next)
   return next

@@ -185,6 +185,7 @@ Progress:
 
 - bootstrap, indexer, and player runtime boundaries now have first-pass structured logging
 - indexer config modules and `indexer.store.ts` no longer use `$...` compatibility helpers internally
+- logging, UI, and library sort modules no longer use `$...` compatibility helpers internally
 
 ### Slice 5
 

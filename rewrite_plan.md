@@ -415,6 +415,11 @@ Performance is a first-class rewrite track.
   - indexer now logs run start, queueing, completion, stop, resume, and fatal failures
   - player runtime now logs setup, session restore, transport commands, and failure paths
   - indexer config and state modules no longer use `$...` compatibility exports internally
+  - logging config no longer uses `$...` compatibility exports internally
+- [~] compatibility-style store shims continue shrinking:
+  - indexer config and state modules no longer expose `$...` wrappers
+  - UI store no longer exposes `$...` wrappers
+  - library sort store no longer exposes `$...` wrappers
 
 These are now treated as groundwork, not the finish line.
 
