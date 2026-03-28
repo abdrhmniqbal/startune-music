@@ -7,6 +7,7 @@ import {
   addTrackToHistory,
   incrementTrackPlayCount,
 } from "@/modules/history/history.repository"
+import { logError, logInfo, logWarn } from "@/modules/logging/logger"
 import {
   loadPlaybackSession,
   savePlaybackSession,
@@ -154,7 +155,9 @@ export async function syncCurrentTrackFromPlayer(): Promise<void> {
 
     const mappedTrack = mapTrackPlayerTrackToTrack(activeTrack)
     setActiveTrack(mappedTrack)
-  } catch {}
+  } catch (error) {
+    logError("Failed to sync current track from player", error)
+  }
 }
 
 export async function persistPlaybackSession(options?: {
@@ -193,7 +196,9 @@ export async function persistPlaybackSession(options?: {
       savedAt: now,
     })
     lastPlaybackSessionSavedAt = now
-  } catch {}
+  } catch (error) {
+    logError("Failed to persist playback session", error, options)
+  }
 }
 
 export async function restorePlaybackSession(): Promise<void> {
@@ -205,6 +210,9 @@ export async function restorePlaybackSession(): Promise<void> {
     const nativeQueue = await TrackPlayer.getQueue()
 
     if (nativeQueue.length > 0) {
+      logInfo("Restoring playback session from native queue", {
+        queueLength: nativeQueue.length,
+      })
       const mappedQueue = nativeQueue
         .map(mapTrackPlayerTrackToTrack)
         .filter((track) => track.id && track.uri)
@@ -238,8 +246,15 @@ export async function restorePlaybackSession(): Promise<void> {
 
     const snapshot = await loadPlaybackSession()
     if (!snapshot || snapshot.queue.length === 0) {
+      logInfo("No playback session snapshot available to restore")
       return
     }
+
+    logInfo("Restoring playback session from saved snapshot", {
+      queueLength: snapshot.queue.length,
+      currentTrackId: snapshot.currentTrackId,
+      wasPlaying: snapshot.wasPlaying,
+    })
 
     await TrackPlayer.reset()
     await TrackPlayer.add(snapshot.queue.map(mapTrackToTrackPlayerInput))
@@ -266,7 +281,9 @@ export async function restorePlaybackSession(): Promise<void> {
     $isPlaying.set(false)
 
     await persistPlaybackSession({ force: true })
-  } catch {}
+  } catch (error) {
+    logError("Failed to restore playback session", error)
+  }
 }
 
 export async function setupPlayer() {
@@ -275,6 +292,7 @@ export async function setupPlayer() {
       return
     }
 
+    logInfo("Setting up track player")
     await TrackPlayer.setupPlayer({
       autoHandleInterruptions: true,
     })
@@ -298,10 +316,15 @@ export async function setupPlayer() {
     })
 
     isPlayerReady = true
+    logInfo("Track player setup completed")
   } catch (error: any) {
     if (error?.message?.includes("already been initialized")) {
       isPlayerReady = true
+      logInfo("Track player already initialized")
+      return
     }
+
+    logError("Track player setup failed", error)
   }
 }
 
@@ -357,10 +380,17 @@ export async function PlaybackService() {
 
 export async function playTrack(track: Track, playlistTracks?: Track[]) {
   if (!isPlayerReady) {
+    logWarn("Ignored playTrack call because player is not ready", {
+      trackId: track.id,
+    })
     return
   }
 
   try {
+    logInfo("Playing track", {
+      trackId: track.id,
+      queueLength: playlistTracks?.length ?? $tracks.get().length,
+    })
     await TrackPlayer.reset()
 
     const tracks = playlistTracks || $tracks.get()
@@ -382,23 +412,31 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
     setPlaybackProgress(0, track.duration || 0)
     await handleTrackActivated(track)
     await persistPlaybackSession({ force: true })
-  } catch {}
+  } catch (error) {
+    logError("Failed to play track", error, { trackId: track.id })
+  }
 }
 
 export async function pauseTrack() {
   try {
+    logInfo("Pausing playback")
     await TrackPlayer.pause()
     $isPlaying.set(false)
     await persistPlaybackSession({ force: true })
-  } catch {}
+  } catch (error) {
+    logError("Failed to pause playback", error)
+  }
 }
 
 export async function resumeTrack() {
   try {
+    logInfo("Resuming playback")
     await TrackPlayer.play()
     $isPlaying.set(true)
     await persistPlaybackSession({ force: true })
-  } catch {}
+  } catch (error) {
+    logError("Failed to resume playback", error)
+  }
 }
 
 export async function togglePlayback() {
@@ -412,9 +450,13 @@ export async function togglePlayback() {
 
 export async function playNext() {
   try {
+    logInfo("Skipping to next track")
     await TrackPlayer.skipToNext()
     await persistPlaybackSession({ force: true })
-  } catch {
+  } catch (error) {
+    logWarn("Failed to skip to next track, falling back to queue restart", {
+      error: error instanceof Error ? error.message : String(error),
+    })
     const queue = $queue.get()
     if (queue.length > 0) {
       await playTrack(queue[0], queue)
@@ -426,28 +468,38 @@ export async function playPrevious() {
   try {
     const position = await TrackPlayer.getPosition()
     if (position > 3) {
+      logInfo("Restarting current track from beginning")
       await TrackPlayer.seekTo(0)
     } else {
+      logInfo("Skipping to previous track")
       await TrackPlayer.skipToPrevious()
       await persistPlaybackSession({ force: true })
     }
-  } catch {}
+  } catch (error) {
+    logError("Failed to play previous track", error)
+  }
 }
 
 export async function seekTo(seconds: number) {
   try {
+    logInfo("Seeking playback", { seconds })
     await TrackPlayer.seekTo(seconds)
     setPlaybackProgress(seconds, usePlayerStore.getState().duration)
     await persistPlaybackSession({ force: true })
-  } catch {}
+  } catch (error) {
+    logError("Failed to seek playback", error, { seconds })
+  }
 }
 
 export async function setRepeatMode(mode: RepeatModeType) {
   try {
+    logInfo("Updating repeat mode", { mode })
     await TrackPlayer.setRepeatMode(mapRepeatMode(mode))
     $repeatMode.set(mode)
     await persistPlaybackSession({ force: true })
-  } catch {}
+  } catch (error) {
+    logError("Failed to update repeat mode", error, { mode })
+  }
 }
 
 export async function toggleRepeatMode() {
@@ -489,5 +541,8 @@ export async function loadTracks() {
     const { getAllTracks } = await import("./player.repository")
     const trackList = await getAllTracks()
     $tracks.set(trackList)
-  } catch {}
+    logInfo("Loaded tracks into player store", { trackCount: trackList.length })
+  } catch (error) {
+    logError("Failed to load tracks into player store", error)
+  }
 }

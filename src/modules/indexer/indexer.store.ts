@@ -3,6 +3,7 @@ import { create } from "zustand"
 import { queryClient } from "@/lib/tanstack-query"
 import { invalidateIndexerQueries } from "@/modules/indexer/indexer.keys"
 import { scanMediaLibrary } from "@/modules/indexer/indexer.repository"
+import { logError, logInfo, logWarn } from "@/modules/logging/logger"
 import { loadTracks } from "@/modules/player/player.service"
 
 export interface IndexerState {
@@ -60,6 +61,10 @@ export async function startIndexing(
     queuedScanRequested = true
     queuedForceFullScan = queuedForceFullScan || forceFullScan
     queuedShowProgress = queuedShowProgress || showProgress
+    logInfo("Indexer run queued while another run is active", {
+      forceFullScan,
+      showProgress,
+    })
     return
   }
 
@@ -82,6 +87,7 @@ export async function startIndexing(
     currentFile: "",
     totalFiles: 0,
   })
+  logInfo("Indexer started", { forceFullScan, showProgress })
 
   try {
     await scanMediaLibrary(
@@ -119,6 +125,11 @@ export async function startIndexing(
       progress: 100,
       isIndexing: false,
     })
+    logInfo("Indexer completed successfully", {
+      forceFullScan,
+      processedFiles: $indexerState.get().processedFiles,
+      totalFiles: $indexerState.get().totalFiles,
+    })
 
     // Reset to idle after 3 seconds
     completePhaseTimeout = setTimeout(() => {
@@ -126,11 +137,12 @@ export async function startIndexing(
       updateState({ phase: "idle", showProgress: false })
       completePhaseTimeout = null
     }, 3000)
-  } catch {
+  } catch (error) {
     if (controller.signal.aborted || currentRunToken !== runToken) {
       return
     }
 
+    logError("Indexer run failed", error, { forceFullScan, showProgress })
     updateState({
       isIndexing: false,
       phase: "idle",
@@ -152,6 +164,10 @@ export async function startIndexing(
       queuedScanRequested = false
       queuedForceFullScan = false
       queuedShowProgress = false
+      logInfo("Starting queued indexer run", {
+        forceFullScan: nextForceFullScan,
+        showProgress: nextShowProgress,
+      })
       void startIndexing(nextForceFullScan, nextShowProgress)
     }
   }
@@ -162,6 +178,7 @@ export async function forceReindexLibrary(showProgress = true) {
 }
 
 export function stopIndexing() {
+  logWarn("Indexer stopped")
   runToken += 1
   queuedScanRequested = false
   queuedForceFullScan = false
@@ -188,12 +205,14 @@ export function stopIndexing() {
 
 export function pauseIndexing() {
   // Note: The current scanner doesn't support pausing, so we just stop
+  logWarn("Indexer pause requested; stopping instead because pause is unsupported")
   stopIndexing()
 }
 
 export function resumeIndexing() {
   const state = $indexerState.get()
   if (state.phase === "paused" || !state.isIndexing) {
+    logInfo("Indexer resume requested")
     startIndexing(false)
   }
 }

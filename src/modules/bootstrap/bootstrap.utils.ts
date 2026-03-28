@@ -9,17 +9,23 @@ import { db } from "@/db/client"
 import { tracks } from "@/db/schema"
 import { ensureAutoScanConfigLoaded } from "@/modules/indexer/auto-scan"
 import { startIndexing } from "@/modules/indexer/indexer.store"
+import { logInfo } from "@/modules/logging/logger"
 import { restorePlaybackSession } from "@/modules/player/player.service"
 
 export async function bootstrapApp(): Promise<void> {
+  logInfo("Registering playback service")
   registerPlaybackService()
+  logInfo("Initializing track player")
   await initializeTrackPlayer()
+  logInfo("Restoring playback session")
   await restorePlaybackSession()
 
   const { status } = await requestMediaLibraryPermission()
+  logInfo("Media library permission resolved during bootstrap", { status })
   if (status === "granted") {
     const isAutoScanEnabled = await ensureAutoScanConfigLoaded()
     if (!isAutoScanEnabled) {
+      logInfo("Auto scan disabled during bootstrap")
       return
     }
 
@@ -27,6 +33,10 @@ export async function bootstrapApp(): Promise<void> {
 
     const trackCount = result[0]?.value ?? 0
     const isFreshDatabase = trackCount === 0
+    logInfo("Scheduling bootstrap index run", {
+      trackCount,
+      isFreshDatabase,
+    })
 
     // Auto-index on app bootstrap when enabled; force a full scan only for fresh databases.
     // Uses indexer store so progress UI is shown.

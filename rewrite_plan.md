@@ -409,6 +409,10 @@ Performance is a first-class rewrite track.
   - bootstrap orchestration now lives in `src/modules/bootstrap/bootstrap.runtime.ts`
   - AppState and MediaLibrary listeners now live in `src/components/providers/bootstrap-effects.tsx`
   - `src/components/providers/database-provider.tsx` now logs migration completion, cached track loading, and provider failures
+- [~] structured logging expanded in core runtime flows:
+  - bootstrap now logs startup phases, permission resolution, and scheduled auto-index runs
+  - indexer now logs run start, queueing, completion, stop, resume, and fatal failures
+  - player runtime now logs setup, session restore, transport commands, and failure paths
 
 These are now treated as groundwork, not the finish line.
 

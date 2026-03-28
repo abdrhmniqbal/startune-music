@@ -181,6 +181,10 @@ These are not screen hooks anymore, but still need to be justified:
 - continue player and indexer cleanup
 - add missing structured logs in failure-prone paths
 
+Progress:
+
+- bootstrap, indexer, and player runtime boundaries now have first-pass structured logging
+
 ### Slice 5
 
 - do the shared component composition pass
