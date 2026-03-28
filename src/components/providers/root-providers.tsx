@@ -2,6 +2,7 @@ import { QueryClientProvider } from "@tanstack/react-query"
 
 import { queryClient } from "@/lib/tanstack-query"
 
+import { BootstrapEffects } from "./bootstrap-effects"
 import { DatabaseProvider } from "./database-provider"
 
 export function RootProviders({
@@ -16,6 +17,7 @@ export function RootProviders({
   return (
     <QueryClientProvider client={queryClient}>
       <DatabaseProvider onReady={onDatabaseReady} onError={onDatabaseError}>
+        <BootstrapEffects />
         {children}
       </DatabaseProvider>
     </QueryClientProvider>

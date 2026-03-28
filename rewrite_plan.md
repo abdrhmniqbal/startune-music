@@ -404,6 +404,11 @@ Performance is a first-class rewrite track.
   - `src/modules/playlist/hooks/use-playlist-form.ts` was removed
   - playlist form screen state now lives directly in `src/app/(main)/(home,search,library)/playlist/form.tsx`
   - pure helper logic now lives in `src/modules/playlist/playlist-form.ts`
+- [x] bootstrap hook flattened into runtime and provider boundaries:
+  - `src/modules/bootstrap/hooks/use-app-bootstrap.ts` was removed
+  - bootstrap orchestration now lives in `src/modules/bootstrap/bootstrap.runtime.ts`
+  - AppState and MediaLibrary listeners now live in `src/components/providers/bootstrap-effects.tsx`
+  - `src/components/providers/database-provider.tsx` now logs migration completion, cached track loading, and provider failures
 
 These are now treated as groundwork, not the finish line.
 

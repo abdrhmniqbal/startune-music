@@ -21,9 +21,12 @@ import { IndexingProgress } from "@/components/blocks/indexing-progress"
 import { PlayerSheet } from "@/components/blocks/player/player-sheet"
 import { RootProviders } from "@/components/providers/root-providers"
 import { getTabBarHeight, MINI_PLAYER_HEIGHT } from "@/constants/layout"
+import {
+  handleBootstrapDatabaseError,
+  handleBootstrapDatabaseReady,
+} from "@/modules/bootstrap/bootstrap.runtime"
 import { useUIStore } from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { useAppBootstrap } from "@/modules/bootstrap/hooks/use-app-bootstrap"
 import { usePlayerStore } from "@/modules/player/player.store"
 
 import "../global.css"
@@ -89,9 +92,14 @@ export default function Layout() {
       // Ignore hide race if splash is already hidden.
     })
   }, [])
-  const { handleDatabaseReady, handleDatabaseError } = useAppBootstrap({
-    onReady: hideSplash,
-  })
+  const notifyDatabaseReady = useCallback(async () => {
+    await handleBootstrapDatabaseReady()
+    hideSplash()
+  }, [hideSplash])
+  const notifyDatabaseError = useCallback(() => {
+    handleBootstrapDatabaseError()
+    hideSplash()
+  }, [hideSplash])
   const tabBarHeight = getTabBarHeight(insets.bottom)
   const hasMiniPlayer = currentTrack !== null
   const isMainTabsRoute = segments[0] === "(main)"
@@ -150,8 +158,8 @@ export default function Layout() {
             }}
           >
             <RootProviders
-              onDatabaseReady={handleDatabaseReady}
-              onDatabaseError={handleDatabaseError}
+              onDatabaseReady={notifyDatabaseReady}
+              onDatabaseError={notifyDatabaseError}
             >
               <View className="flex-1">
                 <Stack

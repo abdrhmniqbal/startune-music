@@ -130,20 +130,14 @@ These were deleted as part of the first code cleanup slice:
 
 These were normalized in the rewrite:
 
+- `src/modules/indexer/indexer.api.ts` -> removed
 - `src/modules/indexer/metadata.api.ts` -> `src/modules/indexer/metadata.repository.ts`
 - `src/modules/tracks/track-cleanup.api.ts` -> `src/modules/tracks/track-cleanup.repository.ts`
-
-### Remaining legacy-style file names
-
-These should still be reviewed and likely deleted or absorbed:
-
-- `src/modules/indexer/indexer.api.ts`
 
 ### Remaining reusable hooks that need review
 
 These are not screen hooks anymore, but still need to be justified:
 
-- `src/modules/bootstrap/hooks/use-app-bootstrap.ts`
 - `src/hooks/use-theme-colors.ts`
 
 ### Removed unused hooks
@@ -158,6 +152,9 @@ These are not screen hooks anymore, but still need to be justified:
 - `src/modules/playlist/hooks/use-playlist-form.ts`
   - replaced by screen-owned state in `src/app/(main)/(home,search,library)/playlist/form.tsx`
   - pure helper logic moved to `src/modules/playlist/playlist-form.ts`
+- `src/modules/bootstrap/hooks/use-app-bootstrap.ts`
+  - replaced by `src/modules/bootstrap/bootstrap.runtime.ts`
+  - native lifecycle listeners now live in `src/components/providers/bootstrap-effects.tsx`
 
 ## Recommended Execution Order
 
@@ -169,15 +166,15 @@ These are not screen hooks anymore, but still need to be justified:
 
 ### Slice 2
 
-- [~] audit and rename or absorb remaining `*.api.ts` files
+- [x] audit and rename or absorb remaining `*.api.ts` files
 - [x] move metadata extraction ownership toward `repository.ts`
 - [x] move track cleanup ownership toward `repository.ts`
-- [ ] remove the remaining compatibility re-export in `src/modules/indexer/indexer.api.ts`
+- [x] remove the remaining compatibility re-export in `src/modules/indexer/indexer.api.ts`
 
 ### Slice 3
 
-- audit provider and bootstrap boundaries
-- reduce effect-driven orchestration further
+- [x] audit provider and bootstrap boundaries
+- [x] reduce effect-driven bootstrap orchestration by moving it out of a screen-facing hook
 
 ### Slice 4
 

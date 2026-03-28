@@ -4,7 +4,7 @@ import { Text, View } from "react-native"
 
 import { db } from "@/db/client"
 import migrations from "@/db/migrations/migrations"
-import { logError } from "@/modules/logging/logger"
+import { logError, logInfo } from "@/modules/logging/logger"
 import { loadTracks } from "@/modules/player/player.service"
 
 export function DatabaseProvider({
@@ -29,7 +29,9 @@ export function DatabaseProvider({
 
     const loadData = async () => {
       try {
+        logInfo("Database migrations completed, loading cached tracks")
         await loadTracks()
+        logInfo("Cached tracks loaded")
         setHasLoadedTracks(true)
       } catch (dataError) {
         logError("Database data loading failed", dataError)
@@ -60,6 +62,7 @@ export function DatabaseProvider({
     }
 
     hasNotifiedErrorRef.current = true
+    logError("Database provider failed", resolvedError)
     onError?.()
   }, [onError, resolvedError])
 
