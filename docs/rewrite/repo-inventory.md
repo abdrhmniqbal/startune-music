@@ -77,8 +77,34 @@ Reason:
 Reason:
 
 - several modules already follow the new shape
-- player, indexer, settings, and some compatibility layers still need deeper cleanup
-- a few legacy naming choices such as `*.api.ts` still exist and should be removed or renamed
+- player, indexer, and settings still need deeper cleanup
+- the next pass should be driven by the module boundary audit rather than ad hoc file selection
+
+### Module boundary audit
+
+- detailed audit document:
+  - `docs/rewrite/module-boundary-audit.md`
+
+- closest to target shape:
+  - `favorites`
+  - `genres`
+  - `history`
+  - `search`
+
+- still need another cleanup pass:
+  - `bootstrap`
+  - `device`
+  - `library`
+  - `logging`
+  - `lyrics`
+  - `playlist`
+  - `tracks`
+  - `ui`
+
+- still need the deepest rewrite work:
+  - `player`
+  - `indexer`
+  - `settings`
 
 ### `src/core`
 
@@ -199,6 +225,7 @@ Progress:
 - logging, UI, and library sort modules no longer use `$...` compatibility helpers internally
 - player color state no longer uses `$...` compatibility helpers internally
 - dead compatibility file `src/modules/player/player.computed.ts` was removed
+- dead compatibility file `src/modules/player/player.queries.ts` was removed
 - player state and queue helpers no longer expose `$...` compatibility wrappers internally
 - `src/modules/player/queue.store.ts` no longer maintains the legacy `$queueInfo` export
 

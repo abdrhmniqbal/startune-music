@@ -71,6 +71,13 @@ We do not keep code just because it already works.
 - [ ] No new “god components” with large prop matrices and many `className` overrides
 - [ ] No hidden cache invalidation side effects inside read helpers
 
+## Boundary Audit
+
+- [x] Initial module boundary audit completed
+- [~] `favorites`, `genres`, `history`, and `search` are closest to the target module shape
+- [~] `library`, `playlist`, `tracks`, `device`, `logging`, `bootstrap`, `lyrics`, and `ui` need another cleanup pass
+- [ ] `player`, `indexer`, and `settings` still need the deepest boundary rewrite work
+
 ## Keep / Rewrite Decision Matrix
 
 ### Keep as-is
