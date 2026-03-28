@@ -5,7 +5,6 @@ import { ScrollView, Text, View } from "react-native"
 import LocalTickIcon from "@/components/icons/local/tick"
 import { useThemeColors } from "@/modules/ui/theme"
 import {
-  ensureTrackDurationFilterConfigLoaded,
   setTrackDurationFilterConfig,
   type TrackDurationFilterMode,
   useTrackDurationFilterStore,
@@ -69,10 +68,6 @@ export default function TrackDurationFilterScreen() {
   >(null)
   const resolvedCustomSliderValue =
     customSliderValue ?? config.customMinimumSeconds
-
-  React.useEffect(() => {
-    void ensureTrackDurationFilterConfigLoaded()
-  }, [])
 
   async function handleModeSelect(mode: TrackDurationFilterMode) {
     await setTrackDurationFilterConfig({ mode })

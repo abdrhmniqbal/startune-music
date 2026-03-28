@@ -8,9 +8,20 @@ import { requestMediaLibraryPermission } from "@/core/storage/media-library.serv
 import { db } from "@/db/client"
 import { tracks } from "@/db/schema"
 import { ensureAutoScanConfigLoaded } from "@/modules/indexer/auto-scan"
+import { ensureTrackDurationFilterConfigLoaded } from "@/modules/indexer/track-duration-filter"
 import { startIndexing } from "@/modules/indexer/indexer.service"
+import { ensureLoggingConfigLoaded } from "@/modules/logging/logging.store"
 import { logInfo } from "@/modules/logging/logging.service"
 import { restorePlaybackSession } from "@/modules/player/player.service"
+
+async function preloadLocalSettings() {
+  logInfo("Preloading local settings")
+  await Promise.all([
+    ensureAutoScanConfigLoaded(),
+    ensureTrackDurationFilterConfigLoaded(),
+    ensureLoggingConfigLoaded(),
+  ])
+}
 
 export async function bootstrapApp(): Promise<void> {
   logInfo("Registering playback service")
@@ -19,6 +30,7 @@ export async function bootstrapApp(): Promise<void> {
   await initializeTrackPlayer()
   logInfo("Restoring playback session")
   await restorePlaybackSession()
+  await preloadLocalSettings()
 
   const { status } = await requestMediaLibraryPermission()
   logInfo("Media library permission resolved during bootstrap", { status })

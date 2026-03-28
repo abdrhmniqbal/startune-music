@@ -2,7 +2,6 @@ import * as Application from "expo-application"
 import Constants from "expo-constants"
 import { useRouter } from "expo-router"
 import { Toast, useToast } from "heroui-native"
-import { useEffect } from "react"
 import { Linking, Platform, ScrollView, Text, View } from "react-native"
 
 import { SettingsRow } from "@/components/patterns/settings-row"
@@ -12,19 +11,12 @@ import {
   requestIgnoreBatteryOptimizations,
 } from "@/modules/device/battery-optimization"
 import { shareCrashLogs } from "@/modules/logging/logging.service"
-import {
-  ensureLoggingConfigLoaded,
-  useLoggingStore,
-} from "@/modules/logging/logging.store"
+import { useLoggingStore } from "@/modules/logging/logging.store"
 
 export default function AdvancedSettingsScreen() {
   const router = useRouter()
   const { toast } = useToast()
   const loggingLevel = useLoggingStore((state) => state.loggingConfig.level)
-
-  useEffect(() => {
-    void ensureLoggingConfigLoaded()
-  }, [])
 
   const logLevelLabel = loggingLevel === "extra" ? "Extra" : "Minimal"
 

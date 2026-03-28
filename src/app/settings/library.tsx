@@ -5,14 +5,12 @@ import { ScrollView, View } from "react-native"
 
 import { SettingsRow } from "@/components/patterns/settings-row"
 import {
-  ensureAutoScanConfigLoaded,
   setAutoScanEnabled,
   useAutoScanStore,
 } from "@/modules/indexer/auto-scan"
 import { forceReindexLibrary } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
 import {
-  ensureTrackDurationFilterConfigLoaded,
   getTrackDurationFilterLabel,
   useTrackDurationFilterStore,
 } from "@/modules/indexer/track-duration-filter"
@@ -25,11 +23,6 @@ export default function LibrarySettingsScreen() {
     (state) => state.trackDurationFilterConfig
   )
   const [showReindexDialog, setShowReindexDialog] = React.useState(false)
-
-  React.useEffect(() => {
-    void ensureAutoScanConfigLoaded()
-    void ensureTrackDurationFilterConfigLoaded()
-  }, [])
 
   function handleConfirmForceReindex() {
     setShowReindexDialog(false)
