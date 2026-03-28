@@ -18,11 +18,16 @@ import {
   optimisticallyUpdateRecentlyPlayedQueries,
 } from "@/modules/player/player.keys"
 import type { RepeatModeType, Track } from "@/modules/player/player.types"
+import {
+  mapRepeatMode,
+  mapTrackPlayerRepeatMode,
+  mapTrackPlayerTrackToTrack,
+  mapTrackToTrackPlayerInput,
+} from "@/modules/player/player-adapter"
 
 import {
   Capability,
   Event,
-  RepeatMode,
   State,
   TrackPlayer,
 } from "@/modules/player/player.utils"
@@ -89,55 +94,6 @@ async function handleTrackActivated(track: Track) {
   void invalidatePlayerQueries(queryClient)
 }
 
-function mapTrackPlayerTrackToTrack(track: any): Track {
-  return {
-    ...getTracksState().find((item) => item.id === String(track.id)),
-    id: String(track.id),
-    title: typeof track.title === "string" ? track.title : "Unknown Track",
-    artist: track.artist,
-    album: track.album,
-    duration: track.duration || 0,
-    uri: track.url as string,
-    image: track.artwork as string | undefined,
-  }
-}
-
-function mapTrackToTrackPlayerInput(track: Track) {
-  return {
-    id: track.id,
-    url: track.uri,
-    title: track.title,
-    artist: track.artist,
-    album: track.album,
-    artwork: track.image,
-    duration: track.duration,
-  }
-}
-
-function mapTrackPlayerRepeatMode(mode: RepeatMode): RepeatModeType {
-  switch (mode) {
-    case RepeatMode.Track:
-      return "track"
-    case RepeatMode.Queue:
-      return "queue"
-    case RepeatMode.Off:
-    default:
-      return "off"
-  }
-}
-
-function mapRepeatMode(mode: RepeatModeType): RepeatMode {
-  switch (mode) {
-    case "track":
-      return RepeatMode.Track
-    case "queue":
-      return RepeatMode.Queue
-    case "off":
-    default:
-      return RepeatMode.Off
-  }
-}
-
 async function setQueueStore(tracks: Track[]): Promise<void> {
   const { setQueue } = await import("./queue.store")
   setQueue(tracks)
@@ -159,7 +115,7 @@ export async function syncCurrentTrackFromPlayer(): Promise<void> {
       return
     }
 
-    const mappedTrack = mapTrackPlayerTrackToTrack(activeTrack)
+    const mappedTrack = mapTrackPlayerTrackToTrack(activeTrack, getTracksState())
     setActiveTrack(mappedTrack)
   } catch (error) {
     logError("Failed to sync current track from player", error)
@@ -183,7 +139,7 @@ export async function persistPlaybackSession(options?: {
 
   try {
     const queue = (await TrackPlayer.getQueue())
-      .map(mapTrackPlayerTrackToTrack)
+      .map((track) => mapTrackPlayerTrackToTrack(track, getTracksState()))
       .filter((track) => track.id && track.uri)
     const currentIndex = await TrackPlayer.getCurrentTrack()
     const positionSeconds = await TrackPlayer.getPosition()
@@ -220,7 +176,7 @@ export async function restorePlaybackSession(): Promise<void> {
         queueLength: nativeQueue.length,
       })
       const mappedQueue = nativeQueue
-        .map(mapTrackPlayerTrackToTrack)
+        .map((track) => mapTrackPlayerTrackToTrack(track, getTracksState()))
         .filter((track) => track.id && track.uri)
       if (mappedQueue.length > 0) {
         await setQueueStore(mappedQueue)

@@ -245,6 +245,7 @@ Progress:
 - player state and queue helpers no longer expose `$...` compatibility wrappers internally
 - player state and playback commands no longer share the same public import surface
 - `src/modules/player/queue.store.ts` no longer maintains the legacy `$queueInfo` export
+- TrackPlayer mapping and repeat-mode translation helpers now live in `src/modules/player/player-adapter.ts`
 
 ### Slice 5
 
