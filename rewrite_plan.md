@@ -159,6 +159,7 @@ Rules:
 - `service.ts` exists only for imperative native/runtime orchestration
 - `utils.ts` is pure and side-effect free
 - library sorting should follow the same split: store state in `library-sort.store.ts`, static options in `library-sort.constants.ts`, and pure comparators in `library-sort.utils.ts`
+- native file viewing and other bridge-heavy actions should live under `src/modules/device`, not inside UI components
 
 ### Components
 
