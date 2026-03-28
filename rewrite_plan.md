@@ -392,6 +392,9 @@ Performance is a first-class rewrite track.
 - [x] several modules were already split into clearer domain layers
 - [x] player runtime has already started moving out of the store and into service boundaries
 - [x] global UI state now lives in `src/modules/ui/ui.store.ts`
+- [x] legacy repository-style `*.api.ts` files started being normalized:
+  - `src/modules/indexer/metadata.api.ts` -> `src/modules/indexer/metadata.repository.ts`
+  - `src/modules/tracks/track-cleanup.api.ts` -> `src/modules/tracks/track-cleanup.repository.ts`
 
 These are now treated as groundwork, not the finish line.
 

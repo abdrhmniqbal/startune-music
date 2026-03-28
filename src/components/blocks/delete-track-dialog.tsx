@@ -7,7 +7,7 @@ import { View } from "react-native"
 import { requestMediaLibraryPermission } from "@/core/storage/media-library.service"
 import { startIndexing } from "@/modules/indexer/indexer.store"
 import { removeFromQueue } from "@/modules/player/queue.store"
-import { hardDeleteTrack } from "@/modules/tracks/track-cleanup.api"
+import { hardDeleteTrack } from "@/modules/tracks/track-cleanup.repository"
 
 interface DeleteTrackDialogProps {
   track: Track | null

@@ -126,13 +126,18 @@ These were deleted as part of the first code cleanup slice:
 - `src/components/blocks/player/index.tsx`
 - `src/components/blocks/playlist-form/index.ts`
 
+### Legacy-style file names already addressed
+
+These were normalized in the rewrite:
+
+- `src/modules/indexer/metadata.api.ts` -> `src/modules/indexer/metadata.repository.ts`
+- `src/modules/tracks/track-cleanup.api.ts` -> `src/modules/tracks/track-cleanup.repository.ts`
+
 ### Remaining legacy-style file names
 
-These should be reviewed and likely renamed or absorbed:
+These should still be reviewed and likely deleted or absorbed:
 
 - `src/modules/indexer/indexer.api.ts`
-- `src/modules/indexer/metadata.api.ts`
-- `src/modules/tracks/track-cleanup.api.ts`
 
 ### Remaining reusable hooks that need review
 
@@ -154,8 +159,10 @@ These are not screen hooks anymore, but still need to be justified:
 
 ### Slice 2
 
-- audit and rename or absorb remaining `*.api.ts` files
-- move them toward `repository.ts`, `service.ts`, or `utils.ts`
+- [~] audit and rename or absorb remaining `*.api.ts` files
+- [x] move metadata extraction ownership toward `repository.ts`
+- [x] move track cleanup ownership toward `repository.ts`
+- [ ] remove the remaining compatibility re-export in `src/modules/indexer/indexer.api.ts`
 
 ### Slice 3
 

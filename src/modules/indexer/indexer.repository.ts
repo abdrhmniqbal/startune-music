@@ -20,8 +20,8 @@ import {
   isAssetAllowedByTrackDuration,
 } from "@/modules/indexer/track-duration-filter"
 import { logError } from "@/modules/logging/logger"
-import { removeTracksFromFavoritesAndPlaylists } from "@/modules/tracks/track-cleanup.api"
-import { extractMetadata, saveArtworkToCache } from "./metadata.api"
+import { removeTracksFromFavoritesAndPlaylists } from "@/modules/tracks/track-cleanup.repository"
+import { extractMetadata, saveArtworkToCache } from "./metadata.repository"
 
 const BATCH_SIZE = 10
 
