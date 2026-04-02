@@ -219,6 +219,7 @@ Target component rules:
 - prefer one render path with small conditional sections over duplicating the same large list/tree structure for empty and non-empty states
 - extract a tiny shared hook when the same UI-side behavior is duplicated across several components and the hook is simpler than the duplication
 - prefer small local helper functions when they remove repetitive section-building logic inside one shared block
+- shared presentational helpers can expose tiny related utilities when multiple callers are repeating the same prop-shaping logic
 
 ### Navigation and Screen Flow
 

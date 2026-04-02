@@ -14,6 +14,17 @@ interface PlaylistArtworkProps {
   fallback?: ReactNode
 }
 
+export function resolvePlaylistArtworkImages(
+  images?: string[],
+  image?: string
+) {
+  if (images && images.length > 0) {
+    return images
+  }
+
+  return image ? [image] : undefined
+}
+
 function normalizeImages(images?: string[]): string[] {
   if (!images?.length) {
     return []

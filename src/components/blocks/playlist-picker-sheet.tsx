@@ -21,7 +21,10 @@ import {
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalCancelCircleSolidIcon from "@/components/icons/local/cancel-circle-solid"
 import LocalSearchIcon from "@/components/icons/local/search"
-import { PlaylistArtwork } from "@/components/patterns/playlist-artwork"
+import {
+  PlaylistArtwork,
+  resolvePlaylistArtworkImages,
+} from "@/components/patterns/playlist-artwork"
 import {
   MediaItem as Item,
   MediaItemContent as ItemContent,
@@ -241,13 +244,10 @@ export function PlaylistPickerSheet({
 
                   <ItemImage className="items-center justify-center overflow-hidden bg-default">
                     <PlaylistArtwork
-                      images={
-                        item.images && item.images.length > 0
-                          ? item.images
-                          : item.image
-                            ? [item.image]
-                            : undefined
-                      }
+                      images={resolvePlaylistArtworkImages(
+                        item.images,
+                        item.image
+                      )}
                     />
                   </ItemImage>
 

@@ -224,6 +224,7 @@ Progress:
 - `src/components/blocks/search-results.tsx` now uses one local section helper instead of repeating the same section-building logic for each result type
 - player-facing list rows now subscribe to `currentTrack?.id` when they only need active-state styling
 - `src/app/(main)/(library)/index.tsx` now narrows store subscriptions and shares common list wiring locally instead of repeating the same props in each tab branch
+- playlist-related blocks now share artwork image resolution from `src/components/patterns/playlist-artwork.tsx` instead of repeating the same image fallback shaping in each caller
 - queue runtime commands now live in `src/modules/player/queue.service.ts`
 - player artwork color extraction and cache logic now live in `src/modules/player/player-colors.service.ts`, while `src/modules/player/player-colors.store.ts` stays focused on color state
 - player session persistence now lives in `src/modules/player/player-session.repository.ts`

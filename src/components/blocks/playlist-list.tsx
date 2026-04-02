@@ -17,7 +17,10 @@ import {
 import LocalAddIcon from "@/components/icons/local/add"
 import LocalChevronRightIcon from "@/components/icons/local/chevron-right"
 import LocalPlaylistSolidIcon from "@/components/icons/local/playlist-solid"
-import { PlaylistArtwork } from "@/components/patterns/playlist-artwork"
+import {
+  PlaylistArtwork,
+  resolvePlaylistArtworkImages,
+} from "@/components/patterns/playlist-artwork"
 import {
   MediaItem as Item,
   MediaItemAction as ItemAction,
@@ -105,13 +108,7 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({
     <Item key={item.id} onPress={() => handlePress(item)}>
       <ItemImage className="items-center justify-center overflow-hidden bg-default">
         <PlaylistArtwork
-          images={
-            item.images && item.images.length > 0
-              ? item.images
-              : item.image
-                ? [item.image]
-                : undefined
-          }
+          images={resolvePlaylistArtworkImages(item.images, item.image)}
         />
       </ItemImage>
       <ItemContent>

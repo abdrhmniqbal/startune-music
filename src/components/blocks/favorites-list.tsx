@@ -20,7 +20,10 @@ import LocalFavouriteSolidIcon from "@/components/icons/local/favourite-solid"
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
-import { PlaylistArtwork } from "@/components/patterns/playlist-artwork"
+import {
+  PlaylistArtwork,
+  resolvePlaylistArtworkImages,
+} from "@/components/patterns/playlist-artwork"
 import {
   MediaItem as Item,
   MediaItemAction as ItemAction,
@@ -79,13 +82,7 @@ const FavoriteItemImage: React.FC<{ favorite: FavoriteEntry }> = ({
       return (
         <ItemImage className="items-center justify-center overflow-hidden bg-default">
           <PlaylistArtwork
-            images={
-              favorite.images && favorite.images.length > 0
-                ? favorite.images
-                : favorite.image
-                  ? [favorite.image]
-                  : undefined
-            }
+            images={resolvePlaylistArtworkImages(favorite.images, favorite.image)}
           />
         </ItemImage>
       )

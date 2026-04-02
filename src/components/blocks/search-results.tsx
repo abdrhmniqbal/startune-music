@@ -14,7 +14,10 @@ import LocalCheckmarkCircleSolidIcon from "@/components/icons/local/checkmark-ci
 import LocalMusicNoteSolidIcon from "@/components/icons/local/music-note-solid"
 import LocalUserSolidIcon from "@/components/icons/local/user-solid"
 import LocalVynilSolidIcon from "@/components/icons/local/vynil-solid"
-import { PlaylistArtwork } from "@/components/patterns/playlist-artwork"
+import {
+  PlaylistArtwork,
+  resolvePlaylistArtworkImages,
+} from "@/components/patterns/playlist-artwork"
 import {
   MediaItem as Item,
   MediaItemAction as ItemAction,
@@ -258,13 +261,10 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
           <Item onPress={() => onPlaylistPress?.(item.playlist)}>
             <ItemImage className="items-center justify-center overflow-hidden bg-default">
               <PlaylistArtwork
-                images={
-                  item.playlist.images && item.playlist.images.length > 0
-                    ? item.playlist.images
-                    : item.playlist.image
-                      ? [item.playlist.image]
-                      : undefined
-                }
+                images={resolvePlaylistArtworkImages(
+                  item.playlist.images,
+                  item.playlist.image
+                )}
               />
             </ItemImage>
             <ItemContent>

@@ -114,6 +114,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 - tracks tab now memoizes track transformation and sorting before handing data to `TrackList`
 - search results section construction now uses a small local helper instead of repeating nearly identical list-building branches
 - library screen now shares common list wiring locally and uses narrower selectors instead of repeating broad subscriptions and tab props
+- playlist-related blocks now share a small artwork-image resolver instead of repeating the same fallback prop shaping in multiple callers
 - folder browser is reasonable, but library state is still spread across screen + sort store
 
 ### `logging`
@@ -235,6 +236,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 - shared blocks should prefer one render path with small conditional branches over duplicated full list trees
 - small shared hooks are acceptable when they remove repeated list behavior across multiple components without hiding ownership
 - small local helper functions are acceptable when they remove repetitive list-section construction inside one shared block
+- tiny helper utilities can live next to a shared pattern when they only exist to normalize that pattern’s input props
 
 ## Next Priority After This Audit
 
