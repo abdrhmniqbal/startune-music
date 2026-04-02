@@ -16,7 +16,7 @@ import { ensureIndexerNotificationsConfigLoaded } from "@/modules/settings/index
 import { ensureTrackDurationFilterConfigLoaded } from "@/modules/settings/track-duration-filter"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { ensureLoggingConfigLoaded } from "@/modules/logging/logging.store"
-import { logInfo } from "@/modules/logging/logging.service"
+import { logError, logInfo } from "@/modules/logging/logging.service"
 import { restorePlaybackSession } from "@/modules/player/player-session.service"
 
 async function preloadLocalSettings() {
@@ -31,27 +31,42 @@ async function preloadLocalSettings() {
 }
 
 export async function bootstrapApp(): Promise<void> {
-  logInfo("Registering playback service")
-  registerPlaybackService()
-  logInfo("Initializing track player")
-  await initializeTrackPlayer()
-  logInfo("Restoring playback session")
-  await restorePlaybackSession()
-  await preloadLocalSettings()
+  try {
+    logInfo("Registering playback service")
+    registerPlaybackService()
+    logInfo("Playback service registered")
 
-  const permission = await getMediaLibraryPermission()
-  const status =
-    permission.status === "undetermined" && permission.canAskAgain
-      ? (await requestMediaLibraryPermission()).status
-      : permission.status
-  logInfo("Media library permission resolved during bootstrap", { status })
-  if (status === "granted") {
+    logInfo("Initializing track player")
+    await initializeTrackPlayer()
+    logInfo("Track player initialized")
+
+    logInfo("Restoring playback session")
+    await restorePlaybackSession()
+    logInfo("Playback session restored")
+
+    await preloadLocalSettings()
+
+    logInfo("Resolving media library permission during bootstrap")
+    const permission = await getMediaLibraryPermission()
+    const status =
+      permission.status === "undetermined" && permission.canAskAgain
+        ? (await requestMediaLibraryPermission()).status
+        : permission.status
+    logInfo("Media library permission resolved during bootstrap", { status })
+    if (status !== "granted") {
+      logInfo("Skipping bootstrap index run due to media permission status", {
+        status,
+      })
+      return
+    }
+
     const isAutoScanEnabled = await ensureAutoScanConfigLoaded()
     if (!isAutoScanEnabled) {
       logInfo("Auto scan disabled during bootstrap")
       return
     }
 
+    logInfo("Loading track count for bootstrap index decision")
     const result = await db.select({ value: count() }).from(tracks)
 
     const trackCount = result[0]?.value ?? 0
@@ -64,5 +79,8 @@ export async function bootstrapApp(): Promise<void> {
     // Only show startup index progress on the very first full scan.
     // Incremental bootstrap scans should stay silent.
     void startIndexing(isFreshDatabase, isFreshDatabase)
+  } catch (error) {
+    logError("Bootstrap app workflow failed", error)
+    throw error
   }
 }

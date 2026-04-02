@@ -100,4 +100,5 @@ export function stopIndexing() {
   logWarn("Indexer stopped")
   stopIndexerRunRuntime()
   resetIndexerProgress()
+  logInfo("Indexer stop handling completed")
 }
