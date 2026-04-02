@@ -115,6 +115,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 - search results section construction now uses a small local helper instead of repeating nearly identical list-building branches
 - library screen now shares common list wiring locally and uses narrower selectors instead of repeating broad subscriptions and tab props
 - playlist-related blocks now share a small artwork-image resolver instead of repeating the same fallback prop shaping in multiple callers
+- the one-off `FolderTab` wrapper has been removed, and folder rendering now uses `FolderList` directly from the library screen
 - folder browser is reasonable, but library state is still spread across screen + sort store
 
 ### `logging`
@@ -237,6 +238,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 - small shared hooks are acceptable when they remove repeated list behavior across multiple components without hiding ownership
 - small local helper functions are acceptable when they remove repetitive list-section construction inside one shared block
 - tiny helper utilities can live next to a shared pattern when they only exist to normalize that pattern’s input props
+- one-off wrapper components should be removed once their only job is forwarding props to a shared block
 
 ## Next Priority After This Audit
 

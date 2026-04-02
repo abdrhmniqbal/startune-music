@@ -220,6 +220,7 @@ Target component rules:
 - extract a tiny shared hook when the same UI-side behavior is duplicated across several components and the hook is simpler than the duplication
 - prefer small local helper functions when they remove repetitive section-building logic inside one shared block
 - shared presentational helpers can expose tiny related utilities when multiple callers are repeating the same prop-shaping logic
+- delete wrapper components when they only forward props to a single shared block without adding stable behavior
 
 ### Navigation and Screen Flow
 

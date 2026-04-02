@@ -15,7 +15,7 @@ import { PlaybackActionsRow } from "@/components/blocks/playback-actions-row"
 import { AlbumsTab } from "@/components/blocks/albums-tab"
 import { ArtistsTab } from "@/components/blocks/artists-tab"
 import { FavoritesList } from "@/components/blocks/favorites-list"
-import { FolderTab } from "@/components/blocks/folder-tab"
+import { FolderList } from "@/components/blocks/folder-list"
 import { PlaylistList } from "@/components/blocks/playlist-list"
 import { SortSheet } from "@/components/blocks/sort-sheet"
 import { TracksTab } from "@/components/blocks/tracks-tab"
@@ -418,13 +418,17 @@ export default function LibraryScreen() {
         )
       case "Folders":
         return (
-          <FolderTab
-            folders={folders}
-            folderTracks={folderTracks}
-            folderBreadcrumbs={folderBreadcrumbs}
-            onOpenFolder={openFolder}
-            onBackFolder={goBackFolder}
-            onNavigateToFolderPath={navigateToFolderPath}
+          <FolderList
+            data={folders}
+            tracks={folderTracks}
+            breadcrumbs={folderBreadcrumbs}
+            onFolderPress={(folder) => {
+              if (folder.path) {
+                openFolder(folder.path)
+              }
+            }}
+            onBackPress={goBackFolder}
+            onBreadcrumbPress={navigateToFolderPath}
             onTrackPress={playFolderTrack}
             contentContainerStyle={listContentContainerStyle}
             resetScrollKey={listResetScrollKey}
