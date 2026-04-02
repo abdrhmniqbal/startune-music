@@ -49,36 +49,10 @@ export function getDefaultTrackDurationFilterConfig() {
   return DEFAULT_TRACK_DURATION_FILTER
 }
 
-export function getAutoScanEnabledState() {
-  return useSettingsStore.getState().autoScanEnabled
+export function getSettingsState() {
+  return useSettingsStore.getState()
 }
 
-export function setAutoScanEnabledState(value: boolean) {
-  useSettingsStore.setState({ autoScanEnabled: value })
-}
-
-export function getFolderFilterConfigState() {
-  return useSettingsStore.getState().folderFilterConfig
-}
-
-export function setFolderFilterConfigState(value: FolderFilterConfig) {
-  useSettingsStore.setState({ folderFilterConfig: value })
-}
-
-export function getLoggingConfigState() {
-  return useSettingsStore.getState().loggingConfig
-}
-
-export function setLoggingConfigState(value: LoggingConfig) {
-  useSettingsStore.setState({ loggingConfig: value })
-}
-
-export function getTrackDurationFilterConfigState() {
-  return useSettingsStore.getState().trackDurationFilterConfig
-}
-
-export function setTrackDurationFilterConfigState(
-  value: TrackDurationFilterConfig
-) {
-  useSettingsStore.setState({ trackDurationFilterConfig: value })
+export function updateSettingsState(updates: Partial<SettingsState>) {
+  useSettingsStore.setState(updates)
 }

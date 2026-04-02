@@ -1,7 +1,7 @@
 import {
   getDefaultLoggingConfig,
-  getLoggingConfigState as getSettingsLoggingConfigState,
-  setLoggingConfigState as setSettingsLoggingConfigState,
+  getSettingsState,
+  updateSettingsState,
   useSettingsStore,
 } from "@/modules/settings/settings.store"
 import type { AppLogLevel, LoggingConfig } from "@/modules/settings/settings.types"
@@ -27,11 +27,11 @@ export function useLoggingStore<T>(
 }
 
 export function getLoggingConfigState() {
-  return getSettingsLoggingConfigState()
+  return getSettingsState().loggingConfig
 }
 
 export function setLoggingConfigState(value: LoggingConfig) {
-  setSettingsLoggingConfigState(value)
+  updateSettingsState({ loggingConfig: value })
 }
 
 function isValidLogLevel(value: unknown): value is AppLogLevel {

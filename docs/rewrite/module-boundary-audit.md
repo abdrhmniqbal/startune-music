@@ -115,6 +115,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 - status: `partial`
 - notes:
   - config state now lives in `logging.store.ts`
+  - logging config now reads and writes through the shared settings store accessors instead of per-field wrapper helpers
   - runtime logging, file persistence, and crash-log sharing now live in `logging.service.ts`
   - this is materially better, but global error and console interception still make the module runtime-heavy
 
@@ -193,6 +194,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - folder filter state now lives in `useSettingsStore` with the other local preferences
   - library, logging, and folder-filter settings screens no longer need mount-time config-loading effects
   - `settings/_layout.tsx` now renders repeated detail screen options from one shared list instead of duplicating the same header config block
+  - per-field settings store wrappers have been collapsed into shared settings state accessors
 
 ## Immediate Conclusions
 

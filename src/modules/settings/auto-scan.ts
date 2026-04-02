@@ -1,7 +1,7 @@
 import {
-  getAutoScanEnabledState,
   getDefaultAutoScanEnabled,
-  setAutoScanEnabledState,
+  getSettingsState,
+  updateSettingsState,
 } from "@/modules/settings/settings.store"
 import {
   createSettingsConfigFile,
@@ -20,7 +20,7 @@ let hasLoadedConfig = false
 
 export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
   if (hasLoadedConfig) {
-    return getAutoScanEnabledState()
+    return getSettingsState().autoScanEnabled
   }
 
   if (loadPromise) {
@@ -39,7 +39,7 @@ export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
       })
     )
 
-    setAutoScanEnabledState(config.enabled)
+    updateSettingsState({ autoScanEnabled: config.enabled })
     hasLoadedConfig = true
     return config.enabled
   })()
@@ -51,7 +51,7 @@ export async function ensureAutoScanConfigLoaded(): Promise<boolean> {
 
 export async function setAutoScanEnabled(enabled: boolean): Promise<boolean> {
   await ensureAutoScanConfigLoaded()
-  setAutoScanEnabledState(enabled)
+  updateSettingsState({ autoScanEnabled: enabled })
   hasLoadedConfig = true
   await saveSettingsConfig(AUTO_SCAN_FILE, { enabled })
   return enabled

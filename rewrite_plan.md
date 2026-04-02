@@ -173,6 +173,7 @@ Rules:
 - bootstrap listener registration should live outside `bootstrap.runtime.ts`
 - local preference state should converge into `useSettingsStore` instead of being spread across separate per-setting Zustand stores
 - settings screens should read local preferences from `useSettingsStore` directly instead of going through per-setting selector wrappers
+- settings modules should prefer shared settings state accessors over per-field getter/setter wrappers
 - local settings persistence should converge into `settings.repository.ts` instead of being split across feature modules
 - folder filter state and folder-filter config helpers should live under `src/modules/settings`
 - auto scan and track-duration preference ownership should live under `src/modules/settings`, even when indexer consumes the resulting config

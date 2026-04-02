@@ -5,8 +5,8 @@ import {
 } from "@/modules/settings/settings.repository"
 import {
   getDefaultFolderFilterConfig,
-  getFolderFilterConfigState,
-  setFolderFilterConfigState,
+  getSettingsState,
+  updateSettingsState,
 } from "@/modules/settings/settings.store"
 import type {
   FolderFilterConfig,
@@ -118,7 +118,7 @@ export async function ensureFolderFilterConfigLoaded(): Promise<FolderFilterConf
           blacklist: parsed.blacklist ?? [],
         })
     )
-    setFolderFilterConfigState(next)
+    updateSettingsState({ folderFilterConfig: next })
     return next
   })()
 
@@ -133,11 +133,11 @@ export async function setFolderFilterMode(
 ): Promise<FolderFilterConfig> {
   const normalizedPath = normalizePath(path)
   if (!normalizedPath) {
-    return getFolderFilterConfigState()
+    return getSettingsState().folderFilterConfig
   }
 
   await ensureFolderFilterConfigLoaded()
-  const current = getFolderFilterConfigState()
+  const current = getSettingsState().folderFilterConfig
 
   const whitelist = current.whitelist.filter((item) => item !== normalizedPath)
   const blacklist = current.blacklist.filter((item) => item !== normalizedPath)
@@ -149,13 +149,13 @@ export async function setFolderFilterMode(
   }
 
   const next = sanitizeConfig({ whitelist, blacklist })
-  setFolderFilterConfigState(next)
+  updateSettingsState({ folderFilterConfig: next })
   await persistConfig(next)
   return next
 }
 
 export async function clearFolderFilters(): Promise<void> {
-  setFolderFilterConfigState(EMPTY_FILTER_CONFIG)
+  updateSettingsState({ folderFilterConfig: EMPTY_FILTER_CONFIG })
   await persistConfig(EMPTY_FILTER_CONFIG)
 }
 
@@ -163,7 +163,7 @@ export async function commitFolderFilterConfig(
   config: FolderFilterConfig
 ): Promise<void> {
   const sanitized = sanitizeConfig(config)
-  setFolderFilterConfigState(sanitized)
+  updateSettingsState({ folderFilterConfig: sanitized })
   await persistConfig(sanitized)
 }
 
@@ -171,7 +171,7 @@ export async function setAllFolderFiltersMode(
   mode: FolderFilterMode
 ): Promise<FolderFilterConfig> {
   await ensureFolderFilterConfigLoaded()
-  const current = getFolderFilterConfigState()
+  const current = getSettingsState().folderFilterConfig
   const folders = Array.from(
     new Set([...current.whitelist, ...current.blacklist])
   )
@@ -181,7 +181,7 @@ export async function setAllFolderFiltersMode(
       ? sanitizeConfig({ whitelist: folders, blacklist: [] })
       : sanitizeConfig({ whitelist: [], blacklist: folders })
 
-  setFolderFilterConfigState(next)
+  updateSettingsState({ folderFilterConfig: next })
   await persistConfig(next)
   return next
 }

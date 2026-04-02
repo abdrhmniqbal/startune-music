@@ -232,6 +232,7 @@ Progress:
 - local settings config is now preloaded during bootstrap instead of being loaded separately by library and logging settings screens
 - `src/app/settings/folder-filters.tsx` now initializes directly from `useSettingsStore` instead of running a one-off config loading effect
 - `src/app/settings/_layout.tsx` now renders repeated detail screen header config from one shared screen list
+- settings modules now read and write through shared `getSettingsState()` / `updateSettingsState()` accessors instead of per-field wrapper helpers
 - `DatabaseProvider` now reports ready/error from the actual migration/load path instead of separate watcher effects
 - database startup loading now lives in `src/modules/bootstrap/database-startup.service.ts`
 - `RootProviders` now registers bootstrap listeners directly, and the single-use `BootstrapEffects` wrapper has been removed
@@ -248,6 +249,7 @@ Progress:
 - dead compatibility file `src/modules/indexer/indexer.keys.ts` was removed
 - dead wrapper file `src/modules/player/queue.store.ts` was removed
 - internal setter pass-throughs in `src/modules/ui/ui.store.ts` have been trimmed down
+- per-field wrapper helpers in `src/modules/settings/settings.store.ts` have been trimmed down
 - player state and queue helpers no longer expose `$...` compatibility wrappers internally
 - player state and playback commands no longer share the same public import surface
 - TrackPlayer mapping and repeat-mode translation helpers now live in `src/modules/player/player-adapter.ts`

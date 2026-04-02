@@ -1,7 +1,7 @@
 import {
   getDefaultTrackDurationFilterConfig,
-  getTrackDurationFilterConfigState,
-  setTrackDurationFilterConfigState,
+  getSettingsState,
+  updateSettingsState,
 } from "@/modules/settings/settings.store"
 import {
   createSettingsConfigFile,
@@ -56,7 +56,7 @@ async function persistConfig(config: TrackDurationFilterConfig): Promise<void> {
 
 export async function ensureTrackDurationFilterConfigLoaded(): Promise<TrackDurationFilterConfig> {
   if (hasLoadedConfig) {
-    return getTrackDurationFilterConfigState()
+    return getSettingsState().trackDurationFilterConfig
   }
 
   if (loadPromise) {
@@ -69,7 +69,7 @@ export async function ensureTrackDurationFilterConfigLoaded(): Promise<TrackDura
       getDefaultTrackDurationFilterConfig(),
       sanitizeConfig
     )
-    setTrackDurationFilterConfigState(next)
+    updateSettingsState({ trackDurationFilterConfig: next })
     hasLoadedConfig = true
     return next
   })()
@@ -83,9 +83,9 @@ export async function setTrackDurationFilterConfig(
   updates: Partial<TrackDurationFilterConfig>
 ): Promise<TrackDurationFilterConfig> {
   await ensureTrackDurationFilterConfigLoaded()
-  const current = getTrackDurationFilterConfigState()
+  const current = getSettingsState().trackDurationFilterConfig
   const next = sanitizeConfig({ ...current, ...updates })
-  setTrackDurationFilterConfigState(next)
+  updateSettingsState({ trackDurationFilterConfig: next })
   hasLoadedConfig = true
   await persistConfig(next)
   return next
