@@ -3,8 +3,8 @@ import { PressableFeedback } from "heroui-native"
 
 import LocalCancelIcon from "@/components/icons/local/cancel"
 import {
-  getBackButtonScreenOptions,
   getDefaultNativeStackOptions,
+  getDrillDownScreenOptions,
   getLargeTitleRootScreenOptions,
 } from "@/modules/navigation/stack"
 import { BackButton } from "@/components/patterns/back-button"
@@ -47,7 +47,7 @@ export default function SettingsLayout() {
         <Stack.Screen
           key={screenName}
           name={screenName}
-          options={getBackButtonScreenOptions(
+          options={getDrillDownScreenOptions(
             SETTINGS_SCREEN_TITLES[screenName],
             () => <BackButton className="-ml-2" />
           )}

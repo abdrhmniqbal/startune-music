@@ -18,6 +18,16 @@ export const TransitionStack = withLayoutContext<
   typeof Navigator
 >(Navigator)
 
+export const HIDDEN_STACK_SCREEN_OPTIONS = {
+  headerShown: false,
+} as const
+
+export const ROOT_MODAL_SCREEN_OPTIONS = {
+  headerShown: false,
+  presentation: "modal" as const,
+  animation: "slide_from_bottom" as const,
+}
+
 export function getDefaultNativeStackOptions(theme: NavigationThemeColors) {
   return {
     headerStyle: {
@@ -56,6 +66,16 @@ export function getBackButtonScreenOptions(
     headerBackButtonMenuEnabled: false,
     headerBackVisible: false,
     headerLeft,
+  }
+}
+
+export function getDrillDownScreenOptions(
+  title: string,
+  headerLeft: () => ReactNode
+) {
+  return {
+    ...getBackButtonScreenOptions(title, headerLeft),
+    animation: "simple_push" as const,
   }
 }
 

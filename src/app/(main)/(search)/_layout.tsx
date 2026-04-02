@@ -1,11 +1,11 @@
 import { Stack, useRouter } from "expo-router"
-import { Button } from "heroui-native"
-import { View } from "react-native"
 
 import LocalSettingsIcon from "@/components/icons/local/settings"
+import { StackHeaderActions } from "@/components/patterns/stack-header-actions"
 import {
-  getBackButtonScreenOptions,
   getDefaultNativeStackOptions,
+  getDrillDownScreenOptions,
+  HIDDEN_STACK_SCREEN_OPTIONS,
   getLargeTitleRootScreenOptions,
 } from "@/modules/navigation/stack"
 import { BackButton } from "@/components/patterns/back-button"
@@ -22,45 +22,47 @@ export default function SearchLayout() {
         options={getLargeTitleRootScreenOptions({
           title: "Search",
           headerRight: () => (
-            <View className="-mr-2 flex-row gap-4">
-              <Button
-                onPress={() => router.push("/settings")}
-                variant="ghost"
-                isIconOnly
-              >
-                <LocalSettingsIcon
-                  fill="none"
-                  width={24}
-                  height={24}
-                  color={theme.foreground}
-                />
-              </Button>
-            </View>
+            <StackHeaderActions
+              actions={[
+                {
+                  key: "settings",
+                  onPress: () => router.push("/settings"),
+                  icon: (
+                    <LocalSettingsIcon
+                      fill="none"
+                      width={24}
+                      height={24}
+                      color={theme.foreground}
+                    />
+                  ),
+                },
+              ]}
+            />
           ),
         })}
       />
       <Stack.Screen
         name="genre/[name]"
-        options={getBackButtonScreenOptions("Genre", () => (
+        options={getDrillDownScreenOptions("Genre", () => (
           <BackButton className="-ml-2" />
         ))}
       />
       <Stack.Screen
         name="genre/albums"
-        options={getBackButtonScreenOptions("Recommended Albums", () => (
+        options={getDrillDownScreenOptions("Recommended Albums", () => (
           <BackButton className="-ml-2" />
         ))}
       />
       <Stack.Screen
         name="genre/top-tracks"
-        options={getBackButtonScreenOptions("Top Tracks", () => (
+        options={getDrillDownScreenOptions("Top Tracks", () => (
           <BackButton className="-ml-2" />
         ))}
       />
-      <Stack.Screen name="album" options={{ headerShown: false }} />
-      <Stack.Screen name="artist" options={{ headerShown: false }} />
-      <Stack.Screen name="playlist" options={{ headerShown: false }} />
-      <Stack.Screen name="search" options={{ headerShown: false }} />
+      <Stack.Screen name="album" options={HIDDEN_STACK_SCREEN_OPTIONS} />
+      <Stack.Screen name="artist" options={HIDDEN_STACK_SCREEN_OPTIONS} />
+      <Stack.Screen name="playlist" options={HIDDEN_STACK_SCREEN_OPTIONS} />
+      <Stack.Screen name="search" options={HIDDEN_STACK_SCREEN_OPTIONS} />
     </Stack>
   )
 }

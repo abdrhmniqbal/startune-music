@@ -204,6 +204,14 @@ Audit all `router.push(...)` targets and classify them:
 
 Then remove any remaining custom navigation behavior that duplicates route state.
 
+Status:
+
+- started
+- shared helpers now exist for:
+  - drill-down push routes
+  - hidden nested routes
+  - root modal route presentation
+
 ### Slice 3: Rework the main tab shell
 
 Keep the current stability fix:

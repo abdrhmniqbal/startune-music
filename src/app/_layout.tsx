@@ -25,6 +25,7 @@ import {
   handleBootstrapDatabaseError,
   handleBootstrapDatabaseReady,
 } from "@/modules/bootstrap/bootstrap.runtime"
+import { ROOT_MODAL_SCREEN_OPTIONS } from "@/modules/navigation/stack"
 import { useUIStore } from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/modules/ui/theme"
 import { usePlayerStore } from "@/modules/player/player.store"
@@ -169,14 +170,7 @@ export default function Layout() {
                   }}
                 >
                   <Stack.Screen name="(main)" />
-                  <Stack.Screen
-                    name="settings"
-                    options={{
-                      headerShown: false,
-                      presentation: "modal",
-                      animation: "slide_from_bottom",
-                    }}
-                  />
+                  <Stack.Screen name="settings" options={ROOT_MODAL_SCREEN_OPTIONS} />
                 </Stack>
                 <IndexingProgress />
                 <PlayerSheet />

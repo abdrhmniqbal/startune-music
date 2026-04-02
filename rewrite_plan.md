@@ -235,6 +235,7 @@ Target component rules:
 - use simpler native push transitions for utility drill-down screens
 - keep tab switching animation-free unless profiling shows a safe native alternative
 - centralize repeated stack configuration in shared navigation presets before changing individual route transitions
+- encode route classes as shared screen-option helpers instead of re-declaring animation and visibility rules in each layout
 
 See also:
 
