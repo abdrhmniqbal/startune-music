@@ -1,4 +1,5 @@
 import type { IndexerScanProgress } from "@/modules/indexer/indexer.types"
+import { logInfo, logWarn } from "@/modules/logging/logging.service"
 
 import {
   getDefaultIndexerState,
@@ -12,12 +13,14 @@ let lastVisibleProgressUpdateAt = 0
 
 export function beginIndexerProgress(showProgress: boolean) {
   lastVisibleProgressUpdateAt = 0
+  logInfo("Indexer progress started", { showProgress })
 
   if (!showProgress) {
     updateIndexerState({
       ...getDefaultIndexerState(),
       showProgress: false,
     })
+    logInfo("Indexer progress hidden for this run")
     return
   }
 
@@ -57,6 +60,7 @@ export function updateIndexerProgress(progress: IndexerScanProgress) {
 
 export function completeIndexerProgress() {
   if (!getIndexerState().showProgress) {
+    logInfo("Indexer progress completed while progress UI hidden")
     resetIndexerProgress()
     return
   }
@@ -66,6 +70,7 @@ export function completeIndexerProgress() {
     progress: 100,
     isIndexing: false,
   })
+  logInfo("Indexer progress completed")
 }
 
 export function resetIndexerProgress() {
@@ -76,6 +81,7 @@ export function resetIndexerProgress() {
 
 export function failIndexerProgress() {
   if (!getIndexerState().showProgress) {
+    logWarn("Indexer progress failed while progress UI hidden")
     resetIndexerProgress()
     return
   }
@@ -85,15 +91,18 @@ export function failIndexerProgress() {
     phase: "idle",
     showProgress: false,
   })
+  logWarn("Indexer progress failed")
 }
 
 export function hideIndexerProgress() {
   if (!getIndexerState().showProgress) {
+    logInfo("Indexer progress hide requested while already hidden")
     resetIndexerProgress()
     return
   }
 
   updateIndexerState({ phase: "idle", showProgress: false })
+  logInfo("Indexer progress hidden")
 }
 
 export function getIndexerProgressSnapshot() {

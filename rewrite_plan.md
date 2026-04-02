@@ -519,6 +519,10 @@ Performance is a first-class rewrite track.
   - `src/components/blocks/playlist-list.tsx` now memoizes row data, empty footer state, and row render callbacks
 - [~] route-level invalid-param diagnostics expanded:
   - `src/app/(main)/(home,search,library)/album/[name].tsx`, `artist/[name].tsx`, `playlist/[id].tsx`, and `src/app/(main)/(search)/genre/[name].tsx` now log missing or decode-failed route params
+- [~] player and indexer lifecycle logging expanded:
+  - `src/modules/player/player-controls.service.ts` now logs start/success/failure paths for transport and repeat-mode workflows
+  - `src/modules/player/queue.service.ts` now logs queue mutation lifecycle paths (add/queue-next/remove/clear) with rollback-context on failures
+  - `src/modules/indexer/indexer-progress.service.ts` now logs begin/complete/fail/hide transition points outside the hot progress-update path
 
 These are now treated as groundwork, not the finish line.
 

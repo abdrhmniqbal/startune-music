@@ -21,6 +21,7 @@ export async function pauseTrack() {
     await TrackPlayer.pause()
     setIsPlayingState(false)
     await persistPlaybackSession({ force: true })
+    logInfo("Playback paused")
   } catch (error) {
     logError("Failed to pause playback", error)
   }
@@ -32,17 +33,27 @@ export async function resumeTrack() {
     await TrackPlayer.play()
     setIsPlayingState(true)
     await persistPlaybackSession({ force: true })
+    logInfo("Playback resumed")
   } catch (error) {
     logError("Failed to resume playback", error)
   }
 }
 
 export async function togglePlayback() {
-  const state = await TrackPlayer.getState()
-  if (state === State.Playing) {
-    await pauseTrack()
-  } else {
+  try {
+    const state = await TrackPlayer.getState()
+    logInfo("Toggling playback", {
+      currentState: state,
+    })
+
+    if (state === State.Playing) {
+      await pauseTrack()
+      return
+    }
+
     await resumeTrack()
+  } catch (error) {
+    logError("Failed to toggle playback", error)
   }
 }
 
@@ -68,6 +79,7 @@ export async function playNext() {
         await TrackPlayer.skip(0)
         await syncCurrentTrackFromPlayer()
         await persistPlaybackSession({ force: true })
+        logInfo("Wrapped to first track in queue")
       } else {
         logInfo("Ignored next track because queue is already at the end", {
           activeIndex,
@@ -81,6 +93,7 @@ export async function playNext() {
     await TrackPlayer.skipToNext()
     await syncCurrentTrackFromPlayer()
     await persistPlaybackSession({ force: true })
+    logInfo("Skipped to next track")
   } catch (error) {
     logWarn("Failed to skip to next track, falling back to queue restart", {
       error: error instanceof Error ? error.message : String(error),
@@ -88,21 +101,25 @@ export async function playNext() {
     const queue = getQueueState()
     if (queue.length > 0) {
       await playTrack(queue[0], queue)
+      logInfo("Recovered playback by restarting queue from first track")
     }
   }
 }
 
 export async function playPrevious() {
   try {
+    logInfo("Playing previous track")
     const position = await TrackPlayer.getPosition()
     if (position > 3) {
       logInfo("Restarting current track from beginning")
       await TrackPlayer.seekTo(0)
+      logInfo("Restarted current track from beginning")
     } else {
       logInfo("Skipping to previous track")
       await TrackPlayer.skipToPrevious()
       await syncCurrentTrackFromPlayer()
       await persistPlaybackSession({ force: true })
+      logInfo("Skipped to previous track")
     }
   } catch (error) {
     logError("Failed to play previous track", error)
@@ -115,6 +132,7 @@ export async function seekTo(seconds: number) {
     await TrackPlayer.seekTo(seconds)
     setPlaybackProgress(seconds, usePlayerStore.getState().duration)
     await persistPlaybackSession({ force: true })
+    logInfo("Playback seek completed", { seconds })
   } catch (error) {
     logError("Failed to seek playback", error, { seconds })
   }
@@ -126,6 +144,7 @@ export async function setRepeatMode(mode: RepeatModeType) {
     await TrackPlayer.setRepeatMode(mapRepeatMode(mode))
     setRepeatModeState(mode)
     await persistPlaybackSession({ force: true })
+    logInfo("Repeat mode updated", { mode })
   } catch (error) {
     logError("Failed to update repeat mode", error, { mode })
   }
