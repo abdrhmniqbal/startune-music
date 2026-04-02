@@ -9,12 +9,14 @@ interface BackButtonProps {
   onPress?: () => void
   variant?: ComponentProps<typeof Button>["variant"]
   className?: string
+  fallbackHref?: "/"
 }
 
 export function BackButton({
   onPress,
   variant = "ghost",
   className,
+  fallbackHref = "/",
 }: BackButtonProps) {
   const theme = useThemeColors()
   const router = useRouter()
@@ -25,7 +27,12 @@ export function BackButton({
       return
     }
 
-    router.back()
+    if (router.canGoBack?.()) {
+      router.back()
+      return
+    }
+
+    router.replace(fallbackHref)
   }
 
   return (

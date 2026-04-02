@@ -1,22 +1,9 @@
-import { withLayoutContext } from "expo-router"
 import type { ReactNode } from "react"
-import Transition from "react-native-screen-transitions"
-import {
-  createNativeStackNavigator,
-  type NativeStackNavigationOptions as TransitionStackNavigationOptions,
-} from "react-native-screen-transitions/native-stack"
 
 type NavigationThemeColors = {
   background: string
   foreground: string
 }
-
-const { Navigator } = createNativeStackNavigator()
-
-export const TransitionStack = withLayoutContext<
-  TransitionStackNavigationOptions,
-  typeof Navigator
->(Navigator)
 
 export const HIDDEN_STACK_SCREEN_OPTIONS = {
   headerShown: false,
@@ -66,6 +53,9 @@ export function getBackButtonScreenOptions(
     headerBackButtonMenuEnabled: false,
     headerBackVisible: false,
     headerLeft,
+    headerLeftContainerStyle: {
+      paddingRight: 8,
+    },
   }
 }
 
@@ -86,8 +76,7 @@ export function getMediaDetailTransitionOptions(
   return {
     ...getDefaultNativeStackOptions(theme),
     ...getBackButtonScreenOptions("", headerLeft),
-    enableTransitions: true,
-    ...Transition.Presets.ZoomIn(),
+    animation: "simple_push" as const,
   }
 }
 
@@ -99,7 +88,7 @@ export function getModalTaskTransitionOptions(
   return {
     ...getDefaultNativeStackOptions(theme),
     ...getBackButtonScreenOptions(title, headerLeft),
-    enableTransitions: true,
-    ...Transition.Presets.SlideFromBottom(),
+    presentation: "modal" as const,
+    animation: "slide_from_bottom" as const,
   }
 }

@@ -44,7 +44,7 @@ These currently repeat a lot of the same stack configuration and route wiring.
 - `src/app/(main)/(home,search,library)/artist/_layout.tsx`
 - `src/app/(main)/(home,search,library)/playlist/_layout.tsx`
 
-These are the right general route groups, but transition policy is still mostly default.
+These are the right general route groups, but they should stay native-first until custom transitions can be added without breaking header visibility or back behavior.
 
 ## Migration Rules
 
@@ -84,12 +84,13 @@ Use transitions by route type:
   - prioritize stability and responsiveness
 
 - list -> detail:
-  - use `react-native-screen-transitions`
+  - prefer native stack transitions first
+  - only reintroduce `react-native-screen-transitions` after the routed-header path is proven stable
   - prefer zoom for media-driven destinations where the source is visually obvious:
     - album
     - artist
     - playlist
-  - only use zoom when we have a clear source element
+  - only use zoom when we have a clear source element and native header behavior remains correct
 
 - text/list drill-down pages:
   - use push-style transitions that feel native and low-friction:
@@ -193,6 +194,7 @@ Status:
 
 - completed with `src/modules/navigation/stack.tsx`
 - home, search, library, and settings now share the same native stack preset helpers
+- album, artist, and playlist detail groups also use the same shared native helpers after backing out the broken transition-stack integration
 
 ### Slice 2: Normalize route ownership
 
@@ -211,6 +213,7 @@ Status:
   - drill-down push routes
   - hidden nested routes
   - root modal route presentation
+  - media detail and modal task routes that now stay on Expo Router native `Stack`
 
 ### Slice 3: Rework the main tab shell
 
@@ -222,9 +225,9 @@ Keep the current stability fix:
 
 Treat this as a hard stability baseline unless profiling proves otherwise.
 
-### Slice 4: Introduce media detail transitions
+### Slice 4: Reintroduce media detail transitions carefully
 
-Add `react-native-screen-transitions` only for:
+Add `react-native-screen-transitions` only after routed headers remain stable, and only for:
 
 - album detail entry
 - artist detail entry
@@ -234,11 +237,24 @@ Start with one route type first, verify behavior, then expand.
 
 Status:
 
-- started for the shared media detail groups:
+- paused after the first integration attempt caused:
+  - unhandled `GO_BACK` actions
+  - missing headers
+  - broken title positioning
+  - TypeScript integration issues in the shared transition stack
+- current safe baseline:
   - album
   - artist
   - playlist
-- still needs route-entry refinement later if we want shared-element style zoom from specific source components
+  use Expo Router native `Stack` with shared native screen options
+- revisit only after we have a header-safe transition path
+
+## Stability Rules
+
+- routed screens must keep native back semantics
+- header visibility regressions are release blockers
+- title alignment regressions are release blockers
+- if a transition package fights Expo Router stack behavior, keep the route native and defer the visual transition
 
 ### Slice 5: Normalize settings flow
 

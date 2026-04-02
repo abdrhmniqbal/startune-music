@@ -24,6 +24,14 @@ const DETAIL_SETTINGS_SCREENS = [
 export default function SettingsLayout() {
   const theme = useThemeColors()
   const router = useRouter()
+  const handleClose = () => {
+    if (router.canGoBack?.()) {
+      router.back()
+      return
+    }
+
+    router.replace("/")
+  }
 
   return (
     <Stack screenOptions={getDefaultNativeStackOptions(theme)}>
@@ -32,7 +40,7 @@ export default function SettingsLayout() {
         options={getLargeTitleRootScreenOptions({
           title: "Settings",
           headerLeft: () => (
-            <PressableFeedback onPress={() => router.back()} hitSlop={20}>
+            <PressableFeedback onPress={handleClose} hitSlop={20}>
               <LocalCancelIcon
                 fill="none"
                 width={24}

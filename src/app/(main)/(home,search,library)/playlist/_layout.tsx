@@ -1,8 +1,9 @@
+import { Stack } from "expo-router"
+
 import { BackButton } from "@/components/patterns/back-button"
 import {
   getMediaDetailTransitionOptions,
   getModalTaskTransitionOptions,
-  TransitionStack,
 } from "@/modules/navigation/stack"
 import { useThemeColors } from "@/modules/ui/theme"
 
@@ -10,18 +11,18 @@ export default function PlaylistLayout() {
   const theme = useThemeColors()
 
   return (
-    <TransitionStack
+    <Stack
       screenOptions={getMediaDetailTransitionOptions(theme, () => (
         <BackButton className="-ml-2" />
       ))}
     >
-      <TransitionStack.Screen name="[id]" options={{ title: "Playlist" }} />
-      <TransitionStack.Screen
+      <Stack.Screen name="[id]" options={{ title: "Playlist" }} />
+      <Stack.Screen
         name="form"
         options={getModalTaskTransitionOptions(theme, "Playlist", () => (
           <BackButton className="-ml-2" />
         ))}
       />
-    </TransitionStack>
+    </Stack>
   )
 }

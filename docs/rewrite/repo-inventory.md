@@ -28,6 +28,7 @@ Reason:
 - next major slice is a navigation rewrite:
   - prefer native navigation where possible
   - standardize transitions by route class
+  - keep routed stacks native-first until custom transitions can preserve header and back behavior
   - reduce repeated stack config across layout files
 
 ### `src/components/blocks`

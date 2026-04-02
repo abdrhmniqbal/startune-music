@@ -62,12 +62,12 @@ A module is considered `aligned` only if it mostly satisfies these:
 
 - status: `partial`
 - notes:
-  - route ownership is generally workable, but transition policy is still mostly default and duplicated across layout files
+  - route ownership is generally workable, but transition policy still needs a careful native-first rollout
   - shared native stack presets now live in `src/modules/navigation/stack.tsx`
   - drill-down routes, hidden nested routes, and the root settings modal now use shared screen-option helpers from the same navigation module
   - repeated tab-root header actions now live in `src/components/patterns/stack-header-actions.tsx`
   - main tabs should continue prioritizing stability over animation
-  - album, artist, and playlist detail groups now use the transition-enabled native stack wrapper
+  - album, artist, and playlist detail groups were moved back to Expo Router native `Stack` after the transition wrapper broke headers and back behavior
   - settings should remain modal at the root and use normal push transitions within the settings stack
   - migration plan lives in `docs/rewrite/navigation-migration-plan.md`
 
