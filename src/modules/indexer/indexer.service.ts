@@ -101,15 +101,3 @@ export function stopIndexing() {
   stopIndexerRunRuntime()
   resetIndexerProgress()
 }
-
-export function pauseIndexing() {
-  logWarn("Indexer pause requested; stopping instead because pause is unsupported")
-  stopIndexing()
-}
-
-export function resumeIndexing() {
-  if (!isIndexerRunActive()) {
-    logInfo("Indexer resume requested")
-    void startIndexing(false)
-  }
-}

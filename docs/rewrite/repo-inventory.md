@@ -77,7 +77,7 @@ Reason:
 Reason:
 
 - several modules already follow the new shape
-- player and indexer still need deeper cleanup
+- player and indexer have moved out of the deepest cleanup bucket
 - settings has moved out of the heaviest rewrite bucket, but still needs another cleanup pass
 - the next pass should be driven by the module boundary audit rather than ad hoc file selection
 
@@ -102,9 +102,7 @@ Reason:
   - `tracks`
   - `ui`
 
-- still need the deepest rewrite work:
-  - `player`
-  - `indexer`
+- no modules are currently in the deepest rewrite bucket
   - `settings`
 
 ### `src/core`
@@ -257,11 +255,13 @@ Progress:
 - track-activation side effects now live in `src/modules/player/player-activity.service.ts`
 - playback transport controls now live in `src/modules/player/player-controls.service.ts`
 - player library loading now lives in `src/modules/player/player-library.service.ts`
+- `src/modules/player/player-library.service.ts` now imports `player.repository.ts` directly instead of using a lazy pass-through import
 - local favorite-toggle helper now lives in `src/modules/player/player-favorites.service.ts`
 - queue runtime now reuses the shared TrackPlayer mapping adapter instead of duplicating it
 - playback-driven history cache updates now live in `src/modules/history/history-cache.service.ts`
 - post-scan media reload and query invalidation now live in `src/modules/indexer/indexer-refresh.service.ts`
 - one-off indexer query invalidation now lives directly in `src/modules/indexer/indexer-refresh.service.ts`
+- unused `pauseIndexing` and `resumeIndexing` exports have been removed from `src/modules/indexer/indexer.service.ts`
 - indexer run coordination state now lives in `src/modules/indexer/indexer-runtime.ts`
 - indexer progress mapping and terminal state transitions now live in `src/modules/indexer/indexer-progress.service.ts`
 

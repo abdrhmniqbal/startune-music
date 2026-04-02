@@ -88,18 +88,18 @@ A module is considered `aligned` only if it mostly satisfies these:
 
 ### `indexer`
 
-- status: `rewrite`
+- status: `partial`
 - notes:
-  - store is thinner now, but the module still carries heavy runtime scheduling and refresh responsibilities overall
+  - store is thinner now, and the remaining runtime responsibilities are more honest than before
   - auto-scan, track-duration, and folder-filter config ownership now live under `src/modules/settings`, which removes the settings-like preference files from the indexer module
-  - more repository/service separation is still needed
-  - logging is better, but the boundary is still too heavy
+  - logging is better, and the module no longer has obvious compatibility-only helper layers
   - runtime controls are now separated into `indexer.service.ts`, which is a step toward a thinner state-only store
   - post-scan media reload and query invalidation now live in `indexer-refresh.service.ts`
   - abort token, queued-run, and completion-timeout coordination now live in `indexer-runtime.ts`
   - progress mapping and terminal state transitions now live in `indexer-progress.service.ts`
   - dead compatibility-style `indexer.utils.ts` has been removed
   - one-off query invalidation helpers now live directly with `indexer-refresh.service.ts`
+  - unused pause and resume control exports have been removed
 
 ### `library`
 
@@ -126,11 +126,11 @@ A module is considered `aligned` only if it mostly satisfies these:
 
 ### `player`
 
-- status: `rewrite`
+- status: `partial`
 - notes:
-  - much better than before, but still the heaviest module
+  - much better than before, and no longer needs another shrinking-first pass
   - state is still split across `player.store.ts` and `player-colors.store.ts`, with some queue-derived view logic still living beside the player surface
-  - runtime orchestration is improved, but the module still owns too many responsibilities
+  - runtime orchestration is improved and the remaining files now map more directly to clear responsibilities
   - one compatibility file was removed in this audit pass: `src/modules/player/player.queries.ts`
   - playback commands are no longer re-exported through `player.store.ts`
   - queue runtime commands are now separated into `queue.service.ts` instead of living beside derived queue state
@@ -147,6 +147,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - playback-driven history cache invalidation no longer lives in the player module
   - queue runtime now reuses the shared TrackPlayer mapping adapter instead of duplicating it locally
   - dead `queue.store.ts` wrapper has been removed, and queue-derived data now lives with the queue view that uses it
+  - player library loading now imports the repository directly instead of using a lazy pass-through import
 
 ### `playlist`
 
@@ -215,8 +216,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 
 ### Boundaries that still need deeper rewrite work
 
-- `indexer`
-- `player`
+- none at the moment
 
 ## Next Priority After This Audit
 

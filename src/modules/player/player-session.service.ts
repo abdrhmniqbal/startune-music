@@ -4,7 +4,6 @@ import {
   savePlaybackSession,
 } from "@/modules/player/player-session.repository"
 import { getQueueState } from "@/modules/player/player.store"
-import type { Track } from "@/modules/player/player.types"
 import { RepeatMode, State, TrackPlayer } from "@/modules/player/player.utils"
 
 import {
