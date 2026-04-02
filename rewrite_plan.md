@@ -146,6 +146,7 @@ Rules:
 - compatibility-style `$...` exports should keep shrinking until they are gone
 - player state helpers should use explicit getters and setters instead of compatibility-shaped wrapper objects
 - shared UI theme helpers should live under `src/modules/ui`, not `src/hooks`
+- UI stores should avoid internal pass-through setter wrappers when a direct state write is clearer
 - player runtime commands should be imported from `player.service.ts`, not re-exported through `player.store.ts`
 - queue mutations should be imported from `queue.service.ts`, while queue-derived view state should stay close to the UI that uses it
 - player artwork color extraction and caching should live in `player-colors.service.ts`, while `player-colors.store.ts` stays state-only
@@ -164,6 +165,7 @@ Rules:
 - indexer progress mapping and terminal state transitions should live outside `indexer.service.ts`
 - logging config state should live in `logging.store.ts`, while runtime logging, file persistence, and crash sharing should live in `logging.service.ts`
 - settings route metadata and reusable settings UI patterns should live under `src/modules/settings` and shared components, instead of being duplicated across screens
+- repeated settings header config should be rendered from one shared list instead of repeated `Stack.Screen` blocks
 - local settings config should be preloaded during bootstrap so settings screens do not each need mount-time config effects
 - provider startup flows should notify readiness and failure from the actual async path, not from extra watcher effects
 - bootstrap listener registration should live in the root provider layer without single-use wrapper components

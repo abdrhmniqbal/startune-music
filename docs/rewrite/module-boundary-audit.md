@@ -175,6 +175,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 - status: `partial`
 - notes:
   - UI store and theme helper are in the right module now
+  - internal setter pass-throughs in `ui.store.ts` have been trimmed down
   - scroll-driven tab/player visibility behavior still needs a design-level check against native UX and performance requirements
 
 ### `settings`
@@ -191,6 +192,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - settings screens now read local preferences directly from `useSettingsStore`
   - folder filter state now lives in `useSettingsStore` with the other local preferences
   - library, logging, and folder-filter settings screens no longer need mount-time config-loading effects
+  - `settings/_layout.tsx` now renders repeated detail screen options from one shared list instead of duplicating the same header config block
 
 ## Immediate Conclusions
 

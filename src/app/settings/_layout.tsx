@@ -6,6 +6,16 @@ import { BackButton } from "@/components/patterns/back-button"
 import { SETTINGS_SCREEN_TITLES } from "@/modules/settings/settings.routes"
 import { useThemeColors } from "@/modules/ui/theme"
 
+const DETAIL_SETTINGS_SCREENS = [
+  "appearance",
+  "library",
+  "advanced",
+  "about",
+  "folder-filters",
+  "track-duration-filter",
+  "log-level",
+] as const
+
 export default function SettingsLayout() {
   const theme = useThemeColors()
   const router = useRouter()
@@ -40,69 +50,18 @@ export default function SettingsLayout() {
           ),
         }}
       />
-      <Stack.Screen
-        name="appearance"
-        options={{
-          title: SETTINGS_SCREEN_TITLES.appearance,
-          headerBackButtonMenuEnabled: false,
-          headerBackVisible: false,
-          headerLeft: () => <BackButton className="-ml-2" />,
-        }}
-      />
-      <Stack.Screen
-        name="library"
-        options={{
-          title: SETTINGS_SCREEN_TITLES.library,
-          headerBackButtonMenuEnabled: false,
-          headerBackVisible: false,
-          headerLeft: () => <BackButton className="-ml-2" />,
-        }}
-      />
-      <Stack.Screen
-        name="advanced"
-        options={{
-          title: SETTINGS_SCREEN_TITLES.advanced,
-          headerBackButtonMenuEnabled: false,
-          headerBackVisible: false,
-          headerLeft: () => <BackButton className="-ml-2" />,
-        }}
-      />
-      <Stack.Screen
-        name="about"
-        options={{
-          title: SETTINGS_SCREEN_TITLES.about,
-          headerBackButtonMenuEnabled: false,
-          headerBackVisible: false,
-          headerLeft: () => <BackButton className="-ml-2" />,
-        }}
-      />
-      <Stack.Screen
-        name="folder-filters"
-        options={{
-          title: SETTINGS_SCREEN_TITLES["folder-filters"],
-          headerBackButtonMenuEnabled: false,
-          headerBackVisible: false,
-          headerLeft: () => <BackButton className="-ml-2" />,
-        }}
-      />
-      <Stack.Screen
-        name="track-duration-filter"
-        options={{
-          title: SETTINGS_SCREEN_TITLES["track-duration-filter"],
-          headerBackButtonMenuEnabled: false,
-          headerBackVisible: false,
-          headerLeft: () => <BackButton className="-ml-2" />,
-        }}
-      />
-      <Stack.Screen
-        name="log-level"
-        options={{
-          title: SETTINGS_SCREEN_TITLES["log-level"],
-          headerBackButtonMenuEnabled: false,
-          headerBackVisible: false,
-          headerLeft: () => <BackButton className="-ml-2" />,
-        }}
-      />
+      {DETAIL_SETTINGS_SCREENS.map((screenName) => (
+        <Stack.Screen
+          key={screenName}
+          name={screenName}
+          options={{
+            title: SETTINGS_SCREEN_TITLES[screenName],
+            headerBackButtonMenuEnabled: false,
+            headerBackVisible: false,
+            headerLeft: () => <BackButton className="-ml-2" />,
+          }}
+        />
+      ))}
     </Stack>
   )
 }
