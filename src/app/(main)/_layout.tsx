@@ -78,11 +78,16 @@ export default function MainLayout() {
   return (
     <Tabs
       tabBar={renderTabBar}
+      detachInactiveScreens={false}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: theme.foreground,
         tabBarInactiveTintColor: theme.muted,
         tabBarHideOnKeyboard: true,
+        freezeOnBlur: false,
+        sceneStyle: {
+          backgroundColor: theme.background,
+        },
         tabBarStyle: {
           backgroundColor: theme.background,
           borderTopWidth: 1,
@@ -95,7 +100,7 @@ export default function MainLayout() {
           fontSize: 12,
           fontWeight: "600" as const,
         },
-        animation: "shift",
+        animation: "none",
       }}
     >
       <Tabs.Screen
