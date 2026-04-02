@@ -58,6 +58,11 @@ type SearchResultsListItem =
   | { id: string; type: "playlist"; playlist: SearchPlaylistResult }
   | { id: string; type: "track"; track: Track }
 
+type SearchResultEntityItem = Exclude<
+  SearchResultsListItem,
+  { type: "section-spacer" } | { type: "section-header" }
+>
+
 function appendSection(
   listData: SearchResultsListItem[],
   options: {
@@ -89,6 +94,126 @@ function appendSection(
   }
 
   listData.push(...options.items)
+}
+
+interface SearchResultRowProps {
+  item: SearchResultEntityItem
+  theme: ReturnType<typeof useThemeColors>
+  onArtistPress?: (artist: SearchArtistResult) => void
+  onAlbumPress?: (album: SearchAlbumResult) => void
+  onPlaylistPress?: (playlist: SearchPlaylistResult) => void
+}
+
+function SearchResultRow({
+  item,
+  theme,
+  onArtistPress,
+  onAlbumPress,
+  onPlaylistPress,
+}: SearchResultRowProps) {
+  if (item.type === "artist") {
+    return (
+      <Item
+        variant="list"
+        className="py-1"
+        onPress={() => onArtistPress?.(item.artist)}
+      >
+        <ItemImage
+          icon={
+            <LocalUserSolidIcon
+              fill="none"
+              width={ICON_SIZES.listFallback}
+              height={ICON_SIZES.listFallback}
+              color={theme.muted}
+            />
+          }
+          image={item.artist.image}
+          className="h-14 w-14 rounded-full bg-default"
+        />
+        <ItemContent>
+          <ItemTitle className="text-lg">{item.artist.name}</ItemTitle>
+          <Text className="text-xs text-muted">{item.artist.type}</Text>
+        </ItemContent>
+      </Item>
+    )
+  }
+
+  if (item.type === "album") {
+    return (
+      <Item onPress={() => onAlbumPress?.(item.album)}>
+        <ItemImage
+          icon={
+            <LocalVynilSolidIcon
+              fill="none"
+              width={ICON_SIZES.listFallback}
+              height={ICON_SIZES.listFallback}
+              color={theme.muted}
+            />
+          }
+          image={item.album.image}
+          className="rounded-md"
+        />
+        <ItemContent>
+          <ItemTitle>{item.album.title || "Unknown Album"}</ItemTitle>
+          <ItemDescription>
+            {item.album.artist || "Unknown Artist"}
+          </ItemDescription>
+        </ItemContent>
+        {item.album.isVerified && (
+          <ItemAction>
+            <LocalCheckmarkCircleSolidIcon
+              fill="none"
+              width={20}
+              height={20}
+              color={theme.accent}
+            />
+          </ItemAction>
+        )}
+      </Item>
+    )
+  }
+
+  if (item.type === "playlist") {
+    return (
+      <Item onPress={() => onPlaylistPress?.(item.playlist)}>
+        <ItemImage className="items-center justify-center overflow-hidden bg-default">
+          <PlaylistArtwork
+            images={resolvePlaylistArtworkImages(
+              item.playlist.images,
+              item.playlist.image
+            )}
+          />
+        </ItemImage>
+        <ItemContent>
+          <ItemTitle>{item.playlist.title}</ItemTitle>
+          <ItemDescription>
+            {item.playlist.trackCount} {item.playlist.trackCount === 1 ? "track" : "tracks"}
+          </ItemDescription>
+        </ItemContent>
+      </Item>
+    )
+  }
+
+  return (
+    <Item onPress={() => playTrack(item.track)}>
+      <ItemImage
+        icon={
+          <LocalMusicNoteSolidIcon
+            fill="none"
+            width={ICON_SIZES.listFallback}
+            height={ICON_SIZES.listFallback}
+            color={theme.muted}
+          />
+        }
+        image={item.track.image}
+        className="rounded-md"
+      />
+      <ItemContent>
+        <ItemTitle>{item.track.title}</ItemTitle>
+        <ItemDescription>{item.track.artist || "Unknown Artist"}</ItemDescription>
+      </ItemContent>
+    </Item>
+  )
 }
 
 export const SearchResults: React.FC<SearchResultsProps> = ({
@@ -219,109 +344,16 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
               )}
             </View>
           )
-        case "artist":
-          return (
-            <Item
-              variant="list"
-              className="py-1"
-              onPress={() => onArtistPress?.(item.artist)}
-            >
-              <ItemImage
-                icon={
-                  <LocalUserSolidIcon
-                    fill="none"
-                    width={ICON_SIZES.listFallback}
-                    height={ICON_SIZES.listFallback}
-                    color={theme.muted}
-                  />
-                }
-                image={item.artist.image}
-                className="h-14 w-14 rounded-full bg-default"
-              />
-              <ItemContent>
-                <ItemTitle className="text-lg">{item.artist.name}</ItemTitle>
-                <Text className="text-xs text-muted">{item.artist.type}</Text>
-              </ItemContent>
-            </Item>
-          )
-        case "album":
-          return (
-            <Item onPress={() => onAlbumPress?.(item.album)}>
-              <ItemImage
-                icon={
-                  <LocalVynilSolidIcon
-                    fill="none"
-                    width={ICON_SIZES.listFallback}
-                    height={ICON_SIZES.listFallback}
-                    color={theme.muted}
-                  />
-                }
-                image={item.album.image}
-                className="rounded-md"
-              />
-              <ItemContent>
-                <ItemTitle>{item.album.title || "Unknown Album"}</ItemTitle>
-                <ItemDescription>
-                  {item.album.artist || "Unknown Artist"}
-                </ItemDescription>
-              </ItemContent>
-              {item.album.isVerified && (
-                <ItemAction>
-                  <LocalCheckmarkCircleSolidIcon
-                    fill="none"
-                    width={20}
-                    height={20}
-                    color={theme.accent}
-                  />
-                </ItemAction>
-              )}
-            </Item>
-          )
-        case "playlist":
-          return (
-            <Item onPress={() => onPlaylistPress?.(item.playlist)}>
-              <ItemImage className="items-center justify-center overflow-hidden bg-default">
-                <PlaylistArtwork
-                  images={resolvePlaylistArtworkImages(
-                    item.playlist.images,
-                    item.playlist.image
-                  )}
-                />
-              </ItemImage>
-              <ItemContent>
-                <ItemTitle>{item.playlist.title}</ItemTitle>
-                <ItemDescription>
-                  {item.playlist.trackCount}{" "}
-                  {item.playlist.trackCount === 1 ? "track" : "tracks"}
-                </ItemDescription>
-              </ItemContent>
-            </Item>
-          )
-        case "track":
-          return (
-            <Item onPress={() => playTrack(item.track)}>
-              <ItemImage
-                icon={
-                  <LocalMusicNoteSolidIcon
-                    fill="none"
-                    width={ICON_SIZES.listFallback}
-                    height={ICON_SIZES.listFallback}
-                    color={theme.muted}
-                  />
-                }
-                image={item.track.image}
-                className="rounded-md"
-              />
-              <ItemContent>
-                <ItemTitle>{item.track.title}</ItemTitle>
-                <ItemDescription>
-                  {item.track.artist || "Unknown Artist"}
-                </ItemDescription>
-              </ItemContent>
-            </Item>
-          )
         default:
-          return null
+          return (
+            <SearchResultRow
+              item={item}
+              theme={theme}
+              onArtistPress={onArtistPress}
+              onAlbumPress={onAlbumPress}
+              onPlaylistPress={onPlaylistPress}
+            />
+          )
       }
     },
     [onAlbumPress, onArtistPress, onPlaylistPress, onSeeMoreTracks, theme]

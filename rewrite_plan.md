@@ -64,6 +64,7 @@ We do not keep code just because it already works.
 - [ ] Converge on a small set of clear Zustand stores only
 - [ ] Use HeroUI Native consistently as the base UI layer
 - [ ] Prefer compound components over prop-heavy escape-hatch APIs
+- [ ] Prefer compound composition over complicated monolithic components
 - [ ] Prefer `uniwind` first, then inline styles only when needed
 - [ ] Prefer native navigation state over custom navigation-history workarounds
 - [ ] Rewrite navigation to use native navigation wherever it is the better fit
@@ -233,6 +234,7 @@ Target component rules:
 - use HeroUI Native primitives first
 - build local compounds on top when needed
 - avoid boolean-heavy reusable APIs
+- prefer compound composition instead of complicated all-in-one components
 - keep styling consistent with the rest of the app
 - do not split components unless the split creates a stable boundary
 - do not keep giant files just because they are already working
@@ -516,6 +518,7 @@ Performance is a first-class rewrite track.
   - `src/components/blocks/albums-tab.tsx`, `artists-tab.tsx`, and `tracks-tab.tsx` now use one shared render-path boundary for loading and empty states
 - [~] search and playlist high-traffic list surfaces now use narrower render-time work:
   - `src/components/blocks/search-results.tsx` now memoizes section list data and stabilizes key callbacks for list rendering
+  - `src/components/blocks/search-results.tsx` now composes result-row rendering through a dedicated subcomponent instead of one monolithic switch-heavy render block
   - `src/components/blocks/playlist-list.tsx` now memoizes row data, empty footer state, and row render callbacks
 - [~] route-level invalid-param diagnostics expanded:
   - `src/app/(main)/(home,search,library)/album/[name].tsx`, `artist/[name].tsx`, `playlist/[id].tsx`, and `src/app/(main)/(search)/genre/[name].tsx` now log missing or decode-failed route params
