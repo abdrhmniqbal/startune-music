@@ -2,7 +2,13 @@ import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
 import { Input, PressableFeedback } from "heroui-native"
 import * as React from "react"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
-import { ScrollView, type TextInput, View } from "react-native"
+import {
+  BackHandler,
+  Platform,
+  ScrollView,
+  type TextInput,
+  View,
+} from "react-native"
 
 import {
   RecentSearches,
@@ -127,6 +133,31 @@ export default function SearchInteractionScreen() {
     searchQueryRef.current = searchQuery
   }, [searchQuery])
 
+  const handleBackNavigation = React.useCallback(() => {
+    if (navigation.canGoBack()) {
+      router.back()
+      return true
+    }
+
+    router.replace("/(main)/(search)")
+    return true
+  }, [navigation, router])
+
+  useEffect(() => {
+    if (Platform.OS !== "android") {
+      return
+    }
+
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      handleBackNavigation
+    )
+
+    return () => {
+      subscription.remove()
+    }
+  }, [handleBackNavigation])
+
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       setHeaderInputKey((prev) => prev + 1)
@@ -146,7 +177,7 @@ export default function SearchInteractionScreen() {
           theme={theme}
           initialValue={searchQueryRef.current}
           onChangeText={setSearchQuery}
-          onBack={() => router.back()}
+          onBack={handleBackNavigation}
         />
       ),
       headerBackVisible: false,
@@ -156,7 +187,7 @@ export default function SearchInteractionScreen() {
       },
       headerShadowVisible: false,
     })
-  }, [navigation, theme, router, headerInputKey])
+  }, [navigation, theme, handleBackNavigation, headerInputKey])
 
   function handleClearRecentSearches() {
     setRecentSearches([])
