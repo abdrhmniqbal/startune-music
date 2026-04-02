@@ -539,6 +539,7 @@ Performance is a first-class rewrite track.
   - `src/components/blocks/track-list.tsx` now renders the empty state through `LegendList` `ListEmptyComponent` instead of short-circuiting the list render, so pull-to-refresh remains available even when the track list is empty
 - [~] artist artwork source consistency improved:
   - `src/components/blocks/artists-tab.tsx` now prioritizes `trackArtwork` before `artist.artwork`, aligning artist-list artwork selection with artist detail screen behavior
+  - `src/modules/library/library.repository.ts` search artist mapping and `src/modules/favorites/favorites.repository.ts` favorite artist mapping now use the same track-first artwork fallback order
 
 These are now treated as groundwork, not the finish line.
 

@@ -140,8 +140,8 @@ export async function getFavorites(
           name: artist.name,
           subtitle: `${artist.trackCount} tracks`,
           image:
-            artist.artwork ||
             artist.tracks[0]?.artwork ||
+            artist.artwork ||
             artist.tracks[0]?.album?.artwork ||
             undefined,
           dateAdded: artist.favoritedAt || Date.now(),

@@ -458,8 +458,8 @@ export async function searchLibrary(query: string): Promise<SearchResults> {
         followerCount: 0,
         isVerified: false,
         image:
-          artist.artwork ||
           artist.tracks[0]?.artwork ||
+          artist.artwork ||
           artist.albums[0]?.artwork ||
           undefined,
       })),
