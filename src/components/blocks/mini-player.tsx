@@ -22,6 +22,107 @@ interface MiniPlayerProps {
   bottomOffset?: number
 }
 
+interface MiniPlayerArtworkProps {
+  image?: string
+  mutedColor: string
+}
+
+function MiniPlayerArtwork({ image, mutedColor }: MiniPlayerArtworkProps) {
+  return (
+    <View className="h-11 w-11 items-center justify-center overflow-hidden rounded-md bg-surface">
+      {image ? (
+        <Image
+          source={{ uri: image }}
+          style={{ width: "100%", height: "100%" }}
+          contentFit="cover"
+        />
+      ) : (
+        <LocalMusicNoteSolidIcon
+          fill="none"
+          width={20}
+          height={20}
+          color={mutedColor}
+        />
+      )}
+    </View>
+  )
+}
+
+interface MiniPlayerMetaProps {
+  title: string
+  artist?: string | null
+}
+
+function MiniPlayerMeta({ title, artist }: MiniPlayerMetaProps) {
+  return (
+    <View className="flex-1 overflow-hidden">
+      <MarqueeText
+        text={title}
+        className="text-[15px] font-bold text-foreground"
+        speed={0.6}
+      />
+      <MarqueeText
+        text={artist || "Unknown Artist"}
+        className="text-[13px] text-muted"
+        speed={0.5}
+      />
+    </View>
+  )
+}
+
+interface MiniPlayerControlsProps {
+  isPlaying: boolean
+  foregroundColor: string
+}
+
+function MiniPlayerControls({
+  isPlaying,
+  foregroundColor,
+}: MiniPlayerControlsProps) {
+  return (
+    <View className="flex-row items-center gap-3">
+      <PressableFeedback onPress={togglePlayback} className="p-2 active:opacity-60">
+        {isPlaying ? (
+          <LocalPauseSolidIcon
+            fill="none"
+            width={28}
+            height={28}
+            color={foregroundColor}
+          />
+        ) : (
+          <LocalPlaySolidIcon
+            fill="none"
+            width={28}
+            height={28}
+            color={foregroundColor}
+          />
+        )}
+      </PressableFeedback>
+      <PressableFeedback onPress={playNext} className="p-2 active:opacity-60">
+        <LocalNextSolidIcon
+          fill="none"
+          width={24}
+          height={24}
+          color={foregroundColor}
+        />
+      </PressableFeedback>
+      <PressableFeedback
+        onPress={() => {
+          openPlayer("queue")
+        }}
+        className="p-2 active:opacity-60"
+      >
+        <LocalQueueIcon
+          fill="none"
+          width={22}
+          height={22}
+          color={foregroundColor}
+        />
+      </PressableFeedback>
+    </View>
+  )
+}
+
 export const MiniPlayer: React.FC<MiniPlayerProps> = ({
   bottomOffset = 90,
 }) => {
@@ -55,83 +156,14 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
           }}
           className="flex-1 flex-row items-center gap-3 active:opacity-80"
         >
-          <View className="h-11 w-11 items-center justify-center overflow-hidden rounded-md bg-surface">
-            {currentTrack.image ? (
-              <Image
-                source={{ uri: currentTrack.image }}
-                style={{ width: "100%", height: "100%" }}
-                contentFit="cover"
-              />
-            ) : (
-              <LocalMusicNoteSolidIcon
-                fill="none"
-                width={20}
-                height={20}
-                color={theme.muted}
-              />
-            )}
-          </View>
-
-          <View className="flex-1 overflow-hidden">
-            <MarqueeText
-              text={currentTrack.title}
-              className="text-[15px] font-bold text-foreground"
-              speed={0.6}
-            />
-            <MarqueeText
-              text={currentTrack.artist || "Unknown Artist"}
-              className="text-[13px] text-muted"
-              speed={0.5}
-            />
-          </View>
+          <MiniPlayerArtwork image={currentTrack.image} mutedColor={theme.muted} />
+          <MiniPlayerMeta title={currentTrack.title} artist={currentTrack.artist} />
         </PressableFeedback>
 
-        <View className="flex-row items-center gap-3">
-          <PressableFeedback
-            onPress={togglePlayback}
-            className="p-2 active:opacity-60"
-          >
-            {isPlaying ? (
-              <LocalPauseSolidIcon
-                fill="none"
-                width={28}
-                height={28}
-                color={theme.foreground}
-              />
-            ) : (
-              <LocalPlaySolidIcon
-                fill="none"
-                width={28}
-                height={28}
-                color={theme.foreground}
-              />
-            )}
-          </PressableFeedback>
-          <PressableFeedback
-            onPress={playNext}
-            className="p-2 active:opacity-60"
-          >
-            <LocalNextSolidIcon
-              fill="none"
-              width={24}
-              height={24}
-              color={theme.foreground}
-            />
-          </PressableFeedback>
-          <PressableFeedback
-            onPress={() => {
-              openPlayer("queue")
-            }}
-            className="p-2 active:opacity-60"
-          >
-            <LocalQueueIcon
-              fill="none"
-              width={22}
-              height={22}
-              color={theme.foreground}
-            />
-          </PressableFeedback>
-        </View>
+        <MiniPlayerControls
+          isPlaying={isPlaying}
+          foregroundColor={theme.foreground}
+        />
       </View>
     </Animated.View>
   )
