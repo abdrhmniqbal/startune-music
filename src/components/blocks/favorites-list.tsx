@@ -7,6 +7,7 @@ import { Image } from "expo-image"
 import { useRouter } from "expo-router"
 import { Chip, PressableFeedback } from "heroui-native"
 import * as React from "react"
+import { useCallback } from "react"
 
 import {
   type NativeScrollEvent,
@@ -159,51 +160,37 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
   const toggleFavoriteMutation = useToggleFavorite()
   const router = useRouter()
 
-  if (data.length === 0) {
-    return (
-      <EmptyState
-        icon={
-          <LocalFavouriteSolidIcon
-            fill="none"
-            width={ICON_SIZES.emptyState}
-            height={ICON_SIZES.emptyState}
-            color="#ef4444"
-          />
-        }
-        title="No Favorites"
-        message="Your favorite tracks, artists, and albums will appear here."
-      />
-    )
-  }
-
-  const handlePress = (favorite: FavoriteEntry) => {
+  const handlePress = useCallback((favorite: FavoriteEntry) => {
     switch (favorite.type) {
       case "track": {
-        const track = tracks.find((t) => t.id === favorite.id)
+        const track = tracks.find((item) => item.id === favorite.id)
         if (track) {
           playTrack(track)
         }
         break
       }
-      case "artist":
+      case "artist": {
         router.push({
           pathname: "/artist/[name]",
           params: { name: favorite.name },
         })
         break
-      case "album":
+      }
+      case "album": {
         router.push({
           pathname: "/album/[name]",
           params: { name: favorite.name },
         })
         break
-      case "playlist":
+      }
+      case "playlist": {
         router.push(`./playlist/${favorite.id}`)
         break
+      }
     }
-  }
+  }, [router, tracks])
 
-  const handleRemoveFavorite = (favorite: FavoriteEntry) => {
+  const handleRemoveFavorite = useCallback((favorite: FavoriteEntry) => {
     void toggleFavoriteMutation.mutateAsync({
       type: favorite.type,
       itemId: favorite.id,
@@ -212,35 +199,38 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
       subtitle: favorite.subtitle,
       image: favorite.image,
     })
-  }
+  }, [toggleFavoriteMutation])
 
-  const renderFavoriteItem = (item: FavoriteEntry) => (
-    <Item key={item.id} onPress={() => handlePress(item)}>
-      <FavoriteItemImage favorite={item} />
-      <ItemContent>
-        <ItemTitle>{item.name}</ItemTitle>
-        <View className="flex-row items-center">
-          <TypeBadge type={item.type} />
-          <ItemDescription>{item.subtitle || ""}</ItemDescription>
-        </View>
-      </ItemContent>
-      <ItemAction>
-        <PressableFeedback
-          onPress={(e) => {
-            e.stopPropagation()
-            handleRemoveFavorite(item)
-          }}
-          className="p-2 active:opacity-50"
-        >
-          <LocalFavouriteSolidIcon
-            fill="none"
-            width={22}
-            height={22}
-            color="#ef4444"
-          />
-        </PressableFeedback>
-      </ItemAction>
-    </Item>
+  const renderFavoriteItem = useCallback(
+    (item: FavoriteEntry) => (
+      <Item key={item.id} onPress={() => handlePress(item)}>
+        <FavoriteItemImage favorite={item} />
+        <ItemContent>
+          <ItemTitle>{item.name}</ItemTitle>
+          <View className="flex-row items-center">
+            <TypeBadge type={item.type} />
+            <ItemDescription>{item.subtitle || ""}</ItemDescription>
+          </View>
+        </ItemContent>
+        <ItemAction>
+          <PressableFeedback
+            onPress={(event) => {
+              event.stopPropagation()
+              handleRemoveFavorite(item)
+            }}
+            className="p-2 active:opacity-50"
+          >
+            <LocalFavouriteSolidIcon
+              fill="none"
+              width={22}
+              height={22}
+              color="#ef4444"
+            />
+          </PressableFeedback>
+        </ItemAction>
+      </Item>
+    ),
+    [handlePress, handleRemoveFavorite]
   )
 
   return (
@@ -259,6 +249,20 @@ export const FavoritesList: React.FC<FavoritesListProps> = ({
         onMomentumScrollEnd={onMomentumScrollEnd}
         scrollEventThrottle={16}
         refreshControl={refreshControl || undefined}
+        ListEmptyComponent={
+          <EmptyState
+            icon={
+              <LocalFavouriteSolidIcon
+                fill="none"
+                width={ICON_SIZES.emptyState}
+                height={ICON_SIZES.emptyState}
+                color="#ef4444"
+              />
+            }
+            title="No Favorites"
+            message="Your favorite tracks, artists, and albums will appear here."
+          />
+        }
         {...LEGEND_LIST_ROW_CONFIG}
         style={{ flex: 1, minHeight: 1 }}
       />
