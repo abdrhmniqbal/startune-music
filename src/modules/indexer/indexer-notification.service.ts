@@ -5,6 +5,7 @@ import type { IndexerScanProgress } from "@/modules/indexer/indexer.types"
 import { logError, logInfo } from "@/modules/logging/logging.service"
 
 const INDEXER_NOTIFICATION_CHANNEL_ID = "indexer-progress"
+const INDEXER_NOTIFICATION_ROUTE = "/(main)/(library)"
 
 let notificationsConfigured = false
 let permissionResolved = false
@@ -105,6 +106,7 @@ async function replaceIndexerNotification(title: string, body: string) {
         sound: false,
         data: {
           source: "indexer-progress",
+          route: INDEXER_NOTIFICATION_ROUTE,
         },
       },
       trigger: null,

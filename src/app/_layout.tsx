@@ -3,10 +3,11 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native"
-import { Stack, useSegments } from "expo-router"
+import * as Notifications from "expo-notifications"
+import { Stack, useRouter, useSegments } from "expo-router"
 import * as SplashScreen from "expo-splash-screen"
 import { HeroUINativeProvider } from "heroui-native"
-import { type ReactNode, useCallback, useRef } from "react"
+import { type ReactNode, useCallback, useEffect, useRef } from "react"
 import { View } from "react-native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import Animated, {
@@ -75,6 +76,7 @@ void SplashScreen.preventAutoHideAsync().catch(() => {
 })
 
 export default function Layout() {
+  const router = useRouter()
   const { theme: currentTheme } = useUniwind()
   const theme = useThemeColors()
   const segments = useSegments()
@@ -82,6 +84,43 @@ export default function Layout() {
   const barsVisible = useUIStore((state) => state.barsVisible)
   const currentTrack = usePlayerStore((state) => state.currentTrack)
   const hasHiddenSplashRef = useRef(false)
+  const handledNotificationResponseRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    const handleNotificationResponse = (
+      response: Notifications.NotificationResponse | null
+    ) => {
+      if (!response) {
+        return
+      }
+
+      if (handledNotificationResponseRef.current === response.notification.request.identifier) {
+        return
+      }
+
+      const route = response.notification.request.content.data?.route
+      if (typeof route !== "string" || route.length === 0) {
+        return
+      }
+
+      handledNotificationResponseRef.current =
+        response.notification.request.identifier
+      router.push(route as never)
+    }
+
+    void Notifications.getLastNotificationResponseAsync().then(
+      handleNotificationResponse
+    )
+
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      handleNotificationResponse
+    )
+
+    return () => {
+      subscription.remove()
+    }
+  }, [router])
+
   const hideSplash = useCallback(() => {
     if (hasHiddenSplashRef.current) {
       return
