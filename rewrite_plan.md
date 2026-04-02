@@ -234,6 +234,7 @@ Target component rules:
 - apply zoom transitions only to media-detail routes with a clear visual source
 - use simpler native push transitions for utility drill-down screens
 - keep tab switching animation-free unless profiling shows a safe native alternative
+- centralize repeated stack configuration in shared navigation presets before changing individual route transitions
 
 See also:
 

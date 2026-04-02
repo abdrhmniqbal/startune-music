@@ -4,6 +4,10 @@ import { View } from "react-native"
 
 import LocalSearchIcon from "@/components/icons/local/search"
 import LocalSettingsIcon from "@/components/icons/local/settings"
+import {
+  getDefaultNativeStackOptions,
+  getLargeTitleRootScreenOptions,
+} from "@/modules/navigation/stack"
 import { useThemeColors } from "@/modules/ui/theme"
 
 export default function LibraryLayout() {
@@ -11,24 +15,11 @@ export default function LibraryLayout() {
   const router = useRouter()
 
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme.background,
-        },
-        headerTintColor: theme.foreground,
-        headerShadowVisible: false,
-        headerTitleAlign: "center",
-        contentStyle: { backgroundColor: theme.background },
-        animation: "default",
-      }}
-    >
+    <Stack screenOptions={getDefaultNativeStackOptions(theme)}>
       <Stack.Screen
         name="index"
-        options={{
+        options={getLargeTitleRootScreenOptions({
           title: "Library",
-          headerLargeTitle: true,
-          headerTitleAlign: "left",
           headerRight: () => (
             <View className="-mr-2 flex-row gap-4">
               <Button
@@ -57,7 +48,7 @@ export default function LibraryLayout() {
               </Button>
             </View>
           ),
-        }}
+        })}
       />
       <Stack.Screen name="album" options={{ headerShown: false }} />
       <Stack.Screen name="artist" options={{ headerShown: false }} />

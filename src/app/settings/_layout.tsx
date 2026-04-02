@@ -2,6 +2,11 @@ import { Stack, useRouter } from "expo-router"
 import { PressableFeedback } from "heroui-native"
 
 import LocalCancelIcon from "@/components/icons/local/cancel"
+import {
+  getBackButtonScreenOptions,
+  getDefaultNativeStackOptions,
+  getLargeTitleRootScreenOptions,
+} from "@/modules/navigation/stack"
 import { BackButton } from "@/components/patterns/back-button"
 import { SETTINGS_SCREEN_TITLES } from "@/modules/settings/settings.routes"
 import { useThemeColors } from "@/modules/ui/theme"
@@ -21,23 +26,11 @@ export default function SettingsLayout() {
   const router = useRouter()
 
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme.background,
-        },
-        headerTintColor: theme.foreground,
-        headerShadowVisible: false,
-        headerTitleAlign: "center",
-        contentStyle: { backgroundColor: theme.background },
-        animation: "default",
-      }}
-    >
+    <Stack screenOptions={getDefaultNativeStackOptions(theme)}>
       <Stack.Screen
         name="index"
-        options={{
+        options={getLargeTitleRootScreenOptions({
           title: "Settings",
-          headerLargeTitle: true,
           headerLeft: () => (
             <PressableFeedback onPress={() => router.back()} hitSlop={20}>
               <LocalCancelIcon
@@ -48,18 +41,16 @@ export default function SettingsLayout() {
               />
             </PressableFeedback>
           ),
-        }}
+        })}
       />
       {DETAIL_SETTINGS_SCREENS.map((screenName) => (
         <Stack.Screen
           key={screenName}
           name={screenName}
-          options={{
-            title: SETTINGS_SCREEN_TITLES[screenName],
-            headerBackButtonMenuEnabled: false,
-            headerBackVisible: false,
-            headerLeft: () => <BackButton className="-ml-2" />,
-          }}
+          options={getBackButtonScreenOptions(
+            SETTINGS_SCREEN_TITLES[screenName],
+            () => <BackButton className="-ml-2" />
+          )}
         />
       ))}
     </Stack>

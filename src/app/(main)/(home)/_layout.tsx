@@ -4,6 +4,11 @@ import { View } from "react-native"
 
 import LocalSearchIcon from "@/components/icons/local/search"
 import LocalSettingsIcon from "@/components/icons/local/settings"
+import {
+  getBackButtonScreenOptions,
+  getDefaultNativeStackOptions,
+  getLargeTitleRootScreenOptions,
+} from "@/modules/navigation/stack"
 import { BackButton } from "@/components/patterns/back-button"
 import { useThemeColors } from "@/modules/ui/theme"
 
@@ -12,24 +17,11 @@ export default function HomeLayout() {
   const router = useRouter()
 
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme.background,
-        },
-        headerTintColor: theme.foreground,
-        headerShadowVisible: false,
-        headerTitleAlign: "center",
-        contentStyle: { backgroundColor: theme.background },
-        animation: "default",
-      }}
-    >
+    <Stack screenOptions={getDefaultNativeStackOptions(theme)}>
       <Stack.Screen
         name="index"
-        options={{
+        options={getLargeTitleRootScreenOptions({
           title: "Home",
-          headerLargeTitle: true,
-          headerTitleAlign: "left",
           headerRight: () => (
             <View className="-mr-2 flex-row gap-4">
               <Button
@@ -58,25 +50,19 @@ export default function HomeLayout() {
               </Button>
             </View>
           ),
-        }}
+        })}
       />
       <Stack.Screen
         name="recently-played"
-        options={{
-          title: "Recently Played",
-          headerBackButtonMenuEnabled: false,
-          headerBackVisible: false,
-          headerLeft: () => <BackButton className="-ml-2" />,
-        }}
+        options={getBackButtonScreenOptions("Recently Played", () => (
+          <BackButton className="-ml-2" />
+        ))}
       />
       <Stack.Screen
         name="top-tracks"
-        options={{
-          title: "Top Tracks",
-          headerBackButtonMenuEnabled: false,
-          headerBackVisible: false,
-          headerLeft: () => <BackButton className="-ml-2" />,
-        }}
+        options={getBackButtonScreenOptions("Top Tracks", () => (
+          <BackButton className="-ml-2" />
+        ))}
       />
       <Stack.Screen name="album" options={{ headerShown: false }} />
       <Stack.Screen name="artist" options={{ headerShown: false }} />
