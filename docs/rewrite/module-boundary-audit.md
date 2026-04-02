@@ -126,6 +126,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 - status: `partial`
 - notes:
   - file and parsing ownership is local and understandable
+  - static lyrics mode now avoids subscribing to playback progress, and synced text mode avoids TTML-only shared-value work
   - still needs a follow-up performance and API-boundary pass because it is tied closely to player timing behavior
 
 ### `player`

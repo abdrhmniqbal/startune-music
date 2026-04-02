@@ -167,6 +167,7 @@ Rules:
 - settings route metadata and reusable settings UI patterns should live under `src/modules/settings` and shared components, instead of being duplicated across screens
 - repeated settings header config should be rendered from one shared list instead of repeated `Stack.Screen` blocks
 - small screen-specific sort-field mapping can stay local when that is clearer than adding another shared helper file
+- player-facing UI should avoid subscribing to playback progress unless the current mode actually needs it
 - local settings config should be preloaded during bootstrap so settings screens do not each need mount-time config effects
 - provider startup flows should notify readiness and failure from the actual async path, not from extra watcher effects
 - bootstrap listener registration should live in the root provider layer without single-use wrapper components

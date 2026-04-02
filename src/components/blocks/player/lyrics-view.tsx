@@ -317,6 +317,10 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
   )
 
   React.useEffect(() => {
+    if (effectiveMode === "static") {
+      return
+    }
+
     const getActiveIndex = (time: number) => {
       if (effectiveMode === "ttml") {
         return findTTMLLineIndex(ttmlLines, time)
@@ -330,7 +334,10 @@ export const LyricsView: React.FC<LyricsViewProps> = ({ track }) => {
     }
 
     const syncPlaybackTime = (time: number) => {
-      currentTimeSv.value = time
+      if (effectiveMode === "ttml") {
+        currentTimeSv.value = time
+      }
+
       const nextIndex = getActiveIndex(time)
 
       if (activeSyncedLineIndexRef.current !== nextIndex) {

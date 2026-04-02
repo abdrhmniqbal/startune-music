@@ -244,6 +244,7 @@ Progress:
 - track file opening now runs through `src/modules/device/file-viewer.ts` instead of living in `track-action-sheet.tsx`
 - indexer config modules and `indexer.store.ts` no longer use `$...` compatibility helpers internally
 - logging, UI, and library sort modules no longer use `$...` compatibility helpers internally
+- `src/components/blocks/player/lyrics-view.tsx` now skips playback-progress subscription work in static mode and avoids TTML-only shared-value updates in plain synced mode
 - player color state no longer uses `$...` compatibility helpers internally
 - dead compatibility file `src/modules/player/player.computed.ts` was removed
 - dead compatibility file `src/modules/player/player.queries.ts` was removed
