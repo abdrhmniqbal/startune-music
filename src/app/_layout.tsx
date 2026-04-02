@@ -25,6 +25,16 @@ import {
   handleBootstrapDatabaseError,
   handleBootstrapDatabaseReady,
 } from "@/modules/bootstrap/bootstrap.runtime"
+import {
+  INDEXER_NOTIFICATION_ACTION_CANCEL,
+  INDEXER_NOTIFICATION_ACTION_PAUSE,
+  INDEXER_NOTIFICATION_ACTION_RESUME,
+} from "@/modules/indexer/indexer-notification.service"
+import {
+  cancelIndexing,
+  pauseIndexing,
+  resumeIndexing,
+} from "@/modules/indexer/indexer.service"
 import { ROOT_MODAL_SCREEN_OPTIONS } from "@/modules/navigation/stack"
 import { useUIStore } from "@/modules/ui/ui.store"
 import { useThemeColors } from "@/modules/ui/theme"
@@ -94,17 +104,37 @@ export default function Layout() {
         return
       }
 
-      if (handledNotificationResponseRef.current === response.notification.request.identifier) {
+      const responseKey = `${response.notification.request.identifier}:${response.actionIdentifier}`
+      if (handledNotificationResponseRef.current === responseKey) {
         return
+      }
+
+      handledNotificationResponseRef.current = responseKey
+
+      const source = response.notification.request.content.data?.source
+      if (
+        source === "indexer-progress" &&
+        response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER
+      ) {
+        switch (response.actionIdentifier) {
+          case INDEXER_NOTIFICATION_ACTION_PAUSE:
+            pauseIndexing()
+            return
+          case INDEXER_NOTIFICATION_ACTION_RESUME:
+            resumeIndexing()
+            return
+          case INDEXER_NOTIFICATION_ACTION_CANCEL:
+            cancelIndexing()
+            return
+          default:
+            return
+        }
       }
 
       const route = response.notification.request.content.data?.route
       if (typeof route !== "string" || route.length === 0) {
         return
       }
-
-      handledNotificationResponseRef.current =
-        response.notification.request.identifier
       router.push(route as never)
     }
 

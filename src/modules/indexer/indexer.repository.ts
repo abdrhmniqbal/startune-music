@@ -19,11 +19,13 @@ import {
   ensureTrackDurationFilterConfigLoaded,
   isAssetAllowedByTrackDuration,
 } from "@/modules/settings/track-duration-filter"
+import { waitForIndexerResume } from "@/modules/indexer/indexer-runtime"
 import { logError } from "@/modules/logging/logging.service"
 import { removeTracksFromFavoritesAndPlaylists } from "@/modules/tracks/track-cleanup.repository"
 import { extractMetadata, saveArtworkToCache } from "./metadata.repository"
 
 const BATCH_SIZE = 10
+const BATCH_CONCURRENCY = 4
 
 function yieldToEventLoop() {
   return new Promise<void>((resolve) => {
@@ -44,6 +46,8 @@ export async function scanMediaLibrary(
   let endCursor: string | undefined
 
   while (hasMore) {
+    if (signal?.aborted) return
+    await waitForIndexerResume(signal)
     if (signal?.aborted) return
 
     const result = await MediaLibrary.getAssetsAsync({
@@ -115,6 +119,8 @@ export async function scanMediaLibrary(
   // Process in batches
   for (let i = 0; i < assetsToProcess.length; i += BATCH_SIZE) {
     if (signal?.aborted) return
+    await waitForIndexerResume(signal)
+    if (signal?.aborted) return
 
     const batch = assetsToProcess.slice(i, i + BATCH_SIZE)
 
@@ -161,8 +167,22 @@ async function processBatch(
   signal?: AbortSignal,
   precomputedHashMap?: Map<string, string>
 ): Promise<void> {
+  let nextAssetIndex = 0
+  const workerCount = Math.min(BATCH_CONCURRENCY, assets.length)
+
   await Promise.all(
-    assets.map(async (asset) => {
+    Array.from({ length: workerCount }, async () => {
+      while (nextAssetIndex < assets.length) {
+        if (signal?.aborted) return
+        await waitForIndexerResume(signal)
+        if (signal?.aborted) return
+
+        const asset = assets[nextAssetIndex]
+        nextAssetIndex += 1
+        if (!asset) {
+          continue
+        }
+
       if (signal?.aborted) return
 
       onFileStart?.(asset)
@@ -283,6 +303,7 @@ async function processBatch(
           assetId: asset.id,
           filename: asset.filename,
         })
+      }
       }
     })
   )

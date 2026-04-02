@@ -7,6 +7,8 @@ interface QueuedIndexerRun {
 let abortController: AbortController | null = null
 let runToken = 0
 let completePhaseTimeout: ReturnType<typeof setTimeout> | null = null
+let paused = false
+let pauseWaiters: Array<() => void> = []
 let queuedRun: QueuedIndexerRun = {
   requested: false,
   forceFullScan: false,
@@ -30,6 +32,8 @@ export function startIndexerRunRuntime() {
   const controller = new AbortController()
   abortController = controller
   runToken += 1
+  paused = false
+  pauseWaiters = []
 
   return {
     controller,
@@ -68,9 +72,21 @@ export function clearIndexerCompletePhaseTimeout() {
   completePhaseTimeout = null
 }
 
+function flushPauseWaiters() {
+  if (pauseWaiters.length === 0) {
+    return
+  }
+
+  const waiters = pauseWaiters
+  pauseWaiters = []
+  waiters.forEach((resolve) => resolve())
+}
+
 export function finishIndexerRunRuntime(controller: AbortController) {
   if (abortController === controller) {
     abortController = null
+    paused = false
+    flushPauseWaiters()
   }
 }
 
@@ -102,15 +118,70 @@ export function consumeQueuedIndexerRun(
 
 export function stopIndexerRunRuntime() {
   runToken += 1
+  paused = false
   queuedRun = {
     requested: false,
     forceFullScan: false,
     showProgress: false,
   }
   clearIndexerCompletePhaseTimeout()
+  flushPauseWaiters()
 
   if (abortController) {
     abortController.abort()
     abortController = null
   }
+}
+
+export function isIndexerRunPaused() {
+  return paused
+}
+
+export function pauseIndexerRunRuntime() {
+  if (!abortController || paused) {
+    return false
+  }
+
+  paused = true
+  return true
+}
+
+export function resumeIndexerRunRuntime() {
+  if (!paused) {
+    return false
+  }
+
+  paused = false
+  flushPauseWaiters()
+  return true
+}
+
+export async function waitForIndexerResume(signal?: AbortSignal) {
+  if (!paused) {
+    return
+  }
+
+  if (signal?.aborted) {
+    return
+  }
+
+  await new Promise<void>((resolve) => {
+    const waiter = () => {
+      if (signal) {
+        signal.removeEventListener("abort", handleAbort)
+      }
+      resolve()
+    }
+
+    const handleAbort = () => {
+      pauseWaiters = pauseWaiters.filter((candidate) => candidate !== waiter)
+      resolve()
+    }
+
+    if (signal) {
+      signal.addEventListener("abort", handleAbort, { once: true })
+    }
+
+    pauseWaiters.push(waiter)
+  })
 }

@@ -4,8 +4,11 @@ import {
   consumeQueuedIndexerRun,
   finishIndexerRunRuntime,
   isIndexerRunActive,
+  isIndexerRunPaused,
   isIndexerRunStale,
+  pauseIndexerRunRuntime,
   queueIndexerRun,
+  resumeIndexerRunRuntime,
   scheduleIndexerCompletePhaseReset,
   startIndexerRunRuntime,
   stopIndexerRunRuntime,
@@ -16,7 +19,9 @@ import {
   failIndexerProgress,
   getIndexerProgressSnapshot,
   hideIndexerProgress,
+  pauseIndexerProgress,
   resetIndexerProgress,
+  resumeIndexerProgress,
   updateIndexerProgress,
 } from "@/modules/indexer/indexer-progress.service"
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
@@ -101,4 +106,36 @@ export function stopIndexing() {
   stopIndexerRunRuntime()
   resetIndexerProgress()
   logInfo("Indexer stop handling completed")
+}
+
+export function pauseIndexing() {
+  const didPause = pauseIndexerRunRuntime()
+  if (!didPause) {
+    return false
+  }
+
+  pauseIndexerProgress()
+  logInfo("Indexer paused")
+  return true
+}
+
+export function resumeIndexing() {
+  const didResume = resumeIndexerRunRuntime()
+  if (!didResume) {
+    return false
+  }
+
+  resumeIndexerProgress()
+  logInfo("Indexer resumed")
+  return true
+}
+
+export function cancelIndexing() {
+  if (!isIndexerRunActive() && !isIndexerRunPaused()) {
+    return false
+  }
+
+  stopIndexing()
+  logInfo("Indexer canceled")
+  return true
 }

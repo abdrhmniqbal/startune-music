@@ -8,6 +8,12 @@ import { ensureIndexerNotificationsConfigLoaded } from "@/modules/settings/index
 const INDEXER_NOTIFICATION_CHANNEL_ID = "indexer-progress"
 const INDEXER_NOTIFICATION_ROUTE = "/(main)/(library)"
 const INDEXER_NOTIFICATION_ID = "indexer-progress-active"
+const INDEXER_NOTIFICATION_ACTIVE_CATEGORY_ID = "indexer-progress-active-actions"
+const INDEXER_NOTIFICATION_PAUSED_CATEGORY_ID = "indexer-progress-paused-actions"
+
+export const INDEXER_NOTIFICATION_ACTION_PAUSE = "INDEXER_NOTIFICATION_ACTION_PAUSE"
+export const INDEXER_NOTIFICATION_ACTION_RESUME = "INDEXER_NOTIFICATION_ACTION_RESUME"
+export const INDEXER_NOTIFICATION_ACTION_CANCEL = "INDEXER_NOTIFICATION_ACTION_CANCEL"
 
 let notificationsConfigured = false
 let permissionResolved = false
@@ -85,6 +91,40 @@ async function configureNotifications() {
     )
   }
 
+  await Notifications.setNotificationCategoryAsync(
+    INDEXER_NOTIFICATION_ACTIVE_CATEGORY_ID,
+    [
+      {
+        identifier: INDEXER_NOTIFICATION_ACTION_PAUSE,
+        buttonTitle: "Pause",
+      },
+      {
+        identifier: INDEXER_NOTIFICATION_ACTION_CANCEL,
+        buttonTitle: "Cancel",
+        options: {
+          isDestructive: true,
+        },
+      },
+    ]
+  )
+
+  await Notifications.setNotificationCategoryAsync(
+    INDEXER_NOTIFICATION_PAUSED_CATEGORY_ID,
+    [
+      {
+        identifier: INDEXER_NOTIFICATION_ACTION_RESUME,
+        buttonTitle: "Resume",
+      },
+      {
+        identifier: INDEXER_NOTIFICATION_ACTION_CANCEL,
+        buttonTitle: "Cancel",
+        options: {
+          isDestructive: true,
+        },
+      },
+    ]
+  )
+
   notificationsConfigured = true
 }
 
@@ -119,7 +159,11 @@ async function ensureNotificationPermission() {
   return false
 }
 
-async function replaceIndexerNotification(title: string, body: string) {
+async function replaceIndexerNotification(
+  title: string,
+  body: string,
+  options?: { paused?: boolean; interactive?: boolean }
+) {
   const notificationsEnabled = await ensureIndexerNotificationsConfigLoaded()
   if (!notificationsEnabled) {
     await dismissPresentedIndexerNotifications()
@@ -142,6 +186,13 @@ async function replaceIndexerNotification(title: string, body: string) {
   }
 
   try {
+    const paused = options?.paused ?? false
+    const interactive = options?.interactive ?? false
+    const categoryIdentifier = interactive
+      ? paused
+        ? INDEXER_NOTIFICATION_PAUSED_CATEGORY_ID
+        : INDEXER_NOTIFICATION_ACTIVE_CATEGORY_ID
+      : undefined
     const signature = `${title}\n${body}`
     if (activeNotificationId && lastNotificationSignature === signature) {
       return
@@ -159,9 +210,11 @@ async function replaceIndexerNotification(title: string, body: string) {
         sound: false,
         sticky: true,
         autoDismiss: false,
+        categoryIdentifier,
         data: {
           source: "indexer-progress",
           route: INDEXER_NOTIFICATION_ROUTE,
+          paused,
         },
       },
       trigger: null,
@@ -176,7 +229,8 @@ async function replaceIndexerNotification(title: string, body: string) {
 export async function beginIndexerProgressNotification() {
   await replaceIndexerNotification(
     "Indexing music library",
-    "Preparing your library scan..."
+    "Preparing your library scan...",
+    { interactive: true }
   )
 }
 
@@ -188,7 +242,9 @@ export async function updateIndexerProgressNotification(
       ? "Scanning music files"
       : "Processing music metadata"
 
-  await replaceIndexerNotification(title, formatProgressBody(progress))
+  await replaceIndexerNotification(title, formatProgressBody(progress), {
+    interactive: true,
+  })
 }
 
 export async function completeIndexerProgressNotification(
@@ -196,14 +252,47 @@ export async function completeIndexerProgressNotification(
 ) {
   await replaceIndexerNotification(
     "Library indexing complete",
-    `${totalFiles} tracks updated`
+    `${totalFiles} tracks updated`,
+    { interactive: false }
   )
 }
 
 export async function failIndexerProgressNotification() {
   await replaceIndexerNotification(
     "Library indexing failed",
-    "Tap to reopen the app and try again"
+    "Tap to reopen the app and try again",
+    { interactive: false }
+  )
+}
+
+export async function pauseIndexerProgressNotification(progress: {
+  current: number
+  total: number
+  currentFile: string
+}) {
+  const body =
+    progress.total > 0
+      ? `${progress.current}/${progress.total} • Paused`
+      : "Paused"
+
+  await replaceIndexerNotification("Library indexing paused", body, {
+    paused: true,
+    interactive: true,
+  })
+}
+
+export async function resumeIndexerProgressNotification(
+  progress: IndexerScanProgress
+) {
+  await replaceIndexerNotification(
+    progress.phase === "scanning"
+      ? "Scanning music files"
+      : "Processing music metadata",
+    formatProgressBody(progress),
+    {
+      paused: false,
+      interactive: true,
+    }
   )
 }
 

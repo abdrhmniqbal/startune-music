@@ -5,6 +5,8 @@ import {
   completeIndexerProgressNotification,
   dismissIndexerProgressNotification,
   failIndexerProgressNotification,
+  pauseIndexerProgressNotification,
+  resumeIndexerProgressNotification,
   updateIndexerProgressNotification,
 } from "@/modules/indexer/indexer-notification.service"
 
@@ -57,6 +59,10 @@ export function beginIndexerProgress(showProgress: boolean) {
 export function updateIndexerProgress(progress: IndexerScanProgress) {
   const state = getIndexerState()
   if (!state.showProgress) {
+    return
+  }
+
+  if (state.phase === "paused") {
     return
   }
 
@@ -163,6 +169,36 @@ export function hideIndexerProgress() {
   void dismissIndexerProgressNotification()
   updateIndexerState({ phase: "idle", showProgress: false })
   logInfo("Indexer progress hidden")
+}
+
+export function pauseIndexerProgress() {
+  const state = getIndexerState()
+  if (!state.showProgress || !state.isIndexing) {
+    return
+  }
+
+  updateIndexerState({ phase: "paused" })
+  void pauseIndexerProgressNotification({
+    current: state.processedFiles,
+    total: state.totalFiles,
+    currentFile: state.currentFile,
+  })
+}
+
+export function resumeIndexerProgress() {
+  const state = getIndexerState()
+  if (!state.showProgress || !state.isIndexing || state.phase !== "paused") {
+    return
+  }
+
+  const resumedPhase = state.totalFiles > 0 ? "processing" : "scanning"
+  updateIndexerState({ phase: resumedPhase })
+  void resumeIndexerProgressNotification({
+    phase: resumedPhase,
+    current: state.processedFiles,
+    total: state.totalFiles,
+    currentFile: state.currentFile,
+  })
 }
 
 export function getIndexerProgressSnapshot() {
