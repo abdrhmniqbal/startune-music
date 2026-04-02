@@ -6,7 +6,21 @@ import {
   updateIndexerState,
 } from "./indexer.store"
 
+const VISIBLE_PROGRESS_UPDATE_INTERVAL_MS = 120
+
+let lastVisibleProgressUpdateAt = 0
+
 export function beginIndexerProgress(showProgress: boolean) {
+  lastVisibleProgressUpdateAt = 0
+
+  if (!showProgress) {
+    updateIndexerState({
+      ...getDefaultIndexerState(),
+      showProgress: false,
+    })
+    return
+  }
+
   updateIndexerState({
     ...getDefaultIndexerState(),
     isIndexing: true,
@@ -16,6 +30,22 @@ export function beginIndexerProgress(showProgress: boolean) {
 }
 
 export function updateIndexerProgress(progress: IndexerScanProgress) {
+  const state = getIndexerState()
+  if (!state.showProgress) {
+    return
+  }
+
+  const now = Date.now()
+  if (
+    progress.phase !== "complete" &&
+    progress.current < progress.total &&
+    now - lastVisibleProgressUpdateAt < VISIBLE_PROGRESS_UPDATE_INTERVAL_MS
+  ) {
+    return
+  }
+
+  lastVisibleProgressUpdateAt = now
+
   updateIndexerState({
     phase: progress.phase === "scanning" ? "scanning" : "processing",
     currentFile: progress.currentFile,
@@ -26,6 +56,11 @@ export function updateIndexerProgress(progress: IndexerScanProgress) {
 }
 
 export function completeIndexerProgress() {
+  if (!getIndexerState().showProgress) {
+    resetIndexerProgress()
+    return
+  }
+
   updateIndexerState({
     phase: "complete",
     progress: 100,
@@ -40,6 +75,11 @@ export function resetIndexerProgress() {
 }
 
 export function failIndexerProgress() {
+  if (!getIndexerState().showProgress) {
+    resetIndexerProgress()
+    return
+  }
+
   updateIndexerState({
     isIndexing: false,
     phase: "idle",
@@ -48,6 +88,11 @@ export function failIndexerProgress() {
 }
 
 export function hideIndexerProgress() {
+  if (!getIndexerState().showProgress) {
+    resetIndexerProgress()
+    return
+  }
+
   updateIndexerState({ phase: "idle", showProgress: false })
 }
 

@@ -25,6 +25,12 @@ import { extractMetadata, saveArtworkToCache } from "./metadata.repository"
 
 const BATCH_SIZE = 10
 
+function yieldToEventLoop() {
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, 0)
+  })
+}
+
 export async function scanMediaLibrary(
   onProgress?: (progress: IndexerScanProgress) => void,
   forceFullScan = false,
@@ -51,6 +57,8 @@ export async function scanMediaLibrary(
     assets.push(...result.assets)
     hasMore = result.hasNextPage
     endCursor = result.endCursor
+
+    await yieldToEventLoop()
   }
 
   const folderFilterConfig = await ensureFolderFilterConfigLoaded()
@@ -123,6 +131,8 @@ export async function scanMediaLibrary(
       signal,
       currentAssetHashMap
     )
+
+    await yieldToEventLoop()
   }
 
   if (signal?.aborted) return

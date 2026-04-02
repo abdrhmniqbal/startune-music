@@ -3,6 +3,7 @@ import { scanMediaLibrary } from "@/modules/indexer/indexer.repository"
 import {
   consumeQueuedIndexerRun,
   finishIndexerRunRuntime,
+  isIndexerRunActive,
   isIndexerRunStale,
   queueIndexerRun,
   scheduleIndexerCompletePhaseReset,
@@ -20,14 +21,11 @@ import {
 } from "@/modules/indexer/indexer-progress.service"
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 
-import { getIndexerState } from "./indexer.store"
-
 export async function startIndexing(
   forceFullScan = false,
   showProgress = true
 ) {
-  const currentState = getIndexerState()
-  if (currentState.isIndexing) {
+  if (isIndexerRunActive()) {
     queueIndexerRun(forceFullScan, showProgress)
     logInfo("Indexer run queued while another run is active", {
       forceFullScan,
@@ -110,8 +108,7 @@ export function pauseIndexing() {
 }
 
 export function resumeIndexing() {
-  const state = getIndexerState()
-  if (state.phase === "paused" || !state.isIndexing) {
+  if (!isIndexerRunActive()) {
     logInfo("Indexer resume requested")
     void startIndexing(false)
   }

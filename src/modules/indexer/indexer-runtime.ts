@@ -13,6 +13,10 @@ let queuedRun: QueuedIndexerRun = {
   showProgress: false,
 }
 
+export function isIndexerRunActive() {
+  return abortController !== null
+}
+
 export function queueIndexerRun(forceFullScan: boolean, showProgress: boolean) {
   queuedRun = {
     requested: true,

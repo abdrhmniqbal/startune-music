@@ -59,8 +59,8 @@ export async function bootstrapApp(): Promise<void> {
       isFreshDatabase,
     })
 
-    // Auto-index on app bootstrap when enabled; force a full scan only for fresh databases.
-    // Uses indexer store so progress UI is shown.
-    void startIndexing(isFreshDatabase, true)
+    // Only show startup index progress on the very first full scan.
+    // Incremental bootstrap scans should stay silent.
+    void startIndexing(isFreshDatabase, isFreshDatabase)
   }
 }
