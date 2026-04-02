@@ -5,7 +5,7 @@ import {
 } from "@legendapp/list"
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
@@ -24,6 +24,7 @@ import { ScaleLoader } from "@/components/ui/scale-loader"
 import { useThemeColors } from "@/modules/ui/theme"
 import { playTrack } from "@/modules/player/player.service"
 import { usePlayerStore, type Track } from "@/modules/player/player.store"
+import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
 
 interface TrackListProps {
   data: Track[]
@@ -79,32 +80,7 @@ export const TrackList: React.FC<TrackListProps> = ({
   const isCompactNumberedList = hideCover && showNumbers
   const currentTrack = usePlayerStore((state) => state.currentTrack)
 
-  useEffect(() => {
-    if (!resetScrollKey) {
-      return
-    }
-
-    let frameB: number | null = null
-    let timeoutId: ReturnType<typeof setTimeout> | null = null
-    const frameA = requestAnimationFrame(() => {
-      frameB = requestAnimationFrame(() => {
-        listRef.current?.scrollToOffset({ offset: 0, animated: false })
-      })
-    })
-    timeoutId = setTimeout(() => {
-      listRef.current?.scrollToOffset({ offset: 0, animated: false })
-    }, 80)
-
-    return () => {
-      cancelAnimationFrame(frameA)
-      if (frameB !== null) {
-        cancelAnimationFrame(frameB)
-      }
-      if (timeoutId !== null) {
-        clearTimeout(timeoutId)
-      }
-    }
-  }, [resetScrollKey])
+  useResetScrollOnKey(listRef, resetScrollKey)
 
   const handlePress = (track: Track) => {
     if (onTrackPress) {

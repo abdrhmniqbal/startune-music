@@ -243,6 +243,7 @@ Progress:
 - battery optimization helpers now log unsupported paths, requests, and failures
 - track file opening now runs through `src/modules/device/file-viewer.ts` instead of living in `track-action-sheet.tsx`
 - `src/components/blocks/playlist-list.tsx` now renders one list path for both empty and non-empty states instead of duplicating the entire `LegendList` tree
+- list blocks now share `src/components/blocks/use-reset-scroll-on-key.ts` instead of duplicating the same reset-on-sort effect in five components
 - indexer config modules and `indexer.store.ts` no longer use `$...` compatibility helpers internally
 - logging, UI, and library sort modules no longer use `$...` compatibility helpers internally
 - `src/components/blocks/player/lyrics-view.tsx` now skips playback-progress subscription work in static mode and avoids TTML-only shared-value updates in plain synced mode

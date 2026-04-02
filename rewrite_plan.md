@@ -214,6 +214,7 @@ Target component rules:
 - do not split components unless the split creates a stable boundary
 - do not keep giant files just because they are already working
 - prefer one render path with small conditional sections over duplicating the same large list/tree structure for empty and non-empty states
+- extract a tiny shared hook when the same UI-side behavior is duplicated across several components and the hook is simpler than the duplication
 
 ### Navigation and Screen Flow
 

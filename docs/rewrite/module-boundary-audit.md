@@ -229,6 +229,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 ### Shared blocks direction
 
 - shared blocks should prefer one render path with small conditional branches over duplicated full list trees
+- small shared hooks are acceptable when they remove repeated list behavior across multiple components without hiding ownership
 
 ## Next Priority After This Audit
 

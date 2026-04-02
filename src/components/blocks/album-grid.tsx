@@ -4,7 +4,7 @@ import {
   type LegendListRenderItemProps,
 } from "@legendapp/list"
 import * as React from "react"
-import { useEffect, useRef } from "react"
+import { useRef } from "react"
 import {
   Dimensions,
   type NativeScrollEvent,
@@ -26,6 +26,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/modules/ui/theme"
 import { mergeText } from "@/utils/merge-text"
+import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
 
 export interface Album {
   id: string
@@ -86,32 +87,7 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
   const theme = useThemeColors()
   const listRef = useRef<LegendListRef | null>(null)
 
-  useEffect(() => {
-    if (!resetScrollKey) {
-      return
-    }
-
-    let frameB: number | null = null
-    let timeoutId: ReturnType<typeof setTimeout> | null = null
-    const frameA = requestAnimationFrame(() => {
-      frameB = requestAnimationFrame(() => {
-        listRef.current?.scrollToOffset({ offset: 0, animated: false })
-      })
-    })
-    timeoutId = setTimeout(() => {
-      listRef.current?.scrollToOffset({ offset: 0, animated: false })
-    }, 80)
-
-    return () => {
-      cancelAnimationFrame(frameA)
-      if (frameB !== null) {
-        cancelAnimationFrame(frameB)
-      }
-      if (timeoutId !== null) {
-        clearTimeout(timeoutId)
-      }
-    }
-  }, [resetScrollKey])
+  useResetScrollOnKey(listRef, resetScrollKey)
 
   const handlePress = (album: Album) => {
     onAlbumPress?.(album)

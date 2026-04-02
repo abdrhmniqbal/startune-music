@@ -6,7 +6,7 @@ import {
 } from "@legendapp/list"
 import { Button, PressableFeedback } from "heroui-native"
 import * as React from "react"
-import { useEffect, useRef } from "react"
+import { useRef } from "react"
 
 import {
   type NativeScrollEvent,
@@ -34,6 +34,7 @@ import { ICON_SIZES } from "@/constants/icon-sizes"
 import { useThemeColors } from "@/modules/ui/theme"
 import { formatDuration } from "@/utils/format"
 import { mergeText } from "@/utils/merge-text"
+import { useResetScrollOnKey } from "@/components/blocks/use-reset-scroll-on-key"
 
 import LocalMusicNoteSolidIcon from "../icons/local/music-note-solid"
 
@@ -89,32 +90,7 @@ export const FolderList: React.FC<FolderListProps> = ({
   const theme = useThemeColors()
   const listRef = useRef<LegendListRef | null>(null)
 
-  useEffect(() => {
-    if (!resetScrollKey) {
-      return
-    }
-
-    let frameB: number | null = null
-    let timeoutId: ReturnType<typeof setTimeout> | null = null
-    const frameA = requestAnimationFrame(() => {
-      frameB = requestAnimationFrame(() => {
-        listRef.current?.scrollToOffset({ offset: 0, animated: false })
-      })
-    })
-    timeoutId = setTimeout(() => {
-      listRef.current?.scrollToOffset({ offset: 0, animated: false })
-    }, 80)
-
-    return () => {
-      cancelAnimationFrame(frameA)
-      if (frameB !== null) {
-        cancelAnimationFrame(frameB)
-      }
-      if (timeoutId !== null) {
-        clearTimeout(timeoutId)
-      }
-    }
-  }, [resetScrollKey])
+  useResetScrollOnKey(listRef, resetScrollKey)
 
   const handlePress = (folder: Folder) => {
     onFolderPress?.(folder)
