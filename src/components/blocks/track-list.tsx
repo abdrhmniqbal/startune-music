@@ -137,23 +137,6 @@ export const TrackList: React.FC<TrackListProps> = ({
     </>
   )
 
-  if (data.length === 0) {
-    return (
-      <EmptyState
-        icon={
-          <LocalMusicNoteSolidIcon
-            fill="none"
-            width={48}
-            height={48}
-            color={theme.muted}
-          />
-        }
-        title="No Tracks"
-        message="Tracks you add to your library will appear here."
-      />
-    )
-  }
-
   return (
     <View style={{ flex: 1 }}>
       <LegendList
@@ -170,6 +153,20 @@ export const TrackList: React.FC<TrackListProps> = ({
         showsVerticalScrollIndicator={showsVerticalScrollIndicator}
         ListHeaderComponent={listHeader}
         ListFooterComponent={listFooter}
+        ListEmptyComponent={
+          <EmptyState
+            icon={
+              <LocalMusicNoteSolidIcon
+                fill="none"
+                width={48}
+                height={48}
+                color={theme.muted}
+              />
+            }
+            title="No Tracks"
+            message="Tracks you add to your library will appear here."
+          />
+        }
         contentContainerStyle={[
           { gap: isCompactNumberedList ? 0 : 8 },
           contentContainerStyle,

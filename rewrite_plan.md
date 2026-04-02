@@ -535,6 +535,8 @@ Performance is a first-class rewrite track.
   - `src/app/(main)/(home)/index.tsx` now subscribes to `currentTrack?.id` for active-row styling instead of the full track object
 - [~] playback deletion edge-case handling improved:
   - `src/modules/player/queue.service.ts` now handles removing the currently active track by rebuilding native queue state safely, selecting a fallback active track, and keeping playback/session state in sync
+- [~] library tracks refresh UX bug fixed:
+  - `src/components/blocks/track-list.tsx` now renders the empty state through `LegendList` `ListEmptyComponent` instead of short-circuiting the list render, so pull-to-refresh remains available even when the track list is empty
 
 These are now treated as groundwork, not the finish line.
 
