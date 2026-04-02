@@ -7,12 +7,42 @@ import { ensureIndexerNotificationsConfigLoaded } from "@/modules/settings/index
 
 const INDEXER_NOTIFICATION_CHANNEL_ID = "indexer-progress"
 const INDEXER_NOTIFICATION_ROUTE = "/(main)/(library)"
+const INDEXER_NOTIFICATION_ID = "indexer-progress-active"
 
 let notificationsConfigured = false
 let permissionResolved = false
 let notificationsGranted = false
 let permissionRequestedThisSession = false
 let activeNotificationId: string | null = null
+let lastNotificationSignature: string | null = null
+
+function isIndexerNotification(notification: Notifications.Notification) {
+  const payload = notification.request.content.data as
+    | { source?: unknown }
+    | undefined
+  return payload?.source === "indexer-progress"
+}
+
+async function dismissPresentedIndexerNotifications(
+  options?: { keepId?: string | null }
+) {
+  const keepId = options?.keepId ?? null
+  try {
+    const presented = await Notifications.getPresentedNotificationsAsync()
+    const pendingDismissals = presented
+      .filter(isIndexerNotification)
+      .filter((notification) => notification.request.identifier !== keepId)
+      .map((notification) =>
+        Notifications.dismissNotificationAsync(notification.request.identifier)
+      )
+
+    if (pendingDismissals.length > 0) {
+      await Promise.allSettled(pendingDismissals)
+    }
+  } catch (error) {
+    logError("Failed to dismiss presented indexer notifications", error)
+  }
+}
 
 function formatProgressBody(progress: IndexerScanProgress) {
   const fileName = progress.currentFile || "Preparing..."
@@ -36,7 +66,7 @@ async function configureNotifications() {
     handleNotification: async () => ({
       shouldPlaySound: false,
       shouldSetBadge: false,
-      shouldShowBanner: true,
+      shouldShowBanner: false,
       shouldShowList: true,
     }),
   })
@@ -47,7 +77,7 @@ async function configureNotifications() {
       {
         name: "Library Indexing",
         description: "Shows music library indexing progress",
-        importance: Notifications.AndroidImportance.DEFAULT,
+        importance: Notifications.AndroidImportance.LOW,
         vibrationPattern: [0],
         enableVibrate: false,
         sound: null,
@@ -92,13 +122,15 @@ async function ensureNotificationPermission() {
 async function replaceIndexerNotification(title: string, body: string) {
   const notificationsEnabled = await ensureIndexerNotificationsConfigLoaded()
   if (!notificationsEnabled) {
+    await dismissPresentedIndexerNotifications()
     if (activeNotificationId) {
       try {
-        await Notifications.dismissNotificationAsync(activeNotificationId)
+        await Notifications.dismissNotificationAsync(INDEXER_NOTIFICATION_ID)
       } catch (error) {
         logError("Failed to dismiss indexer notification while disabled", error)
       } finally {
         activeNotificationId = null
+        lastNotificationSignature = null
       }
     }
 
@@ -110,16 +142,23 @@ async function replaceIndexerNotification(title: string, body: string) {
   }
 
   try {
-    if (activeNotificationId) {
-      await Notifications.dismissNotificationAsync(activeNotificationId)
-      activeNotificationId = null
+    const signature = `${title}\n${body}`
+    if (activeNotificationId && lastNotificationSignature === signature) {
+      return
     }
 
-    activeNotificationId = await Notifications.scheduleNotificationAsync({
+    if (!activeNotificationId) {
+      await dismissPresentedIndexerNotifications({ keepId: INDEXER_NOTIFICATION_ID })
+    }
+
+    await Notifications.scheduleNotificationAsync({
+      identifier: INDEXER_NOTIFICATION_ID,
       content: {
         title,
         body,
         sound: false,
+        sticky: true,
+        autoDismiss: false,
         data: {
           source: "indexer-progress",
           route: INDEXER_NOTIFICATION_ROUTE,
@@ -127,6 +166,8 @@ async function replaceIndexerNotification(title: string, body: string) {
       },
       trigger: null,
     })
+    activeNotificationId = INDEXER_NOTIFICATION_ID
+    lastNotificationSignature = signature
   } catch (error) {
     logError("Failed to update indexer progress notification", error)
   }
@@ -167,15 +208,13 @@ export async function failIndexerProgressNotification() {
 }
 
 export async function dismissIndexerProgressNotification() {
-  if (!activeNotificationId) {
-    return
-  }
-
   try {
-    await Notifications.dismissNotificationAsync(activeNotificationId)
+    await Notifications.dismissNotificationAsync(INDEXER_NOTIFICATION_ID)
   } catch (error) {
     logError("Failed to dismiss indexer progress notification", error)
   } finally {
+    await dismissPresentedIndexerNotifications()
     activeNotificationId = null
+    lastNotificationSignature = null
   }
 }

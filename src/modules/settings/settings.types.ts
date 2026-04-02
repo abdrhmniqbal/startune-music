@@ -1,6 +1,7 @@
 export type SettingsRouteName =
   | "index"
   | "appearance"
+  | "notifications"
   | "library"
   | "advanced"
   | "about"

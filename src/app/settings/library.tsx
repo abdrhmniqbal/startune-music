@@ -1,30 +1,24 @@
 import { useRouter } from "expo-router"
-import { Button, Dialog, Switch } from "heroui-native"
+import { Button, Dialog } from "heroui-native"
 import * as React from "react"
 import { ScrollView, View } from "react-native"
 
 import { SettingsRow } from "@/components/patterns/settings-row"
 import {
-  dismissIndexerProgressNotification,
-} from "@/modules/indexer/indexer-notification.service"
-import {
   setAutoScanEnabled,
 } from "@/modules/settings/auto-scan"
 import { forceReindexLibrary } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
-import { setIndexerNotificationsEnabled } from "@/modules/settings/indexer-notifications"
 import {
   getTrackDurationFilterLabel,
 } from "@/modules/settings/track-duration-filter"
 import { useSettingsStore } from "@/modules/settings/settings.store"
+import { Switch } from "heroui-native"
 
 export default function LibrarySettingsScreen() {
   const router = useRouter()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const autoScanEnabled = useSettingsStore((state) => state.autoScanEnabled)
-  const indexerNotificationsEnabled = useSettingsStore(
-    (state) => state.indexerNotificationsEnabled
-  )
   const trackDurationFilterConfig = useSettingsStore(
     (state) => state.trackDurationFilterConfig
   )
@@ -80,28 +74,6 @@ export default function LibrarySettingsScreen() {
             onPress={() => setShowReindexDialog(true)}
             showChevron={false}
             isDisabled={isIndexing}
-          />
-          <SettingsRow
-            title="Indexer Notifications"
-            description={
-              indexerNotificationsEnabled
-                ? "Show system notifications while indexing."
-                : "Hide indexing notifications from your system tray."
-            }
-            onPress={undefined}
-            showChevron={false}
-            rightContent={
-              <Switch
-                isSelected={indexerNotificationsEnabled}
-                onSelectedChange={(isSelected) => {
-                  void setIndexerNotificationsEnabled(isSelected)
-
-                  if (!isSelected) {
-                    void dismissIndexerProgressNotification()
-                  }
-                }}
-              />
-            }
           />
         </View>
       </ScrollView>

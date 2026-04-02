@@ -13,6 +13,7 @@ import { useThemeColors } from "@/modules/ui/theme"
 
 const DETAIL_SETTINGS_SCREENS = [
   "appearance",
+  "notifications",
   "library",
   "advanced",
   "about",

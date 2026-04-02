@@ -15,14 +15,22 @@ import {
 } from "./indexer.store"
 
 const VISIBLE_PROGRESS_UPDATE_INTERVAL_MS = 120
-const NOTIFICATION_PROGRESS_UPDATE_INTERVAL_MS = 1000
+const NOTIFICATION_PROGRESS_UPDATE_INTERVAL_MS = 750
+const NOTIFICATION_PROGRESS_DELTA_PERCENT = 1
+const NOTIFICATION_PROGRESS_DELTA_FILES = 5
 
 let lastVisibleProgressUpdateAt = 0
 let lastNotificationProgressUpdateAt = 0
+let lastNotificationProgressPercent = -1
+let lastNotificationProcessedFiles = -1
+let lastNotificationPhase: IndexerScanProgress["phase"] | null = null
 
 export function beginIndexerProgress(showProgress: boolean) {
   lastVisibleProgressUpdateAt = 0
   lastNotificationProgressUpdateAt = 0
+  lastNotificationProgressPercent = -1
+  lastNotificationProcessedFiles = -1
+  lastNotificationPhase = null
   logInfo("Indexer progress started", { showProgress })
 
   if (showProgress) {
@@ -63,12 +71,30 @@ export function updateIndexerProgress(progress: IndexerScanProgress) {
 
   lastVisibleProgressUpdateAt = now
 
+  const nextProgressPercent =
+    progress.total > 0 ? (progress.current / progress.total) * 100 : 0
+  const hasMeaningfulPercentDelta =
+    lastNotificationProgressPercent < 0 ||
+    nextProgressPercent - lastNotificationProgressPercent >=
+      NOTIFICATION_PROGRESS_DELTA_PERCENT
+  const hasMeaningfulFileDelta =
+    lastNotificationProcessedFiles < 0 ||
+    progress.current - lastNotificationProcessedFiles >=
+      NOTIFICATION_PROGRESS_DELTA_FILES
+  const hasPhaseChange =
+    lastNotificationPhase !== null && progress.phase !== lastNotificationPhase
+  const hasIntervalElapsed =
+    now - lastNotificationProgressUpdateAt >=
+    NOTIFICATION_PROGRESS_UPDATE_INTERVAL_MS
+
   if (
     progress.phase === "complete" ||
-    now - lastNotificationProgressUpdateAt >=
-      NOTIFICATION_PROGRESS_UPDATE_INTERVAL_MS
+    (hasIntervalElapsed && (hasMeaningfulPercentDelta || hasMeaningfulFileDelta || hasPhaseChange))
   ) {
     lastNotificationProgressUpdateAt = now
+    lastNotificationProgressPercent = nextProgressPercent
+    lastNotificationProcessedFiles = progress.current
+    lastNotificationPhase = progress.phase
     void updateIndexerProgressNotification(progress)
   }
 
@@ -77,7 +103,7 @@ export function updateIndexerProgress(progress: IndexerScanProgress) {
     currentFile: progress.currentFile,
     processedFiles: progress.current,
     totalFiles: progress.total,
-    progress: progress.total > 0 ? (progress.current / progress.total) * 100 : 0,
+    progress: nextProgressPercent,
   })
 }
 
@@ -101,6 +127,9 @@ export function completeIndexerProgress() {
 
 export function resetIndexerProgress() {
   void dismissIndexerProgressNotification()
+  lastNotificationProgressPercent = -1
+  lastNotificationProcessedFiles = -1
+  lastNotificationPhase = null
   updateIndexerState({
     ...getDefaultIndexerState(),
   })

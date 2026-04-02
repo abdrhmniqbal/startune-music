@@ -7,6 +7,11 @@ export const SETTINGS_CATEGORY_ROUTES: SettingsRouteDefinition[] = [
     description: "Theme and visual preferences.",
   },
   {
+    name: "notifications",
+    title: "Notifications",
+    description: "Notification behavior and alerts.",
+  },
+  {
     name: "library",
     title: "Library",
     description: "Scanning, filters, and indexing behavior.",
@@ -26,6 +31,7 @@ export const SETTINGS_CATEGORY_ROUTES: SettingsRouteDefinition[] = [
 export const SETTINGS_SCREEN_TITLES: Record<string, string> = {
   index: "Settings",
   appearance: "Appearance",
+  notifications: "Notifications",
   library: "Library",
   advanced: "Advanced",
   about: "About",
