@@ -1,6 +1,6 @@
 import { PressableFeedback } from "heroui-native"
 import * as React from "react"
-import { useEffect, useRef } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import { type FlatList, Text, View } from "react-native"
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated"
 import ReorderableList, {
@@ -13,9 +13,12 @@ import LocalDragDropVerticalIcon from "@/components/icons/local/drag-drop-vertic
 import { TrackRow } from "@/components/patterns/track-row"
 import { ScaleLoader } from "@/components/ui/scale-loader"
 import { playTrack } from "@/modules/player/player.service"
-import { getQueueState, type Track } from "@/modules/player/player.store"
+import {
+  getQueueState,
+  usePlayerStore,
+  type Track,
+} from "@/modules/player/player.store"
 import { moveInQueue, removeFromQueue } from "@/modules/player/queue.service"
-import { useQueueInfo } from "@/modules/player/queue.store"
 
 interface QueueItemProps {
   track: Track
@@ -93,6 +96,23 @@ interface QueueViewProps {
 
 const ITEM_HEIGHT = 64
 const ITEM_GAP = 6
+
+function useQueueInfo() {
+  const queue = usePlayerStore((state) => state.queue)
+  const currentTrack = usePlayerStore((state) => state.currentTrack)
+
+  return useMemo(() => {
+    const currentIndex = currentTrack
+      ? queue.findIndex((track) => track.id === currentTrack.id)
+      : -1
+
+    return {
+      queue,
+      currentIndex,
+      upNext: currentIndex >= 0 ? queue.slice(currentIndex + 1) : queue,
+    }
+  }, [currentTrack, queue])
+}
 
 export const QueueView: React.FC<QueueViewProps> = ({ currentTrack }) => {
   const queueInfo = useQueueInfo()

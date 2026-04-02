@@ -219,7 +219,7 @@ Progress:
 - bootstrap, indexer, and player runtime boundaries now have first-pass structured logging
 - favorites and playlist mutation hooks now log start, success, and failure paths
 - library sort state, sort options, and pure sorting helpers are now split into separate files
-- queue runtime commands now live in `src/modules/player/queue.service.ts`, while `src/modules/player/queue.store.ts` stays focused on derived queue state and queue assignment
+- queue runtime commands now live in `src/modules/player/queue.service.ts`
 - player artwork color extraction and cache logic now live in `src/modules/player/player-colors.service.ts`, while `src/modules/player/player-colors.store.ts` stays focused on color state
 - player session persistence now lives in `src/modules/player/player-session.repository.ts`
 - indexer runtime controls now live in `src/modules/indexer/indexer.service.ts`, while `src/modules/indexer/indexer.store.ts` stays focused on indexer state
@@ -246,10 +246,10 @@ Progress:
 - dead compatibility file `src/modules/player/player.computed.ts` was removed
 - dead compatibility file `src/modules/player/player.queries.ts` was removed
 - dead compatibility file `src/modules/indexer/indexer.utils.ts` was removed
+- dead compatibility file `src/modules/indexer/indexer.keys.ts` was removed
+- dead wrapper file `src/modules/player/queue.store.ts` was removed
 - player state and queue helpers no longer expose `$...` compatibility wrappers internally
 - player state and playback commands no longer share the same public import surface
-- `src/modules/player/queue.store.ts` no longer maintains the legacy `$queueInfo` export
-- `src/modules/player/queue.store.ts` now stays focused on derived queue state only
 - TrackPlayer mapping and repeat-mode translation helpers now live in `src/modules/player/player-adapter.ts`
 - player session persistence and restoration now live in `src/modules/player/player-session.service.ts`
 - active-track and playback-progress runtime sync helpers now live in `src/modules/player/player-runtime-state.ts`
@@ -261,6 +261,7 @@ Progress:
 - queue runtime now reuses the shared TrackPlayer mapping adapter instead of duplicating it
 - playback-driven history cache updates now live in `src/modules/history/history-cache.service.ts`
 - post-scan media reload and query invalidation now live in `src/modules/indexer/indexer-refresh.service.ts`
+- one-off indexer query invalidation now lives directly in `src/modules/indexer/indexer-refresh.service.ts`
 - indexer run coordination state now lives in `src/modules/indexer/indexer-runtime.ts`
 - indexer progress mapping and terminal state transitions now live in `src/modules/indexer/indexer-progress.service.ts`
 

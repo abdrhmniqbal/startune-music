@@ -147,8 +147,7 @@ Rules:
 - player state helpers should use explicit getters and setters instead of compatibility-shaped wrapper objects
 - shared UI theme helpers should live under `src/modules/ui`, not `src/hooks`
 - player runtime commands should be imported from `player.service.ts`, not re-exported through `player.store.ts`
-- queue mutations should be imported from `queue.service.ts`, while derived queue state stays in `queue.store.ts`
-- `queue.store.ts` should stay focused on derived queue state, not setter wrappers
+- queue mutations should be imported from `queue.service.ts`, while queue-derived view state should stay close to the UI that uses it
 - player artwork color extraction and caching should live in `player-colors.service.ts`, while `player-colors.store.ts` stays state-only
 - player session persistence should live in `player-session.repository.ts`
 - TrackPlayer mapping and repeat-mode adapter helpers should live outside `player.service.ts`
@@ -160,6 +159,7 @@ Rules:
 - playback-driven history cache updates should live under `src/modules/history`, not `src/modules/player`
 - indexer runtime controls should live in `indexer.service.ts`, while `indexer.store.ts` stays focused on indexer state
 - post-scan media reload and query invalidation should live outside `indexer.service.ts`
+- one-off indexer query invalidation helpers should live with `indexer-refresh.service.ts`, not in a separate compatibility file
 - indexer run coordination state should live outside `indexer.service.ts`
 - indexer progress mapping and terminal state transitions should live outside `indexer.service.ts`
 - logging config state should live in `logging.store.ts`, while runtime logging, file persistence, and crash sharing should live in `logging.service.ts`

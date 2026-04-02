@@ -99,6 +99,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - abort token, queued-run, and completion-timeout coordination now live in `indexer-runtime.ts`
   - progress mapping and terminal state transitions now live in `indexer-progress.service.ts`
   - dead compatibility-style `indexer.utils.ts` has been removed
+  - one-off query invalidation helpers now live directly with `indexer-refresh.service.ts`
 
 ### `library`
 
@@ -128,12 +129,11 @@ A module is considered `aligned` only if it mostly satisfies these:
 - status: `rewrite`
 - notes:
   - much better than before, but still the heaviest module
-  - state is split across `player.store.ts`, `queue.store.ts`, and `player-colors.store.ts`
+  - state is still split across `player.store.ts` and `player-colors.store.ts`, with some queue-derived view logic still living beside the player surface
   - runtime orchestration is improved, but the module still owns too many responsibilities
   - one compatibility file was removed in this audit pass: `src/modules/player/player.queries.ts`
   - playback commands are no longer re-exported through `player.store.ts`
   - queue runtime commands are now separated into `queue.service.ts` instead of living beside derived queue state
-  - `queue.store.ts` now stays focused on derived queue state only
   - artwork color extraction and cache logic are now separated into `player-colors.service.ts`
   - player session persistence now lives in `player-session.repository.ts`
   - TrackPlayer mapping and repeat-mode adapter helpers now live in `player-adapter.ts`
@@ -146,6 +146,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - local favorite-toggle helper now lives in `player-favorites.service.ts`
   - playback-driven history cache invalidation no longer lives in the player module
   - queue runtime now reuses the shared TrackPlayer mapping adapter instead of duplicating it locally
+  - dead `queue.store.ts` wrapper has been removed, and queue-derived data now lives with the queue view that uses it
 
 ### `playlist`
 
