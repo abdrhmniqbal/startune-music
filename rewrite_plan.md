@@ -158,6 +158,7 @@ Rules:
 - indexer runtime controls should live in `indexer.service.ts`, while `indexer.store.ts` stays focused on indexer state
 - post-scan media reload and query invalidation should live outside `indexer.service.ts`
 - indexer run coordination state should live outside `indexer.service.ts`
+- indexer progress mapping and terminal state transitions should live outside `indexer.service.ts`
 - logging config state should live in `logging.store.ts`, while runtime logging, file persistence, and crash sharing should live in `logging.service.ts`
 - settings route metadata and reusable settings UI patterns should live under `src/modules/settings` and shared components, instead of being duplicated across screens
 - local settings config should be preloaded during bootstrap so settings screens do not each need mount-time config effects

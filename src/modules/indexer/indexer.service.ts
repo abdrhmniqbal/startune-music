@@ -9,9 +9,18 @@ import {
   startIndexerRunRuntime,
   stopIndexerRunRuntime,
 } from "@/modules/indexer/indexer-runtime"
+import {
+  beginIndexerProgress,
+  completeIndexerProgress,
+  failIndexerProgress,
+  getIndexerProgressSnapshot,
+  hideIndexerProgress,
+  resetIndexerProgress,
+  updateIndexerProgress,
+} from "@/modules/indexer/indexer-progress.service"
 import { logError, logInfo, logWarn } from "@/modules/logging/logging.service"
 
-import { getDefaultIndexerState, getIndexerState, updateIndexerState } from "./indexer.store"
+import { getIndexerState } from "./indexer.store"
 
 export async function startIndexing(
   forceFullScan = false,
@@ -29,12 +38,7 @@ export async function startIndexing(
 
   const { controller, runToken: currentRunToken } = startIndexerRunRuntime()
 
-  updateIndexerState({
-    ...getDefaultIndexerState(),
-    isIndexing: true,
-    phase: "scanning",
-    showProgress,
-  })
+  beginIndexerProgress(showProgress)
   logInfo("Indexer started", { forceFullScan, showProgress })
 
   try {
@@ -44,14 +48,7 @@ export async function startIndexing(
           return
         }
 
-        updateIndexerState({
-          phase: progress.phase === "scanning" ? "scanning" : "processing",
-          currentFile: progress.currentFile,
-          processedFiles: progress.current,
-          totalFiles: progress.total,
-          progress:
-            progress.total > 0 ? (progress.current / progress.total) * 100 : 0,
-        })
+        updateIndexerProgress(progress)
       },
       forceFullScan,
       controller.signal
@@ -63,19 +60,16 @@ export async function startIndexing(
 
     await refreshIndexedMediaState()
 
-    updateIndexerState({
-      phase: "complete",
-      progress: 100,
-      isIndexing: false,
-    })
+    completeIndexerProgress()
+    const progressSnapshot = getIndexerProgressSnapshot()
     logInfo("Indexer completed successfully", {
       forceFullScan,
-      processedFiles: getIndexerState().processedFiles,
-      totalFiles: getIndexerState().totalFiles,
+      processedFiles: progressSnapshot.processedFiles,
+      totalFiles: progressSnapshot.totalFiles,
     })
 
     scheduleIndexerCompletePhaseReset(currentRunToken, () => {
-      updateIndexerState({ phase: "idle", showProgress: false })
+      hideIndexerProgress()
     })
   } catch (error) {
     if (isIndexerRunStale(controller, currentRunToken)) {
@@ -83,11 +77,7 @@ export async function startIndexing(
     }
 
     logError("Indexer run failed", error, { forceFullScan, showProgress })
-    updateIndexerState({
-      isIndexing: false,
-      phase: "idle",
-      showProgress: false,
-    })
+    failIndexerProgress()
   } finally {
     finishIndexerRunRuntime(controller)
 
@@ -111,10 +101,7 @@ export async function forceReindexLibrary(showProgress = true) {
 export function stopIndexing() {
   logWarn("Indexer stopped")
   stopIndexerRunRuntime()
-
-  updateIndexerState({
-    ...getDefaultIndexerState(),
-  })
+  resetIndexerProgress()
 }
 
 export function pauseIndexing() {
