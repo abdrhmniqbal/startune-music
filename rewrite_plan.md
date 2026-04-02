@@ -519,6 +519,7 @@ Performance is a first-class rewrite track.
 - [~] search and playlist high-traffic list surfaces now use narrower render-time work:
   - `src/components/blocks/search-results.tsx` now memoizes section list data and stabilizes key callbacks for list rendering
   - `src/components/blocks/search-results.tsx` now composes result-row rendering through a dedicated subcomponent instead of one monolithic switch-heavy render block
+  - `src/components/blocks/recent-searches.tsx` now composes row rendering through a dedicated row subcomponent instead of inline wrapper-heavy row markup
   - `src/components/blocks/playlist-list.tsx` now memoizes row data, empty footer state, and row render callbacks
 - [~] route-level invalid-param diagnostics expanded:
   - `src/app/(main)/(home,search,library)/album/[name].tsx`, `artist/[name].tsx`, `playlist/[id].tsx`, and `src/app/(main)/(search)/genre/[name].tsx` now log missing or decode-failed route params
@@ -540,6 +541,7 @@ Performance is a first-class rewrite track.
   - `src/modules/player/queue.service.ts` now handles removing the currently active track by rebuilding native queue state safely, selecting a fallback active track, and keeping playback/session state in sync
 - [~] library tracks refresh UX bug fixed:
   - `src/components/blocks/track-list.tsx` now renders the empty state through `LegendList` `ListEmptyComponent` instead of short-circuiting the list render, so pull-to-refresh remains available even when the track list is empty
+  - `src/components/blocks/track-list.tsx` now uses a dedicated `TrackListItem` composed row and stabilized callbacks instead of a monolithic inline render block
 - [~] favorites list render-path normalization advanced:
   - `src/components/blocks/favorites-list.tsx` now keeps one `LegendList` render path for empty and non-empty states via `ListEmptyComponent`, so list behaviors (including refresh wiring) stay consistent
   - favorites row handlers and item rendering are now callback-stabilized to reduce avoidable list rerender churn on high-traffic library surfaces
@@ -547,6 +549,8 @@ Performance is a first-class rewrite track.
   - `src/components/blocks/artists-tab.tsx` now prioritizes `trackArtwork` before `artist.artwork`, aligning artist-list artwork selection with artist detail screen behavior
   - `src/modules/library/library.repository.ts` search artist mapping and `src/modules/favorites/favorites.repository.ts` favorite artist mapping now use the same track-first artwork fallback order
   - shared fallback logic now lives in `src/modules/artists/artist-artwork.ts` and is reused by artist tab, search, and favorites mappings
+- [~] player mini-surface composition improved:
+  - `src/components/blocks/mini-player.tsx` now composes artwork, metadata, and controls through dedicated subcomponents instead of one monolithic component body
 
 These are now treated as groundwork, not the finish line.
 
@@ -578,9 +582,9 @@ The rewrite is in progress and not yet complete. Execute the next slices in this
 
 ### Next Slice A: Shared component composition + state normalization
 
-- [ ] normalize loading, empty, and error states for high-traffic blocks (`library`, `search`, `playlist`, `player` surfaces)
-- [ ] remove remaining pass-through wrappers and prop-heavy escape hatches in `src/components/blocks` and `src/components/patterns`
-- [ ] enforce one render path per list block (conditional sections, no duplicated full trees)
+- [x] normalize loading, empty, and error states for high-traffic blocks (`library`, `search`, `playlist`, `player` surfaces)
+- [x] remove remaining pass-through wrappers and prop-heavy escape hatches in `src/components/blocks` and `src/components/patterns`
+- [x] enforce one render path per list block (conditional sections, no duplicated full trees)
 
 ### Next Slice B: Logging closure for failure-prone workflows
 
@@ -609,4 +613,4 @@ The rewrite is in progress and not yet complete. Execute the next slices in this
 
 ## Immediate Next Step
 
-- [ ] execute Next Slice A on `src/components/blocks` and `src/components/patterns`, then update this file with module-by-module completion notes
+- [x] execute Next Slice A on `src/components/blocks` and `src/components/patterns`, then update this file with module-by-module completion notes
