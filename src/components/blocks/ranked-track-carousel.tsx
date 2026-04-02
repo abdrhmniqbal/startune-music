@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import * as React from "react"
 import { View } from "react-native"
 
 import { TrackRow } from "@/components/patterns/track-row"
@@ -30,8 +31,11 @@ export function RankedTrackCarousel({
   onItemPress,
   className,
 }: RankedTrackCarouselProps) {
-  const currentTrack = usePlayerStore((state) => state.currentTrack)
-  const chunks = chunkArray(data, chunkSize)
+  const currentTrackId = usePlayerStore((state) => state.currentTrack?.id)
+  const chunks = React.useMemo(
+    () => chunkArray(data, chunkSize),
+    [data, chunkSize]
+  )
 
   const handlePress = (track: Track) => {
     if (onItemPress) {
@@ -58,10 +62,10 @@ export function RankedTrackCarousel({
               rank={chunkIndex * chunkSize + index + 1}
               onPress={() => handlePress(track)}
               titleClassName={
-                currentTrack?.id === track.id ? "text-accent" : undefined
+                currentTrackId === track.id ? "text-accent" : undefined
               }
               imageOverlay={
-                currentTrack?.id === track.id ? (
+                currentTrackId === track.id ? (
                   <ScaleLoader size={16} />
                 ) : undefined
               }

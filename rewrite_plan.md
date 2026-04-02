@@ -169,6 +169,7 @@ Rules:
 - small screen-specific sort-field mapping can stay local when that is clearer than adding another shared helper file
 - library tab query field mapping should stay explicit and typed instead of relying on `as any`
 - player-facing UI should avoid subscribing to playback progress unless the current mode actually needs it
+- player-facing list rows should prefer subscribing to `currentTrack?.id` instead of the full track object when they only need active-state styling
 - local settings config should be preloaded during bootstrap so settings screens do not each need mount-time config effects
 - provider startup flows should notify readiness and failure from the actual async path, not from extra watcher effects
 - bootstrap listener registration should live in the root provider layer without single-use wrapper components
@@ -216,6 +217,7 @@ Target component rules:
 - do not keep giant files just because they are already working
 - prefer one render path with small conditional sections over duplicating the same large list/tree structure for empty and non-empty states
 - extract a tiny shared hook when the same UI-side behavior is duplicated across several components and the hook is simpler than the duplication
+- prefer small local helper functions when they remove repetitive section-building logic inside one shared block
 
 ### Navigation and Screen Flow
 

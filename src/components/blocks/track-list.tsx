@@ -78,7 +78,7 @@ export const TrackList: React.FC<TrackListProps> = ({
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const listRef = useRef<LegendListRef | null>(null)
   const isCompactNumberedList = hideCover && showNumbers
-  const currentTrack = usePlayerStore((state) => state.currentTrack)
+  const currentTrackId = usePlayerStore((state) => state.currentTrack?.id)
 
   useResetScrollOnKey(listRef, resetScrollKey)
 
@@ -112,11 +112,9 @@ export const TrackList: React.FC<TrackListProps> = ({
         }
         showCover={!hideCover}
         showArtist={!hideArtist}
-        titleClassName={
-          currentTrack?.id === item.id ? "text-accent" : undefined
-        }
+        titleClassName={currentTrackId === item.id ? "text-accent" : undefined}
         imageOverlay={
-          currentTrack?.id === item.id ? <ScaleLoader size={16} /> : undefined
+          currentTrackId === item.id ? <ScaleLoader size={16} /> : undefined
         }
         rightAction={
           <PressableFeedback

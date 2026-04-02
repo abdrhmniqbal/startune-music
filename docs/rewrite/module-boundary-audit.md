@@ -112,6 +112,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 - library screen sort-field resolution is now easier to read without nested ternaries
 - library tab query field mapping is now explicit and typed instead of relying on `as any`
 - tracks tab now memoizes track transformation and sorting before handing data to `TrackList`
+- search results section construction now uses a small local helper instead of repeating nearly identical list-building branches
 - folder browser is reasonable, but library state is still spread across screen + sort store
 
 ### `logging`
@@ -232,6 +233,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 
 - shared blocks should prefer one render path with small conditional branches over duplicated full list trees
 - small shared hooks are acceptable when they remove repeated list behavior across multiple components without hiding ownership
+- small local helper functions are acceptable when they remove repetitive list-section construction inside one shared block
 
 ## Next Priority After This Audit
 

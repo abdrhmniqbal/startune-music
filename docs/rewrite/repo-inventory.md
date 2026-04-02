@@ -185,7 +185,7 @@ These were normalized in the rewrite:
   - pure helper logic moved to `src/modules/playlist/playlist-form.ts`
 - `src/modules/bootstrap/hooks/use-app-bootstrap.ts`
   - replaced by `src/modules/bootstrap/bootstrap.runtime.ts`
-  - native lifecycle listeners now live in `src/components/providers/bootstrap-effects.tsx`
+  - native lifecycle listeners now register from `src/components/providers/root-providers.tsx`
 
 ## Recommended Execution Order
 
@@ -221,6 +221,8 @@ Progress:
 - `src/app/(main)/(library)/index.tsx` now resolves album and artist sort fields with small local helpers instead of nested ternaries
 - `src/components/blocks/albums-tab.tsx` and `src/components/blocks/artists-tab.tsx` now map query sort fields with explicit typed helpers instead of `as any`
 - `src/components/blocks/tracks-tab.tsx` now memoizes track transformation and sorting instead of recalculating both on every render
+- `src/components/blocks/search-results.tsx` now uses one local section helper instead of repeating the same section-building logic for each result type
+- player-facing list rows now subscribe to `currentTrack?.id` when they only need active-state styling
 - queue runtime commands now live in `src/modules/player/queue.service.ts`
 - player artwork color extraction and cache logic now live in `src/modules/player/player-colors.service.ts`, while `src/modules/player/player-colors.store.ts` stays focused on color state
 - player session persistence now lives in `src/modules/player/player-session.repository.ts`
