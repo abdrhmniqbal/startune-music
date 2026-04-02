@@ -588,9 +588,9 @@ The rewrite is in progress and not yet complete. Execute the next slices in this
 
 ### Next Slice B: Logging closure for failure-prone workflows
 
-- [ ] complete start/success/failure logs for bootstrap, DB startup, media permission/listeners, player transport, and indexer lifecycle
-- [ ] add route-level invalid-param and dead-end logging where navigation can trap the user
-- [ ] verify logging level gating (`minimal` vs `extra`) in hot paths
+- [x] complete start/success/failure logs for bootstrap, DB startup, media permission/listeners, player transport, and indexer lifecycle
+- [x] add route-level invalid-param and dead-end logging where navigation can trap the user
+- [x] verify logging level gating (`minimal` vs `extra`) in hot paths
 
 ### Next Slice C: Performance closure on hot screens
 
@@ -613,4 +613,5 @@ The rewrite is in progress and not yet complete. Execute the next slices in this
 
 ## Immediate Next Step
 
-- [x] execute Next Slice A on `src/components/blocks` and `src/components/patterns`, then update this file with module-by-module completion notes
+- [x] execute Next Slice B on bootstrap/player/indexer logging and route diagnostics, then update this file with completion notes
+- [ ] execute Next Slice C on hot-screen subscriptions and list rerender reduction with scoped commits
