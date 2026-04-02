@@ -2,6 +2,7 @@ import { getMediaLibraryPermission } from "@/core/storage/media-library.service"
 import { bootstrapApp } from "@/modules/bootstrap/bootstrap.utils"
 import { ensureAutoScanConfigLoaded } from "@/modules/settings/auto-scan"
 import { startIndexing } from "@/modules/indexer/indexer.service"
+import { isIndexerRunActive } from "@/modules/indexer/indexer-runtime"
 import {
   initializeLogging,
   logError,
@@ -84,6 +85,11 @@ export function handleBootstrapDatabaseError() {
 
 export async function runAutoScan(options?: { bypassThrottle?: boolean }) {
   if (databaseStatus !== "ready" || !isBootstrapped) {
+    return
+  }
+
+  if (isIndexerRunActive()) {
+    logInfo("Auto scan skipped because indexer is already active")
     return
   }
 
