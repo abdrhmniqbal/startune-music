@@ -155,6 +155,7 @@ Rules:
 - TrackPlayer event wiring should live outside `player.service.ts`
 - playback transport controls should live outside `player.service.ts`
 - player library loading and favorite-toggle helpers should live outside `player.service.ts`
+- playback-driven history cache updates should live under `src/modules/history`, not `src/modules/player`
 - indexer runtime controls should live in `indexer.service.ts`, while `indexer.store.ts` stays focused on indexer state
 - post-scan media reload and query invalidation should live outside `indexer.service.ts`
 - indexer run coordination state should live outside `indexer.service.ts`

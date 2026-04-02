@@ -256,6 +256,7 @@ Progress:
 - playback transport controls now live in `src/modules/player/player-controls.service.ts`
 - player library loading now lives in `src/modules/player/player-library.service.ts`
 - local favorite-toggle helper now lives in `src/modules/player/player-favorites.service.ts`
+- playback-driven history cache updates now live in `src/modules/history/history-cache.service.ts`
 - post-scan media reload and query invalidation now live in `src/modules/indexer/indexer-refresh.service.ts`
 - indexer run coordination state now lives in `src/modules/indexer/indexer-runtime.ts`
 - indexer progress mapping and terminal state transitions now live in `src/modules/indexer/indexer-progress.service.ts`

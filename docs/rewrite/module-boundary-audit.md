@@ -84,6 +84,7 @@ A module is considered `aligned` only if it mostly satisfies these:
 - status: `aligned`
 - notes:
   - history ownership now sits in its own module instead of player compatibility layers
+  - playback-driven history cache updates now live in `history-cache.service.ts` instead of the player module
 
 ### `indexer`
 
@@ -141,6 +142,7 @@ A module is considered `aligned` only if it mostly satisfies these:
   - playback transport controls now live in `player-controls.service.ts`
   - player library loading now lives in `player-library.service.ts`
   - local favorite-toggle helper now lives in `player-favorites.service.ts`
+  - playback-driven history cache invalidation no longer lives in the player module
 
 ### `playlist`
 

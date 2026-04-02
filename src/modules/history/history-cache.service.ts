@@ -1,12 +1,13 @@
 import type { QueryClient } from "@tanstack/react-query"
 
+import type { Track } from "@/modules/player/player.types"
+import { TRACKS_KEY } from "@/modules/tracks/tracks.keys"
+
 import {
   HISTORY_KEY,
   HISTORY_RECENTLY_PLAYED_KEY,
   HISTORY_TOP_TRACKS_KEY,
-} from "@/modules/history/history.keys"
-import type { Track } from "@/modules/player/player.types"
-import { TRACKS_KEY } from "@/modules/tracks/tracks.keys"
+} from "./history.keys"
 
 const RECENTLY_PLAYED_SCREEN_LIMIT = 50
 const HOME_RECENTLY_PLAYED_LIMIT = 8
@@ -23,7 +24,7 @@ function prependUniqueTrack(
   )
 }
 
-export function optimisticallyUpdateRecentlyPlayedQueries(
+export function optimisticallyUpdateRecentlyPlayedHistory(
   queryClient: QueryClient,
   track: Track
 ) {
@@ -39,7 +40,9 @@ export function optimisticallyUpdateRecentlyPlayedQueries(
   )
 }
 
-export async function invalidatePlayerQueries(queryClient: QueryClient) {
+export async function invalidateHistoryAfterPlayback(
+  queryClient: QueryClient
+) {
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: [HISTORY_KEY] }),
     queryClient.invalidateQueries({ queryKey: [HISTORY_RECENTLY_PLAYED_KEY] }),
