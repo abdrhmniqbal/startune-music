@@ -23,6 +23,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: refs/tags/${{ inputs.release_tag }}
+
+      - name: Ensure tags are available
+        run: git fetch --force --tags origin
 
       - name: Generate release body (categorized)
         env:
@@ -143,6 +147,26 @@ jobs:
           } > "${NOTES_PATH}"
 
           echo "RELEASE_BODY_PATH=${NOTES_PATH}" >> "$GITHUB_ENV"
+
+      - name: Wait for draft release to exist
+        env:
+          GH_TOKEN: ${{ secrets.token }}
+        run: |
+          set -euo pipefail
+          RELEASE_TAG="${{ inputs.release_tag }}"
+
+          for attempt in $(seq 1 12); do
+            if gh release view "${RELEASE_TAG}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+              echo "Release draft found for ${RELEASE_TAG}"
+              exit 0
+            fi
+
+            echo "Waiting for draft release ${RELEASE_TAG} to be available (${attempt}/12)"
+            sleep 5
+          done
+
+          echo "Timed out waiting for draft release ${RELEASE_TAG}"
+          exit 1
 
       - name: Update release draft body
         uses: softprops/action-gh-release@v2
