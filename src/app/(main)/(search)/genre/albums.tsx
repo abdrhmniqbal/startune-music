@@ -1,5 +1,5 @@
 import { Stack, useLocalSearchParams, useRouter } from "expo-router"
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { RefreshControl, Text, View } from "react-native"
 import Animated from "react-native-reanimated"
 
@@ -24,12 +24,30 @@ import {
 import { useGenreAlbums } from "@/modules/search/search.queries"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
+import { logWarn } from "@/modules/logging/logging.service"
 import { ALBUM_SORT_OPTIONS } from "@/modules/library/library-sort.constants"
 import type {
   AlbumSortField,
   SortOrder,
 } from "@/modules/library/library-sort.types"
 import { sortAlbums } from "@/modules/library/library-sort.utils"
+
+function getSafeRouteName(value: string | string[] | undefined) {
+  const raw = Array.isArray(value) ? (value[0] ?? "") : (value ?? "")
+  try {
+    return {
+      value: decodeURIComponent(raw),
+      raw,
+      decodeFailed: false,
+    }
+  } catch {
+    return {
+      value: raw,
+      raw,
+      decodeFailed: true,
+    }
+  }
+}
 
 export default function GenreAlbumsScreen() {
   const { name } = useLocalSearchParams<{ name: string }>()
@@ -45,8 +63,26 @@ export default function GenreAlbumsScreen() {
     order: "desc",
   })
 
-  const genreName = decodeURIComponent(name || "")
+  const parsedGenreRouteName = useMemo(() => getSafeRouteName(name), [name])
+  const genreName = parsedGenreRouteName.value
   const normalizedGenreName = genreName.trim()
+
+  useEffect(() => {
+    if (!normalizedGenreName) {
+      logWarn("Genre albums route missing name param", {
+        route: "/genre/albums",
+      })
+      return
+    }
+
+    if (parsedGenreRouteName.decodeFailed) {
+      logWarn("Genre albums route name decode failed", {
+        route: "/genre/albums",
+        rawName: parsedGenreRouteName.raw,
+      })
+    }
+  }, [normalizedGenreName, parsedGenreRouteName.decodeFailed, parsedGenreRouteName.raw])
+
   const { data, isLoading, isFetching, refetch } =
     useGenreAlbums(normalizedGenreName)
   const albumData = mapAlbumsToGridData(data ?? [])

@@ -1,4 +1,5 @@
 import { Stack, useLocalSearchParams } from "expo-router"
+import { useEffect, useMemo } from "react"
 import { RefreshControl, View } from "react-native"
 import Animated from "react-native-reanimated"
 
@@ -19,16 +20,52 @@ import {
 import { useThemeColors } from "@/modules/ui/theme"
 import { startIndexing } from "@/modules/indexer/indexer.service"
 import { useIndexerStore } from "@/modules/indexer/indexer.store"
+import { logWarn } from "@/modules/logging/logging.service"
 import { playTrack } from "@/modules/player/player.service"
 import { useGenreTopTracks } from "@/modules/search/search.queries"
+
+function getSafeRouteName(value: string | string[] | undefined) {
+  const raw = Array.isArray(value) ? (value[0] ?? "") : (value ?? "")
+  try {
+    return {
+      value: decodeURIComponent(raw),
+      raw,
+      decodeFailed: false,
+    }
+  } catch {
+    return {
+      value: raw,
+      raw,
+      decodeFailed: true,
+    }
+  }
+}
 
 export default function GenreTopTracksScreen() {
   const { name } = useLocalSearchParams<{ name: string }>()
   const isIndexing = useIndexerStore((state) => state.indexerState.isIndexing)
   const theme = useThemeColors()
 
-  const genreName = decodeURIComponent(name || "")
+  const parsedGenreRouteName = useMemo(() => getSafeRouteName(name), [name])
+  const genreName = parsedGenreRouteName.value
   const normalizedGenreName = genreName.trim()
+
+  useEffect(() => {
+    if (!normalizedGenreName) {
+      logWarn("Genre top-tracks route missing name param", {
+        route: "/genre/top-tracks",
+      })
+      return
+    }
+
+    if (parsedGenreRouteName.decodeFailed) {
+      logWarn("Genre top-tracks route name decode failed", {
+        route: "/genre/top-tracks",
+        rawName: parsedGenreRouteName.raw,
+      })
+    }
+  }, [normalizedGenreName, parsedGenreRouteName.decodeFailed, parsedGenreRouteName.raw])
+
   const { data, isLoading, isFetching, refetch } =
     useGenreTopTracks(normalizedGenreName)
   const tracks = data ?? []
