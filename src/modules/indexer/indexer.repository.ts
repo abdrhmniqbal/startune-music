@@ -4,7 +4,14 @@ import { and, eq, inArray, sql } from "drizzle-orm"
 import { File } from "expo-file-system"
 import * as MediaLibrary from "expo-media-library"
 import { db } from "@/db/client"
-import { albums, artists, genres, trackGenres, tracks } from "@/db/schema"
+import {
+  albums,
+  artists,
+  genres,
+  indexerState,
+  trackGenres,
+  tracks,
+} from "@/db/schema"
 import {
   GENRE_COLORS,
   GENRE_SHAPES,
@@ -60,6 +67,38 @@ interface IndexingLookupCache {
   albumIdsByArtistAndTitle: Map<string, string>
   genreIdsByName: Map<string, string>
 }
+
+interface BatchProcessingResult {
+  preparedCount: number
+  committedCount: number
+  failedCount: number
+}
+
+interface PreparedBatchResult {
+  preparedAssets: PreparedAssetForIndex[]
+  failedCount: number
+}
+
+interface IndexerRunSnapshot {
+  startedAt: number
+  finishedAt: number
+  durationMs: number
+  forceFullScan: boolean
+  discoveredAssets: number
+  scopedAssets: number
+  skippedByUri: number
+  skippedByExtension: number
+  skippedByFolderFilters: number
+  skippedByDurationFilters: number
+  deletedTracks: number
+  changedAssets: number
+  unchangedAssets: number
+  preparedAssets: number
+  committedAssets: number
+  failedAssets: number
+}
+
+const INDEXER_LAST_RUN_SNAPSHOT_KEY = "indexer:last-run-snapshot"
 
 function yieldToEventLoop() {
   return new Promise<void>((resolve) => {
@@ -143,11 +182,42 @@ function isTransientCommitError(error: unknown): boolean {
   )
 }
 
+async function saveIndexerRunSnapshot(
+  snapshot: IndexerRunSnapshot
+): Promise<void> {
+  const now = Date.now()
+
+  await db
+    .insert(indexerState)
+    .values({
+      key: INDEXER_LAST_RUN_SNAPSHOT_KEY,
+      value: JSON.stringify(snapshot),
+      updatedAt: now,
+    })
+    .onConflictDoUpdate({
+      target: indexerState.key,
+      set: {
+        value: JSON.stringify(snapshot),
+        updatedAt: now,
+      },
+    })
+}
+
 export async function scanMediaLibrary(
   onProgress?: (progress: IndexerScanProgress) => void,
   forceFullScan = false,
   signal?: AbortSignal
 ): Promise<void> {
+  const startedAt = Date.now()
+  let discoveredAssets = 0
+  let skippedByUri = 0
+  let skippedByExtension = 0
+  let skippedByFolderFilters = 0
+  let skippedByDurationFilters = 0
+  let preparedAssetsCount = 0
+  let committedAssetsCount = 0
+  let failedAssetsCount = 0
+
   if (signal?.aborted) return
 
   // Get all audio assets
@@ -177,13 +247,32 @@ export async function scanMediaLibrary(
 
   const folderFilterConfig = await ensureFolderFilterConfigLoaded()
   const durationFilterConfig = await ensureTrackDurationFilterConfigLoaded()
-  const scopedAssets = assets.filter(
-    (asset) =>
-      isAllowedAssetUri(asset.uri) &&
-      isSupportedAssetByExtension(asset) &&
-      isAssetAllowedByFolderFilters(asset.uri, folderFilterConfig) &&
-      isAssetAllowedByTrackDuration(asset.duration, durationFilterConfig)
-  )
+  discoveredAssets = assets.length
+  const scopedAssets: MediaLibrary.Asset[] = []
+
+  for (const asset of assets) {
+    if (!isAllowedAssetUri(asset.uri)) {
+      skippedByUri += 1
+      continue
+    }
+
+    if (!isSupportedAssetByExtension(asset)) {
+      skippedByExtension += 1
+      continue
+    }
+
+    if (!isAssetAllowedByFolderFilters(asset.uri, folderFilterConfig)) {
+      skippedByFolderFilters += 1
+      continue
+    }
+
+    if (!isAssetAllowedByTrackDuration(asset.duration, durationFilterConfig)) {
+      skippedByDurationFilters += 1
+      continue
+    }
+
+    scopedAssets.push(asset)
+  }
 
   onProgress?.({
     phase: "scanning",
@@ -232,6 +321,9 @@ export async function scanMediaLibrary(
         currentAssetHashMap.set(asset.id, currentHash)
         return !existingHash || existingHash !== currentHash
       })
+  const unchangedAssets = forceFullScan
+    ? 0
+    : Math.max(0, scopedAssets.length - assetsToProcess.length)
 
   // Process in batches
   for (let i = 0; i < assetsToProcess.length; i += BATCH_SIZE) {
@@ -241,7 +333,7 @@ export async function scanMediaLibrary(
 
     const batch = assetsToProcess.slice(i, i + BATCH_SIZE)
 
-    await processBatch(
+    const batchResult = await processBatch(
       batch,
       (asset) => {
         onProgress?.({
@@ -255,6 +347,10 @@ export async function scanMediaLibrary(
       currentAssetHashMap,
       lookupCache
     )
+
+    preparedAssetsCount += batchResult.preparedCount
+    committedAssetsCount += batchResult.committedCount
+    failedAssetsCount += batchResult.failedCount
 
     await yieldToEventLoop()
   }
@@ -277,6 +373,25 @@ export async function scanMediaLibrary(
 
   if (signal?.aborted) return
   await db.delete(tracks).where(eq(tracks.isDeleted, 1))
+
+  await saveIndexerRunSnapshot({
+    startedAt,
+    finishedAt: Date.now(),
+    durationMs: Date.now() - startedAt,
+    forceFullScan,
+    discoveredAssets,
+    scopedAssets: scopedAssets.length,
+    skippedByUri,
+    skippedByExtension,
+    skippedByFolderFilters,
+    skippedByDurationFilters,
+    deletedTracks: deletedTrackIds.length,
+    changedAssets: assetsToProcess.length,
+    unchangedAssets,
+    preparedAssets: preparedAssetsCount,
+    committedAssets: committedAssetsCount,
+    failedAssets: failedAssetsCount,
+  })
 }
 
 async function processBatch(
@@ -285,22 +400,33 @@ async function processBatch(
   signal?: AbortSignal,
   precomputedHashMap?: Map<string, string>,
   lookupCache?: IndexingLookupCache
-): Promise<void> {
-  const preparedAssets = await prepareBatchAssets(
+): Promise<BatchProcessingResult> {
+  const preparedBatchResult = await prepareBatchAssets(
     assets,
     onFileStart,
     signal,
     precomputedHashMap
   )
+  const preparedAssets = preparedBatchResult.preparedAssets
+  let committedCount = 0
+  let failedCount = preparedBatchResult.failedCount
 
   for (let index = 0; index < preparedAssets.length; index += COMMIT_SCOPE_SIZE) {
     if (signal?.aborted) {
-      return
+      return {
+        preparedCount: preparedAssets.length,
+        committedCount,
+        failedCount,
+      }
     }
 
     await waitForIndexerResume(signal)
     if (signal?.aborted) {
-      return
+      return {
+        preparedCount: preparedAssets.length,
+        committedCount,
+        failedCount,
+      }
     }
 
     const scope = preparedAssets.slice(index, index + COMMIT_SCOPE_SIZE)
@@ -315,6 +441,7 @@ async function processBatch(
           await upsertPreparedAsset(prepared, signal, lookupCache)
         }
       })
+      committedCount += scope.length
     } catch (error) {
       logError("Failed to commit indexing scope; retrying asset-by-asset", error, {
         scopeSize: scope.length,
@@ -322,12 +449,18 @@ async function processBatch(
 
       for (const prepared of scope) {
         if (signal?.aborted) {
-          return
+          return {
+            preparedCount: preparedAssets.length,
+            committedCount,
+            failedCount,
+          }
         }
 
         try {
           await upsertPreparedAsset(prepared, signal, lookupCache)
+          committedCount += 1
         } catch (assetError) {
+          failedCount += 1
           logError("Failed to index prepared asset", assetError, {
             assetId: prepared.asset.id,
             filename: prepared.asset.filename,
@@ -338,6 +471,12 @@ async function processBatch(
 
     await yieldToEventLoop()
   }
+
+  return {
+    preparedCount: preparedAssets.length,
+    committedCount,
+    failedCount,
+  }
 }
 
 async function prepareBatchAssets(
@@ -345,8 +484,9 @@ async function prepareBatchAssets(
   onFileStart?: (asset: MediaLibrary.Asset) => void,
   signal?: AbortSignal,
   precomputedHashMap?: Map<string, string>
-): Promise<PreparedAssetForIndex[]> {
+): Promise<PreparedBatchResult> {
   const preparedAssets: PreparedAssetForIndex[] = []
+  let failedCount = 0
   let nextAssetIndex = 0
   const workerCount = Math.min(BATCH_CONCURRENCY, assets.length)
 
@@ -377,6 +517,7 @@ async function prepareBatchAssets(
             preparedAssets.push(prepared)
           }
         } catch (error) {
+          failedCount += 1
           logError("Failed to index asset", error, {
             assetId: asset.id,
             filename: asset.filename,
@@ -386,7 +527,10 @@ async function prepareBatchAssets(
     })
   )
 
-  return preparedAssets
+  return {
+    preparedAssets,
+    failedCount,
+  }
 }
 
 async function prepareAssetForIndexing(
