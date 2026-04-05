@@ -22,6 +22,7 @@ let permissionRequestedThisSession = false
 let activeNotificationId: string | null = null
 let lastNotificationSignature: string | null = null
 let currentIndexerRunStartedAt: number | null = null
+let latestNotificationRequestVersion = 0
 
 function isIndexerNotification(notification: Notifications.Notification) {
   const payload = notification.request.content.data as
@@ -183,9 +184,19 @@ async function ensureNotificationPermission() {
 async function replaceIndexerNotification(
   title: string,
   body: string,
-  options?: { paused?: boolean; interactive?: boolean }
+  options?: { paused?: boolean; interactive?: boolean; requestVersion?: number }
 ) {
+  const requestVersion = options?.requestVersion ?? ++latestNotificationRequestVersion
+
+  if (requestVersion < latestNotificationRequestVersion) {
+    return
+  }
+
   const notificationsEnabled = await ensureIndexerNotificationsConfigLoaded()
+  if (requestVersion < latestNotificationRequestVersion) {
+    return
+  }
+
   if (!notificationsEnabled) {
     await dismissPresentedIndexerNotifications()
     if (activeNotificationId) {
@@ -203,6 +214,10 @@ async function replaceIndexerNotification(
   }
 
   if (!(await ensureNotificationPermission())) {
+    return
+  }
+
+  if (requestVersion < latestNotificationRequestVersion) {
     return
   }
 
@@ -249,16 +264,18 @@ async function replaceIndexerNotification(
 
 export async function beginIndexerProgressNotification() {
   currentIndexerRunStartedAt = Date.now()
+  const requestVersion = ++latestNotificationRequestVersion
   await replaceIndexerNotification(
     "Indexing music library",
     `Preparing your library scan... • ${getElapsedLabel()}`,
-    { interactive: true }
+    { interactive: true, requestVersion }
   )
 }
 
 export async function updateIndexerProgressNotification(
   progress: IndexerScanProgress
 ) {
+  const requestVersion = ++latestNotificationRequestVersion
   const title =
     progress.phase === "scanning"
       ? "Scanning music files"
@@ -266,24 +283,27 @@ export async function updateIndexerProgressNotification(
 
   await replaceIndexerNotification(title, formatProgressBody(progress), {
     interactive: true,
+    requestVersion,
   })
 }
 
 export async function completeIndexerProgressNotification(
   totalFiles: number
 ) {
+  const requestVersion = ++latestNotificationRequestVersion
   await replaceIndexerNotification(
     "Library indexing complete",
     `${totalFiles} tracks updated • ${getElapsedLabel()}`,
-    { interactive: false }
+    { interactive: false, requestVersion }
   )
 }
 
 export async function failIndexerProgressNotification() {
+  const requestVersion = ++latestNotificationRequestVersion
   await replaceIndexerNotification(
     "Library indexing failed",
     "Tap to reopen the app and try again",
-    { interactive: false }
+    { interactive: false, requestVersion }
   )
 }
 
@@ -292,6 +312,7 @@ export async function pauseIndexerProgressNotification(progress: {
   total: number
   currentFile: string
 }) {
+  const requestVersion = ++latestNotificationRequestVersion
   const body =
     progress.total > 0
       ? `${progress.current}/${progress.total} • Paused`
@@ -300,12 +321,14 @@ export async function pauseIndexerProgressNotification(progress: {
   await replaceIndexerNotification("Library indexing paused", body, {
     paused: true,
     interactive: true,
+    requestVersion,
   })
 }
 
 export async function resumeIndexerProgressNotification(
   progress: IndexerScanProgress
 ) {
+  const requestVersion = ++latestNotificationRequestVersion
   await replaceIndexerNotification(
     progress.phase === "scanning"
       ? "Scanning music files"
@@ -314,11 +337,13 @@ export async function resumeIndexerProgressNotification(
     {
       paused: false,
       interactive: true,
+      requestVersion,
     }
   )
 }
 
 export async function dismissIndexerProgressNotification() {
+  latestNotificationRequestVersion += 1
   try {
     await Notifications.dismissNotificationAsync(INDEXER_NOTIFICATION_ID)
   } catch (error) {
