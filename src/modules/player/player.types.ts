@@ -16,6 +16,7 @@ export interface Track {
   duration: number
   uri: string
   image?: string
+  albumArtwork?: string
   audioBitrate?: number
   audioSampleRate?: number
   audioCodec?: string

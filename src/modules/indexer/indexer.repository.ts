@@ -1096,6 +1096,19 @@ async function updateAlbumCounts(): Promise<void> {
       SELECT COALESCE(SUM(duration), 0) FROM tracks 
       WHERE tracks.album_id = albums.id AND tracks.is_deleted = 0
     ),
+    artwork = COALESCE(
+      (
+        SELECT t.artwork
+        FROM tracks t
+        WHERE t.album_id = albums.id
+          AND t.is_deleted = 0
+          AND t.artwork IS NOT NULL
+        GROUP BY t.artwork
+        ORDER BY COUNT(*) DESC, COALESCE(MAX(t.date_added), 0) DESC
+        LIMIT 1
+      ),
+      albums.artwork
+    ),
     updated_at = ${Date.now()}
   `)
 }

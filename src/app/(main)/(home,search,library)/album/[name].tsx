@@ -112,7 +112,7 @@ export default function AlbumDetailsScreen() {
             albumTracks[0].albumArtist ||
             albumTracks[0].artist ||
             "Unknown Artist",
-          image: albumTracks[0].image,
+          image: albumTracks[0].albumArtwork || albumTracks[0].image,
           year: albumTracks[0].year,
         }
       : null
