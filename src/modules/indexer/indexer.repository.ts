@@ -1,4 +1,4 @@
-import type { IndexerScanProgress } from "./indexer.types"
+import type { IndexerRunSnapshot, IndexerScanProgress } from "./indexer.types"
 import { and, eq, inArray, sql } from "drizzle-orm"
 
 import { File } from "expo-file-system"
@@ -80,26 +80,8 @@ interface PreparedBatchResult {
   failedCount: number
 }
 
-interface IndexerRunSnapshot {
-  startedAt: number
-  finishedAt: number
-  durationMs: number
-  forceFullScan: boolean
-  discoveredAssets: number
-  scopedAssets: number
-  skippedByUri: number
-  skippedByExtension: number
-  skippedByFolderFilters: number
-  skippedByDurationFilters: number
-  deletedTracks: number
-  changedAssets: number
-  unchangedAssets: number
-  preparedAssets: number
-  committedAssets: number
-  failedAssets: number
-}
-
 const INDEXER_LAST_RUN_SNAPSHOT_KEY = "indexer:last-run-snapshot"
+let latestIndexerRunSnapshotCache: IndexerRunSnapshot | null | undefined
 
 function yieldToEventLoop() {
   return new Promise<void>((resolve) => {
@@ -297,6 +279,32 @@ async function saveIndexerRunSnapshot(
         updatedAt: now,
       },
     })
+
+  latestIndexerRunSnapshotCache = snapshot
+}
+
+export async function getLastIndexerRunSnapshot(): Promise<IndexerRunSnapshot | null> {
+  if (latestIndexerRunSnapshotCache !== undefined) {
+    return latestIndexerRunSnapshotCache
+  }
+
+  const row = await db.query.indexerState.findFirst({
+    where: eq(indexerState.key, INDEXER_LAST_RUN_SNAPSHOT_KEY),
+  })
+
+  if (!row) {
+    latestIndexerRunSnapshotCache = null
+    return null
+  }
+
+  try {
+    const parsed = JSON.parse(row.value) as IndexerRunSnapshot
+    latestIndexerRunSnapshotCache = parsed
+    return parsed
+  } catch {
+    latestIndexerRunSnapshotCache = null
+    return null
+  }
 }
 
 async function processDeletedTracksInScopes(
