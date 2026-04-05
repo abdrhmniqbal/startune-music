@@ -16,6 +16,9 @@ import {
   type RecentSearchItem,
 } from "@/components/blocks/recent-searches"
 import {
+  type SearchAlbumResult,
+  type SearchArtistResult,
+  type SearchPlaylistResult,
   SearchResults,
   type SearchTab,
 } from "@/components/blocks/search-results"
@@ -243,6 +246,8 @@ export default function SearchInteractionScreen() {
     title?: string
     subtitle?: string
     type?: RecentSearchItem["type"]
+    targetId?: string
+    image?: string
   }) {
     if (!item.query.trim()) {
       return
@@ -269,6 +274,33 @@ export default function SearchInteractionScreen() {
   }
 
   function handleRecentItemPress(item: RecentSearchItem) {
+    if (item.type === "artist" && item.query.trim()) {
+      pushRecentSearch(item)
+      router.push({
+        pathname: "artist/[name]",
+        params: { name: item.query },
+      })
+      return
+    }
+
+    if (item.type === "album" && item.query.trim()) {
+      pushRecentSearch(item)
+      router.push({
+        pathname: "album/[name]",
+        params: { name: item.query },
+      })
+      return
+    }
+
+    if (item.type === "playlist" && item.targetId) {
+      pushRecentSearch(item)
+      router.push({
+        pathname: "playlist/[id]",
+        params: { id: item.targetId },
+      })
+      return
+    }
+
     setSearchQuery(item.query || item.title)
     setHeaderInputKey((prev) => prev + 1)
     pushRecentSearch({
@@ -276,6 +308,8 @@ export default function SearchInteractionScreen() {
       title: item.title,
       subtitle: item.subtitle,
       type: item.type,
+      targetId: item.targetId,
+      image: item.image,
     })
   }
 
@@ -293,44 +327,50 @@ export default function SearchInteractionScreen() {
     })
   }
 
-  function handleArtistPress(artist: { name: string }) {
+  function handleArtistPress(artist: SearchArtistResult) {
     pushRecentSearch({
       query: artist.name,
       title: artist.name,
       subtitle: "Artist",
       type: "artist",
+      targetId: artist.id,
+      image: artist.image,
     })
 
     router.push({
-      pathname: "/(main)/(search)/artist/[name]",
+      pathname: "artist/[name]",
       params: { name: artist.name },
     })
   }
 
-  function handleAlbumPress(album: { title: string; artist: string }) {
+  function handleAlbumPress(album: SearchAlbumResult) {
     pushRecentSearch({
       query: album.title,
       title: album.title,
       subtitle: album.artist || "Album",
       type: "album",
+      targetId: album.id,
+      image: album.image,
     })
 
     router.push({
-      pathname: "/(main)/(search)/album/[name]",
+      pathname: "album/[name]",
       params: { name: album.title },
     })
   }
 
-  function handlePlaylistPress(playlist: { id: string; title: string }) {
+  function handlePlaylistPress(playlist: SearchPlaylistResult) {
     pushRecentSearch({
       query: playlist.title,
       title: playlist.title,
       subtitle: "Playlist",
       type: "playlist",
+      targetId: playlist.id,
+      image: playlist.image || playlist.images?.[0],
     })
 
     router.push({
-      pathname: "/(main)/(search)/playlist/[id]",
+      pathname: "playlist/[id]",
       params: { id: playlist.id },
     })
   }

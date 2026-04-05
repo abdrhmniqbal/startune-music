@@ -42,6 +42,19 @@ function normalizeRecentSearchQuery(value: string | null | undefined) {
   return (value || "").trim()
 }
 
+function getRecentSearchDedupeKey(item: {
+  type?: RecentSearchEntry["type"]
+  targetId?: string
+  query: string
+}) {
+  const normalizedTargetId = normalizeRecentSearchQuery(item.targetId)
+  if (item.type && normalizedTargetId) {
+    return `${item.type}:${normalizedTargetId.toLowerCase()}`
+  }
+
+  return `${item.type || "query"}:${item.query.toLowerCase()}`
+}
+
 function createRecentSearchId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 }
@@ -73,6 +86,8 @@ function normalizeRecentSearchEntry(
   const title = normalizeRecentSearchQuery(entry.title) || query
   const subtitle = normalizeRecentSearchQuery(entry.subtitle) || "Search"
   const id = normalizeRecentSearchQuery(entry.id) || createRecentSearchId()
+  const targetId = normalizeRecentSearchQuery(entry.targetId) || undefined
+  const image = normalizeRecentSearchQuery(entry.image) || undefined
   const createdAt =
     typeof entry.createdAt === "number" && Number.isFinite(entry.createdAt)
       ? entry.createdAt
@@ -84,6 +99,8 @@ function normalizeRecentSearchEntry(
     title,
     subtitle,
     type: isRecentSearchType(entry.type) ? entry.type : undefined,
+    targetId,
+    image,
     createdAt,
   }
 }
@@ -103,7 +120,7 @@ function parseRecentSearches(raw: string): RecentSearchEntry[] {
     const seenQueries = new Set<string>()
     const deduped: RecentSearchEntry[] = []
     for (const item of normalized) {
-      const key = item.query.toLowerCase()
+      const key = getRecentSearchDedupeKey(item)
       if (seenQueries.has(key)) {
         continue
       }
@@ -152,6 +169,214 @@ async function writeRecentSearches(items: RecentSearchEntry[]): Promise<void> {
         updatedAt: now,
       },
     })
+}
+
+function areRecentSearchItemsEqual(
+  left: RecentSearchEntry,
+  right: RecentSearchEntry
+) {
+  return (
+    left.id === right.id &&
+    left.query === right.query &&
+    left.title === right.title &&
+    left.subtitle === right.subtitle &&
+    left.type === right.type &&
+    left.targetId === right.targetId &&
+    left.image === right.image &&
+    left.createdAt === right.createdAt
+  )
+}
+
+async function hydrateRecentSearchEntry(
+  item: RecentSearchEntry
+): Promise<RecentSearchEntry> {
+  const normalizedQuery = normalizeLookup(item.query)
+  if (!normalizedQuery || !item.type) {
+    return item
+  }
+
+  if (item.type === "artist") {
+    const artist = item.targetId
+      ? await db.query.artists.findFirst({
+          where: eq(artists.id, item.targetId),
+          columns: {
+            id: true,
+            name: true,
+            artwork: true,
+          },
+          with: {
+            albums: {
+              columns: {
+                artwork: true,
+              },
+              limit: 1,
+            },
+            tracks: {
+              where: and(eq(tracks.isDeleted, 0), isNotNull(tracks.artwork)),
+              columns: {
+                artwork: true,
+              },
+              limit: 1,
+            },
+          },
+        })
+      : await db.query.artists.findFirst({
+          where: and(
+            gt(artists.trackCount, 0),
+            eq(sql`lower(coalesce(${artists.name}, ''))`, normalizedQuery)
+          ),
+          columns: {
+            id: true,
+            name: true,
+            artwork: true,
+          },
+          with: {
+            albums: {
+              columns: {
+                artwork: true,
+              },
+              limit: 1,
+            },
+            tracks: {
+              where: and(eq(tracks.isDeleted, 0), isNotNull(tracks.artwork)),
+              columns: {
+                artwork: true,
+              },
+              limit: 1,
+            },
+          },
+        })
+
+    if (!artist) {
+      return item
+    }
+
+    return {
+      ...item,
+      query: artist.name || item.query,
+      title: artist.name || item.title,
+      targetId: artist.id,
+      image:
+        item.image ||
+        resolveArtistArtwork(
+          artist.tracks[0]?.artwork,
+          artist.artwork,
+          artist.albums[0]?.artwork
+        ),
+    }
+  }
+
+  if (item.type === "album") {
+    const album = item.targetId
+      ? await db.query.albums.findFirst({
+          where: eq(albums.id, item.targetId),
+          columns: {
+            id: true,
+            title: true,
+            artwork: true,
+          },
+        })
+      : await db.query.albums.findFirst({
+          where: and(
+            gt(albums.trackCount, 0),
+            eq(sql`lower(coalesce(${albums.title}, ''))`, normalizedQuery)
+          ),
+          columns: {
+            id: true,
+            title: true,
+            artwork: true,
+          },
+        })
+
+    if (!album) {
+      return item
+    }
+
+    return {
+      ...item,
+      query: album.title || item.query,
+      title: album.title || item.title,
+      targetId: album.id,
+      image: item.image || album.artwork || undefined,
+    }
+  }
+
+  if (item.type === "playlist") {
+    const playlist = item.targetId
+      ? await db.query.playlists.findFirst({
+          where: eq(playlists.id, item.targetId),
+          columns: {
+            id: true,
+            name: true,
+            artwork: true,
+          },
+          with: {
+            tracks: {
+              limit: 1,
+              orderBy: [asc(playlistTracks.position)],
+              with: {
+                track: {
+                  with: {
+                    album: true,
+                  },
+                },
+              },
+            },
+          },
+        })
+      : await db.query.playlists.findFirst({
+          where: eq(sql`lower(coalesce(${playlists.name}, ''))`, normalizedQuery),
+          columns: {
+            id: true,
+            name: true,
+            artwork: true,
+          },
+          with: {
+            tracks: {
+              limit: 1,
+              orderBy: [asc(playlistTracks.position)],
+              with: {
+                track: {
+                  with: {
+                    album: true,
+                  },
+                },
+              },
+            },
+          },
+        })
+
+    if (!playlist) {
+      return item
+    }
+
+    const fallbackArtwork =
+      playlist.tracks[0]?.track?.artwork ||
+      playlist.tracks[0]?.track?.album?.artwork ||
+      undefined
+
+    return {
+      ...item,
+      query: playlist.name || item.query,
+      title: playlist.name || item.title,
+      targetId: playlist.id,
+      image: item.image || playlist.artwork || fallbackArtwork,
+    }
+  }
+
+  return item
+}
+
+async function hydrateRecentSearches(
+  items: RecentSearchEntry[]
+): Promise<RecentSearchEntry[]> {
+  const hydrated: RecentSearchEntry[] = []
+
+  for (const item of items) {
+    hydrated.push(await hydrateRecentSearchEntry(item))
+  }
+
+  return hydrated
 }
 
 function selectDominantArtwork(
@@ -753,7 +978,18 @@ export async function searchLibrary(query: string): Promise<SearchResults> {
 }
 
 export async function getRecentSearches() {
-  return readRecentSearches()
+  const existing = await readRecentSearches()
+  const hydrated = await hydrateRecentSearches(existing)
+
+  const changed =
+    existing.length !== hydrated.length ||
+    existing.some((item, index) => !areRecentSearchItemsEqual(item, hydrated[index]!))
+
+  if (changed) {
+    await writeRecentSearches(hydrated)
+  }
+
+  return hydrated
 }
 
 export async function addRecentSearch(
@@ -767,10 +1003,16 @@ export async function addRecentSearch(
   const now = Date.now()
   const title = normalizeRecentSearchQuery(input.title) || query
   const subtitle = normalizeRecentSearchQuery(input.subtitle) || "Search"
-  const normalizedQuery = query.toLowerCase()
+  const targetId = normalizeRecentSearchQuery(input.targetId) || undefined
+  const image = normalizeRecentSearchQuery(input.image) || undefined
   const existing = await readRecentSearches()
+  const dedupeKey = getRecentSearchDedupeKey({
+    type: input.type,
+    targetId,
+    query,
+  })
   const existingMatch = existing.find(
-    (item) => item.query.toLowerCase() === normalizedQuery
+    (item) => getRecentSearchDedupeKey(item) === dedupeKey
   )
 
   const nextItem: RecentSearchEntry = {
@@ -779,12 +1021,14 @@ export async function addRecentSearch(
     title,
     subtitle,
     type: input.type,
+    targetId,
+    image,
     createdAt: now,
   }
 
   const nextItems = [
     nextItem,
-    ...existing.filter((item) => item.query.toLowerCase() !== normalizedQuery),
+    ...existing.filter((item) => getRecentSearchDedupeKey(item) !== dedupeKey),
   ].slice(0, MAX_RECENT_SEARCHES)
 
   await writeRecentSearches(nextItems)

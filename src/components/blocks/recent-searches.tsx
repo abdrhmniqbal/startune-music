@@ -24,6 +24,8 @@ export interface RecentSearchItem {
   title: string
   subtitle: string
   type?: "track" | "album" | "artist" | "playlist"
+  targetId?: string
+  image?: string
 }
 
 interface RecentSearchesProps {
@@ -48,9 +50,11 @@ function RecentSearchRow({
   onPress,
   onRemove,
 }: RecentSearchRowProps) {
+  const imageClassName = item.type === "artist" ? "rounded-full" : "rounded-md"
+
   return (
     <Item onPress={() => onPress(item)}>
-      <ItemImage icon={icon} />
+      <ItemImage icon={icon} image={item.image} className={imageClassName} />
       <ItemContent>
         <ItemTitle>{item.title}</ItemTitle>
         <ItemDescription>{item.subtitle}</ItemDescription>
@@ -123,11 +127,11 @@ export const RecentSearches: React.FC<RecentSearchesProps> = ({
   return (
     <View className="px-4 py-4">
       <View className="mb-6 flex-row items-center justify-between">
-        <Text className="text-[17px] font-bold text-muted">
+        <Text className="text-lg font-bold text-foreground">
           Recent Searches
         </Text>
         <PressableFeedback className="active:opacity-50" onPress={onClear}>
-          <Text className="text-[15px] text-muted">Clear</Text>
+          <Text className="text-muted">Clear</Text>
         </PressableFeedback>
       </View>
       <View className="gap-2">

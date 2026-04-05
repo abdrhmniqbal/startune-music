@@ -38,6 +38,8 @@ export interface RecentSearchEntry {
   title: string
   subtitle: string
   type?: "track" | "album" | "artist" | "playlist"
+  targetId?: string
+  image?: string
   createdAt: number
 }
 
@@ -46,4 +48,6 @@ export interface AddRecentSearchInput {
   title?: string
   subtitle?: string
   type?: "track" | "album" | "artist" | "playlist"
+  targetId?: string
+  image?: string
 }
