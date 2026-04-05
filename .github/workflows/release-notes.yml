@@ -112,19 +112,22 @@ jobs:
             author_ref="$(resolve_author_ref "${sha}" "${author_name}" "${author_email}")"
 
             clean_subject="${subject}"
-            if [[ "${subject}" =~ ^feat(\(.+\))?:\ (.+)$ ]]; then
-              clean_subject="${BASH_REMATCH[2]}"
+            if [[ "${subject}" =~ ^(feat|fix|perf)(\([^)]+\))?(!)?:[[:space:]]+(.+)$ ]]; then
+              commit_type="${BASH_REMATCH[1]}"
+              clean_subject="${BASH_REMATCH[4]}"
               clean_subject="$(to_sentence_case "${clean_subject}")"
-              first_word="$(echo "${clean_subject}" | awk '{print $1}')"
-              if [[ "${first_word,,}" == "add" ]]; then
-                printf -- '- %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${FEATURES_FILE}"
+              if [[ "${commit_type}" == "feat" ]]; then
+                first_word="$(echo "${clean_subject}" | awk '{print $1}')"
+                if [[ "${first_word,,}" == "add" ]]; then
+                  printf -- '- %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${FEATURES_FILE}"
+                else
+                  printf -- '- %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${CHANGES_FILE}"
+                fi
+              elif [[ "${commit_type}" == "fix" ]]; then
+                printf -- '- Fix %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${FIXES_FILE}"
               else
                 printf -- '- %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${CHANGES_FILE}"
               fi
-            elif [[ "${subject}" =~ ^fix(\(.+\))?:\ (.+)$ ]]; then
-              clean_subject="${BASH_REMATCH[2]}"
-              clean_subject="$(to_sentence_case "${clean_subject}")"
-              printf -- '- Fix %s (%s)\n' "${clean_subject}" "${author_ref}" >> "${FIXES_FILE}"
             fi
           done < <(git log --no-merges --pretty=format:'%H%x09%s%x09%an%x09%ae' "${RANGE}")
 
