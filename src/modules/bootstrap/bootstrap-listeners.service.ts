@@ -12,6 +12,7 @@ import {
 } from "@/modules/logging/logging.service"
 
 const FOREGROUND_AUTO_SCAN_DELAY_MS = 1500
+const MEDIA_EVENT_AUTO_SCAN_DELAY_MS = 1500
 const LONG_BACKGROUND_THRESHOLD_MS = 2 * 60 * 1000
 const LONG_BACKGROUND_AUTO_SCAN_DELAY_MS = 12 * 1000
 
@@ -32,6 +33,8 @@ export function registerBootstrapListeners() {
   let pendingInteractionHandle: ReturnType<
     typeof InteractionManager.runAfterInteractions
   > | null = null
+  let pendingDeferredMediaAutoScan = false
+  let pendingDeferredMediaAutoScanBypassThrottle = false
 
   const clearPendingForegroundAutoScan = () => {
     if (pendingForegroundAutoScanTimeout) {
@@ -43,15 +46,25 @@ export function registerBootstrapListeners() {
     pendingInteractionHandle = null
   }
 
-  const scheduleForegroundAutoScan = (delayMs: number) => {
+  const scheduleForegroundAutoScan = (options: {
+    delayMs: number
+    bypassThrottle?: boolean
+    source: "foreground" | "media-library"
+  }) => {
+    const delayMs = options.delayMs
+    const bypassThrottle = options.bypassThrottle ?? false
     clearPendingForegroundAutoScan()
 
     pendingForegroundAutoScanTimeout = setTimeout(() => {
       pendingForegroundAutoScanTimeout = null
       pendingInteractionHandle = InteractionManager.runAfterInteractions(() => {
         pendingInteractionHandle = null
-        logInfo("Foreground auto scan scheduled run started", { delayMs })
-        void runAutoScan()
+        logInfo("Deferred auto scan scheduled run started", {
+          delayMs,
+          source: options.source,
+          bypassThrottle,
+        })
+        void runAutoScan({ bypassThrottle })
       })
     }, delayMs)
   }
@@ -59,6 +72,8 @@ export function registerBootstrapListeners() {
   const appStateSubscription = AppState.addEventListener("change", (nextState) => {
     if (nextState === "background") {
       backgroundedAt = Date.now()
+      pendingDeferredMediaAutoScan = false
+      pendingDeferredMediaAutoScanBypassThrottle = false
       clearPendingForegroundAutoScan()
     }
 
@@ -82,12 +97,41 @@ export function registerBootstrapListeners() {
       timeInBackgroundMs,
       isLongBackgroundSession,
       delayMs,
+      hasDeferredMediaAutoScan: pendingDeferredMediaAutoScan,
     })
-    scheduleForegroundAutoScan(delayMs)
+
+    if (pendingDeferredMediaAutoScan) {
+      scheduleForegroundAutoScan({
+        delayMs,
+        source: "media-library",
+        bypassThrottle: pendingDeferredMediaAutoScanBypassThrottle,
+      })
+      pendingDeferredMediaAutoScan = false
+      pendingDeferredMediaAutoScanBypassThrottle = false
+      return
+    }
+
+    scheduleForegroundAutoScan({ delayMs, source: "foreground" })
   })
 
   const mediaLibrarySubscription = MediaLibrary.addListener((event) => {
     const bypassThrottle = shouldTriggerAutoScanOnMediaLibraryEvent(event)
+    const appState = AppState.currentState
+
+    if (appState !== "active") {
+      pendingDeferredMediaAutoScan = true
+      pendingDeferredMediaAutoScanBypassThrottle =
+        pendingDeferredMediaAutoScanBypassThrottle || bypassThrottle
+
+      if (isExtraLoggingEnabled()) {
+        logInfo("Media library changed while app not active, deferring auto scan", {
+          appState,
+          bypassThrottle,
+        })
+      }
+      return
+    }
+
     if (isExtraLoggingEnabled()) {
       logInfo("Media library changed, running auto scan", {
         bypassThrottle,
@@ -96,7 +140,9 @@ export function registerBootstrapListeners() {
         insertedAssetsCount: event.insertedAssets?.length ?? 0,
       })
     }
-    void runAutoScan({
+    scheduleForegroundAutoScan({
+      delayMs: MEDIA_EVENT_AUTO_SCAN_DELAY_MS,
+      source: "media-library",
       bypassThrottle,
     })
   })
