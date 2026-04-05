@@ -33,6 +33,8 @@ import {
 } from "./player.store"
 
 const MIN_SESSION_SAVE_INTERVAL_MS = 2000
+const MAX_TRACKMAP_SIZE = 300
+const TRACKMAP_ACTIVE_WINDOW = 120
 
 let lastPlaybackSessionSavedAt = 0
 
@@ -40,6 +42,56 @@ function mapNativeQueueToTracks(nativeQueue: Awaited<ReturnType<typeof TrackPlay
   return nativeQueue
     .map((track) => mapTrackPlayerTrackToTrack(track, getTracksState()))
     .filter((track) => track.id && track.uri)
+}
+
+function createPersistedTrackMap(queueTracks: ReturnType<typeof getQueueState>) {
+  if (queueTracks.length === 0) {
+    return {}
+  }
+
+  const currentTrackId = getCurrentTrackState()?.id ?? null
+  const currentIndex = currentTrackId
+    ? queueTracks.findIndex((track) => track.id === currentTrackId)
+    : 0
+
+  const startIndex =
+    currentIndex >= 0 ? Math.max(0, currentIndex - TRACKMAP_ACTIVE_WINDOW) : 0
+  const endIndex =
+    currentIndex >= 0
+      ? Math.min(queueTracks.length, currentIndex + TRACKMAP_ACTIVE_WINDOW + 1)
+      : Math.min(queueTracks.length, MAX_TRACKMAP_SIZE)
+
+  const selectedIds = new Set(
+    queueTracks.slice(startIndex, endIndex).map((track) => track.id)
+  )
+
+  if (currentTrackId) {
+    selectedIds.add(currentTrackId)
+  }
+
+  if (selectedIds.size < MAX_TRACKMAP_SIZE) {
+    for (const trackId of getImmediateQueueTrackIdsState()) {
+      selectedIds.add(trackId)
+      if (selectedIds.size >= MAX_TRACKMAP_SIZE) {
+        break
+      }
+    }
+  }
+
+  if (selectedIds.size < MAX_TRACKMAP_SIZE) {
+    for (const track of queueTracks) {
+      if (selectedIds.size >= MAX_TRACKMAP_SIZE) {
+        break
+      }
+      selectedIds.add(track.id)
+    }
+  }
+
+  return Object.fromEntries(
+    queueTracks
+      .filter((track) => selectedIds.has(track.id))
+      .map((track) => [track.id, track])
+  )
 }
 
 export async function persistPlaybackSession(options?: {
@@ -63,7 +115,7 @@ export async function persistPlaybackSession(options?: {
       ? mapNativeQueueToTracks(await TrackPlayer.getQueue())
       : getQueueState()
     const queueTrackIds = queueTracks.map((track) => track.id)
-    const trackMap = Object.fromEntries(queueTracks.map((track) => [track.id, track]))
+    const trackMap = createPersistedTrackMap(queueTracks)
 
     let currentTrackId = getCurrentTrackState()?.id ?? null
 
