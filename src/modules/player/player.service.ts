@@ -16,11 +16,14 @@ import {
 } from "@/modules/player/player.utils"
 
 import {
+  setImmediateQueueTrackIdsState,
   getTracksState,
   setIsShuffledState,
   setOriginalQueueState,
+  setOriginalQueueTrackIdsState,
   setIsPlayingState,
   setQueueState,
+  setQueueTrackIdsState,
 } from "./player.store"
 
 let isPlayerReady = false
@@ -102,9 +105,13 @@ export async function playTrack(track: Track, playlistTracks?: Track[]) {
     const queue = tracks
       .slice(currentTrackIndex)
       .concat(tracks.slice(0, currentTrackIndex))
+    const queueTrackIds = queue.map((item) => item.id)
 
     setQueueState(queue)
     setOriginalQueueState(queue)
+    setQueueTrackIdsState(queueTrackIds)
+    setOriginalQueueTrackIdsState(queueTrackIds)
+    setImmediateQueueTrackIdsState([])
     setIsShuffledState(false)
 
     await TrackPlayer.add(queue.map(mapTrackToTrackPlayerInput))

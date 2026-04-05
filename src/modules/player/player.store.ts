@@ -17,6 +17,9 @@ interface PlayerState {
   duration: number
   playbackRefreshVersion: number
   repeatMode: RepeatModeType
+  queueTrackIds: string[]
+  originalQueueTrackIds: string[]
+  immediateQueueTrackIds: string[]
   queue: Track[]
   originalQueue: Track[]
   isShuffled: boolean
@@ -30,6 +33,9 @@ export const usePlayerStore = create<PlayerState>(() => ({
   duration: 0,
   playbackRefreshVersion: 0,
   repeatMode: "off",
+  queueTrackIds: [],
+  originalQueueTrackIds: [],
+  immediateQueueTrackIds: [],
   queue: [],
   originalQueue: [],
   isShuffled: false,
@@ -103,12 +109,36 @@ export function setQueueState(value: Track[]) {
   usePlayerStore.setState({ queue: value })
 }
 
+export function getQueueTrackIdsState() {
+  return usePlayerStore.getState().queueTrackIds
+}
+
+export function setQueueTrackIdsState(value: string[]) {
+  usePlayerStore.setState({ queueTrackIds: value })
+}
+
 export function getOriginalQueueState() {
   return usePlayerStore.getState().originalQueue
 }
 
 export function setOriginalQueueState(value: Track[]) {
   usePlayerStore.setState({ originalQueue: value })
+}
+
+export function getOriginalQueueTrackIdsState() {
+  return usePlayerStore.getState().originalQueueTrackIds
+}
+
+export function setOriginalQueueTrackIdsState(value: string[]) {
+  usePlayerStore.setState({ originalQueueTrackIds: value })
+}
+
+export function getImmediateQueueTrackIdsState() {
+  return usePlayerStore.getState().immediateQueueTrackIds
+}
+
+export function setImmediateQueueTrackIdsState(value: string[]) {
+  usePlayerStore.setState({ immediateQueueTrackIds: value })
 }
 
 export function getIsShuffledState() {
