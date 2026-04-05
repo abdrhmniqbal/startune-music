@@ -27,6 +27,8 @@ import { extractMetadata, saveArtworkToCache } from "./metadata.repository"
 const BATCH_SIZE = 10
 const BATCH_CONCURRENCY = 4
 const COMMIT_SCOPE_SIZE = 5
+const METADATA_EXTRACTION_MAX_ATTEMPTS = 2
+const METADATA_EXTRACTION_RETRY_DELAY_MS = 120
 const SUPPORTED_EXTENSIONS = new Set([
   "mp3",
   "flac",
@@ -60,6 +62,12 @@ interface IndexingLookupCache {
 function yieldToEventLoop() {
   return new Promise<void>((resolve) => {
     setTimeout(resolve, 0)
+  })
+}
+
+function wait(ms: number) {
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, ms)
   })
 }
 
@@ -359,11 +367,38 @@ async function prepareAssetForIndexing(
   }
 
   const fileHash = precomputedHashMap?.get(asset.id) || generateAssetHash(asset)
-  const metadata = await extractMetadata(
-    asset.uri,
-    asset.filename || "",
-    asset.duration
-  )
+  let metadata: ExtractedMetadata | null = null
+  let lastError: unknown = null
+
+  for (
+    let attempt = 1;
+    attempt <= METADATA_EXTRACTION_MAX_ATTEMPTS;
+    attempt += 1
+  ) {
+    if (signal?.aborted) {
+      return null
+    }
+
+    try {
+      metadata = await extractMetadata(
+        asset.uri,
+        asset.filename || "",
+        asset.duration
+      )
+      break
+    } catch (error) {
+      lastError = error
+      if (attempt < METADATA_EXTRACTION_MAX_ATTEMPTS) {
+        await wait(METADATA_EXTRACTION_RETRY_DELAY_MS * attempt)
+      }
+    }
+  }
+
+  if (!metadata) {
+    throw lastError instanceof Error
+      ? lastError
+      : new Error("Metadata extraction failed")
+  }
 
   if (signal?.aborted) {
     return null
