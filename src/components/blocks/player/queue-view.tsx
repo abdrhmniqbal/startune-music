@@ -162,7 +162,7 @@ export const QueueView: React.FC = () => {
           initialScrollIndex={currentIndex >= 0 ? currentIndex : undefined}
           onReordered={handleReorder}
           renderItem={renderItem}
-          estimatedItemSize={70}
+          estimatedItemSize={68 + ITEM_GAP}
           extraData={currentIndex}
           style={{ flex: 1, minHeight: 1 }}
           contentContainerStyle={{ gap: ITEM_GAP, paddingBottom: 20 }}

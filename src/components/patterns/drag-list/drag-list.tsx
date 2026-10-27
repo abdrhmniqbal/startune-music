@@ -356,7 +356,7 @@ export function DragList<T>({
           // SAFETY: AnimatedLegendList onScroll expects worklet scroll handler from Reanimated
           onScroll={scrollHandler as never}
           scrollEnabled={scrollEnabled && scrollEnabledState}
-          recycleItems={false}
+          recycleItems
           drawDistance={400}
           maintainVisibleContentPosition={false}
           overScrollMode="never"
