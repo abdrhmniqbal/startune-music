@@ -162,7 +162,11 @@ export const QueueView: React.FC = () => {
           initialScrollIndex={currentIndex >= 0 ? currentIndex : undefined}
           onReordered={handleReorder}
           renderItem={renderItem}
-          estimatedItemSize={68 + ITEM_GAP}
+          // Row height is 76, not 68: the tallest child is the drag-handle
+          // wrapper (icon 24 + p-2 16 + wrapper py-2 16 = 56), plus the row's
+          // own py-2.5 (20). The drag drop math steps in slotSize units, so a
+          // wrong pitch misplaces drops by an amount that grows with distance.
+          estimatedItemSize={76 + ITEM_GAP}
           extraData={currentIndex}
           style={{ flex: 1, minHeight: 1 }}
           contentContainerStyle={{ gap: ITEM_GAP, paddingBottom: 20 }}
