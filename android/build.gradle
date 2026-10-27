@@ -18,6 +18,11 @@ ext {
   minSdkVersion = (findProperty('android.minSdkVersion') ?: findProperty('AudioBrowser_minSdkVersion') ?: 24).toInteger()
   ndkVersion = findProperty('android.ndkVersion') ?: findProperty('AudioBrowser_ndkVersion') ?: '28.2.13676358'
   kotlinVersion = findProperty('android.kotlinVersion') ?: findProperty('AudioBrowser_kotlinVersion') ?: '2.2.21'
+  // Pin cast-framework: react-native-google-cast defaults it to '+' (latest),
+  // and 23.0.0 pulls mediarouter 1.9.0-beta01, which needs SDK 37 + AGP 9.1.
+  // 22.3.1 is the newest version whose mediarouter (1.8.0-beta01) still fits
+  // this project's SDK 36 + AGP 8.12.
+  castFrameworkVersion = '22.3.1'
 }
 
 allprojects {
