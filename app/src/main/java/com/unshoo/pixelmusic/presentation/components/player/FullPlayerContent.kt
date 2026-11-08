@@ -2112,7 +2112,7 @@ private fun AlbumPlaceholder(
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
             Icon(
                 modifier = Modifier.size(86.dp),
-                painter = painterResource(R.drawable.startune_logo),
+                painter = painterResource(R.mipmap.ic_launcher_foreground),
                 contentDescription = null,
                 tint = onColor
             )
