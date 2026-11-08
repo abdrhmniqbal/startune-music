@@ -459,8 +459,8 @@ fun HomeScreen(
                             onOpenAllClick = {
                                 navController.navigateSafely(Screen.RecentlyPlayed.route)
                             },
-                            themeStateHolder = playerViewModel.themeStateHolder,
                             currentSongId = currentSong?.id,
+                            isPlaying = isPlaying,
                             contentPadding = PaddingValues(start = 8.dp, end = 24.dp)
                         )
                     }

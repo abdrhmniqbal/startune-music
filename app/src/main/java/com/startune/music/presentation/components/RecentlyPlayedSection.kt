@@ -1,109 +1,57 @@
 ﻿package com.startune.music.presentation.components
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.startune.music.R
 import com.startune.music.data.model.Song
+import com.startune.music.presentation.components.subcomps.PlayingEqIcon
 import com.startune.music.presentation.model.RecentlyPlayedSongUiModel
-import com.startune.music.presentation.viewmodel.ThemeStateHolder
 import kotlinx.collections.immutable.ImmutableList
 
-private val HomeRecentlyPlayedPillHeight = 58.dp
-private val HomeRecentlyPlayedPillSpacing = 8.dp
-private const val HomeRecentlyPlayedPillsLimit = 10
-private const val HomeRecentlyPlayedPillsPerColumn = 3
+private const val HomeRecentlyPlayedLimit = 10
 internal const val RecentlyPlayedSectionMinSongsToShow = 4
-private val HomeRecentlyPlayedPillArtSize = 38.dp
-private val HomeRecentlyPlayedWidthSteps = listOf(148.dp, 166.dp, 184.dp, 202.dp, 220.dp)
+private val HomeRecentlyPlayedCardWidth = 144.dp
+private val HomeRecentlyPlayedCardSpacing = 12.dp
 private val HomeRecentlyPlayedDefaultContentPadding = PaddingValues(horizontal = 8.dp)
-
-private data class RecentlyPlayedPillCell(
-    val item: RecentlyPlayedSongUiModel,
-    val width: Dp
-)
-
-private data class RecentlyPlayedPillRow(
-    val pills: List<RecentlyPlayedPillCell>,
-    val contentWidth: Dp
-)
 
 @Composable
 fun RecentlyPlayedSection(
     songs: ImmutableList<RecentlyPlayedSongUiModel>,
     onSongClick: (Song) -> Unit,
     onOpenAllClick: () -> Unit,
-    themeStateHolder: ThemeStateHolder,
     currentSongId: String? = null,
+    isPlaying: Boolean = true,
     contentPadding: PaddingValues = HomeRecentlyPlayedDefaultContentPadding,
     modifier: Modifier = Modifier
 ) {
-    val visibleSongs = remember(songs) { songs.take(HomeRecentlyPlayedPillsLimit) }
+    val visibleSongs = remember(songs) { songs.take(HomeRecentlyPlayedLimit) }
     if (visibleSongs.size < RecentlyPlayedSectionMinSongsToShow) return
-
-    val layoutDirection = LocalLayoutDirection.current
-    val startContentPadding = remember(contentPadding, layoutDirection) {
-        contentPadding.calculateLeftPadding(layoutDirection)
-    }
-    val endContentPadding = remember(contentPadding, layoutDirection) {
-        contentPadding.calculateRightPadding(layoutDirection)
-    }
-    val songRows = remember(visibleSongs, startContentPadding, endContentPadding) {
-        buildRecentlyPlayedPillRows(
-            visibleSongs = visibleSongs,
-            startContentPadding = startContentPadding,
-            endContentPadding = endContentPadding
-        )
-    }
-    val maxRowContentWidth = remember(songRows) {
-        songRows.maxOfOrNull { it.contentWidth } ?: 0.dp
-    }
-    val sharedScrollState = rememberScrollState()
-
-    val sectionHeight = HomeRecentlyPlayedPillHeight * HomeRecentlyPlayedPillsPerColumn +
-            HomeRecentlyPlayedPillSpacing * (HomeRecentlyPlayedPillsPerColumn - 1)
 
     Column(
         modifier = modifier
@@ -142,211 +90,76 @@ fun RecentlyPlayedSection(
             }
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = sectionHeight)
-                .horizontalScroll(state = sharedScrollState)
+        LazyRow(
+            contentPadding = contentPadding,
+            horizontalArrangement = Arrangement.spacedBy(HomeRecentlyPlayedCardSpacing)
         ) {
-            Column(
-                modifier = Modifier
-                    .width(maxRowContentWidth)
-                    .height(sectionHeight),
-                verticalArrangement = Arrangement.spacedBy(HomeRecentlyPlayedPillSpacing),
-                horizontalAlignment = Alignment.Start
-            ) {
-                songRows.forEach { row ->
-                    if (row.pills.isEmpty()) {
-                        Spacer(modifier = Modifier.height(HomeRecentlyPlayedPillHeight))
-                    } else {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(HomeRecentlyPlayedPillHeight),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(HomeRecentlyPlayedPillSpacing)
-                        ) {
-                            if (startContentPadding > 0.dp) {
-                                Spacer(modifier = Modifier.width(startContentPadding))
-                            }
-                            row.pills.forEach { cell ->
-                                key(cell.item.song.id) {
-                                    RecentlyPlayedPill(
-                                        item = cell.item,
-                                        isCurrentSong = currentSongId == cell.item.song.id,
-                                        themeStateHolder = themeStateHolder,
-                                        modifier = Modifier.width(cell.width),
-                                        onClick = { onSongClick(cell.item.song) }
-                                    )
-                                }
-                            }
-                            if (endContentPadding > 0.dp) {
-                                Spacer(modifier = Modifier.width(endContentPadding))
-                            }
-                            val trailingGap = (maxRowContentWidth - row.contentWidth).coerceAtLeast(0.dp)
-                            if (trailingGap > 0.dp) {
-                                Spacer(modifier = Modifier.width(trailingGap))
-                            }
-                        }
-                    }
-                }
+            items(visibleSongs, key = { it.song.id }) { item ->
+                RecentlyPlayedGridCard(
+                    item = item,
+                    isCurrentSong = currentSongId == item.song.id,
+                    isPlaying = isPlaying,
+                    onClick = { onSongClick(item.song) }
+                )
             }
         }
     }
 }
 
-private fun buildRecentlyPlayedPillRows(
-    visibleSongs: List<RecentlyPlayedSongUiModel>,
-    startContentPadding: Dp,
-    endContentPadding: Dp
-): List<RecentlyPlayedPillRow> {
-    val rows = MutableList(HomeRecentlyPlayedPillsPerColumn) { mutableListOf<RecentlyPlayedPillCell>() }
-    val rowPillsWidths = MutableList(HomeRecentlyPlayedPillsPerColumn) { 0.dp }
-    val rowTargets = resolveRecentlyPlayedRowTargets(visibleSongs.size)
-
-    var itemIndex = 0
-    for (columnIndex in 0 until rowTargets[0]) {
-        for (rowIndex in 0 until HomeRecentlyPlayedPillsPerColumn) {
-            if (itemIndex >= visibleSongs.size) break
-            if (columnIndex >= rowTargets[rowIndex]) continue
-
-            val item = visibleSongs[itemIndex++]
-            val cellWidth = resolveRecentlyPlayedPillWidth(item = item)
-            val spacingBefore = if (rows[rowIndex].isNotEmpty()) HomeRecentlyPlayedPillSpacing else 0.dp
-            rows[rowIndex] += RecentlyPlayedPillCell(
-                item = item,
-                width = cellWidth
-            )
-            rowPillsWidths[rowIndex] = rowPillsWidths[rowIndex] + spacingBefore + cellWidth
-        }
-    }
-
-    return rows.mapIndexed { rowIndex, pills ->
-        val rowWidth = rowPillsWidths[rowIndex] + startContentPadding + endContentPadding
-        RecentlyPlayedPillRow(
-            pills = pills,
-            contentWidth = rowWidth
-        )
-    }
-}
-
-private fun resolveRecentlyPlayedRowTargets(totalItems: Int): IntArray {
-    val base = totalItems / HomeRecentlyPlayedPillsPerColumn
-    val remainder = totalItems % HomeRecentlyPlayedPillsPerColumn
-    return intArrayOf(
-        base + if (remainder > 0) 1 else 0,
-        base + if (remainder > 1) 1 else 0,
-        base
-    )
-}
-
 @Composable
-private fun RecentlyPlayedPill(
+private fun RecentlyPlayedGridCard(
     item: RecentlyPlayedSongUiModel,
     isCurrentSong: Boolean,
-    themeStateHolder: ThemeStateHolder,
-    modifier: Modifier = Modifier,
+    isPlaying: Boolean,
     onClick: () -> Unit
 ) {
-    val isDark = isSystemInDarkTheme()
-    val albumColorSchemeState by remember(item.song.albumArtUriString, themeStateHolder) {
-        themeStateHolder.getAlbumColorSchemeFlow(item.song.albumArtUriString.orEmpty())
-    }.collectAsStateWithLifecycle()
-
-    val albumColorScheme = remember(albumColorSchemeState, isDark) {
-        albumColorSchemeState?.let { if (isDark) it.dark else it.light }
-    }
-
-    val targetContainerColor = albumColorScheme?.primaryContainer ?: MaterialTheme.colorScheme.primaryContainer
-    val targetTitleColor = albumColorScheme?.onPrimaryContainer ?: MaterialTheme.colorScheme.onPrimaryContainer
-    val targetArtistColor = targetTitleColor.copy(alpha = 0.80f)
-
-    val animatedCorner by animateDpAsState(
-        targetValue = if (isCurrentSong) 14.dp else (HomeRecentlyPlayedPillHeight / 2),
-        animationSpec = tween(durationMillis = 280),
-        label = "pillCorner"
-    )
-    val animatedContainer by animateColorAsState(
-        targetValue = targetContainerColor,
-        animationSpec = tween(durationMillis = 280),
-        label = "pillContainer"
-    )
-    val titleColor by animateColorAsState(
-        targetValue = targetTitleColor,
-        animationSpec = tween(durationMillis = 280),
-        label = "pillTitleColor"
-    )
-    val artistColor by animateColorAsState(
-        targetValue = targetArtistColor,
-        animationSpec = tween(durationMillis = 280),
-        label = "pillArtistColor"
-    )
-    val shape = RoundedCornerShape(animatedCorner)
-    val artStartPadding = (HomeRecentlyPlayedPillHeight - HomeRecentlyPlayedPillArtSize) / 2
-
-    Card(
-        shape = shape,
-        colors = CardDefaults.cardColors(containerColor = animatedContainer),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        modifier = modifier
-            .height(HomeRecentlyPlayedPillHeight)
-            .clip(shape)
-            .clickable(onClick = onClick)
+    Column(
+        modifier = Modifier
+            .width(HomeRecentlyPlayedCardWidth)
+            .clickable(onClick = onClick),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(HomeRecentlyPlayedPillHeight)
-                .padding(start = artStartPadding, end = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        SmartImage(
+            model = item.song.albumArtUriString,
+            contentDescription = null,
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.size(HomeRecentlyPlayedCardWidth)
+        )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            SmartImage(
-                model = item.song.albumArtUriString,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                shape = CircleShape,
-                targetSize = SmartImageCompactListTargetSize,
-                modifier = Modifier.size(HomeRecentlyPlayedPillArtSize)
-            )
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
                     text = item.song.title,
                     style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    color = titleColor
+                    color = if (isCurrentSong) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    },
+                    modifier = Modifier.weight(1f, fill = false)
                 )
-                Text(
-                    text = item.song.displayArtist,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = artistColor
-                )
+                if (isCurrentSong) {
+                    PlayingEqIcon(
+                        modifier = Modifier.size(width = 18.dp, height = 16.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        isPlaying = isPlaying
+                    )
+                }
             }
+            Text(
+                text = item.song.displayArtist,
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
-}
-
-private fun resolveRecentlyPlayedPillWidth(
-    item: RecentlyPlayedSongUiModel
-): Dp {
-    val titleLength = item.song.title.trim().length
-    val artistLength = item.song.displayArtist.trim().length
-    val weightedTextLength = titleLength + (artistLength * 0.55f)
-
-    val baseStep = when {
-        weightedTextLength < 18f -> 0
-        weightedTextLength < 28f -> 1
-        weightedTextLength < 40f -> 2
-        weightedTextLength < 54f -> 3
-        else -> 4
-    }
-
-    val resolvedStep = baseStep.coerceIn(0, HomeRecentlyPlayedWidthSteps.lastIndex)
-    return HomeRecentlyPlayedWidthSteps[resolvedStep]
 }
