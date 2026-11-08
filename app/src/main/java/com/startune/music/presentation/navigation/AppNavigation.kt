@@ -2,6 +2,7 @@
 
 import DelimiterConfigScreen
 import com.startune.music.presentation.screens.WordDelimiterConfigScreen
+import com.startune.music.presentation.screens.GenreDelimiterConfigScreen
 import android.annotation.SuppressLint
 import androidx.annotation.OptIn
 import androidx.compose.animation.EnterTransition
@@ -547,6 +548,17 @@ fun AppNavigation(
             ) {
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
                     WordDelimiterConfigScreen(navController = navController)
+                }
+            }
+            composable(
+                Screen.GenreDelimiterConfig.route,
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { popEnterTransition() },
+                popExitTransition = { popExitTransition() },
+            ) {
+                ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
+                    GenreDelimiterConfigScreen(navController = navController)
                 }
             }
             composable(

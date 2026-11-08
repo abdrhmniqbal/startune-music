@@ -7,7 +7,9 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.startune.music.data.model.Song
+import com.startune.music.utils.splitArtistsByDelimiters
 import com.startune.music.data.repository.ArtistImageRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -641,14 +643,15 @@ class MusicRepositoryImpl @Inject constructor(
         return combine(
             userPreferencesRepository.mockGenresEnabledFlow,
             userPreferencesRepository.allowedDirectoriesFlow,
-            userPreferencesRepository.blockedDirectoriesFlow
-        ) { mockEnabled, allowedDirs, blockedDirs ->
-            Triple(mockEnabled, allowedDirs, blockedDirs)
-        }.flatMapLatest { (mockEnabled, allowedDirs, blockedDirs) ->
+            userPreferencesRepository.blockedDirectoriesFlow,
+            userPreferencesRepository.genreDelimitersFlow
+        ) { mockEnabled, allowedDirs, blockedDirs, genreDelimiters ->
+            GenreBrowseParams(mockEnabled, allowedDirs, blockedDirs, genreDelimiters)
+        }.flatMapLatest { params ->
             flow {
                 val (allowedParentDirs, applyDirectoryFilter) =
-                    computeAllowedDirs(allowedDirs, blockedDirs)
-                val genreName = if (mockEnabled) "Mock" else genreId
+                    computeAllowedDirs(params.allowedDirs, params.blockedDirs)
+                val genreName = if (params.mockEnabled) "Mock" else genreId
                 emit(
                     if (genreName.equals("unknown", ignoreCase = true)) {
                         musicDao.getSongsWithNullGenre(
@@ -656,17 +659,16 @@ class MusicRepositoryImpl @Inject constructor(
                             applyDirectoryFilter = applyDirectoryFilter
                         )
                     } else {
-                        // getSongsByGenreContaining uses a LIKE query so that a song stored as
-                        // "Rock, Pop" is returned when browsing either "Rock" or "Pop".
-                        musicDao.getSongsByGenreContaining(
-                            genreName = genreName,
-                            genrePrefix = "$genreName,%",          // "Rock,..." / "Rock, ..."
-                            genreSuffixWithSpace = "%, $genreName", // "..., Rock"
-                            genreSuffix = "%,$genreName",          // "...,Rock"
-                            genreMiddleWithSpace = "%, $genreName,%", // "..., Rock,..."
-                            genreMiddle = "%,$genreName,%",        // "...,Rock,..."
-                            allowedParentDirs = allowedParentDirs,
-                            applyDirectoryFilter = applyDirectoryFilter
+                        // LIKE patterns are built from the configured genre
+                        // delimiters, so a song stored as "Rock; Pop" is
+                        // returned when browsing either "Rock" or "Pop".
+                        musicDao.getSongsByGenreContainingRaw(
+                            buildGenreSongsQuery(
+                                genreName = genreName,
+                                delimiters = params.genreDelimiters,
+                                allowedParentDirs = allowedParentDirs,
+                                applyDirectoryFilter = applyDirectoryFilter
+                            )
                         )
                     }
                 )
@@ -819,13 +821,55 @@ class MusicRepositoryImpl @Inject constructor(
         }
     }
 
+    private data class GenreBrowseParams(
+        val mockEnabled: Boolean,
+        val allowedDirs: Set<String>,
+        val blockedDirs: Set<String>,
+        val genreDelimiters: List<String>
+    )
+
+    private fun buildGenreSongsQuery(
+        genreName: String,
+        delimiters: List<String>,
+        allowedParentDirs: List<String>,
+        applyDirectoryFilter: Boolean
+    ): SimpleSQLiteQuery {
+        val args = mutableListOf<Any?>()
+        val sql = StringBuilder("SELECT * FROM songs WHERE ")
+        if (applyDirectoryFilter && allowedParentDirs.isNotEmpty()) {
+            sql.append("(id < 0 OR parent_directory_path IN (")
+            sql.append(allowedParentDirs.joinToString(", ") { "?" })
+            sql.append(")) AND ")
+            args.addAll(allowedParentDirs)
+        }
+        val patterns = buildGenreLikePatterns(genreName, delimiters)
+        sql.append("(")
+        sql.append(patterns.joinToString(" OR ") { "genre LIKE ?" })
+        sql.append(") ORDER BY title ASC")
+        args.addAll(patterns)
+        return SimpleSQLiteQuery(sql.toString(), args.toTypedArray())
+    }
+
+    private fun buildGenreLikePatterns(genreName: String, delimiters: List<String>): List<String> {
+        val patterns = mutableListOf(genreName)
+        for (delimiter in delimiters) {
+            patterns += "$genreName$delimiter%"
+            patterns += "%$delimiter $genreName"
+            patterns += "%$delimiter$genreName"
+            patterns += "%$delimiter $genreName$delimiter%"
+            patterns += "%$delimiter$genreName$delimiter%"
+        }
+        return patterns
+    }
+
     override fun getGenres(): Flow<List<Genre>> {
         return combine(
             userPreferencesRepository.allowedDirectoriesFlow,
-            userPreferencesRepository.blockedDirectoriesFlow
-        ) { allowedDirs, blockedDirs ->
-            allowedDirs to blockedDirs
-        }.flatMapLatest { (allowedDirs, blockedDirs) ->
+            userPreferencesRepository.blockedDirectoriesFlow,
+            userPreferencesRepository.genreDelimitersFlow
+        ) { allowedDirs, blockedDirs, genreDelimiters ->
+            Triple(allowedDirs, blockedDirs, genreDelimiters)
+        }.flatMapLatest { (allowedDirs, blockedDirs, genreDelimiters) ->
             flow {
                 val (allowedParentDirs, applyDirectoryFilter) =
                     computeAllowedDirs(allowedDirs, blockedDirs)
@@ -842,9 +886,7 @@ class MusicRepositoryImpl @Inject constructor(
                     ) { genreNames, hasUnknown ->
                         val knownGenres = genreNames
                             .asSequence()
-                            .flatMap { raw -> raw.split(",") } // split "Rock, Pop" → ["Rock", "Pop"]
-                            .map { it.trim() }
-                            .filter { it.isNotBlank() }
+                            .flatMap { raw -> raw.splitArtistsByDelimiters(genreDelimiters, emptyList()) }
                             .map { buildGenre(it) }
                             .distinctBy { it.id }
                             .sortedBy { it.name.lowercase() }

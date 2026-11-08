@@ -17,6 +17,7 @@ import javax.inject.Inject
 data class ArtistSettingsUiState(
     val artistDelimiters: List<String> = UserPreferencesRepository.DEFAULT_ARTIST_DELIMITERS,
     val wordDelimiters: List<String> = UserPreferencesRepository.DEFAULT_ARTIST_WORD_DELIMITERS,
+    val genreDelimiters: List<String> = UserPreferencesRepository.DEFAULT_GENRE_DELIMITERS,
     val extractArtistsFromTitle: Boolean = true,
     val groupByAlbumArtist: Boolean = false,
     val rescanRequired: Boolean = false,
@@ -49,6 +50,12 @@ class ArtistSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferencesRepository.artistWordDelimitersFlow.collect { delimiters ->
                 _uiState.update { it.copy(wordDelimiters = delimiters) }
+            }
+        }
+
+        viewModelScope.launch {
+            userPreferencesRepository.genreDelimitersFlow.collect { delimiters ->
+                _uiState.update { it.copy(genreDelimiters = delimiters) }
             }
         }
 
@@ -140,6 +147,34 @@ class ArtistSettingsViewModel @Inject constructor(
     fun resetWordDelimitersToDefault() {
         viewModelScope.launch {
             userPreferencesRepository.resetArtistWordDelimitersToDefault()
+        }
+    }
+
+    fun addGenreDelimiter(delimiter: String): Boolean {
+        val trimmed = delimiter.trim()
+        if (trimmed.isEmpty()) return false
+
+        val current = _uiState.value.genreDelimiters
+        if (current.contains(trimmed)) return false
+
+        viewModelScope.launch {
+            userPreferencesRepository.setGenreDelimiters(current + trimmed)
+        }
+        return true
+    }
+
+    fun removeGenreDelimiter(delimiter: String) {
+        val current = _uiState.value.genreDelimiters
+        if (current.size <= 1) return
+
+        viewModelScope.launch {
+            userPreferencesRepository.setGenreDelimiters(current - delimiter)
+        }
+    }
+
+    fun resetGenreDelimitersToDefault() {
+        viewModelScope.launch {
+            userPreferencesRepository.resetGenreDelimitersToDefault()
         }
     }
 
