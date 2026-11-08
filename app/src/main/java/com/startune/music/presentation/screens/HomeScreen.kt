@@ -235,6 +235,12 @@ fun HomeScreen(
         playerViewModel.stablePlayerState.map { it.currentSong }
     }.collectAsStateWithLifecycle(initialValue = null)
 
+    val isPlaying by remember(playerViewModel.stablePlayerState) {
+        playerViewModel.stablePlayerState
+            .map { it.isPlaying }
+            .distinctUntilChanged()
+    }.collectAsStateWithLifecycle(initialValue = false)
+
     val isShuffleEnabled by remember(playerViewModel.stablePlayerState) {
         playerViewModel.stablePlayerState
             .map { it.isShuffleEnabled }
@@ -417,6 +423,7 @@ fun HomeScreen(
                         TopTracksSection(
                             tracks = homeTopTracks,
                             currentSongId = currentSong?.id,
+                            isPlaying = isPlaying,
                             onTrackClick = { track ->
                                 topTrackSongs.find { it.id == track.songId }?.let { song ->
                                     playerViewModel.playSongs(

@@ -1,4 +1,4 @@
-package com.startune.music.presentation.screens
+﻿package com.startune.music.presentation.screens
 
 import com.startune.music.presentation.navigation.navigateSafely
 
@@ -30,14 +30,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Shuffle
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.LargeExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -76,6 +74,7 @@ import com.startune.music.presentation.components.PlaylistBottomSheet
 import com.startune.music.presentation.components.RecentlyPlayedRangeSelector
 import com.startune.music.presentation.components.SongInfoBottomSheet
 import com.startune.music.presentation.components.subcomps.EnhancedSongListItem
+import com.startune.music.utils.shapes.RoundedStarShape
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.viewmodel.PlaylistViewModel
 import com.startune.music.presentation.viewmodel.PlayerViewModel
@@ -95,7 +94,6 @@ fun TopTracksScreen(
     navController: NavController
 ) = traceSection("TopTracksScreen.Composition") {
     val queueTopTracks = stringResource(R.string.top_tracks_queue_name)
-    val shuffleLabel = stringResource(R.string.shortcut_shuffle_short)
     val uiState by statsViewModel.uiState.collectAsStateWithLifecycle()
     val selectedRange = uiState.selectedRange
     val topTracks = uiState.topTracks
@@ -166,7 +164,23 @@ fun TopTracksScreen(
                 item(key = "top_tracks_header") {
                     TopTracksHeader(
                         title = stringResource(R.string.top_tracks_title),
-                        scrollState = lazyListState
+                        scrollState = lazyListState,
+                        onPlay = if (queueSongs.isNotEmpty()) {
+                            {
+                                queueSongs.firstOrNull()?.let { firstSong ->
+                                    playerViewModel.playSongs(queueSongs, firstSong, queueTopTracks)
+                                }
+                            }
+                        } else null,
+                        onShuffle = if (queueSongs.isNotEmpty()) {
+                            {
+                                playerViewModel.playSongsShuffled(
+                                    songsToPlay = queueSongs,
+                                    queueName = queueTopTracks,
+                                    startAtZero = true,
+                                )
+                            }
+                        } else null
                     )
                 }
 
@@ -176,26 +190,6 @@ fun TopTracksScreen(
                         onRangeSelected = statsViewModel::onRangeSelected,
                         modifier = Modifier.padding(horizontal = 0.dp)
                     )
-                }
-
-                if (queueSongs.isNotEmpty()) {
-                    item(key = "top_tracks_actions") {
-                        TopTracksActions(
-                            onPlay = {
-                                val firstSong = queueSongs.firstOrNull() ?: return@TopTracksActions
-                                playerViewModel.playSongs(queueSongs, firstSong, queueTopTracks)
-                            },
-                            onShuffle = {
-                                playerViewModel.playSongsShuffled(
-                                    songsToPlay = queueSongs,
-                                    queueName = queueTopTracks,
-                                    startAtZero = true,
-                                )
-                            },
-                            shuffleLabel = shuffleLabel,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                    }
                 }
 
                 if (queueSongs.isEmpty()) {
@@ -346,7 +340,9 @@ fun TopTracksScreen(
 @Composable
 private fun TopTracksHeader(
     title: String,
-    scrollState: LazyListState
+    scrollState: LazyListState,
+    onPlay: (() -> Unit)? = null,
+    onShuffle: (() -> Unit)? = null
 ) {
     val parallaxOffset by remember {
         derivedStateOf {
@@ -397,11 +393,40 @@ private fun TopTracksHeader(
         ) {
             Spacer(modifier = Modifier.height(10.dp))
 
-            Text(
-                text = title,
-                style = titleStyle,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = title,
+                    style = titleStyle,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                if (onPlay != null) {
+                    LargeExtendedFloatingActionButton(
+                        onClick = onPlay,
+                        shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.PlayArrow,
+                            contentDescription = stringResource(R.string.play_playback)
+                        )
+                    }
+                }
+                if (onShuffle != null) {
+                    LargeExtendedFloatingActionButton(
+                        onClick = onShuffle,
+                        shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Shuffle,
+                            contentDescription = stringResource(R.string.shortcut_shuffle_short)
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -430,63 +455,6 @@ private fun rememberTopTracksTitleStyle(): TextStyle {
             lineHeight = 38.sp,
             letterSpacing = (-0.4).sp
         )
-    }
-}
-
-@Composable
-private fun TopTracksActions(
-    onPlay: () -> Unit,
-    onShuffle: () -> Unit,
-    shuffleLabel: String,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(52.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Button(
-            onClick = onPlay,
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxSize(),
-            shape = RoundedCornerShape(
-                topStart = 52.dp,
-                topEnd = 14.dp,
-                bottomStart = 52.dp,
-                bottomEnd = 14.dp
-            )
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.PlayArrow,
-                contentDescription = null,
-                modifier = Modifier.size(ButtonDefaults.IconSize)
-            )
-            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-            Text(stringResource(R.string.play_playback))
-        }
-
-        FilledTonalButton(
-            onClick = onShuffle,
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxSize(),
-            shape = RoundedCornerShape(
-                topStart = 14.dp,
-                topEnd = 52.dp,
-                bottomStart = 14.dp,
-                bottomEnd = 52.dp
-            )
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Shuffle,
-                contentDescription = null,
-                modifier = Modifier.size(ButtonDefaults.IconSize)
-            )
-            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-            Text(shuffleLabel)
-        }
     }
 }
 

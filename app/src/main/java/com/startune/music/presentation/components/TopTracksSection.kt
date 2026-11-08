@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
@@ -23,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,22 +39,30 @@ import androidx.compose.ui.unit.dp
 import com.startune.music.R
 import com.startune.music.data.stats.PlaybackStatsRepository
 import com.startune.music.presentation.components.SmartImage
+import com.startune.music.presentation.components.subcomps.PlayingEqIcon
 import kotlinx.collections.immutable.ImmutableList
 
+private const val TOP_TRACKS_PAGE_SIZE = 5
+private const val TOP_TRACKS_HOME_LIMIT = 15
+
 /**
- * Home Top Tracks, styled like the Top Tracks card on the Stats screen:
- * a rounded card with rank badges, album art and a play count per row.
+ * Home Top Tracks: the Stats card look (rounded card, rank badges) with the
+ * original slideable pager, 15 tracks in pages of 5. The playing track shows
+ * the same equalizer indicator as song lists elsewhere.
  */
 @Composable
 fun TopTracksSection(
     tracks: ImmutableList<PlaybackStatsRepository.SongPlaybackSummary>,
     currentSongId: String?,
+    isPlaying: Boolean,
     onTrackClick: (PlaybackStatsRepository.SongPlaybackSummary) -> Unit,
     onOpenAllClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val topFive = remember(tracks) { tracks.take(5) }
-    if (topFive.isEmpty()) return
+    val topTracks = remember(tracks) { tracks.take(TOP_TRACKS_HOME_LIMIT) }
+    if (topTracks.isEmpty()) return
+    val pages = remember(topTracks) { topTracks.chunked(TOP_TRACKS_PAGE_SIZE) }
+    val pagerState = rememberPagerState(pageCount = { pages.size })
     val containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
     val contentColor = MaterialTheme.colorScheme.onSurface
     val supportingColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -92,63 +104,91 @@ fun TopTracksSection(
                 }
             }
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                topFive.forEachIndexed { position, track ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable { onTrackClick(track) }
-                            .padding(vertical = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        TopTrackRankBadge(
-                            rank = position + 1,
-                            accentColor = MaterialTheme.colorScheme.primary,
-                            accentOnColor = MaterialTheme.colorScheme.onPrimary,
-                            highlighted = position == 0
-                        )
-                        SmartImage(
-                            model = track.albumArtUri,
-                            contentDescription = track.title,
-                            modifier = Modifier
-                                .size(52.dp)
-                                .clip(RoundedCornerShape(14.dp)),
-                            shape = RoundedCornerShape(14.dp)
-                        )
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                text = track.title,
-                                style = MaterialTheme.typography.titleSmall,
-                                color = if (currentSongId == track.songId) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    contentColor
-                                },
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Text(
-                                text = track.artist,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = supportingColor,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 0.dp),
+                pageSpacing = 24.dp
+            ) { page ->
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    pages[page].forEachIndexed { index, track ->
+                        key(track.songId) {
+                            TopTrackRow(
+                                rank = page * TOP_TRACKS_PAGE_SIZE + index + 1,
+                                track = track,
+                                isCurrentSong = currentSongId == track.songId,
+                                isPlaying = isPlaying,
+                                onClick = { onTrackClick(track) }
                             )
                         }
-                        Text(
-                            text = stringResource(R.string.presentation_batch_g_stats_n_plays, track.playCount),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = supportingColor
-                        )
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun TopTrackRow(
+    rank: Int,
+    track: PlaybackStatsRepository.SongPlaybackSummary,
+    isCurrentSong: Boolean,
+    isPlaying: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        TopTrackRankBadge(
+            rank = rank,
+            accentColor = MaterialTheme.colorScheme.primary,
+            accentOnColor = MaterialTheme.colorScheme.onPrimary,
+            highlighted = rank == 1
+        )
+        SmartImage(
+            model = track.albumArtUri,
+            contentDescription = track.title,
+            modifier = Modifier
+                .size(52.dp)
+                .clip(RoundedCornerShape(14.dp)),
+            shape = RoundedCornerShape(14.dp)
+        )
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = track.title,
+                style = MaterialTheme.typography.titleSmall,
+                color = if (isCurrentSong) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = track.artist,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        if (isCurrentSong) {
+            PlayingEqIcon(
+                modifier = Modifier.size(width = 18.dp, height = 16.dp),
+                color = MaterialTheme.colorScheme.primary,
+                isPlaying = isPlaying
+            )
         }
     }
 }
