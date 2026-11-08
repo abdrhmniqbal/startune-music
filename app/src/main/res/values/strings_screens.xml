@@ -92,9 +92,21 @@
     <string name="cd_reset_defaults">Reset defaults</string>
 
     <!-- Setup (additional literals) -->
-    <string name="setup_excluded_folders_title">Excluded folders</string>
-    <string name="setup_excluded_folders_description">Pick folders to ignore when scanning your music library.</string>
+    <string name="setup_excluded_folders_title">Manage folders</string>
+    <string name="setup_excluded_folders_description">Choose which folders to include or exclude from your library.</string>
     <string name="setup_choose_folders_ignore">Choose folders to ignore</string>
+
+    <!-- Manage folders -->
+    <string name="manage_folders_filter_title">Folder filtering</string>
+    <string name="manage_folders_filter_description">Choose whether added folders include or exclude music from your library.</string>
+    <string name="manage_folders_whitelist">Whitelist</string>
+    <string name="manage_folders_blacklist">Blacklist</string>
+    <string name="manage_folders_whitelist_description">Only the folders below are scanned.</string>
+    <string name="manage_folders_blacklist_description">All folders are scanned except the ones below.</string>
+    <string name="manage_folders_title">Folders</string>
+    <string name="manage_folders_add">Add folder</string>
+    <string name="manage_folders_empty_title">No folders added</string>
+    <string name="manage_folders_empty_message">Without filters every folder on your device is scanned.</string>
     <string name="setup_permission_media_title">Media Permission</string>
     <string name="setup_permission_media_description">Startune Music needs access to your audio files to build your music library.</string>
     <string name="setup_permission_granted">Permission Granted</string>

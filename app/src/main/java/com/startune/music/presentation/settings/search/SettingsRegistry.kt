@@ -17,7 +17,7 @@ object SettingsRegistry {
                 category = SettingsCategory.LIBRARY,
                 subscreenRoute = Screen.SettingsCategory.createRoute("library"),
                 type = SettingType.NAVIGABLE_CARD,
-                keywordsStatic = listOf("folder", "ignore", "exclude", "blacklist", "directories", "hidden")
+                keywordsStatic = listOf("folder", "manage folders", "whitelist", "blacklist", "allow", "ignore", "exclude", "directories", "hidden")
             ),
             SettingSpec(
                 id = "library_artists",

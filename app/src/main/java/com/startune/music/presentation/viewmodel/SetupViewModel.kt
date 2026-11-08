@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import java.io.File
@@ -38,6 +37,7 @@ data class SetupUiState(
     val mediaPermissionGranted: Boolean = false,
     val notificationsPermissionGranted: Boolean = false,
     val isLoadingDirectories: Boolean = false,
+    val allowedDirectories: Set<String> = emptySet(),
     val blockedDirectories: Set<String> = emptySet(),
     val libraryNavigationMode: String = "tab_row",
     val navBarStyle: String = "default",
@@ -91,6 +91,7 @@ class SetupViewModel @Inject constructor(
 
     val currentPath = fileExplorerStateHolder.currentPath
     val currentDirectoryChildren = fileExplorerStateHolder.currentDirectoryChildren
+    val allowedDirectories = fileExplorerStateHolder.allowedDirectories
     val blockedDirectories = fileExplorerStateHolder.blockedDirectories
     val availableStorages = fileExplorerStateHolder.availableStorages
     val selectedStorageIndex = fileExplorerStateHolder.selectedStorageIndex
@@ -98,8 +99,6 @@ class SetupViewModel @Inject constructor(
     val isExplorerPriming = fileExplorerStateHolder.isPrimingExplorer
     val isExplorerReady = fileExplorerStateHolder.isExplorerReady
     val isCurrentDirectoryResolved = fileExplorerStateHolder.isCurrentDirectoryResolved
-    private var hasPendingDirectoryRuleChanges = false
-    private var latestDirectoryRuleUpdateJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -147,6 +146,12 @@ class SetupViewModel @Inject constructor(
         viewModelScope.launch {
             fileExplorerStateHolder.isLoading.collect { loading ->
                 _uiState.update { it.copy(isLoadingDirectories = loading) }
+            }
+        }
+
+        viewModelScope.launch {
+            userPreferencesRepository.allowedDirectoriesFlow.collect { allowed ->
+                _uiState.update { it.copy(allowedDirectories = allowed) }
             }
         }
     }
@@ -202,19 +207,42 @@ class SetupViewModel @Inject constructor(
         }
     }
 
-    fun toggleDirectoryAllowed(file: File) {
-        hasPendingDirectoryRuleChanges = true
-        latestDirectoryRuleUpdateJob = viewModelScope.launch {
-            fileExplorerStateHolder.toggleDirectoryAllowed(file)
+    fun addFolder(path: String) {
+        viewModelScope.launch {
+            val normalized = File(path).absolutePath
+            val allowed = userPreferencesRepository.allowedDirectoriesFlow.first()
+            val blocked = userPreferencesRepository.blockedDirectoriesFlow.first()
+            if (allowed.isNotEmpty()) {
+                if (normalized in allowed) return@launch
+                userPreferencesRepository.updateDirectorySelections(allowed + normalized, blocked - normalized)
+            } else {
+                if (normalized in blocked) return@launch
+                userPreferencesRepository.updateDirectorySelections(allowed - normalized, blocked + normalized)
+            }
         }
     }
 
-    fun applyPendingDirectoryRuleChanges() {
-        if (!hasPendingDirectoryRuleChanges) return
-        hasPendingDirectoryRuleChanges = false
+    fun removeFolder(path: String) {
         viewModelScope.launch {
-            latestDirectoryRuleUpdateJob?.join()
-            syncManager.forceRefresh()
+            val allowed = userPreferencesRepository.allowedDirectoriesFlow.first()
+            val blocked = userPreferencesRepository.blockedDirectoriesFlow.first()
+            if (path !in allowed && path !in blocked) return@launch
+            userPreferencesRepository.updateDirectorySelections(allowed - path, blocked - path)
+        }
+    }
+
+    fun setFolderFilterMode(whitelist: Boolean) {
+        viewModelScope.launch {
+            val allowed = userPreferencesRepository.allowedDirectoriesFlow.first()
+            val blocked = userPreferencesRepository.blockedDirectoriesFlow.first()
+            if (whitelist && blocked.isEmpty()) return@launch
+            if (!whitelist && allowed.isEmpty()) return@launch
+            val all = allowed + blocked
+            if (whitelist) {
+                userPreferencesRepository.updateDirectorySelections(all, emptySet())
+            } else {
+                userPreferencesRepository.updateDirectorySelections(emptySet(), all)
+            }
         }
     }
 

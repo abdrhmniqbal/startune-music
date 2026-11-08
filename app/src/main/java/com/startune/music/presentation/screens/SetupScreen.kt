@@ -42,6 +42,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -143,6 +145,7 @@ import com.startune.music.presentation.components.BackupModuleSelectionDialog
 import com.startune.music.presentation.components.subcomps.MaterialYouVectorDrawable
 import com.startune.music.presentation.components.subcomps.SineWaveLine
 import com.startune.music.presentation.components.FileExplorerDialog
+import com.startune.music.presentation.components.FolderFilterContent
 import com.startune.music.presentation.viewmodel.DirectoryEntry
 import com.startune.music.presentation.viewmodel.SetupEvent
 import com.startune.music.presentation.viewmodel.SetupUiState
@@ -355,8 +358,9 @@ fun SetupScreen(
                         onSkip = {
                             navigateToPage(pagerState.currentPage + 1)
                         },
-                        onToggleAllowed = setupViewModel::toggleDirectoryAllowed,
-                        onSelectionFinished = setupViewModel::applyPendingDirectoryRuleChanges,
+                        onModeChange = setupViewModel::setFolderFilterMode,
+                        onAddFolder = setupViewModel::addFolder,
+                        onRemoveFolder = setupViewModel::removeFolder,
                         onStorageSelected = setupViewModel::selectStorage
                     )
                     SetupPage.NotificationsPermission -> NotificationsPermissionPage(
@@ -458,8 +462,9 @@ fun DirectorySelectionPage(
     onRefresh: () -> Unit,
     onPrimeExplorer: () -> Unit,
     onSkip: () -> Unit,
-    onToggleAllowed: (File) -> Unit,
-    onSelectionFinished: () -> Unit,
+    onModeChange: (Boolean) -> Unit,
+    onAddFolder: (String) -> Unit,
+    onRemoveFolder: (String) -> Unit,
     onStorageSelected: (Int) -> Unit
 ) {
     var showDirectoryPicker by remember { mutableStateOf(false) }
@@ -474,30 +479,59 @@ fun DirectorySelectionPage(
         }
     }
 
-    PermissionPageLayout(
-        title = stringResource(R.string.setup_excluded_folders_title),
-        description = stringResource(R.string.setup_excluded_folders_description),
-        buttonText = stringResource(R.string.setup_choose_folders_ignore),
-        buttonEnabled = canOpenDirectoryPicker,
-        onGrantClicked = {
-            if (canOpenDirectoryPicker) {
-                showDirectoryPicker = true
-                onOpenExplorer()
-            } else {
-                Toast.makeText(context, context.getString(R.string.toast_grant_storage_first), Toast.LENGTH_SHORT).show()
-            }
-        },
-        icons = persistentListOf(
-            R.drawable.rounded_folder_24,
-            R.drawable.rounded_music_note_24,
-            R.drawable.rounded_create_new_folder_24,
-            R.drawable.rounded_folder_open_24,
-            R.drawable.rounded_audio_file_24
-        )
+    val isWhitelist = uiState.allowedDirectories.isNotEmpty()
+    val folders = (if (isWhitelist) uiState.allowedDirectories else uiState.blockedDirectories).sorted()
+    val scrollState = rememberScrollState()
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp)
     ) {
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = stringResource(R.string.setup_excluded_folders_title),
+            style = MaterialTheme.typography.displayMedium.copy(
+                fontFamily = RoundedSans,
+                fontSize = 32.sp
+            ),
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = stringResource(R.string.setup_excluded_folders_description),
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
+        ) {
+            FolderFilterContent(
+                isWhitelist = isWhitelist,
+                folders = folders,
+                onModeChange = onModeChange,
+                onAddFolder = {
+                    if (canOpenDirectoryPicker) {
+                        showDirectoryPicker = true
+                        onOpenExplorer()
+                    } else {
+                        Toast.makeText(context, context.getString(R.string.toast_grant_storage_first), Toast.LENGTH_SHORT).show()
+                    }
+                },
+                onRemoveFolder = onRemoveFolder
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
         TextButton(onClick = onSkip) {
             Text(stringResource(R.string.skip_for_now), maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 
     FileExplorerDialog(
@@ -515,17 +549,15 @@ fun DirectorySelectionPage(
         onNavigateTo = onNavigateTo,
         onNavigateUp = onNavigateUp,
         onNavigateHome = { onNavigateTo(explorerRoot) },
-        onToggleAllowed = onToggleAllowed,
-        onRefresh = onRefresh,
-        onStorageSelected = onStorageSelected,
-        onDone = {
-            onSelectionFinished()
+        onFolderPicked = { file ->
+            onAddFolder(file.absolutePath)
             showDirectoryPicker = false
         },
-        onDismiss = {
-            onSelectionFinished()
-            showDirectoryPicker = false
-        }
+        onRefresh = onRefresh,
+        onStorageSelected = onStorageSelected,
+        onDone = { showDirectoryPicker = false },
+        onDismiss = { showDirectoryPicker = false },
+        title = stringResource(R.string.manage_folders_add)
     )
 }
 

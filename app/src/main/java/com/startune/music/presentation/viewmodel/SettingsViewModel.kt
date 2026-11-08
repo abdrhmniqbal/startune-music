@@ -38,7 +38,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -194,6 +193,7 @@ class SettingsViewModel @Inject constructor(
 
     val currentPath = fileExplorerStateHolder.currentPath
     val currentDirectoryChildren = fileExplorerStateHolder.currentDirectoryChildren
+    val allowedDirectories = fileExplorerStateHolder.allowedDirectories
     val blockedDirectories = fileExplorerStateHolder.blockedDirectories
     val availableStorages = fileExplorerStateHolder.availableStorages
     val selectedStorageIndex = fileExplorerStateHolder.selectedStorageIndex
@@ -201,8 +201,6 @@ class SettingsViewModel @Inject constructor(
     val isExplorerPriming = fileExplorerStateHolder.isPrimingExplorer
     val isExplorerReady = fileExplorerStateHolder.isExplorerReady
     val isCurrentDirectoryResolved = fileExplorerStateHolder.isCurrentDirectoryResolved
-    private var hasPendingDirectoryRuleChanges = false
-    private var latestDirectoryRuleUpdateJob: Job? = null
 
     val isSyncing: StateFlow<Boolean> = syncManager.isSyncing
         .stateIn(
@@ -476,19 +474,42 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun toggleDirectoryAllowed(file: File) {
-        hasPendingDirectoryRuleChanges = true
-        latestDirectoryRuleUpdateJob = viewModelScope.launch {
-            fileExplorerStateHolder.toggleDirectoryAllowed(file)
+    fun addFolder(path: String) {
+        viewModelScope.launch {
+            val normalized = File(path).absolutePath
+            val allowed = userPreferencesRepository.allowedDirectoriesFlow.first()
+            val blocked = userPreferencesRepository.blockedDirectoriesFlow.first()
+            if (allowed.isNotEmpty()) {
+                if (normalized in allowed) return@launch
+                userPreferencesRepository.updateDirectorySelections(allowed + normalized, blocked - normalized)
+            } else {
+                if (normalized in blocked) return@launch
+                userPreferencesRepository.updateDirectorySelections(allowed - normalized, blocked + normalized)
+            }
         }
     }
 
-    fun applyPendingDirectoryRuleChanges() {
-        if (!hasPendingDirectoryRuleChanges) return
-        hasPendingDirectoryRuleChanges = false
+    fun removeFolder(path: String) {
         viewModelScope.launch {
-            latestDirectoryRuleUpdateJob?.join()
-            syncManager.forceRefresh()
+            val allowed = userPreferencesRepository.allowedDirectoriesFlow.first()
+            val blocked = userPreferencesRepository.blockedDirectoriesFlow.first()
+            if (path !in allowed && path !in blocked) return@launch
+            userPreferencesRepository.updateDirectorySelections(allowed - path, blocked - path)
+        }
+    }
+
+    fun setFolderFilterMode(whitelist: Boolean) {
+        viewModelScope.launch {
+            val allowed = userPreferencesRepository.allowedDirectoriesFlow.first()
+            val blocked = userPreferencesRepository.blockedDirectoriesFlow.first()
+            if (whitelist && blocked.isEmpty()) return@launch
+            if (!whitelist && allowed.isEmpty()) return@launch
+            val all = allowed + blocked
+            if (whitelist) {
+                userPreferencesRepository.updateDirectorySelections(all, emptySet())
+            } else {
+                userPreferencesRepository.updateDirectorySelections(emptySet(), all)
+            }
         }
     }
 

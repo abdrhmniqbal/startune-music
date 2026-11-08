@@ -5,6 +5,11 @@
  * A more specific rule (longer path) always overrides a parent rule. Allowed rules
  * take precedence over blocked rules at the same depth to enable explicit overrides
  * inside excluded trees.
+ *
+ * When allowed roots exist the resolver runs in whitelist mode: only paths under
+ * an allowed root are included, and a deeper blocked root still excludes.
+ * With no allowed roots it runs in blacklist mode: everything is included
+ * except paths under a blocked root.
  */
 class DirectoryRuleResolver(
     allowed: Set<String>,
@@ -29,8 +34,6 @@ class DirectoryRuleResolver(
             }
         }
 
-        if (deepestBlockLen == -1) return false
-
         for (root in allowedRoots) {
             if (isParentOrSame(root, path)) {
                 if (root.length > deepestAllowLen) {
@@ -39,6 +42,12 @@ class DirectoryRuleResolver(
             }
         }
 
+        if (allowedRoots.isNotEmpty()) {
+            if (deepestAllowLen == -1) return true
+            return deepestBlockLen > deepestAllowLen
+        }
+
+        if (deepestBlockLen == -1) return false
         return deepestBlockLen > deepestAllowLen
     }
 

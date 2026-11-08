@@ -10,7 +10,7 @@ object DirectoryFilterUtils {
         getAllParentDirs: suspend () -> List<String>,
         normalizePath: (String) -> String
     ): Pair<List<String>, Boolean> {
-        if (blockedDirs.isEmpty()) return Pair(emptyList(), false)
+        if (allowedDirs.isEmpty() && blockedDirs.isEmpty()) return Pair(emptyList(), false)
 
         val resolver = DirectoryRuleResolver(
             allowedDirs.map(normalizePath).toSet(),
