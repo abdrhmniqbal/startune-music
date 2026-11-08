@@ -87,7 +87,7 @@ import com.unshoo.pixelmusic.presentation.components.AlbumArtCollage
 import com.unshoo.pixelmusic.presentation.components.BetaInfoBottomSheet
 import com.unshoo.pixelmusic.presentation.components.ChangelogBottomSheet
 import com.unshoo.pixelmusic.presentation.jellyfin.dashboard.JellyfinDashboardViewModel
-import com.unshoo.pixelmusic.presentation.components.DailyMixSection
+import com.unshoo.pixelmusic.presentation.components.TopTracksSection
 import com.unshoo.pixelmusic.presentation.components.HomeGradientTopBar
 import com.unshoo.pixelmusic.presentation.components.HomeOptionsBottomSheet
 import com.unshoo.pixelmusic.presentation.components.MiniPlayerHeight
@@ -139,6 +139,17 @@ fun HomeScreen(
     val curatedYourMixSongs by playerViewModel.yourMixSongs.collectAsStateWithLifecycle()
     val homeMixPreviewSongs by playerViewModel.homeMixPreviewSongs.collectAsStateWithLifecycle()
     val playbackHistory by playerViewModel.playbackHistory.collectAsStateWithLifecycle()
+    val homeTopTracks by statsViewModel.homeTopTracks.collectAsStateWithLifecycle()
+    val homeTopTrackIds = remember(homeTopTracks) { homeTopTracks.map { it.songId } }
+    val homeTopTrackSourceSongs by remember(homeTopTrackIds, playerViewModel) {
+        playerViewModel.observeSongs(homeTopTrackIds)
+            .map<List<Song>, List<Song>?> { it }
+    }.collectAsStateWithLifecycle(initialValue = null)
+    val topTrackSongs = remember(homeTopTracks, homeTopTrackSourceSongs) {
+        val byId = homeTopTrackSourceSongs.orEmpty().associateBy { it.id }
+        homeTopTracks.mapNotNull { byId[it.songId] }.toImmutableList()
+    }
+    val topTracksQueueName = stringResource(R.string.top_tracks_queue_name)
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val usesFallbackHomeMix = remember(curatedYourMixSongs, dailyMixSongs) {
@@ -398,34 +409,24 @@ fun HomeScreen(
                     }
                 }
 
-                if (dailyMixSongs.isNotEmpty()) {
+                if (topTrackSongs.isNotEmpty()) {
                     item(
-                        key = "daily_mix_section",
-                        contentType = "daily_mix_section"
+                        key = "top_tracks_section",
+                        contentType = "top_tracks_section"
                     ) {
-                        DailyMixSection(
-                            songs = dailyMixSongs,
-                            onClickOpen = {
-                                navController.navigateSafely(Screen.DailyMixScreen.route)
-                            },
-                            onNavigateToAlbum = { song ->
-                                navController.navigateSafelyReplacing(
-                                    route = Screen.AlbumDetail.createRoute(song.albumId),
-                                    patternToPop = Screen.AlbumDetail.route
+                        TopTracksSection(
+                            songs = topTrackSongs,
+                            currentSongId = currentSong?.id,
+                            onSongClick = { song ->
+                                playerViewModel.playSongs(
+                                    songsToPlay = topTrackSongs,
+                                    startSong = song,
+                                    queueName = topTracksQueueName
                                 )
                             },
-                            onNavigateToArtist = { song ->
-                                navController.navigateSafelyReplacing(
-                                    route = Screen.ArtistDetail.createRoute(song.artistId),
-                                    patternToPop = Screen.ArtistDetail.route
-                                )
-                            },
-                            onNavigateToGenre = { song ->
-                                song.genre?.let {
-                                    navController.navigateSafely(Screen.GenreDetail.createRoute(java.net.URLEncoder.encode(it, "UTF-8")))
-                                }
-                            },
-                            playerViewModel = playerViewModel
+                            onOpenAllClick = {
+                                navController.navigateSafely(Screen.TopTracks.route)
+                            }
                         )
                     }
                 }

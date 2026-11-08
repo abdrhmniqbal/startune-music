@@ -208,6 +208,45 @@ class PlaybackStatsRepository @Inject constructor(
         )
     }
 
+    suspend fun loadTopTracks(
+        range: StatsTimeRange,
+        songs: List<Song>,
+        limit: Int = 50,
+        nowMillis: Long = System.currentTimeMillis()
+    ): List<SongPlaybackSummary> = withContext(Dispatchers.IO) {
+        val zoneId = ZoneId.systemDefault()
+        val allEvents = readEvents()
+        val (startBound, endBound) = range.resolveBounds(allEvents, nowMillis, zoneId)
+        val songMap = songs.associateBy { it.id }
+        allEvents
+            .filter { event ->
+                val start = event.startMillis()
+                val end = event.endMillis()
+                val lowerBound = startBound ?: Long.MIN_VALUE
+                end >= lowerBound && start <= endBound
+            }
+            .groupBy { it.songId }
+            .mapNotNull { (songId, eventsForSong) ->
+                val song = songMap[songId] ?: return@mapNotNull null
+                val segments = mergeSongEvents(eventsForSong)
+                val title = song.title.takeIf { it.isNotBlank() }
+                    ?: song.path.substringAfterLast('/').ifBlank { return@mapNotNull null }
+                SongPlaybackSummary(
+                    songId = songId,
+                    title = title,
+                    artist = song.displayArtist.takeIf { it.isNotBlank() } ?: "Unknown Artist",
+                    albumArtUri = song.albumArtUriString,
+                    totalDurationMs = segments.sumOf { it.durationMs },
+                    playCount = segments.size
+                )
+            }
+            .sortedWith(
+                compareByDescending<SongPlaybackSummary> { it.playCount }
+                    .thenByDescending { it.totalDurationMs }
+            )
+            .take(limit.coerceAtLeast(0))
+    }
+
     internal fun buildSummaryFromEvents(
         range: StatsTimeRange,
         songs: List<Song>,

@@ -6,6 +6,7 @@ import com.unshoo.pixelmusic.data.model.Song
 import com.unshoo.pixelmusic.data.repository.MusicRepository
 import com.unshoo.pixelmusic.data.stats.PlaybackStatsRepository
 import com.unshoo.pixelmusic.data.stats.PlaybackStatsRepository.PlaybackStatsSummary
+import com.unshoo.pixelmusic.data.stats.PlaybackStatsRepository.SongPlaybackSummary
 import com.unshoo.pixelmusic.data.stats.StatsTimeRange
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
 @HiltViewModel
@@ -33,6 +35,7 @@ class StatsViewModel @Inject constructor(
         val isLoading: Boolean = true,
         val isRefreshing: Boolean = false,
         val summary: PlaybackStatsSummary? = null,
+        val topTracks: ImmutableList<SongPlaybackSummary> = persistentListOf(),
         val availableRanges: ImmutableList<StatsTimeRange> = StatsTimeRange.entries.toImmutableList()
     )
 
@@ -44,6 +47,9 @@ class StatsViewModel @Inject constructor(
 
     private val _homeOverview = MutableStateFlow<PlaybackStatsSummary?>(null)
     val homeOverview: StateFlow<PlaybackStatsSummary?> = _homeOverview.asStateFlow()
+
+    private val _homeTopTracks = MutableStateFlow<ImmutableList<SongPlaybackSummary>>(persistentListOf())
+    val homeTopTracks: StateFlow<ImmutableList<SongPlaybackSummary>> = _homeTopTracks.asStateFlow()
 
     @Volatile
     private var cachedSongs: List<Song>? = null
@@ -90,16 +96,20 @@ class StatsViewModel @Inject constructor(
             runCatching {
                 withContext(Dispatchers.IO) {
                     val songs = loadSongs()
-                    for (range in HomeOverviewRanges) {
-                        val summary = playbackStatsRepository.loadSummary(range, songs)
-                        if (summary.hasListeningActivity()) {
-                            return@withContext summary
-                        }
+                    val topTracks = playbackStatsRepository.loadTopTracks(
+                        StatsTimeRange.ALL,
+                        songs,
+                        HOME_TOP_TRACKS_LIMIT
+                    )
+                    val summary = HomeOverviewRanges.firstNotNullOfOrNull { range ->
+                        playbackStatsRepository.loadSummary(range, songs)
+                            .takeIf { it.hasListeningActivity() }
                     }
-                    null
+                    summary to topTracks
                 }
-            }.onSuccess { summary ->
+            }.onSuccess { (summary, topTracks) ->
                 _homeOverview.value = summary
+                _homeTopTracks.value = topTracks.toImmutableList()
             }.onFailure { throwable ->
                 Timber.e(throwable, "Failed to load home stats overview")
                 _homeOverview.value = null
@@ -118,26 +128,30 @@ class StatsViewModel @Inject constructor(
             } else {
                 _uiState.update { it.copy(isRefreshing = true, selectedRange = range) }
             }
-            val summary = runCatching {
+            val loaded = runCatching {
                 withContext(Dispatchers.IO) {
                     val songs = loadSongs()
-                    playbackStatsRepository.loadSummary(range, songs)
+                    val summary = playbackStatsRepository.loadSummary(range, songs)
+                    val topTracks = playbackStatsRepository.loadTopTracks(range, songs)
+                    summary to topTracks
                 }
             }
-            summary.getOrNull()?.let { loaded ->
+            loaded.getOrNull()?.let { (summary, _) ->
                 if (updateWeeklyOverview) {
-                    _weeklyOverview.value = loaded
+                    _weeklyOverview.value = summary
                 }
             }
             _uiState.update { current ->
+                val result = loaded.getOrNull()
                 current.copy(
                     isLoading = false,
                     isRefreshing = false,
-                    summary = summary.getOrNull(),
+                    summary = result?.first,
+                    topTracks = result?.second?.toImmutableList() ?: persistentListOf(),
                     selectedRange = range
                 )
             }
-            summary.exceptionOrNull()?.let { Timber.e(it, "Failed to load stats for range %s", range) }
+            loaded.exceptionOrNull()?.let { Timber.e(it, "Failed to load stats for range %s", range) }
         }
     }
 
@@ -193,5 +207,6 @@ class StatsViewModel @Inject constructor(
             StatsTimeRange.YEAR,
             StatsTimeRange.ALL
         )
+        const val HOME_TOP_TRACKS_LIMIT = 25
     }
 }

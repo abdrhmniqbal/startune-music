@@ -314,6 +314,10 @@
     <string name="artist_albums_title">Albums</string>
     <string name="artist_singles_eps_title">Singles &amp; EPs</string>
     <string name="action_see_all">See all</string>
+    <string name="top_tracks_title">Top Tracks</string>
+    <string name="top_tracks_queue_name">Top Tracks</string>
+    <string name="top_tracks_empty_title">No top tracks in %1$s</string>
+    <string name="top_tracks_empty_subtitle">Change the range or play more songs to fill this list.</string>
     <string name="action_shuffle">Shuffle</string>
     <string name="action_shuffle_play">Shuffle Play</string>
     <string name="visibility_label">Visibility</string>

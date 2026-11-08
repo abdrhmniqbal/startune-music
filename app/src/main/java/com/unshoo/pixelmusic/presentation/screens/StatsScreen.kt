@@ -306,6 +306,13 @@ fun StatsScreen(
                     }
 
                     item {
+                        TopTracksCard(
+                            topTracks = uiState.topTracks,
+                            modifier = Modifier.padding(horizontal = 20.dp)
+                        )
+                    }
+
+                    item {
                         ListeningHabitsCard(
                             summary = summary,
                             modifier = Modifier.padding(horizontal = 20.dp)
@@ -2061,6 +2068,81 @@ private fun TopAlbumsCard(
                                 trackColor = contentColor.copy(alpha = 0.18f)
                             )
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TopTracksCard(
+    topTracks: ImmutableList<PlaybackStatsRepository.SongPlaybackSummary>,
+    modifier: Modifier = Modifier
+) {
+    val topFive = remember(topTracks) { topTracks.take(5) }
+    if (topFive.isEmpty()) return
+    val containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    val contentColor = MaterialTheme.colorScheme.onSurface
+    val supportingColor = MaterialTheme.colorScheme.onSurfaceVariant
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor)
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.top_tracks_title),
+                style = MaterialTheme.typography.titleLargeEmphasized,
+                fontWeight = FontWeight.SemiBold,
+                color = contentColor
+            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                topFive.forEachIndexed { position, track ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        CategoryRankBadge(
+                            rank = position + 1,
+                            accentColor = MaterialTheme.colorScheme.primary,
+                            accentOnColor = MaterialTheme.colorScheme.onPrimary,
+                            highlighted = position == 0
+                        )
+                        SmartImage(
+                            model = track.albumArtUri,
+                            contentDescription = track.title,
+                            modifier = Modifier
+                                .size(52.dp)
+                                .clip(RoundedCornerShape(14.dp)),
+                            shape = RoundedCornerShape(14.dp)
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = track.title,
+                                style = MaterialTheme.typography.titleSmall,
+                                color = contentColor,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = track.artist,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = supportingColor,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        Text(
+                            text = stringResource(R.string.presentation_batch_g_stats_n_plays, track.playCount),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = supportingColor
+                        )
                     }
                 }
             }

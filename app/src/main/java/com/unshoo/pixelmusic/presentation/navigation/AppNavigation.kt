@@ -41,6 +41,7 @@ import com.unshoo.pixelmusic.presentation.screens.AccountsScreen
 import com.unshoo.pixelmusic.presentation.screens.ArtistDetailScreen
 import com.unshoo.pixelmusic.presentation.screens.ArtistSettingsScreen
 import com.unshoo.pixelmusic.presentation.screens.DailyMixScreen
+import com.unshoo.pixelmusic.presentation.screens.TopTracksScreen
 import com.unshoo.pixelmusic.presentation.screens.EditTransitionScreen
 import com.unshoo.pixelmusic.presentation.screens.EasterEggScreen
 import com.unshoo.pixelmusic.presentation.screens.ExperimentalSettingsScreen
@@ -303,6 +304,20 @@ fun AppNavigation(
             ) {
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
                     DailyMixScreen(
+                        playerViewModel = playerViewModel,
+                        navController = navController
+                    )
+                }
+            }
+            composable(
+                Screen.TopTracks.route,
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { popEnterTransition() },
+                popExitTransition = { popExitTransition() },
+            ) {
+                ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
+                    TopTracksScreen(
                         playerViewModel = playerViewModel,
                         navController = navController
                     )

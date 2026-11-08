@@ -36,6 +36,7 @@ sealed class Screen(val route: String) {
 
     object  DailyMixScreen : Screen("daily_mix")
     object RecentlyPlayed : Screen("recently_played")
+    object TopTracks : Screen("top_tracks")
     object Stats : Screen("stats")
     object Duplicates : Screen("duplicates?highlightKey={highlightKey}") {
         fun createRoute(highlightKey: String? = null) =
