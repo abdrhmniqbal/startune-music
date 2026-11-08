@@ -82,8 +82,6 @@
 
     <!-- Backfilled translations -->
     <string name="library_storage_filter_local">仅限本地</string>
-    <string name="library_storage_filter_telegram">电报</string>
-    <string name="library_storage_filter_youtube">YouTube</string>
     <string name="library_storage_filter_downloaded_only">已下载</string>
     <string name="song_picker_filter_favorites">喜欢</string>
 </resources>

@@ -308,9 +308,7 @@
     <string name="settings_category_content_title">内容</string>
     <string name="settings_category_content_subtitle">内容国家/地区、语言、过滤器和建议来源</string>
     <string name="settings_content_language_title">内容语言</string>
-    <string name="settings_content_language_desc">设置首选 YouTube Music 内容语言</string>
     <string name="settings_content_country_title">内容国家</string>
-    <string name="settings_content_country_desc">设置首选 YouTube 音乐内容国家/地区</string>
     <string name="settings_playlist_suggestion_title">播放列表建议来源</string>
     <string name="settings_playlist_suggestion_desc">播放列表歌曲建议来源</string>
     <string name="settings_hide_explicit_title">隐藏露骨内容</string>
@@ -377,13 +375,11 @@
     <string name="setcat_force_high_quality_mobile_title">强制移动数据保持高质量</string>
     <string name="setcat_force_high_quality_mobile_desc">即使连接到移动或按流量计费的网络，也能以高质量进行流式传输。</string>
     <string name="setcat_cache_liked_songs_title">离线缓存喜欢的歌曲</string>
-    <string name="setcat_cache_liked_songs_desc">自动下载喜欢的 YouTube 歌曲的音频以供离线播放。</string>
     <string name="setcat_album_art_quality_wifi_title">WiFi 专辑艺术质量</string>
     <string name="setcat_album_art_quality_wifi_desc">在 WiFi 上下载和显示专辑封面的解决方案。</string>
     <string name="setcat_album_art_quality_mobile_title">手机相册艺术质量</string>
     <string name="setcat_album_art_quality_mobile_desc">在计量网络上下载和显示专辑封面的解决方案。</string>
     <string name="setcat_music_storage_limit_title">音乐存储限制</string>
-    <string name="setcat_music_storage_limit_desc">为下载的 YouTube 音乐分配的最大本地存储空间。</string>
     <string name="genre_local_music">本地音乐</string>
     <string name="setcat_preload_queue_enabled_title">队列预加载</string>
     <string name="setcat_preload_queue_enabled_desc">预加载队列中后续歌曲的播放链接和封面。</string>
@@ -394,9 +390,6 @@
     <string name="setcat_avoid_repetitive_songs_title">避免重复的歌曲</string>
     <string name="setcat_avoid_repetitive_songs_desc">从动态队列中过滤掉最近播放或频繁旋转的曲目。</string>
     <string name="setcat_deduplicate_queue_title">删除重复队列条目</string>
-    <string name="setcat_deduplicate_queue_desc">移除播放队列中本地、Telegram 和 YouTube 之间的重复歌曲。</string>
-    <string name="setcat_prefer_telegram_alternative_title">更喜欢替代方案（本地和电报）</string>
-    <string name="setcat_prefer_telegram_alternative_desc">优先播放匹配的本地音频，其次是 Telegram，最后回退到 YouTube。</string>
     <string name="lastfm_integration">Last.fm 集成</string>
     <string name="lastfm_integration_desc">配置 Last.fm 乱序、现在播放更新和阈值参数</string>
     <string name="lastfm_not_logged_in">未登录</string>
@@ -418,10 +411,7 @@
     <string name="lastfm_logged_in_as">以 %1$s 身份登录</string>
     <string name="lastfm_login_dialog_title">链接 Last.fm 帐户</string>
     <string name="lastfm_login_dialog_desc">输入您的 Last.fm 帐户凭据以授权记录。</string>
-    <string name="setcat_telegram_artwork_title">为 Telegram 歌曲使用在线封面</string>
-    <string name="setcat_telegram_artwork_desc">匹配 Telegram 音轨与 YouTube Music 以使用高清封面。</string>
     <string name="setcat_playback_client_title">播放客户端</string>
-    <string name="setcat_playback_client_desc">选择流式客户端。Android VR 速度更快；Web 客户端使用 YouTube Music。</string>
     <string name="setcat_playback_client_android_vr">Android VR（默认）</string>
     <string name="setcat_playback_client_web_remix">Web 客户端</string>
 </resources>

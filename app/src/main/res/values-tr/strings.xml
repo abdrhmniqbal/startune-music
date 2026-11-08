@@ -15,7 +15,6 @@
     <string name="accounts_listenbrainz_reconnect">Yeniden bağlan</string>
     <string name="accounts_listenbrainz_scrobble_jellyfin">Jellyfin akışını gönder</string>
     <string name="accounts_listenbrainz_scrobble_local">Yerel dosyaları gönder</string>
-    <string name="accounts_listenbrainz_scrobble_navidrome">Subsonic akışını gönder</string>
     <string name="accounts_listenbrainz_server_hint">Sunucu URL\'si (isteğe bağlı)</string>
     <string name="accounts_listenbrainz_server_supporting">listenbrainz.org için boş bırakın. Maloja gibi ListenBrainz API\'sini destekleyen, kendi barındırdığınız sunucularla da çalışır.</string>
     <string name="accounts_listenbrainz_stat_listens">Toplam dinleme</string>

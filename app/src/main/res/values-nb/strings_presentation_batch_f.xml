@@ -158,41 +158,24 @@
     <string name="presentation_batch_f_dot_space_suffix"> · %1$s</string>
     <string name="presentation_batch_f_unknown_short">\?</string>
 
-    <!-- Telegram login -->
-    <string name="presentation_batch_f_telegram_login_title">Telegram-innlogging</string>
-    <string name="presentation_batch_f_telegram_edit_number_chip">Du redigerer nummeret ditt. Ved å sende koden på nytt erstattes den forrige.</string>
     <string name="presentation_batch_f_working">Arbeider…</string>
-    <string name="presentation_batch_f_telegram_status_initializing">Initialiserer Telegram…</string>
-    <string name="presentation_batch_f_telegram_status_logging_out">Logger ut…</string>
-    <string name="presentation_batch_f_telegram_status_closing">Lukker sesjon…</string>
-    <string name="presentation_batch_f_telegram_status_closed">Sesjon lukket. Gjenåpne innlogging for å fortsette.</string>
-    <string name="presentation_batch_f_telegram_status_preparing">Forbereder sikker Telegram-sesjon…</string>
-    <string name="presentation_batch_f_telegram_status_waiting">Venter på svar fra Telegram…</string>
-    <string name="presentation_batch_f_connect_telegram">Koble til Telegram</string>
-    <string name="presentation_batch_f_connect_telegram_subtitle">Innlogging med feilhåndtering, tidsavbrudd og redigerbare trinn.</string>
     <string name="presentation_batch_f_phone_number_title">Telefonnummer</string>
-    <string name="presentation_batch_f_phone_number_subtitle">Skriv inn ditt Telegram-nummer. Du kan endre det senere.</string>
     <string name="presentation_batch_f_phone_number_hint">Telefonnummer</string>
     <string name="presentation_batch_f_phone_country_placeholder">47</string>
     <string name="presentation_batch_f_phone_local_placeholder">90012345</string>
     <string name="presentation_batch_f_send_code">Send kode</string>
     <string name="presentation_batch_f_verification_code_title">Verifiseringskode</string>
-    <string name="presentation_batch_f_verification_code_subtitle">Skriv inn koden fra Telegram. Hvis nummeret er feil, gå tilbake og endre det.</string>
     <string name="presentation_batch_f_code_field_label">Kode</string>
     <string name="presentation_batch_f_code_placeholder">12345</string>
     <string name="presentation_batch_f_edit_phone">Endre nummer</string>
     <string name="presentation_batch_f_resend_code">Send kode på nytt</string>
     <string name="presentation_batch_f_verify_code">Verifiser kode</string>
     <string name="presentation_batch_f_two_step_password_title">To-trinns passord</string>
-    <string name="presentation_batch_f_two_step_password_subtitle">Skriv inn ditt Telegram-passord.</string>
     <string name="presentation_batch_f_password_label">Passord</string>
     <string name="presentation_batch_f_verify_password">Verifiser passord</string>
     <string name="presentation_batch_f_please_wait">Vennligst vent…</string>
 
-    <!-- Telegram dashboard -->
-    <string name="presentation_batch_f_telegram_channels_title">Telegram-kanaler</string>
     <string name="presentation_batch_f_add_channel_fab">Legg til kanal</string>
-    <string name="presentation_batch_f_public_channel_fallback">Offentlig Telegram-kanal</string>
     <string name="presentation_batch_f_syncing">Synkroniserer</string>
     <string name="presentation_batch_f_sync_now">Synkroniser nå</string>
     <string name="presentation_batch_f_cd_collapse_topics">Slå sammen emner</string>
@@ -200,19 +183,16 @@
     <string name="presentation_batch_f_cd_channel_options">Kanalalternativer</string>
     <string name="presentation_batch_f_topics_heading">Emner</string>
     <string name="presentation_batch_f_syncing_channel">Synkroniserer kanal</string>
-    <string name="presentation_batch_f_updating_songs_from_telegram">Oppdaterer sanger fra Telegram</string>
     <string name="presentation_batch_f_fetch_latest_songs">Hent siste sanger fra denne kanalen</string>
     <string name="presentation_batch_f_remove_channel">Fjern kanal</string>
     <string name="presentation_batch_f_remove_channel_subtitle">Stopp synkronisering og fjern cachede sanger</string>
     <string name="presentation_batch_f_no_channels_synced">Ingen kanaler synkronisert</string>
-    <string name="presentation_batch_f_no_channels_body">Legg til offentlige Telegram-kanaler for å\nsynkronisere musikkbiblioteket ditt</string>
     <string name="presentation_batch_f_add_channel_button">Legg til kanal</string>
     <string name="presentation_batch_f_never_synced">Aldri synkronisert</string>
     <string name="presentation_batch_f_synced_relative">Synkronisert %1$s</string>
 
     <!-- Telegram channel search -->
     <string name="presentation_batch_f_add_channel_sheet_title">Legg til kanal</string>
-    <string name="presentation_batch_f_add_channel_sheet_subtitle">Søk etter en offentlig Telegram-kanal</string>
     <string name="presentation_batch_f_channel_search_placeholder">\@kanalnavn eller lenke</string>
     <string name="presentation_batch_f_cd_search">Søk</string>
     <string name="presentation_batch_f_searching">Søker…</string>

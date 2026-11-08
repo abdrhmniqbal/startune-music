@@ -133,8 +133,6 @@ constructor(
         val IS_FOLDERS_PLAYLIST_VIEW = booleanPreferencesKey("is_folders_playlist_view")
         val HIDE_LOCAL_MEDIA = booleanPreferencesKey("hide_local_media")
         val FOLDERS_SOURCE = stringPreferencesKey("folders_source")
-        val NAVIDROME_SELECTED_MUSIC_FOLDER_IDS =
-                stringSetPreferencesKey("navidrome_selected_music_folder_ids")
         val JELLYFIN_SELECTED_LIBRARY_IDS =
                 stringSetPreferencesKey("jellyfin_selected_library_ids")
         val FOLDER_BACK_GESTURE_NAVIGATION = booleanPreferencesKey("folder_back_gesture_navigation")
@@ -1484,12 +1482,6 @@ constructor(
             FolderSource.fromStorageKey(preferences[PreferencesKeys.FOLDERS_SOURCE])
         }
 
-    val navidromeSelectedMusicFolderIdsFlow: Flow<Set<String>> = dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.NAVIDROME_SELECTED_MUSIC_FOLDER_IDS].orEmpty()
-        }
-        .distinctUntilChanged()
-
     val jellyfinSelectedLibraryIdsFlow: Flow<Set<String>> = dataStore.data
         .map { preferences ->
             preferences[PreferencesKeys.JELLYFIN_SELECTED_LIBRARY_IDS].orEmpty()
@@ -1527,22 +1519,6 @@ constructor(
     suspend fun setFoldersSource(source: FolderSource) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.FOLDERS_SOURCE] = source.storageKey
-        }
-    }
-
-    suspend fun setNavidromeSelectedMusicFolderIds(folderIds: Set<String>) {
-        dataStore.edit { preferences ->
-            if (folderIds.isEmpty()) {
-                preferences.remove(PreferencesKeys.NAVIDROME_SELECTED_MUSIC_FOLDER_IDS)
-            } else {
-                preferences[PreferencesKeys.NAVIDROME_SELECTED_MUSIC_FOLDER_IDS] = folderIds
-            }
-        }
-    }
-
-    suspend fun clearNavidromeSelectedMusicFolderIds() {
-        dataStore.edit { preferences ->
-            preferences.remove(PreferencesKeys.NAVIDROME_SELECTED_MUSIC_FOLDER_IDS)
         }
     }
 

@@ -305,9 +305,7 @@
     <string name="settings_category_content_title">Contenu</string>
     <string name="settings_category_content_subtitle">Pays du contenu, langue, filtres et sources de suggestions</string>
     <string name="settings_content_language_title">Langue du contenu</string>
-    <string name="settings_content_language_desc">Définir la langue préférée du contenu YouTube Music</string>
     <string name="settings_content_country_title">Pays du contenu</string>
-    <string name="settings_content_country_desc">Définir le pays préféré du contenu YouTube Music</string>
     <string name="settings_playlist_suggestion_title">Source de suggestions de liste de lecture</string>
     <string name="settings_playlist_suggestion_desc">Source de suggestions de chansons de playlist</string>
     <string name="settings_hide_explicit_title">Masquer le contenu explicite</string>
@@ -377,13 +375,11 @@
     <string name="setcat_force_high_quality_mobile_title">Forcer la haute qualité sur les données mobiles</string>
     <string name="setcat_force_high_quality_mobile_desc">Diffusez en haute qualité même lorsque vous êtes connecté à des réseaux mobiles ou payants.</string>
     <string name="setcat_cache_liked_songs_title">Cacher les chansons aimées hors ligne</string>
-    <string name="setcat_cache_liked_songs_desc">Téléchargez automatiquement l\'audio des chansons YouTube que vous aimez pour une lecture hors ligne.</string>
     <string name="setcat_album_art_quality_wifi_title">Qualité des pochettes d\'album WiFi</string>
     <string name="setcat_album_art_quality_wifi_desc">Résolution pour télécharger et afficher les pochettes d\'albums en WiFi.</string>
     <string name="setcat_album_art_quality_mobile_title">Qualité des pochettes d\'album mobile</string>
     <string name="setcat_album_art_quality_mobile_desc">Résolution pour télécharger et afficher les pochettes d\'albums sur les réseaux payants.</string>
     <string name="setcat_music_storage_limit_title">Limite de stockage de musique</string>
-    <string name="setcat_music_storage_limit_desc">Espace de stockage local maximum alloué pour la musique YouTube téléchargée.</string>
     <string name="genre_local_music">Musique locale</string>
     <string name="setcat_preload_queue_enabled_title">Préchargement de la file d\'attente</string>
     <string name="setcat_preload_queue_enabled_desc">Précharger les flux et pochettes des prochains morceaux.</string>
@@ -394,9 +390,6 @@
     <string name="setcat_avoid_repetitive_songs_title">Évitez les chansons répétitives</string>
     <string name="setcat_avoid_repetitive_songs_desc">Filtrez les pistes récemment jouées ou ayant subi une rotation importante de la file d\'attente dynamique.</string>
     <string name="setcat_deduplicate_queue_title">Entrées de file d\'attente de déduplication</string>
-    <string name="setcat_deduplicate_queue_desc">Supprime les doublons de la file d\'attente (local, Telegram et YouTube).</string>
-    <string name="setcat_prefer_telegram_alternative_title">Préférer les alternatives (locales et télégrammes)</string>
-    <string name="setcat_prefer_telegram_alternative_desc">Lire l\'audio local d\'abord, puis Telegram, et enfin YouTube.</string>
     <string name="lastfm_integration">Intégration Last.fm</string>
     <string name="lastfm_integration_desc">Configurez le scrobbling Last.fm, la lecture en cours des mises à jour et les paramètres de seuil</string>
     <string name="lastfm_not_logged_in">Non connecté</string>
@@ -418,10 +411,7 @@
     <string name="lastfm_logged_in_as">Connecté en tant que %1$s</string>
     <string name="lastfm_login_dialog_title">Lier le compte Last.fm</string>
     <string name="lastfm_login_dialog_desc">Entrez les identifiants de votre compte Last.fm pour autoriser le scrobbling.</string>
-    <string name="setcat_telegram_artwork_title">Pochettes en ligne pour les titres Telegram</string>
-    <string name="setcat_telegram_artwork_desc">Associer les titres Telegram à YouTube Music pour des pochettes HD.</string>
     <string name="setcat_playback_client_title">Client de lecture</string>
-    <string name="setcat_playback_client_desc">Choisir le client. Android VR est plus rapide; Web Client utilise YouTube Music.</string>
     <string name="setcat_playback_client_android_vr">Android VR (Par défaut)</string>
     <string name="setcat_playback_client_web_remix">Client Web</string>
 </resources>

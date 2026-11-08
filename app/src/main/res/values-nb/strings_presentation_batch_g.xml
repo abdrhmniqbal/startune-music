@@ -206,7 +206,6 @@ Backslash (\\) kan brukes for å unngå tegn-separatorer.</string>
     <string name="presentation_batch_g_artist_rescan">Skann på nytt</string>
     <string name="presentation_batch_g_topbar_beta_letter">β</string>
     <string name="presentation_batch_g_topbar_beta">Beta</string>
-    <string name="presentation_batch_g_topbar_cd_telegram">Telegram</string>
     <string name="presentation_batch_g_topbar_cd_changelog">Endringslogg</string>
     <string name="presentation_batch_g_topbar_cd_settings">Innstillinger</string>
     <string name="presentation_batch_g_lyrics_mode_synced">Synkronisert</string>

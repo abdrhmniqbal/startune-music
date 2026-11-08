@@ -206,7 +206,6 @@
     <string name="presentation_batch_g_artist_rescan">Пересканировать</string>
     <string name="presentation_batch_g_topbar_beta_letter">β</string>
     <string name="presentation_batch_g_topbar_beta">Бета</string>
-    <string name="presentation_batch_g_topbar_cd_telegram">Telegram</string>
     <string name="presentation_batch_g_topbar_cd_changelog">Список изменений</string>
     <string name="presentation_batch_g_topbar_cd_settings">Настройки</string>
     <string name="presentation_batch_g_lyrics_mode_synced">Синхронно</string>

@@ -60,7 +60,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 
-import com.unshoo.pixelmusic.data.navidrome.NavidromeStreamProxy
 
 data class ActiveDecoderInfo(
     val name: String,
@@ -222,7 +221,6 @@ internal fun shouldDisableAudioOffloadOnEarlyBuffering(
 @Singleton
 class DualPlayerEngine @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val navidromeStreamProxy: NavidromeStreamProxy,
     private val jellyfinStreamProxy: com.unshoo.pixelmusic.data.jellyfin.JellyfinStreamProxy,
     private val cloudOfflineRepository: CloudOfflineRepository
 ) {
@@ -231,8 +229,8 @@ class DualPlayerEngine @Inject constructor(
         private const val POST_TRANSITION_OFFLOAD_GUARD_MS = 2_000L
         private const val MAX_AUXILIARY_TIMELINE_ITEMS = 200
         private val LOCAL_MEDIA_SCHEMES = setOf("content", "file", "android.resource")
-        private val REMOTE_MEDIA_SCHEMES = setOf("http", "https", "navidrome", "jellyfin")
-        private val CLOUD_PROXY_SCHEMES = setOf("navidrome", "jellyfin")
+        private val REMOTE_MEDIA_SCHEMES = setOf("http", "https", "jellyfin")
+        private val CLOUD_PROXY_SCHEMES = setOf("jellyfin")
     }
 
     data class TransitionTarget(
@@ -1156,9 +1154,6 @@ class DualPlayerEngine @Inject constructor(
     private fun resolveReadyCloudProxyUri(uri: Uri): Uri? {
         val uriString = uri.toString()
         val proxyUrl = when (uri.scheme) {
-            "navidrome" -> navidromeStreamProxy
-                .takeIf { it.isReady() }
-                ?.resolveNavidromeUri(uriString)
             "jellyfin" -> jellyfinStreamProxy
                 .takeIf { it.isReady() }
                 ?.resolveJellyfinUri(uriString)
@@ -1231,19 +1226,12 @@ class DualPlayerEngine @Inject constructor(
             resolveCachedRemote = { resolvedUriCache.get(uriString) },
             resolveRemote = {
                 when (uri.scheme) {
-                    "navidrome" -> resolveNavidromeUriAsync(uriString)
                     "jellyfin" -> resolveJellyfinUriAsync(uriString)
                     else -> null
                 }
             },
             onRemoteResolved = { resolved -> resolvedUriCache.put(uriString, resolved) }
         )
-    }
-
-    private suspend fun resolveNavidromeUriAsync(uriString: String): Uri? = withContext(Dispatchers.IO) {
-        if (!navidromeStreamProxy.ensureReady(5_000L)) return@withContext null
-        navidromeStreamProxy.warmUpStreamUrl(uriString)
-        navidromeStreamProxy.resolveNavidromeUri(uriString)?.let { Uri.parse(it) }
     }
 
     private suspend fun resolveJellyfinUriAsync(uriString: String): Uri? = withContext(Dispatchers.IO) {

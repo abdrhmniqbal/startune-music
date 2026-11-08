@@ -202,7 +202,6 @@
     <string name="presentation_batch_g_artist_rescan">Réanalyser</string>
     <string name="presentation_batch_g_topbar_beta_letter">β</string>
     <string name="presentation_batch_g_topbar_beta">Bêta</string>
-    <string name="presentation_batch_g_topbar_cd_telegram">Telegram</string>
     <string name="presentation_batch_g_topbar_cd_changelog">Journal des modifications</string>
     <string name="presentation_batch_g_topbar_cd_settings">Paramètres</string>
     <string name="presentation_batch_g_lyrics_mode_synced">Synchronisé</string>

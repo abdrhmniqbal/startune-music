@@ -52,8 +52,6 @@
 
     <!-- Backfilled translations -->
     <string name="library_storage_filter_local">Local uniquement</string>
-    <string name="library_storage_filter_telegram">Télégramme</string>
-    <string name="library_storage_filter_youtube">YouTube</string>
     <string name="library_storage_filter_downloaded_only">TÉLÉCHARGÉ</string>
     <string name="song_picker_filter_favorites">J\'ai aimé</string>
     <string name="lib_empty_songs_all_title">Pas encore de chansons</string>

@@ -15,8 +15,6 @@
     <string name="presentation_batch_b_accounts_no_linked_body">连接一个服务提供方后，即可在此页面管理它。</string>
     <string name="presentation_batch_b_accounts_connect_service">连接 %1$s</string>
     <string name="presentation_batch_b_accounts_service_paren_coming_soon">%1$s（即将推出）</string>
-    <string name="presentation_batch_b_service_telegram">Telegram</string>
-    <string name="presentation_batch_b_service_netease">网易云音乐</string>
 
     <!-- PlaylistDetailScreen -->
     <string name="presentation_batch_b_sort_songs">排序歌曲</string>

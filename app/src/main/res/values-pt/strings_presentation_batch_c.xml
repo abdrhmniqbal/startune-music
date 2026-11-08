@@ -13,8 +13,6 @@
     <string name="cd_locate_current_song">Localize a música atual</string>
     <string name="library_storage_filter_all_songs">Todos</string>
     <string name="library_storage_filter_local">Somente locais</string>
-    <string name="library_storage_filter_telegram">Telegrama</string>
-    <string name="library_storage_filter_youtube">YouTube</string>
     <string name="library_storage_filter_online">NUVEM</string>
     <string name="library_storage_filter_offline">LOCAL</string>
     <string name="library_storage_filter_downloaded_only">BAIXADO</string>

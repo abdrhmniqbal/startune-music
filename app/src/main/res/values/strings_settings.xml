@@ -3,7 +3,7 @@
     <!-- Main settings screen -->
     <string name="settings_top_bar_title">Settings</string>
     <string name="settings_accounts_row_title">Accounts</string>
-    <string name="settings_accounts_row_subtitle">Manage Telegram, Google Drive, NetEase, and more services</string>
+    <string name="settings_accounts_row_subtitle">Manage connected services</string>
 
     <!-- SettingsCategory enum (grid) -->
     <string name="settings_category_library_title">Music Management</string>
@@ -11,9 +11,7 @@
     <string name="settings_category_content_title">Content</string>
     <string name="settings_category_content_subtitle">Content country, language, filters and suggestion sources</string>
     <string name="settings_content_language_title">Content Language</string>
-    <string name="settings_content_language_desc">Set preferred YouTube Music content language</string>
     <string name="settings_content_country_title">Content Country</string>
-    <string name="settings_content_country_desc">Set preferred YouTube Music content country</string>
     <string name="settings_playlist_suggestion_title">Playlist Suggestion Source</string>
     <string name="settings_playlist_suggestion_desc">Source for playlist song suggestions</string>
     <string name="settings_hide_explicit_title">Hide Explicit Content</string>
@@ -378,13 +376,11 @@
     <string name="setcat_force_high_quality_mobile_title">Force high quality on mobile data</string>
     <string name="setcat_force_high_quality_mobile_desc">Stream in high quality even when connected to mobile or metered networks.</string>
     <string name="setcat_cache_liked_songs_title">Cache liked songs offline</string>
-    <string name="setcat_cache_liked_songs_desc">Automatically download audio of liked YouTube songs for offline playback.</string>
     <string name="setcat_album_art_quality_wifi_title">WiFi Album Art Quality</string>
     <string name="setcat_album_art_quality_wifi_desc">Resolution for downloading and displaying album covers on WiFi.</string>
     <string name="setcat_album_art_quality_mobile_title">Mobile Album Art Quality</string>
     <string name="setcat_album_art_quality_mobile_desc">Resolution for downloading and displaying album covers on metered networks.</string>
     <string name="setcat_music_storage_limit_title">Music Storage Limit</string>
-    <string name="setcat_music_storage_limit_desc">Maximum local storage allocated for downloaded YouTube music.</string>
     <string name="genre_local_music">Local Music</string>
     <string name="setcat_preload_queue_enabled_title">Queue Preloading</string>
     <string name="setcat_preload_queue_enabled_desc">Preload stream URLs and artwork for upcoming songs in queue.</string>
@@ -395,9 +391,6 @@
     <string name="setcat_avoid_repetitive_songs_title">Avoid Repetitive Songs</string>
     <string name="setcat_avoid_repetitive_songs_desc">Filter out recently played or highly rotated tracks from the dynamic queue.</string>
     <string name="setcat_deduplicate_queue_title">Deduplicate Queue Entries</string>
-    <string name="setcat_deduplicate_queue_desc">Remove duplicate songs in queue across local, Telegram, and YouTube.</string>
-    <string name="setcat_prefer_telegram_alternative_title">Prefer Alternatives (Local &amp; Telegram)</string>
-    <string name="setcat_prefer_telegram_alternative_desc">Play matching local audio first, then Telegram, falling back to YouTube.</string>
 
     <!-- Last.fm Integration -->
     <string name="lastfm_integration">Last.fm Integration</string>
@@ -417,6 +410,13 @@
     <string name="lastfm_password">Password</string>
     <string name="lastfm_logging_in">Logging in…</string>
     <string name="lastfm_login_failed">Login failed: %1$s</string>
+    <string name="lastfm_login_success">Logged in successfully!</string>
+    <string name="lastfm_logged_in_as">Logged in as %1$s</string>
+    <string name="lastfm_login_dialog_title">Link Last.fm Account</string>
+    <string name="lastfm_login_dialog_desc">Enter your Last.fm account credentials to authorize scrobbling.</string>
+    <string name="setcat_playback_client_title">Playback Client</string>
+    <string name="setcat_playback_client_android_vr">Android VR (Default)</string>
+    <string name="setcat_playback_client_web_remix">Web Client</string>
     <string name="backup_encrypt_subtitle">Protect the file with a password (AES-256). You\'ll need it to restore.</string>
     <string name="backup_encrypt_title">Encrypt backup</string>
     <string name="backup_encrypted_prompt_body">This backup is protected with a password. Enter it to continue.</string>
@@ -467,14 +467,4 @@
     <string name="settings_search_no_results">No results for \"%1$s\"</string>
     <string name="settings_search_section_related">Related settings</string>
     <string name="settings_search_section_top_matches">Top matches</string>
-    <string name="lastfm_login_success">Logged in successfully!</string>
-    <string name="lastfm_logged_in_as">Logged in as %1$s</string>
-    <string name="lastfm_login_dialog_title">Link Last.fm Account</string>
-    <string name="lastfm_login_dialog_desc">Enter your Last.fm account credentials to authorize scrobbling.</string>
-    <string name="setcat_telegram_artwork_title">Use online artwork for Telegram songs</string>
-    <string name="setcat_telegram_artwork_desc">Match Telegram tracks with YouTube Music to use high-quality cover art.</string>
-    <string name="setcat_playback_client_title">Playback Client</string>
-    <string name="setcat_playback_client_desc">Select stream client. Android VR is faster; Web Client uses YouTube Music.</string>
-    <string name="setcat_playback_client_android_vr">Android VR (Default)</string>
-    <string name="setcat_playback_client_web_remix">Web Client</string>
 </resources>

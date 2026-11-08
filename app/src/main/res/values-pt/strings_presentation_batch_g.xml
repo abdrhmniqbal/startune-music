@@ -206,7 +206,6 @@ A barra invertida (\) pode ser usada para escapar dos delimitadores de caractere
     <string name="presentation_batch_g_artist_rescan">Digitalizar novamente</string>
     <string name="presentation_batch_g_topbar_beta_letter">β</string>
     <string name="presentation_batch_g_topbar_beta">Beta</string>
-    <string name="presentation_batch_g_topbar_cd_telegram">Telegrama</string>
     <string name="presentation_batch_g_topbar_cd_changelog">Registro de alterações</string>
     <string name="presentation_batch_g_topbar_cd_settings">Configurações</string>
     <string name="presentation_batch_g_lyrics_mode_synced">Sincronizado</string>

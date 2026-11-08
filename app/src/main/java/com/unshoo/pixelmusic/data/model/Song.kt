@@ -35,7 +35,6 @@ data class Song(
     val mimeType: String?,
     val bitrate: Int?,
     val sampleRate: Int?,
-    val navidromeId: String? = null,
     val jellyfinId: String? = null,
 ) : Parcelable {
     /**
@@ -86,7 +85,6 @@ data class Song(
                 mimeType = "-",
                 bitrate = 0,
                 sampleRate = 0,
-                navidromeId = null,
                 jellyfinId = null
             )
         }

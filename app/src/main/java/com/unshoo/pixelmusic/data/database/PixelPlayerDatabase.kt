@@ -19,15 +19,13 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         LyricsEntity::class,
         PlaylistEntity::class,
         PlaylistSongEntity::class,
-        NavidromeSongEntity::class,
-        NavidromePlaylistEntity::class,
         JellyfinSongEntity::class,
         JellyfinPlaylistEntity::class,
         ListenBrainzPendingListenEntity::class,
         AudioBookmarkEntity::class,
         OfflineTrackEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = true
 )
 abstract class PixelPlayerDatabase : RoomDatabase() {
@@ -39,7 +37,6 @@ abstract class PixelPlayerDatabase : RoomDatabase() {
     abstract fun favoritesDao(): FavoritesDao
     abstract fun lyricsDao(): LyricsDao
     abstract fun localPlaylistDao(): LocalPlaylistDao
-    abstract fun navidromeDao(): NavidromeDao
     abstract fun jellyfinDao(): JellyfinDao
     abstract fun listenBrainzDao(): ListenBrainzDao
     abstract fun audioBookmarkDao(): AudioBookmarkDao

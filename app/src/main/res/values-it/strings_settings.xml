@@ -308,9 +308,7 @@
     <string name="settings_category_content_title">Contenuto</string>
     <string name="settings_category_content_subtitle">Paese dei contenuti, lingua, filtri e fonti di suggerimenti</string>
     <string name="settings_content_language_title">Lingua del contenuto</string>
-    <string name="settings_content_language_desc">Imposta la lingua preferita dei contenuti di YouTube Music</string>
     <string name="settings_content_country_title">Paese del contenuto</string>
-    <string name="settings_content_country_desc">Imposta il paese preferito per i contenuti di YouTube Music</string>
     <string name="settings_playlist_suggestion_title">Fonte suggerimento playlist</string>
     <string name="settings_playlist_suggestion_desc">Fonte per i suggerimenti sui brani della playlist</string>
     <string name="settings_hide_explicit_title">Nascondi contenuto esplicito</string>
@@ -377,13 +375,11 @@
     <string name="setcat_force_high_quality_mobile_title">Forza l\'alta qualità sui dati mobili</string>
     <string name="setcat_force_high_quality_mobile_desc">Trasmetti in streaming in alta qualità anche quando sei connesso a reti mobili o a consumo.</string>
     <string name="setcat_cache_liked_songs_title">A Cache sono piaciuti i brani offline</string>
-    <string name="setcat_cache_liked_songs_desc">Scarica automaticamente l\'audio dei brani YouTube preferiti per la riproduzione offline.</string>
     <string name="setcat_album_art_quality_wifi_title">Qualità artistica dell\'album WiFi</string>
     <string name="setcat_album_art_quality_wifi_desc">Risoluzione per scaricare e visualizzare le copertine degli album su WiFi.</string>
     <string name="setcat_album_art_quality_mobile_title">Qualità artistica dell\'album mobile</string>
     <string name="setcat_album_art_quality_mobile_desc">Risoluzione per il download e la visualizzazione delle copertine degli album su reti a consumo.</string>
     <string name="setcat_music_storage_limit_title">Limite di archiviazione della musica</string>
-    <string name="setcat_music_storage_limit_desc">Spazio di archiviazione locale massimo allocato per la musica YouTube scaricata.</string>
     <string name="genre_local_music">Musica locale</string>
     <string name="setcat_preload_queue_enabled_title">Precaricamento coda</string>
     <string name="setcat_preload_queue_enabled_desc">Precarica flussi e copertine per i prossimi brani in coda.</string>
@@ -394,9 +390,6 @@
     <string name="setcat_avoid_repetitive_songs_title">Evita brani ripetitivi</string>
     <string name="setcat_avoid_repetitive_songs_desc">Filtra i brani riprodotti di recente o con elevata rotazione dalla coda dinamica.</string>
     <string name="setcat_deduplicate_queue_title">Voci della coda deduplicate</string>
-    <string name="setcat_deduplicate_queue_desc">Rimuovi i brani duplicati in coda tra locale, Telegram e YouTube.</string>
-    <string name="setcat_prefer_telegram_alternative_title">Preferisci alternative (locale e telegramma)</string>
-    <string name="setcat_prefer_telegram_alternative_desc">Riproduci prima l\'audio locale, poi Telegram, infine YouTube.</string>
     <string name="lastfm_integration">Integrazione Last.fm</string>
     <string name="lastfm_integration_desc">Configura lo scrobbling di Last.fm, la riproduzione ora degli aggiornamenti e i parametri di soglia</string>
     <string name="lastfm_not_logged_in">Accesso non effettuato</string>
@@ -418,10 +411,7 @@
     <string name="lastfm_logged_in_as">Effettuato l\'accesso come %1$s</string>
     <string name="lastfm_login_dialog_title">Collega l\'account Last.fm</string>
     <string name="lastfm_login_dialog_desc">Inserisci le credenziali del tuo account Last.fm per autorizzare lo scrobbling.</string>
-    <string name="setcat_telegram_artwork_title">Usa copertine online per i brani Telegram</string>
-    <string name="setcat_telegram_artwork_desc">Associa i brani Telegram a YouTube Music per copertine in alta qualità.</string>
     <string name="setcat_playback_client_title">Client di riproduzione</string>
-    <string name="setcat_playback_client_desc">Scegli il client. Android VR è più veloce; Web Client usa YouTube Music.</string>
     <string name="setcat_playback_client_android_vr">Android VR (Predefinito)</string>
     <string name="setcat_playback_client_web_remix">Client Web</string>
 </resources>

@@ -43,9 +43,6 @@ class PixelPlayerApplication : Application(), ImageLoaderFactory, Configuration.
     lateinit var imageLoader: dagger.Lazy<ImageLoader>
 
     @Inject
-    lateinit var navidromeCoilFetcherFactory: dagger.Lazy<com.unshoo.pixelmusic.data.image.NavidromeCoilFetcher.Factory>
-
-    @Inject
     lateinit var jellyfinCoilFetcherFactory: dagger.Lazy<com.unshoo.pixelmusic.data.image.JellyfinCoilFetcher.Factory>
 
     @Inject
@@ -140,7 +137,6 @@ class PixelPlayerApplication : Application(), ImageLoaderFactory, Configuration.
         return imageLoader.get().newBuilder()
             .components {
                 add(localArtworkCoilFetcherFactory.get())
-                add(navidromeCoilFetcherFactory.get())
                 add(jellyfinCoilFetcherFactory.get())
             }
             .build()

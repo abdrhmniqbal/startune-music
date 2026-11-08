@@ -15,8 +15,6 @@
     <string name="presentation_batch_b_accounts_no_linked_body">Connetti un provider per gestirlo da questa schermata.</string>
     <string name="presentation_batch_b_accounts_connect_service">Connetti %1$s</string>
     <string name="presentation_batch_b_accounts_service_paren_coming_soon">%1$s (In arrivo)</string>
-    <string name="presentation_batch_b_service_telegram">Telegram</string>
-    <string name="presentation_batch_b_service_netease">NetEase</string>
 
     <!-- PlaylistDetailScreen -->
     <string name="presentation_batch_b_sort_songs">Ordina brani</string>

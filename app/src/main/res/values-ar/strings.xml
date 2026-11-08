@@ -15,7 +15,6 @@
     <string name="accounts_listenbrainz_reconnect">إعادة الاتصال</string>
     <string name="accounts_listenbrainz_scrobble_jellyfin">تسجيل استماع بث Jellyfin</string>
     <string name="accounts_listenbrainz_scrobble_local">تسجيل استماع الملفات المحلية</string>
-    <string name="accounts_listenbrainz_scrobble_navidrome">تسجيل استماع بث Subsonic</string>
     <string name="accounts_listenbrainz_server_hint">عنوان الخادم (اختياري)</string>
     <string name="accounts_listenbrainz_server_supporting">اتركه فارغاً لاستخدام listenbrainz.org. يعمل مع الخوادم المستضافة ذاتياً التي تدعم واجهة ListenBrainz البرمجية، مثل Maloja.</string>
     <string name="accounts_listenbrainz_stat_listens">إجمالي عمليات الاستماع</string>

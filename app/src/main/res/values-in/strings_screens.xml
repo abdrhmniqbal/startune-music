@@ -36,8 +36,6 @@
     <string name="delimiter_label_space">Spasi</string>
     <string name="cd_add_path_delimiter">Tambah pemisah</string>
 
-    <!-- Accounts -->
-    <string name="accounts_google_drive_soon">Google Drive akan segera hadir.</string>
     <string name="accounts_unable_open_screen">Tidak dapat membuka layar ini sekarang.</string>
 
     <!-- Setup (subset; more keys follow in same file) -->
@@ -193,35 +191,28 @@
     <string name="about_signal_community_first">Community-first</string>
     <string name="about_signal_material3">Material 3 expressive</string>
     <string name="cd_open_github_profile">Buka profil GitHub</string>
-    <string name="cd_open_telegram">Buka Telegram</string>
     <string name="cd_contributor_avatar">Avatar %1$s</string>
     <string name="cd_contributor_icon">Ikon %1$s</string>
 
-    <!-- Streaming / cloud dashboards -->
-    <string name="screen_subsonic_dashboard_title">Subsonic</string>
     <string name="dash_playlists_synced_count">%1$d playlist disinkronkan</string>
     <string name="dash_folders_synced_count">%1$d folder disinkronkan</string>
     <string name="dash_title_playlists">Playlist</string>
     <string name="dash_music_folders">Folder musik</string>
     <string name="dash_action_sync">Sinkronisasi</string>
     <string name="dash_playlists_empty_title">Belum ada playlist yang disinkronkan</string>
-    <string name="dash_playlists_empty_hint_subsonic">Ketuk sinkronisasi untuk mengambil playlist Anda</string>
     <string name="dash_playlists_empty_hint_jellyfin">Ketuk sinkronisasi untuk mengambil playlist Jellyfin Anda</string>
     <string name="dash_no_folders_yet">Belum ada folder yang ditambahkan</string>
     <string name="dash_tap_plus_add_drive_folder">Ketuk + untuk menambahkan folder Drive</string>
     <string name="dash_quick_actions">Tindakan cepat</string>
-    <string name="dash_quick_actions_subsonic_subtitle">Kelola Navidrome, Airsonic, dan server lain yang kompatibel dengan Subsonic.</string>
     <string name="dash_quick_actions_jellyfin_subtitle">Kelola koneksi server Jellyfin Anda.</string>
     <string name="dash_status_syncing">Menyinkronkan</string>
     <string name="dash_action_sync_library">Sinkronkan pustaka</string>
     <string name="dash_action_disconnect">Putuskan sambungan</string>
-    <string name="dash_status_library_sync_complete">Sinkronisasi pustaka selesai</string>
     <string name="dash_song_count">%1$d lagu</string>
     <string name="cd_sync">Sinkronisasi</string>
     <string name="cd_sync_all">Sinkronkan semua</string>
     <string name="cd_add_drive_folder">Tambah folder</string>
     <string name="cd_logout">Keluar</string>
-    <string name="screen_netease_dashboard_title">NetEase Music</string>
     <string name="screen_qq_music_dashboard_title">QQ Music</string>
     <string name="cd_sync_all_playlists">Sinkronkan semua playlist</string>
     <string name="error_with_message_format">Kesalahan: %1$s</string>
@@ -239,16 +230,7 @@
     <string name="toast_added_to_queue">Ditambahkan ke antrean</string>
     <string name="toast_playing_next">Diputar berikutnya</string>
     <string name="error_share_song_format">Tidak dapat membagikan lagu: %1$s</string>
-    <string name="dash_status_syncing_library">Menyinkronkan pustaka...</string>
     <string name="home_empty_placeholder_title">Belum ada data untuk ditampilkan</string>
-    <string name="dash_status_fetching_playlists">Mengambil playlist...</string>
-    <string name="dash_status_syncing_playlist_format">Menyinkronkan playlist: %1$s</string>
-    <string name="dash_status_updating_local">Memperbarui pustaka lokal...</string>
-    <string name="dash_status_sync_complete">Sinkronisasi selesai</string>
-    <string name="dash_status_fetching_albums">Mengambil daftar album...</string>
-    <string name="dash_status_fetching_songs_from_format">Mengambil lagu dari %1$s...</string>
-    <string name="dash_status_saving_songs_format">Menyimpan %1$d lagu ke database...</string>
-    <string name="dash_status_no_songs_found">Tidak ada lagu pustaka ditemukan</string>
     <string name="song_info_resolving_format">Menentukan format audio...</string>
     <string name="cd_back">Kembali</string>
     <string name="cd_search">Cari</string>
@@ -270,19 +252,10 @@
     <string name="settings_perf_mode_desc">Kurangi animasi dan blur agar aplikasi tetap lancar dan hemat baterai.</string>
     <string name="settings_hardware_audio_offload_title">Offload Audio Perangkat Keras</string>
     <string name="settings_hardware_audio_offload_desc">Gunakan DSP perangkat keras untuk dekode audio demi menghemat baterai.</string>
-    <string name="settings_saavn_hq_title">Streaming JioSaavn Kualitas Tinggi</string>
-    <string name="settings_saavn_hq_desc">Stream hingga 320 kbps AAC via JioSaavn. Jika mati, pakai Lossless atau YouTube Opus.</string>
     <string name="settings_cache_liked_songs_title">Cache lagu yang disukai secara manual</string>
-    <string name="settings_cache_liked_songs_desc">Unduh lagu YouTube yang disukai untuk diputar offline.</string>
     <string name="settings_cache_most_played_title">Cache lagu yang paling sering diputar</string>
-    <string name="settings_cache_most_played_desc">Unduh otomatis lagu YouTube yang paling sering diputar.</string>
-    <string name="settings_yt_link_integration_section">Integrasi Tautan YouTube</string>
-    <string name="settings_yt_link_intercept_title">Intersepsi Tautan YouTube</string>
-    <string name="settings_yt_link_intercept_desc">Izinkan Pixel Music membuka tautan music.youtube.com secara otomatis.</string>
     <string name="settings_open_system_settings">Buka Pengaturan Sistem</string>
-    <string name="settings_pure_yt_music_title">YouTube Music Murni</string>
     <string name="settings_pure_yt_music_desc">Memfilter konten video non-musik dan hanya menampilkan lagu audio.</string>
-    <string name="settings_recommendations_section">Rekomendasi &amp; Konten YouTube</string>
     <string name="settings_content_customization_section">Kustomisasi Konten</string>
     <string name="settings_filter_cover_lofi_title">Sembunyikan lagu cover dan lo-fi</string>
     <string name="settings_filter_cover_lofi_desc">Sembunyikan lagu cover dan lo-fi dari rekomendasi dan antrean.</string>
@@ -297,22 +270,17 @@
     <string name="settings_lastfm_smart_mix_desc">Gunakan rekomendasi Last.fm untuk Smart Mix bukan YouTube Music.</string>
     <string name="settings_show_smart_mix_in_library_title">Tampilkan daftar putar Smart Mix di Perpustakaan</string>
     <string name="settings_show_smart_mix_in_library_desc">Tampilkan atau sembunyikan daftar putar Smart Mix Last.fm/AI di halaman daftar putar Perpustakaan.</string>
-    <string name="settings_sync_local_playlists_yt_title">Sinkronkan daftar putar lokal ke YouTube Music</string>
-    <string name="settings_sync_local_playlists_yt_desc">Sinkronkan perubahan daftar putar lokal ke akun YouTube Music Anda.</string>
     <string name="settings_generated_retention_label">Penyimpanan Daftar Putar yang Dihasilkan</string>
     <string name="settings_generated_retention_desc">Pilih berapa lama menyimpan daftar putar mix Last.fm yang dihasilkan di perpustakaan Anda.</string>
     <string name="accounts_sync_personalization">Sinkronisasi &amp; Personalisasi</string>
     <string name="accounts_sync_playlists_likes_title">Sinkronkan Daftar Putar &amp; Lagu yang Disukai</string>
-    <string name="accounts_sync_playlists_likes_desc">Sinkronkan daftar putar dan lagu disukai dari YouTube Music ke perpustakaan.</string>
     <string name="accounts_sync_listening_activity_title">Sinkronkan Aktivitas Mendengarkan</string>
-    <string name="accounts_sync_listening_activity_desc">Bagikan trek yang diputar ke riwayat akun YouTube Music Anda.</string>
     <string name="accounts_personalized_explore_title">Feed Jelajahi yang Dipersonalisasi</string>
     <string name="accounts_personalized_explore_desc">Jika nonaktif, memuat halaman jelajahi secara anonim tanpa riwayat akun.</string>
     <string name="accounts_personalized_queue_title">Antrean &amp; Radio yang Dipersonalisasi</string>
     <string name="accounts_personalized_queue_desc">Jika nonaktif, membuat rekomendasi putar otomatis murni berdasarkan lagu saat ini.</string>
     <string name="accounts_sync_library_now">Sinkronkan Perpustakaan Sekarang</string>
     <string name="accounts_syncing_library">Menyinkronkan Perpustakaan...</string>
-    <string name="accounts_sign_in_youtube">Masuk ke YouTube Music</string>
     <string name="accounts_available_services">Layanan yang Tersedia</string>
     <string name="player_play_next">Putar berikutnya</string>
     <string name="player_save_to_playlist">Simpan ke daftar putar</string>
@@ -332,7 +300,6 @@
     <string name="exp_floating_header_title">Bilah Tajuk Pil Mengambang</string>
     <string name="exp_floating_header_desc">Aktifkan tajuk bergaya kapsul mengambang dengan efek blur tepi atas</string>
     <string name="exp_advanced_explore_title">Halaman Jelajahi Tingkat Lanjut</string>
-    <string name="exp_advanced_explore_desc">Muat rekomendasi dan mix yang dipersonalisasi dari YouTube Music.</string>
     <string name="explore_section_artists_for_you">Artis untuk Anda</string>
     <string name="explore_section_fresh_finds">Temuan baru</string>
     <string name="explore_section_fresh_finds_desc">Lagu baru yang sesuai dengan suasana mendengarkan Anda</string>
@@ -363,8 +330,6 @@
     <string name="filter_words_how_it_works_title">Cara Kerja Kata Filter</string>
     <string name="filter_words_reset_action">Atur Ulang Kata Filter</string>
     <string name="quick_picks_title">Pilihan Cepat</string>
-    <string name="quick_picks_fetching_from_yt">Mengambil dari YouTube...</string>
-    <string name="quick_picks_songs_from_yt">%1$d lagu dari YouTube</string>
     <string name="playlist_confirm_name">Konfirmasi nama daftar putar:</string>
     <string name="playlist_action_import">Impor</string>
     <string name="playlist_already_exists_title">Daftar Putar Sudah Ada</string>
@@ -374,7 +339,6 @@
     <string name="quick_import_title">Impor Cepat</string>
     <string name="quick_import_desc">Sinkronkan daftar putar &amp; lagu secara instan</string>
     <string name="provider_yt_music_subtitle">Streaming dan impor daftar putar</string>
-    <string name="provider_telegram_subtitle">Streaming dari saluran &amp; obrolan</string>
     <string name="provider_coming_soon">Segera hadir</string>
     <string name="share_card_style">Gaya Kartu:</string>
     <string name="share_glass">Kaca</string>

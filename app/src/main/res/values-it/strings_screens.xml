@@ -36,8 +36,6 @@
     <string name="delimiter_label_space">Spazio</string>
     <string name="cd_add_path_delimiter">Aggiungi delimitatore</string>
 
-    <!-- Accounts -->
-    <string name="accounts_google_drive_soon">Google Drive arriva presto.</string>
     <string name="accounts_unable_open_screen">Impossibile aprire questa schermata al momento.</string>
 
     <!-- Setup (subset; more keys follow in same file) -->
@@ -191,24 +189,19 @@
     <string name="about_signal_community_first">Community-first</string>
     <string name="about_signal_material3">Material 3 expressive</string>
     <string name="cd_open_github_profile">Apri profilo GitHub</string>
-    <string name="cd_open_telegram">Apri Telegram</string>
     <string name="cd_contributor_avatar">Avatar di %1$s</string>
     <string name="cd_contributor_icon">Icona di %1$s</string>
 
-    <!-- Streaming / cloud dashboards -->
-    <string name="screen_subsonic_dashboard_title">Subsonic</string>
     <string name="dash_playlists_synced_count">%1$d playlist sincronizzate</string>
     <string name="dash_folders_synced_count">%1$d cartelle sincronizzate</string>
     <string name="dash_title_playlists">Playlist</string>
     <string name="dash_music_folders">Cartelle musicali</string>
     <string name="dash_action_sync">Sincronizza</string>
     <string name="dash_playlists_empty_title">Ancora nessuna playlist sincronizzata</string>
-    <string name="dash_playlists_empty_hint_subsonic">Tocca sincronizza per recuperare le tue playlist</string>
     <string name="dash_playlists_empty_hint_jellyfin">Tocca sincronizza per recuperare le tue playlist Jellyfin</string>
     <string name="dash_no_folders_yet">Ancora nessuna cartella aggiunta</string>
     <string name="dash_tap_plus_add_drive_folder">Tocca + per aggiungere una cartella Drive</string>
     <string name="dash_quick_actions">Azioni rapide</string>
-    <string name="dash_quick_actions_subsonic_subtitle">Gestisci Navidrome, Airsonic e altri server compatibili Subsonic.</string>
     <string name="dash_quick_actions_jellyfin_subtitle">Gestisci la tua connessione server Jellyfin.</string>
     <string name="dash_status_syncing">Sincronizzazione</string>
     <string name="dash_action_sync_library">Sincronizza libreria</string>
@@ -218,7 +211,6 @@
     <string name="cd_sync_all">Sincronizza tutto</string>
     <string name="cd_add_drive_folder">Aggiungi cartella</string>
     <string name="cd_logout">Disconnetti</string>
-    <string name="screen_netease_dashboard_title">NetEase Music</string>
     <string name="screen_qq_music_dashboard_title">QQ Music</string>
     <string name="cd_sync_all_playlists">Sincronizza tutte le playlist</string>
     <string name="error_with_message_format">Errore: %1$s</string>
@@ -241,16 +233,6 @@
     <string name="home_empty_placeholder_title">Nessun dato da mostrare ancora</string>
     <string name="home_empty_placeholder_subtitle">Il tuo mix apparirà qui quando PixelMusic trova brani o sincronizza una fonte.</string>
     <string name="home_empty_placeholder_refresh">Aggiorna</string>
-    <string name="dash_status_syncing_library">Sincronizzazione della libreria…</string>
-    <string name="dash_status_fetching_playlists">Recupero playlist…</string>
-    <string name="dash_status_syncing_playlist_format">Sincronizzazione playlist: %1$s</string>
-    <string name="dash_status_updating_local">Aggiornamento della libreria locale…</string>
-    <string name="dash_status_sync_complete">Sincronizzazione completata</string>
-    <string name="dash_status_fetching_albums">Recupero elenco album…</string>
-    <string name="dash_status_fetching_songs_from_format">Recupero brani da %1$s…</string>
-    <string name="dash_status_saving_songs_format">Salvataggio dei brani %1$d nel database…</string>
-    <string name="dash_status_no_songs_found">Nessun brano della libreria trovato</string>
-    <string name="dash_status_library_sync_complete">Sincronizzazione della libreria completata</string>
     <string name="song_info_resolving_format">Risoluzione del formato audio...</string>
     <string name="cd_back">Indietro</string>
     <string name="cd_search">Cerca</string>
@@ -272,19 +254,10 @@
     <string name="settings_perf_mode_desc">Riduce animazioni e sfocature per migliorare la fluidità e risparmiare batteria.</string>
     <string name="settings_hardware_audio_offload_title">Offload audio hardware</string>
     <string name="settings_hardware_audio_offload_desc">Usa il DSP hardware per la decodifica audio risparmiando batteria.</string>
-    <string name="settings_saavn_hq_title">Streaming JioSaavn HQ</string>
-    <string name="settings_saavn_hq_desc">Riproduci fino a 320 kbps AAC tramite JioSaavn. Disattivato: usa Lossless o YouTube Opus.</string>
     <string name="settings_cache_liked_songs_title">Memorizza nella cache i brani piaciuti</string>
-    <string name="settings_cache_liked_songs_desc">Scarica i brani piaciuti di YouTube per l\'ascolto offline.</string>
     <string name="settings_cache_most_played_title">Memorizza nella cache i brani più ascoltati</string>
-    <string name="settings_cache_most_played_desc">Scarica automaticamente i brani YouTube riprodotti più spesso.</string>
-    <string name="settings_yt_link_integration_section">Integrazione dei link di YouTube</string>
-    <string name="settings_yt_link_intercept_title">Intercettazione dei link YouTube</string>
-    <string name="settings_yt_link_intercept_desc">Consenti a Pixel Music di aprire automaticamente i link music.youtube.com.</string>
     <string name="settings_open_system_settings">Apri impostazioni di sistema</string>
-    <string name="settings_pure_yt_music_title">YouTube Music puro</string>
     <string name="settings_pure_yt_music_desc">Filtra i contenuti video non musicali e mostra solo brani audio.</string>
-    <string name="settings_recommendations_section">Consigli e contenuti YouTube</string>
     <string name="settings_content_customization_section">Personalizzazione dei contenuti</string>
     <string name="settings_filter_cover_lofi_title">Nascondi cover e brani lo-fi</string>
     <string name="settings_filter_cover_lofi_desc">Nascondi cover e tracce lo-fi da consigli e code.</string>
@@ -299,22 +272,17 @@
     <string name="settings_lastfm_smart_mix_desc">Usa i consigli di Last.fm per gli Smart Mix anziché YouTube Music.</string>
     <string name="settings_show_smart_mix_in_library_title">Mostra playlist Smart Mix nella Libreria</string>
     <string name="settings_show_smart_mix_in_library_desc">Mostra o nascondi le playlist Smart Mix generate da Last.fm/IA nella pagina Libreria.</string>
-    <string name="settings_sync_local_playlists_yt_title">Sincronizza playlist locali su YouTube Music</string>
-    <string name="settings_sync_local_playlists_yt_desc">Sincronizza le modifiche alle playlist locali con il tuo account YouTube Music.</string>
     <string name="settings_generated_retention_label">Conservazione delle playlist generate</string>
     <string name="settings_generated_retention_desc">Scegli per quanto tempo conservare le playlist di mix Last.fm generate nella tua libreria.</string>
     <string name="accounts_sync_personalization">Sincronizzazione e personalizzazione</string>
     <string name="accounts_sync_playlists_likes_title">Sincronizza playlist e brani piaciuti</string>
-    <string name="accounts_sync_playlists_likes_desc">Sincronizza playlist e preferiti di YouTube Music con la tua raccolta.</string>
     <string name="accounts_sync_listening_activity_title">Sincronizza attività di ascolto</string>
-    <string name="accounts_sync_listening_activity_desc">Condividi i brani riprodotti nella cronologia del tuo account YouTube Music.</string>
     <string name="accounts_personalized_explore_title">Feed Esplora personalizzato</string>
     <string name="accounts_personalized_explore_desc">Se disattivato, carica la pagina Esplora in modo anonimo senza cronologia account.</string>
     <string name="accounts_personalized_queue_title">Coda e radio personalizzate</string>
     <string name="accounts_personalized_queue_desc">Se disattivato, genera consigli di riproduzione automatica basandosi solo sul brano corrente.</string>
     <string name="accounts_sync_library_now">Sincronizza libreria ora</string>
     <string name="accounts_syncing_library">Sincronizzazione della libreria...</string>
-    <string name="accounts_sign_in_youtube">Accedi a YouTube Music</string>
     <string name="accounts_available_services">Servizi disponibili</string>
     <string name="player_play_next">Riproduci come successivo</string>
     <string name="player_save_to_playlist">Salva nella playlist</string>
@@ -334,7 +302,6 @@
     <string name="exp_floating_header_title">Barra di intestazione a pillola mobile</string>
     <string name="exp_floating_header_desc">Abilita intestazioni a capsula mobile con sfocatura superiore</string>
     <string name="exp_advanced_explore_title">Pagina Esplora avanzata</string>
-    <string name="exp_advanced_explore_desc">Carica consigli e mix personalizzati da YouTube Music.</string>
     <string name="explore_section_artists_for_you">Artisti per te</string>
     <string name="explore_section_fresh_finds">Nuove scoperte</string>
     <string name="explore_section_fresh_finds_desc">Nuovi brani adatti al tuo stile di ascolto</string>
@@ -365,8 +332,6 @@
     <string name="filter_words_how_it_works_title">Come funzionano le parole filtro</string>
     <string name="filter_words_reset_action">Reimposta parole filtro</string>
     <string name="quick_picks_title">Scelte rapide</string>
-    <string name="quick_picks_fetching_from_yt">Recupero da YouTube...</string>
-    <string name="quick_picks_songs_from_yt">%1$d brani da YouTube</string>
     <string name="playlist_confirm_name">Conferma nome playlist:</string>
     <string name="playlist_action_import">Importa</string>
     <string name="playlist_already_exists_title">La playlist esiste già</string>
@@ -376,7 +341,6 @@
     <string name="quick_import_title">Importazione rapida</string>
     <string name="quick_import_desc">Sincronizza playlist e brani all\'istante</string>
     <string name="provider_yt_music_subtitle">Riproduci e importa playlist</string>
-    <string name="provider_telegram_subtitle">Riproduci da canali e chat</string>
     <string name="provider_coming_soon">Prossimamente</string>
     <string name="share_card_style">Stile scheda:</string>
     <string name="share_glass">Vetro</string>

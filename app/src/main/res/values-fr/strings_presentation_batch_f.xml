@@ -156,41 +156,24 @@
     <string name="presentation_batch_f_dot_space_suffix"> · %1$s</string>
     <string name="presentation_batch_f_unknown_short">\?</string>
 
-    <!-- Telegram login -->
-    <string name="presentation_batch_f_telegram_login_title">Connexion Telegram</string>
-    <string name="presentation_batch_f_telegram_edit_number_chip">Vous modifiez votre numéro. L\'envoi d\'un nouveau code remplacera le précédent.</string>
     <string name="presentation_batch_f_working">Opération en cours…</string>
-    <string name="presentation_batch_f_telegram_status_initializing">Initialisation de Telegram…</string>
-    <string name="presentation_batch_f_telegram_status_logging_out">Déconnexion…</string>
-    <string name="presentation_batch_f_telegram_status_closing">Fermeture de la session…</string>
-    <string name="presentation_batch_f_telegram_status_closed">Session fermée. Réouvrez la connexion pour continuer.</string>
-    <string name="presentation_batch_f_telegram_status_preparing">Préparation d\'une session Telegram sécurisée…</string>
-    <string name="presentation_batch_f_telegram_status_waiting">En attente de la réponse de Telegram…</string>
-    <string name="presentation_batch_f_connect_telegram">Connecter Telegram</string>
-    <string name="presentation_batch_f_connect_telegram_subtitle">Connexion avec gestion d\'erreurs robuste, contrôle des délais et étapes modifiables.</string>
     <string name="presentation_batch_f_phone_number_title">Numéro de téléphone</string>
-    <string name="presentation_batch_f_phone_number_subtitle">Entrez votre numéro Telegram. Vous pourrez revenir le modifier plus tard.</string>
     <string name="presentation_batch_f_phone_number_hint">Numéro de téléphone</string>
     <string name="presentation_batch_f_phone_country_placeholder">1</string>
     <string name="presentation_batch_f_phone_local_placeholder">0612345678</string>
     <string name="presentation_batch_f_send_code">Envoyer le code</string>
     <string name="presentation_batch_f_verification_code_title">Code de vérification</string>
-    <string name="presentation_batch_f_verification_code_subtitle">Entrez le code reçu de Telegram. Si le numéro est incorrect, revenez en arrière pour le modifier.</string>
     <string name="presentation_batch_f_code_field_label">Code</string>
     <string name="presentation_batch_f_code_placeholder">12345</string>
     <string name="presentation_batch_f_edit_phone">Modifier le numéro</string>
     <string name="presentation_batch_f_resend_code">Renvoyer le code</string>
     <string name="presentation_batch_f_verify_code">Vérifier le code</string>
     <string name="presentation_batch_f_two_step_password_title">Mot de passe en deux étapes</string>
-    <string name="presentation_batch_f_two_step_password_subtitle">Entrez votre mot de passe Telegram. Vous pouvez toujours revenir en arrière pour corriger votre numéro.</string>
     <string name="presentation_batch_f_password_label">Mot de passe</string>
     <string name="presentation_batch_f_verify_password">Vérifier le mot de passe</string>
     <string name="presentation_batch_f_please_wait">Veuillez patienter…</string>
 
-    <!-- Telegram dashboard -->
-    <string name="presentation_batch_f_telegram_channels_title">Canaux Telegram</string>
     <string name="presentation_batch_f_add_channel_fab">Ajouter un canal</string>
-    <string name="presentation_batch_f_public_channel_fallback">Canal Telegram public</string>
     <string name="presentation_batch_f_syncing">Synchronisation en cours</string>
     <string name="presentation_batch_f_sync_now">Synchroniser maintenant</string>
     <string name="presentation_batch_f_cd_collapse_topics">Réduire les sujets</string>
@@ -198,19 +181,16 @@
     <string name="presentation_batch_f_cd_channel_options">Options du canal</string>
     <string name="presentation_batch_f_topics_heading">Sujets</string>
     <string name="presentation_batch_f_syncing_channel">Synchronisation du canal</string>
-    <string name="presentation_batch_f_updating_songs_from_telegram">Mise à jour des chansons depuis Telegram</string>
     <string name="presentation_batch_f_fetch_latest_songs">Récupérer les dernières chansons de ce canal</string>
     <string name="presentation_batch_f_remove_channel">Supprimer le canal</string>
     <string name="presentation_batch_f_remove_channel_subtitle">Arrêter la synchronisation et supprimer les chansons en cache</string>
     <string name="presentation_batch_f_no_channels_synced">Aucun canal synchronisé</string>
-    <string name="presentation_batch_f_no_channels_body">Ajoutez des canaux Telegram publics pour synchroniser\nvotre bibliothèque musicale</string>
     <string name="presentation_batch_f_add_channel_button">Ajouter un canal</string>
     <string name="presentation_batch_f_never_synced">Jamais synchronisé</string>
     <string name="presentation_batch_f_synced_relative">Synchronisé %1$s</string>
 
     <!-- Telegram channel search -->
     <string name="presentation_batch_f_add_channel_sheet_title">Ajouter un canal</string>
-    <string name="presentation_batch_f_add_channel_sheet_subtitle">Recherchez un canal Telegram public pour synchroniser sa musique</string>
     <string name="presentation_batch_f_channel_search_placeholder">\@nomducanal ou lien</string>
     <string name="presentation_batch_f_cd_search">Rechercher</string>
     <string name="presentation_batch_f_searching">Recherche en cours…</string>

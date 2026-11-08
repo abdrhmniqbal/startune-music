@@ -22,20 +22,14 @@ class ListenBrainzPreferencesRepository @Inject constructor(
 ) {
     private object Keys {
         val SCROBBLE_LOCAL = booleanPreferencesKey("listenbrainz_scrobble_local")
-        val SCROBBLE_NAVIDROME = booleanPreferencesKey("listenbrainz_scrobble_navidrome")
         val SCROBBLE_JELLYFIN = booleanPreferencesKey("listenbrainz_scrobble_jellyfin")
     }
 
     val scrobbleLocalFlow: Flow<Boolean> = dataStore.data.map { it[Keys.SCROBBLE_LOCAL] ?: true }
-    val scrobbleNavidromeFlow: Flow<Boolean> = dataStore.data.map { it[Keys.SCROBBLE_NAVIDROME] ?: true }
     val scrobbleJellyfinFlow: Flow<Boolean> = dataStore.data.map { it[Keys.SCROBBLE_JELLYFIN] ?: true }
 
     suspend fun setScrobbleLocal(enabled: Boolean) {
         dataStore.edit { it[Keys.SCROBBLE_LOCAL] = enabled }
-    }
-
-    suspend fun setScrobbleNavidrome(enabled: Boolean) {
-        dataStore.edit { it[Keys.SCROBBLE_NAVIDROME] = enabled }
     }
 
     suspend fun setScrobbleJellyfin(enabled: Boolean) {
@@ -44,7 +38,6 @@ class ListenBrainzPreferencesRepository @Inject constructor(
 
     suspend fun isSourceEnabled(source: String): Boolean {
         val key = when (source) {
-            ListenBrainzSource.NAVIDROME -> Keys.SCROBBLE_NAVIDROME
             ListenBrainzSource.JELLYFIN -> Keys.SCROBBLE_JELLYFIN
             else -> Keys.SCROBBLE_LOCAL
         }

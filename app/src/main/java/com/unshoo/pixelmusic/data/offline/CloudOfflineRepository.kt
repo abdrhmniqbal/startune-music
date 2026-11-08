@@ -203,7 +203,6 @@ class CloudOfflineRepository @Inject constructor(
         fun providerFor(sourceUri: String): String? = when (
             sourceUri.substringBefore(':', "").lowercase(Locale.ROOT)
         ) {
-            "navidrome" -> "navidrome"
             "jellyfin" -> "jellyfin"
             else -> null
         }

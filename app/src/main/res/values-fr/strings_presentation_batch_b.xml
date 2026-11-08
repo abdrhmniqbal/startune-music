@@ -15,8 +15,6 @@
     <string name="presentation_batch_b_accounts_no_linked_body">Connectez un fournisseur pour le gérer depuis cet écran.</string>
     <string name="presentation_batch_b_accounts_connect_service">Connecter %1$s</string>
     <string name="presentation_batch_b_accounts_service_paren_coming_soon">%1$s (Bientôt disponible)</string>
-    <string name="presentation_batch_b_service_telegram">Telegram</string>
-    <string name="presentation_batch_b_service_netease">NetEase Music</string>
 
     <!-- PlaylistDetailScreen -->
     <string name="presentation_batch_b_sort_songs">Trier les chansons</string>

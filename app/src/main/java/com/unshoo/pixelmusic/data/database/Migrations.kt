@@ -199,3 +199,21 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
         )
     }
 }
+
+/**
+ * v6 -> v7: Navidrome removal (Startune v2.0.0).
+ *
+ * Drops the Navidrome cloud cache tables and deletes unified-library rows that came
+ * from Navidrome (`source_type = 5`), plus their cross-refs, favorites and lyrics.
+ * Jellyfin (`source_type = 6`) is untouched.
+ */
+val MIGRATION_6_7 = object : Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("DELETE FROM song_artist_cross_ref WHERE song_id IN (SELECT id FROM songs WHERE source_type = 5)")
+        db.execSQL("DELETE FROM favorites WHERE songId IN (SELECT id FROM songs WHERE source_type = 5)")
+        db.execSQL("DELETE FROM lyrics WHERE songId IN (SELECT id FROM songs WHERE source_type = 5)")
+        db.execSQL("DELETE FROM songs WHERE source_type = 5")
+        db.execSQL("DROP TABLE IF EXISTS `navidrome_songs`")
+        db.execSQL("DROP TABLE IF EXISTS `navidrome_playlists`")
+    }
+}

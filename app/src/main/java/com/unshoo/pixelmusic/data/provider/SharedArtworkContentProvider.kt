@@ -155,7 +155,7 @@ class SharedArtworkContentProvider : ContentProvider() {
         private const val DEFAULT_CONTENT_TYPE = "image/jpeg"
         private const val CLOUD_ARTWORK_SIZE_PX = 1024
         private const val CLOUD_ARTWORK_JPEG_QUALITY = 90
-        private val CLOUD_ARTWORK_SCHEMES = setOf("navidrome_cover", "jellyfin_cover")
+        private val CLOUD_ARTWORK_SCHEMES = setOf("jellyfin_cover")
         private val cloudArtworkScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
         fun authority(packageName: String): String = packageName + AUTHORITY_SUFFIX

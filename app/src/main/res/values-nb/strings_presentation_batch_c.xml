@@ -82,8 +82,6 @@
 
     <!-- Backfilled translations -->
     <string name="library_storage_filter_local">Kun lokalt</string>
-    <string name="library_storage_filter_telegram">Telegram</string>
-    <string name="library_storage_filter_youtube">YouTube</string>
     <string name="library_storage_filter_downloaded_only">NEDLASTET</string>
     <string name="song_picker_filter_favorites">Likte</string>
 </resources>

@@ -83,7 +83,5 @@
 
     <!-- Backfilled translations -->
     <string name="library_storage_filter_local">Только локально</string>
-    <string name="library_storage_filter_telegram">Телеграмма</string>
-    <string name="library_storage_filter_youtube">Ютуб</string>
     <string name="library_storage_filter_downloaded_only">СКАЧАНО</string>
 </resources>

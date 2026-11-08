@@ -14,8 +14,6 @@
     <string name="presentation_batch_b_accounts_no_linked_body">Conecte um provedor para gerenciá-lo nesta tela.</string>
     <string name="presentation_batch_b_accounts_connect_service">Conecte %1$s</string>
     <string name="presentation_batch_b_accounts_service_paren_coming_soon">%1$s (em breve)</string>
-    <string name="presentation_batch_b_service_telegram">Telegrama</string>
-    <string name="presentation_batch_b_service_netease">Música NetEase</string>
     <string name="presentation_batch_b_sort_songs">Classificar músicas</string>
     <string name="presentation_batch_b_more_options">Mais opções</string>
     <string name="presentation_batch_b_play_it">Jogue tudo</string>

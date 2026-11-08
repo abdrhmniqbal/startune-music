@@ -275,9 +275,6 @@ interface MusicDao {
     """)
     suspend fun refreshAlbumSongCounts()
 
-    @Query("SELECT id FROM songs WHERE source_type = 5")
-    suspend fun getAllNavidromeSongIds(): List<Long>
-
     @Query("SELECT id FROM songs WHERE source_type = 6")
     suspend fun getAllJellyfinSongIds(): List<Long>
 
@@ -294,13 +291,6 @@ interface MusicDao {
         deleteOrphanedArtists()
         refreshAlbumSongCounts()
         refreshArtistTrackCounts()
-    }
-
-    @Transaction
-    suspend fun clearAllNavidromeSongs() {
-        val navidromeSongIds = getAllNavidromeSongIds()
-        if (navidromeSongIds.isEmpty()) return
-        deleteSongsAndRelatedData(navidromeSongIds)
     }
 
     @Transaction

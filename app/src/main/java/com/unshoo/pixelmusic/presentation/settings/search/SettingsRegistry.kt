@@ -162,7 +162,7 @@ object SettingsRegistry {
                 category = SettingsCategory.LIBRARY,
                 subscreenRoute = Screen.Accounts.createRoute(),
                 type = SettingType.NAVIGABLE_CARD,
-                keywordsStatic = listOf("accounts", "navidrome", "jellyfin", "subsonic", "streaming", "server", "login")
+                keywordsStatic = listOf("accounts", "jellyfin", "streaming", "server", "login")
             ),
             SettingSpec(
                 id = "cloud_downloads",
@@ -172,7 +172,7 @@ object SettingsRegistry {
                 category = SettingsCategory.LIBRARY,
                 subscreenRoute = Screen.CloudDownloads.route,
                 type = SettingType.NAVIGABLE_CARD,
-                keywordsStatic = listOf("downloads", "offline", "cloud", "storage", "navidrome", "jellyfin")
+                keywordsStatic = listOf("downloads", "offline", "cloud", "storage", "jellyfin")
             ),
             SettingSpec(
                 id = "accounts_listenbrainz",

@@ -158,41 +158,24 @@
     <string name="presentation_batch_f_dot_space_suffix"> · %1$s</string>
     <string name="presentation_batch_f_unknown_short">\?</string>
 
-    <!-- Telegram login -->
-    <string name="presentation_batch_f_telegram_login_title">Вход в Telegram</string>
-    <string name="presentation_batch_f_telegram_edit_number_chip">Вы редактируете номер. Повторная отправка кода заменит предыдущий.</string>
     <string name="presentation_batch_f_working">Работаем…</string>
-    <string name="presentation_batch_f_telegram_status_initializing">Инициализация Telegram…</string>
-    <string name="presentation_batch_f_telegram_status_logging_out">Выход из системы…</string>
-    <string name="presentation_batch_f_telegram_status_closing">Закрытие сессии…</string>
-    <string name="presentation_batch_f_telegram_status_closed">Сессия закрыта. Откройте вход снова.</string>
-    <string name="presentation_batch_f_telegram_status_preparing">Подготовка сессии Telegram…</string>
-    <string name="presentation_batch_f_telegram_status_waiting">Ожидание ответа от Telegram…</string>
-    <string name="presentation_batch_f_connect_telegram">Подключить Telegram</string>
-    <string name="presentation_batch_f_connect_telegram_subtitle">Вход с обработкой ошибок, контролем таймаутов и правкой шагов.</string>
     <string name="presentation_batch_f_phone_number_title">Номер телефона</string>
-    <string name="presentation_batch_f_phone_number_subtitle">Введите ваш номер. Вы сможете отредактировать его позже.</string>
     <string name="presentation_batch_f_phone_number_hint">Номер телефона</string>
     <string name="presentation_batch_f_phone_country_placeholder">7</string>
     <string name="presentation_batch_f_phone_local_placeholder">9001234567</string>
     <string name="presentation_batch_f_send_code">Отправить код</string>
     <string name="presentation_batch_f_verification_code_title">Код подтверждения</string>
-    <string name="presentation_batch_f_verification_code_subtitle">Введите код из Telegram. Если номер неверный, вернитесь и исправьте его.</string>
     <string name="presentation_batch_f_code_field_label">Код</string>
     <string name="presentation_batch_f_code_placeholder">12345</string>
     <string name="presentation_batch_f_edit_phone">Исправить номер</string>
     <string name="presentation_batch_f_resend_code">Отправить еще раз</string>
     <string name="presentation_batch_f_verify_code">Проверить код</string>
     <string name="presentation_batch_f_two_step_password_title">Двухэтапный пароль</string>
-    <string name="presentation_batch_f_two_step_password_subtitle">Введите ваш пароль Telegram.</string>
     <string name="presentation_batch_f_password_label">Пароль</string>
     <string name="presentation_batch_f_verify_password">Проверить пароль</string>
     <string name="presentation_batch_f_please_wait">Пожалуйста, подождите…</string>
 
-    <!-- Telegram dashboard -->
-    <string name="presentation_batch_f_telegram_channels_title">Каналы Telegram</string>
     <string name="presentation_batch_f_add_channel_fab">Добавить канал</string>
-    <string name="presentation_batch_f_public_channel_fallback">Публичный канал Telegram</string>
     <string name="presentation_batch_f_syncing">Синхронизация</string>
     <string name="presentation_batch_f_sync_now">Синхронизировать сейчас</string>
     <string name="presentation_batch_f_cd_collapse_topics">Свернуть темы</string>
@@ -200,19 +183,16 @@
     <string name="presentation_batch_f_cd_channel_options">Параметры канала</string>
     <string name="presentation_batch_f_topics_heading">Темы</string>
     <string name="presentation_batch_f_syncing_channel">Синхронизация канала</string>
-    <string name="presentation_batch_f_updating_songs_from_telegram">Обновление песен из Telegram</string>
     <string name="presentation_batch_f_fetch_latest_songs">Загрузить свежие песни из этого канала</string>
     <string name="presentation_batch_f_remove_channel">Удалить канал</string>
     <string name="presentation_batch_f_remove_channel_subtitle">Прекратить синхронизацию и удалить кэш</string>
     <string name="presentation_batch_f_no_channels_synced">Нет синхронизированных каналов</string>
-    <string name="presentation_batch_f_no_channels_body">Добавьте публичные каналы Telegram, чтобы\nсинхронизировать музыку</string>
     <string name="presentation_batch_f_add_channel_button">Добавить канал</string>
     <string name="presentation_batch_f_never_synced">Ни разу не синхронизировалось</string>
     <string name="presentation_batch_f_synced_relative">Синхрон.: %1$s</string>
 
     <!-- Telegram channel search -->
     <string name="presentation_batch_f_add_channel_sheet_title">Добавить канал</string>
-    <string name="presentation_batch_f_add_channel_sheet_subtitle">Поиск публичного канала для синхронизации музыки</string>
     <string name="presentation_batch_f_channel_search_placeholder">\@имя_канала или ссылка</string>
     <string name="presentation_batch_f_cd_search">Поиск</string>
     <string name="presentation_batch_f_searching">Поиск…</string>

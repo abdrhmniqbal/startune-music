@@ -206,7 +206,6 @@ Backslash (\) can be used to escape character delimiters.</string>
     <string name="presentation_batch_g_artist_rescan">Rescan</string>
     <string name="presentation_batch_g_topbar_beta_letter">β</string>
     <string name="presentation_batch_g_topbar_beta">Beta</string>
-    <string name="presentation_batch_g_topbar_cd_telegram">Telegram</string>
     <string name="presentation_batch_g_topbar_cd_changelog">Changelog</string>
     <string name="presentation_batch_g_topbar_cd_settings">Settings</string>
     <string name="presentation_batch_g_lyrics_mode_synced">Synced</string>
@@ -593,6 +592,7 @@ Backslash (\) can be used to escape character delimiters.</string>
         <item>Fixed queue and shuffle behavior for more stable playback.</item>
         <item>Resolved background playback and notification issues.</item>
         <item>General bug fixes and UI polish.</item>
+    </string-array>
     <string name="device_capabilities_advanced_diagnostics_description">Off by default. Records a short lag timeline for beta troubleshooting.</string>
     <string name="device_capabilities_advanced_diagnostics_expires">Active until %1$s</string>
     <string name="device_capabilities_advanced_diagnostics_mark_lag">Mark lag now</string>
@@ -638,6 +638,5 @@ Backslash (\) can be used to escape character delimiters.</string>
     <string-array name="presentation_batch_g_changelog_v020_whats_new">
         <item>Material 3 Expressive design pass: a new motion scheme, wavy progress indicators, and shape-morphing animations throughout the app.</item>
         <item>Jellyfin servers over plain HTTP are now allowed for VPN and local-network hosts.</item>
-    </string-array>
     </string-array>
 </resources>

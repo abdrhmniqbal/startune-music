@@ -15,8 +15,6 @@
     <string name="presentation_batch_b_accounts_no_linked_body">Connect a provider to manage it from this screen.</string>
     <string name="presentation_batch_b_accounts_connect_service">Connect %1$s</string>
     <string name="presentation_batch_b_accounts_service_paren_coming_soon">%1$s (Coming soon)</string>
-    <string name="presentation_batch_b_service_telegram">Telegram</string>
-    <string name="presentation_batch_b_service_netease">NetEase Music</string>
 
     <!-- PlaylistDetailScreen -->
     <string name="presentation_batch_b_sort_songs">Sort Songs</string>
@@ -92,7 +90,7 @@
 
     <plurals name="presentation_batch_b_songs_dot_duration">
         <item quantity="one">%1$d song • %2$s</item>
-    <string name="presentation_batch_b_playlist_empty_smart_body">No songs match this smart rule yet.</string>
         <item quantity="other">%1$d songs • %2$s</item>
     </plurals>
+    <string name="presentation_batch_b_playlist_empty_smart_body">No songs match this smart rule yet.</string>
 </resources>

@@ -36,8 +36,6 @@
     <string name="delimiter_label_space">Espacio</string>
     <string name="cd_add_path_delimiter">Añadir delimitador</string>
 
-    <!-- Accounts -->
-    <string name="accounts_google_drive_soon">Google Drive llegará pronto.</string>
     <string name="accounts_unable_open_screen">No se puede abrir esta pantalla ahora.</string>
 
     <!-- Setup -->
@@ -188,23 +186,19 @@
     <string name="about_signal_community_first">Comunidad primero</string>
     <string name="about_signal_material3">Material 3 expresivo</string>
     <string name="cd_open_github_profile">Abrir perfil de GitHub</string>
-    <string name="cd_open_telegram">Abrir Telegram</string>
     <string name="cd_contributor_avatar">Avatar de %1$s</string>
     <string name="cd_contributor_icon">Icono de %1$s</string>
 
-    <string name="screen_subsonic_dashboard_title">Subsonic</string>
     <string name="dash_playlists_synced_count">%1$d listas sincronizadas</string>
     <string name="dash_folders_synced_count">%1$d carpetas sincronizadas</string>
     <string name="dash_title_playlists">Listas</string>
     <string name="dash_music_folders">Carpetas de música</string>
     <string name="dash_action_sync">Sincronizar</string>
     <string name="dash_playlists_empty_title">Aún no hay listas sincronizadas</string>
-    <string name="dash_playlists_empty_hint_subsonic">Toca sincronizar para obtener tus listas</string>
     <string name="dash_playlists_empty_hint_jellyfin">Toca sincronizar para obtener tus listas de Jellyfin</string>
     <string name="dash_no_folders_yet">No hay carpetas añadidas</string>
     <string name="dash_tap_plus_add_drive_folder">Toca + para añadir una carpeta de Drive</string>
     <string name="dash_quick_actions">Acciones rápidas</string>
-    <string name="dash_quick_actions_subsonic_subtitle">Gestiona Navidrome, Airsonic y otros servidores compatibles con Subsonic.</string>
     <string name="dash_quick_actions_jellyfin_subtitle">Gestiona la conexión a tu servidor Jellyfin.</string>
     <string name="dash_status_syncing">Sincronizando</string>
     <string name="dash_action_sync_library">Sincronizar biblioteca</string>
@@ -214,7 +208,6 @@
     <string name="cd_sync_all">Sincronizar todo</string>
     <string name="cd_add_drive_folder">Añadir carpeta</string>
     <string name="cd_logout">Cerrar sesión</string>
-    <string name="screen_netease_dashboard_title">NetEase Music</string>
     <string name="screen_qq_music_dashboard_title">QQ Music</string>
     <string name="cd_sync_all_playlists">Sincronizar todas las listas</string>
     <string name="error_with_message_format">Error: %1$s</string>
@@ -233,17 +226,6 @@
     <string name="toast_playing_next">Siguiente en reproducir</string>
     <string name="error_share_song_format">No se pudo compartir la canción: %1$s</string>
 
-    <!-- Backfilled translations -->
-    <string name="dash_status_syncing_library">Sincronizando biblioteca…</string>
-    <string name="dash_status_fetching_playlists">Obteniendo listas de reproducción…</string>
-    <string name="dash_status_syncing_playlist_format">Sincronizando lista de reproducción: %1$s</string>
-    <string name="dash_status_updating_local">Actualizando la biblioteca local…</string>
-    <string name="dash_status_sync_complete">Sincronización completa</string>
-    <string name="dash_status_fetching_albums">Obteniendo lista de álbumes…</string>
-    <string name="dash_status_fetching_songs_from_format">Obteniendo canciones de %1$s…</string>
-    <string name="dash_status_saving_songs_format">Guardando canciones %1$d en la base de datos…</string>
-    <string name="dash_status_no_songs_found">No se encontraron canciones de la biblioteca</string>
-    <string name="dash_status_library_sync_complete">Sincronización de biblioteca completa</string>
     <string name="song_info_resolving_format">Resolviendo formato de audio...</string>
     <string name="cd_back">Atrás</string>
     <string name="cd_search">Buscar</string>
@@ -265,19 +247,10 @@
     <string name="settings_perf_mode_desc">Reduce animaciones y desenfoques para mayor fluidez y ahorro de batería.</string>
     <string name="settings_hardware_audio_offload_title">Descarga de audio por hardware</string>
     <string name="settings_hardware_audio_offload_desc">Usa el DSP de hardware para decodificar audio y ahorrar batería.</string>
-    <string name="settings_saavn_hq_title">Streaming de alta calidad JioSaavn</string>
-    <string name="settings_saavn_hq_desc">Transmite hasta 320 kbps AAC con JioSaavn. Desactivado, usa Lossless o YouTube Opus.</string>
     <string name="settings_cache_liked_songs_title">Almacenar en caché canciones que te gustan</string>
-    <string name="settings_cache_liked_songs_desc">Descargar canciones favoritas de YouTube para escuchar sin conexión.</string>
     <string name="settings_cache_most_played_title">Almacenar en caché canciones más reproducidas</string>
-    <string name="settings_cache_most_played_desc">Descargar automáticamente canciones de YouTube más reproducidas.</string>
-    <string name="settings_yt_link_integration_section">Integración de enlaces de YouTube</string>
-    <string name="settings_yt_link_intercept_title">Interceptar enlaces de YouTube</string>
-    <string name="settings_yt_link_intercept_desc">Permite a Pixel Music abrir enlaces music.youtube.com automáticamente.</string>
     <string name="settings_open_system_settings">Abrir ajustes del sistema</string>
-    <string name="settings_pure_yt_music_title">Solo música de YouTube</string>
     <string name="settings_pure_yt_music_desc">Filtra el contenido que no sea música en vídeo y muestra solo canciones de audio.</string>
-    <string name="settings_recommendations_section">Recomendaciones y contenido de YouTube</string>
     <string name="settings_content_customization_section">Personalización del contenido</string>
     <string name="settings_filter_cover_lofi_title">Ocultar versiones (covers) y pistas lo-fi</string>
     <string name="settings_filter_cover_lofi_desc">Ocultar versiones y pistas lo-fi de recomendaciones y colas.</string>
@@ -292,22 +265,17 @@
     <string name="settings_lastfm_smart_mix_desc">Usa recomendaciones de Last.fm para Smart Mix en vez de YouTube Music.</string>
     <string name="settings_show_smart_mix_in_library_title">Mostrar listas Smart Mix en la biblioteca</string>
     <string name="settings_show_smart_mix_in_library_desc">Muestra u oculta las listas Smart Mix generadas por Last.fm/IA en la pestaña de listas de la biblioteca.</string>
-    <string name="settings_sync_local_playlists_yt_title">Sincronizar listas locales con YouTube Music</string>
-    <string name="settings_sync_local_playlists_yt_desc">Sincroniza cambios de listas locales con tu cuenta de YouTube Music.</string>
     <string name="settings_generated_retention_label">Retención de listas generadas</string>
     <string name="settings_generated_retention_desc">Elige cuánto tiempo conservar las listas de Last.fm generadas en tu biblioteca.</string>
     <string name="accounts_sync_personalization">Sincronización y personalización</string>
     <string name="accounts_sync_playlists_likes_title">Sincronizar listas y canciones que te gustan</string>
-    <string name="accounts_sync_playlists_likes_desc">Sincroniza listas y me gusta de YouTube Music con tu biblioteca.</string>
     <string name="accounts_sync_listening_activity_title">Sincronizar actividad de escucha</string>
-    <string name="accounts_sync_listening_activity_desc">Comparte pistas reproducidas con el historial de tu cuenta de YouTube Music.</string>
     <string name="accounts_personalized_explore_title">Feed Explorar personalizado</string>
     <string name="accounts_personalized_explore_desc">Desactivado, carga la página Explorar de forma anónima sin historial de cuenta.</string>
     <string name="accounts_personalized_queue_title">Cola y radios personalizadas</string>
     <string name="accounts_personalized_queue_desc">Desactivado, genera recomendaciones de reproducción automática basadas únicamente en la canción actual.</string>
     <string name="accounts_sync_library_now">Sincronizar biblioteca ahora</string>
     <string name="accounts_syncing_library">Sincronizando biblioteca...</string>
-    <string name="accounts_sign_in_youtube">Iniciar sesión en YouTube Music</string>
     <string name="accounts_available_services">Servicios disponibles</string>
     <string name="player_play_next">Reproducir siguiente</string>
     <string name="player_save_to_playlist">Guardar en lista</string>
@@ -327,7 +295,6 @@
     <string name="exp_floating_header_title">Barra de encabezado de píldora flotante</string>
     <string name="exp_floating_header_desc">Habilita encabezados estilo cápsula flotante con degradado de desenfoque superior</string>
     <string name="exp_advanced_explore_title">Página Explorar avanzada</string>
-    <string name="exp_advanced_explore_desc">Cargar recomendaciones y mezclas personalizadas de YouTube Music.</string>
     <string name="explore_section_artists_for_you">Artistas para ti</string>
     <string name="explore_section_fresh_finds">Descubrimientos recientes</string>
     <string name="explore_section_fresh_finds_desc">Nuevas canciones adaptadas a tu gusto musical</string>
@@ -358,8 +325,6 @@
     <string name="filter_words_how_it_works_title">Cómo funcionan las palabras de filtro</string>
     <string name="filter_words_reset_action">Restablecer palabras de filtro</string>
     <string name="quick_picks_title">Selección rápida</string>
-    <string name="quick_picks_fetching_from_yt">Obteniendo de YouTube...</string>
-    <string name="quick_picks_songs_from_yt">%1$d canciones de YouTube</string>
     <string name="playlist_confirm_name">Confirmar nombre de la lista:</string>
     <string name="playlist_action_import">Importar</string>
     <string name="playlist_already_exists_title">La lista ya existe</string>
@@ -369,7 +334,6 @@
     <string name="quick_import_title">Importación rápida</string>
     <string name="quick_import_desc">Sincroniza listas y canciones al instante</string>
     <string name="provider_yt_music_subtitle">Transmite e importa listas de reproducción</string>
-    <string name="provider_telegram_subtitle">Transmite desde canales y chats</string>
     <string name="provider_coming_soon">Próximamente</string>
     <string name="share_card_style">Estilo de tarjeta:</string>
     <string name="share_glass">Cristal</string>

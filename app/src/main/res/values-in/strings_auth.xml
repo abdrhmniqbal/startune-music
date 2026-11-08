@@ -7,7 +7,6 @@
     <string name="auth_connecting">Menghubungkan…</string>
     <string name="auth_connect">Hubungkan</string>
     <string name="auth_connection_details">Detail koneksi</string>
-    <string name="auth_connection_details_subtitle">Masukkan URL server dan kredensial akun Anda.</string>
     <string name="auth_server_url">URL Server</string>
     <string name="auth_username">Nama Pengguna</string>
     <string name="auth_password">Kata Sandi</string>
@@ -15,18 +14,8 @@
     <string name="auth_username_placeholder_admin">admin</string>
     <string name="toast_welcome_user">Selamat datang, %1$s!</string>
 
-    <!-- Navidrome / Subsonic -->
-    <string name="auth_navidrome_title">Subsonic / Navidrome</string>
-    <string name="auth_navidrome_subtitle">Hubungkan ke server musik mandiri Anda</string>
-    <string name="auth_navidrome_info_card">Mendukung Navidrome, Airsonic, Gonic, Ampache, dan server lain yang kompatibel dengan API Subsonic.</string>
     <string name="auth_server_url_placeholder_https">https://musik.contoh.com</string>
-    <string name="auth_navidrome_server_url_hint">Gunakan alamat dasar https:// lengkap dari server Anda.</string>
-    <string name="auth_navidrome_username_hint">Ini adalah nama akun Subsonic atau Navidrome Anda.</string>
-    <string name="auth_navidrome_password_hint">Kata sandi aplikasi juga berfungsi jika server Anda mendukungnya.</string>
     <string name="auth_prefill_https">Isi otomatis https://</string>
-    <string name="auth_navidrome_footer">Kompatibel dengan Navidrome, Gonic, Airsonic, dan server lain yang kompatibel dengan Subsonic</string>
-    <string name="cd_navidrome_logo">Navidrome</string>
-    <string name="cd_subsonic_logo">Subsonic</string>
 
     <!-- Jellyfin -->
     <string name="auth_jellyfin_title">Jellyfin</string>
@@ -37,21 +26,14 @@
     <string name="auth_jellyfin_server_url_hint">URL lengkap server Jellyfin Anda, termasuk port.</string>
     <string name="auth_jellyfin_username_hint">Nama pengguna akun Jellyfin Anda.</string>
     <string name="auth_jellyfin_password_hint">Kata sandi akun Jellyfin Anda.</string>
-    <string name="auth_prefill_http">Isi otomatis http://</string>
     <string name="auth_jellyfin_footer">Terhubung ke server Jellyfin untuk mengalirkan pustaka musik Anda</string>
     <string name="cd_jellyfin_logo">Jellyfin</string>
 
-    <!-- Google Drive -->
-    <string name="auth_gdrive_toast_connected">Google Drive terhubung!</string>
-    <string name="auth_gdrive_title">Google Drive</string>
 
-    <!-- Web login (NetEase / QQ Music) — shared -->
-    <string name="auth_web_exit_confirm_title_netease">Keluar dari login NetEase?</string>
     <string name="auth_web_exit_confirm_title_qq">Keluar dari login QQ Music?</string>
     <string name="auth_web_exit_confirm_body">Anda dapat kembali lagi nanti. Status halaman saat ini akan dibuang saat menutup.</string>
     <string name="auth_exit">Keluar</string>
     <string name="auth_stay">Tetap di sini</string>
-    <string name="auth_login_netease_title">Login ke NetEase Music</string>
     <string name="auth_login_qq_title">Login ke QQ Music</string>
     <string name="auth_web_cd_web_back">Web kembali</string>
     <string name="auth_web_cd_web_forward">Web maju</string>
@@ -65,12 +47,9 @@
     <string name="auth_error_cookies_unreadable">Tidak dapat membaca cookie sesi.</string>
     <string name="auth_page_slow">Halaman memakan waktu terlalu lama untuk dimuat. Gunakan muat ulang atau coba jaringan lain.</string>
     <string name="auth_webview_load_failed">Pemuatan WebView gagal.</string>
-    <string name="auth_http_error_loading_netease">HTTP %1$d saat memuat NetEase.</string>
     <string name="auth_http_error_loading_qq">HTTP %1$d saat memuat QQ Music.</string>
     <string name="auth_error_no_cookies">Tidak ditemukan cookie. Login terlebih dahulu.</string>
-    <string name="auth_error_netease_login_incomplete">Login belum terdeteksi. Selesaikan login NetEase sebelum menekan Selesai.</string>
     <string name="auth_error_qq_login_incomplete">Login belum terdeteksi. Selesaikan login QQ Music sebelum menekan Selesai.</string>
 
     <!-- Backfilled translations -->
-    <string name="auth_navidrome_пароль_hint">Kata sandi aplikasi juga berfungsi jika server Anda mendukungnya.</string>
 </resources>

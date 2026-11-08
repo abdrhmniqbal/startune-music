@@ -34,7 +34,6 @@ object ListenBrainzSource {
     const val JELLYFIN = "JELLYFIN"
 
     fun fromSourceType(sourceType: Int): String = when (sourceType) {
-        SourceType.NAVIDROME -> NAVIDROME
         SourceType.JELLYFIN -> JELLYFIN
         else -> LOCAL
     }

@@ -8,7 +8,6 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.unshoo.pixelmusic.data.database.OfflineTrackDao
 import com.unshoo.pixelmusic.data.jellyfin.JellyfinRepository
-import com.unshoo.pixelmusic.data.navidrome.NavidromeRepository
 import com.unshoo.pixelmusic.data.offline.CloudOfflineRepository
 import com.unshoo.pixelmusic.data.offline.OfflineDownloadStatus
 import com.unshoo.pixelmusic.data.stream.CloudStreamSecurity
@@ -32,7 +31,6 @@ class CloudTrackDownloadWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val dao: OfflineTrackDao,
-    private val navidromeRepository: NavidromeRepository,
     private val jellyfinRepository: JellyfinRepository,
     baseOkHttpClient: OkHttpClient
 ) : CoroutineWorker(appContext, workerParams) {
@@ -210,15 +208,6 @@ class CloudTrackDownloadWorker @AssistedInject constructor(
         val id = parsed.host ?: parsed.path?.removePrefix("/")
             ?: throw IOException("Cloud track identifier is missing")
         return when (parsed.scheme?.lowercase()) {
-            "navidrome" -> {
-                if (!CloudStreamSecurity.validateNavidromeSongId(id)) {
-                    throw IOException("Invalid Navidrome track identifier")
-                }
-                DownloadSource(
-                    url = navidromeRepository.getStreamUrl(id),
-                    allowedHost = navidromeRepository.serverUrl
-                )
-            }
             "jellyfin" -> {
                 if (!CloudStreamSecurity.validateJellyfinItemId(id)) {
                     throw IOException("Invalid Jellyfin track identifier")

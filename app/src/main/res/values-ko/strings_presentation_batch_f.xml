@@ -158,41 +158,24 @@
     <string name="presentation_batch_f_dot_space_suffix"> · %1$s</string>
     <string name="presentation_batch_f_unknown_short">\?</string>
 
-    <!-- Telegram login -->
-    <string name="presentation_batch_f_telegram_login_title">Telegram 로그인</string>
-    <string name="presentation_batch_f_telegram_edit_number_chip">번호를 편집 중입니다. 코드를 다시 보내면 이전 코드는 무효화됩니다.</string>
     <string name="presentation_batch_f_working">작업 중…</string>
-    <string name="presentation_batch_f_telegram_status_initializing">Telegram 초기화 중…</string>
-    <string name="presentation_batch_f_telegram_status_logging_out">로그아웃 중…</string>
-    <string name="presentation_batch_f_telegram_status_closing">세션 종료 중…</string>
-    <string name="presentation_batch_f_telegram_status_closed">세션이 종료되었습니다. 로그인을 다시 시도하려면 다시 여세요.</string>
-    <string name="presentation_batch_f_telegram_status_preparing">보안 Telegram 세션 준비 중…</string>
-    <string name="presentation_batch_f_telegram_status_waiting">Telegram 응답 대기 중…</string>
-    <string name="presentation_batch_f_connect_telegram">Telegram 연결</string>
-    <string name="presentation_batch_f_connect_telegram_subtitle">오류 처리, 타임아웃 제어 및 편집 가능한 단계를 포함한 로그인.</string>
     <string name="presentation_batch_f_phone_number_title">전화번호</string>
-    <string name="presentation_batch_f_phone_number_subtitle">Telegram 전화번호를 입력하세요. 나중에 편집할 수 있습니다.</string>
     <string name="presentation_batch_f_phone_number_hint">전화번호</string>
     <string name="presentation_batch_f_phone_country_placeholder">82</string>
     <string name="presentation_batch_f_phone_local_placeholder">1012345678</string>
     <string name="presentation_batch_f_send_code">코드 전송</string>
     <string name="presentation_batch_f_verification_code_title">인증 코드</string>
-    <string name="presentation_batch_f_verification_code_subtitle">Telegram에서 받은 코드를 입력하세요. 번호가 틀렸다면 뒤로 가서 수정하세요.</string>
     <string name="presentation_batch_f_code_field_label">코드</string>
     <string name="presentation_batch_f_code_placeholder">12345</string>
     <string name="presentation_batch_f_edit_phone">전화번호 수정</string>
     <string name="presentation_batch_f_resend_code">코드 재전송</string>
     <string name="presentation_batch_f_verify_code">코드 확인</string>
     <string name="presentation_batch_f_two_step_password_title">2단계 비밀번호</string>
-    <string name="presentation_batch_f_two_step_password_subtitle">Telegram 비밀번호를 입력하세요.</string>
     <string name="presentation_batch_f_password_label">비밀번호</string>
     <string name="presentation_batch_f_verify_password">비밀번호 확인</string>
     <string name="presentation_batch_f_please_wait">잠시만 기다려 주세요…</string>
 
-    <!-- Telegram dashboard -->
-    <string name="presentation_batch_f_telegram_channels_title">Telegram 채널</string>
     <string name="presentation_batch_f_add_channel_fab">채널 추가</string>
-    <string name="presentation_batch_f_public_channel_fallback">공개 Telegram 채널</string>
     <string name="presentation_batch_f_syncing">동기화 중</string>
     <string name="presentation_batch_f_sync_now">지금 동기화</string>
     <string name="presentation_batch_f_cd_collapse_topics">주제 접기</string>
@@ -200,19 +183,16 @@
     <string name="presentation_batch_f_cd_channel_options">채널 옵션</string>
     <string name="presentation_batch_f_topics_heading">주제</string>
     <string name="presentation_batch_f_syncing_channel">채널 동기화 중</string>
-    <string name="presentation_batch_f_updating_songs_from_telegram">Telegram에서 곡 업데이트 중</string>
     <string name="presentation_batch_f_fetch_latest_songs">이 채널에서 최신 곡 가져오기</string>
     <string name="presentation_batch_f_remove_channel">채널 제거</string>
     <string name="presentation_batch_f_remove_channel_subtitle">동기화를 중지하고 캐시된 곡 삭제</string>
     <string name="presentation_batch_f_no_channels_synced">동기화된 채널 없음</string>
-    <string name="presentation_batch_f_no_channels_body">공개 Telegram 채널을 추가하여\n라이브러리를 동기화하세요</string>
     <string name="presentation_batch_f_add_channel_button">채널 추가</string>
     <string name="presentation_batch_f_never_synced">동기화된 적 없음</string>
     <string name="presentation_batch_f_synced_relative">%1$s 동기화됨</string>
 
     <!-- Telegram channel search -->
     <string name="presentation_batch_f_add_channel_sheet_title">채널 추가</string>
-    <string name="presentation_batch_f_add_channel_sheet_subtitle">음악을 동기화할 공개 Telegram 채널 검색</string>
     <string name="presentation_batch_f_channel_search_placeholder">\@채널이름 또는 링크</string>
     <string name="presentation_batch_f_cd_search">검색</string>
     <string name="presentation_batch_f_searching">검색 중…</string>

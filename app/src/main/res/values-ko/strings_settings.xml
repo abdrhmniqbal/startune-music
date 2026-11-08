@@ -308,9 +308,7 @@
     <string name="settings_category_content_title">내용</string>
     <string name="settings_category_content_subtitle">콘텐츠 국가, 언어, 필터 및 제안 소스</string>
     <string name="settings_content_language_title">콘텐츠 언어</string>
-    <string name="settings_content_language_desc">선호하는 YouTube Music 콘텐츠 언어 설정</string>
     <string name="settings_content_country_title">콘텐츠 국가</string>
-    <string name="settings_content_country_desc">선호하는 YouTube Music 콘텐츠 국가 설정</string>
     <string name="settings_playlist_suggestion_title">재생목록 제안 소스</string>
     <string name="settings_playlist_suggestion_desc">재생목록 노래 추천 소스</string>
     <string name="settings_hide_explicit_title">노골적인 콘텐츠 숨기기</string>
@@ -377,13 +375,11 @@
     <string name="setcat_force_high_quality_mobile_title">모바일 데이터에 고품질을 적용</string>
     <string name="setcat_force_high_quality_mobile_desc">모바일 또는 데이터 통신 네트워크에 연결된 경우에도 고품질로 스트리밍하세요.</string>
     <string name="setcat_cache_liked_songs_title">좋아하는 노래를 오프라인으로 캐시하세요</string>
-    <string name="setcat_cache_liked_songs_desc">오프라인 재생을 위해 좋아하는 YouTube 노래의 오디오를 자동으로 다운로드합니다.</string>
     <string name="setcat_album_art_quality_wifi_title">WiFi 앨범 아트 품질</string>
     <string name="setcat_album_art_quality_wifi_desc">Wi-Fi에서 앨범 커버를 다운로드하고 표시하는 해상도입니다.</string>
     <string name="setcat_album_art_quality_mobile_title">모바일 앨범 아트 품질</string>
     <string name="setcat_album_art_quality_mobile_desc">데이터 통신 네트워크에서 앨범 표지를 다운로드하고 표시하기 위한 해상도입니다.</string>
     <string name="setcat_music_storage_limit_title">음악 저장 용량 제한</string>
-    <string name="setcat_music_storage_limit_desc">다운로드한 YouTube 음악에 할당된 최대 로컬 저장공간입니다.</string>
     <string name="genre_local_music">지역 음악</string>
     <string name="setcat_preload_queue_enabled_title">대기열 사전 로드</string>
     <string name="setcat_preload_queue_enabled_desc">대기열의 다음 곡을 위해 스트림 URL과 앨범 아트를 미리 로드합니다.</string>
@@ -394,9 +390,6 @@
     <string name="setcat_avoid_repetitive_songs_title">반복적인 노래를 피하세요</string>
     <string name="setcat_avoid_repetitive_songs_desc">동적 대기열에서 최근에 재생되었거나 자주 회전된 트랙을 필터링합니다.</string>
     <string name="setcat_deduplicate_queue_title">대기열 항목 중복 제거</string>
-    <string name="setcat_deduplicate_queue_desc">로컬, Telegram, YouTube 간의 대기열 중복 곡을 제거합니다.</string>
-    <string name="setcat_prefer_telegram_alternative_title">대안 선호(로컬 및 텔레그램)</string>
-    <string name="setcat_prefer_telegram_alternative_desc">일치하는 로컬 오디오를 먼저 재생하고, 다음으로 Telegram, 마지막으로 YouTube를 사용합니다.</string>
     <string name="lastfm_integration">Last.fm 통합</string>
     <string name="lastfm_integration_desc">Last.fm 스크롤링, 현재 업데이트 재생 및 임계값 매개변수 구성</string>
     <string name="lastfm_not_logged_in">로그인되지 않음</string>
@@ -418,10 +411,7 @@
     <string name="lastfm_logged_in_as">%1$s로 로그인됨</string>
     <string name="lastfm_login_dialog_title">Last.fm 계정 연결</string>
     <string name="lastfm_login_dialog_desc">스크롤을 승인하려면 Last.fm 계정 자격 증명을 입력하세요.</string>
-    <string name="setcat_telegram_artwork_title">Telegram 곡에 온라인 앨범 아트 사용</string>
-    <string name="setcat_telegram_artwork_desc">Telegram 트랙을 YouTube Music과 일치시켜 고화질 앨범 아트를 표시합니다.</string>
     <string name="setcat_playback_client_title">재생 클라이언트</string>
-    <string name="setcat_playback_client_desc">스트림 클라이언트를 선택합니다. Android VR이 더 빠르며, Web Client는 YouTube Music을 사용합니다.</string>
     <string name="setcat_playback_client_android_vr">Android VR (기본값)</string>
     <string name="setcat_playback_client_web_remix">웹 클라이언트</string>
 </resources>

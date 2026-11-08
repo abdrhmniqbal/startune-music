@@ -36,8 +36,6 @@
     <string name="delimiter_label_space">Пробел</string>
     <string name="cd_add_path_delimiter">Добавить разделитель</string>
 
-    <!-- Accounts -->
-    <string name="accounts_google_drive_soon">Google Drive скоро появится.</string>
     <string name="accounts_unable_open_screen">Не удается открыть экран сейчас.</string>
 
     <!-- Setup (subset; more keys follow in same file) -->
@@ -191,24 +189,19 @@
     <string name="about_signal_community_first">Для сообщества</string>
     <string name="about_signal_material3">Material 3 дизайн</string>
     <string name="cd_open_github_profile">Открыть профиль GitHub</string>
-    <string name="cd_open_telegram">Открыть Telegram</string>
     <string name="cd_contributor_avatar">Аватар %1$s</string>
     <string name="cd_contributor_icon">Иконка %1$s</string>
 
-    <!-- Streaming / cloud dashboards -->
-    <string name="screen_subsonic_dashboard_title">Subsonic</string>
     <string name="dash_playlists_synced_count">Синхрон. плейлистов: %1$d</string>
     <string name="dash_folders_synced_count">Синхрон. папок: %1$d</string>
     <string name="dash_title_playlists">Плейлисты</string>
     <string name="dash_music_folders">Папки с музыкой</string>
     <string name="dash_action_sync">Синхрон.</string>
     <string name="dash_playlists_empty_title">Плейлисты пока не синхронизированы</string>
-    <string name="dash_playlists_empty_hint_subsonic">Нажмите «Синхрон.», чтобы получить плейлисты</string>
     <string name="dash_playlists_empty_hint_jellyfin">Нажмите «Синхрон.», чтобы получить плейлисты Jellyfin</string>
     <string name="dash_no_folders_yet">Папки еще не добавлены</string>
     <string name="dash_tap_plus_add_drive_folder">Нажмите +, чтобы добавить папку Drive</string>
     <string name="dash_quick_actions">Быстрые действия</string>
-    <string name="dash_quick_actions_subsonic_subtitle">Управление Navidrome, Airsonic и др.</string>
     <string name="dash_quick_actions_jellyfin_subtitle">Управление подключением к Jellyfin.</string>
     <string name="dash_status_syncing">Синхронизация</string>
     <string name="dash_action_sync_library">Синхрон. фонотеку</string>
@@ -218,7 +211,6 @@
     <string name="cd_sync_all">Синхронизировать всё</string>
     <string name="cd_add_drive_folder">Добавить папку</string>
     <string name="cd_logout">Выйти</string>
-    <string name="screen_netease_dashboard_title">NetEase Music</string>
     <string name="screen_qq_music_dashboard_title">QQ Music</string>
     <string name="cd_sync_all_playlists">Синхронизировать все плейлисты</string>
     <string name="error_with_message_format">Ошибка: %1$s</string>
@@ -237,17 +229,6 @@
     <string name="toast_playing_next">Будет сыграно следующим</string>
     <string name="error_share_song_format">Не удалось поделиться песней: %1$s</string>
 
-    <!-- Cloud dashboard sync status -->
-    <string name="dash_status_syncing_library">Синхронизация фонотеки:</string>
-    <string name="dash_status_fetching_playlists">Загрузка плейлистов:</string>
-    <string name="dash_status_syncing_playlist_format">Синхронизация плейлиста: %1$s</string>
-    <string name="dash_status_updating_local">Обновление локальной фонотеки:</string>
-    <string name="dash_status_sync_complete">Синхронизация завершена</string>
-    <string name="dash_status_fetching_albums">Загрузка списка альбомов:</string>
-    <string name="dash_status_fetching_songs_from_format">Загрузка треков из %1$s:</string>
-    <string name="dash_status_saving_songs_format">Сохранение %1$d треков в базу:</string>
-    <string name="dash_status_no_songs_found">Треки в фонотеке не найдены</string>
-    <string name="dash_status_library_sync_complete">Синхронизация фонотеки завершена</string>
 
     <!-- Home empty placeholder -->
     <string name="home_empty_placeholder_title">Пока нечего показать</string>
@@ -274,19 +255,10 @@
     <string name="settings_perf_mode_desc">Уменьшает анимации и размытия для плавной работы и экономии заряда.</string>
     <string name="settings_hardware_audio_offload_title">Аппаратная разгрузка аудио</string>
     <string name="settings_hardware_audio_offload_desc">Декодировать аудио на аппаратном DSP для экономии заряда батареи.</string>
-    <string name="settings_saavn_hq_title">HQ-стриминг JioSaavn</string>
-    <string name="settings_saavn_hq_desc">Поток до 320 кбит/с AAC через JioSaavn. Выключено: Lossless или YouTube Opus.</string>
     <string name="settings_cache_liked_songs_title">Кэшировать понравившиеся песни</string>
-    <string name="settings_cache_liked_songs_desc">Скачивать понравившиеся треки YouTube для офлайн-прослушивания.</string>
     <string name="settings_cache_most_played_title">Кэшировать часто воспроизводимые песни</string>
-    <string name="settings_cache_most_played_desc">Автоматически скачивать часто воспроизводимые треки YouTube.</string>
-    <string name="settings_yt_link_integration_section">Интеграция ссылок YouTube</string>
-    <string name="settings_yt_link_intercept_title">Перехват ссылок YouTube</string>
-    <string name="settings_yt_link_intercept_desc">Разрешить Pixel Music открывать ссылки music.youtube.com.</string>
     <string name="settings_open_system_settings">Открыть настройки системы</string>
-    <string name="settings_pure_yt_music_title">Чистый YouTube Music</string>
     <string name="settings_pure_yt_music_desc">Отфильтровывать немузыкальные видеоролики и показывать только аудиозаписи.</string>
-    <string name="settings_recommendations_section">Рекомендации и контент YouTube</string>
     <string name="settings_content_customization_section">Настройка контента</string>
     <string name="settings_filter_cover_lofi_title">Скрывать каверы и lo-fi треки</string>
     <string name="settings_filter_cover_lofi_desc">Скрывать каверы и lo-fi треки из рекомендаций и очередей.</string>
@@ -301,22 +273,17 @@
     <string name="settings_lastfm_smart_mix_desc">Использовать рекомендации Last.fm для Smart Mix вместо YouTube Music.</string>
     <string name="settings_show_smart_mix_in_library_title">Показывать плейлисты Smart Mix в библиотеке</string>
     <string name="settings_show_smart_mix_in_library_desc">Отображать или скрывать плейлисты Smart Mix от Last.fm/AI на вкладке плейлистов библиотеки.</string>
-    <string name="settings_sync_local_playlists_yt_title">Синхронизировать локальные плейлисты с YouTube Music</string>
-    <string name="settings_sync_local_playlists_yt_desc">Синхронизировать изменения локальных плейлистов с YouTube Music.</string>
     <string name="settings_generated_retention_label">Хранение созданных плейлистов</string>
     <string name="settings_generated_retention_desc">Выберите, как долго хранить сгенерированные миксы Last.fm в вашей библиотеке.</string>
     <string name="accounts_sync_personalization">Синхронизация и персонализация</string>
     <string name="accounts_sync_playlists_likes_title">Синхронизация плейлистов и лайков</string>
-    <string name="accounts_sync_playlists_likes_desc">Синхронизировать плейлисты и лайки YouTube Music с медиатекой.</string>
     <string name="accounts_sync_listening_activity_title">Синхронизировать историю прослушиваний</string>
-    <string name="accounts_sync_listening_activity_desc">Отправлять воспроизведенные треки в историю аккаунта YouTube Music.</string>
     <string name="accounts_personalized_explore_title">Персонализированная лента обзора</string>
     <string name="accounts_personalized_explore_desc">В выключенном состоянии страница \'Обзор\' загружается анонимно без истории аккаунта.</string>
     <string name="accounts_personalized_queue_title">Персонализированная очередь и радио</string>
     <string name="accounts_personalized_queue_desc">В выключенном состоянии автовоспроизведение строится исключительно на основе текущей песни.</string>
     <string name="accounts_sync_library_now">Синхронизировать библиотеку сейчас</string>
     <string name="accounts_syncing_library">Синхронизация библиотеки...</string>
-    <string name="accounts_sign_in_youtube">Войти в YouTube Music</string>
     <string name="accounts_available_services">Доступные сервисы</string>
     <string name="player_play_next">Воспроизвести следующим</string>
     <string name="player_save_to_playlist">Сохранить в плейлист</string>
@@ -336,7 +303,6 @@
     <string name="exp_floating_header_title">Плавающий заголовок-капсула</string>
     <string name="exp_floating_header_desc">Включить плавающие заголовки-капсулы с размытием верхнего края</string>
     <string name="exp_advanced_explore_title">Расширенная страница \'Обзор\'</string>
-    <string name="exp_advanced_explore_desc">Загружать персональные рекомендации и миксы из YouTube Music.</string>
     <string name="explore_section_artists_for_you">Артисты для вас</string>
     <string name="explore_section_fresh_finds">Новые находки</string>
     <string name="explore_section_fresh_finds_desc">Новые треки под ваше настроение</string>
@@ -367,8 +333,6 @@
     <string name="filter_words_how_it_works_title">Как работают фильтрующие слова</string>
     <string name="filter_words_reset_action">Сбросить фильтрующие слова</string>
     <string name="quick_picks_title">Быстрый выбор</string>
-    <string name="quick_picks_fetching_from_yt">Загрузка с YouTube...</string>
-    <string name="quick_picks_songs_from_yt">%1$d песен с YouTube</string>
     <string name="playlist_confirm_name">Подтвердите название плейлиста:</string>
     <string name="playlist_action_import">Импорт</string>
     <string name="playlist_already_exists_title">Плейлист уже существует</string>
@@ -378,7 +342,6 @@
     <string name="quick_import_title">Быстрый импорт</string>
     <string name="quick_import_desc">Синхронизируйте плейлисты и треки мгновенно</string>
     <string name="provider_yt_music_subtitle">Слушайте и импортируйте плейлисты</string>
-    <string name="provider_telegram_subtitle">Слушайте из каналов и чатов</string>
     <string name="provider_coming_soon">Скоро</string>
     <string name="share_card_style">Стиль карточки:</string>
     <string name="share_glass">Стекло</string>

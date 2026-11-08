@@ -82,8 +82,6 @@
 
     <!-- Backfilled translations -->
     <string name="library_storage_filter_local">Sólo locales</string>
-    <string name="library_storage_filter_telegram">Telegrama</string>
-    <string name="library_storage_filter_youtube">Youtube</string>
     <string name="library_storage_filter_downloaded_only">DESCARGADO</string>
     <string name="song_picker_filter_favorites">Apreciado</string>
 </resources>

@@ -36,8 +36,6 @@
     <string name="delimiter_label_space">空格</string>
     <string name="cd_add_path_delimiter">添加分隔符</string>
 
-    <!-- Accounts -->
-    <string name="accounts_google_drive_soon">Google Drive 即将推出。</string>
     <string name="accounts_unable_open_screen">暂时无法打开此页面。</string>
 
     <!-- Setup (subset; more keys follow in same file) -->
@@ -191,44 +189,28 @@
     <string name="about_signal_community_first">社区优先</string>
     <string name="about_signal_material3">Material 3 表现力设计</string>
     <string name="cd_open_github_profile">打开 GitHub 个人主页</string>
-    <string name="cd_open_telegram">打开 Telegram</string>
     <string name="cd_contributor_avatar">%1$s 的头像</string>
     <string name="cd_contributor_icon">%1$s 的图标</string>
 
-    <!-- Streaming / cloud dashboards -->
-    <string name="screen_subsonic_dashboard_title">Subsonic</string>
     <string name="dash_playlists_synced_count">已同步 %1$d 个播放列表</string>
     <string name="dash_folders_synced_count">已同步 %1$d 个文件夹</string>
     <string name="dash_title_playlists">播放列表</string>
     <string name="dash_music_folders">音乐文件夹</string>
     <string name="dash_action_sync">同步</string>
     <string name="dash_playlists_empty_title">尚未同步任何播放列表</string>
-    <string name="dash_playlists_empty_hint_subsonic">点击同步以获取你的播放列表</string>
     <string name="dash_playlists_empty_hint_jellyfin">点击同步以获取你的 Jellyfin 播放列表</string>
     <string name="dash_no_folders_yet">还没有添加任何文件夹</string>
     <string name="dash_tap_plus_add_drive_folder">点击 + 添加一个 Drive 文件夹</string>
     <string name="dash_quick_actions">快速操作</string>
-    <string name="dash_quick_actions_subsonic_subtitle">管理 Navidrome、Airsonic 和其他兼容 Subsonic 的服务器。</string>
     <string name="dash_quick_actions_jellyfin_subtitle">管理你的 Jellyfin 服务器连接。</string>
     <string name="dash_status_syncing">同步中</string>
     <string name="dash_action_sync_library">同步媒体库</string>
     <string name="dash_action_disconnect">断开连接</string>
-    <string name="dash_status_syncing_library">正在同步媒体库……</string>
-    <string name="dash_status_fetching_playlists">正在获取播放列表……</string>
-    <string name="dash_status_syncing_playlist_format">正在同步播放列表：%1$s</string>
-    <string name="dash_status_updating_local">正在更新本地媒体库……</string>
-    <string name="dash_status_sync_complete">同步完成</string>
-    <string name="dash_status_fetching_albums">正在获取专辑列表……</string>
-    <string name="dash_status_fetching_songs_from_format">正在从 %1$s 获取曲目……</string>
-    <string name="dash_status_saving_songs_format">正在保存 %1$d 首曲目至数据库……</string>
-    <string name="dash_status_no_songs_found">媒体库中找不到曲目</string>
-    <string name="dash_status_library_sync_complete">媒体库同步完成</string>
     <string name="dash_song_count">%1$d 首歌曲</string>
     <string name="cd_sync">同步</string>
     <string name="cd_sync_all">全部同步</string>
     <string name="cd_add_drive_folder">添加文件夹</string>
     <string name="cd_logout">退出登录</string>
-    <string name="screen_netease_dashboard_title">网易云音乐</string>
     <string name="screen_qq_music_dashboard_title">QQ 音乐</string>
     <string name="cd_sync_all_playlists">同步所有播放列表</string>
     <string name="error_with_message_format">错误：%1$s</string>
@@ -272,19 +254,10 @@
     <string name="settings_perf_mode_desc">减少动画和模糊效果，以保持应用流畅并节省电量。</string>
     <string name="settings_hardware_audio_offload_title">硬件音频卸载</string>
     <string name="settings_hardware_audio_offload_desc">使用硬件 DSP 进行音频解码以在播放时节省电量。</string>
-    <string name="settings_saavn_hq_title">JioSaavn 高品质流媒体</string>
-    <string name="settings_saavn_hq_desc">通过 JioSaavn 流式播放高达 320 kbps AAC。关闭时使用无损或 YouTube Opus。</string>
     <string name="settings_cache_liked_songs_title">手动缓存喜欢的歌曲</string>
-    <string name="settings_cache_liked_songs_desc">喜欢 YouTube 歌曲时自动下载以供离线播放。</string>
     <string name="settings_cache_most_played_title">缓存最常播放的歌曲</string>
-    <string name="settings_cache_most_played_desc">自动下载经常播放的 YouTube 歌曲。</string>
-    <string name="settings_yt_link_integration_section">YouTube 链接集成</string>
-    <string name="settings_yt_link_intercept_title">YouTube 链接拦截</string>
-    <string name="settings_yt_link_intercept_desc">允许 Pixel Music 自动打开 music.youtube.com 链接。</string>
     <string name="settings_open_system_settings">打开系统设置</string>
-    <string name="settings_pure_yt_music_title">纯净 YouTube Music</string>
     <string name="settings_pure_yt_music_desc">过滤掉非音乐视频内容，仅显示音频歌曲。</string>
-    <string name="settings_recommendations_section">推荐与 YouTube 内容</string>
     <string name="settings_content_customization_section">内容自定义</string>
     <string name="settings_filter_cover_lofi_title">隐藏翻唱和 Lo-Fi 曲目</string>
     <string name="settings_filter_cover_lofi_desc">从推荐和队列中隐藏翻唱和低保真 (Lo-Fi) 歌曲。</string>
@@ -299,22 +272,17 @@
     <string name="settings_lastfm_smart_mix_desc">使用 Last.fm 推荐生成智能混音，而非 YouTube Music。</string>
     <string name="settings_show_smart_mix_in_library_title">在媒体库中显示智能混音歌单</string>
     <string name="settings_show_smart_mix_in_library_desc">在媒体库播放列表页面上显示或隐藏 Last.fm/AI 生成的智能混音歌单。</string>
-    <string name="settings_sync_local_playlists_yt_title">将本地播放列表同步至 YouTube Music</string>
-    <string name="settings_sync_local_playlists_yt_desc">将本地播放列表的编辑同步回您的 YouTube Music 帐号。</string>
     <string name="settings_generated_retention_label">生成的歌单保留期</string>
     <string name="settings_generated_retention_desc">选择在媒体库中保留生成的 Last.fm 混音歌单的时间。</string>
     <string name="accounts_sync_personalization">同步与个性化</string>
     <string name="accounts_sync_playlists_likes_title">同步歌单与喜欢的歌曲</string>
-    <string name="accounts_sync_playlists_likes_desc">将 YouTube Music 播放列表和喜欢的歌曲与曲库同步。</string>
     <string name="accounts_sync_listening_activity_title">同步收听活动</string>
-    <string name="accounts_sync_listening_activity_desc">将已播放的曲目分享到您的 YouTube Music 账户历史记录中。</string>
     <string name="accounts_personalized_explore_title">个性化探索信息流</string>
     <string name="accounts_personalized_explore_desc">关闭时，将在没有账户历史记录的情况下匿名加载“探索”页面。</string>
     <string name="accounts_personalized_queue_title">个性化队列与电台</string>
     <string name="accounts_personalized_queue_desc">关闭时，将纯粹根据当前歌曲生成自动播放推荐。</string>
     <string name="accounts_sync_library_now">立即同步媒体库</string>
     <string name="accounts_syncing_library">正在同步媒体库...</string>
-    <string name="accounts_sign_in_youtube">登录到 YouTube Music</string>
     <string name="accounts_available_services">可用服务</string>
     <string name="player_play_next">下一首播放</string>
     <string name="player_save_to_playlist">保存到歌单</string>
@@ -334,7 +302,6 @@
     <string name="exp_floating_header_title">悬浮药丸标题栏</string>
     <string name="exp_floating_header_desc">启用带有顶部边缘模糊淡入淡出的悬浮胶囊风格标题</string>
     <string name="exp_advanced_explore_title">高级探索页面</string>
-    <string name="exp_advanced_explore_desc">从 YouTube Music 加载个性化推荐和混音。</string>
     <string name="explore_section_artists_for_you">为您推荐的艺术家</string>
     <string name="explore_section_fresh_finds">新鲜发现</string>
     <string name="explore_section_fresh_finds_desc">契合您收听氛围的新曲目</string>
@@ -365,8 +332,6 @@
     <string name="filter_words_how_it_works_title">过滤词的工作原理</string>
     <string name="filter_words_reset_action">重置过滤词</string>
     <string name="quick_picks_title">精选快捷</string>
-    <string name="quick_picks_fetching_from_yt">正在从 YouTube 获取...</string>
-    <string name="quick_picks_songs_from_yt">来自 YouTube 的 %1$d 首歌曲</string>
     <string name="playlist_confirm_name">确认播放列表名称：</string>
     <string name="playlist_action_import">导入</string>
     <string name="playlist_already_exists_title">播放列表已存在</string>
@@ -376,7 +341,6 @@
     <string name="quick_import_title">快捷导入</string>
     <string name="quick_import_desc">即时同步播放列表和歌曲</string>
     <string name="provider_yt_music_subtitle">流式传输与导入播放列表</string>
-    <string name="provider_telegram_subtitle">从频道和聊天中流式传输</string>
     <string name="provider_coming_soon">即将推出</string>
     <string name="share_card_style">卡片样式：</string>
     <string name="share_glass">毛玻璃</string>

@@ -83,7 +83,5 @@
 
     <!-- Backfilled translations -->
     <string name="library_storage_filter_local">Hanya lokal</string>
-    <string name="library_storage_filter_telegram">telegram</string>
-    <string name="library_storage_filter_youtube">YouTube</string>
     <string name="library_storage_filter_downloaded_only">DIUNDUH</string>
 </resources>

@@ -308,9 +308,7 @@
     <string name="settings_category_content_title">Innhold</string>
     <string name="settings_category_content_subtitle">Innholdsland, språk, filtre og forslagskilder</string>
     <string name="settings_content_language_title">Innholdsspråk</string>
-    <string name="settings_content_language_desc">Angi foretrukket YouTube Music-innholdsspråk</string>
     <string name="settings_content_country_title">Innholdsland</string>
-    <string name="settings_content_country_desc">Angi ønsket land for YouTube Music-innhold</string>
     <string name="settings_playlist_suggestion_title">Kilde for spillelisteforslag</string>
     <string name="settings_playlist_suggestion_desc">Kilde for forslag til spillelister</string>
     <string name="settings_hide_explicit_title">Skjul eksplisitt innhold</string>
@@ -377,13 +375,11 @@
     <string name="setcat_force_high_quality_mobile_title">Tving høy kvalitet på mobildata</string>
     <string name="setcat_force_high_quality_mobile_desc">Stream i høy kvalitet selv når du er koblet til mobilnettverk eller nettverk med måler.</string>
     <string name="setcat_cache_liked_songs_title">Buffer likte sanger offline</string>
-    <string name="setcat_cache_liked_songs_desc">Last ned automatisk lyd av likte YouTube-sanger for avspilling uten nett.</string>
     <string name="setcat_album_art_quality_wifi_title">WiFi albumkunstkvalitet</string>
     <string name="setcat_album_art_quality_wifi_desc">Oppløsning for nedlasting og visning av albumomslag på WiFi.</string>
     <string name="setcat_album_art_quality_mobile_title">Mobil albumkunstkvalitet</string>
     <string name="setcat_album_art_quality_mobile_desc">Oppløsning for nedlasting og visning av albumomslag på målte nettverk.</string>
     <string name="setcat_music_storage_limit_title">Musikklagringsgrense</string>
-    <string name="setcat_music_storage_limit_desc">Maksimal lokal lagringsplass tildelt for nedlastet YouTube-musikk.</string>
     <string name="genre_local_music">Lokal musikk</string>
     <string name="setcat_preload_queue_enabled_title">Forhåndsinnlasting av kø</string>
     <string name="setcat_preload_queue_enabled_desc">Forhåndslast strømmer og omslag for kommende sanger i køen.</string>
@@ -394,9 +390,6 @@
     <string name="setcat_avoid_repetitive_songs_title">Unngå repeterende sanger</string>
     <string name="setcat_avoid_repetitive_songs_desc">Filtrer ut nylig spilte eller sterkt roterte spor fra den dynamiske køen.</string>
     <string name="setcat_deduplicate_queue_title">Dedupliserte køoppføringer</string>
-    <string name="setcat_deduplicate_queue_desc">Fjern duplikatsanger i køen på tvers av lokal, Telegram og YouTube.</string>
-    <string name="setcat_prefer_telegram_alternative_title">Foretrekker alternativer (lokalt og telegram)</string>
-    <string name="setcat_prefer_telegram_alternative_desc">Spill av lokalt lydspor først, deretter Telegram, så YouTube.</string>
     <string name="lastfm_integration">Last.fm-integrasjon</string>
     <string name="lastfm_integration_desc">Konfigurer Last.fm scrobbling, spiller nå oppdateringer og terskelparametere</string>
     <string name="lastfm_not_logged_in">Ikke logget inn</string>
@@ -418,10 +411,7 @@
     <string name="lastfm_logged_in_as">Logget på som %1$s</string>
     <string name="lastfm_login_dialog_title">Koble Last.fm-konto</string>
     <string name="lastfm_login_dialog_desc">Skriv inn din Last.fm-kontolegitimasjon for å godkjenne scrobbling.</string>
-    <string name="setcat_telegram_artwork_title">Bruk nettbasert omslag for Telegram-sanger</string>
-    <string name="setcat_telegram_artwork_desc">Koble Telegram-spor til YouTube Music for høyoppløselige omslag.</string>
     <string name="setcat_playback_client_title">Avspillingsklient</string>
-    <string name="setcat_playback_client_desc">Velg strømmeklient. Android VR er raskere; Web Client bruker YouTube Music.</string>
     <string name="setcat_playback_client_android_vr">Android VR (Standard)</string>
     <string name="setcat_playback_client_web_remix">Nettklient</string>
 </resources>

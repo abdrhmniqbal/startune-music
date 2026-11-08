@@ -68,7 +68,6 @@ object MediaItemBuilder {
         "audio/x-aiff",
     )
     private val CLOUD_ARTWORK_SCHEMES = setOf(
-        "navidrome_cover",
         "jellyfin_cover",
     )
     private val SUPPORTED_INTERNAL_ARTWORK_SCHEMES = setOf(
@@ -100,7 +99,6 @@ object MediaItemBuilder {
     const val EXTERNAL_EXTRA_BITRATE = EXTERNAL_EXTRA_PREFIX + "BITRATE"
     const val EXTERNAL_EXTRA_SAMPLE_RATE = EXTERNAL_EXTRA_PREFIX + "SAMPLE_RATE"
     const val EXTERNAL_EXTRA_FILE_PATH = EXTERNAL_EXTRA_PREFIX + "FILE_PATH"
-    const val EXTERNAL_EXTRA_NAVIDROME_ID = EXTERNAL_EXTRA_PREFIX + "NAVIDROME_ID"
 
     fun build(song: Song): MediaItem {
         return MediaItem.Builder()
@@ -310,7 +308,6 @@ object MediaItemBuilder {
             putInt(EXTERNAL_EXTRA_BITRATE, song.bitrate ?: 0)
             putInt(EXTERNAL_EXTRA_SAMPLE_RATE, song.sampleRate ?: 0)
             putString(EXTERNAL_EXTRA_FILE_PATH, song.path)
-            song.navidromeId?.let { putString(EXTERNAL_EXTRA_NAVIDROME_ID, it) }
         }
 
         metadataBuilder.setExtras(extras)

@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.unshoo.pixelmusic.R
 import com.unshoo.pixelmusic.presentation.jellyfin.auth.JellyfinLoginActivity
-import com.unshoo.pixelmusic.presentation.navidrome.auth.NavidromeLoginActivity
 import com.unshoo.pixelmusic.ui.theme.RoundedSans
 
 /**
@@ -38,8 +37,6 @@ import com.unshoo.pixelmusic.ui.theme.RoundedSans
 @Composable
 fun StreamingProviderSheet(
     onDismissRequest: () -> Unit,
-    isNavidromeLoggedIn: Boolean = false,
-    onNavigateToNavidromeDashboard: () -> Unit = {},
     isJellyfinLoggedIn: Boolean = false,
     onNavigateToJellyfinDashboard: () -> Unit = {},
     sheetState: SheetState = rememberModalSheetState(
@@ -97,23 +94,6 @@ fun StreamingProviderSheet(
                         .clip(providerSegmentContainerShape),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    ProviderRow(
-                        iconPainter = painterResource(R.drawable.ic_navidrome_md3),
-                        iconTint = Color(0xFFE8A54B),
-                        title = "Subsonic",
-                        subtitle = if (isNavidromeLoggedIn) "Connected · Navidrome/Airsonic" else "Connect Navidrome & others",
-                        shape = providerSegmentItemShape,
-                        isConnected = isNavidromeLoggedIn,
-                        onClick = {
-                            if (isNavidromeLoggedIn) {
-                                onNavigateToNavidromeDashboard()
-                            } else {
-                                context.startActivity(Intent(context, NavidromeLoginActivity::class.java))
-                            }
-                            onDismissRequest()
-                        }
-                    )
-
                     ProviderRow(
                         iconPainter = painterResource(R.drawable.ic_jellyfin),
                         iconTint = Color(0xFF00A4DC),

@@ -278,7 +278,6 @@ class PlaylistsModuleHandler @Inject constructor(
 
     private suspend fun buildCloudSongIdSet(): Set<String> {
         val cloudIds = mutableSetOf<String>()
-        musicDao.getAllNavidromeSongIds().mapTo(cloudIds) { it.toString() }
         musicDao.getAllJellyfinSongIds().mapTo(cloudIds) { it.toString() }
         return cloudIds
     }
