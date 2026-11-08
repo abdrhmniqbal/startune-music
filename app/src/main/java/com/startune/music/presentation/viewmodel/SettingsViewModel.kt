@@ -77,6 +77,7 @@ data class SettingsUiState(
     val audioOutputMode: AudioOutputMode = AudioOutputMode.SYSTEM_DEFAULT,
     val pcmFloatOutputSupported: Boolean = true,
     val crossfadeDuration: Int = 2000,
+    val playedThresholdPercent: Int = 50,
     val persistentShuffleEnabled: Boolean = false,
     val folderBackGestureNavigation: Boolean = true,
     val lyricsSourcePreference: LyricsSourcePreference = LyricsSourcePreference.EMBEDDED_FIRST,
@@ -167,7 +168,8 @@ private sealed interface SettingsUiUpdate {
         val immersiveLyricsEnabled: Boolean,
         val immersiveLyricsTimeout: Long,
         val animatedLyricsBlurEnabled: Boolean,
-        val animatedLyricsBlurStrength: Float
+        val animatedLyricsBlurStrength: Float,
+        val playedThresholdPercent: Int
     ) : SettingsUiUpdate
 }
 
@@ -322,7 +324,8 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.immersiveLyricsEnabledFlow,
                 userPreferencesRepository.immersiveLyricsTimeoutFlow,
                 userPreferencesRepository.animatedLyricsBlurEnabledFlow,
-                userPreferencesRepository.animatedLyricsBlurStrengthFlow
+                userPreferencesRepository.animatedLyricsBlurStrengthFlow,
+                userPreferencesRepository.playedThresholdPercentFlow
             ) { values ->
                 val requestedAudioOutputMode = values[4] as AudioOutputMode
                 SettingsUiUpdate.Group2(
@@ -348,7 +351,8 @@ class SettingsViewModel @Inject constructor(
                     immersiveLyricsEnabled = values[12] as Boolean,
                     immersiveLyricsTimeout = values[13] as Long,
                     animatedLyricsBlurEnabled = values[14] as Boolean,
-                    animatedLyricsBlurStrength = values[15] as Float
+                    animatedLyricsBlurStrength = values[15] as Float,
+                    playedThresholdPercent = values[16] as Int
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -368,7 +372,8 @@ class SettingsViewModel @Inject constructor(
                         immersiveLyricsEnabled = update.immersiveLyricsEnabled,
                         immersiveLyricsTimeout = update.immersiveLyricsTimeout,
                         animatedLyricsBlurEnabled = update.animatedLyricsBlurEnabled,
-                        animatedLyricsBlurStrength = update.animatedLyricsBlurStrength
+                        animatedLyricsBlurStrength = update.animatedLyricsBlurStrength,
+                        playedThresholdPercent = update.playedThresholdPercent
                     )
                 }
             }
@@ -664,6 +669,12 @@ class SettingsViewModel @Inject constructor(
     fun setCrossfadeDuration(duration: Int) {
         viewModelScope.launch {
             userPreferencesRepository.setCrossfadeDuration(duration)
+        }
+    }
+
+    fun setPlayedThresholdPercent(percent: Int) {
+        viewModelScope.launch {
+            userPreferencesRepository.setPlayedThresholdPercent(percent)
         }
     }
 

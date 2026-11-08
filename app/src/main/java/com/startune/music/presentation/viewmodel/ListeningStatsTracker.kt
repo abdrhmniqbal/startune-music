@@ -3,6 +3,8 @@
 import android.os.SystemClock
 import androidx.media3.common.C
 import com.startune.music.data.DailyMixManager
+import com.startune.music.data.preferences.DEFAULT_PLAYED_THRESHOLD_PERCENT
+import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.lastfm.LastFmScrobbleManager
 import com.startune.music.data.listenbrainz.ScrobbleManager
 import com.startune.music.data.model.Song
@@ -12,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -35,8 +38,11 @@ class ListeningStatsTracker @Inject constructor(
     private val dailyMixManager: DailyMixManager,
     private val playbackStatsRepository: PlaybackStatsRepository,
     private val scrobbleManager: ScrobbleManager,
-    private val lastFmScrobbleManager: LastFmScrobbleManager
+    private val lastFmScrobbleManager: LastFmScrobbleManager,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) {
+    @Volatile
+    private var playedThresholdPercent: Int = DEFAULT_PLAYED_THRESHOLD_PERCENT
     private var currentSession: ActiveSession? = null
     private var pendingVoluntarySongId: String? = null
     private var scope: CoroutineScope? = null
@@ -56,6 +62,11 @@ class ListeningStatsTracker @Inject constructor(
             _playbackHistory.value = playbackStatsRepository.loadPlaybackHistory(
                 limit = MAX_INTERNAL_PLAYBACK_HISTORY_ITEMS
             )
+        }
+        coroutineScope.launch {
+            userPreferencesRepository.playedThresholdPercentFlow.collect { percent ->
+                playedThresholdPercent = percent
+            }
         }
     }
 
@@ -256,7 +267,7 @@ class ListeningStatsTracker @Inject constructor(
             listenedMs = listened,
             trackDurationMs = session.totalDurationMs
         )
-        if (listened >= MIN_SESSION_LISTEN_MS) {
+        if (listened >= playedThresholdMs(session.totalDurationMs)) {
             val rawEndTimestamp = when {
                 session.isPlaying -> nowEpoch
                 session.lastUpdateEpochMs > 0L -> session.lastUpdateEpochMs
@@ -332,6 +343,16 @@ class ListeningStatsTracker @Inject constructor(
         if (delta > 0L) {
             session.accumulatedListeningMs += delta
         }
+    }
+
+    /**
+     * Minimum listened time for a session to count as a play: the configured
+     * percentage of the track, never less than the 5s accidental-play floor.
+     * Unknown duration falls back to the floor.
+     */
+    private fun playedThresholdMs(totalDurationMs: Long): Long {
+        if (totalDurationMs <= 0L) return MIN_SESSION_LISTEN_MS
+        return (totalDurationMs * playedThresholdPercent / 100L).coerceAtLeast(MIN_SESSION_LISTEN_MS)
     }
 
     private fun normalizeDuration(durationMs: Long, fallbackDurationMs: Long): Long {

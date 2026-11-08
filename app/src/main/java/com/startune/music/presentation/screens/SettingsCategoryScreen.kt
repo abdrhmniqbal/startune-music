@@ -846,6 +846,18 @@ fun SettingsCategoryScreen(
                             }
                         }
                         SettingsCategory.PLAYBACK -> {
+                            SettingsSubsection(title = stringResource(R.string.setcat_listening_history)) {
+                                SliderSettingsItem(
+                                    label = stringResource(R.string.setcat_played_threshold),
+                                    value = uiState.playedThresholdPercent.toFloat(),
+                                    valueRange = 5f..100f,
+                                    steps = 18,
+                                    onValueChange = { settingsViewModel.setPlayedThresholdPercent(it.toInt()) },
+                                    valueText = { value -> "${value.toInt()}%" },
+                                    modifier = Modifier.settingHighlight("item_playback_played_threshold", highlightKey)
+                                )
+                            }
+
                             SettingsSubsection(title = stringResource(R.string.setcat_background_playback)) {
                                 ThemeSelectorItem(
                                     label = stringResource(R.string.setcat_keep_playing_label),

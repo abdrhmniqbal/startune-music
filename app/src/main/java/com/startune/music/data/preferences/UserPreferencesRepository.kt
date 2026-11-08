@@ -55,6 +55,13 @@ const val MAX_NAV_BAR_CORNER_RADIUS = 60
 internal fun sanitizeNavBarCornerRadius(radius: Int): Int =
         radius.coerceIn(MIN_NAV_BAR_CORNER_RADIUS, MAX_NAV_BAR_CORNER_RADIUS)
 
+const val MIN_PLAYED_THRESHOLD_PERCENT = 5
+const val MAX_PLAYED_THRESHOLD_PERCENT = 100
+const val DEFAULT_PLAYED_THRESHOLD_PERCENT = 50
+
+internal fun sanitizePlayedThresholdPercent(percent: Int): Int =
+        percent.coerceIn(MIN_PLAYED_THRESHOLD_PERCENT, MAX_PLAYED_THRESHOLD_PERCENT)
+
 /**
  * Album art quality settings for developer options.
  * Controls maximum resolution for album artwork in player view.
@@ -145,6 +152,7 @@ constructor(
         val SMART_CROSSFADE_ENABLED = booleanPreferencesKey("smart_crossfade_enabled")
         val HI_FI_MODE_ENABLED = booleanPreferencesKey("hi_fi_mode_enabled")
         val CROSSFADE_DURATION = intPreferencesKey("crossfade_duration")
+        val PLAYED_THRESHOLD_PERCENT = intPreferencesKey("played_threshold_percent")
         val PLAYBACK_SPEED = androidx.datastore.preferences.core.floatPreferencesKey("playback_speed")
         val CUSTOM_GENRES = androidx.datastore.preferences.core.stringSetPreferencesKey("custom_genres")
         val CUSTOM_GENRE_ICONS = stringPreferencesKey("custom_genre_icons")
@@ -309,6 +317,21 @@ constructor(
     suspend fun setCrossfadeDuration(duration: Int) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.CROSSFADE_DURATION] = duration.coerceIn(1000, 12000)
+        }
+    }
+
+    val playedThresholdPercentFlow: Flow<Int> =
+            dataStore.data.map { preferences ->
+                sanitizePlayedThresholdPercent(
+                    preferences[PreferencesKeys.PLAYED_THRESHOLD_PERCENT]
+                        ?: DEFAULT_PLAYED_THRESHOLD_PERCENT
+                )
+            }
+
+    suspend fun setPlayedThresholdPercent(percent: Int) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PLAYED_THRESHOLD_PERCENT] =
+                sanitizePlayedThresholdPercent(percent)
         }
     }
 
