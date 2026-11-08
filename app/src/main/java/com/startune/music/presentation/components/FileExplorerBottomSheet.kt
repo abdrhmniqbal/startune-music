@@ -36,6 +36,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Done
@@ -55,8 +56,6 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -110,11 +109,12 @@ fun FileExplorerDialog(
     onNavigateTo: (File) -> Unit,
     onNavigateUp: () -> Unit,
     onNavigateHome: () -> Unit,
-    onToggleAllowed: (File) -> Unit,
+    onFolderPicked: (File) -> Unit,
     onRefresh: () -> Unit,
     onStorageSelected: (Int) -> Unit,
     onDone: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    title: String
 ) {
     val transitionState = remember { MutableTransitionState(false) }
     transitionState.targetState = visible
@@ -157,11 +157,12 @@ fun FileExplorerDialog(
                         onNavigateTo = onNavigateTo,
                         onNavigateUp = onNavigateUp,
                         onNavigateHome = onNavigateHome,
-                        onToggleAllowed = onToggleAllowed,
+                        onFolderPicked = onFolderPicked,
                         onRefresh = onRefresh,
                         onStorageSelected = onStorageSelected,
                         onDone = onDone,
                         onDismiss = onDismiss,
+                        title = title,
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -186,12 +187,12 @@ fun FileExplorerContent(
     onNavigateTo: (File) -> Unit,
     onNavigateUp: () -> Unit,
     onNavigateHome: () -> Unit,
-    onToggleAllowed: (File) -> Unit,
+    onFolderPicked: (File) -> Unit,
     onRefresh: () -> Unit,
     onStorageSelected: (Int) -> Unit,
     onDone: () -> Unit,
     onDismiss: () -> Unit,
-    title: String = "Excluded folders",
+    title: String,
     leadingContent: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
@@ -407,7 +408,7 @@ fun FileExplorerContent(
                                         displayName = directoryEntry.displayName,
                                         isBlocked = directoryEntry.isBlocked,
                                         onNavigate = { onNavigateTo(directoryEntry.file) },
-                                        onToggleAllowed = { onToggleAllowed(directoryEntry.file) },
+                                        onPick = { onFolderPicked(directoryEntry.file) },
                                         navigationEnabled = true
                                     )
                                 }
@@ -512,30 +513,14 @@ private fun FileExplorerItem(
     displayName: String?,
     isBlocked: Boolean,
     onNavigate: () -> Unit,
-    onToggleAllowed: () -> Unit,
+    onPick: () -> Unit,
     navigationEnabled: Boolean
 ) {
     val shape = RoundedCornerShape(18.dp)
 
-    val isAllowed = !isBlocked
-
-    val containerColor = if (isBlocked) {
-        MaterialTheme.colorScheme.errorContainer
-    } else {
-        MaterialTheme.colorScheme.surfaceContainerHigh
-    }
-
-    val contentColor = if (isBlocked) {
-        MaterialTheme.colorScheme.onErrorContainer
-    } else {
-        MaterialTheme.colorScheme.onSurface
-    }
-
-    val badgeColor = if (isBlocked) {
-        MaterialTheme.colorScheme.onErrorContainer
-    } else {
-        MaterialTheme.colorScheme.secondary
-    }
+    val containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    val contentColor = MaterialTheme.colorScheme.onSurface
+    val badgeColor = MaterialTheme.colorScheme.secondary
 
     Row(
         modifier = Modifier
@@ -619,16 +604,21 @@ private fun FileExplorerItem(
             Text(
                 text = stringResource(if (isBlocked) R.string.folder_state_excluded else R.string.folder_state_included),
                 style = MaterialTheme.typography.labelMedium,
-                color = if (isBlocked) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (isBlocked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
             )
-            RadioButton(
-                selected = isBlocked,
-                onClick = onToggleAllowed,
-                colors = RadioButtonDefaults.colors(
-                    selectedColor = MaterialTheme.colorScheme.onErrorContainer,
-                    unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+            FilledIconButton(
+                onClick = onPick,
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = stringResource(R.string.manage_folders_add)
                 )
-            )
+            }
         }
     }
 }

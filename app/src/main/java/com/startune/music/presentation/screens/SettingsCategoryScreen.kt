@@ -170,7 +170,6 @@ import com.startune.music.data.model.Song
 import com.startune.music.data.model.LyricsSourcePreference
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.ExpressiveTopBarContent
-import com.startune.music.presentation.components.FileExplorerDialog
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.model.SettingsCategory
 import com.startune.music.presentation.navigation.Screen
@@ -202,22 +201,12 @@ fun SettingsCategoryScreen(
     
     val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
     val playbackSpeed by settingsViewModel.playbackSpeed.collectAsStateWithLifecycle()
-    val currentPath by settingsViewModel.currentPath.collectAsStateWithLifecycle()
-    val directoryChildren by settingsViewModel.currentDirectoryChildren.collectAsStateWithLifecycle()
-    val availableStorages by settingsViewModel.availableStorages.collectAsStateWithLifecycle()
-    val selectedStorageIndex by settingsViewModel.selectedStorageIndex.collectAsStateWithLifecycle()
-    val isLoadingDirectories by settingsViewModel.isLoadingDirectories.collectAsStateWithLifecycle()
-    val isExplorerPriming by settingsViewModel.isExplorerPriming.collectAsStateWithLifecycle()
-    val isExplorerReady by settingsViewModel.isExplorerReady.collectAsStateWithLifecycle()
-    val isCurrentDirectoryResolved by settingsViewModel.isCurrentDirectoryResolved.collectAsStateWithLifecycle()
     val isSyncing by settingsViewModel.isSyncing.collectAsStateWithLifecycle()
     val syncProgress by settingsViewModel.syncProgress.collectAsStateWithLifecycle()
     val dataTransferProgress by settingsViewModel.dataTransferProgress.collectAsStateWithLifecycle()
     val m3uSyncState by m3uSyncViewModel.state.collectAsStateWithLifecycle()
     val paletteRegenerateTargets by playerViewModel.paletteRegenerationTargets.collectAsStateWithLifecycle()
-    val explorerRoot = settingsViewModel.explorerRoot()
 
-    var showExplorerSheet by remember { mutableStateOf(false) }
     var refreshRequested by remember { mutableStateOf(false) }
     var syncRequestObservedRunning by remember { mutableStateOf(false) }
     var syncIndicatorLabel by remember { mutableStateOf<String?>(null) }
@@ -420,8 +409,7 @@ fun SettingsCategoryScreen(
                                     trailingIcon = { Icon(Icons.Rounded.ChevronRight, stringResource(R.string.cd_open), tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                                     modifier = Modifier.settingHighlight("item_library_excluded_directories", highlightKey),
                                     onClick = {
-                                        showExplorerSheet = true
-                                        settingsViewModel.openExplorer()
+                                        navController.navigateSafely(Screen.ManageFolders.route)
                                     }
                                 )
                                 SettingsItem(
@@ -1237,34 +1225,6 @@ fun SettingsCategoryScreen(
     }
 
     BackupTransferProgressDialogHost(progress = dataTransferProgress)
-
-    FileExplorerDialog(
-        visible = showExplorerSheet,
-        currentPath = currentPath,
-        directoryChildren = directoryChildren,
-        availableStorages = availableStorages,
-        selectedStorageIndex = selectedStorageIndex,
-        isLoading = isLoadingDirectories,
-        isPriming = isExplorerPriming,
-        isReady = isExplorerReady,
-        isCurrentDirectoryResolved = isCurrentDirectoryResolved,
-        isAtRoot = settingsViewModel.isAtRoot(),
-        rootDirectory = explorerRoot,
-        onNavigateTo = settingsViewModel::loadDirectory,
-        onNavigateUp = settingsViewModel::navigateUp,
-        onNavigateHome = { settingsViewModel.loadDirectory(explorerRoot) },
-        onToggleAllowed = settingsViewModel::toggleDirectoryAllowed,
-        onRefresh = settingsViewModel::refreshExplorer,
-        onStorageSelected = settingsViewModel::selectStorage,
-        onDone = {
-            settingsViewModel.applyPendingDirectoryRuleChanges()
-            showExplorerSheet = false
-        },
-        onDismiss = {
-            settingsViewModel.applyPendingDirectoryRuleChanges()
-            showExplorerSheet = false
-        }
-    )
 
     if (showPaletteRegenerateSheet) {
         ModalBottomSheet(

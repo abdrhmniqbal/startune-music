@@ -266,47 +266,6 @@ class FileExplorerStateHolder(
         }
     }
 
-    suspend fun toggleDirectoryAllowed(file: File) {
-        val currentAllowed = _allowedDirectories.value.toMutableSet()
-        val currentBlocked = _blockedDirectories.value.toMutableSet()
-        val path = normalizePath(file)
-
-        val isEffectivelyBlocked = DirectoryRuleResolver(currentAllowed, currentBlocked).isBlocked(path)
-
-        val isExplicitlyBlocked = currentBlocked.contains(path)
-
-        if (isEffectivelyBlocked) {
-            currentBlocked.remove(path)
-
-            if (isExplicitlyBlocked) {
-                currentAllowed.removeAll { it.startsWith("$path/") }
-            }
-
-            val resolver = DirectoryRuleResolver(currentAllowed, currentBlocked)
-            if (resolver.isBlocked(path)) {
-               currentAllowed.add(path)
-            } else {
-               currentAllowed.remove(path)
-            }
-
-            _allowedDirectories.value = currentAllowed
-            _blockedDirectories.value = currentBlocked
-            
-            userPreferencesRepository.updateDirectorySelections(currentAllowed, currentBlocked)
-            return
-        }
-
-        currentBlocked.removeAll { it.startsWith("$path/") }
-        currentAllowed.removeAll { it == path || it.startsWith("$path/") }
-        
-        currentBlocked.add(path)
-
-        _allowedDirectories.value = currentAllowed
-        _blockedDirectories.value = currentBlocked
-
-        userPreferencesRepository.updateDirectorySelections(currentAllowed, currentBlocked)
-    }
-
     private suspend fun loadDirectoryInternal(file: File, updatePath: Boolean, forceRefresh: Boolean) {
         val target = if (file.isDirectory) file else visibleRoot
         val targetKey = normalizePath(target)
