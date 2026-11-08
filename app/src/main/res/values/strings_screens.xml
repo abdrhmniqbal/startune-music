@@ -33,6 +33,7 @@
     <string name="delimiter_toast_added">Delimiter added</string>
     <string name="delimiter_toast_invalid">Delimiter already exists or is invalid</string>
     <string name="path_delimiters_toolbar_title">Delimiters</string>
+    <string name="genre_delimiters_toolbar_title">Genre Delimiters</string>
     <string name="delimiter_label_space">Space</string>
     <string name="cd_add_path_delimiter">Add delimiter</string>
 

@@ -178,6 +178,7 @@ constructor(
 
         val ARTIST_DELIMITERS = stringPreferencesKey("artist_delimiters")
         val ARTIST_WORD_DELIMITERS = stringPreferencesKey("artist_word_delimiters")
+        val GENRE_DELIMITERS = stringPreferencesKey("genre_delimiters")
         val EXTRACT_ARTISTS_FROM_TITLE = booleanPreferencesKey("extract_artists_from_title")
         val GROUP_BY_ALBUM_ARTIST = booleanPreferencesKey("group_by_album_artist")
         val ARTIST_SETTINGS_RESCAN_REQUIRED =
@@ -488,6 +489,34 @@ constructor(
 
     suspend fun resetArtistWordDelimitersToDefault() {
         setArtistWordDelimiters(DEFAULT_ARTIST_WORD_DELIMITERS)
+    }
+
+    val genreDelimitersFlow: Flow<List<String>> =
+        dataStore.data.map { preferences ->
+            val stored = preferences[PreferencesKeys.GENRE_DELIMITERS]
+            if (stored != null) {
+                try {
+                    json.decodeFromString<List<String>>(stored)
+                } catch (e: Exception) {
+                    DEFAULT_GENRE_DELIMITERS
+                }
+            } else {
+                DEFAULT_GENRE_DELIMITERS
+            }
+        }
+
+    suspend fun setGenreDelimiters(delimiters: List<String>) {
+        if (delimiters.isEmpty()) {
+            return
+        }
+
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.GENRE_DELIMITERS] = json.encodeToString(delimiters)
+        }
+    }
+
+    suspend fun resetGenreDelimitersToDefault() {
+        setGenreDelimiters(DEFAULT_GENRE_DELIMITERS)
     }
 
     val extractArtistsFromTitleFlow: Flow<Boolean> =
@@ -1248,6 +1277,8 @@ constructor(
         val DEFAULT_ARTIST_DELIMITERS = listOf("/", ";", ",", "+", "&")
         /** Default word-based delimiters (matched case-insensitively with whitespace boundaries) */
         val DEFAULT_ARTIST_WORD_DELIMITERS = listOf("featuring", "feat.", "feat", "ft.", "ft", "vs.", "vs", "versus", "with", "prod.", "prod")
+        /** Default delimiters for splitting multi-genre tags */
+        val DEFAULT_GENRE_DELIMITERS = listOf(";", "/", ",")
         const val DEFAULT_ALBUM_ART_CACHE_LIMIT_MB = 200
     }
 

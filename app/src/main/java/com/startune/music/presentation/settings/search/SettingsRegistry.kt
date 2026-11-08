@@ -27,7 +27,7 @@ object SettingsRegistry {
                 category = SettingsCategory.LIBRARY,
                 subscreenRoute = Screen.ArtistSettings.createRoute(),
                 type = SettingType.NAVIGABLE_CARD,
-                keywordsStatic = listOf("artist", "delimiters", "split", "multi artist", "parsing", "separator")
+                keywordsStatic = listOf("artist", "genre", "delimiters", "split", "multi artist", "parsing", "separator")
             ),
             SettingSpec(
                 id = "library_min_duration",

@@ -48,6 +48,7 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.LibraryMusic
 import androidx.compose.material.icons.rounded.RestartAlt
+import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -272,6 +273,49 @@ fun ArtistSettingsScreen(
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.secondary
                                 )
+                            }
+                        )
+                    }
+                }
+            }
+
+            item {
+                SettingsSection(
+                    title = stringResource(R.string.presentation_batch_g_genre_section),
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Rounded.MusicNote,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                ) {
+                    Column(
+                        modifier = Modifier.clip(shape = RoundedCornerShape(24.dp)),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        SettingsItem(
+                            title = stringResource(R.string.presentation_batch_g_genre_item_split_symbols),
+                            subtitle = stringResource(
+                                R.string.presentation_batch_g_artist_item_char_delimiters_current,
+                                uiState.genreDelimiters.joinToString(", ")
+                            ),
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Settings,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.secondary
+                                )
+                            },
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.ChevronRight,
+                                    contentDescription = stringResource(R.string.presentation_batch_g_artist_cd_configure),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            },
+                            onClick = {
+                                navController.navigateSafely("genre_delimiter_config")
                             }
                         )
                     }
