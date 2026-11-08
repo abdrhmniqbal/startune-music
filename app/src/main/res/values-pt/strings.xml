@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Música Pixel</string>
+    <string name="app_name">Startune Music</string>
     <string name="app_name_change_title">Mudança de nome do aplicativo</string>
     <string name="app_name_change_message">Mudamos o nome do nosso aplicativo de PixelMusic para PixelMusic devido a um problema relacionado à marca registrada. Continue jogando!</string>
     <string name="do_not_show_again">Não mostrar novamente</string>
