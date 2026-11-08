@@ -211,6 +211,6 @@ class StatsViewModel @Inject constructor(
             StatsTimeRange.YEAR,
             StatsTimeRange.ALL
         )
-        const val HOME_TOP_TRACKS_LIMIT = 25
+        const val HOME_TOP_TRACKS_LIMIT = 15
     }
 }
