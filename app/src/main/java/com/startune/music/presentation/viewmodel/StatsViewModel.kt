@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -47,6 +48,8 @@ class StatsViewModel @Inject constructor(
 
     private val _homeOverview = MutableStateFlow<PlaybackStatsSummary?>(null)
     val homeOverview: StateFlow<PlaybackStatsSummary?> = _homeOverview.asStateFlow()
+
+    private var refreshJob: Job? = null
 
     private val _homeTopTracks = MutableStateFlow<ImmutableList<SongPlaybackSummary>>(persistentListOf())
     val homeTopTracks: StateFlow<ImmutableList<SongPlaybackSummary>> = _homeTopTracks.asStateFlow()
@@ -122,7 +125,8 @@ class StatsViewModel @Inject constructor(
         showLoading: Boolean = true,
         updateWeeklyOverview: Boolean = false
     ) {
-        viewModelScope.launch {
+        refreshJob?.cancel()
+        refreshJob = viewModelScope.launch {
             if (showLoading) {
                 _uiState.update { it.copy(isLoading = true, isRefreshing = false, selectedRange = range) }
             } else {
