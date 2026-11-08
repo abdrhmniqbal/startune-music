@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="auth_web_login_security_note_qq">Nota de segurança: sua senha é inserida apenas nas páginas da web do QQ Music. PixelMusic armazena cookies de sessão para sincronizar sua biblioteca.</string>
+    <string name="auth_web_login_security_note_qq">Nota de segurança: sua senha é inserida apenas nas páginas da web do QQ Music. Startune Music armazena cookies de sessão para sincronizar sua biblioteca.</string>
     <string name="auth_error_read_qq_cookies_failed">Falha ao ler cookies de música QQ: %1$s</string>
 </resources>

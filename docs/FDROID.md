@@ -1,17 +1,17 @@
 ﻿# F-Droid
 
-PixelMusic is published on F-Droid:
+Startune Music is published on F-Droid:
 
 ```text
-https://f-droid.org/packages/com.unshoo.pixelmusic/
+https://f-droid.org/packages/com.startune.music/
 ```
 
 The listing is fed by the Fastlane metadata under `fastlane/metadata/android/en-US`
 (summary, full description, changelogs, screenshots).
 
 The official build recipe lives in the `fdroiddata` repository:
-`https://gitlab.com/fdroid/fdroiddata/-/blob/master/metadata/com.unshoo.pixelmusic.yml`.
-A reference copy is mirrored at `metadata/com.unshoo.pixelmusic.yml` in this
+`https://gitlab.com/fdroid/fdroiddata/-/blob/master/metadata/com.startune.music.yml`.
+A reference copy is mirrored at `metadata/com.startune.music.yml` in this
 repository — keep it in sync with the official recipe when build configuration changes.
 
 ## How Updates Reach F-Droid
@@ -36,7 +36,7 @@ uninstall/reinstall.
 ## Recipe Notes
 
 The official recipe builds `:app:assembleRelease` with
-`pixelplayer.enableAbiSplits=false` and `pixelplayer.disableReleaseSigning=true`,
+`startune.enableAbiSplits=false` and `startune.disableReleaseSigning=true`,
 producing a single universal unsigned APK. Its `prebuild` step strips two things the
 F-Droid build servers cannot use:
 
@@ -59,7 +59,7 @@ tarball.
 These properties got the app accepted and must be maintained:
 
 1. GPL-3.0 license.
-2. OSS-focused package name: `com.unshoo.pixelmusic`.
+2. OSS-focused package name: `com.startune.music`.
 3. No Firebase, Crashlytics, Play Store billing, ads, analytics, Cast, Wear OS, or
    Google Play Services runtime dependencies.
 4. Optional network services documented in `PRIVACY.md`.
@@ -104,10 +104,10 @@ The project source is GPL-3.0-licensed. Release APKs also include `org.jellyfin.
 
 ## Local Verification Build
 
-Reproduce the F-Droid-style artifact locally — a universal unsigned release APK. Pass `pixelplayer.disableReleaseSigning=true` so local ignored signing files cannot affect the artifact:
+Reproduce the F-Droid-style artifact locally — a universal unsigned release APK. Pass `startune.disableReleaseSigning=true` so local ignored signing files cannot affect the artifact:
 
 ```sh
-JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew :app:assembleRelease -Ppixelplayer.enableAbiSplits=false -Ppixelplayer.disableReleaseSigning=true
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew :app:assembleRelease -Pstartune.enableAbiSplits=false -Pstartune.disableReleaseSigning=true
 ```
 
 Expected artifact:

@@ -2,5 +2,5 @@
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@drawable/launcher_bg_graphite" />
     <foreground android:drawable="@drawable/ic_launcher_fg_graphite" />
-    <monochrome android:drawable="@drawable/ic_pixelmusic_monochrome" />
+    <monochrome android:drawable="@drawable/ic_startune_monochrome" />
 </adaptive-icon>

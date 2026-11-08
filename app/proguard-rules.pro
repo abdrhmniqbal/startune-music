@@ -24,19 +24,19 @@
 -dontwarn com.jsyn.**
 -dontwarn com.softsynth.**
 
--keepclassmembers class com.unshoo.pixelmusic.data.model.** { *; }
+-keepclassmembers class com.startune.music.data.model.** { *; }
 
 -keep class com.google.gson.reflect.TypeToken { *; }
 -keep class * extends com.google.gson.reflect.TypeToken
 
--keep class com.unshoo.pixelmusic.data.preferences.PreferenceBackupEntry { *; }
--keep class com.unshoo.pixelmusic.data.backup.model.** { *; }
--keep class com.unshoo.pixelmusic.data.backup.module.** { *; }
--keep class com.unshoo.pixelmusic.data.database.FavoritesEntity { *; }
--keep class com.unshoo.pixelmusic.data.database.SongEngagementEntity { *; }
--keep class com.unshoo.pixelmusic.data.database.LyricsEntity { *; }
--keep class com.unshoo.pixelmusic.data.database.SearchHistoryEntity { *; }
--keep class com.unshoo.pixelmusic.data.database.TransitionRuleEntity { *; }
+-keep class com.startune.music.data.preferences.PreferenceBackupEntry { *; }
+-keep class com.startune.music.data.backup.model.** { *; }
+-keep class com.startune.music.data.backup.module.** { *; }
+-keep class com.startune.music.data.database.FavoritesEntity { *; }
+-keep class com.startune.music.data.database.SongEngagementEntity { *; }
+-keep class com.startune.music.data.database.LyricsEntity { *; }
+-keep class com.startune.music.data.database.SearchHistoryEntity { *; }
+-keep class com.startune.music.data.database.TransitionRuleEntity { *; }
 
 -keep class io.ktor.server.engine.** { *; }
 -keep class io.ktor.server.cio.** { *; }

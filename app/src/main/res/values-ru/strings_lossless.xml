@@ -3,7 +3,7 @@
     <string name="settings_category_lossless_title">Источники без потерь</string>
     <string name="settings_category_lossless_subtitle">Tidal, Qobuz, Deezer и Apple Music через пул исходников</string>
     <string name="lossless_tidal_login">Войдите в Tidal</string>
-    <string name="lossless_auth_webview_tidal_subtitle">Войдите в Tidal ниже. PixelMusic автоматически сохраняет сеанс.</string>
+    <string name="lossless_auth_webview_tidal_subtitle">Войдите в Tidal ниже. Startune Music автоматически сохраняет сеанс.</string>
     <string name="lossless_tidal_login_success">Выполнен вход в Tidal</string>
     <string name="lossless_tidal_account_free_warning">Эта учетная запись Tidal не относится к HiFi/Premium. Воспроизведение без потерь через Tidal может дать сбой; приложение вернется к другим источникам.</string>
     <string name="lossless_tidal_login_webplayer_fallback">Не удалось завершить стандартный вход; вместо этого откройте веб-плеер Tidal. Просто войдите в систему, и воспроизведение подключится автоматически.</string>

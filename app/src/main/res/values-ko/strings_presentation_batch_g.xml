@@ -182,7 +182,7 @@
     <string name="presentation_batch_g_artist_group_by_album_artist">앨범 아티스트별로 그룹화</string>
     <string name="presentation_batch_g_artist_group_by_album_artist_sub">주요 아티스트 아래에 협업 앨범 표시</string>
     <string name="presentation_batch_g_artist_info_title">멀티 아티스트 파싱 정보</string>
-    <string name="presentation_batch_g_artist_info_body">PixelMusic는 문자 구분 기호(/, ;, &amp;) 및 단어 구분 기호(feat., ft., vs., x)를 사용하여 아티스트 태그를 나눕니다. 단어 구분 기호는 대소문자를 구분하지 않습니다.
+    <string name="presentation_batch_g_artist_info_body">Startune Music는 문자 구분 기호(/, ;, &amp;) 및 단어 구분 기호(feat., ft., vs., x)를 사용하여 아티스트 태그를 나눕니다. 단어 구분 기호는 대소문자를 구분하지 않습니다.
 
 \"제목에서 아티스트 추출\"은 곡 제목에서 (feat. 아티스트)와 같은 패턴을 감지합니다.
 
@@ -266,9 +266,9 @@
     <string name="presentation_batch_g_playstore_open">Play 스토어 열기</string>
     <string name="presentation_batch_g_playstore_continue_beta">베타 계속하기</string>
     <string name="presentation_batch_g_playstore_link_pending">Play 스토어 링크는 GitHub 설정을 통해 활성화됩니다.</string>
-    <string name="presentation_batch_g_playstore_title">PixelMusic를 이제 Google Play에서 만나보세요</string>
+    <string name="presentation_batch_g_playstore_title">Startune Music를 이제 Google Play에서 만나보세요</string>
     <string name="presentation_batch_g_playstore_body">정식 업데이트는 Google Play의 정식 채널을 이용해 주시고, 베타 빌드는 계속 유지됩니다.</string>
-    <string name="presentation_batch_g_playstore_app_name">PixelMusic</string>
+    <string name="presentation_batch_g_playstore_app_name">Startune Music</string>
     <string name="presentation_batch_g_playstore_release_announcement">출시 공지</string>
     <string name="presentation_batch_g_playstore_coming_soon">출시 예정</string>
     <string name="presentation_batch_g_genre_sort_title">정렬 및 재생</string>
@@ -287,7 +287,7 @@
     <string name="presentation_batch_g_presets_cd_rename">이름 변경</string>
     <string name="presentation_batch_g_presets_cd_delete">삭제</string>
     <string name="presentation_batch_g_beta_sheet_version">베타 0.6.0</string>
-    <string name="presentation_batch_g_beta_sheet_welcome_title">PixelMusic 0.6.0-beta에 오신 것을 환영합니다</string>
+    <string name="presentation_batch_g_beta_sheet_welcome_title">Startune Music 0.6.0-beta에 오신 것을 환영합니다</string>
     <string name="presentation_batch_g_beta_sheet_welcome_body">이번 베타 버전은 주요 새로운 연동 기능을 출시하는 동시에 안정성, 성능 및 기기간 재생 기능에 중점을 두었습니다.</string>
     <string name="presentation_batch_g_beta_sheet_expect_title">주요 변경 사항</string>
     <string name="presentation_batch_g_beta_sheet_expect_1">더 빠른 일상 사용: 앱 전반의 시작, 탐색 및 플레이어 상호작용이 더욱 부드러워졌습니다.</string>
@@ -305,7 +305,7 @@
     <string name="presentation_batch_g_album_sel_queue_hint">대기열 추가 및 재생은 선택한 순서를 존중합니다.</string>
     <string name="presentation_batch_g_album_sel_limit">제한: 한 번에 최대 %1$d개의 앨범을 선택할 수 있습니다.</string>
     <string name="presentation_batch_g_album_sel_add_queue_play">대기열에 추가 및 재생</string>
-    <string name="presentation_batch_g_app_name">PixelMusic</string>
+    <string name="presentation_batch_g_app_name">Startune Music</string>
     <string name="presentation_batch_g_app_tagline">뮤직 플레이어</string>
     <string name="presentation_batch_g_brick_high">최고 기록 %1$d</string>
     <string name="presentation_batch_g_brick_cd_close">닫기</string>
@@ -355,7 +355,7 @@
     <string name="presentation_batch_g_cast_playing">재생 중</string>
     <string name="presentation_batch_g_cast_paused">일시정지됨</string>
     <string name="presentation_batch_g_cast_perm_title">연결 준비</string>
-    <string name="presentation_batch_g_cast_perm_body">PixelMusic가 주변 기기와 현재 Wi‑Fi를 감지할 수 있도록 허용해 주세요. 그래야 전송, 블루투스 오디오 및 스피커를 동기화할 수 있습니다.</string>
+    <string name="presentation_batch_g_cast_perm_body">Startune Music가 주변 기기와 현재 Wi‑Fi를 감지할 수 있도록 허용해 주세요. 그래야 전송, 블루투스 오디오 및 스피커를 동기화할 수 있습니다.</string>
     <string name="presentation_batch_g_cast_nearby_title">주변 기기</string>
     <string name="presentation_batch_g_cast_nearby_desc">연결된 블루투스 오디오 기기를 감지하고 제어하는 데 필요합니다.</string>
     <string name="presentation_batch_g_cast_perm_location_title">Wi‑Fi 확인을 위한 위치 정보</string>
@@ -416,7 +416,7 @@
     <string name="presentation_batch_g_beta_sheet_report_summary">새 호를 열기 전 빠른 체크리스트입니다.</string>
     <string name="presentation_batch_g_beta_sheet_before_title">이슈를 열기 전에</string>
     <string name="presentation_batch_g_beta_sheet_before_1">중복을 방지하려면 기존 공개 및 종료 문제를 검색하세요.</string>
-    <string name="presentation_batch_g_beta_sheet_before_2">최신 PixelMusic 버전으로 업데이트하고 문제가 계속 발생하는지 확인하세요.</string>
+    <string name="presentation_batch_g_beta_sheet_before_2">최신 Startune Music 버전으로 업데이트하고 문제가 계속 발생하는지 확인하세요.</string>
     <string name="presentation_batch_g_beta_sheet_before_3">앱을 다시 시작하고 문제가 지속되는지 확인하세요.</string>
     <string name="presentation_batch_g_beta_sheet_before_4">재현해 보고 정확한 단계를 적어보세요.</string>
     <string name="presentation_batch_g_beta_sheet_issue_type_title">어떤 문제 유형인가요?</string>
@@ -434,7 +434,7 @@
     <string name="presentation_batch_g_beta_sheet_bug_screenshot">스크린샷/동영상: 가능한 경우.</string>
     <string name="presentation_batch_g_beta_sheet_bug_logs">로그/스택 추적: 가능한 경우.</string>
     <string name="presentation_batch_g_beta_sheet_env_title">환경</string>
-    <string name="presentation_batch_g_beta_sheet_env_version">PixelMusic 버전:</string>
+    <string name="presentation_batch_g_beta_sheet_env_version">Startune Music 버전:</string>
     <string name="presentation_batch_g_beta_sheet_env_source">설치 소스: GitHub 릴리스, 디버그 빌드, 야간 빌드 등</string>
     <string name="presentation_batch_g_beta_sheet_env_android">안드로이드 버전:</string>
     <string name="presentation_batch_g_beta_sheet_env_device">장치 모델:</string>

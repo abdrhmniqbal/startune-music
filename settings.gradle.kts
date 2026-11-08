@@ -28,6 +28,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "PixelMusic"
+rootProject.name = "Startune Music"
 include(":app")
 include(":baselineprofile")

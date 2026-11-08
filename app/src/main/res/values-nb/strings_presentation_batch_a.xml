@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Web login security notes (QQ / NetEase) -->
-    <string name="auth_web_login_security_note_qq">Sikkerhetsmerknad: passordet ditt tastes kun inn på QQ Musics nettsider. PixelMusic lagrer sesjonsinformasjon for å synkronisere biblioteket ditt.</string>
+    <string name="auth_web_login_security_note_qq">Sikkerhetsmerknad: passordet ditt tastes kun inn på QQ Musics nettsider. Startune Music lagrer sesjonsinformasjon for å synkronisere biblioteket ditt.</string>
     <string name="auth_error_read_qq_cookies_failed">Kunne ikke lese QQ Music-informasjonskapsler: %1$s</string>
 
 </resources>

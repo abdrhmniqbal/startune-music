@@ -182,7 +182,7 @@
     <string name="presentation_batch_g_artist_group_by_album_artist">Agrupar por Artista do Álbum</string>
     <string name="presentation_batch_g_artist_group_by_album_artist_sub">Mostrar álbuns de colaboração sob o artista principal</string>
     <string name="presentation_batch_g_artist_info_title">Sobre análise multiartista</string>
-    <string name="presentation_batch_g_artist_info_body">PixelMusic divide tags de artistas usando delimitadores de caracteres (/, ;, &amp;) e delimitadores de palavras (feat., ft., vs., x). Os delimitadores de palavras são correspondidos sem distinção entre maiúsculas e minúsculas.
+    <string name="presentation_batch_g_artist_info_body">Startune Music divide tags de artistas usando delimitadores de caracteres (/, ;, &amp;) e delimitadores de palavras (feat., ft., vs., x). Os delimitadores de palavras são correspondidos sem distinção entre maiúsculas e minúsculas.
 
 \"Extract Artists from Title\" detecta padrões como (feat. Artist) nos títulos das músicas.
 
@@ -265,7 +265,7 @@ A barra invertida (\) pode ser usada para escapar dos delimitadores de caractere
     <string name="presentation_batch_g_playstore_open">Abra a Play Store</string>
     <string name="presentation_batch_g_playstore_continue_beta">Continuar versão beta</string>
     <string name="presentation_batch_g_playstore_link_pending">O link da Play Store será habilitado na configuração do GitHub.</string>
-    <string name="presentation_batch_g_playstore_title">PixelMusic já está disponível no Google Play</string>
+    <string name="presentation_batch_g_playstore_title">Startune Music já está disponível no Google Play</string>
     <string name="presentation_batch_g_playstore_body">Use o canal estável no Google Play para atualizações de lançamento enquanto mantemos as versões beta ativas.</string>
     <string name="presentation_batch_g_playstore_app_name">PixelMúsica</string>
     <string name="presentation_batch_g_playstore_release_announcement">Anúncio de lançamento</string>
@@ -286,7 +286,7 @@ A barra invertida (\) pode ser usada para escapar dos delimitadores de caractere
     <string name="presentation_batch_g_presets_cd_rename">Renomear</string>
     <string name="presentation_batch_g_presets_cd_delete">Excluir</string>
     <string name="presentation_batch_g_beta_sheet_version">Beta 0.7.0</string>
-    <string name="presentation_batch_g_beta_sheet_welcome_title">Bem-vindo ao PixelMusic 0.7.0-beta</string>
+    <string name="presentation_batch_g_beta_sheet_welcome_title">Bem-vindo ao Startune Music 0.7.0-beta</string>
     <string name="presentation_batch_g_beta_sheet_welcome_body">Você está usando uma versão beta que pode conter bugs, falhas ou recursos experimentais. Ajude-nos a melhorar relatando problemas.</string>
     <string name="presentation_batch_g_beta_sheet_expect_title">O que esperar</string>
     <string name="presentation_batch_g_beta_sheet_expect_1">Bugs, travamentos ou recursos incompletos podem ocorrer inesperadamente.</string>
@@ -303,7 +303,7 @@ A barra invertida (\) pode ser usada para escapar dos delimitadores de caractere
     <string name="presentation_batch_g_beta_sheet_report_summary">Uma lista de verificação rápida antes de abrir uma nova edição.</string>
     <string name="presentation_batch_g_beta_sheet_before_title">Antes de abrir um fascículo</string>
     <string name="presentation_batch_g_beta_sheet_before_1">Pesquise problemas abertos e fechados existentes para evitar duplicatas.</string>
-    <string name="presentation_batch_g_beta_sheet_before_2">Atualize para a versão mais recente do PixelMusic e confirme se o problema ainda ocorre.</string>
+    <string name="presentation_batch_g_beta_sheet_before_2">Atualize para a versão mais recente do Startune Music e confirme se o problema ainda ocorre.</string>
     <string name="presentation_batch_g_beta_sheet_before_3">Reinicie o aplicativo e confirme se o problema persiste.</string>
     <string name="presentation_batch_g_beta_sheet_before_4">Tente reproduzi-lo e anote os passos exatos.</string>
     <string name="presentation_batch_g_beta_sheet_issue_type_title">Qual tipo de problema?</string>
@@ -321,7 +321,7 @@ A barra invertida (\) pode ser usada para escapar dos delimitadores de caractere
     <string name="presentation_batch_g_beta_sheet_bug_screenshot">Captura de tela/vídeo: se disponível.</string>
     <string name="presentation_batch_g_beta_sheet_bug_logs">Logs/rastreamento de pilha: se disponível.</string>
     <string name="presentation_batch_g_beta_sheet_env_title">Meio Ambiente</string>
-    <string name="presentation_batch_g_beta_sheet_env_version">Versão do PixelMusic:</string>
+    <string name="presentation_batch_g_beta_sheet_env_version">Versão do Startune Music:</string>
     <string name="presentation_batch_g_beta_sheet_env_source">Fonte de instalação: lançamento do GitHub, compilação de depuração, compilação noturna, etc.</string>
     <string name="presentation_batch_g_beta_sheet_env_android">Versão Android:</string>
     <string name="presentation_batch_g_beta_sheet_env_device">Modelo do dispositivo:</string>
@@ -413,7 +413,7 @@ A barra invertida (\) pode ser usada para escapar dos delimitadores de caractere
     <string name="presentation_batch_g_cast_playing">Jogando</string>
     <string name="presentation_batch_g_cast_paused">Pausado</string>
     <string name="presentation_batch_g_cast_perm_title">Prepare-se para se conectar</string>
-    <string name="presentation_batch_g_cast_perm_body">Permita que o PixelMusic veja seus dispositivos próximos e o Wi-Fi atual para que possamos manter sua transmissão, áudio Bluetooth e alto-falantes sincronizados.</string>
+    <string name="presentation_batch_g_cast_perm_body">Permita que o Startune Music veja seus dispositivos próximos e o Wi-Fi atual para que possamos manter sua transmissão, áudio Bluetooth e alto-falantes sincronizados.</string>
     <string name="presentation_batch_g_cast_perm_nearby_title">Dispositivos próximos</string>
     <string name="presentation_batch_g_cast_perm_nearby_desc">Necessário para ler e controlar seu equipamento de áudio Bluetooth conectado.</string>
     <string name="presentation_batch_g_cast_perm_location_title">Localização para Wi‑Fi</string>

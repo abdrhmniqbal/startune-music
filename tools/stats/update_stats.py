@@ -21,7 +21,7 @@ ICONS = json.loads((HERE / 'icons.json').read_text())
 
 
 def http(url, headers=None, timeout=25):
-    req = urllib.request.Request(url, headers={'User-Agent': 'pixelmusic-stats/1.0', **(headers or {})})
+    req = urllib.request.Request(url, headers={'User-Agent': 'startune-stats/1.0', **(headers or {})})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.read().decode('utf-8', 'replace')
 

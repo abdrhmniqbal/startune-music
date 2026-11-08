@@ -2,7 +2,7 @@
 <resources>
     <!-- Navigation / misc -->
     <string name="nav_error_genre_id_missing">Errore: ID genere mancante</string>
-    <string name="easter_egg_thank_you">Grazie per usare PixelMusic!</string>
+    <string name="easter_egg_thank_you">Grazie per usare Startune Music!</string>
 
     <!-- Word delimiter config -->
     <string name="word_delimiter_section_title">Delimitatori parola attuali</string>
@@ -94,7 +94,7 @@
     <string name="setup_excluded_folders_description">Scegli le cartelle da ignorare durante la scansione della raccolta.</string>
     <string name="setup_choose_folders_ignore">Scegli cartelle da ignorare</string>
     <string name="setup_permission_media_title">Permesso media</string>
-    <string name="setup_permission_media_description">PixelMusic necessita accesso ai tuoi file audio per costruire la tua libreria musicale.</string>
+    <string name="setup_permission_media_description">Startune Music necessita accesso ai tuoi file audio per costruire la tua libreria musicale.</string>
     <string name="setup_permission_granted">Permesso concesso</string>
     <string name="setup_grant_media_permission">Concedi permesso media</string>
     <string name="setup_permission_notifications_title">Notifiche</string>
@@ -104,12 +104,12 @@
     <string name="setup_permission_alarms_description">Consente al timer di spegnimento di arrestare la musica con precisione.</string>
     <string name="setup_grant_permission_generic">Concedi permesso</string>
     <string name="setup_backup_have_title">Hai un backup?</string>
-    <string name="setup_backup_have_description">Ripristina un backup di PixelMusic per saltare la configurazione.</string>
+    <string name="setup_backup_have_description">Ripristina un backup di Startune Music per saltare la configurazione.</string>
     <string name="setup_inspecting_backup">Ispezione backup</string>
     <string name="setup_restoring_backup">Ripristino backup</string>
     <string name="setup_import_backup">Importa backup</string>
     <string name="setup_theme_dark_title">Scuro</string>
-    <string name="setup_theme_dark_description">L\'aspetto scuro Material 3 predefinito per PixelMusic.</string>
+    <string name="setup_theme_dark_description">L\'aspetto scuro Material 3 predefinito per Startune Music.</string>
     <string name="setup_theme_light_title">Chiaro</string>
     <string name="setup_theme_light_description">Un aspetto Material 3 più luminoso in tutta l\'app.</string>
     <string name="setup_theme_follow_title">Segui sistema</string>
@@ -149,7 +149,7 @@
     <string name="crash_report_stack_preview_label">Stack trace (anteprima):</string>
     <string name="crash_report_clipboard_label">Log crash</string>
     <string name="toast_crash_log_copied">Log crash copiato negli appunti</string>
-    <string name="crash_report_share_subject">Report crash PixelMusic</string>
+    <string name="crash_report_share_subject">Report crash Startune Music</string>
     <string name="crash_report_share_chooser">Condividi report crash</string>
     <string name="action_copy">Copia</string>
     <string name="action_share">Condividi</string>
@@ -174,13 +174,13 @@
 
     <!-- About -->
     <string name="about_no_contributors">Nessun contributore trovato al momento. Riprova più tardi.</string>
-    <string name="about_app_name">PixelMusic</string>
+    <string name="about_app_name">Startune Music</string>
     <string name="about_tagline">Lettore musicale open source costruito con la sua community.</string>
     <string name="about_version_format">Versione v%1$s</string>
     <string name="about_contributions_format">%1$d contrib.</string>
     <string name="screen_about">Informazioni</string>
     <string name="about_maintainer_title">Maintainer</string>
-    <string name="about_maintainer_subtitle">La persona dietro PixelMusic.</string>
+    <string name="about_maintainer_subtitle">La persona dietro Startune Music.</string>
     <string name="about_spotlight_title">Riconoscimenti community</string>
     <string name="about_spotlight_subtitle">Riconoscimento per i collaboratori con impatto maggiore.</string>
     <string name="about_contributors_section_title">Contributori open source</string>
@@ -231,7 +231,7 @@
 
     <!-- Backfilled translations -->
     <string name="home_empty_placeholder_title">Nessun dato da mostrare ancora</string>
-    <string name="home_empty_placeholder_subtitle">Il tuo mix apparirà qui quando PixelMusic trova brani o sincronizza una fonte.</string>
+    <string name="home_empty_placeholder_subtitle">Il tuo mix apparirà qui quando Startune Music trova brani o sincronizza una fonte.</string>
     <string name="home_empty_placeholder_refresh">Aggiorna</string>
     <string name="song_info_resolving_format">Risoluzione del formato audio...</string>
     <string name="cd_back">Indietro</string>
@@ -361,10 +361,10 @@
     <string name="recap_share_recap">Condividi Recap</string>
     <string name="about_donate_support_title">Dona per supportare</string>
     <string name="about_donate_support_desc">UPI (India) e Ko-fi (Globale)</string>
-    <string name="about_rate_app_title">Valuta PixelMusic</string>
+    <string name="about_rate_app_title">Valuta Startune Music</string>
     <string name="about_rate_app_desc">Dacci una stella su GitHub</string>
     <string name="about_share_app_title">Condividi app</string>
-    <string name="about_share_app_desc">Consiglia PixelMusic ad altri</string>
+    <string name="about_share_app_desc">Consiglia Startune Music ad altri</string>
     <string name="about_privacy_policy_title">Informativa sulla privacy</string>
     <string name="about_privacy_policy_desc">Leggi il nostro impegno per la privacy</string>
     <string name="about_i_understand">Ho capito</string>
@@ -406,7 +406,7 @@
     <string name="home_greeting_night_anon_2">Sveglio fino a tardi? 🌙</string>
     <string name="home_greeting_night_anon_3">Ore tranquille. 🕯️</string>
     <string name="home_greeting_night_anon_4">Riposa bene. 💤</string>
-    <string name="home_header_pill_title">PixelMusic</string>
+    <string name="home_header_pill_title">Startune Music</string>
     <string name="explore_chip_all">Tutto</string>
     <string name="explore_chip_local">Locale</string>
     <string name="explore_chip_podcasts">Podcast</string>

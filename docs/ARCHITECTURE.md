@@ -1,13 +1,13 @@
-# PixelMusic Architecture & Workspace Organization Guide
+# Startune Music Architecture & Workspace Organization Guide
 
-This document outlines the organized architecture of the PixelMusic repository across its three primary layers: **Android App Architecture**, **Web & Landing Infrastructure**, and **Repository / Tooling Structure**.
+This document outlines the organized architecture of the Startune Music repository across its three primary layers: **Android App Architecture**, **Web & Landing Infrastructure**, and **Repository / Tooling Structure**.
 
 ---
 
 ## 1. High-Level Repository Layout
 
 ```
-PixelMusicIO/
+Startune MusicIO/
 ├── app/                        # Native Android Application (Kotlin, Jetpack Compose, Media3)
 ├── assets/                     # Media, design banners, screenshots & store graphics
 │   ├── readme/                 # Light/dark responsive SVG headers & badges for README.md
@@ -40,7 +40,7 @@ PixelMusicIO/
 
 The Android application is structured according to **Modern Android Architecture (MVI / MVVM with Jetpack Compose & Hilt)**:
 
-### Package Organization: `com.unshoo.pixelmusic`
+### Package Organization: `com.startune.music`
 
 | Layer / Package | Responsibilities | Key Components |
 |---|---|---|

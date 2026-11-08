@@ -20,7 +20,7 @@ val keystoreProperties = Properties().apply {
 val releaseSigningStoreFile = rootProject.file(
     keystoreProperties.getProperty("storeFile") ?: "vz-pixelplay.jks"
 )
-val disableReleaseSigning = providers.gradleProperty("pixelplayer.disableReleaseSigning")
+val disableReleaseSigning = providers.gradleProperty("startune.disableReleaseSigning")
     .getOrElse("false")
     .toBoolean()
 val hasReleaseSigningConfig = !disableReleaseSigning &&
@@ -29,17 +29,17 @@ val hasReleaseSigningConfig = !disableReleaseSigning &&
     keystoreProperties.getProperty("keyAlias") != null &&
     keystoreProperties.getProperty("keyPassword") != null
 
-val enableAbiSplits = providers.gradleProperty("pixelplayer.enableAbiSplits")
+val enableAbiSplits = providers.gradleProperty("startune.enableAbiSplits")
     .getOrElse("true")
     .toBoolean()
 
-val enableComposeCompilerReports = providers.gradleProperty("pixelplayer.enableComposeCompilerReports")
+val enableComposeCompilerReports = providers.gradleProperty("startune.enableComposeCompilerReports")
     .getOrElse("false")
     .toBoolean()
 
 @Suppress("DEPRECATION")
 android {
-    namespace = "com.unshoo.pixelmusic"
+    namespace = "com.startune.music"
     compileSdk = 37
 
     sourceSets {

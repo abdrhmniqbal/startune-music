@@ -225,8 +225,8 @@
     <string name="setcat_trigger_crash_title">Provocar cierre forzado de prueba</string>
     <string name="setcat_trigger_crash_subtitle">Simular un fallo para probar el informe de errores.</string>
     <string name="setcat_application">Aplicación</string>
-    <string name="setcat_about_pixelmusicer_title">Acerca de PixelMusic</string>
-    <string name="setcat_about_pixelmusicer_subtitle">Versión, créditos y más.</string>
+    <string name="setcat_about_startuneer_title">Acerca de Startune Music</string>
+    <string name="setcat_about_startuneer_subtitle">Versión, créditos y más.</string>
 
     <string name="backup_summary_none">Ninguna sección seleccionada.</string>
     <string name="backup_summary_all">Todas las secciones seleccionadas.</string>
@@ -270,7 +270,7 @@
     <string name="dialog_regenerate_stats_title">¿Regenerar estadísticas?</string>
     <string name="dialog_regenerate_stats_body">Se borrará la caché de estadísticas y se forzará un recálculo desde el historial.</string>
     <string name="toast_stats_regeneration_started">Regeneración de estadísticas iniciada</string>
-    <string name="backup_file_name_format">PixelMusic_Copia_%1$d.pxpl</string>
+    <string name="backup_file_name_format">Startune Music_Copia_%1$d.pxpl</string>
 
     <string name="setcat_regenerate_daily_mix_action">Regenerar Daily Mix</string>
     <string name="setcat_regenerate_stats_action">Regenerar estadísticas</string>
@@ -343,8 +343,8 @@
     <string name="setcat_language_korean">한국어</string>
     <string name="setcat_language_norwegian">bokmål noruego</string>
     <string name="setcat_app_font_label">Fuente de la aplicación</string>
-    <string name="setcat_app_font_desc">Elija entre la fuente PixelMusic y la fuente predeterminada del sistema.</string>
-    <string name="setcat_font_pixelmusic">Predeterminado de PixelMusic</string>
+    <string name="setcat_app_font_desc">Elija entre la fuente Startune Music y la fuente predeterminada del sistema.</string>
+    <string name="setcat_font_startune">Predeterminado de Startune Music</string>
     <string name="setcat_font_system">Valor predeterminado del sistema</string>
     <string name="setcat_app_color_palette_label">Tema preestablecido</string>
     <string name="setcat_app_color_palette_desc">Seleccione una paleta de colores personalizada preestablecida</string>

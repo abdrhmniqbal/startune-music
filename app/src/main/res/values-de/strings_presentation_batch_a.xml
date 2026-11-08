@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Web login security notes (QQ / NetEase) -->
-    <string name="auth_web_login_security_note_qq">Dein Passwort wird nur auf QQ Music-Seiten eingegeben. PixelMusic speichert nur Session-Cookies zur Bibliothekssynchronisierung.</string>
+    <string name="auth_web_login_security_note_qq">Dein Passwort wird nur auf QQ Music-Seiten eingegeben. Startune Music speichert nur Session-Cookies zur Bibliothekssynchronisierung.</string>
     <string name="auth_error_read_qq_cookies_failed">QQ Music-Cookies konnten nicht gelesen werden: %1$s</string>
 
 </resources>

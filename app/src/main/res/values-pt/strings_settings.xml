@@ -107,8 +107,8 @@
     <string name="setcat_app_theme_label">Tema do aplicativo</string>
     <string name="setcat_app_theme_desc">Alterne entre claro, escuro ou siga a aparência do sistema.</string>
     <string name="setcat_app_font_label">Fonte do aplicativo</string>
-    <string name="setcat_app_font_desc">Escolha entre a fonte PixelMusic e a fonte padrão do sistema.</string>
-    <string name="setcat_font_pixelmusic">Padrão PixelMusic</string>
+    <string name="setcat_app_font_desc">Escolha entre a fonte Startune Music e a fonte padrão do sistema.</string>
+    <string name="setcat_font_startune">Padrão Startune Music</string>
     <string name="setcat_font_system">Padrão do sistema</string>
     <string name="setcat_theme_light">Tema claro</string>
     <string name="setcat_theme_dark">Tema escuro</string>
@@ -271,8 +271,8 @@ Prompt: %2$s | Saída: %3$s | Pensei: %4$s</string>
     <string name="setcat_trigger_crash_title">Acionar falha no teste</string>
     <string name="setcat_trigger_crash_subtitle">Simule uma falha para testar o sistema de relatórios de falhas.</string>
     <string name="setcat_application">Aplicação</string>
-    <string name="setcat_about_pixelmusicer_title">Sobre PixelMusic</string>
-    <string name="setcat_about_pixelmusicer_subtitle">Versão do aplicativo, créditos e muito mais.</string>
+    <string name="setcat_about_startuneer_title">Sobre Startune Music</string>
+    <string name="setcat_about_startuneer_subtitle">Versão do aplicativo, créditos e muito mais.</string>
     <string name="backup_summary_none">Nenhuma seção selecionada.</string>
     <string name="backup_summary_all">Todas as seções selecionadas.</string>
     <string name="backup_summary_partial">%1$d selecionado das seções %2$d.</string>
@@ -313,7 +313,7 @@ Prompt: %2$s | Saída: %3$s | Pensei: %4$s</string>
     <string name="dialog_regenerate_stats_title">Regenerar estatísticas?</string>
     <string name="dialog_regenerate_stats_body">Isto limpará o cache de estatísticas e forçará um recálculo do histórico do banco de dados.</string>
     <string name="toast_stats_regeneration_started">Regeneração de estatísticas iniciada</string>
-    <string name="backup_file_name_format">PixelMusic_Backup_%1$d.pxpl</string>
+    <string name="backup_file_name_format">Startune Music_Backup_%1$d.pxpl</string>
     <string name="setcat_regenerate_daily_mix_action">Regenerar Mix Diário</string>
     <string name="setcat_regenerate_stats_action">Regenerar estatísticas</string>
     <string name="setcat_force_palette_empty">Nenhuma música com a capa do álbum foi encontrada.</string>

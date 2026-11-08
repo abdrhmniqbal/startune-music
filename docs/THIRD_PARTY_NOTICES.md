@@ -1,18 +1,18 @@
 # Third-Party Notices
 
-Pixel Music is licensed under the **GNU General Public License v3.0 (GPL-3.0-or-later)**.
+Startune Music is licensed under the **GNU General Public License v3.0 (GPL-3.0-or-later)**.
 
-This repository publishes compiled release APKs of Pixel Music. The application includes third-party libraries, native binaries, and font assets. This file records source and license evidence for upstream compliance.
+This repository publishes compiled release APKs of Startune Music. The application includes third-party libraries, native binaries, and font assets. This file records source and license evidence for upstream compliance.
 
 ---
 
 ## 🏛️ Upstream Project
 
-Pixel Music is derived from and builds upon the open-source **PixelPlayerOSS** project and foundational PixelPlayer codebase:
+Startune Music is derived from and builds upon the open-source **PixelPlayerOSS** project and foundational Startune codebase:
 
 - **Upstream Repository:** [https://github.com/PixelPlayerHQ/PixelPlayerOSS](https://github.com/PixelPlayerHQ/PixelPlayerOSS)
 - **Upstream License:** GNU General Public License v3.0 (`GPL-3.0-or-later`)
-- **Foundational Base Repository:** [https://github.com/theovilardo/PixelPlayer](https://github.com/theovilardo/PixelPlayer)
+- **Foundational Base Repository:** [https://github.com/theovilardo/Startune](https://github.com/theovilardo/Startune)
 - **Foundational MIT Base Commit:** `39030156fb6999b23f69076ae135e55832bb6d81`
 
 The original MIT copyright notice from the foundational base is preserved below:
@@ -20,7 +20,7 @@ The original MIT copyright notice from the foundational base is preserved below:
 ```text
 MIT License
 
-Copyright (c) 2024 Theo Vilardo / PixelPlayer Contributors
+Copyright (c) 2024 Theo Vilardo / Startune Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -62,7 +62,7 @@ SOFTWARE.
 | `com.github.racra:smooth-corner-rect-android-compose:v1.0.0` | N/A (Compose Canvas) | [Racra Smooth Corner](https://github.com/racra/smooth-corner-rect-android-compose) | Upstream declares MIT |
 | `com.github.philburk:jsyn:3f6b44b853bccc0d2e3027104d575fcc5ccb6d4e` | Transitive JSyn audio | [Phil Burk JSyn](https://github.com/philburk/jsyn) | POM declares Apache-2.0 |
 
-The Jellyfin FFmpeg decoder bundled in distributed APKs is GPL-3.0, fully aligned with the Pixel Music license (**GNU GPL v3.0**).
+The Jellyfin FFmpeg decoder bundled in distributed APKs is GPL-3.0, fully aligned with the Startune Music license (**GNU GPL v3.0**).
 
 ---
 
@@ -83,4 +83,4 @@ The Jellyfin FFmpeg decoder bundled in distributed APKs is GPL-3.0, fully aligne
 | **Security & Cryptography** | Bouncy Castle Cryptography Provider, Apache Commons Lang, JDOM2, Jose4j | Permissive / Apache-2.0 |
 | **Testing Frameworks** | JUnit 4/5, AndroidX Test, MockK, Turbine, Truth, Room Test, Coroutines Test | Apache-2.0 / MIT / EPL (Test only) |
 
-All third-party components remain subject to their respective upstream licenses. Nothing in Pixel Music alters or diminishes the rights granted under those licenses. For the full F-Droid dependency review breakdown, refer to [docs/DEPENDENCY_LICENSES.md](docs/DEPENDENCY_LICENSES.md).
+All third-party components remain subject to their respective upstream licenses. Nothing in Startune Music alters or diminishes the rights granted under those licenses. For the full F-Droid dependency review breakdown, refer to [docs/DEPENDENCY_LICENSES.md](docs/DEPENDENCY_LICENSES.md).

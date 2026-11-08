@@ -3,7 +3,7 @@
     <string name="settings_category_lossless_title">Fuentes sin pérdidas</string>
     <string name="settings_category_lossless_subtitle">Tidal, Qobuz, Deezer y Apple Music a través de Source Pool</string>
     <string name="lossless_tidal_login">Iniciar sesión en Tidal</string>
-    <string name="lossless_auth_webview_tidal_subtitle">Inicie sesión en Tidal a continuación. PixelMusic guarda la sesión automáticamente.</string>
+    <string name="lossless_auth_webview_tidal_subtitle">Inicie sesión en Tidal a continuación. Startune Music guarda la sesión automáticamente.</string>
     <string name="lossless_tidal_login_success">Iniciado sesión en Tidal</string>
     <string name="lossless_tidal_account_free_warning">Esta cuenta de Tidal no es HiFi/Premium. La reproducción sin pérdidas a través de Tidal puede fallar; la aplicación recurrirá a otras fuentes.</string>
     <string name="lossless_tidal_login_webplayer_fallback">No se pudo completar el inicio de sesión estándar; abriendo el reproductor web Tidal en su lugar. Simplemente inicie sesión y la reproducción se conectará automáticamente.</string>

@@ -81,7 +81,7 @@ jobs:
       - name: Build alpha release APKs
         run: >
           ./gradlew :app:assembleRelease
-          -Ppixelplayer.enableAbiSplits=true
+          -Pstartune.enableAbiSplits=true
           -PAPP_VERSION_NAME=${{ steps.version.outputs.name }}
           -PAPP_VERSION_CODE=${{ steps.version.outputs.code }}
 

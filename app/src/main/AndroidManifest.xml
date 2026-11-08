@@ -27,7 +27,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
-        android:name=".PixelPlayerApplication"
+        android:name=".StartuneApplication"
         android:allowBackup="true"
         android:enableOnBackInvokedCallback="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -37,14 +37,14 @@
         android:localeConfig="@xml/locales_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.PixelPlayer"
+        android:theme="@style/Theme.Startune"
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.PixelPlayer"
+            android:theme="@style/Theme.Startune"
             android:launchMode="singleTop"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize"
             android:windowSoftInputMode="adjustResize">
@@ -59,7 +59,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.unshoo.pixelmusic.action.OPEN_PLAYER" />
+                <action android:name="com.startune.music.action.OPEN_PLAYER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <meta-data
@@ -86,14 +86,14 @@
             tools:node="merge" />
 
         <receiver
-            android:name=".ui.glancewidget.PixelPlayerGlanceWidgetReceiver"
+            android:name=".ui.glancewidget.StartuneGlanceWidgetReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/pixelplayer_glance_widget_info" />
+                android:resource="@xml/startune_glance_widget_info" />
         </receiver>
 
         <receiver
@@ -132,7 +132,7 @@
         <receiver android:name=".data.service.SleepTimerReceiver" android:exported="false" />
 
         <receiver
-            android:name=".data.service.PixelPlayerMediaButtonReceiver"
+            android:name=".data.service.StartuneMediaButtonReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
@@ -152,7 +152,7 @@
 
         <receiver android:name=".ui.glancewidget.WidgetUpdateReceiver" android:exported="false">
             <intent-filter>
-                <action android:name="com.unshoo.pixelmusic.ACTION_WIDGET_UPDATE_PLAYBACK_STATE" />
+                <action android:name="com.startune.music.ACTION_WIDGET_UPDATE_PLAYBACK_STATE" />
             </intent-filter>
         </receiver>
 

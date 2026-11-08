@@ -189,7 +189,7 @@
     <string name="song_info_ringtone_local_only">Only local songs can be used as ringtones.</string>
     <string name="song_info_ringtone_missing_file">Couldn\'t prepare this audio file for ringtone.</string>
     <string name="song_info_ringtone_permission_missing">Modify system settings was not enabled.</string>
-    <string name="song_info_ringtone_permission_prompt">Enable Modify system settings, then return to PixelMusic to finish automatically.</string>
+    <string name="song_info_ringtone_permission_prompt">Enable Modify system settings, then return to Startune Music to finish automatically.</string>
     <string name="song_info_set_as_short">Set as</string>
     <string name="song_info_tone_alarm_label">alarm sound</string>
     <string name="song_info_tone_alarm_subtitle">Clock alarms</string>
@@ -200,7 +200,7 @@
     <string name="song_info_tone_notification_label">notification sound</string>
     <string name="song_info_tone_notification_subtitle">Messages and app alerts</string>
     <string name="song_info_tone_notification_title">Notification sound</string>
-    <string name="song_info_tone_picker_body">Choose where PixelMusic should install this sound.</string>
+    <string name="song_info_tone_picker_body">Choose where Startune Music should install this sound.</string>
     <string name="song_info_tone_picker_title">Use this song as</string>
     <string name="song_info_tone_ringtone_label">ringtone</string>
     <string name="song_info_tone_ringtone_subtitle">Incoming calls</string>

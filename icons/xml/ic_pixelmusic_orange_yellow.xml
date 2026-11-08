@@ -6,7 +6,7 @@
     android:viewportWidth="940"
     android:viewportHeight="940">
 
-    <!-- PixelMusic Orange Yellow -->
+    <!-- Startune Music Orange Yellow -->
     <!-- Layer order: lightest -> yellow/accent -> lighter -> darkest -> note shadow -> note -->
 
     <group

@@ -1,14 +1,14 @@
 # Contributing Guidelines
 
-Thank you for your interest in contributing to **Pixel Music**!
+Thank you for your interest in contributing to **Startune Music**!
 
-This repository serves as the official distribution channel and documentation hub for Pixel Music.
+This repository serves as the official distribution channel and documentation hub for Startune Music.
 
 ---
 
 ## 💡 How You Can Contribute
 
-Even though direct binary builds are managed through automated release workflows, you can actively help improve Pixel Music in several ways:
+Even though direct binary builds are managed through automated release workflows, you can actively help improve Startune Music in several ways:
 
 ### 1. Reporting Bugs & Issues
 * **Check Existing Issues:** Before filing a new report, verify that the bug hasn't already been reported in the issue tracker.
@@ -16,7 +16,7 @@ Even though direct binary builds are managed through automated release workflows
 * **Include Device & Environment Details:**
   * Device Model & Manufacturer (e.g., Google Pixel 8, Samsung Galaxy S24)
   * Android Version (e.g., Android 14, Android 15)
-  * Pixel Music Version (e.g., v1.6.08, v1.7.08)
+  * Startune Music Version (e.g., v1.6.08, v1.7.08)
   * Playback Source (Local FLAC/MP3, YouTube Music stream, Telegram stream)
 * **Attach Logs / Screen Recordings:** If applicable, attach logs or short clips demonstrating the problem.
 
@@ -32,7 +32,7 @@ Even though direct binary builds are managed through automated release workflows
 
 ## ⚖️ Legal & Licensing Notice
  
-By submitting issues, suggestions, documentation, assets, or feedback to Pixel Music, you agree that:
+By submitting issues, suggestions, documentation, assets, or feedback to Startune Music, you agree that:
 1. You have the legal right to submit the contribution.
 2. Your contribution does not violate third-party intellectual property or copyright agreements.
 3. Your contributions are licensed under the **GNU General Public License v3.0 (GPL-3.0-or-later)**.
@@ -41,5 +41,5 @@ By submitting issues, suggestions, documentation, assets, or feedback to Pixel M
 
 ## 💬 Community & Discussion
 
-* **Official Telegram Channel:** [https://t.me/PixelMusicApp](https://t.me/PixelMusicApp)
-* **GitHub Issues:** [https://github.com/ianshulyadav/PixelMusicApp/issues](https://github.com/ianshulyadav/PixelMusicApp/issues)
+* **Official Telegram Channel:** [https://t.me/Startune MusicApp](https://t.me/Startune MusicApp)
+* **GitHub Issues:** [https://github.com/ianshulyadav/Startune MusicApp/issues](https://github.com/ianshulyadav/Startune MusicApp/issues)

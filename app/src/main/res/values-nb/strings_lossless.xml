@@ -3,7 +3,7 @@
     <string name="settings_category_lossless_title">Tapsfrie kilder</string>
     <string name="settings_category_lossless_subtitle">Tidal, Qobuz, Deezer og Apple Music via kildepoolen</string>
     <string name="lossless_tidal_login">Logg på Tidal</string>
-    <string name="lossless_auth_webview_tidal_subtitle">Logg på Tidal nedenfor. PixelMusic lagrer økten automatisk.</string>
+    <string name="lossless_auth_webview_tidal_subtitle">Logg på Tidal nedenfor. Startune Music lagrer økten automatisk.</string>
     <string name="lossless_tidal_login_success">Logget på Tidal</string>
     <string name="lossless_tidal_account_free_warning">Denne Tidal-kontoen er ikke HiFi/Premium. Tapsfri avspilling gjennom Tidal kan mislykkes; appen vil falle tilbake til andre kilder.</string>
     <string name="lossless_tidal_login_webplayer_fallback">Kunne ikke fullføre standard pålogging; åpner Tidal-webspilleren i stedet. Bare logg inn og avspilling kobles til automatisk.</string>

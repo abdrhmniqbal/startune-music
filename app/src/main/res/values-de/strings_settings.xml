@@ -225,8 +225,8 @@
     <string name="setcat_trigger_crash_title">Test-Absturz auslösen</string>
     <string name="setcat_trigger_crash_subtitle">Crash simulieren, um das Absturz-Reporting zu testen.</string>
     <string name="setcat_application">App</string>
-    <string name="setcat_about_pixelmusicer_title">Über PixelMusic</string>
-    <string name="setcat_about_pixelmusicer_subtitle">Version, Credits und mehr.</string>
+    <string name="setcat_about_startuneer_title">Über Startune Music</string>
+    <string name="setcat_about_startuneer_subtitle">Version, Credits und mehr.</string>
 
     <string name="backup_summary_none">Keine Bereiche ausgewählt.</string>
     <string name="backup_summary_all">Alle Bereiche ausgewählt.</string>
@@ -297,8 +297,8 @@
     <string name="setcat_language_korean">한국어</string>
     <string name="setcat_language_norwegian">Norsk bokmål</string>
     <string name="setcat_app_font_label">App-Schriftart</string>
-    <string name="setcat_app_font_desc">Wählen Sie zwischen der PixelMusic-Schriftart und der System-Standardschriftart.</string>
-    <string name="setcat_font_pixelmusic">PixelMusic-Standard</string>
+    <string name="setcat_app_font_desc">Wählen Sie zwischen der Startune Music-Schriftart und der System-Standardschriftart.</string>
+    <string name="setcat_font_startune">Startune Music-Standard</string>
     <string name="setcat_font_system">Systemstandard</string>
     <string name="setcat_app_color_palette_label">Themenvoreinstellung</string>
     <string name="setcat_app_color_palette_desc">Wählen Sie eine benutzerdefinierte Farbpalettenvoreinstellung</string>
@@ -334,7 +334,7 @@
     <string name="dialog_regenerate_stats_title">Statistiken neu generieren?</string>
     <string name="dialog_regenerate_stats_body">Dadurch wird der Statistik-Cache geleert und eine Neuberechnung aus dem Datenbankverlauf erzwungen.</string>
     <string name="toast_stats_regeneration_started">Statistikregeneration gestartet</string>
-    <string name="backup_file_name_format">PixelMusic_Backup_%1$d.pxpl</string>
+    <string name="backup_file_name_format">Startune Music_Backup_%1$d.pxpl</string>
     <string name="setcat_regenerate_daily_mix_action">Tägliche Mischung regenerieren</string>
     <string name="setcat_regenerate_stats_action">Statistiken neu generieren</string>
     <string name="setcat_force_palette_empty">Es wurden keine Songs mit Albumcover gefunden.</string>

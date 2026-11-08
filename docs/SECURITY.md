@@ -1,35 +1,35 @@
 # Security Policy
 
-This document explains how official Pixel Music APKs are distributed, how users can verify releases, and how to report security, copyright, licensing, impersonation, or abuse concerns.
+This document explains how official Startune Music APKs are distributed, how users can verify releases, and how to report security, copyright, licensing, impersonation, or abuse concerns.
 
 ## Official Distribution Channels
 
-Official Pixel Music APKs are distributed only through the following official channels:
+Official Startune Music APKs are distributed only through the following official channels:
 
-1. the official Pixel Music GitHub Releases page; and
-2. the official Pixel Music Telegram channel, when linked from this repository or the project's official documentation.
+1. the official Startune Music GitHub Releases page; and
+2. the official Startune Music Telegram channel, when linked from this repository or the project's official documentation.
 
 Official Telegram channel:
 
 ```text
-https://t.me/PixelMusicApp
+https://t.me/Startune MusicApp
 ```
 
 Official GitHub Releases page:
 
 ```text
-https://github.com/ianshulyadav/PixelMusic-Releases/releases
+https://github.com/ianshulyadav/Startune Music-Releases/releases
 ```
 
 Users should not trust APKs downloaded from unofficial mirrors, third-party APK websites, reposted Telegram channels, forwarded Telegram messages, modified builds, re-signed packages, renamed APKs, or unknown sources.
 
-APK files shared outside the official GitHub Releases page or the official Pixel Music Telegram channel should be treated as unofficial and potentially unsafe.
+APK files shared outside the official GitHub Releases page or the official Startune Music Telegram channel should be treated as unofficial and potentially unsafe.
 
 Unofficial copies may be modified, unsafe, outdated, malicious, misleading, or distributed without permission.
 
 ## Telegram Distribution
 
-Pixel Music may publish APKs through the official Pixel Music Telegram channel for user convenience.
+Startune Music may publish APKs through the official Startune Music Telegram channel for user convenience.
 
 Telegram distribution is official only when the Telegram channel is clearly linked from the official project repository, official release repository, or official project documentation.
 
@@ -45,13 +45,13 @@ Each Telegram APK release should include, where practical:
 
 Users should verify the Telegram APK checksum against the checksum published in the matching GitHub Release.
 
-Forwarded APKs, re-uploaded APKs, renamed APKs, modified APKs, re-signed APKs, or APKs posted in unofficial Telegram channels/groups are not official Pixel Music releases.
+Forwarded APKs, re-uploaded APKs, renamed APKs, modified APKs, re-signed APKs, or APKs posted in unofficial Telegram channels/groups are not official Startune Music releases.
 
 If the checksum does not match the official release checksum, do not install the APK.
 
 ## APK Authenticity
 
-Before installing Pixel Music, users are encouraged to verify that the APK came from an official release.
+Before installing Startune Music, users are encouraged to verify that the APK came from an official release.
 
 Each official release should include:
 
@@ -65,7 +65,7 @@ Each official release should include:
 Example checksum verification:
 
 ```bash
-sha256sum PixelMusic-v1.0.0-universal.apk
+sha256sum Startune Music-v1.0.0-universal.apk
 ```
 
 Compare the output with the official `SHA256SUMS.txt` provided in the matching GitHub Release.
@@ -74,20 +74,20 @@ If the checksum does not match, do not install the APK.
 
 ## APK Authenticity & Anti-Tampering Guidelines
 
-To protect users against malware, phishing, and modified backdoors, users are strongly urged to obtain Pixel Music APKs solely from verified official distribution points (the official GitHub Releases page and verified Telegram release channels).
+To protect users against malware, phishing, and modified backdoors, users are strongly urged to obtain Startune Music APKs solely from verified official distribution points (the official GitHub Releases page and verified Telegram release channels).
 
 Redistributors and users must ensure that:
 
 1. Official APK cryptographic checksums (SHA-256) are retained and shared so recipients can verify build integrity;
 2. All open-source copyright, license ([LICENSE](LICENSE)), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), and disclaimer notices are kept intact;
-3. No third-party builds misleadingly impersonate the official project or insert unauthorized telemetry/malicious payload while branding it as official Pixel Music;
+3. No third-party builds misleadingly impersonate the official project or insert unauthorized telemetry/malicious payload while branding it as official Startune Music;
 4. Upstream source code rights under the GNU GPL v3.0 are respected.
 
 ## Copyright and Licensing Concerns
 
-Pixel Music respects copyright, licensing obligations, third-party notices, and intellectual property rights.
+Startune Music respects copyright, licensing obligations, third-party notices, and intellectual property rights.
 
-If you believe that a Pixel Music release includes copyrighted material, code, assets, branding, media, trademarks, or other content that should not be distributed, please report it privately to the project maintainer with as much detail as possible.
+If you believe that a Startune Music release includes copyrighted material, code, assets, branding, media, trademarks, or other content that should not be distributed, please report it privately to the project maintainer with as much detail as possible.
 
 A useful report should include:
 
@@ -102,7 +102,7 @@ The project maintainer may review the report and, where appropriate, remove, rep
 
 ## Security Vulnerabilities
 
-If you discover a security issue in Pixel Music, please report it privately to the project maintainer.
+If you discover a security issue in Startune Music, please report it privately to the project maintainer.
 
 Examples of security issues include:
 
@@ -138,7 +138,7 @@ Responsible disclosure helps protect users, reduces abuse, and avoids unnecessar
 
 ## Prohibited Abuse
 
-Do not use Pixel Music releases, source materials, branding, release assets, APKs, or distribution channels for:
+Do not use Startune Music releases, source materials, branding, release assets, APKs, or distribution channels for:
 
 - malware distribution;
 - phishing;
@@ -155,9 +155,9 @@ Do not use Pixel Music releases, source materials, branding, release assets, APK
 
 ## Third-Party Services and Content
 
-Pixel Music may interact with third-party services, APIs, accounts, or user-authorized sources.
+Startune Music may interact with third-party services, APIs, accounts, or user-authorized sources.
 
-Users are responsible for ensuring that their use of Pixel Music complies with:
+Users are responsible for ensuring that their use of Startune Music complies with:
 
 - applicable laws;
 - copyright rules;
@@ -166,11 +166,11 @@ Users are responsible for ensuring that their use of Pixel Music complies with:
 - API policies;
 - content access permissions.
 
-Pixel Music does not grant users rights to any third-party media, service, brand, API, copyrighted content, trademark, or platform-provided material.
+Startune Music does not grant users rights to any third-party media, service, brand, API, copyrighted content, trademark, or platform-provided material.
 
 ## Official Notice Files
 
-Users and distributors should review the following files before using or sharing Pixel Music:
+Users and distributors should review the following files before using or sharing Startune Music:
 
 - [`LICENSE`](LICENSE)
 - [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)
@@ -182,7 +182,7 @@ These files must not be removed, hidden, or altered from official release materi
 
 ## Reporting Unofficial or Tampered APKs
 
-If you find an unofficial, modified, re-signed, re-uploaded, mirrored, renamed, or suspicious Pixel Music APK, please report it to the project maintainer.
+If you find an unofficial, modified, re-signed, re-uploaded, mirrored, renamed, or suspicious Startune Music APK, please report it to the project maintainer.
 
 A useful report should include:
 

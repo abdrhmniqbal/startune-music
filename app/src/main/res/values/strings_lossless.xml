@@ -6,7 +6,7 @@
 
     <!-- Tidal -->
     <string name="lossless_tidal_login">Sign in to Tidal</string>
-    <string name="lossless_auth_webview_tidal_subtitle">Sign in to Tidal below. PixelMusic saves the session automatically.</string>
+    <string name="lossless_auth_webview_tidal_subtitle">Sign in to Tidal below. Startune Music saves the session automatically.</string>
     <string name="lossless_tidal_login_success">Signed in to Tidal</string>
     <string name="lossless_tidal_account_free_warning">This Tidal account is not HiFi/Premium. Lossless playback through Tidal may fail; the app will fall back to other sources.</string>
     <string name="lossless_tidal_login_webplayer_fallback">Couldn\'t complete the standard sign-in; opening the Tidal web player instead. Just log in and playback will connect automatically.</string>

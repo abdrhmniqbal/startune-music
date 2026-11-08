@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="nav_error_genre_id_missing">Erro: ID do gênero ausente</string>
-    <string name="easter_egg_thank_you">Obrigado por usar o PixelMusic!</string>
+    <string name="easter_egg_thank_you">Obrigado por usar o Startune Music!</string>
     <string name="word_delimiter_section_title">Delimitadores de palavras atuais</string>
     <string name="word_delimiter_section_subtitle">Essas palavras-chave dividem os nomes dos artistas quando cercadas por espaços. Correspondido sem distinção entre maiúsculas e minúsculas. Toque para remover.</string>
     <string name="word_delimiter_empty">Nenhum delimitador de palavra configurado</string>
@@ -89,7 +89,7 @@ Exemplos:
     <string name="setup_excluded_folders_description">Escolha pastas para ignorar ao escanear sua biblioteca de música.</string>
     <string name="setup_choose_folders_ignore">Escolha pastas para ignorar</string>
     <string name="setup_permission_media_title">Permissão de mídia</string>
-    <string name="setup_permission_media_description">PixelMusic precisa de acesso aos seus arquivos de áudio para construir sua biblioteca de música.</string>
+    <string name="setup_permission_media_description">Startune Music precisa de acesso aos seus arquivos de áudio para construir sua biblioteca de música.</string>
     <string name="setup_permission_granted">Permissão concedida</string>
     <string name="setup_grant_media_permission">Conceder permissão de mídia</string>
     <string name="setup_permission_notifications_title">Notificações</string>
@@ -99,12 +99,12 @@ Exemplos:
     <string name="setup_permission_alarms_description">Permite que o Sleep Timer pause a reprodução pontualmente.</string>
     <string name="setup_grant_permission_generic">Conceder permissão</string>
     <string name="setup_backup_have_title">Você tem um backup?</string>
-    <string name="setup_backup_have_description">Restaure um backup do PixelMusic para pular a configuração.</string>
+    <string name="setup_backup_have_description">Restaure um backup do Startune Music para pular a configuração.</string>
     <string name="setup_inspecting_backup">Inspecionando backup</string>
     <string name="setup_restoring_backup">Restaurando backup</string>
     <string name="setup_import_backup">Importar backup</string>
     <string name="setup_theme_dark_title">Escuro</string>
-    <string name="setup_theme_dark_description">A aparência escura padrão do Material 3 para PixelMusic.</string>
+    <string name="setup_theme_dark_description">A aparência escura padrão do Material 3 para Startune Music.</string>
     <string name="setup_theme_light_title">Luz</string>
     <string name="setup_theme_light_description">Uma aparência mais brilhante do Material 3 em todo o aplicativo.</string>
     <string name="setup_theme_follow_title">Seguir sistema</string>
@@ -124,7 +124,7 @@ Esta música será excluída permanentemente do seu dispositivo e não poderá s
     <string name="home_your_mix_title">Seu
 Mix</string>
     <string name="home_empty_placeholder_title">Ainda não há dados para mostrar</string>
-    <string name="home_empty_placeholder_subtitle">Seu mix aparecerá aqui quando o PixelMusic encontrar músicas ou sincronizar uma fonte.</string>
+    <string name="home_empty_placeholder_subtitle">Seu mix aparecerá aqui quando o Startune Music encontrar músicas ou sincronizar uma fonte.</string>
     <string name="home_empty_placeholder_refresh">Atualizar</string>
     <string name="cd_shuffle_play">Reprodução aleatória</string>
     <string name="cd_album_art_for_title">Arte do álbum %1$s</string>
@@ -144,7 +144,7 @@ Mix</string>
     <string name="crash_report_stack_preview_label">Rastreamento de pilha (visualização):</string>
     <string name="crash_report_clipboard_label">Registro de falhas</string>
     <string name="toast_crash_log_copied">Log de falhas copiado para a área de transferência</string>
-    <string name="crash_report_share_subject">Relatório de falha do PixelMusic</string>
+    <string name="crash_report_share_subject">Relatório de falha do Startune Music</string>
     <string name="crash_report_share_chooser">Compartilhar relatório de falha</string>
     <string name="action_copy">Copiar</string>
     <string name="action_share">Compartilhe</string>
@@ -169,7 +169,7 @@ Mix</string>
     <string name="about_contributions_format">Contribuição %1$d.</string>
     <string name="screen_about">Sobre</string>
     <string name="about_maintainer_title">Mantenedor</string>
-    <string name="about_maintainer_subtitle">A pessoa por trás do PixelMusic.</string>
+    <string name="about_maintainer_subtitle">A pessoa por trás do Startune Music.</string>
     <string name="about_spotlight_title">Destaque comunitário</string>
     <string name="about_spotlight_subtitle">Reconhecimento para colaboradores de grande impacto.</string>
     <string name="about_contributors_section_title">Contribuidores de código aberto</string>
@@ -344,10 +344,10 @@ Mix</string>
     <string name="recap_share_recap">Compartilhar Recap</string>
     <string name="about_donate_support_title">Doar para Apoiar</string>
     <string name="about_donate_support_desc">UPI (Índia) e Ko-fi (Global)</string>
-    <string name="about_rate_app_title">Avaliar o PixelMusic</string>
+    <string name="about_rate_app_title">Avaliar o Startune Music</string>
     <string name="about_rate_app_desc">Dê uma estrela no GitHub</string>
     <string name="about_share_app_title">Compartilhar Aplicativo</string>
-    <string name="about_share_app_desc">Recomende o PixelMusic para outras pessoas</string>
+    <string name="about_share_app_desc">Recomende o Startune Music para outras pessoas</string>
     <string name="about_privacy_policy_title">Política de Privacidade</string>
     <string name="about_privacy_policy_desc">Leia nosso compromisso de privacidade</string>
     <string name="about_i_understand">Entendi</string>

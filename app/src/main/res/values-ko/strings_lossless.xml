@@ -3,7 +3,7 @@
     <string name="settings_category_lossless_title">무손실 소스</string>
     <string name="settings_category_lossless_subtitle">소스 풀을 통한 Tidal, Qobuz, Deezer 및 Apple Music</string>
     <string name="lossless_tidal_login">Tidal에 로그인</string>
-    <string name="lossless_auth_webview_tidal_subtitle">아래에서 Tidal에 로그인하세요. PixelMusic은 세션을 자동으로 저장합니다.</string>
+    <string name="lossless_auth_webview_tidal_subtitle">아래에서 Tidal에 로그인하세요. Startune Music은 세션을 자동으로 저장합니다.</string>
     <string name="lossless_tidal_login_success">Tidal에 로그인됨</string>
     <string name="lossless_tidal_account_free_warning">이 Tidal 계정은 HiFi/프리미엄이 아닙니다. Tidal을 통한 무손실 재생이 실패할 수 있습니다. 앱은 다른 소스로 대체됩니다.</string>
     <string name="lossless_tidal_login_webplayer_fallback">표준 로그인을 완료할 수 없습니다. 대신 Tidal 웹 플레이어를 여세요. 로그인만 하면 자동으로 재생이 연결됩니다.</string>

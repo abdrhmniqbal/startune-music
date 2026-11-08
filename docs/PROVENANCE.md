@@ -1,18 +1,18 @@
 # Provenance & Source Compliance
 
-This repository contains the complete open-source source code and official APK releases of **Pixel Music**.
+This repository contains the complete open-source source code and official APK releases of **Startune Music**.
 
 ---
 
 ## 🏛️ Lineage & Upstream Project
 
-Pixel Music is derived from and built upon the open-source **PixelPlayerOSS** project and the foundational PixelPlayer codebase:
+Startune Music is derived from and built upon the open-source **PixelPlayerOSS** project and the foundational Startune codebase:
 
 - **Upstream Open-Source Codebase:** [https://github.com/PixelPlayerHQ/PixelPlayerOSS](https://github.com/PixelPlayerHQ/PixelPlayerOSS)
 - **Upstream License:** GNU General Public License v3.0 (`GPL-3.0-or-later`)
-- **Foundational Project:** [https://github.com/theovilardo/PixelPlayer](https://github.com/theovilardo/PixelPlayer)
+- **Foundational Project:** [https://github.com/theovilardo/Startune](https://github.com/theovilardo/Startune)
 - **Foundational MIT Base Commit:** `39030156fb6999b23f69076ae135e55832bb6d81`
-- **Foundational MIT License Reference:** [https://github.com/theovilardo/PixelPlayer/blob/39030156fb6999b23f69076ae135e55832bb6d81/LICENSE](https://github.com/theovilardo/PixelPlayer/blob/39030156fb6999b23f69076ae135e55832bb6d81/LICENSE)
+- **Foundational MIT License Reference:** [https://github.com/theovilardo/Startune/blob/39030156fb6999b23f69076ae135e55832bb6d81/LICENSE](https://github.com/theovilardo/Startune/blob/39030156fb6999b23f69076ae135e55832bb6d81/LICENSE)
 
 All original copyright notices, contributor credits, and third-party notices are preserved in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [LICENSE](LICENSE).
 
@@ -20,7 +20,7 @@ All original copyright notices, contributor credits, and third-party notices are
 
 ## 📦 GPLv3 Section 6 (Source Code Availability)
 
-Pixel Music is distributed under the terms of the **GNU General Public License v3.0 (GPL-3.0-or-later)**.
+Startune Music is distributed under the terms of the **GNU General Public License v3.0 (GPL-3.0-or-later)**.
 
 In full compliance with **GPLv3 Section 6(a)**:
 

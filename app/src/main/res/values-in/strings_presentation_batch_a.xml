@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Web login security notes (QQ / NetEase) -->
-    <string name="auth_web_login_security_note_qq">Catatan keamanan: kata sandi Anda hanya dimasukkan di halaman web QQ Music. PixelMusic menyimpan cookie sesi untuk menyinkronkan pustaka Anda.</string>
+    <string name="auth_web_login_security_note_qq">Catatan keamanan: kata sandi Anda hanya dimasukkan di halaman web QQ Music. Startune Music menyimpan cookie sesi untuk menyinkronkan pustaka Anda.</string>
     <string name="auth_error_read_qq_cookies_failed">Gagal membaca cookie QQ Music: %1$s</string>
 
 </resources>

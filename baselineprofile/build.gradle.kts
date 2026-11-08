@@ -4,7 +4,7 @@
 }
 
 android {
-    namespace = "com.unshoo.pixelmusic.baselineprofile"
+    namespace = "com.startune.music.baselineprofile"
     compileSdk = 37
 
     compileOptions {

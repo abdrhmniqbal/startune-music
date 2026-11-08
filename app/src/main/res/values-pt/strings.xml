@@ -2,11 +2,11 @@
 <resources>
     <string name="app_name">Startune Music</string>
     <string name="app_name_change_title">Mudança de nome do aplicativo</string>
-    <string name="app_name_change_message">Mudamos o nome do nosso aplicativo de PixelMusic para PixelMusic devido a um problema relacionado à marca registrada. Continue jogando!</string>
+    <string name="app_name_change_message">Mudamos o nome do nosso aplicativo de Startune Music para Startune Music devido a um problema relacionado à marca registrada. Continue jogando!</string>
     <string name="do_not_show_again">Não mostrar novamente</string>
     <string name="dismiss">Dispensar</string>
     <string name="all_files_access_title">Permissão especial necessária</string>
-    <string name="all_files_access_description">Para editar metadados de músicas (arquivos .mp3), PixelMusic precisa de acesso especial a todos os arquivos. Isso nos permite modificar tags de trilha diretamente. Conceda esta permissão na próxima tela para ativar a edição de metadados.</string>
+    <string name="all_files_access_description">Para editar metadados de músicas (arquivos .mp3), Startune Music precisa de acesso especial a todos os arquivos. Isso nos permite modificar tags de trilha diretamente. Conceda esta permissão na próxima tela para ativar a edição de metadados.</string>
     <string name="grant_permission_button">Conceder permissão</string>
     <string name="all_files_access_setting">Acesso a todos os arquivos</string>
     <string name="error">Erro</string>
@@ -84,7 +84,7 @@
     <string name="ai_error_api_key">Configure uma chave de API válida para o provedor de IA selecionado em Configurações.</string>
     <string name="ai_error_generic">Erro de IA: %s</string>
     <string name="ai_error_quota">O provedor de IA selecionado rejeitou a solicitação porque a conta não tem créditos nem cota disponível.</string>
-    <string name="ai_error_model_unavailable">O modelo de IA selecionado não está mais disponível. PixelMusic tentou mudar para um modelo compatível automaticamente.</string>
+    <string name="ai_error_model_unavailable">O modelo de IA selecionado não está mais disponível. Startune Music tentou mudar para um modelo compatível automaticamente.</string>
     <string name="ai_no_songs_found">AI não conseguiu encontrar nenhuma música para o seu prompt.</string>
     <string name="ai_prompt_empty">Escreva uma ideia para o seu Daily Mix</string>
     <string name="ai_daily_mix_updated">Daily Mix atualizado com IA</string>
@@ -116,7 +116,7 @@
     <string name="playlist_share_failed">Falha no compartilhamento: %1$s</string>
     <string name="playlist_none_to_export">Nenhuma playlist para exportar</string>
     <string name="playlist_export_failed">Falha na exportação: %1$s</string>
-    <string name="playlist_export_folder_display">Exportações de música/PixelMusic</string>
+    <string name="playlist_export_folder_display">Exportações de música/Startune Music</string>
     <string name="ai_playlist_gemini_key_required">Configure sua chave API Gemini em Configurações.</string>
     <string name="error_unknown">Erro desconhecido</string>
     <string name="watch_transfer_sending_n_to_watch">Enviando músicas do %1$d para assistir</string>
