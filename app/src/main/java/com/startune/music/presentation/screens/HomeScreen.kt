@@ -415,14 +415,16 @@ fun HomeScreen(
                         contentType = "top_tracks_section"
                     ) {
                         TopTracksSection(
-                            songs = topTrackSongs,
+                            tracks = homeTopTracks,
                             currentSongId = currentSong?.id,
-                            onSongClick = { song ->
-                                playerViewModel.playSongs(
-                                    songsToPlay = topTrackSongs,
-                                    startSong = song,
-                                    queueName = topTracksQueueName
-                                )
+                            onTrackClick = { track ->
+                                topTrackSongs.find { it.id == track.songId }?.let { song ->
+                                    playerViewModel.playSongs(
+                                        songsToPlay = topTrackSongs,
+                                        startSong = song,
+                                        queueName = topTracksQueueName
+                                    )
+                                }
                             },
                             onOpenAllClick = {
                                 navController.navigateSafely(Screen.TopTracks.route)

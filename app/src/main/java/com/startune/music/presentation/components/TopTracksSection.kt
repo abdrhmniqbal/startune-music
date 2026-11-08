@@ -1,107 +1,150 @@
-package com.startune.music.presentation.components
+﻿package com.startune.music.presentation.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.startune.music.R
-import com.startune.music.data.model.Song
+import com.startune.music.data.stats.PlaybackStatsRepository
 import com.startune.music.presentation.components.SmartImage
 import kotlinx.collections.immutable.ImmutableList
 
-private const val TOP_TRACKS_PAGE_SIZE = 5
-
+/**
+ * Home Top Tracks, styled like the Top Tracks card on the Stats screen:
+ * a rounded card with rank badges, album art and a play count per row.
+ */
 @Composable
 fun TopTracksSection(
-    songs: ImmutableList<Song>,
+    tracks: ImmutableList<PlaybackStatsRepository.SongPlaybackSummary>,
     currentSongId: String?,
-    onSongClick: (Song) -> Unit,
+    onTrackClick: (PlaybackStatsRepository.SongPlaybackSummary) -> Unit,
     onOpenAllClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (songs.isEmpty()) return
-    val pages = remember(songs) { songs.chunked(TOP_TRACKS_PAGE_SIZE) }
-    val pagerState = rememberPagerState(pageCount = { pages.size })
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+    val topFive = remember(tracks) { tracks.take(5) }
+    if (topFive.isEmpty()) return
+    val containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    val contentColor = MaterialTheme.colorScheme.onSurface
+    val supportingColor = MaterialTheme.colorScheme.onSurfaceVariant
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                modifier = Modifier.padding(start = 6.dp),
-                text = stringResource(R.string.top_tracks_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
-            )
-            FilledIconButton(
-                modifier = Modifier
-                    .height(40.dp)
-                    .width(64.dp),
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    contentColor = MaterialTheme.colorScheme.secondary
-                ),
-                onClick = onOpenAllClick
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
+                Text(
+                    text = stringResource(R.string.top_tracks_title),
+                    style = MaterialTheme.typography.titleLargeEmphasized,
+                    fontWeight = FontWeight.SemiBold,
+                    color = contentColor
                 )
+                FilledIconButton(
+                    modifier = Modifier
+                        .height(40.dp)
+                        .width(64.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        contentColor = MaterialTheme.colorScheme.secondary
+                    ),
+                    onClick = onOpenAllClick
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
-        }
 
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            pageSpacing = 24.dp
-        ) { page ->
             Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                pages[page].forEachIndexed { index, song ->
-                    key(song.id) {
-                        TopTrackRow(
-                            rank = page * TOP_TRACKS_PAGE_SIZE + index + 1,
-                            song = song,
-                            isCurrentSong = currentSongId == song.id,
-                            onClick = { onSongClick(song) }
+                topFive.forEachIndexed { position, track ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { onTrackClick(track) }
+                            .padding(vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        TopTrackRankBadge(
+                            rank = position + 1,
+                            accentColor = MaterialTheme.colorScheme.primary,
+                            accentOnColor = MaterialTheme.colorScheme.onPrimary,
+                            highlighted = position == 0
+                        )
+                        SmartImage(
+                            model = track.albumArtUri,
+                            contentDescription = track.title,
+                            modifier = Modifier
+                                .size(52.dp)
+                                .clip(RoundedCornerShape(14.dp)),
+                            shape = RoundedCornerShape(14.dp)
+                        )
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = track.title,
+                                style = MaterialTheme.typography.titleSmall,
+                                color = if (currentSongId == track.songId) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    contentColor
+                                },
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = track.artist,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = supportingColor,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        Text(
+                            text = stringResource(R.string.presentation_batch_g_stats_n_plays, track.playCount),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = supportingColor
                         )
                     }
                 }
@@ -111,61 +154,37 @@ fun TopTracksSection(
 }
 
 @Composable
-private fun TopTrackRow(
+private fun TopTrackRankBadge(
     rank: Int,
-    song: Song,
-    isCurrentSong: Boolean,
-    onClick: () -> Unit
+    accentColor: Color,
+    accentOnColor: Color,
+    highlighted: Boolean
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .padding(vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    val containerColor = if (highlighted) {
+        accentColor
+    } else {
+        accentColor.copy(alpha = 0.24f)
+    }
+    val contentColor = if (highlighted) {
+        accentOnColor
+    } else {
+        accentColor
+    }
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = containerColor,
+        contentColor = contentColor
     ) {
-        Text(
-            text = rank.toString(),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = if (isCurrentSong) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            },
-            textAlign = TextAlign.Center,
-            modifier = Modifier.width(28.dp)
-        )
-        SmartImage(
-            model = song.albumArtUriString,
-            contentDescription = song.title,
+        Box(
             modifier = Modifier
-                .size(48.dp)
-                .clip(RoundedCornerShape(10.dp)),
-            shape = RoundedCornerShape(10.dp)
-        )
-        Column(
-            modifier = Modifier.weight(1f)
+                .defaultMinSize(minWidth = 34.dp, minHeight = 34.dp)
+                .padding(horizontal = 10.dp, vertical = 6.dp),
+            contentAlignment = Alignment.Center
         ) {
             Text(
-                text = song.title,
-                style = MaterialTheme.typography.titleSmall,
-                color = if (isCurrentSong) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = song.displayArtist,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                text = rank.toString(),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
             )
         }
     }
