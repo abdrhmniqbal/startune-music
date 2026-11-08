@@ -36,3 +36,10 @@ annotation class AppScope
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class ListenBrainzRetrofit
+
+/**
+ * Qualifier for Last.fm Retrofit instance.
+ */
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class LastFmRetrofit

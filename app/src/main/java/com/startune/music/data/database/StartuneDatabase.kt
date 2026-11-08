@@ -22,10 +22,11 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         JellyfinSongEntity::class,
         JellyfinPlaylistEntity::class,
         ListenBrainzPendingListenEntity::class,
+        LastFmPendingScrobbleEntity::class,
         AudioBookmarkEntity::class,
         OfflineTrackEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = true
 )
 abstract class StartuneDatabase : RoomDatabase() {
@@ -39,6 +40,7 @@ abstract class StartuneDatabase : RoomDatabase() {
     abstract fun localPlaylistDao(): LocalPlaylistDao
     abstract fun jellyfinDao(): JellyfinDao
     abstract fun listenBrainzDao(): ListenBrainzDao
+    abstract fun lastFmDao(): LastFmDao
     abstract fun audioBookmarkDao(): AudioBookmarkDao
     abstract fun offlineTrackDao(): OfflineTrackDao
 

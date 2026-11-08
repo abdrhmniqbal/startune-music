@@ -303,6 +303,16 @@ fun ArtistDetailScreen(
                             bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp
                         )
                     ) {
+                        val artistBio = artist.bio
+                        if (!artistBio.isNullOrBlank()) {
+                            item(
+                                key = "artist_bio",
+                                contentType = "artist_bio"
+                            ) {
+                                ArtistBioSection(bio = artistBio)
+                            }
+                        }
+
                         albumSections.forEachIndexed { index, section ->
                             if (section.songs.isEmpty()) return@forEachIndexed
 
@@ -1188,5 +1198,27 @@ private fun MusicIconPattern(modifier: Modifier = Modifier) {
                 .size(45.dp)
                 .graphicsLayer { rotationZ = -8f }
         )
+    }
+}
+
+
+@Composable
+private fun ArtistBioSection(bio: String) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.artist_bio_title),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = bio,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }

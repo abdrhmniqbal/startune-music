@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.startune.music.R
+import com.startune.music.data.lastfm.LastFmRepository
 import com.startune.music.data.model.Artist
 import com.startune.music.data.model.Song
 import com.startune.music.data.repository.ArtistImageRepository
@@ -54,6 +55,7 @@ data class ArtistAlbumSection(
 class ArtistDetailViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val musicRepository: MusicRepository,
+    private val lastFmRepository: LastFmRepository,
     private val artistImageRepository: ArtistImageRepository,
     val themeStateHolder: ThemeStateHolder,
     savedStateHandle: SavedStateHandle
@@ -93,6 +95,7 @@ class ArtistDetailViewModel @Inject constructor(
 
     private var currentLoadJob: Job? = null
     private var loadedArtistId: Long? = null
+    private val bioFetchAttempted = mutableSetOf<Long>()
 
     private fun loadArtistData(id: Long) {
         loadedArtistId = id
@@ -123,6 +126,8 @@ class ArtistDetailViewModel @Inject constructor(
                             }
                             return@collect
                         }
+
+                        maybeFetchArtistBio(artist)
 
                         val albumSections = buildAlbumSections(songs)
                         val orderedSongs = albumSections.flatMap { it.songs }
@@ -165,6 +170,24 @@ class ArtistDetailViewModel @Inject constructor(
                         isLoading = false
                     )
                 }
+            }
+        }
+    }
+
+    /**
+     * Fetches the artist bio from Last.fm once, when the cached bio is missing.
+     * The result is stored in Room, so repeat views cost no proxy usage; the artist
+     * flow re-emits with the bio once it is saved.
+     */
+    private fun maybeFetchArtistBio(artist: Artist) {
+        if (!artist.bio.isNullOrBlank()) return
+        if (!bioFetchAttempted.add(artist.id)) return
+        viewModelScope.launch {
+            val fetched = lastFmRepository.fetchArtistBio(artist.name) ?: return@launch
+            runCatching {
+                musicRepository.updateArtistBio(artist.id, fetched.bio, fetched.imageUrl)
+            }.onFailure {
+                Timber.tag("ArtistDebug").w("Failed to save Last.fm bio: ${it.message}")
             }
         }
     }

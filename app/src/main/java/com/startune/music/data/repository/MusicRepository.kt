@@ -282,6 +282,9 @@ interface MusicRepository {
      */
     fun getSong(songId: String): Flow<Song?>
     fun getArtistById(artistId: Long): Flow<Artist?>
+
+    /** Persists a Last.fm bio (+ artwork when the artist has none) for the cached artist. */
+    suspend fun updateArtistBio(artistId: Long, bio: String?, imageUrl: String?)
     suspend fun getArtistIdByName(name: String): Long?
     fun getArtistsForSong(songId: Long): Flow<List<Artist>>
 

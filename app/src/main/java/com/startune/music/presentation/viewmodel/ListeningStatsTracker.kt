@@ -3,6 +3,7 @@
 import android.os.SystemClock
 import androidx.media3.common.C
 import com.startune.music.data.DailyMixManager
+import com.startune.music.data.lastfm.LastFmScrobbleManager
 import com.startune.music.data.listenbrainz.ScrobbleManager
 import com.startune.music.data.model.Song
 import com.startune.music.data.stats.PlaybackStatsRepository
@@ -33,7 +34,8 @@ import timber.log.Timber
 class ListeningStatsTracker @Inject constructor(
     private val dailyMixManager: DailyMixManager,
     private val playbackStatsRepository: PlaybackStatsRepository,
-    private val scrobbleManager: ScrobbleManager
+    private val scrobbleManager: ScrobbleManager,
+    private val lastFmScrobbleManager: LastFmScrobbleManager
 ) {
     private var currentSession: ActiveSession? = null
     private var pendingVoluntarySongId: String? = null
@@ -127,6 +129,7 @@ class ListeningStatsTracker @Inject constructor(
         }
         if (isPlaying) {
             scrobbleManager.onPlayingNow(safeSongId)
+            lastFmScrobbleManager.onPlayingNow(safeSongId)
         }
     }
 
@@ -142,6 +145,7 @@ class ListeningStatsTracker @Inject constructor(
         session.lastUpdateEpochMs = System.currentTimeMillis()
         if (!wasPlaying && isPlaying) {
             scrobbleManager.onPlayingNow(session.songId)
+            lastFmScrobbleManager.onPlayingNow(session.songId)
         }
     }
 
@@ -212,6 +216,7 @@ class ListeningStatsTracker @Inject constructor(
             existing.lastUpdateEpochMs = System.currentTimeMillis()
             if (!wasPlaying && isPlaying) {
                 scrobbleManager.onPlayingNow(existing.songId)
+                lastFmScrobbleManager.onPlayingNow(existing.songId)
             }
             return
         }
@@ -240,6 +245,12 @@ class ListeningStatsTracker @Inject constructor(
         accumulateRealtimeListening(session, nowRealtime)
         val listened = session.accumulatedListeningMs.coerceAtLeast(0L)
         scrobbleManager.onSessionFinalized(
+            songId = session.songId,
+            startedAtEpochMs = session.startedAtEpochMs,
+            listenedMs = listened,
+            trackDurationMs = session.totalDurationMs
+        )
+        lastFmScrobbleManager.onSessionFinalized(
             songId = session.songId,
             startedAtEpochMs = session.startedAtEpochMs,
             listenedMs = listened,

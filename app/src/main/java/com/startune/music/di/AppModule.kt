@@ -22,6 +22,7 @@ import com.startune.music.data.database.EngagementDao
 import com.startune.music.data.database.FavoritesDao
 import com.startune.music.data.database.LyricsDao
 import com.startune.music.data.database.LocalPlaylistDao
+import com.startune.music.data.database.LastFmDao
 import com.startune.music.data.database.ListenBrainzDao
 import com.startune.music.data.database.AudioBookmarkDao
 import com.startune.music.data.database.MIGRATION_1_2
@@ -30,6 +31,7 @@ import com.startune.music.data.database.MIGRATION_3_4
 import com.startune.music.data.database.MIGRATION_4_5
 import com.startune.music.data.database.MIGRATION_5_6
 import com.startune.music.data.database.MIGRATION_6_7
+import com.startune.music.data.database.MIGRATION_7_8
 import com.startune.music.data.database.MusicDao
 import com.startune.music.data.database.OfflineTrackDao
 import com.startune.music.data.database.StartuneDatabase
@@ -141,6 +143,7 @@ object AppModule {
                 MIGRATION_4_5,
                 MIGRATION_5_6,
                 MIGRATION_6_7,
+                MIGRATION_7_8,
             )
             .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
 
@@ -209,6 +212,12 @@ object AppModule {
     @Provides
     fun provideListenBrainzDao(database: StartuneDatabase): ListenBrainzDao {
         return database.listenBrainzDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideLastFmDao(database: StartuneDatabase): LastFmDao {
+        return database.lastFmDao()
     }
 
     @Singleton

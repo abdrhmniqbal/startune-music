@@ -184,6 +184,16 @@ object SettingsRegistry {
                 type = SettingType.NAVIGABLE_CARD,
                 keywordsStatic = listOf("scrobble", "scrobbling", "listens", "maloja", "last.fm", "history")
             ),
+            SettingSpec(
+                id = "accounts_lastfm",
+                itemKey = "item_accounts_lastfm",
+                titleRes = R.string.lastfm_integration,
+                subtitleStatic = "Scrobble your listens to Last.fm",
+                category = SettingsCategory.LIBRARY,
+                subscreenRoute = Screen.Accounts.createRoute(),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("scrobble", "scrobbling", "last.fm", "lastfm", "history")
+            ),
 
             // --- APPEARANCE CATEGORY ---
             SettingSpec(

@@ -447,6 +447,23 @@ class MusicRepositoryImpl @Inject constructor(
         return musicDao.getArtistById(artistId).map { it?.toArtist() }
     }
 
+    override suspend fun updateArtistBio(artistId: Long, bio: String?, imageUrl: String?) {
+        withContext(Dispatchers.IO) {
+            val entity = musicDao.getArtistsByIds(listOf(artistId)).firstOrNull()
+                ?: return@withContext
+            val updated = entity.copy(
+                bio = bio ?: entity.bio,
+                bioUpdatedAtMs = if (bio != null) System.currentTimeMillis() else entity.bioUpdatedAtMs,
+                imageUrl = if (!imageUrl.isNullOrBlank() && entity.imageUrl.isNullOrBlank()) {
+                    imageUrl
+                } else {
+                    entity.imageUrl
+                }
+            )
+            musicDao.updateArtists(listOf(updated))
+        }
+    }
+
     override suspend fun getArtistIdByName(name: String): Long? = withContext(Dispatchers.IO) {
         musicDao.getArtistIdByName(name)
     }

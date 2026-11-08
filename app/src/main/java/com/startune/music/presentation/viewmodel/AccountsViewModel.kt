@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.startune.music.data.jellyfin.JellyfinRepository
 import com.startune.music.data.listenbrainz.InvalidServerUrlException
 import com.startune.music.data.listenbrainz.ListenBrainzProfileStats
+import com.startune.music.data.lastfm.LastFmLoginResult
+import com.startune.music.data.lastfm.LastFmRepository
 import com.startune.music.data.listenbrainz.ListenBrainzRepository
 import com.startune.music.data.preferences.ListenBrainzPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,7 +34,8 @@ private const val PROFILE_STATS_POLL_MS = 20_000L
 
 enum class ExternalServiceAccount {
     JELLYFIN,
-    LISTENBRAINZ
+    LISTENBRAINZ,
+    LASTFM
 }
 
 data class ExternalAccountUiModel(
@@ -70,17 +73,37 @@ sealed interface ListenBrainzConnectState {
     data class Failed(val invalidUrl: Boolean = false) : ListenBrainzConnectState
 }
 
+data class LastFmUiModel(
+    val userName: String?,
+    val pendingCount: Int,
+    val needsReauth: Boolean,
+    val scrobbleEnabled: Boolean,
+    val nowPlayingEnabled: Boolean,
+    val minimumTrackDurationSeconds: Int,
+    val scrobbleDelayPercent: Int,
+    val maxScrobbleDelaySeconds: Int
+)
+
+sealed interface LastFmConnectState {
+    data object Idle : LastFmConnectState
+    data object Connecting : LastFmConnectState
+    data object Success : LastFmConnectState
+    data class Failed(val invalidCredentials: Boolean = false) : LastFmConnectState
+}
+
 data class AccountsUiState(
     val connectedAccounts: List<ExternalAccountUiModel> = emptyList(),
     val disconnectedServices: ImmutableList<ExternalServiceAccount> = persistentListOf(),
-    val listenBrainz: ListenBrainzUiModel? = null
+    val listenBrainz: ListenBrainzUiModel? = null,
+    val lastFm: LastFmUiModel? = null
 )
 
 @HiltViewModel
 class AccountsViewModel @Inject constructor(
     private val jellyfinRepository: JellyfinRepository,
     private val listenBrainzRepository: ListenBrainzRepository,
-    private val listenBrainzPreferences: ListenBrainzPreferencesRepository
+    private val listenBrainzPreferences: ListenBrainzPreferencesRepository,
+    private val lastFmRepository: LastFmRepository
 ) : ViewModel() {
 
     private val loggingOutServices = MutableStateFlow<Set<ExternalServiceAccount>>(emptySet())
@@ -150,6 +173,31 @@ class AccountsViewModel @Inject constructor(
     val listenBrainzConnectState: StateFlow<ListenBrainzConnectState> =
         _listenBrainzConnectState.asStateFlow()
 
+    private val lastFmStateFlow = combine(
+        lastFmRepository.accountState,
+        lastFmRepository.pendingScrobbleCount
+    ) { account, pendingCount ->
+        if (account.isConnected) {
+            LastFmUiModel(
+                userName = account.userName,
+                pendingCount = pendingCount,
+                needsReauth = account.needsReauth,
+                scrobbleEnabled = account.config.isEnabled,
+                nowPlayingEnabled = account.config.nowPlayingEnabled,
+                minimumTrackDurationSeconds = account.config.minimumTrackDurationSeconds,
+                scrobbleDelayPercent = account.config.scrobbleDelayPercent,
+                maxScrobbleDelaySeconds = account.config.maxScrobbleDelaySeconds
+            )
+        } else {
+            null
+        }
+    }
+
+    private val _lastFmConnectState =
+        MutableStateFlow<LastFmConnectState>(LastFmConnectState.Idle)
+    val lastFmConnectState: StateFlow<LastFmConnectState> =
+        _lastFmConnectState.asStateFlow()
+
     val uiState: StateFlow<AccountsUiState> = combine(
         combine(
             listOf(
@@ -157,8 +205,9 @@ class AccountsViewModel @Inject constructor(
             )
         ) { it.toList() },
         listenBrainzStateFlow,
+        lastFmStateFlow,
         loggingOutServices
-    ) { states, listenBrainz, activeLogouts ->
+    ) { states, listenBrainz, lastFm, activeLogouts ->
         val (jellyfinConnected, jellyfinPlaylistCount) = states[0]
 
         val connectedAccounts = buildList {
@@ -200,17 +249,41 @@ class AccountsViewModel @Inject constructor(
                     )
                 )
             }
+            if (lastFm != null) {
+                add(
+                    ExternalAccountUiModel(
+                        service = ExternalServiceAccount.LASTFM,
+                        title = "Last.fm",
+                        accountLabel = lastFm.userName
+                            ?.takeIf { it.isNotBlank() }
+                            ?.let { "Logged in as $it" }
+                            ?: "Last.fm account connected",
+                        syncedContentLabel = if (lastFm.pendingCount > 0) {
+                            formatCount(
+                                count = lastFm.pendingCount,
+                                singular = "queued scrobble",
+                                plural = "queued scrobbles"
+                            )
+                        } else {
+                            "Scrobbling listens as you play"
+                        },
+                        isLoggingOut = ExternalServiceAccount.LASTFM in activeLogouts
+                    )
+                )
+            }
         }
 
         val disconnectedServices = buildList {
             if (!jellyfinConnected) add(ExternalServiceAccount.JELLYFIN)
             if (listenBrainz == null) add(ExternalServiceAccount.LISTENBRAINZ)
+            if (lastFm == null) add(ExternalServiceAccount.LASTFM)
         }
 
         AccountsUiState(
             connectedAccounts = connectedAccounts,
             disconnectedServices = disconnectedServices.toImmutableList(),
-            listenBrainz = listenBrainz
+            listenBrainz = listenBrainz,
+            lastFm = lastFm
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AccountsUiState())
 
@@ -224,6 +297,7 @@ class AccountsViewModel @Inject constructor(
                     when (service) {
                         ExternalServiceAccount.JELLYFIN -> jellyfinRepository.logout()
                         ExternalServiceAccount.LISTENBRAINZ -> listenBrainzRepository.disconnect()
+                        ExternalServiceAccount.LASTFM -> lastFmRepository.disconnect()
                     }
                 }
             } finally {
@@ -249,6 +323,42 @@ class AccountsViewModel @Inject constructor(
 
     fun resetListenBrainzConnectState() {
         _listenBrainzConnectState.value = ListenBrainzConnectState.Idle
+    }
+
+    fun connectLastFm(username: String, password: String) {
+        if (_lastFmConnectState.value == LastFmConnectState.Connecting) return
+        viewModelScope.launch {
+            _lastFmConnectState.value = LastFmConnectState.Connecting
+            _lastFmConnectState.value = when (lastFmRepository.login(username, password)) {
+                is LastFmLoginResult.Success -> LastFmConnectState.Success
+                LastFmLoginResult.InvalidCredentials -> LastFmConnectState.Failed(invalidCredentials = true)
+                LastFmLoginResult.TransientError -> LastFmConnectState.Failed(invalidCredentials = false)
+            }
+        }
+    }
+
+    fun resetLastFmConnectState() {
+        _lastFmConnectState.value = LastFmConnectState.Idle
+    }
+
+    fun setLastFmScrobbleEnabled(enabled: Boolean) {
+        lastFmRepository.setScrobbleEnabled(enabled)
+    }
+
+    fun setLastFmNowPlayingEnabled(enabled: Boolean) {
+        lastFmRepository.setNowPlayingEnabled(enabled)
+    }
+
+    fun setLastFmScrobbleThresholds(
+        minimumTrackDurationSeconds: Int,
+        scrobbleDelayPercent: Int,
+        maxScrobbleDelaySeconds: Int
+    ) {
+        lastFmRepository.setScrobbleThresholds(
+            minimumTrackDurationSeconds,
+            scrobbleDelayPercent,
+            maxScrobbleDelaySeconds
+        )
     }
 
     fun setListenBrainzScrobbleLocal(enabled: Boolean) {

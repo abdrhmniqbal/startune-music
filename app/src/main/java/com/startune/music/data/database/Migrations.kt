@@ -207,6 +207,31 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
  * from Navidrome (`source_type = 5`), plus their cross-refs, favorites and lyrics.
  * Jellyfin (`source_type = 6`) is untouched.
  */
+/**
+ * v7 -> v8: Last.fm (Startune v2.0.0).
+ *
+ * Creates the pending-scrobble queue and adds the cached artist bio columns.
+ * Bio is fetched once through the proxy and stored here, so repeated artist
+ * views cost no proxy usage.
+ */
+val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `lastfm_pending_scrobbles` (" +
+                "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "`listened_at_ms` INTEGER NOT NULL, " +
+                "`track_name` TEXT NOT NULL, " +
+                "`artist_name` TEXT NOT NULL, " +
+                "`release_name` TEXT, " +
+                "`duration_ms` INTEGER, " +
+                "`attempts` INTEGER NOT NULL DEFAULT 0, " +
+                "`created_at_ms` INTEGER NOT NULL)"
+        )
+        db.execSQL("ALTER TABLE `artists` ADD COLUMN `bio` TEXT")
+        db.execSQL("ALTER TABLE `artists` ADD COLUMN `bio_updated_at_ms` INTEGER")
+    }
+}
+
 val MIGRATION_6_7 = object : Migration(6, 7) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("DELETE FROM song_artist_cross_ref WHERE song_id IN (SELECT id FROM songs WHERE source_type = 5)")

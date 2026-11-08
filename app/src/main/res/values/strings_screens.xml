@@ -311,6 +311,7 @@
     <string name="explore_section_new_releases">New releases</string>
     <string name="explore_section_new_releases_desc">Fresh drops &amp; latest albums</string>
     <string name="artist_popular_songs_title">Popular Songs</string>
+    <string name="artist_bio_title">Biography</string>
     <string name="artist_albums_title">Albums</string>
     <string name="artist_singles_eps_title">Singles &amp; EPs</string>
     <string name="action_see_all">See all</string>

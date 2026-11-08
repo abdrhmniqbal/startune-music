@@ -37,7 +37,10 @@ data class Artist(
     val name: String,
     val songCount: Int,
     val imageUrl: String? = null,
-    val customImageUri: String? = null
+    val customImageUri: String? = null,
+    /** Artist bio from Last.fm, cached in Room. */
+    val bio: String? = null,
+    val bioUpdatedAtMs: Long? = null
 ) : Parcelable {
     companion object {
         fun empty() = Artist(

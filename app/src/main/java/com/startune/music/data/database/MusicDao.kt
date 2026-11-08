@@ -192,7 +192,9 @@ interface MusicDao {
                 } else {
                     incoming.copy(
                         imageUrl = incoming.imageUrl ?: existing.imageUrl,
-                        customImageUri = incoming.customImageUri ?: existing.customImageUri
+                        customImageUri = incoming.customImageUri ?: existing.customImageUri,
+                        bio = incoming.bio ?: existing.bio,
+                        bioUpdatedAtMs = incoming.bioUpdatedAtMs ?: existing.bioUpdatedAtMs
                     )
                 }
             }
