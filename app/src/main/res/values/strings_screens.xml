@@ -328,10 +328,10 @@
     <string name="artist_albums_title">Albums</string>
     <string name="artist_singles_eps_title">Singles &amp; EPs</string>
     <string name="action_see_all">See all</string>
-    <string name="top_tracks_title">Top Tracks</string>
-    <string name="top_tracks_queue_name">Top Tracks</string>
-    <string name="top_tracks_empty_title">No top tracks in %1$s</string>
-    <string name="top_tracks_empty_subtitle">Change the range or play more songs to fill this list.</string>
+    <string name="top_songs_title">Top Songs</string>
+    <string name="top_songs_queue_name">Top Songs</string>
+    <string name="top_songs_empty_title">No top songs in %1$s</string>
+    <string name="top_songs_empty_subtitle">Change the range or play more songs to fill this list.</string>
     <string name="action_shuffle">Shuffle</string>
     <string name="action_shuffle_play">Shuffle Play</string>
     <string name="visibility_label">Visibility</string>
@@ -369,7 +369,7 @@
     <string name="recap_summary_journeys">Summary of your musical journeys.</string>
     <string name="recap_listening_time">Listening Time</string>
     <string name="recap_discovered_artists">Discovered Artists</string>
-    <string name="recap_play_top_tracks_now">Play Top Tracks Now</string>
+    <string name="recap_play_top_songs_now">Play Top Songs Now</string>
     <string name="recap_save_playlist">Save Playlist</string>
     <string name="recap_share_recap">Share Recap</string>
     <string name="about_donate_support_title">Donate for Support</string>

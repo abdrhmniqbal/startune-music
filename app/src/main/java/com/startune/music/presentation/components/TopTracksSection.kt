@@ -81,7 +81,7 @@ fun TopTracksSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.top_tracks_title),
+                    text = stringResource(R.string.top_songs_title),
                     style = MaterialTheme.typography.titleLargeEmphasized,
                     fontWeight = FontWeight.SemiBold,
                     color = contentColor

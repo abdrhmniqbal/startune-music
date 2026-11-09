@@ -93,7 +93,7 @@ fun TopTracksScreen(
     statsViewModel: StatsViewModel = hiltViewModel(),
     navController: NavController
 ) = traceSection("TopTracksScreen.Composition") {
-    val queueTopTracks = stringResource(R.string.top_tracks_queue_name)
+    val queueTopTracks = stringResource(R.string.top_songs_queue_name)
     val uiState by statsViewModel.uiState.collectAsStateWithLifecycle()
     val selectedRange = uiState.selectedRange
     val topTracks = uiState.topTracks
@@ -163,7 +163,7 @@ fun TopTracksScreen(
             ) {
                 item(key = "top_tracks_header") {
                     TopTracksHeader(
-                        title = stringResource(R.string.top_tracks_title),
+                        title = stringResource(R.string.top_songs_title),
                         scrollState = lazyListState,
                         onPlay = if (queueSongs.isNotEmpty()) {
                             {
@@ -476,14 +476,14 @@ private fun TopTracksEmptyState(
         ) {
             Text(
                 text = stringResource(
-                    R.string.top_tracks_empty_title,
+                    R.string.top_songs_empty_title,
                     range.displayName.lowercase()
                 ),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                text = stringResource(R.string.top_tracks_empty_subtitle),
+                text = stringResource(R.string.top_songs_empty_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

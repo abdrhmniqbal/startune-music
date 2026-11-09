@@ -356,7 +356,7 @@
     <string name="recap_summary_journeys">Sammendrag av dine musikalske reiser.</string>
     <string name="recap_listening_time">Lyttetid</string>
     <string name="recap_discovered_artists">Oppdagede artister</string>
-    <string name="recap_play_top_tracks_now">Spill topplåter nå</string>
+    <string name="recap_play_top_songs_now">Spill topplåter nå</string>
     <string name="recap_save_playlist">Lagre spilleliste</string>
     <string name="recap_share_recap">Del Recap</string>
     <string name="about_donate_support_title">Doner for å støtte</string>

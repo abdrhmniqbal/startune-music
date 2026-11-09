@@ -356,7 +356,7 @@
     <string name="recap_summary_journeys">您的音乐之旅摘要。</string>
     <string name="recap_listening_time">收听时长</string>
     <string name="recap_discovered_artists">发现的艺术家</string>
-    <string name="recap_play_top_tracks_now">立即播放热门曲目</string>
+    <string name="recap_play_top_songs_now">立即播放热门曲目</string>
     <string name="recap_save_playlist">保存播放列表</string>
     <string name="recap_share_recap">分享回顾</string>
     <string name="about_donate_support_title">赞助支持</string>

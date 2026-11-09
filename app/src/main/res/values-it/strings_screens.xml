@@ -356,7 +356,7 @@
     <string name="recap_summary_journeys">Riepilogo dei tuoi viaggi musicali.</string>
     <string name="recap_listening_time">Tempo di ascolto</string>
     <string name="recap_discovered_artists">Artisti scoperti</string>
-    <string name="recap_play_top_tracks_now">Riproduci i migliori brani ora</string>
+    <string name="recap_play_top_songs_now">Riproduci i migliori brani ora</string>
     <string name="recap_save_playlist">Salva playlist</string>
     <string name="recap_share_recap">Condividi Recap</string>
     <string name="about_donate_support_title">Dona per supportare</string>

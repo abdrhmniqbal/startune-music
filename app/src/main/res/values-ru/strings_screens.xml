@@ -357,7 +357,7 @@
     <string name="recap_summary_journeys">Итоги ваших музыкальных путешествий.</string>
     <string name="recap_listening_time">Время прослушивания</string>
     <string name="recap_discovered_artists">Открытые исполнители</string>
-    <string name="recap_play_top_tracks_now">Слушать топ-треки сейчас</string>
+    <string name="recap_play_top_songs_now">Слушать топ-треки сейчас</string>
     <string name="recap_save_playlist">Сохранить плейлист</string>
     <string name="recap_share_recap">Поделиться Recap</string>
     <string name="about_donate_support_title">Поддержать разработчика</string>
