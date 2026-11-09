@@ -130,7 +130,8 @@ import androidx.compose.ui.res.stringResource
 
 private data class SearchUiSlice(
     val selectedSearchFilter: SearchFilterType = SearchFilterType.ALL,
-    val searchResults: ImmutableList<SearchResultItem> = persistentListOf()
+    val searchResults: ImmutableList<SearchResultItem> = persistentListOf(),
+    val searchHistory: ImmutableList<SearchHistoryItem> = persistentListOf()
 )
 
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -156,7 +157,8 @@ fun SearchScreen(
             .map { uiState ->
                 SearchUiSlice(
                     selectedSearchFilter = uiState.selectedSearchFilter,
-                    searchResults = uiState.searchResults
+                    searchResults = uiState.searchResults,
+                    searchHistory = uiState.searchHistory
                 )
             }
             .distinctUntilChanged()
@@ -377,7 +379,18 @@ fun SearchScreen(
                     animationSpec = tween(durationMillis = 190),
                     label = "search_results_fade"
                 ) { isEmpty ->
-                    if (isEmpty) {
+                    if (isEmpty && searchQuery.isBlank() && searchUiState.searchHistory.isNotEmpty()) {
+                        SearchHistoryList(
+                            historyItems = searchUiState.searchHistory,
+                            onHistoryClick = { query ->
+                                searchQuery = query
+                                playerViewModel.updateSearchQuery(query)
+                                playerViewModel.onSearchQuerySubmitted(query)
+                            },
+                            onHistoryDelete = { playerViewModel.deleteSearchHistoryItem(it) },
+                            onClearAllHistory = { playerViewModel.clearSearchHistory() }
+                        )
+                    } else if (isEmpty) {
                         EmptySearchResults(
                             searchQuery = searchQuery,
                             colorScheme = colorScheme

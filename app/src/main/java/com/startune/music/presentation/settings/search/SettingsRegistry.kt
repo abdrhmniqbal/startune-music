@@ -778,6 +778,26 @@ object SettingsRegistry {
                 type = SettingType.NAVIGABLE_CARD,
                 keywordsStatic = listOf("crash", "log", "logs", "share", "bug report")
             ),
+            SettingSpec(
+                id = "developer_clear_listening_history",
+                itemKey = "item_developer_clear_listening_history",
+                titleRes = R.string.setcat_clear_listening_history_title,
+                subtitleRes = R.string.setcat_clear_listening_history_subtitle,
+                category = SettingsCategory.DEVELOPER,
+                subscreenRoute = Screen.SettingsCategory.createRoute("developer"),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("listening", "history", "clear", "reset", "plays")
+            ),
+            SettingSpec(
+                id = "developer_clear_search_history",
+                itemKey = "item_developer_clear_search_history",
+                titleRes = R.string.setcat_clear_search_history_title,
+                subtitleRes = R.string.setcat_clear_search_history_subtitle,
+                category = SettingsCategory.DEVELOPER,
+                subscreenRoute = Screen.SettingsCategory.createRoute("developer"),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("search", "history", "clear", "reset", "recent")
+            ),
 
             // --- EQUALIZER & DEVICE ---
             SettingSpec(

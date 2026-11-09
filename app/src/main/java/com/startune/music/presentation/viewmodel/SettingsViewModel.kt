@@ -8,6 +8,8 @@ import com.startune.music.data.backup.BackupManager
 import com.startune.music.data.backup.format.BackupEncryptedException
 import com.startune.music.data.backup.format.BackupWrongPassphraseException
 import com.startune.music.data.backup.model.BackupSection
+import com.startune.music.data.database.MusicDao
+import com.startune.music.data.stats.PlaybackStatsRepository
 import com.startune.music.data.backup.model.BackupOperationType
 import com.startune.music.data.backup.model.BackupTransferProgressUpdate
 import com.startune.music.data.backup.model.BackupHistoryEntry
@@ -206,6 +208,9 @@ class SettingsViewModel @Inject constructor(
     private val lyricsRepository: LyricsRepository,
     private val musicRepository: MusicRepository,
     private val backupManager: BackupManager,
+    private val searchStateHolder: SearchStateHolder,
+    private val playbackStatsRepository: PlaybackStatsRepository,
+    private val musicDao: MusicDao,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -1064,6 +1069,19 @@ class SettingsViewModel @Inject constructor(
     fun resetSetupFlow() {
         viewModelScope.launch {
             userPreferencesRepository.setInitialSetupDone(false)
+        }
+    }
+
+    fun clearSearchHistory() {
+        searchStateHolder.clearSearchHistory()
+    }
+
+    fun clearListeningHistory() {
+        viewModelScope.launch {
+            runCatching {
+                playbackStatsRepository.clearHistory()
+                musicDao.resetAllPlayCounts()
+            }
         }
     }
 
