@@ -3245,7 +3245,7 @@ fun ArtistListItem(
                     Box(
                         modifier = Modifier
                             .size(48.dp)
-                            .clip(ShapeCache.expressiveAvatar)
+                            .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primaryContainer),
                         contentAlignment = Alignment.Center
                     ) {
@@ -3332,7 +3332,7 @@ fun ArtistGridItem(
                     modifier = Modifier
                         .aspectRatio(1f)
                         .fillMaxSize()
-                        .clip(ShapeCache.expressiveAvatar)
+                        .clip(CircleShape)
                 )
                 Column(
                     modifier = Modifier
@@ -3394,7 +3394,7 @@ fun ArtistGridItem(
                         contentDescription = artist.name,
                         contentScale = ContentScale.Crop,
                         targetSize = Size(256, 256),
-                        shape = ShapeCache.expressiveAvatar,
+                        shape = CircleShape,
                         modifier = Modifier
                             .aspectRatio(1f)
                             .fillMaxSize()

@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -83,7 +84,6 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.util.lerp
-import com.startune.music.ui.theme.ShapeCache
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -460,7 +460,7 @@ fun GenreDetailScreen(
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                                 imageAspectRatio = 1f,
-                                imageShape = ShapeCache.expressiveAvatar
+                                imageShape = CircleShape
                             )
                         }
                     }
@@ -1068,7 +1068,7 @@ private fun GenreArtistsSection(
                     onClick = { onArtistClick(artist) },
                     modifier = Modifier.width(GenreGridCardWidth),
                     imageAspectRatio = 1f,
-                    imageShape = ShapeCache.expressiveAvatar
+                    imageShape = CircleShape
                 )
             }
         }
