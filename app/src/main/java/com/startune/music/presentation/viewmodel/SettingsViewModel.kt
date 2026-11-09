@@ -68,6 +68,7 @@ data class SettingsUiState(
     val libraryNavigationMode: String = LibraryNavigationMode.TAB_ROW,
     val launchTab: String = LaunchTab.HOME,
     val keepPlayingInBackground: Boolean = true,
+    val restoreLastPosition: Boolean = true,
     val keepScreenAwakeWhilePlaying: Boolean = false,
     val resumeOnHeadsetReconnect: Boolean = false,
     val showQueueHistory: Boolean = true,
@@ -168,7 +169,8 @@ private sealed interface SettingsUiUpdate {
         val immersiveLyricsTimeout: Long,
         val animatedLyricsBlurEnabled: Boolean,
         val animatedLyricsBlurStrength: Float,
-        val playedThresholdPercent: Int
+        val playedThresholdPercent: Int,
+        val restoreLastPosition: Boolean
     ) : SettingsUiUpdate
 }
 
@@ -328,7 +330,8 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.immersiveLyricsTimeoutFlow,
                 userPreferencesRepository.animatedLyricsBlurEnabledFlow,
                 userPreferencesRepository.animatedLyricsBlurStrengthFlow,
-                userPreferencesRepository.playedThresholdPercentFlow
+                userPreferencesRepository.playedThresholdPercentFlow,
+                userPreferencesRepository.restoreLastPositionFlow
             ) { values ->
                 val requestedAudioOutputMode = values[4] as AudioOutputMode
                 SettingsUiUpdate.Group2(
@@ -355,7 +358,8 @@ class SettingsViewModel @Inject constructor(
                     immersiveLyricsTimeout = values[13] as Long,
                     animatedLyricsBlurEnabled = values[14] as Boolean,
                     animatedLyricsBlurStrength = values[15] as Float,
-                    playedThresholdPercent = values[16] as Int
+                    playedThresholdPercent = values[16] as Int,
+                    restoreLastPosition = values[17] as Boolean
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -376,7 +380,8 @@ class SettingsViewModel @Inject constructor(
                         immersiveLyricsTimeout = update.immersiveLyricsTimeout,
                         animatedLyricsBlurEnabled = update.animatedLyricsBlurEnabled,
                         animatedLyricsBlurStrength = update.animatedLyricsBlurStrength,
-                        playedThresholdPercent = update.playedThresholdPercent
+                        playedThresholdPercent = update.playedThresholdPercent,
+                        restoreLastPosition = update.restoreLastPosition
                     )
                 }
             }
@@ -657,6 +662,12 @@ class SettingsViewModel @Inject constructor(
     fun setKeepPlayingInBackground(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setKeepPlayingInBackground(enabled)
+        }
+    }
+
+    fun setRestoreLastPosition(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setRestoreLastPosition(enabled)
         }
     }
 

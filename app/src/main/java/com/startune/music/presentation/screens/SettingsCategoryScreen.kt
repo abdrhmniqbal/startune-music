@@ -875,6 +875,25 @@ fun SettingsCategoryScreen(
                                         highlightKey,
                                     ),
                                 )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_restore_last_position_title),
+                                    subtitle = stringResource(R.string.setcat_restore_last_position_subtitle),
+                                    checked = uiState.restoreLastPosition,
+                                    onCheckedChange = {
+                                        settingsViewModel.setRestoreLastPosition(it)
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Rounded.Restore,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary,
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight(
+                                        "item_playback_restore_last_position",
+                                        highlightKey,
+                                    ),
+                                )
                             }
 
                             SettingsSubsection(title = stringResource(R.string.setcat_replaygain_section)) {

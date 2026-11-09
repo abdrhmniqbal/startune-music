@@ -384,6 +384,18 @@ object SettingsRegistry {
                 onToggle = { viewModel, checked -> viewModel.setKeepPlayingInBackground(checked) }
             ),
             SettingSpec(
+                id = "playback_restore_last_position",
+                itemKey = "item_playback_restore_last_position",
+                titleRes = R.string.setcat_restore_last_position_title,
+                subtitleRes = R.string.setcat_restore_last_position_subtitle,
+                category = SettingsCategory.PLAYBACK,
+                subscreenRoute = Screen.SettingsCategory.createRoute("playback"),
+                type = SettingType.SWITCH,
+                keywordsStatic = listOf("restore", "last position", "resume", "reopen", "continue where you left off"),
+                getValue = { it.restoreLastPosition },
+                onToggle = { viewModel, checked -> viewModel.setRestoreLastPosition(checked) }
+            ),
+            SettingSpec(
                 id = "playback_keep_screen_awake",
                 itemKey = "item_playback_keep_screen_awake",
                 titleRes = R.string.setcat_keep_screen_awake_title,
