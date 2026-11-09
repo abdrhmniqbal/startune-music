@@ -163,6 +163,7 @@ fun PlaylistDetailScreen(
     val fallbackPlaylistName = stringResource(R.string.shortcut_playlist_short)
     val sortSongsLabel = stringResource(R.string.presentation_batch_b_sort_songs)
     val moreOptionsLabel = stringResource(R.string.presentation_batch_b_more_options)
+    val confirmLabel = stringResource(R.string.confirm)
     val playItLabel = stringResource(R.string.presentation_batch_b_play_it)
     val shuffleLabel = stringResource(R.string.shortcut_shuffle_short)
     val addSongsCd = stringResource(R.string.presentation_batch_b_add_songs)
@@ -331,8 +332,20 @@ fun PlaylistDetailScreen(
                                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                                 contentColor = MaterialTheme.colorScheme.onSurface
                             ),
-                            onClick = { showPlaylistOptionsSheet = true }
-                        ) { Icon(Icons.Filled.MoreVert, moreOptionsLabel) }
+                            onClick = {
+                                if (isReorderModeEnabled) {
+                                    isReorderModeEnabled = false
+                                } else {
+                                    showPlaylistOptionsSheet = true
+                                }
+                            }
+                        ) {
+                            if (isReorderModeEnabled) {
+                                Icon(Icons.Rounded.Check, confirmLabel)
+                            } else {
+                                Icon(Icons.Filled.MoreVert, moreOptionsLabel)
+                            }
+                        }
                     }
                 },
                 scrollBehavior = scrollBehavior
@@ -678,7 +691,6 @@ fun PlaylistDetailScreen(
                     PlaylistActionItem(
                         icon = painterResource(R.drawable.drag_order_icon),
                         label = reorderSongsCd,
-                        selected = isReorderModeEnabled,
                         onClick = {
                             showPlaylistOptionsSheet = false
                             isReorderModeEnabled = !isReorderModeEnabled
