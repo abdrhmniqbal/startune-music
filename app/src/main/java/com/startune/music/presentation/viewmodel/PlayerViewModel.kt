@@ -1635,6 +1635,7 @@ class PlayerViewModel @Inject constructor(
                 try {
                     mediaController = mediaControllerFuture.get()
                     playbackStateHolder.setMediaController(mediaController)
+                    maybeResumeOnReopen()
                     _isMediaControllerReady.value = true
 
 
@@ -1765,6 +1766,26 @@ class PlayerViewModel @Inject constructor(
             checkAndUpdateDailyMixIfNeeded()
         } finally {
             Trace.endSection()
+        }
+    }
+
+    private var appWasBackgrounded = false
+
+    fun noteAppBackgrounded() {
+        appWasBackgrounded = true
+    }
+
+    fun maybeResumeOnReopen() {
+        if (!appWasBackgrounded) return
+        appWasBackgrounded = false
+        viewModelScope.launch {
+            if (!userPreferencesRepository.resumeOnReopenFlow.first()) return@launch
+            val controller = playbackStateHolder.mediaController ?: return@launch
+            if (controller.mediaItemCount == 0 || controller.isPlaying) return@launch
+            val snapshot = userPreferencesRepository.getPlaybackQueueSnapshotOnce()
+            if (snapshot?.playWhenReady == true) {
+                controller.play()
+            }
         }
     }
 

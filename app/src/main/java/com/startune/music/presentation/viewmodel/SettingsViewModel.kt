@@ -69,6 +69,16 @@ data class SettingsUiState(
     val launchTab: String = LaunchTab.HOME,
     val keepPlayingInBackground: Boolean = true,
     val restoreLastPosition: Boolean = true,
+    val fadePlayPauseStop: Boolean = true,
+    val fadeOnSeek: Boolean = false,
+    val resumeAfterCall: Boolean = true,
+    val resumeOnStart: Boolean = false,
+    val resumeOnReopen: Boolean = false,
+    val ignoreShortFocusLoss: Boolean = false,
+    val pauseInCall: Boolean = true,
+    val resumeOnFocusGain: Boolean = true,
+    val duckVolume: Boolean = true,
+    val respectPermanentFocusLoss: Boolean = true,
     val keepScreenAwakeWhilePlaying: Boolean = false,
     val resumeOnHeadsetReconnect: Boolean = false,
     val showQueueHistory: Boolean = true,
@@ -170,7 +180,17 @@ private sealed interface SettingsUiUpdate {
         val animatedLyricsBlurEnabled: Boolean,
         val animatedLyricsBlurStrength: Float,
         val playedThresholdPercent: Int,
-        val restoreLastPosition: Boolean
+        val restoreLastPosition: Boolean,
+        val fadePlayPauseStop: Boolean,
+        val fadeOnSeek: Boolean,
+        val resumeAfterCall: Boolean,
+        val resumeOnStart: Boolean,
+        val resumeOnReopen: Boolean,
+        val ignoreShortFocusLoss: Boolean,
+        val pauseInCall: Boolean,
+        val resumeOnFocusGain: Boolean,
+        val duckVolume: Boolean,
+        val respectPermanentFocusLoss: Boolean,
     ) : SettingsUiUpdate
 }
 
@@ -331,7 +351,17 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.animatedLyricsBlurEnabledFlow,
                 userPreferencesRepository.animatedLyricsBlurStrengthFlow,
                 userPreferencesRepository.playedThresholdPercentFlow,
-                userPreferencesRepository.restoreLastPositionFlow
+                userPreferencesRepository.restoreLastPositionFlow,
+                userPreferencesRepository.fadePlayPauseStopFlow,
+                userPreferencesRepository.fadeOnSeekFlow,
+                userPreferencesRepository.resumeAfterCallFlow,
+                userPreferencesRepository.resumeOnStartFlow,
+                userPreferencesRepository.resumeOnReopenFlow,
+                userPreferencesRepository.ignoreShortFocusLossFlow,
+                userPreferencesRepository.pauseInCallFlow,
+                userPreferencesRepository.resumeOnFocusGainFlow,
+                userPreferencesRepository.duckVolumeFlow,
+                userPreferencesRepository.respectPermanentFocusLossFlow,
             ) { values ->
                 val requestedAudioOutputMode = values[4] as AudioOutputMode
                 SettingsUiUpdate.Group2(
@@ -359,7 +389,17 @@ class SettingsViewModel @Inject constructor(
                     animatedLyricsBlurEnabled = values[14] as Boolean,
                     animatedLyricsBlurStrength = values[15] as Float,
                     playedThresholdPercent = values[16] as Int,
-                    restoreLastPosition = values[17] as Boolean
+                    restoreLastPosition = values[17] as Boolean,
+                    fadePlayPauseStop = values[18] as Boolean,
+                    fadeOnSeek = values[19] as Boolean,
+                    resumeAfterCall = values[20] as Boolean,
+                    resumeOnStart = values[21] as Boolean,
+                    resumeOnReopen = values[22] as Boolean,
+                    ignoreShortFocusLoss = values[23] as Boolean,
+                    pauseInCall = values[24] as Boolean,
+                    resumeOnFocusGain = values[25] as Boolean,
+                    duckVolume = values[26] as Boolean,
+                    respectPermanentFocusLoss = values[27] as Boolean,
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -381,7 +421,17 @@ class SettingsViewModel @Inject constructor(
                         animatedLyricsBlurEnabled = update.animatedLyricsBlurEnabled,
                         animatedLyricsBlurStrength = update.animatedLyricsBlurStrength,
                         playedThresholdPercent = update.playedThresholdPercent,
-                        restoreLastPosition = update.restoreLastPosition
+                        restoreLastPosition = update.restoreLastPosition,
+                        fadePlayPauseStop = update.fadePlayPauseStop,
+                        fadeOnSeek = update.fadeOnSeek,
+                        resumeAfterCall = update.resumeAfterCall,
+                        resumeOnStart = update.resumeOnStart,
+                        resumeOnReopen = update.resumeOnReopen,
+                        ignoreShortFocusLoss = update.ignoreShortFocusLoss,
+                        pauseInCall = update.pauseInCall,
+                        resumeOnFocusGain = update.resumeOnFocusGain,
+                        duckVolume = update.duckVolume,
+                        respectPermanentFocusLoss = update.respectPermanentFocusLoss,
                     )
                 }
             }
@@ -668,6 +718,66 @@ class SettingsViewModel @Inject constructor(
     fun setRestoreLastPosition(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setRestoreLastPosition(enabled)
+        }
+    }
+
+    fun setFadePlayPauseStop(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setFadePlayPauseStop(enabled)
+        }
+    }
+
+    fun setFadeOnSeek(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setFadeOnSeek(enabled)
+        }
+    }
+
+    fun setResumeAfterCall(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setResumeAfterCall(enabled)
+        }
+    }
+
+    fun setResumeOnStart(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setResumeOnStart(enabled)
+        }
+    }
+
+    fun setResumeOnReopen(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setResumeOnReopen(enabled)
+        }
+    }
+
+    fun setIgnoreShortFocusLoss(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setIgnoreShortFocusLoss(enabled)
+        }
+    }
+
+    fun setPauseInCall(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setPauseInCall(enabled)
+        }
+    }
+
+    fun setResumeOnFocusGain(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setResumeOnFocusGain(enabled)
+        }
+    }
+
+    fun setDuckVolume(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setDuckVolume(enabled)
+        }
+    }
+
+    fun setRespectPermanentFocusLoss(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setRespectPermanentFocusLoss(enabled)
         }
     }
 

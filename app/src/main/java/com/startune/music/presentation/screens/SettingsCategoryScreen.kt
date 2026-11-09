@@ -896,6 +896,201 @@ fun SettingsCategoryScreen(
                                 )
                             }
 
+                            SettingsSubsection(title = stringResource(R.string.setcat_audio_focus)) {
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_pause_in_call_title),
+                                    subtitle = stringResource(R.string.setcat_pause_in_call_subtitle),
+                                    checked = uiState.pauseInCall,
+                                    onCheckedChange = {
+                                        settingsViewModel.setPauseInCall(it)
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Outlined.Person,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary,
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight(
+                                        "item_playback_pause_in_call",
+                                        highlightKey,
+                                    ),
+                                )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_resume_after_call_title),
+                                    subtitle = stringResource(R.string.setcat_resume_after_call_subtitle),
+                                    checked = uiState.resumeAfterCall,
+                                    onCheckedChange = {
+                                        settingsViewModel.setResumeAfterCall(it)
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Rounded.Restore,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary,
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight(
+                                        "item_playback_resume_after_call",
+                                        highlightKey,
+                                    ),
+                                )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_resume_on_focus_gain_title),
+                                    subtitle = stringResource(R.string.setcat_resume_on_focus_gain_subtitle),
+                                    checked = uiState.resumeOnFocusGain,
+                                    onCheckedChange = {
+                                        settingsViewModel.setResumeOnFocusGain(it)
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Rounded.Restore,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary,
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight(
+                                        "item_playback_resume_on_focus_gain",
+                                        highlightKey,
+                                    ),
+                                )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_duck_volume_title),
+                                    subtitle = stringResource(R.string.setcat_duck_volume_subtitle),
+                                    checked = uiState.duckVolume,
+                                    onCheckedChange = {
+                                        settingsViewModel.setDuckVolume(it)
+                                    },
+                                    leadingIcon = {
+                                        Icon(painterResource(R.drawable.rounded_volume_down_24), null, tint = MaterialTheme.colorScheme.secondary)
+                                    },
+                                    modifier = Modifier.settingHighlight(
+                                        "item_playback_duck_volume",
+                                        highlightKey,
+                                    ),
+                                )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_respect_permanent_focus_loss_title),
+                                    subtitle = stringResource(R.string.setcat_respect_permanent_focus_loss_subtitle),
+                                    checked = uiState.respectPermanentFocusLoss,
+                                    onCheckedChange = {
+                                        settingsViewModel.setRespectPermanentFocusLoss(it)
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Outlined.Warning,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary,
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight(
+                                        "item_playback_respect_permanent_focus_loss",
+                                        highlightKey,
+                                    ),
+                                )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_ignore_short_focus_loss_title),
+                                    subtitle = stringResource(R.string.setcat_ignore_short_focus_loss_subtitle),
+                                    checked = uiState.ignoreShortFocusLoss,
+                                    onCheckedChange = {
+                                        settingsViewModel.setIgnoreShortFocusLoss(it)
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Rounded.Timer,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary,
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight(
+                                        "item_playback_ignore_short_focus_loss",
+                                        highlightKey,
+                                    ),
+                                )
+                            }
+
+                            SettingsSubsection(title = stringResource(R.string.setcat_resume_behavior)) {
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_resume_on_start_title),
+                                    subtitle = stringResource(R.string.setcat_resume_on_start_subtitle),
+                                    checked = uiState.resumeOnStart,
+                                    onCheckedChange = {
+                                        settingsViewModel.setResumeOnStart(it)
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Outlined.PlayCircle,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary,
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight(
+                                        "item_playback_resume_on_start",
+                                        highlightKey,
+                                    ),
+                                )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_resume_on_reopen_title),
+                                    subtitle = stringResource(R.string.setcat_resume_on_reopen_subtitle),
+                                    checked = uiState.resumeOnReopen,
+                                    onCheckedChange = {
+                                        settingsViewModel.setResumeOnReopen(it)
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Rounded.Restore,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary,
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight(
+                                        "item_playback_resume_on_reopen",
+                                        highlightKey,
+                                    ),
+                                )
+                            }
+
+                            SettingsSubsection(title = stringResource(R.string.setcat_volume_transitions)) {
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_fade_play_pause_stop_title),
+                                    subtitle = stringResource(R.string.setcat_fade_play_pause_stop_subtitle),
+                                    checked = uiState.fadePlayPauseStop,
+                                    onCheckedChange = {
+                                        settingsViewModel.setFadePlayPauseStop(it)
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Rounded.MusicNote,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary,
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight(
+                                        "item_playback_fade_play_pause_stop",
+                                        highlightKey,
+                                    ),
+                                )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_fade_on_seek_title),
+                                    subtitle = stringResource(R.string.setcat_fade_on_seek_subtitle),
+                                    checked = uiState.fadeOnSeek,
+                                    onCheckedChange = {
+                                        settingsViewModel.setFadeOnSeek(it)
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Rounded.MusicNote,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary,
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight(
+                                        "item_playback_fade_on_seek",
+                                        highlightKey,
+                                    ),
+                                )
+                            }
+
                             SettingsSubsection(title = stringResource(R.string.setcat_replaygain_section)) {
                                 SwitchSettingItem(
                                     title = stringResource(R.string.setcat_replaygain_enable_title),

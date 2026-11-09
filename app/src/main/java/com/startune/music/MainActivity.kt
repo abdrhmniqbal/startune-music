@@ -1098,6 +1098,9 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         LogUtils.d(this, "onStop")
+        if (!isChangingConfigurations) {
+            playerViewModel.noteAppBackgrounded()
+        }
         mediaControllerFuture?.let {
             MediaController.releaseFuture(it)
         }

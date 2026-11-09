@@ -146,6 +146,16 @@ constructor(
         val USE_SMOOTH_CORNERS = booleanPreferencesKey("use_smooth_corners")
         val KEEP_PLAYING_IN_BACKGROUND = booleanPreferencesKey("keep_playing_in_background")
         val RESTORE_LAST_POSITION = booleanPreferencesKey("restore_last_position")
+        val FADE_PLAY_PAUSE_STOP = booleanPreferencesKey("fade_play_pause_stop")
+        val FADE_ON_SEEK = booleanPreferencesKey("fade_on_seek")
+        val RESUME_AFTER_CALL = booleanPreferencesKey("resume_after_call")
+        val RESUME_ON_START = booleanPreferencesKey("resume_on_start")
+        val RESUME_ON_REOPEN = booleanPreferencesKey("resume_on_reopen")
+        val IGNORE_SHORT_FOCUS_LOSS = booleanPreferencesKey("ignore_short_focus_loss")
+        val PAUSE_IN_CALL = booleanPreferencesKey("pause_in_call")
+        val RESUME_ON_FOCUS_GAIN = booleanPreferencesKey("resume_on_focus_gain")
+        val DUCK_VOLUME = booleanPreferencesKey("duck_volume")
+        val RESPECT_PERMANENT_FOCUS_LOSS = booleanPreferencesKey("respect_permanent_focus_loss")
         val KEEP_SCREEN_AWAKE_WHILE_PLAYING =
                 booleanPreferencesKey("keep_screen_awake_while_playing")
         val IS_CROSSFADE_ENABLED = booleanPreferencesKey("is_crossfade_enabled")
@@ -971,6 +981,56 @@ constructor(
                 preferences[PreferencesKeys.RESTORE_LAST_POSITION] ?: true
             }
 
+    val fadePlayPauseStopFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.FADE_PLAY_PAUSE_STOP] ?: true
+            }
+
+    val fadeOnSeekFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.FADE_ON_SEEK] ?: false
+            }
+
+    val resumeAfterCallFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.RESUME_AFTER_CALL] ?: true
+            }
+
+    val resumeOnStartFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.RESUME_ON_START] ?: false
+            }
+
+    val resumeOnReopenFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.RESUME_ON_REOPEN] ?: false
+            }
+
+    val ignoreShortFocusLossFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.IGNORE_SHORT_FOCUS_LOSS] ?: false
+            }
+
+    val pauseInCallFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.PAUSE_IN_CALL] ?: true
+            }
+
+    val resumeOnFocusGainFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.RESUME_ON_FOCUS_GAIN] ?: true
+            }
+
+    val duckVolumeFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.DUCK_VOLUME] ?: true
+            }
+
+    val respectPermanentFocusLossFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.RESPECT_PERMANENT_FOCUS_LOSS] ?: true
+            }
+
     val keepScreenAwakeWhilePlayingFlow: Flow<Boolean> =
             dataStore.data.map { preferences ->
                 preferences[PreferencesKeys.KEEP_SCREEN_AWAKE_WHILE_PLAYING] ?: false
@@ -1447,6 +1507,66 @@ constructor(
     suspend fun setRestoreLastPosition(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.RESTORE_LAST_POSITION] = enabled
+        }
+    }
+
+    suspend fun setFadePlayPauseStop(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.FADE_PLAY_PAUSE_STOP] = enabled
+        }
+    }
+
+    suspend fun setFadeOnSeek(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.FADE_ON_SEEK] = enabled
+        }
+    }
+
+    suspend fun setResumeAfterCall(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.RESUME_AFTER_CALL] = enabled
+        }
+    }
+
+    suspend fun setResumeOnStart(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.RESUME_ON_START] = enabled
+        }
+    }
+
+    suspend fun setResumeOnReopen(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.RESUME_ON_REOPEN] = enabled
+        }
+    }
+
+    suspend fun setIgnoreShortFocusLoss(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IGNORE_SHORT_FOCUS_LOSS] = enabled
+        }
+    }
+
+    suspend fun setPauseInCall(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PAUSE_IN_CALL] = enabled
+        }
+    }
+
+    suspend fun setResumeOnFocusGain(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.RESUME_ON_FOCUS_GAIN] = enabled
+        }
+    }
+
+    suspend fun setDuckVolume(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.DUCK_VOLUME] = enabled
+        }
+    }
+
+    suspend fun setRespectPermanentFocusLoss(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.RESPECT_PERMANENT_FOCUS_LOSS] = enabled
         }
     }
 
