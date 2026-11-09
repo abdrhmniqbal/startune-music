@@ -32,6 +32,7 @@ import com.startune.music.data.database.MIGRATION_4_5
 import com.startune.music.data.database.MIGRATION_5_6
 import com.startune.music.data.database.MIGRATION_6_7
 import com.startune.music.data.database.MIGRATION_7_8
+import com.startune.music.data.database.MIGRATION_8_9
 import com.startune.music.data.database.MusicDao
 import com.startune.music.data.database.OfflineTrackDao
 import com.startune.music.data.database.StartuneDatabase
@@ -144,6 +145,7 @@ object AppModule {
                 MIGRATION_5_6,
                 MIGRATION_6_7,
                 MIGRATION_7_8,
+                MIGRATION_8_9,
             )
             .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
 

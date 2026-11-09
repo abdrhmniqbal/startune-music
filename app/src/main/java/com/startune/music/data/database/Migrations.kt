@@ -232,6 +232,20 @@ val MIGRATION_7_8 = object : Migration(7, 8) {
     }
 }
 
+/**
+ * v8 -> v9: Play-count sort (Startune v2.0.0).
+ *
+ * Adds the all-time play-count column on songs. It is seeded once from
+ * playback_history.json by ListeningStatsTracker and incremented on every
+ * counted play, so the library and playlist lists can sort by play count
+ * through the DAO instead of loading the whole history into memory.
+ */
+val MIGRATION_8_9 = object : Migration(8, 9) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `songs` ADD COLUMN `play_count` INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
 val MIGRATION_6_7 = object : Migration(6, 7) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("DELETE FROM song_artist_cross_ref WHERE song_id IN (SELECT id FROM songs WHERE source_type = 5)")
