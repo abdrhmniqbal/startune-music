@@ -594,7 +594,7 @@ fun ArtistDetailScreen(
                     if (showSortSheet) {
                         LibrarySortBottomSheet(
                             title = stringResource(R.string.presentation_batch_d_sort_by),
-                            options = SortOption.SONGS_IN_MEMORY.toImmutableList(),
+                            options = SortOption.SONGS.toImmutableList(),
                             selectedOption = trackSortOption,
                             onDismiss = { showSortSheet = false },
                             onOptionSelected = {
