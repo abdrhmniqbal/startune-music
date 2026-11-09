@@ -781,9 +781,9 @@ fun ArtistDetailScreen(
 
     if (showArtworkSheet) {
         ArtistArtworkSheet(
-            artistName = artist.name,
+            artistName = uiState.artist?.name ?: "",
             currentArtworkUrl = uiState.effectiveImageUrl,
-            hasCustomImage = !artist.customImageUri.isNullOrBlank(),
+            hasCustomImage = !uiState.artist?.customImageUri.isNullOrBlank(),
             viewModel = viewModel,
             onDismiss = { showArtworkSheet = false },
             onPickCustomPhoto = { imagePickerLauncher.launch("image/*") }
