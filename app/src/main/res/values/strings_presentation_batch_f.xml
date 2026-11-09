@@ -8,7 +8,7 @@
     <string name="presentation_batch_f_rebuild_database">Rebuild Database</string>
     <string name="presentation_batch_f_sync_phase_preparing">Preparing sync</string>
     <string name="presentation_batch_f_sync_phase_reading_mediastore">Reading MediaStore</string>
-    <string name="presentation_batch_f_sync_phase_processing_tracks">Processing tracks</string>
+    <string name="presentation_batch_f_sync_phase_processing_tracks">Processing songs</string>
     <string name="presentation_batch_f_sync_phase_saving_db">Saving to database</string>
     <string name="presentation_batch_f_sync_phase_scanning_lrc">Scanning lyrics files</string>
     <string name="presentation_batch_f_sync_phase_cleaning_cache">Cleaning album art cache</string>
@@ -72,13 +72,13 @@
     <string name="presentation_batch_f_rotation">Rotation</string>
     <string name="presentation_batch_f_scale">Scale</string>
     <string name="presentation_batch_f_smart_rule_top_played_title">Top Played</string>
-    <string name="presentation_batch_f_smart_rule_top_played_subtitle">Your most played tracks.</string>
+    <string name="presentation_batch_f_smart_rule_top_played_subtitle">Your most played songs.</string>
     <string name="presentation_batch_f_smart_rule_recently_played_title">Recently Played</string>
     <string name="presentation_batch_f_smart_rule_recently_played_subtitle">Songs you listened to most recently.</string>
     <string name="presentation_batch_f_smart_rule_forgotten_favorites_title">Forgotten Favorites</string>
-    <string name="presentation_batch_f_smart_rule_forgotten_favorites_subtitle">Favorite tracks you haven\'t played in a while.</string>
+    <string name="presentation_batch_f_smart_rule_forgotten_favorites_subtitle">Favorite songs you haven\'t played in a while.</string>
     <string name="presentation_batch_f_smart_rule_new_gems_title">New Gems</string>
-    <string name="presentation_batch_f_smart_rule_new_gems_subtitle">Recently added tracks with low play counts.</string>
+    <string name="presentation_batch_f_smart_rule_new_gems_subtitle">Recently added songs with low play counts.</string>
 
     <!-- Palette style -->
     <string name="presentation_batch_f_palette_style_heading">Palette style</string>

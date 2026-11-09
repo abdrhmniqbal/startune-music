@@ -12,6 +12,8 @@ import com.startune.music.data.model.Artist
 import com.startune.music.data.model.Song
 import com.startune.music.data.repository.ArtistImageRepository
 import com.startune.music.data.repository.MusicRepository
+import com.startune.music.data.stats.PlaybackStatsRepository
+import com.startune.music.data.stats.StatsTimeRange
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -37,6 +39,8 @@ data class ArtistDetailUiState(
     val artist: Artist? = null,
     val songs: List<Song> = emptyList(),
     val albumSections: List<ArtistAlbumSection> = emptyList(),
+    val featuredOnSections: List<ArtistAlbumSection> = emptyList(),
+    val popularTracks: List<Song> = emptyList(),
     val effectiveImageUrl: String? = null,
     val isLoading: Boolean = false,
     val error: String? = null
@@ -57,6 +61,7 @@ class ArtistDetailViewModel @Inject constructor(
     private val musicRepository: MusicRepository,
     private val lastFmRepository: LastFmRepository,
     private val artistImageRepository: ArtistImageRepository,
+    private val playbackStatsRepository: PlaybackStatsRepository,
     val themeStateHolder: ThemeStateHolder,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -132,6 +137,22 @@ class ArtistDetailViewModel @Inject constructor(
                         val albumSections = buildAlbumSections(songs)
                         val orderedSongs = albumSections.flatMap { it.songs }
 
+                        val songsById = songs.associateBy { it.id }
+                        val popularTracks = try {
+                            playbackStatsRepository.loadTopTracks(StatsTimeRange.ALL, songs, 5)
+                                .mapNotNull { songsById[it.songId] }
+                        } catch (e: Exception) {
+                            Timber.tag("ArtistDebug").w("Failed to load artist top tracks: ${e.message}")
+                            emptyList()
+                        }.ifEmpty { songs.sortedBy { it.title.lowercase() }.take(5) }
+
+                        val (primarySections, featuredSections) = albumSections.partition { section ->
+                            section.songs.any { song ->
+                                (song.albumArtist ?: song.artist).trim()
+                                    .equals(artist.name, ignoreCase = true)
+                            }
+                        }
+
                         val effectiveUrl = try {
                             artistImageRepository.getEffectiveArtistImageUrl(
                                 artistId = artist.id,
@@ -157,7 +178,9 @@ class ArtistDetailViewModel @Inject constructor(
                                 imageUrl = if (artist.customImageUri.isNullOrBlank()) effectiveUrl else artist.imageUrl
                             ),
                             songs = orderedSongs,
-                            albumSections = albumSections,
+                            albumSections = primarySections,
+                            featuredOnSections = featuredSections,
+                            popularTracks = popularTracks,
                             effectiveImageUrl = effectiveUrl,
                             isLoading = false
                         )

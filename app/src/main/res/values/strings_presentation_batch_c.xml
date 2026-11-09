@@ -46,7 +46,7 @@
     <string name="ai_playlist_section_size">Playlist size</string>
     <string name="ai_playlist_min_songs">Min songs</string>
     <string name="ai_playlist_max_songs">Max songs</string>
-    <string name="ai_playlist_prompt_placeholder">e.g. Genre tag, artist seed or similar track…</string>
+    <string name="ai_playlist_prompt_placeholder">e.g. Genre tag, artist seed or similar song…</string>
     <string name="ai_playlist_tap_to_retry">Tap to Retry</string>
     <string name="ai_playlist_status_default">Recommendation Mix Generated!</string>
     <string name="ai_playlist_generating">Generating…</string>
@@ -61,7 +61,7 @@
     <string name="lib_empty_songs_online_title">No cloud songs found</string>
     <string name="lib_empty_songs_online_subtitle">Sync songs from a connected service, or switch to local source.</string>
     <string name="lib_empty_albums_all_title">No albums available</string>
-    <string name="lib_empty_albums_all_subtitle">Albums will appear here as soon as your library has grouped tracks.</string>
+    <string name="lib_empty_albums_all_subtitle">Albums will appear here as soon as your library has grouped songs.</string>
     <string name="lib_empty_albums_offline_title">No local albums found</string>
     <string name="lib_empty_albums_offline_subtitle">Local songs are required to build local album groups.</string>
     <string name="lib_empty_albums_online_title">No cloud albums found</string>
@@ -77,7 +77,7 @@
     <string name="lib_empty_liked_offline_title">No liked local songs</string>
     <string name="lib_empty_liked_offline_subtitle">Switch source filter or like songs from your device.</string>
     <string name="lib_empty_liked_online_title">No liked cloud songs</string>
-    <string name="lib_empty_liked_online_subtitle">Like cloud tracks to see them in this view.</string>
+    <string name="lib_empty_liked_online_subtitle">Like cloud songs to see them in this view.</string>
     <string name="lib_empty_folders_title">No folders found</string>
     <string name="lib_empty_folders_subtitle">Internal storage folders with music will appear here.</string>
     <string name="lib_empty_playlists_title">No playlists yet</string>
