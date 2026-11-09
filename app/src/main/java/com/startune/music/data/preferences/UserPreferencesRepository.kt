@@ -183,6 +183,8 @@ constructor(
         val GROUP_BY_ALBUM_ARTIST = booleanPreferencesKey("group_by_album_artist")
         val ARTIST_SETTINGS_RESCAN_REQUIRED =
                 booleanPreferencesKey("artist_settings_rescan_required")
+        val ALBUM_ARTIST_SPLIT_FIX_APPLIED =
+                booleanPreferencesKey("album_artist_split_fix_applied")
 
         val EQUALIZER_ENABLED = booleanPreferencesKey("equalizer_enabled")
         val EQUALIZER_PRESET = stringPreferencesKey("equalizer_preset")
@@ -553,6 +555,17 @@ constructor(
     suspend fun clearArtistSettingsRescanRequired() {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.ARTIST_SETTINGS_RESCAN_REQUIRED] = false
+        }
+    }
+
+    val albumArtistSplitFixAppliedFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.ALBUM_ARTIST_SPLIT_FIX_APPLIED] ?: false
+            }
+
+    suspend fun markAlbumArtistSplitFixApplied() {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.ALBUM_ARTIST_SPLIT_FIX_APPLIED] = true
         }
     }
 
