@@ -879,7 +879,7 @@ class DualPlayerEngine @Inject constructor(
                     resumeOnFocusGainEnabled = values[3]
                     respectPermanentFocusLossEnabled = values[4]
                     ignoreShortFocusLossEnabled = values[5]
-                }.collect()
+                }.collect { }
             }
         }
     }

@@ -663,8 +663,8 @@ class JellyfinRepository @Inject constructor(
         )
     }
 
-    private fun parseArtistNames(rawArtist: String): List<String> =
-        CloudMusicUtils.parseArtistNames(rawArtist)
+    private fun parseArtistNames(rawArtist: String, unsplitArtists: List<String> = emptyList()): List<String> =
+        CloudMusicUtils.parseArtistNames(rawArtist, unsplitArtists)
 
     private fun toUnifiedSongId(jellyfinId: String): Long {
         return -(JELLYFIN_SONG_ID_OFFSET + jellyfinId.hashCode().toLong().absoluteValue)
