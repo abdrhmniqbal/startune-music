@@ -185,6 +185,8 @@ constructor(
                 booleanPreferencesKey("artist_settings_rescan_required")
         val ALBUM_ARTIST_SPLIT_FIX_APPLIED =
                 booleanPreferencesKey("album_artist_split_fix_applied")
+        val PLAY_COUNT_BACKFILL_APPLIED =
+                booleanPreferencesKey("play_count_backfill_applied")
 
         val EQUALIZER_ENABLED = booleanPreferencesKey("equalizer_enabled")
         val EQUALIZER_PRESET = stringPreferencesKey("equalizer_preset")
@@ -566,6 +568,17 @@ constructor(
     suspend fun markAlbumArtistSplitFixApplied() {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.ALBUM_ARTIST_SPLIT_FIX_APPLIED] = true
+        }
+    }
+
+    val playCountBackfillAppliedFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.PLAY_COUNT_BACKFILL_APPLIED] ?: false
+            }
+
+    suspend fun markPlayCountBackfillApplied() {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PLAY_COUNT_BACKFILL_APPLIED] = true
         }
     }
 
