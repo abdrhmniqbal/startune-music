@@ -1361,10 +1361,20 @@ private fun ArtistSubViewHeader(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            FilledTonalIconButton(onClick = onBackClick) {
+            FilledIconButton(
+                modifier = Modifier
+                    .height(40.dp)
+                    .width(64.dp),
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    contentColor = MaterialTheme.colorScheme.secondary
+                ),
+                onClick = onBackClick
+            ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.auth_cd_back)
+                    contentDescription = stringResource(R.string.auth_cd_back),
+                    modifier = Modifier.size(18.dp)
                 )
             }
             Text(
