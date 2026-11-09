@@ -181,6 +181,16 @@ class FileExplorerStateHolder(
 
     }
 
+    /**
+     * Applies directory selections to the UI state immediately, without
+     * waiting for the DataStore write to round-trip back through the flows.
+     * The DataStore combine above re-emits the same values once the write lands.
+     */
+    fun noteDirectorySelections(allowed: Set<String>, blocked: Set<String>) {
+        _allowedDirectories.value = allowed.map(::normalizePath).toSet()
+        _blockedDirectories.value = blocked.map(::normalizePath).toSet()
+    }
+
     fun refreshAvailableStorages() {
         _availableStorages.value = StorageUtils.getAvailableStorages(context).toImmutableList()
         if (_selectedStorageIndex.value >= _availableStorages.value.size) {
