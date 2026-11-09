@@ -85,6 +85,10 @@ data class SettingsUiState(
     val appUpdateNotificationsEnabled: Boolean = true,
     val includePrereleases: Boolean = false,
     val indexerNotificationsEnabled: Boolean = true,
+    val autoBackupEnabled: Boolean = false,
+    val autoBackupIntervalHours: Int = 24,
+    val autoBackupLastRunMs: Long = 0L,
+    val autoBackupTargetFolder: String = "",
     val keepScreenAwakeWhilePlaying: Boolean = false,
     val resumeOnHeadsetReconnect: Boolean = false,
     val showQueueHistory: Boolean = true,
@@ -201,6 +205,10 @@ private sealed interface SettingsUiUpdate {
         val appUpdateNotificationsEnabled: Boolean
         val includePrereleases: Boolean
         val indexerNotificationsEnabled: Boolean
+        val autoBackupEnabled: Boolean
+        val autoBackupIntervalHours: Int
+        val autoBackupLastRunMs: Long
+        val autoBackupTargetFolder: String
     ) : SettingsUiUpdate
 }
 
@@ -378,7 +386,11 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.queueAwareNextFlow,
                 userPreferencesRepository.appUpdateNotificationsEnabledFlow,
                 userPreferencesRepository.includePrereleasesFlow,
-                userPreferencesRepository.indexerNotificationsEnabledFlow
+                userPreferencesRepository.indexerNotificationsEnabledFlow,
+                userPreferencesRepository.autoBackupEnabledFlow,
+                userPreferencesRepository.autoBackupIntervalHoursFlow,
+                userPreferencesRepository.autoBackupLastRunMsFlow,
+                userPreferencesRepository.autoBackupTargetFolderFlow
             ) { values ->
                 val requestedAudioOutputMode = values[4] as AudioOutputMode
                 SettingsUiUpdate.Group2(
@@ -420,7 +432,11 @@ class SettingsViewModel @Inject constructor(
                     queueAwareNext = values[28] as Boolean,
                     appUpdateNotificationsEnabled = values[29] as Boolean,
                     includePrereleases = values[30] as Boolean,
-                    indexerNotificationsEnabled = values[31] as Boolean
+                    indexerNotificationsEnabled = values[31] as Boolean,
+                    autoBackupEnabled = values[32] as Boolean,
+                    autoBackupIntervalHours = values[33] as Int,
+                    autoBackupLastRunMs = values[34] as Long,
+                    autoBackupTargetFolder = values[35] as String
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -457,6 +473,10 @@ class SettingsViewModel @Inject constructor(
                         appUpdateNotificationsEnabled = update.appUpdateNotificationsEnabled,
                         includePrereleases = update.includePrereleases,
                         indexerNotificationsEnabled = update.indexerNotificationsEnabled,
+                        autoBackupEnabled = update.autoBackupEnabled,
+                        autoBackupIntervalHours = update.autoBackupIntervalHours,
+                        autoBackupLastRunMs = update.autoBackupLastRunMs,
+                        autoBackupTargetFolder = update.autoBackupTargetFolder,
                     )
                 }
             }
@@ -827,6 +847,21 @@ class SettingsViewModel @Inject constructor(
     fun setIndexerNotificationsEnabled(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setIndexerNotificationsEnabled(enabled)
+        }
+    }
+
+    fun setAutoBackupInterval(intervalHours: Int) {
+        viewModelScope.launch {
+            userPreferencesRepository.setAutoBackupEnabled(intervalHours > 0)
+            if (intervalHours > 0) {
+                userPreferencesRepository.setAutoBackupIntervalHours(intervalHours)
+            }
+        }
+    }
+
+    fun setAutoBackupTargetFolder(path: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.setAutoBackupTargetFolder(path)
         }
     }
 

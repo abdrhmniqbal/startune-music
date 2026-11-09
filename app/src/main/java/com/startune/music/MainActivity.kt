@@ -142,6 +142,7 @@ import com.startune.music.presentation.navigation.AppNavigation
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.screens.SetupScreen
 import com.startune.music.presentation.viewmodel.AppUpdateViewModel
+import com.startune.music.presentation.viewmodel.AutoBackupViewModel
 import com.startune.music.presentation.viewmodel.MainViewModel
 
 import com.startune.music.presentation.viewmodel.PlayerViewModel
@@ -318,6 +319,7 @@ class MainActivity : ComponentActivity() {
             )
             val isSetupComplete by mainViewModel.isSetupComplete.collectAsStateWithLifecycle()
             val appUpdateViewModel: AppUpdateViewModel = hiltViewModel()
+            val autoBackupViewModel: AutoBackupViewModel = hiltViewModel()
             val pendingUpdate by appUpdateViewModel.pendingUpdate.collectAsStateWithLifecycle()
             val updateSheetState = rememberModalSheetState()
             
@@ -345,6 +347,7 @@ class MainActivity : ComponentActivity() {
                      LogUtils.i(this, "Setup complete/skipped and permissions valid. Starting sync.")
                      mainViewModel.startSync()
                      appUpdateViewModel.checkOnStartup()
+                     autoBackupViewModel.runCheck()
                 }
             }
 

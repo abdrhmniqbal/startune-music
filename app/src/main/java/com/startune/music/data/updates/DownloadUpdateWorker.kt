@@ -8,6 +8,7 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.startune.music.R
+import com.startune.music.utils.AppFolders
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +43,7 @@ class DownloadUpdateWorker @AssistedInject constructor(
         setForeground(createForegroundInfo(0f))
         return withContext(Dispatchers.IO) {
             try {
-                val updatesDir = File(applicationContext.cacheDir, "updates").apply { mkdirs() }
+                val updatesDir = AppFolders.apkDownloadDir(applicationContext)
                 val targetFile = File(updatesDir, fileName)
                 val request = Request.Builder().url(url).build()
                 okHttpClient.newCall(request).execute().use { response ->
