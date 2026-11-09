@@ -108,7 +108,8 @@ fun TopTracksSection(
                 state = pagerState,
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(horizontal = 0.dp),
-                pageSpacing = 24.dp
+                pageSpacing = 24.dp,
+                verticalAlignment = Alignment.Top
             ) { page ->
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp)

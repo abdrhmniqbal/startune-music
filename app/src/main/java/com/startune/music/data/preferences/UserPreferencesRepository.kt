@@ -122,7 +122,6 @@ constructor(
 
         val LAST_LIBRARY_TAB_INDEX =
                 intPreferencesKey("last_library_tab_index")
-        val LAST_STORAGE_FILTER = stringPreferencesKey("last_storage_filter")
         val MOCK_GENRES_ENABLED = booleanPreferencesKey("mock_genres_enabled")
         val LAST_DAILY_MIX_UPDATE = longPreferencesKey("last_daily_mix_update")
         val DAILY_MIX_SONG_IDS = stringPreferencesKey("daily_mix_song_ids")
@@ -235,6 +234,8 @@ constructor(
         val IS_GENRE_GRID_VIEW = booleanPreferencesKey("is_genre_grid_view")
 
         val IS_ALBUMS_LIST_VIEW = booleanPreferencesKey("is_albums_list_view")
+        val IS_ARTISTS_LIST_VIEW = booleanPreferencesKey("is_artists_list_view")
+        val IS_PLAYLISTS_LIST_VIEW = booleanPreferencesKey("is_playlists_list_view")
 
         val COLLAGE_PATTERN = stringPreferencesKey("collage_pattern")
         val COLLAGE_AUTO_ROTATE = booleanPreferencesKey("collage_auto_rotate")
@@ -792,6 +793,28 @@ constructor(
         }
     }
 
+    val isArtistsListViewFlow: Flow<Boolean> =
+        dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.IS_ARTISTS_LIST_VIEW] ?: true
+        }
+
+    suspend fun setArtistsListView(isList: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IS_ARTISTS_LIST_VIEW] = isList
+        }
+    }
+
+    val isPlaylistsListViewFlow: Flow<Boolean> =
+        dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.IS_PLAYLISTS_LIST_VIEW] ?: true
+        }
+
+    suspend fun setPlaylistsListView(isList: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IS_PLAYLISTS_LIST_VIEW] = isList
+        }
+    }
+
     val lastDailyMixUpdateFlow: Flow<Long> =
             dataStore.data.map { preferences ->
                 preferences[PreferencesKeys.LAST_DAILY_MIX_UPDATE] ?: 0L
@@ -1245,21 +1268,6 @@ constructor(
     suspend fun saveLastLibraryTabIndex(tabIndex: Int) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.LAST_LIBRARY_TAB_INDEX] = tabIndex
-        }
-    }
-
-    val lastStorageFilterFlow: Flow<StorageFilter> =
-        dataStore.data.map { preferences ->
-            when (preferences[PreferencesKeys.LAST_STORAGE_FILTER]) {
-                "ONLINE"  -> StorageFilter.ONLINE
-                "OFFLINE" -> StorageFilter.OFFLINE
-                else      -> StorageFilter.ALL
-            }
-        }
-
-    suspend fun saveLastStorageFilter(filter: StorageFilter) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.LAST_STORAGE_FILTER] = filter.name
         }
     }
 

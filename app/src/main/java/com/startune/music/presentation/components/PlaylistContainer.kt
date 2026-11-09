@@ -13,6 +13,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -24,6 +26,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -101,6 +107,7 @@ fun PlaylistContainer(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     bottomBarHeight: Dp,
+    isListView: Boolean = true,
     currentSong: Song? = null,
     navController: NavController?,
     playerViewModel: PlayerViewModel,
@@ -176,7 +183,8 @@ fun PlaylistContainer(
                     isAddingToPlaylist = true,
                     filteredPlaylists = filteredPlaylists,
                     selectedPlaylists = selectedPlaylists,
-                    currentSortOption = currentSortOption
+                    currentSortOption = currentSortOption,
+                    isListView = isListView
                 )
             } else {
                 val playlistPullToRefreshState = rememberPullToRefreshState()
@@ -199,6 +207,7 @@ fun PlaylistContainer(
                         playerViewModel = playerViewModel,
                         filteredPlaylists = filteredPlaylists,
                         currentSortOption = currentSortOption,
+                        isListView = isListView,
                         isSelectionMode = isSelectionMode,
                         selectedPlaylistIds = selectedPlaylistIds,
                         onPlaylistLongPress = onPlaylistLongPress,
@@ -234,6 +243,7 @@ fun PlaylistItems(
     isAddingToPlaylist: Boolean = false,
     filteredPlaylists: ImmutableList<Playlist>,
     currentSortOption: SortOption? = null,
+    isListView: Boolean = true,
     selectedPlaylists: SnapshotStateMap<String, Boolean>? = null,
     isSelectionMode: Boolean = false,
     selectedPlaylistIds: Set<String> = emptySet(),
@@ -242,6 +252,7 @@ fun PlaylistItems(
 ) {
     val stablePlayerState by playerViewModel.stablePlayerState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
+    val gridState = rememberLazyGridState()
     val playlistFastScrollLabelProvider = remember(filteredPlaylists, currentSortOption) {
         { index: Int ->
             playlistFastScrollLabel(
@@ -258,17 +269,18 @@ fun PlaylistItems(
         if (currentSortKey == lastHandledPlaylistSortKey) return@LaunchedEffect
         lastHandledPlaylistSortKey = currentSortKey
         pendingPlaylistSortScrollReset = true
-        listState.scrollToItem(0)
+        if (isListView) listState.scrollToItem(0) else gridState.scrollToItem(0)
     }
 
     LaunchedEffect(filteredPlaylists, pendingPlaylistSortScrollReset) {
         if (!pendingPlaylistSortScrollReset) return@LaunchedEffect
-        listState.scrollToItem(0)
+        if (isListView) listState.scrollToItem(0) else gridState.scrollToItem(0)
         pendingPlaylistSortScrollReset = false
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
+        if (isListView || isAddingToPlaylist) {
+            LazyColumn(
             modifier = Modifier
                 .padding(start = 12.dp, end = if (listState.canScrollForward || listState.canScrollBackward) 22.dp else 12.dp, bottom = 6.dp)
                 .fillMaxSize()
@@ -324,13 +336,65 @@ fun PlaylistItems(
         else 
             bottomBarHeight + 16.dp
 
-        ExpressiveScrollBar(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(end = 4.dp, top = 16.dp, bottom = bottomPadding),
-            listState = listState,
-            dragLabelProvider = playlistFastScrollLabelProvider
-        )
+            ExpressiveScrollBar(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 4.dp, top = 16.dp, bottom = bottomPadding),
+                listState = listState,
+                dragLabelProvider = playlistFastScrollLabelProvider
+            )
+        } else {
+            LazyVerticalGrid(
+                modifier = Modifier
+                    .padding(start = 12.dp, end = if (gridState.canScrollForward || gridState.canScrollBackward) 22.dp else 12.dp, bottom = 6.dp)
+                    .fillMaxSize()
+                    .clip(
+                        RoundedCornerShape(
+                            topStart = 12.dp,
+                            topEnd = 12.dp,
+                            bottomStart = PlayerSheetCollapsedCornerRadius,
+                            bottomEnd = PlayerSheetCollapsedCornerRadius
+                        )
+                    ),
+                state = gridState,
+                columns = GridCells.Fixed(2),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + 30.dp)
+            ) {
+                items(filteredPlaylists, key = { it.id }) { playlist ->
+                    val rememberedOnClick = remember(playlist.id) {
+                        {
+                            if (isAddingToPlaylist && currentSong != null && selectedPlaylists != null) {
+                                val currentSelection = selectedPlaylists[playlist.id] ?: false
+                                selectedPlaylists[playlist.id] = !currentSelection
+                            } else if (isSelectionMode) {
+                                onPlaylistSelectionToggle(playlist)
+                            } else {
+                                navController?.navigateSafely(Screen.PlaylistDetail.createRoute(playlist.id))
+                            }
+                        }
+                    }
+                    val selectionIndex = remember(playlist.id, selectedPlaylistIds) {
+                        if (selectedPlaylistIds.contains(playlist.id)) {
+                            selectedPlaylistIds.toList().indexOf(playlist.id)
+                        } else {
+                            -1
+                        }
+                    }
+                    PlaylistGridItem(
+                        playlist = playlist,
+                        playerViewModel = playerViewModel,
+                        onClick = { rememberedOnClick() },
+                        isSelectionMode = isSelectionMode,
+                        isSelected = selectedPlaylistIds.contains(playlist.id),
+                        selectionIndex = selectionIndex,
+                        onLongPress = { onPlaylistLongPress(playlist) },
+                        onPlaylistSelectionToggle = { onPlaylistSelectionToggle(playlist) }
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -487,6 +551,156 @@ fun PlaylistItem(
                     checked = selectedPlaylists[playlist.id] ?: false,
                     onCheckedChange = { isChecked -> selectedPlaylists[playlist.id] = isChecked }
                 )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun PlaylistGridItem(
+    playlist: Playlist,
+    playerViewModel: PlayerViewModel,
+    onClick: () -> Unit,
+    isSelectionMode: Boolean = false,
+    isSelected: Boolean = false,
+    selectionIndex: Int = -1,
+    onLongPress: () -> Unit = {},
+    onPlaylistSelectionToggle: () -> Unit = {}
+) {
+    val playlistPreviewSongIds = remember(playlist.songIds) {
+        playlist.songIds.take(4)
+    }
+    val playlistSongsInitialValue = remember(playlistPreviewSongIds) {
+        if (playlistPreviewSongIds.isEmpty()) emptyList<Song>() else null
+    }
+    val playlistSongs by remember(playlistPreviewSongIds, playerViewModel) {
+        playerViewModel.observeSongs(playlistPreviewSongIds)
+            .map<List<Song>, List<Song>?> { it }
+    }.collectAsStateWithLifecycle(initialValue = playlistSongsInitialValue)
+
+    val selectionScale by animateFloatAsState(
+        targetValue = if (isSelected) 0.98f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "playlistGridSelectionScaleAnimation"
+    )
+
+    val selectionBorderWidth by animateDpAsState(
+        targetValue = if (isSelected) 2.5.dp else 0.dp,
+        animationSpec = tween(durationMillis = 250),
+        label = "playlistGridSelectionBorderAnimation"
+    )
+
+    val containerColor by animateColorAsState(
+        targetValue = if (isSelected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
+        animationSpec = tween(durationMillis = 300),
+        label = "playlistGridContainerColorAnimation"
+    )
+
+    val selectionBorderColor by animateColorAsState(
+        targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = 0f),
+        animationSpec = tween(durationMillis = 250),
+        label = "playlistGridBorderColorAnimation"
+    )
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .scale(selectionScale)
+            .then(
+                if (isSelected) {
+                    Modifier.border(
+                        width = selectionBorderWidth,
+                        color = selectionBorderColor,
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                } else {
+                    Modifier
+                }
+            )
+            .combinedClickable(
+                onClick = {
+                    if (isSelectionMode) {
+                        onPlaylistSelectionToggle()
+                    } else {
+                        onClick()
+                    }
+                },
+                onLongClick = {
+                    onLongPress()
+                }
+            ),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor)
+    ) {
+        Box {
+            Column {
+                BoxWithConstraints(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                ) {
+                    PlaylistCover(
+                        playlist = playlist,
+                        playlistSongs = remember(playlistSongs) { (playlistSongs ?: emptyList()).toImmutableList() },
+                        size = maxWidth
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(84.dp)
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = playlist.name,
+                        style = MaterialTheme.typography.titleMedium.copy(fontFamily = RoundedSans),
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = formatSongCount(playlist.songIds.size),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            if (isSelected && isSelectionMode) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(10.dp)
+                        .size(26.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (selectionIndex >= 0) {
+                        Text(
+                            text = (selectionIndex + 1).toString(),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Rounded.CheckCircle,
+                            contentDescription = stringResource(R.string.presentation_batch_g_cd_selected),
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
             }
         }
     }

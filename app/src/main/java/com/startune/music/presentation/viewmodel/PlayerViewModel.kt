@@ -951,7 +951,7 @@ class PlayerViewModel @Inject constructor(
                 try {
                     Json.decodeFromString<List<String>>(orderJson).toImmutableList()
                 } catch (e: Exception) {
-                    persistentListOf("SONGS", "ALBUMS", "ARTIST", "PLAYLISTS", "FOLDERS", "LIKED")
+                    persistentListOf("SONGS", "ALBUMS", "ARTIST", "PLAYLISTS", "FOLDERS", "LIKED", "GENRES")
                 }
             } else {
                 persistentListOf("SONGS", "ALBUMS", "ARTIST", "PLAYLISTS", "FOLDERS", "LIKED")
@@ -979,6 +979,7 @@ class PlayerViewModel @Inject constructor(
                     LibraryTabId.PLAYLISTS -> SortOption.PLAYLISTS
                     LibraryTabId.FOLDERS -> SortOption.FOLDERS
                     LibraryTabId.LIKED -> SortOption.LIKED
+                    LibraryTabId.GENRES -> SortOption.GENRES
                 }
             } finally {
                 Trace.endSection()
@@ -1517,6 +1518,22 @@ class PlayerViewModel @Inject constructor(
             }
 
             viewModelScope.launch {
+                combine(
+                    userPreferencesRepository.isArtistsListViewFlow,
+                    userPreferencesRepository.isPlaylistsListViewFlow,
+                ) { artistsList, playlistsList ->
+                    Pair(artistsList, playlistsList)
+                }.collect { (artistsList, playlistsList) ->
+                    _playerUiState.update {
+                        it.copy(
+                            isArtistsListView = artistsList,
+                            isPlaylistsListView = playlistsList,
+                        )
+                    }
+                }
+            }
+
+            viewModelScope.launch {
                 userPreferencesRepository.blockedDirectoriesFlow
                     .distinctUntilChanged()
                     .collect { blocked ->
@@ -1797,10 +1814,6 @@ class PlayerViewModel @Inject constructor(
     fun loadArtistsIfNeeded() = libraryStateHolder.loadArtistsIfNeeded()
     fun loadFoldersFromRepository() = libraryStateHolder.loadFoldersFromRepository()
 
-    fun setStorageFilter(filter: com.startune.music.data.model.StorageFilter) {
-        libraryStateHolder.setStorageFilter(filter)
-    }
-
     fun setPlaylistPickerStorageFilter(filter: com.startune.music.data.model.StorageFilter) {
         _playlistPickerStorageFilter.value = filter
     }
@@ -1809,16 +1822,6 @@ class PlayerViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferencesRepository.setHideLocalMedia(hide)
         }
-    }
-
-    fun toggleStorageFilter() {
-        val current = _playerUiState.value.currentStorageFilter
-        val next = when (current) {
-            com.startune.music.data.model.StorageFilter.ALL -> com.startune.music.data.model.StorageFilter.ONLINE
-            com.startune.music.data.model.StorageFilter.ONLINE -> com.startune.music.data.model.StorageFilter.OFFLINE
-            com.startune.music.data.model.StorageFilter.OFFLINE -> com.startune.music.data.model.StorageFilter.ALL
-        }
-        setStorageFilter(next)
     }
 
     fun showAndPlaySong(
@@ -3938,6 +3941,18 @@ class PlayerViewModel @Inject constructor(
     fun setAlbumsListView(isList: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setAlbumsListView(isList)
+        }
+    }
+
+    fun setArtistsListView(isList: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setArtistsListView(isList)
+        }
+    }
+
+    fun setPlaylistsListView(isList: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setPlaylistsListView(isList)
         }
     }
 
