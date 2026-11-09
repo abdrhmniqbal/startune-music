@@ -4,6 +4,7 @@ import com.startune.music.presentation.navigation.navigateSafely
 
 import com.startune.music.utils.traceSection
 import androidx.compose.foundation.background
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +44,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -57,6 +61,10 @@ import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.PlaylistBottomSheet
 import com.startune.music.presentation.components.RecentlyPlayedRangeSelector
 import com.startune.music.presentation.components.SongInfoBottomSheet
+import com.startune.music.presentation.components.SongMultiSelectionHost
+import com.startune.music.presentation.components.subcomps.SelectionActionRow
+import com.startune.music.presentation.components.subcomps.SelectionCountPill
+import androidx.compose.ui.zIndex
 import com.startune.music.presentation.components.subcomps.EnhancedSongListItem
 import com.startune.music.utils.shapes.RoundedStarShape
 import com.startune.music.presentation.navigation.Screen
@@ -115,6 +123,16 @@ fun TopTracksScreen(
 
     var showSongInfoBottomSheet by remember { mutableStateOf(false) }
     var showPlaylistBottomSheet by remember { mutableStateOf(false) }
+
+    val multiSelectionState = playerViewModel.multiSelectionStateHolder
+    val selectedSongs by multiSelectionState.selectedSongs.collectAsStateWithLifecycle()
+    val isSelectionMode by multiSelectionState.isSelectionMode.collectAsStateWithLifecycle()
+    val selectedSongIds by multiSelectionState.selectedSongIds.collectAsStateWithLifecycle()
+    val haptic = LocalHapticFeedback.current
+    var showMultiSelectionSheet by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = isSelectionMode) { multiSelectionState.clearSelection() }
+    DisposableEffect(Unit) { onDispose { multiSelectionState.clearSelection() } }
     val bottomBarHeightDp = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val lazyListState = rememberLazyListState()
     val density = LocalDensity.current
@@ -222,6 +240,18 @@ fun TopTracksScreen(
                     )
                 }
 
+                if (isSelectionMode) {
+                    item(key = "top_tracks_selection_row") {
+                        SelectionActionRow(
+                            selectedCount = selectedSongs.size,
+                            onSelectAll = { multiSelectionState.selectAll(queueSongs) },
+                            onDeselect = { multiSelectionState.clearSelection() },
+                            onOptionsClick = { showMultiSelectionSheet = true },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                }
+
                 if (queueSongs.isEmpty()) {
                     item(key = "top_tracks_empty") {
                         TopTracksEmptyState(
@@ -250,12 +280,23 @@ fun TopTracksScreen(
                                 song = song,
                                 isCurrentSong = currentSongId == song.id,
                                 isPlaying = currentSongId == song.id && isPlaying,
+                                isSelected = selectedSongIds.contains(song.id),
+                                selectionIndex = if (isSelectionMode) multiSelectionState.getSelectionIndex(song.id) else null,
+                                isSelectionMode = isSelectionMode,
+                                onLongPress = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    multiSelectionState.toggleSelection(song)
+                                },
                                 onClick = {
-                                    playerViewModel.playSongs(
-                                        songsToPlay = queueSongs,
-                                        startSong = song,
-                                        queueName = queueTopTracks
-                                    )
+                                    if (isSelectionMode) {
+                                        multiSelectionState.toggleSelection(song)
+                                    } else {
+                                        playerViewModel.playSongs(
+                                            songsToPlay = queueSongs,
+                                            startSong = song,
+                                            queueName = queueTopTracks
+                                        )
+                                    }
                                 },
                                 onMoreOptionsClick = { selected ->
                                     playerViewModel.selectSongForInfo(selected)
@@ -389,6 +430,20 @@ fun TopTracksScreen(
             }
         }
 
+        SongMultiSelectionHost(
+            playerViewModel = playerViewModel,
+            multiSelectionState = multiSelectionState,
+            showSheet = showMultiSelectionSheet,
+            onDismiss = { showMultiSelectionSheet = false }
+        )
+
+        SelectionCountPill(
+            selectedCount = selectedSongs.size,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = currentTopBarHeightDp)
+                .zIndex(1f)
+        )
     }
 }
 

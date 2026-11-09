@@ -3540,6 +3540,20 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
+    suspend fun resolveGenreSongsForBatchActions(genres: List<Genre>): List<Song> {
+        if (genres.isEmpty()) return emptyList()
+        val visibleSongIds = currentLibrarySelectionSongIds()
+        return withContext(Dispatchers.IO) {
+            flattenDistinctGroups(
+                groups = genres.map { genre ->
+                    musicRepository.getMusicByGenre(genre.name).first()
+                        .filter { it.id in visibleSongIds }
+                },
+                keyOf = Song::id
+            )
+        }
+    }
+
     private suspend fun currentLibrarySelectionSongIds(): Set<String> {
         val state = playerUiState.value
         return musicRepository.getSongIdsSorted(

@@ -106,9 +106,9 @@ fun MultiSelectionBottomSheet(
     onAddToPlaylist: () -> Unit,
     onToggleLikeAll: (shouldLike: Boolean) -> Unit,
     onShareAll: () -> Unit,
-    onDownloadAll: () -> Unit,
+    onDownloadAll: (() -> Unit)? = null,
     onDeleteAll: (activity: Activity, onResult: (Boolean) -> Unit) -> Unit,
-    onBatchEdit: () -> Unit
+    onBatchEdit: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val sheetState = rememberModalSheetState(skipPartiallyExpanded = true)
@@ -214,23 +214,25 @@ fun MultiSelectionBottomSheet(
                         )
                     }
 
-                    FilledTonalIconButton(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(vertical = 6.dp),
-                        colors = IconButtonDefaults.filledTonalIconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceBright,
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                        onClick = {
-                            onBatchEdit()
-                        },
-                    ) {
-                        Icon(
-                            modifier = Modifier.padding(horizontal = 8.dp),
-                            imageVector = Icons.Rounded.Edit,
-                            contentDescription = stringResource(R.string.cd_edit_song_metadata)
-                        )
+                    if (onBatchEdit != null) {
+                        FilledTonalIconButton(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .padding(vertical = 6.dp),
+                            colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceBright,
+                                contentColor = MaterialTheme.colorScheme.onSurface
+                            ),
+                            onClick = {
+                                onBatchEdit?.invoke()
+                            },
+                        ) {
+                            Icon(
+                                modifier = Modifier.padding(horizontal = 8.dp),
+                                imageVector = Icons.Rounded.Edit,
+                                contentDescription = stringResource(R.string.cd_edit_song_metadata)
+                            )
+                        }
                     }
                 }
                 
@@ -319,7 +321,7 @@ fun MultiSelectionBottomSheet(
                         }
                     }
 
-                    if (cloudSongCount > 0) {
+                    if (cloudSongCount > 0 && onDownloadAll != null) {
                         item {
                             FilledTonalButton(
                                 modifier = Modifier
@@ -331,7 +333,7 @@ fun MultiSelectionBottomSheet(
                                 ),
                                 shape = CircleShape,
                                 onClick = {
-                                    onDownloadAll()
+                                    onDownloadAll?.invoke()
                                     onDismiss()
                                 }
                             ) {

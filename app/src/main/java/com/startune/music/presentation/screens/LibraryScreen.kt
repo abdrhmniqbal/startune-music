@@ -144,6 +144,7 @@ import com.startune.music.R
 import com.startune.music.presentation.components.ShimmerBox
 import com.startune.music.data.model.Album
 import com.startune.music.data.model.Artist
+import com.startune.music.data.model.Genre
 import com.startune.music.data.model.MusicFolder
 import com.startune.music.data.model.FolderSource
 import com.startune.music.data.model.Song
@@ -398,9 +399,12 @@ fun LibraryScreen(
     val isAlbumSelectionMode = selectedAlbums.isNotEmpty()
     var selectedArtists by remember { mutableStateOf<ImmutableList<Artist>>(persistentListOf()) }
     val selectedArtistIds = remember(selectedArtists) { selectedArtists.map { it.id }.toSet() }
+    var selectedGenres by remember { mutableStateOf<ImmutableList<Genre>>(persistentListOf()) }
+    val isGenreSelectionMode = selectedGenres.isNotEmpty()
     val isArtistSelectionMode = selectedArtists.isNotEmpty()
     val latestSelectedAlbums by rememberUpdatedState(selectedAlbums)
     val latestSelectedArtists by rememberUpdatedState(selectedArtists)
+    val latestSelectedGenres by rememberUpdatedState(selectedGenres)
     var showBatchEditSheet by remember { mutableStateOf(false) }
 
     var songsShowLocateButton by remember { mutableStateOf(false) }
@@ -470,6 +474,26 @@ fun LibraryScreen(
         { artistId -> selectionIndex(selectedArtists, artistId, Artist::id) }
     }
 
+    val toggleGenreSelection: (Genre) -> Unit = remember(selectedGenres, multiSelectionState) {
+        { genre ->
+            // A changed category selection invalidates any songs resolved for an earlier snapshot.
+            multiSelectionState.clearSelection()
+            showMultiSelectionSheet = false
+            selectedGenres = toggleOrderedSelection(selectedGenres, genre, Genre::id).toImmutableList()
+        }
+    }
+
+    val onGenreLongPress: (Genre) -> Unit = remember(toggleGenreSelection, haptic) {
+        { genre ->
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            toggleGenreSelection(genre)
+        }
+    }
+
+    val onGenreSelectionToggle: (Genre) -> Unit = remember(toggleGenreSelection) {
+        { genre -> toggleGenreSelection(genre) }
+    }
+
     val presentResolvedCategorySongs: (List<Song>) -> Unit = remember(
         multiSelectionState,
         playerViewModel,
@@ -531,6 +555,32 @@ fun LibraryScreen(
                     .onFailure { error ->
                         if (error is CancellationException) throw error
                         Timber.tag("LibrarySelection").e(error, "Unable to resolve selected artists")
+                        playerViewModel.sendToast(context.getString(R.string.no_valid_songs))
+                    }
+            }
+        }
+    }
+
+    val openSelectedGenreActions: () -> Unit = remember(
+        selectedGenres,
+        playerViewModel,
+        scope,
+        presentResolvedCategorySongs
+    ) {
+        {
+            val selectionSnapshot = selectedGenres.toList()
+            val snapshotIds = selectionSnapshot.map(Genre::id)
+            scope.launch {
+                runCatching {
+                    playerViewModel.resolveGenreSongsForBatchActions(selectionSnapshot)
+                }.onSuccess { songs ->
+                    if (latestSelectedGenres.map(Genre::id) == snapshotIds) {
+                        presentResolvedCategorySongs(songs)
+                    }
+                }
+                    .onFailure { error ->
+                        if (error is CancellationException) throw error
+                        Timber.tag("LibrarySelection").e(error, "Unable to resolve selected genres")
                         playerViewModel.sendToast(context.getString(R.string.no_valid_songs))
                     }
             }
@@ -635,7 +685,7 @@ fun LibraryScreen(
         LibraryTabId.LIKED,
         LibraryTabId.FOLDERS -> isSelectionMode
         LibraryTabId.ARTISTS -> isArtistSelectionMode
-        LibraryTabId.GENRES -> false
+        LibraryTabId.GENRES -> isGenreSelectionMode
     }
     val canHandleFolderBack by remember {
         derivedStateOf {
@@ -675,7 +725,11 @@ fun LibraryScreen(
                         showMultiSelectionSheet = false
                     }
 
-                    LibraryTabId.GENRES -> Unit
+                    LibraryTabId.GENRES -> {
+                        selectedGenres = persistentListOf()
+                        multiSelectionState.clearSelection()
+                        showMultiSelectionSheet = false
+                    }
 
                 }
             }
@@ -713,6 +767,7 @@ fun LibraryScreen(
         playlistMultiSelectionState.clearSelection()
         selectedAlbums = persistentListOf()
         selectedArtists = persistentListOf()
+        selectedGenres = persistentListOf()
         showMultiSelectionSheet = false
         showPlaylistMultiSelectionSheet = false
     }
@@ -1085,6 +1140,25 @@ fun LibraryScreen(
                                             showMultiSelectionSheet = false
                                         },
                                         onOptionsClick = openSelectedArtistActions
+                                    )
+                                } else if (currentTabId == LibraryTabId.GENRES && isGenreSelectionMode) {
+                                    SelectionActionRow(
+                                        selectedCount = selectedGenres.size,
+                                        onSelectAll = {
+                                            multiSelectionState.clearSelection()
+                                            showMultiSelectionSheet = false
+                                            selectedGenres = appendDistinctSelection(
+                                                current = selectedGenres,
+                                                candidates = genres,
+                                                keyOf = Genre::id
+                                            ).toImmutableList()
+                                        },
+                                        onDeselect = {
+                                            selectedGenres = persistentListOf()
+                                            multiSelectionState.clearSelection()
+                                            showMultiSelectionSheet = false
+                                        },
+                                        onOptionsClick = openSelectedGenreActions
                                     )
                                 } else {
                                     SelectionActionRow(
@@ -1475,7 +1549,11 @@ fun LibraryScreen(
                                                     Screen.GenreDetail.createRoute(encodedGenreId)
                                                 )
                                             },
-                                            playerViewModel = playerViewModel
+                                            playerViewModel = playerViewModel,
+                                            selectedGenres = selectedGenres,
+                                            isSelectionMode = isGenreSelectionMode,
+                                            onLongPress = onGenreLongPress,
+                                            onSelectionToggle = onGenreSelectionToggle
                                         )
                                     }
 
@@ -1490,7 +1568,7 @@ fun LibraryScreen(
                                 LibraryTabId.SONGS,
                                 LibraryTabId.LIKED,
                                 LibraryTabId.FOLDERS -> selectedSongs.size
-                                LibraryTabId.GENRES -> 0
+                                LibraryTabId.GENRES -> selectedGenres.size.takeIf { isGenreSelectionMode } ?: 0
                             }
                             SelectionCountPill(
                                 selectedCount = selectionCount,

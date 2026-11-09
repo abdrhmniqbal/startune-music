@@ -4,6 +4,9 @@ package com.startune.music.presentation.screens
 
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.navigation.navigateSafelyReplacing
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 import androidx.activity.compose.BackHandler
@@ -50,6 +53,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.compositeOver
@@ -86,6 +91,10 @@ import com.startune.music.presentation.components.PlaylistBottomSheet
 import com.startune.music.presentation.components.SmartImageCompactListTargetSize
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SongInfoBottomSheet
+import com.startune.music.presentation.components.SongMultiSelectionHost
+import com.startune.music.presentation.components.subcomps.SelectionActionRow
+import com.startune.music.presentation.components.subcomps.SelectionCountPill
+import androidx.compose.ui.zIndex
 import com.startune.music.presentation.components.resolveNavBarOccupiedHeight
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.viewmodel.ArtistDetailViewModel
@@ -144,6 +153,18 @@ fun ArtistDetailScreen(
     val systemNavBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val bottomBarHeightDp = resolveNavBarOccupiedHeight(systemNavBarInset, navBarCompactMode)
     var showPlaylistBottomSheet by remember { mutableStateOf(false) }
+
+    val multiSelectionState = playerViewModel.multiSelectionStateHolder
+    val selectedSongs by multiSelectionState.selectedSongs.collectAsStateWithLifecycle()
+    val isSelectionMode by multiSelectionState.isSelectionMode.collectAsStateWithLifecycle()
+    val selectedSongIds by multiSelectionState.selectedSongIds.collectAsStateWithLifecycle()
+    val haptic = LocalHapticFeedback.current
+    var showMultiSelectionSheet by remember { mutableStateOf(false) }
+    var selectedAlbumSections by remember { mutableStateOf<ImmutableList<ArtistAlbumSection>>(persistentListOf()) }
+    val selectedAlbumSectionIds = remember(selectedAlbumSections) { selectedAlbumSections.map { it.albumId }.toSet() }
+    val isAlbumSelectionMode = selectedAlbumSections.isNotEmpty()
+
+    DisposableEffect(Unit) { onDispose { multiSelectionState.clearSelection() } }
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
@@ -286,6 +307,10 @@ fun ArtistDetailScreen(
                     val featuredOnSections = uiState.featuredOnSections
                     val popularTracks = uiState.popularTracks
                     var activeView by remember { mutableStateOf(ArtistDetailView.Overview) }
+                    LaunchedEffect(activeView) {
+                        multiSelectionState.clearSelection()
+                        selectedAlbumSections = persistentListOf()
+                    }
                     var trackSortOption by remember { mutableStateOf<SortOption>(SortOption.SongTitleAZ) }
                     var showSortSheet by remember { mutableStateOf(false) }
                     val sortedTracks = remember(songs, trackSortOption, uiState.playCounts) { sortArtistSongs(songs, trackSortOption, uiState.playCounts) }
@@ -293,6 +318,10 @@ fun ArtistDetailScreen(
                     val albumsGridState = rememberLazyGridState()
                     BackHandler(enabled = activeView != ArtistDetailView.Overview) {
                         activeView = ArtistDetailView.Overview
+                    }
+                    BackHandler(enabled = isSelectionMode || isAlbumSelectionMode) {
+                        multiSelectionState.clearSelection()
+                        selectedAlbumSections = persistentListOf()
                     }
 
                     val showScrollBar by remember {
@@ -506,6 +535,16 @@ fun ArtistDetailScreen(
                                         onSortClick = { showSortSheet = true }
                                     )
                                 }
+                                if (isSelectionMode) {
+                                    item(key = "artist_tracks_selection_row") {
+                                        SelectionActionRow(
+                                            selectedCount = selectedSongs.size,
+                                            onSelectAll = { multiSelectionState.selectAll(sortedTracks) },
+                                            onDeselect = { multiSelectionState.clearSelection() },
+                                            onOptionsClick = { showMultiSelectionSheet = true }
+                                        )
+                                    }
+                                }
                                 itemsIndexed(
                                     items = sortedTracks,
                                     key = { _, song -> "artist_track_${song.id}" },
@@ -528,11 +567,24 @@ fun ArtistDetailScreen(
                                             song = song,
                                             playerViewModel = playerViewModel,
                                             showAlbumArt = true,
+                                            isSelected = selectedSongIds.contains(song.id),
+                                            selectionIndex = if (isSelectionMode) multiSelectionState.getSelectionIndex(song.id) else null,
+                                            isSelectionMode = isSelectionMode,
+                                            onLongPress = {
+                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                multiSelectionState.toggleSelection(song)
+                                            },
                                             onMoreOptionsClick = {
                                                 playerViewModel.selectSongForInfo(song)
                                                 showSongInfoBottomSheet = true
                                             },
-                                            onClick = { playerViewModel.showAndPlaySong(song, sortedTracks) }
+                                            onClick = {
+                                                if (isSelectionMode) {
+                                                    multiSelectionState.toggleSelection(song)
+                                                } else {
+                                                    playerViewModel.showAndPlaySong(song, sortedTracks)
+                                                }
+                                            }
                                         )
                                     }
                                 }
@@ -570,6 +622,28 @@ fun ArtistDetailScreen(
                                         onBackClick = { activeView = ArtistDetailView.Overview }
                                     )
                                 }
+                                if (isAlbumSelectionMode) {
+                                    item(span = { GridItemSpan(2) }) {
+                                        SelectionActionRow(
+                                            selectedCount = selectedAlbumSections.size,
+                                            onSelectAll = {
+                                                multiSelectionState.clearSelection()
+                                                selectedAlbumSections = (selectedAlbumSections + gridSections.filterNot { section -> selectedAlbumSectionIds.contains(section.albumId) }).toImmutableList()
+                                            },
+                                            onDeselect = {
+                                                selectedAlbumSections = persistentListOf()
+                                                multiSelectionState.clearSelection()
+                                            },
+                                            onOptionsClick = {
+                                                val songs = selectedAlbumSections.flatMap { it.songs }.distinctBy { it.id }
+                                                if (songs.isNotEmpty()) {
+                                                    multiSelectionState.replaceSelection(songs)
+                                                    showMultiSelectionSheet = true
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
                                 gridItems(
                                     items = gridSections,
                                     key = { section -> "artist_grid_album_${section.albumId}" },
@@ -579,6 +653,28 @@ fun ArtistDetailScreen(
                                         section = section,
                                         artistName = artist.name,
                                         viewModel = viewModel,
+                                        isSelected = selectedAlbumSectionIds.contains(section.albumId),
+                                        selectionIndex = if (isAlbumSelectionMode) {
+                                            selectedAlbumSections.indexOfFirst { it.albumId == section.albumId }.takeIf { it >= 0 }?.plus(1)
+                                        } else null,
+                                        isSelectionMode = isAlbumSelectionMode,
+                                        onLongPress = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            multiSelectionState.clearSelection()
+                                            selectedAlbumSections = if (selectedAlbumSectionIds.contains(section.albumId)) {
+                                                selectedAlbumSections.filterNot { it.albumId == section.albumId }.toImmutableList()
+                                            } else {
+                                                (selectedAlbumSections + section).toImmutableList()
+                                            }
+                                        },
+                                        onSelectionToggle = {
+                                            multiSelectionState.clearSelection()
+                                            selectedAlbumSections = if (selectedAlbumSectionIds.contains(section.albumId)) {
+                                                selectedAlbumSections.filterNot { it.albumId == section.albumId }.toImmutableList()
+                                            } else {
+                                                (selectedAlbumSections + section).toImmutableList()
+                                            }
+                                        },
                                         onClick = {
                                             navController.navigateSafely(
                                                 Screen.AlbumDetail.createRoute(section.albumId)
@@ -671,6 +767,15 @@ fun ArtistDetailScreen(
                     }
                 }
             }
+
+            // Song and album selections are mutually exclusive, so the sum is the active count.
+            SelectionCountPill(
+                selectedCount = selectedSongs.size + selectedAlbumSections.size,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = with(density) { topBarHeight.value.toDp() })
+                    .zIndex(1f)
+            )
         }
     }
 
@@ -783,6 +888,14 @@ fun ArtistDetailScreen(
             }
         }
     }
+
+    SongMultiSelectionHost(
+        playerViewModel = playerViewModel,
+        multiSelectionState = multiSelectionState,
+        showSheet = showMultiSelectionSheet,
+        onDismiss = { showMultiSelectionSheet = false },
+        onActionTaken = { selectedAlbumSections = persistentListOf() }
+    )
     }
 }
 
@@ -1365,6 +1478,11 @@ private fun ArtistAlbumCard(
     artistName: String,
     viewModel: ArtistDetailViewModel,
     modifier: Modifier = Modifier,
+    isSelected: Boolean = false,
+    selectionIndex: Int? = null,
+    isSelectionMode: Boolean = false,
+    onLongPress: () -> Unit = {},
+    onSelectionToggle: () -> Unit = {},
     onClick: () -> Unit
 ) {
     val album = remember(section, artistName) {
@@ -1386,7 +1504,12 @@ private fun ArtistAlbumCard(
         AlbumGridItemRedesigned(
             album = album,
             albumColorSchemePairFlow = albumColorSchemeFlow,
-            onClick = onClick
+            onClick = onClick,
+            isSelectionMode = isSelectionMode,
+            isSelected = isSelected,
+            selectionIndex = selectionIndex,
+            onLongPress = onLongPress,
+            onSelectionToggle = onSelectionToggle
         )
     }
 }

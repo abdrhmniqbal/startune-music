@@ -17,6 +17,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -1832,7 +1834,12 @@ fun QueuePlaylistSongItem(
     enableSwipeToDismiss: Boolean = false,
     swipeStateIdentity: Long = 0L,
     onDismissSong: () -> Unit = {},
-    isFromPlaylist: Boolean
+    isFromPlaylist: Boolean,
+    isSelected: Boolean = false,
+    selectionIndex: Int? = null,
+    isSelectionMode: Boolean = false,
+    onLongPress: () -> Unit = {},
+    onSelectionToggle: () -> Unit = {}
 ) {
     val colors = MaterialTheme.colorScheme
 
@@ -1861,7 +1868,7 @@ fun QueuePlaylistSongItem(
     val hapticView = LocalView.current
     val appHapticsConfig = LocalAppHapticsConfig.current
     val dismissScope = rememberCoroutineScope()
-    val dismissEnabled = enableSwipeToDismiss && !isDragging
+    val dismissEnabled = enableSwipeToDismiss && !isDragging && !isSelectionMode
     val density = LocalDensity.current
 
     val dismissOffsetAnimatable = remember(swipeStateIdentity) { Animatable(0f) }
@@ -1951,13 +1958,13 @@ fun QueuePlaylistSongItem(
                 }
                 .padding(horizontal = 12.dp)
                 .clip(itemShape)
-                .clickable(
-                    enabled = currentOffsetPx == 0f
-                ) {
-                    onClick()
-                },
+                .combinedClickable(
+                    enabled = currentOffsetPx == 0f,
+                    onClick = { if (isSelectionMode) onSelectionToggle() else onClick() },
+                    onLongClick = onLongPress
+                ),
             shape = itemShape,
-            color = backgroundColor,
+            color = if (isSelected) colors.primaryContainer else backgroundColor,
             tonalElevation = elevation,
             shadowElevation = elevation
         ) {
@@ -1965,7 +1972,7 @@ fun QueuePlaylistSongItem(
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                AnimatedVisibility(visible = isDragHandleVisible) {
+                AnimatedVisibility(visible = isDragHandleVisible && !isSelectionMode) {
                     dragHandle()
                 }
 
@@ -1995,16 +2002,54 @@ fun QueuePlaylistSongItem(
                     )
                     Spacer(Modifier.width(albumArtPadding))
 
-                    SmartImage(
-                        model = song.albumArtUriString,
-                        shape = albumShape,
-                        contentDescription = stringResource(R.string.cd_album_art_for_title, song.title),
-                        modifier = Modifier
-                            .size(42.dp)
-                            .clip(albumShape),
-                        contentScale = ContentScale.Crop,
-                        targetSize = SmartImageCompactListTargetSize
-                    )
+                    Box(
+                        modifier = Modifier.size(42.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        SmartImage(
+                            model = song.albumArtUriString,
+                            shape = albumShape,
+                            contentDescription = stringResource(R.string.cd_album_art_for_title, song.title),
+                            modifier = Modifier
+                                .size(42.dp)
+                                .clip(albumShape),
+                            contentScale = ContentScale.Crop,
+                            targetSize = SmartImageCompactListTargetSize
+                        )
+                        if (isSelectionMode) {
+                            Box(
+                                modifier = Modifier
+                                    .size(42.dp)
+                                    .background(
+                                        if (isSelected) MaterialTheme.colorScheme.primary
+                                        else MaterialTheme.colorScheme.surfaceVariant,
+                                        albumShape
+                                    )
+                                    .border(
+                                        width = if (isSelected) 0.dp else 1.dp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        shape = albumShape
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (isSelected && selectionIndex != null) {
+                                    Text(
+                                        text = selectionIndex.toString(),
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                } else if (isSelected) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Check,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
 
                     Spacer(Modifier.width(16.dp))
 
@@ -2040,7 +2085,7 @@ fun QueuePlaylistSongItem(
                         Spacer(Modifier.width(8.dp))
                     }
 
-                    if (isFromPlaylist) {
+                    if (isFromPlaylist && !isSelectionMode) {
                         FilledIconButton(
                             onClick = { onMoreOptionsClick(song) },
                             colors = IconButtonDefaults.filledIconButtonColors(
@@ -2062,7 +2107,7 @@ fun QueuePlaylistSongItem(
                         }
                     }
 
-                    AnimatedVisibility(visible = isRemoveButtonVisible && !enableSwipeToDismiss) {
+                    AnimatedVisibility(visible = isRemoveButtonVisible && !enableSwipeToDismiss && !isSelectionMode) {
                         FilledIconButton(
                             onClick = onRemoveClick,
                             colors = IconButtonDefaults.filledIconButtonColors(

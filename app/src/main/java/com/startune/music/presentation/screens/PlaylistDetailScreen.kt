@@ -10,6 +10,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -66,6 +67,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -78,6 +80,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -103,6 +107,10 @@ import com.startune.music.presentation.components.SongPickerBottomSheet
 import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SongInfoBottomSheet
+import com.startune.music.presentation.components.SongMultiSelectionHost
+import com.startune.music.presentation.components.subcomps.SelectionActionRow
+import com.startune.music.presentation.components.subcomps.SelectionCountPill
+import androidx.compose.ui.zIndex
 import com.startune.music.presentation.components.resolveNavBarOccupiedHeight
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.viewmodel.PlayerViewModel
@@ -232,6 +240,16 @@ fun PlaylistDetailScreen(
     val navBarCompactMode by playerViewModel.navBarCompactMode.collectAsStateWithLifecycle()
     val bottomBarHeightDp = resolveNavBarOccupiedHeight(systemNavBarInset, navBarCompactMode)
     var showPlaylistBottomSheet by remember { mutableStateOf(false) }
+
+    val multiSelectionState = playerViewModel.multiSelectionStateHolder
+    val selectedSongs by multiSelectionState.selectedSongs.collectAsStateWithLifecycle()
+    val isSelectionMode by multiSelectionState.isSelectionMode.collectAsStateWithLifecycle()
+    val selectedSongIds by multiSelectionState.selectedSongIds.collectAsStateWithLifecycle()
+    val haptic = LocalHapticFeedback.current
+    var showMultiSelectionSheet by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = isSelectionMode) { multiSelectionState.clearSelection() }
+    DisposableEffect(Unit) { onDispose { multiSelectionState.clearSelection() } }
     // The initial position identifies an occurrence, even when the same song appears twice.
     // Move the entry with its key so dragging never changes a row's identity.
     var localReorderableEntries by remember(songsInPlaylist) {
@@ -505,6 +523,17 @@ fun PlaylistDetailScreen(
                                 )
                             }
                         ) {
+                            if (isSelectionMode) {
+                                item(key = "playlist_selection_row") {
+                                    SelectionActionRow(
+                                        selectedCount = selectedSongs.size,
+                                        onSelectAll = { multiSelectionState.selectAll(localReorderableSongs) },
+                                        onDeselect = { multiSelectionState.clearSelection() },
+                                        onOptionsClick = { showMultiSelectionSheet = true },
+                                        modifier = Modifier.padding(horizontal = 12.dp)
+                                    )
+                                }
+                            }
                             items(
                                 localReorderableEntries,
                                 key = { it.index },
@@ -539,17 +568,29 @@ fun PlaylistDetailScreen(
                                                 scaleY = scale
                                             },
                                         onClick = {
-                                            playerViewModel.playSongs(
-                                                localReorderableSongs,
-                                                song,
-                                                currentPlaylist.name,
-                                                currentPlaylist.id
-                                            )
+                                            if (isSelectionMode) {
+                                                multiSelectionState.toggleSelection(song)
+                                            } else {
+                                                playerViewModel.playSongs(
+                                                    localReorderableSongs,
+                                                    song,
+                                                    currentPlaylist.name,
+                                                    currentPlaylist.id
+                                                )
+                                            }
                                         },
                                         song = song,
                                         isCurrentSong = playbackUiState.isCurrentSong,
                                         isPlaying = playbackUiState.isPlaying,
                                         isDragging = isDragging,
+                                        isSelected = selectedSongIds.contains(song.id),
+                                        selectionIndex = if (isSelectionMode) multiSelectionState.getSelectionIndex(song.id) else null,
+                                        isSelectionMode = isSelectionMode,
+                                        onLongPress = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            multiSelectionState.toggleSelection(song)
+                                        },
+                                        onSelectionToggle = { multiSelectionState.toggleSelection(song) },
                                         onRemoveClick = {
                                             if (isEditablePlaylist) {
                                                 currentPlaylist.let {
@@ -558,9 +599,9 @@ fun PlaylistDetailScreen(
                                             }
                                         },
                                         isFromPlaylist = true,
-                                        isReorderModeEnabled = isReorderModeEnabled,
-                                        isDragHandleVisible = isReorderModeEnabled && isEditablePlaylist,
-                                        isRemoveButtonVisible = isRemoveModeEnabled && isEditablePlaylist,
+                                        isReorderModeEnabled = isReorderModeEnabled && !isSelectionMode,
+                                        isDragHandleVisible = isReorderModeEnabled && isEditablePlaylist && !isSelectionMode,
+                                        isRemoveButtonVisible = isRemoveModeEnabled && isEditablePlaylist && !isSelectionMode,
                                         onMoreOptionsClick = stableOnMoreOptionsClick,
                                         dragHandle = {
                                             IconButton(
@@ -595,6 +636,13 @@ fun PlaylistDetailScreen(
                                 }
                             }
                         }
+
+                        SelectionCountPill(
+                            selectedCount = selectedSongs.size,
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .zIndex(1f)
+                        )
 
                         ExpressiveScrollBar(
                             listState = listState,
@@ -963,6 +1011,13 @@ fun PlaylistDetailScreen(
             showViewToggle = false 
         )
     }
+
+    SongMultiSelectionHost(
+        playerViewModel = playerViewModel,
+        multiSelectionState = multiSelectionState,
+        showSheet = showMultiSelectionSheet,
+        onDismiss = { showMultiSelectionSheet = false }
+    )
 }
 
 
