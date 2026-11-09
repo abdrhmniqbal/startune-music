@@ -50,7 +50,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import com.startune.music.data.preferences.UserPreferencesRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -222,12 +224,15 @@ internal fun shouldDisableAudioOffloadOnEarlyBuffering(
 class DualPlayerEngine @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val jellyfinStreamProxy: com.startune.music.data.jellyfin.JellyfinStreamProxy,
-    private val cloudOfflineRepository: CloudOfflineRepository
+    private val cloudOfflineRepository: CloudOfflineRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) {
     private companion object {
         private const val AUDIO_OFFLOAD_STALL_FALLBACK_MS = 4_000L
         private const val POST_TRANSITION_OFFLOAD_GUARD_MS = 2_000L
         private const val MAX_AUXILIARY_TIMELINE_ITEMS = 200
+        private const val SHORT_FOCUS_LOSS_GRACE_MS = 2_000L
+        private const val DUCK_VOLUME = 0.2f
         private val LOCAL_MEDIA_SCHEMES = setOf("content", "file", "android.resource")
         private val REMOTE_MEDIA_SCHEMES = setOf("http", "https", "jellyfin")
         private val CLOUD_PROXY_SCHEMES = setOf("jellyfin")
@@ -331,6 +336,17 @@ class DualPlayerEngine @Inject constructor(
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private var audioFocusRequest: AudioFocusRequest? = null
     private var isFocusLossPause = false
+    private var duckVolumeEnabled: Boolean = true
+    private var pauseInCallEnabled: Boolean = true
+    private var resumeAfterCallEnabled: Boolean = true
+    private var resumeOnFocusGainEnabled: Boolean = true
+    private var respectPermanentFocusLossEnabled: Boolean = true
+    private var ignoreShortFocusLossEnabled: Boolean = false
+    private var isDucked: Boolean = false
+    private var duckedFromVolume: Float = 1f
+    private var pausedByCall: Boolean = false
+    private var delayedTransientPauseJob: Job? = null
+    private var audioFocusPrefsJob: Job? = null
     private var lastPlayWhenReadyAtMs: Long = 0L
     private var lastPlayingAtMs: Long = 0L
     private var lastSeekAtMs: Long = 0L
@@ -348,33 +364,114 @@ class DualPlayerEngine @Inject constructor(
     private val focusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
         when (focusChange) {
             AudioManager.AUDIOFOCUS_LOSS -> {
-                Timber.tag("TransitionDebug").d("AudioFocus LOSS. Pausing.")
-                isFocusLossPause = false
-                playerA.playWhenReady = false
-                playerB?.playWhenReady = false
-                abandonAudioFocus()
-            }
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
-                Timber.tag("TransitionDebug").d("AudioFocus LOSS_TRANSIENT. Pausing.")
-                val auxiliaryPlayer = playerB
-                isFocusLossPause = shouldResumeAfterTransientAudioFocusLoss(
-                    masterPlayWhenReady = playerA.playWhenReady,
-                    masterIsPlaying = playerA.isPlaying,
-                    transitionRunning = transitionRunning,
-                    auxiliaryPlayWhenReady = auxiliaryPlayer?.playWhenReady == true,
-                    auxiliaryIsPlaying = auxiliaryPlayer?.isPlaying == true
-                )
-                playerA.playWhenReady = false
-                auxiliaryPlayer?.playWhenReady = false
-            }
-            AudioManager.AUDIOFOCUS_GAIN -> {
-                Timber.tag("TransitionDebug").d("AudioFocus GAIN. Resuming if paused by loss.")
-                if (isFocusLossPause) {
+                Timber.tag("TransitionDebug").d("AudioFocus LOSS.")
+                delayedTransientPauseJob?.cancel()
+                delayedTransientPauseJob = null
+                clearDuck()
+                if (respectPermanentFocusLossEnabled) {
                     isFocusLossPause = false
-                    playerA.playWhenReady = true
-                    if (transitionRunning) playerB?.playWhenReady = true
+                    pausedByCall = false
+                    playerA.playWhenReady = false
+                    playerB?.playWhenReady = false
+                    abandonAudioFocus()
+                } else {
+                    // Treat it like a transient loss: pause, but keep the
+                    // request so a later gain can resume playback.
+                    pausedByCall = false
+                    pauseForTransientLoss()
                 }
             }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                if (isCallActive()) {
+                    delayedTransientPauseJob?.cancel()
+                    delayedTransientPauseJob = null
+                    if (pauseInCallEnabled) {
+                        Timber.tag("TransitionDebug").d("AudioFocus LOSS_TRANSIENT (call). Pausing.")
+                        pausedByCall = shouldResumeAfterTransientAudioFocusLoss(
+                            masterPlayWhenReady = playerA.playWhenReady,
+                            masterIsPlaying = playerA.isPlaying,
+                            transitionRunning = transitionRunning,
+                            auxiliaryPlayWhenReady = playerB?.playWhenReady == true,
+                            auxiliaryIsPlaying = playerB?.isPlaying == true
+                        )
+                        isFocusLossPause = false
+                        playerA.playWhenReady = false
+                        playerB?.playWhenReady = false
+                    }
+                } else if (ignoreShortFocusLossEnabled) {
+                    // Brief interruptions (notifications): wait out the grace
+                    // window and only pause if focus is still gone.
+                    Timber.tag("TransitionDebug").d("AudioFocus LOSS_TRANSIENT (short). Delaying pause.")
+                    delayedTransientPauseJob?.cancel()
+                    delayedTransientPauseJob = scope.launch {
+                        delay(SHORT_FOCUS_LOSS_GRACE_MS)
+                        if (playerA.playWhenReady || playerA.isPlaying) {
+                            pauseForTransientLoss()
+                        }
+                    }
+                } else {
+                    Timber.tag("TransitionDebug").d("AudioFocus LOSS_TRANSIENT. Pausing.")
+                    pausedByCall = false
+                    pauseForTransientLoss()
+                }
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                if (duckVolumeEnabled && !isDucked && !transitionRunning) {
+                    Timber.tag("TransitionDebug").d("AudioFocus CAN_DUCK. Ducking.")
+                    duckedFromVolume = playerA.volume.coerceIn(0f, 1f)
+                    isDucked = true
+                    playerA.volume = DUCK_VOLUME
+                    playerB?.volume = DUCK_VOLUME
+                }
+            }
+            AudioManager.AUDIOFOCUS_GAIN -> {
+                Timber.tag("TransitionDebug").d("AudioFocus GAIN.")
+                delayedTransientPauseJob?.cancel()
+                delayedTransientPauseJob = null
+                clearDuck()
+                if (pausedByCall) {
+                    pausedByCall = false
+                    if (resumeAfterCallEnabled) {
+                        playerA.playWhenReady = true
+                        if (transitionRunning) playerB?.playWhenReady = true
+                    }
+                } else if (isFocusLossPause) {
+                    isFocusLossPause = false
+                    if (resumeOnFocusGainEnabled) {
+                        playerA.playWhenReady = true
+                        if (transitionRunning) playerB?.playWhenReady = true
+                    }
+                }
+            }
+        }
+    }
+
+    private fun isCallActive(): Boolean {
+        val mode = audioManager.mode
+        return mode == AudioManager.MODE_IN_CALL || mode == AudioManager.MODE_RINGTONE
+    }
+
+    private fun pauseForTransientLoss() {
+        clearDuck()
+        val auxiliaryPlayer = playerB
+        isFocusLossPause = shouldResumeAfterTransientAudioFocusLoss(
+            masterPlayWhenReady = playerA.playWhenReady,
+            masterIsPlaying = playerA.isPlaying,
+            transitionRunning = transitionRunning,
+            auxiliaryPlayWhenReady = auxiliaryPlayer?.playWhenReady == true,
+            auxiliaryIsPlaying = auxiliaryPlayer?.isPlaying == true
+        )
+        playerA.playWhenReady = false
+        auxiliaryPlayer?.playWhenReady = false
+    }
+
+    private fun clearDuck() {
+        if (!isDucked) return
+        isDucked = false
+        // Never fight the crossfade loop over volume while it runs.
+        if (!transitionRunning) {
+            playerA.volume = duckedFromVolume
+            playerB?.volume = duckedFromVolume
         }
     }
 
@@ -685,6 +782,25 @@ class DualPlayerEngine @Inject constructor(
         activePlayerUsesWindowedQueue = false
         preserveQueueSnapshotOnNextPlaylistChange = false
         resetPreparedWindowState()
+        if (audioFocusPrefsJob?.isActive != true) {
+            audioFocusPrefsJob = scope.launch {
+                combine(
+                    userPreferencesRepository.duckVolumeFlow,
+                    userPreferencesRepository.pauseInCallFlow,
+                    userPreferencesRepository.resumeAfterCallFlow,
+                    userPreferencesRepository.resumeOnFocusGainFlow,
+                    userPreferencesRepository.respectPermanentFocusLossFlow,
+                    userPreferencesRepository.ignoreShortFocusLossFlow
+                ) { values ->
+                    duckVolumeEnabled = values[0]
+                    pauseInCallEnabled = values[1]
+                    resumeAfterCallEnabled = values[2]
+                    resumeOnFocusGainEnabled = values[3]
+                    respectPermanentFocusLossEnabled = values[4]
+                    ignoreShortFocusLossEnabled = values[5]
+                }.collect()
+            }
+        }
     }
 
     private fun requestAudioFocus() {
@@ -1544,6 +1660,7 @@ class DualPlayerEngine @Inject constructor(
     fun release() {
         invalidateActiveTransition()
         preResolutionJob?.cancel()
+        delayedTransientPauseJob?.cancel()
         cancelAudioOffloadFallback()
         scope.coroutineContext[Job]?.cancel()
         abandonAudioFocus()

@@ -195,6 +195,9 @@ class MusicService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var keepPlayingInBackground = true
+    private var fadePlayPauseStopEnabled = true
+    private var fadeOnSeekEnabled = false
+    private var transportFadeJob: Job? = null
     private var isManualShuffleEnabled = false
     private var persistentShuffleEnabled = false
     private var previousMainThreadExceptionHandler: Thread.UncaughtExceptionHandler? = null
@@ -231,6 +234,7 @@ class MusicService : MediaSessionService() {
         private const val MEDIA_SESSION_BUTTON_DEBOUNCE_MS = 250L
         private const val DEFERRED_SERVICE_STARTUP_WORK_DELAY_MS = 1_000L
         private const val PAUSED_RESTORE_PREPARE_QUEUE_LIMIT = 50
+        private const val TRANSPORT_FADE_MS = 200L
         private val pendingMediaButtonForegroundStarts = AtomicInteger(0)
 
         private const val APP_PACKAGE_PREFIX = "com.startune.music"
@@ -488,6 +492,18 @@ class MusicService : MediaSessionService() {
         }
 
         serviceScope.launch {
+            userPreferencesRepository.fadePlayPauseStopFlow.collect { enabled ->
+                fadePlayPauseStopEnabled = enabled
+            }
+        }
+
+        serviceScope.launch {
+            userPreferencesRepository.fadeOnSeekFlow.collect { enabled ->
+                fadeOnSeekEnabled = enabled
+            }
+        }
+
+        serviceScope.launch {
             val persistent = userPreferencesRepository.persistentShuffleEnabledFlow.first()
             if (persistent) {
                 isManualShuffleEnabled = userPreferencesRepository.isShuffleOnFlow.first()
@@ -540,6 +556,66 @@ class MusicService : MediaSessionService() {
                     sessionCommandsBuilder.build(),
                     defaultResult.availablePlayerCommands
                 )
+            }
+
+            override fun onPlay(session: MediaSession, controller: MediaSession.ControllerInfo) {
+                val player = session.player
+                if (player.mediaItemCount <= 0 || engine.isTransitionRunning() || !fadePlayPauseStopEnabled) {
+                    super.onPlay(session, controller)
+                    return
+                }
+                transportFadeJob?.cancel()
+                transportFadeJob = serviceScope.launch {
+                    val targetVolume = player.volume.coerceIn(0f, 1f)
+                    player.volume = 0f
+                    super.onPlay(session, controller)
+                    fadeMasterVolume(0f, targetVolume)
+                }
+            }
+
+            override fun onPause(session: MediaSession, controller: MediaSession.ControllerInfo) {
+                val player = session.player
+                if (!player.isPlaying || engine.isTransitionRunning() || !fadePlayPauseStopEnabled) {
+                    super.onPause(session, controller)
+                    return
+                }
+                transportFadeJob?.cancel()
+                transportFadeJob = serviceScope.launch {
+                    val targetVolume = player.volume.coerceIn(0f, 1f)
+                    fadeMasterVolume(targetVolume, 0f)
+                    super.onPause(session, controller)
+                    player.volume = targetVolume
+                }
+            }
+
+            override fun onStop(session: MediaSession, controller: MediaSession.ControllerInfo) {
+                val player = session.player
+                if (!player.isPlaying || engine.isTransitionRunning() || !fadePlayPauseStopEnabled) {
+                    super.onStop(session, controller)
+                    return
+                }
+                transportFadeJob?.cancel()
+                transportFadeJob = serviceScope.launch {
+                    val targetVolume = player.volume.coerceIn(0f, 1f)
+                    fadeMasterVolume(targetVolume, 0f)
+                    super.onStop(session, controller)
+                    player.volume = targetVolume
+                }
+            }
+
+            override fun onSeekTo(session: MediaSession, controller: MediaSession.ControllerInfo, positionMs: Long) {
+                val player = session.player
+                if (!player.isPlaying || engine.isTransitionRunning() || !fadeOnSeekEnabled) {
+                    super.onSeekTo(session, controller, positionMs)
+                    return
+                }
+                transportFadeJob?.cancel()
+                transportFadeJob = serviceScope.launch {
+                    val targetVolume = player.volume.coerceIn(0f, 1f)
+                    fadeMasterVolume(targetVolume, 0f)
+                    player.seekTo(positionMs)
+                    fadeMasterVolume(0f, targetVolume)
+                }
             }
 
             override fun onCustomCommand(
@@ -1214,6 +1290,20 @@ class MusicService : MediaSessionService() {
         }
     }
 
+    private suspend fun fadeMasterVolume(from: Float, to: Float) {
+        val player = engine.masterPlayer
+        val durationMs = TRANSPORT_FADE_MS
+        val startedAtMs = SystemClock.elapsedRealtime()
+        while (true) {
+            val elapsed = (SystemClock.elapsedRealtime() - startedAtMs).coerceAtMost(durationMs)
+            val progress = (elapsed.toFloat() / durationMs).coerceIn(0f, 1f)
+            player.volume = (from + (to - from) * progress).coerceIn(0f, 1f)
+            if (elapsed >= durationMs) break
+            delay(16L)
+        }
+        player.volume = to.coerceIn(0f, 1f)
+    }
+
     private suspend fun persistPlaybackSnapshot(playWhenReadyOverride: Boolean? = null) {
         if (isRestoringPlaybackSnapshot) return
         val snapshot = capturePlaybackSnapshot(playWhenReadyOverride)
@@ -1333,7 +1423,10 @@ class MusicService : MediaSessionService() {
         val allowBackgroundPlayback = runCatching {
             userPreferencesRepository.keepPlayingInBackgroundFlow.first()
         }.getOrDefault(keepPlayingInBackground)
-        val shouldRestorePlaying = snapshot.playWhenReady && allowBackgroundPlayback
+        val resumeOnStart = runCatching {
+            userPreferencesRepository.resumeOnStartFlow.first()
+        }.getOrDefault(false)
+        val shouldRestorePlaying = snapshot.playWhenReady && (allowBackgroundPlayback || resumeOnStart)
 
         val restoredItems = snapshot.items.mapNotNull(::buildMediaItemFromSnapshot)
         if (restoredItems.isEmpty()) {
