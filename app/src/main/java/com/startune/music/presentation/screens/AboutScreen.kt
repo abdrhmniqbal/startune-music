@@ -46,9 +46,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -64,6 +64,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -146,15 +147,16 @@ private val AboutMaintainers = listOf(
     NonFossMaintainer,
 )
 
-private const val SourceRepoUrl = "https://github.com/ianshulyadav/Startune Music"
+private const val SourceRepoUrl = "https://github.com/abdrhmniqbal/startune-music"
 private const val FDroidUrl = "https://f-droid.org/packages/com.startune.music/"
-private const val SponsorUrl = "https://ko-fi.com/ianshulyadav"
+private const val CrowdinUrl = "https://crowdin.com/project/startune-music/"
 
 private data class ProjectLink(
     val id: String,
     val title: String,
     val subtitle: String,
-    @DrawableRes val iconRes: Int,
+    @DrawableRes val iconRes: Int = 0,
+    val iconVector: ImageVector? = null,
     val url: String,
 )
 
@@ -188,6 +190,13 @@ fun AboutScreen(
             subtitle = stringResource(R.string.about_link_fdroid_subtitle),
             iconRes = R.drawable.fdroid,
             url = FDroidUrl,
+        ),
+        ProjectLink(
+            id = "translate",
+            title = stringResource(R.string.about_link_translate_title),
+            subtitle = stringResource(R.string.about_link_translate_subtitle),
+            iconVector = Icons.Outlined.Language,
+            url = CrowdinUrl,
         ),
     )
 
@@ -305,16 +314,6 @@ fun AboutScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .padding(top = 8.dp),
-                )
-            }
-
-            item(key = "support_card") {
-                AboutSupportCard(
-                    onSponsorClick = { openUrl(context, SponsorUrl) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .padding(top = 12.dp),
                 )
             }
 
@@ -520,113 +519,6 @@ private fun CommunitySignalsRow() {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun AboutSupportCard(
-    onSponsorClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val shape = AbsoluteSmoothCornerShape(30.dp, 60)
-
-    Surface(
-        modifier = modifier,
-        shape = shape,
-        color = MaterialTheme.colorScheme.primaryContainer,
-        tonalElevation = 4.dp,
-    ) {
-        Column(
-            modifier = Modifier.padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primary,
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.rounded_favorite_24),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.padding(12.dp).size(24.dp),
-                    )
-                }
-
-                Spacer(Modifier.width(12.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.about_support_eyebrow),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f),
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        text = stringResource(R.string.about_support_title),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
-
-            Text(
-                text = stringResource(R.string.about_support_body),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.86f),
-            )
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                listOf(
-                    stringResource(R.string.about_support_chip_foss),
-                    stringResource(R.string.about_support_chip_ci),
-                    stringResource(R.string.about_support_chip_streaming),
-                ).forEach { label ->
-                    Surface(
-                        shape = AbsoluteSmoothCornerShape(16.dp, 60),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.10f),
-                    ) {
-                        Text(
-                            text = label,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                }
-            }
-
-            FilledTonalButton(
-                onClick = onSponsorClick,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.github),
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.about_support_cta),
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
-    }
-}
-
 @Composable
 private fun AboutSectionHeader(
     title: String,
@@ -683,14 +575,25 @@ private fun AboutLinkCard(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.primaryContainer,
             ) {
-                Icon(
-                    painter = painterResource(link.iconRes),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .size(24.dp),
-                )
+                if (link.iconVector != null) {
+                    Icon(
+                        imageVector = link.iconVector,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .size(24.dp),
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(link.iconRes),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .size(24.dp),
+                    )
+                }
             }
 
             Spacer(Modifier.width(12.dp))

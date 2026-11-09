@@ -228,6 +228,9 @@
     <string name="setcat_battery_optimization_title">Battery Optimization</string>
     <string name="setcat_battery_optimization_subtitle">Disable battery optimization to prevent playback interruptions.</string>
     <string name="toast_battery_already_disabled">Battery optimization is already disabled</string>
+    <string name="setcat_share_crash_logs_title">Share crash logs</string>
+    <string name="setcat_share_crash_logs_subtitle">Share the last crash report for bug reports.</string>
+    <string name="toast_no_crash_logs">No crash logs captured yet.</string>
     <string name="setcat_replaygain_section">Volume Normalization (ReplayGain)</string>
     <string name="setcat_replaygain_enable_title">Enable ReplayGain</string>
     <string name="setcat_replaygain_enable_subtitle">Normalize volume levels using ReplayGain metadata from audio files.</string>

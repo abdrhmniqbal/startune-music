@@ -152,6 +152,7 @@ import com.startune.music.presentation.viewmodel.SetupUiState
 import com.startune.music.presentation.viewmodel.SetupViewModel
 import com.startune.music.ui.theme.ExpTitleTypography
 import com.startune.music.ui.theme.RoundedSans
+import com.startune.music.utils.BatteryOptimization
 import com.startune.music.utils.StorageInfo
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -375,6 +376,12 @@ fun SetupScreen(
                             navigateToPage(pagerState.currentPage + 1)
                         }
                     )
+                    SetupPage.BatteryOptimization -> BatteryOptimizationPage(
+                        uiState = uiState,
+                        onSkip = {
+                            navigateToPage(pagerState.currentPage + 1)
+                        }
+                    )
                     SetupPage.ThemeSelection -> ThemeSelectionPage(
                         uiState = uiState,
                         onModeSelected = setupViewModel::setAppThemeMode
@@ -572,6 +579,7 @@ sealed class SetupPage {
     object ThemeSelection : SetupPage()
     object NotificationsPermission : SetupPage()
     object AlarmsPermission : SetupPage()
+    object BatteryOptimization : SetupPage()
     object LibraryLayout : SetupPage()
     object NavBarLayout : SetupPage()
     object Finish : SetupPage()
@@ -598,6 +606,7 @@ private fun buildSetupPages(sdkInt: Int): List<SetupPage> {
         pages += SetupPage.AlarmsPermission
     }
 
+    pages += SetupPage.BatteryOptimization
     pages += SetupPage.Finish
     return pages
 }
@@ -887,6 +896,43 @@ fun AlarmsPermissionPage(
                 val uri = "package:${context.packageName}".toUri()
                 intent.data = uri
                 context.startActivity(intent)
+            }
+        }
+    ) {
+        if (!isGranted) {
+            TextButton(onClick = onSkip) {
+                Text(stringResource(R.string.skip_for_now), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
+    }
+}
+
+@Composable
+fun BatteryOptimizationPage(
+    uiState: SetupUiState,
+    onSkip: () -> Unit
+) {
+    val context = LocalContext.current
+    val icons = persistentListOf(
+        R.drawable.rounded_headphones_24,
+        R.drawable.rounded_music_note_24,
+        R.drawable.rounded_notifications_active_24,
+        R.drawable.rounded_pause_24,
+        R.drawable.rounded_timer_24
+    )
+
+    val isGranted = uiState.batteryOptimizationDisabled
+
+    PermissionPageLayout(
+        title = stringResource(R.string.setup_battery_optimization_title),
+        granted = isGranted,
+        description = stringResource(R.string.setup_battery_optimization_description),
+        buttonText = if (isGranted) stringResource(R.string.setup_permission_granted) else stringResource(R.string.setup_disable_battery_optimization),
+        buttonEnabled = !isGranted,
+        icons = icons,
+        onGrantClicked = {
+            if (!isGranted) {
+                BatteryOptimization.requestIgnoreBatteryOptimizations(context)
             }
         }
     ) {
