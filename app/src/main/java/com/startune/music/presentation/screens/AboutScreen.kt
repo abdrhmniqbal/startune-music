@@ -408,11 +408,20 @@ private fun AboutHeroCard(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Image(
-                        painter = painterResource(R.mipmap.ic_launcher),
-                        contentDescription = null,
-                        modifier = Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)),
-                    )
+                    Box(
+                        modifier = Modifier.size(56.dp).clip(RoundedCornerShape(16.dp))
+                    ) {
+                        Image(
+                            painter = painterResource(R.mipmap.ic_launcher_background),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                        Image(
+                            painter = painterResource(R.mipmap.ic_launcher_foreground),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
 
                     Spacer(modifier = Modifier.width(12.dp))
 
