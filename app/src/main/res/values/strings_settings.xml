@@ -223,6 +223,8 @@
     <string name="setcat_duck_volume_subtitle">Lower volume instead of pausing for other audio.</string>
     <string name="setcat_respect_permanent_focus_loss_title">Respect permanent focus loss</string>
     <string name="setcat_respect_permanent_focus_loss_subtitle">Stay paused when another app takes over playback.</string>
+    <string name="setcat_queue_aware_next_title">Queue-aware next</string>
+    <string name="setcat_queue_aware_next_subtitle">Play next adds songs after the ones already queued to play next, instead of jumping ahead of them.</string>
     <string name="setcat_battery_optimization_title">Battery Optimization</string>
     <string name="setcat_battery_optimization_subtitle">Disable battery optimization to prevent playback interruptions.</string>
     <string name="toast_battery_already_disabled">Battery optimization is already disabled</string>

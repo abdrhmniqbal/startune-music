@@ -79,6 +79,7 @@ data class SettingsUiState(
     val resumeOnFocusGain: Boolean = true,
     val duckVolume: Boolean = true,
     val respectPermanentFocusLoss: Boolean = true,
+    val queueAwareNext: Boolean = false,
     val keepScreenAwakeWhilePlaying: Boolean = false,
     val resumeOnHeadsetReconnect: Boolean = false,
     val showQueueHistory: Boolean = true,
@@ -191,6 +192,7 @@ private sealed interface SettingsUiUpdate {
         val resumeOnFocusGain: Boolean,
         val duckVolume: Boolean,
         val respectPermanentFocusLoss: Boolean,
+        val queueAwareNext: Boolean
     ) : SettingsUiUpdate
 }
 
@@ -362,6 +364,7 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.resumeOnFocusGainFlow,
                 userPreferencesRepository.duckVolumeFlow,
                 userPreferencesRepository.respectPermanentFocusLossFlow,
+                userPreferencesRepository.queueAwareNextFlow
             ) { values ->
                 val requestedAudioOutputMode = values[4] as AudioOutputMode
                 SettingsUiUpdate.Group2(
@@ -400,6 +403,7 @@ class SettingsViewModel @Inject constructor(
                     resumeOnFocusGain = values[25] as Boolean,
                     duckVolume = values[26] as Boolean,
                     respectPermanentFocusLoss = values[27] as Boolean,
+                    queueAwareNext = values[28] as Boolean
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -432,6 +436,7 @@ class SettingsViewModel @Inject constructor(
                         resumeOnFocusGain = update.resumeOnFocusGain,
                         duckVolume = update.duckVolume,
                         respectPermanentFocusLoss = update.respectPermanentFocusLoss,
+                        queueAwareNext = update.queueAwareNext,
                     )
                 }
             }
@@ -778,6 +783,12 @@ class SettingsViewModel @Inject constructor(
     fun setRespectPermanentFocusLoss(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setRespectPermanentFocusLoss(enabled)
+        }
+    }
+
+    fun setQueueAwareNext(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setQueueAwareNext(enabled)
         }
     }
 
