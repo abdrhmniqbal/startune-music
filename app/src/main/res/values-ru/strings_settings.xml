@@ -402,7 +402,6 @@
     <string name="lastfm_now_playing_desc">Обновите свой статус на Last.fm, указав текущий трек</string>
     <string name="lastfm_scrobbling_configuration">Конфигурация скробблинга</string>
     <string name="lastfm_scrobble_min_track_duration">Минимальная продолжительность трека: %1$ds</string>
-    <string name="lastfm_scrobble_delay_percent">Процент порога скроббла: %1$d%%</string>
     <string name="lastfm_scrobble_delay_seconds">Максимальная продолжительность порога скроббла: %1$ds</string>
     <string name="lastfm_username">Имя пользователя</string>
     <string name="lastfm_password">Пароль</string>

@@ -401,7 +401,6 @@
     <string name="lastfm_now_playing_desc">Mettez à jour votre statut Last.fm avec la piste actuelle</string>
     <string name="lastfm_scrobbling_configuration">Configuration du scrobble</string>
     <string name="lastfm_scrobble_min_track_duration">Durée minimale de la piste : %1$ds</string>
-    <string name="lastfm_scrobble_delay_percent">Pourcentage du seuil de scrobble : %1$d%%</string>
     <string name="lastfm_scrobble_delay_seconds">Durée maximale du seuil de scrobble : %1$ds</string>
     <string name="lastfm_username">Nom d\'utilisateur</string>
     <string name="lastfm_password">Mot de passe</string>

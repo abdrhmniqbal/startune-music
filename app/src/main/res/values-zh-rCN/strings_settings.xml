@@ -401,7 +401,6 @@
     <string name="lastfm_now_playing_desc">使用当前曲目更新您的 Last.fm 状态</string>
     <string name="lastfm_scrobbling_configuration">记录配置</string>
     <string name="lastfm_scrobble_min_track_duration">最短曲目持续时间：%1$ds</string>
-    <string name="lastfm_scrobble_delay_percent">乱码阈值百分比：%1$d%%</string>
     <string name="lastfm_scrobble_delay_seconds">最大乱码阈值持续时间：%1$ds</string>
     <string name="lastfm_username">用户名</string>
     <string name="lastfm_password">密码</string>

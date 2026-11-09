@@ -401,7 +401,6 @@
     <string name="lastfm_now_playing_desc">Perbarui status Last.fm Anda dengan lagu saat ini</string>
     <string name="lastfm_scrobbling_configuration">Konfigurasi Scrobbling</string>
     <string name="lastfm_scrobble_min_track_duration">Durasi Trek Minimum: %1$ds</string>
-    <string name="lastfm_scrobble_delay_percent">Persentase Ambang Scrobble: %1$d%%</string>
     <string name="lastfm_scrobble_delay_seconds">Durasi Ambang Batas Scrobble Maks: %1$ds</string>
     <string name="lastfm_username">Nama pengguna</string>
     <string name="lastfm_password">Kata sandi</string>

@@ -80,7 +80,6 @@ data class LastFmUiModel(
     val scrobbleEnabled: Boolean,
     val nowPlayingEnabled: Boolean,
     val minimumTrackDurationSeconds: Int,
-    val scrobbleDelayPercent: Int,
     val maxScrobbleDelaySeconds: Int
 )
 
@@ -185,7 +184,6 @@ class AccountsViewModel @Inject constructor(
                 scrobbleEnabled = account.config.isEnabled,
                 nowPlayingEnabled = account.config.nowPlayingEnabled,
                 minimumTrackDurationSeconds = account.config.minimumTrackDurationSeconds,
-                scrobbleDelayPercent = account.config.scrobbleDelayPercent,
                 maxScrobbleDelaySeconds = account.config.maxScrobbleDelaySeconds
             )
         } else {
@@ -351,12 +349,10 @@ class AccountsViewModel @Inject constructor(
 
     fun setLastFmScrobbleThresholds(
         minimumTrackDurationSeconds: Int,
-        scrobbleDelayPercent: Int,
         maxScrobbleDelaySeconds: Int
     ) {
         lastFmRepository.setScrobbleThresholds(
             minimumTrackDurationSeconds,
-            scrobbleDelayPercent,
             maxScrobbleDelaySeconds
         )
     }

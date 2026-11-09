@@ -401,7 +401,6 @@
     <string name="lastfm_now_playing_desc">Aggiorna il tuo stato Last.fm con la traccia corrente</string>
     <string name="lastfm_scrobbling_configuration">Configurazione di scorrimento</string>
     <string name="lastfm_scrobble_min_track_duration">Durata minima della traccia: %1$ds</string>
-    <string name="lastfm_scrobble_delay_percent">Percentuale soglia di scrobble: %1$d%%</string>
     <string name="lastfm_scrobble_delay_seconds">Durata massima soglia scrobble: %1$ds</string>
     <string name="lastfm_username">Nome utente</string>
     <string name="lastfm_password">Password</string>

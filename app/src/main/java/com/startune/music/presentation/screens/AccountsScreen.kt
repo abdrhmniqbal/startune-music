@@ -1115,7 +1115,7 @@ private fun LastFmCardExtras(
     model: LastFmUiModel,
     onToggleScrobble: (Boolean) -> Unit,
     onToggleNowPlaying: (Boolean) -> Unit,
-    onThresholdsChanged: (Int, Int, Int) -> Unit,
+    onThresholdsChanged: (Int, Int) -> Unit,
     onReconnect: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1175,19 +1175,7 @@ private fun LastFmCardExtras(
             valueRange = 0f..120f,
             steps = 23,
             onValueChangeFinished = {
-                onThresholdsChanged(it, model.scrobbleDelayPercent, model.maxScrobbleDelaySeconds)
-            }
-        )
-        LastFmThresholdSlider(
-            label = stringResource(
-                R.string.lastfm_scrobble_delay_percent,
-                model.scrobbleDelayPercent
-            ),
-            value = model.scrobbleDelayPercent,
-            valueRange = 5f..100f,
-            steps = 18,
-            onValueChangeFinished = {
-                onThresholdsChanged(model.minimumTrackDurationSeconds, it, model.maxScrobbleDelaySeconds)
+                onThresholdsChanged(it, model.maxScrobbleDelaySeconds)
             }
         )
         LastFmThresholdSlider(
@@ -1199,7 +1187,7 @@ private fun LastFmCardExtras(
             valueRange = 30f..600f,
             steps = 18,
             onValueChangeFinished = {
-                onThresholdsChanged(model.minimumTrackDurationSeconds, model.scrobbleDelayPercent, it)
+                onThresholdsChanged(model.minimumTrackDurationSeconds, it)
             }
         )
     }
