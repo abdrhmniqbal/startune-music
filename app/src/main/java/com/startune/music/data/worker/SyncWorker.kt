@@ -169,8 +169,11 @@ constructor(
                     val extractArtistsFromTitle = userPreferencesRepository.extractArtistsFromTitleFlow.first()
                     val groupByAlbumArtist =
                             userPreferencesRepository.groupByAlbumArtistFlow.first()
+                    val albumArtistSplitFixApplied =
+                            userPreferencesRepository.albumArtistSplitFixAppliedFlow.first()
                     val rescanRequired =
-                            userPreferencesRepository.artistSettingsRescanRequiredFlow.first()
+                            userPreferencesRepository.artistSettingsRescanRequiredFlow.first() ||
+                                    !albumArtistSplitFixApplied
                     val directoryRulesVersion =
                         userPreferencesRepository.getDirectoryRulesVersion()
                     val lastAppliedDirectoryRulesVersion =
@@ -343,6 +346,9 @@ constructor(
 
                     if (rescanRequired) {
                         userPreferencesRepository.clearArtistSettingsRescanRequired()
+                    }
+                    if (!albumArtistSplitFixApplied) {
+                        userPreferencesRepository.markAlbumArtistSplitFixApplied()
                     }
 
                     if (directoryRulesChanged) {
@@ -562,6 +568,9 @@ constructor(
             val effectiveAlbumArtistName = song.albumArtist
                     ?.trim()
                     ?.takeIf { it.isNotEmpty() && !it.equals("<unknown>", ignoreCase = true) }
+                    ?.splitArtistsByDelimiters(artistDelimiters, wordDelimiters)
+                    ?.firstOrNull()
+                    ?.takeIf { it.isNotEmpty() }
                     ?: primaryArtistName
             if (effectiveAlbumArtistName.isNotEmpty() && !artistNameToId.containsKey(effectiveAlbumArtistName)) {
                 artistNameToId[effectiveAlbumArtistName] = nextArtistId.getAndIncrement()
