@@ -104,7 +104,7 @@
     <string name="presentation_batch_d_transition_custom_override_title">Custom Override</string>
     <string name="presentation_batch_d_transition_custom_override_body">Enable to set specific rules for this playlist.</string>
     <string name="presentation_batch_d_transition_style_title">Transition Style</string>
-    <string name="presentation_batch_d_transition_style_subtitle">How tracks blend together</string>
+    <string name="presentation_batch_d_transition_style_subtitle">How songs blend together</string>
     <string name="presentation_batch_d_transition_mode_crossfade">Crossfade</string>
     <string name="presentation_batch_d_transition_mode_none">None</string>
     <string name="presentation_batch_d_transition_duration_title">Transition Duration</string>
@@ -112,7 +112,7 @@
     <string name="presentation_batch_d_transition_reset_cd">Reset</string>
     <string name="presentation_batch_d_transition_visualizer_current">Current Song</string>
     <string name="presentation_batch_d_transition_visualizer_next">Next Song</string>
-    <string name="presentation_batch_d_transition_overlap_explanation_format">Tracks will overlap for %1$ds</string>
+    <string name="presentation_batch_d_transition_overlap_explanation_format">Songs will overlap for %1$ds</string>
     <string name="presentation_batch_d_transition_curves_title">Volume Curves</string>
     <string name="presentation_batch_d_transition_curves_subtitle">Fine tune the audio slope</string>
     <string name="presentation_batch_d_transition_fade_out">Fade Out</string>

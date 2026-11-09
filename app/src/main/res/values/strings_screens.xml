@@ -267,8 +267,8 @@
     <string name="settings_open_system_settings">Open System Settings</string>
     <string name="settings_pure_yt_music_desc">Filter out non-music video content and show only audio songs.</string>
     <string name="settings_content_customization_section">Content Customization</string>
-    <string name="settings_filter_cover_lofi_title">Hide cover and lo-fi tracks</string>
-    <string name="settings_filter_cover_lofi_desc">Hide covers and lo-fi tracks from recommendations and queues.</string>
+    <string name="settings_filter_cover_lofi_title">Hide cover and lo-fi songs</string>
+    <string name="settings_filter_cover_lofi_desc">Hide covers and lo-fi songs from recommendations and queues.</string>
     <string name="settings_lossless_audio_sources_title">Lossless Audio Sources (ArchiveTune)</string>
     <string name="settings_lossless_streaming_sources_title">Lossless Streaming Sources</string>
     <string name="settings_lossless_streaming_sources_desc">Tidal, Qobuz, Deezer, Apple Music via Archive pool &amp; accounts</string>
@@ -312,7 +312,7 @@
     <string name="exp_advanced_explore_title">Advanced Explore Page</string>
     <string name="explore_section_artists_for_you">Artists for you</string>
     <string name="explore_section_fresh_finds">Fresh finds</string>
-    <string name="explore_section_fresh_finds_desc">New tracks matched to your listening vibe</string>
+    <string name="explore_section_fresh_finds_desc">New songs matched to your listening vibe</string>
     <string name="explore_section_jump_back_in">Jump back in</string>
     <string name="explore_section_mixes_to_explore">Mixes to explore</string>
     <string name="explore_section_mixes_to_explore_desc">Familiar favorites &amp; fresh combinations</string>
@@ -325,8 +325,8 @@
     <string name="explore_section_new_releases_desc">Fresh drops &amp; latest albums</string>
     <string name="artist_popular_songs_title">Popular Songs</string>
     <string name="artist_info_title">Artist Info</string>
-    <string name="artist_tracks_title">Tracks</string>
-    <string name="artist_all_tracks_title">All Tracks</string>
+    <string name="artist_songs_title">Songs</string>
+    <string name="artist_all_songs_title">All Songs</string>
     <string name="artist_featured_on_title">Featured On</string>
     <string name="artist_albums_title">Albums</string>
     <string name="artist_singles_eps_title">Singles &amp; EPs</string>

@@ -319,7 +319,7 @@ fun ArtistDetailScreen(
                                         contentType = "artist_section_header"
                                     ) {
                                         ArtistSectionHeader(
-                                            title = stringResource(R.string.artist_tracks_title),
+                                            title = stringResource(R.string.artist_songs_title),
                                             onViewMoreClick = { activeView = ArtistDetailView.Tracks }
                                         )
                                     }
@@ -503,7 +503,7 @@ fun ArtistDetailScreen(
                                     contentType = "artist_subview_header"
                                 ) {
                                     ArtistSubViewHeader(
-                                        title = stringResource(R.string.artist_all_tracks_title),
+                                        title = stringResource(R.string.artist_all_songs_title),
                                         onBackClick = { activeView = ArtistDetailView.Overview },
                                         onSortClick = { showSortSheet = true }
                                     )

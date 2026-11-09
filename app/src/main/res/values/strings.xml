@@ -269,7 +269,7 @@
     <string name="cloud_downloads_downloaded_size">Downloaded · %1$s</string>
     <string name="cloud_downloads_failed_fallback">Download failed</string>
     <string name="cloud_downloads_empty_title">No offline downloads</string>
-    <string name="cloud_downloads_empty_subtitle">Tracks you download will appear here.</string>
+    <string name="cloud_downloads_empty_subtitle">Songs you download will appear here.</string>
     <string name="cloud_download_retry">Retry</string>
     <string name="cloud_remove_download">Remove</string>
     <string name="cloud_download_queued">Queued</string>
