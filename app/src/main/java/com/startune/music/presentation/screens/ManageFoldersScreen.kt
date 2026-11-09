@@ -63,7 +63,7 @@ fun ManageFoldersScreen(
 
     var showPicker by remember { mutableStateOf(false) }
 
-    val isWhitelist = allowedDirectories.isNotEmpty()
+    val isWhitelist by settingsViewModel.isWhitelist.collectAsStateWithLifecycle()
     val folders = (if (isWhitelist) allowedDirectories else blockedDirectories).sorted()
 
     val density = LocalDensity.current

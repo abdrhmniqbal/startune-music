@@ -195,6 +195,11 @@ class SettingsViewModel @Inject constructor(
     val currentDirectoryChildren = fileExplorerStateHolder.currentDirectoryChildren
     val allowedDirectories = fileExplorerStateHolder.allowedDirectories
     val blockedDirectories = fileExplorerStateHolder.blockedDirectories
+    val isWhitelist: StateFlow<Boolean> = combine(
+        userPreferencesRepository.folderFilterModeFlow,
+        fileExplorerStateHolder.allowedDirectories
+    ) { mode, allowed -> mode ?: allowed.isNotEmpty() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
     val availableStorages = fileExplorerStateHolder.availableStorages
     val selectedStorageIndex = fileExplorerStateHolder.selectedStorageIndex
     val isLoadingDirectories = fileExplorerStateHolder.isLoading
@@ -479,7 +484,8 @@ class SettingsViewModel @Inject constructor(
             val normalized = File(path).absolutePath
             val allowed = userPreferencesRepository.allowedDirectoriesFlow.first()
             val blocked = userPreferencesRepository.blockedDirectoriesFlow.first()
-            if (allowed.isNotEmpty()) {
+            val whitelist = userPreferencesRepository.folderFilterModeFlow.first() ?: allowed.isNotEmpty()
+            if (whitelist) {
                 if (normalized in allowed) return@launch
                 userPreferencesRepository.updateDirectorySelections(allowed + normalized, blocked - normalized)
             } else {
@@ -500,10 +506,9 @@ class SettingsViewModel @Inject constructor(
 
     fun setFolderFilterMode(whitelist: Boolean) {
         viewModelScope.launch {
+            userPreferencesRepository.setFolderFilterMode(whitelist)
             val allowed = userPreferencesRepository.allowedDirectoriesFlow.first()
             val blocked = userPreferencesRepository.blockedDirectoriesFlow.first()
-            if (whitelist && blocked.isEmpty()) return@launch
-            if (!whitelist && allowed.isEmpty()) return@launch
             val all = allowed + blocked
             if (whitelist) {
                 userPreferencesRepository.updateDirectorySelections(all, emptySet())

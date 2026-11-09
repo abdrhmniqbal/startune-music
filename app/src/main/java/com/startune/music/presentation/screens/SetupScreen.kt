@@ -178,6 +178,7 @@ fun SetupScreen(
     val currentPath by setupViewModel.currentPath.collectAsStateWithLifecycle()
     val directoryChildren by setupViewModel.currentDirectoryChildren.collectAsStateWithLifecycle()
     val availableStorages by setupViewModel.availableStorages.collectAsStateWithLifecycle()
+    val isWhitelist by setupViewModel.isWhitelist.collectAsStateWithLifecycle()
     val selectedStorageIndex by setupViewModel.selectedStorageIndex.collectAsStateWithLifecycle()
     val isExplorerPriming by setupViewModel.isExplorerPriming.collectAsStateWithLifecycle()
     val isExplorerReady by setupViewModel.isExplorerReady.collectAsStateWithLifecycle()
@@ -341,6 +342,7 @@ fun SetupScreen(
                     )
                     SetupPage.DirectorySelection -> DirectorySelectionPage(
                         uiState = uiState,
+                        isWhitelist = isWhitelist,
                         currentPath = currentPath,
                         directoryChildren = directoryChildren,
                         availableStorages = availableStorages,
@@ -447,6 +449,7 @@ fun SetupScreen(
 @Composable
 fun DirectorySelectionPage(
     uiState: SetupUiState,
+    isWhitelist: Boolean,
     currentPath: File,
     directoryChildren: ImmutableList<DirectoryEntry>,
     availableStorages: ImmutableList<StorageInfo>,
@@ -479,7 +482,6 @@ fun DirectorySelectionPage(
         }
     }
 
-    val isWhitelist = uiState.allowedDirectories.isNotEmpty()
     val folders = (if (isWhitelist) uiState.allowedDirectories else uiState.blockedDirectories).sorted()
     val scrollState = rememberScrollState()
 

@@ -135,6 +135,7 @@ constructor(
 
         val GLOBAL_TRANSITION_SETTINGS = stringPreferencesKey("global_transition_settings_json")
         val LIBRARY_TABS_ORDER = stringPreferencesKey("library_tabs_order")
+        val FOLDER_FILTER_MODE = stringPreferencesKey("folder_filter_mode")
         val IS_FOLDER_FILTER_ACTIVE = booleanPreferencesKey("is_folder_filter_active")
         val IS_FOLDERS_PLAYLIST_VIEW = booleanPreferencesKey("is_folders_playlist_view")
         val HIDE_LOCAL_MEDIA = booleanPreferencesKey("hide_local_media")
@@ -1038,6 +1039,17 @@ constructor(
             val currentVersion = preferences[PreferencesKeys.DIRECTORY_RULES_VERSION] ?: 0
             preferences[PreferencesKeys.DIRECTORY_RULES_VERSION] =
                 if (currentVersion == Int.MAX_VALUE) 0 else currentVersion + 1
+        }
+    }
+
+    val folderFilterModeFlow: Flow<Boolean?> =
+        dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.FOLDER_FILTER_MODE]?.let { it == "whitelist" }
+        }
+
+    suspend fun setFolderFilterMode(whitelist: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.FOLDER_FILTER_MODE] = if (whitelist) "whitelist" else "blacklist"
         }
     }
 
