@@ -1512,6 +1512,10 @@ constructor(
                         }
                         preferences[PreferencesKeys.LIBRARY_TABS_ORDER] = json.encodeToString(order)
                     }
+                    if (!order.contains("GENRES")) {
+                        order.add("GENRES")
+                        preferences[PreferencesKeys.LIBRARY_TABS_ORDER] = json.encodeToString(order)
+                    }
                 } catch (e: Exception) {
                 }
             }

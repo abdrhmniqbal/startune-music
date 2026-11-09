@@ -3330,7 +3330,7 @@ fun ArtistGridItem(
             Column {
                 ShimmerBox(
                     modifier = Modifier
-                        .aspectRatio(3f / 2f)
+                        .aspectRatio(1f)
                         .fillMaxSize()
                 )
                 Column(
@@ -3394,7 +3394,7 @@ fun ArtistGridItem(
                         contentScale = ContentScale.Crop,
                         targetSize = Size(256, 256),
                         modifier = Modifier
-                            .aspectRatio(3f / 2f)
+                            .aspectRatio(1f)
                             .fillMaxSize()
                     )
                     Column(
