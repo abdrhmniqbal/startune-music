@@ -516,6 +516,18 @@ object SettingsRegistry {
                 onToggle = { viewModel, checked -> viewModel.setRespectPermanentFocusLoss(checked) }
             ),
             SettingSpec(
+                id = "playback_queue_aware_next",
+                itemKey = "item_playback_queue_aware_next",
+                titleRes = R.string.setcat_queue_aware_next_title,
+                subtitleRes = R.string.setcat_queue_aware_next_subtitle,
+                category = SettingsCategory.PLAYBACK,
+                subscreenRoute = Screen.SettingsCategory.createRoute("playback"),
+                type = SettingType.SWITCH,
+                keywordsStatic = listOf("queue", "play next", "order", "up next"),
+                getValue = { it.queueAwareNext },
+                onToggle = { viewModel, checked -> viewModel.setQueueAwareNext(checked) }
+            ),
+            SettingSpec(
                 id = "playback_keep_screen_awake",
                 itemKey = "item_playback_keep_screen_awake",
                 titleRes = R.string.setcat_keep_screen_awake_title,

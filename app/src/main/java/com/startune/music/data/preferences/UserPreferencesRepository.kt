@@ -156,6 +156,7 @@ constructor(
         val RESUME_ON_FOCUS_GAIN = booleanPreferencesKey("resume_on_focus_gain")
         val DUCK_VOLUME = booleanPreferencesKey("duck_volume")
         val RESPECT_PERMANENT_FOCUS_LOSS = booleanPreferencesKey("respect_permanent_focus_loss")
+        val QUEUE_AWARE_NEXT = booleanPreferencesKey("queue_aware_next")
         val KEEP_SCREEN_AWAKE_WHILE_PLAYING =
                 booleanPreferencesKey("keep_screen_awake_while_playing")
         val IS_CROSSFADE_ENABLED = booleanPreferencesKey("is_crossfade_enabled")
@@ -1031,6 +1032,11 @@ constructor(
                 preferences[PreferencesKeys.RESPECT_PERMANENT_FOCUS_LOSS] ?: true
             }
 
+    val queueAwareNextFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.QUEUE_AWARE_NEXT] ?: false
+            }
+
     val keepScreenAwakeWhilePlayingFlow: Flow<Boolean> =
             dataStore.data.map { preferences ->
                 preferences[PreferencesKeys.KEEP_SCREEN_AWAKE_WHILE_PLAYING] ?: false
@@ -1567,6 +1573,12 @@ constructor(
     suspend fun setRespectPermanentFocusLoss(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.RESPECT_PERMANENT_FOCUS_LOSS] = enabled
+        }
+    }
+
+    suspend fun setQueueAwareNext(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.QUEUE_AWARE_NEXT] = enabled
         }
     }
 

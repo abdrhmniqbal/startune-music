@@ -245,6 +245,8 @@ private data class ResolvedAlbumSelection(
     val wasTrimmed: Boolean
 )
 
+private const val QUEUED_NEXT_EXTRA_KEY = "queued_next"
+
 @androidx.annotation.OptIn(UnstableApi::class)
 @SuppressLint("LogNotTimber")
 @OptIn(coil.annotation.ExperimentalCoilApi::class, ExperimentalCoroutinesApi::class)
@@ -421,6 +423,13 @@ class PlayerViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = NavBarStyle.DEFAULT
+        )
+
+    val queueAwareNext: StateFlow<Boolean> = userPreferencesRepository.queueAwareNextFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = false
         )
 
     val navBarCompactMode: StateFlow<Boolean> = userPreferencesRepository.navBarCompactModeFlow
@@ -3212,10 +3221,17 @@ class PlayerViewModel @Inject constructor(
 
     fun addSongNextToQueue(song: Song) {
         mediaController?.let { controller ->
-            val mediaItem = buildPlaybackMediaItem(song)
+            val queueAware = queueAwareNext.value
+            val mediaItem = buildPlaybackMediaItem(song, queuedNext = queueAware)
 
             val insertionIndex = if (controller.currentMediaItemIndex != C.INDEX_UNSET) {
-                (controller.currentMediaItemIndex + 1).coerceAtMost(controller.mediaItemCount)
+                val afterCurrent = controller.currentMediaItemIndex + 1
+                val queuedNextCount = if (queueAware) {
+                    countQueuedNextAfter(controller, afterCurrent)
+                } else {
+                    0
+                }
+                (afterCurrent + queuedNextCount).coerceAtMost(controller.mediaItemCount)
             } else {
                 controller.mediaItemCount
             }
@@ -3224,14 +3240,31 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
-    private fun buildPlaybackMediaItem(song: Song, playlistId: String? = null): MediaItem {
+    private fun countQueuedNextAfter(controller: MediaController, fromIndex: Int): Int {
+        var count = 0
+        var index = fromIndex
+        while (index < controller.mediaItemCount) {
+            val extras = controller.getMediaItemAt(index).mediaMetadata.extras
+            if (extras?.getBoolean(QUEUED_NEXT_EXTRA_KEY) != true) break
+            count++
+            index++
+        }
+        return count
+    }
+
+    private fun buildPlaybackMediaItem(song: Song, playlistId: String? = null, queuedNext: Boolean = false): MediaItem {
         val baseItem = MediaItemBuilder.build(song)
-        if (playlistId == null) {
+        if (playlistId == null && !queuedNext) {
             return baseItem
         }
 
         val mergedExtras = Bundle(baseItem.mediaMetadata.extras ?: Bundle()).apply {
-            putString("playlistId", playlistId)
+            if (playlistId != null) {
+                putString("playlistId", playlistId)
+            }
+            if (queuedNext) {
+                putBoolean(QUEUED_NEXT_EXTRA_KEY, true)
+            }
         }
 
         return baseItem.buildUpon()
