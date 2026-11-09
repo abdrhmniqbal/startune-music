@@ -146,6 +146,9 @@ constructor(
         val USE_SMOOTH_CORNERS = booleanPreferencesKey("use_smooth_corners")
         val KEEP_PLAYING_IN_BACKGROUND = booleanPreferencesKey("keep_playing_in_background")
         val RESTORE_LAST_POSITION = booleanPreferencesKey("restore_last_position")
+        val APP_UPDATE_NOTIFICATIONS_ENABLED = booleanPreferencesKey("app_update_notifications_enabled")
+        val INCLUDE_PRERELEASES = booleanPreferencesKey("include_prereleases")
+        val INDEXER_NOTIFICATIONS_ENABLED = booleanPreferencesKey("indexer_notifications_enabled")
         val FADE_PLAY_PAUSE_STOP = booleanPreferencesKey("fade_play_pause_stop")
         val FADE_ON_SEEK = booleanPreferencesKey("fade_on_seek")
         val RESUME_AFTER_CALL = booleanPreferencesKey("resume_after_call")
@@ -982,6 +985,21 @@ constructor(
                 preferences[PreferencesKeys.RESTORE_LAST_POSITION] ?: true
             }
 
+    val appUpdateNotificationsEnabledFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.APP_UPDATE_NOTIFICATIONS_ENABLED] ?: true
+            }
+
+    val includePrereleasesFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.INCLUDE_PRERELEASES] ?: false
+            }
+
+    val indexerNotificationsEnabledFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.INDEXER_NOTIFICATIONS_ENABLED] ?: true
+            }
+
     val fadePlayPauseStopFlow: Flow<Boolean> =
             dataStore.data.map { preferences ->
                 preferences[PreferencesKeys.FADE_PLAY_PAUSE_STOP] ?: true
@@ -1513,6 +1531,24 @@ constructor(
     suspend fun setRestoreLastPosition(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.RESTORE_LAST_POSITION] = enabled
+        }
+    }
+
+    suspend fun setAppUpdateNotificationsEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.APP_UPDATE_NOTIFICATIONS_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setIncludePrereleases(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.INCLUDE_PRERELEASES] = enabled
+        }
+    }
+
+    suspend fun setIndexerNotificationsEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.INDEXER_NOTIFICATIONS_ENABLED] = enabled
         }
     }
 

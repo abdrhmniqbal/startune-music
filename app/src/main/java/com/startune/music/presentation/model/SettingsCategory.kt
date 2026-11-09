@@ -37,6 +37,12 @@ enum class SettingsCategory(
         subtitleRes = R.string.settings_category_playback_subtitle,
         icon = Icons.Rounded.MusicNote
     ),
+    NOTIFICATIONS(
+        id = "notifications",
+        titleRes = R.string.settings_category_notifications_title,
+        subtitleRes = R.string.settings_category_notifications_subtitle,
+        iconRes = R.drawable.rounded_notifications_active_24
+    ),
     BEHAVIOR(
         id = "behavior",
         titleRes = R.string.settings_category_behavior_title,

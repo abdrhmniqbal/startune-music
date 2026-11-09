@@ -648,6 +648,42 @@ object SettingsRegistry {
                 onToggle = { viewModel, checked -> viewModel.setShowQueueHistory(checked) }
             ),
 
+            SettingSpec(
+                id = "notifications_app_update",
+                itemKey = "item_notifications_app_update",
+                titleRes = R.string.setcat_app_update_notifications_title,
+                subtitleRes = R.string.setcat_app_update_notifications_enabled,
+                category = SettingsCategory.NOTIFICATIONS,
+                subscreenRoute = Screen.SettingsCategory.createRoute("notifications"),
+                type = SettingType.SWITCH,
+                keywordsStatic = listOf("update", "notification", "new version"),
+                getValue = { it.appUpdateNotificationsEnabled },
+                onToggle = { viewModel, checked -> viewModel.setAppUpdateNotificationsEnabled(checked) }
+            ),
+            SettingSpec(
+                id = "notifications_include_prereleases",
+                itemKey = "item_notifications_include_prereleases",
+                titleRes = R.string.setcat_include_prereleases_title,
+                subtitleRes = R.string.setcat_include_prereleases_enabled,
+                category = SettingsCategory.NOTIFICATIONS,
+                subscreenRoute = Screen.SettingsCategory.createRoute("notifications"),
+                type = SettingType.SWITCH,
+                keywordsStatic = listOf("prerelease", "preview", "beta", "rc"),
+                getValue = { it.includePrereleases },
+                onToggle = { viewModel, checked -> viewModel.setIncludePrereleases(checked) }
+            ),
+            SettingSpec(
+                id = "notifications_indexer",
+                itemKey = "item_notifications_indexer",
+                titleRes = R.string.setcat_indexer_notifications_title,
+                subtitleRes = R.string.setcat_indexer_notifications_enabled,
+                category = SettingsCategory.NOTIFICATIONS,
+                subscreenRoute = Screen.SettingsCategory.createRoute("notifications"),
+                type = SettingType.SWITCH,
+                keywordsStatic = listOf("scan", "indexing", "notification", "progress"),
+                getValue = { it.indexerNotificationsEnabled },
+                onToggle = { viewModel, checked -> viewModel.setIndexerNotificationsEnabled(checked) }
+            ),
             // --- BEHAVIOR CATEGORY ---
             SettingSpec(
                 id = "behavior_folder_back_gesture",
