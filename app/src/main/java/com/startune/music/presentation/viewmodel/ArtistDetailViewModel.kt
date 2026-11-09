@@ -41,6 +41,7 @@ data class ArtistDetailUiState(
     val albumSections: List<ArtistAlbumSection> = emptyList(),
     val featuredOnSections: List<ArtistAlbumSection> = emptyList(),
     val popularTracks: List<Song> = emptyList(),
+    val playCounts: Map<String, Int> = emptyMap(),
     val effectiveImageUrl: String? = null,
     val isLoading: Boolean = false,
     val error: String? = null
@@ -139,13 +140,14 @@ class ArtistDetailViewModel @Inject constructor(
                         val orderedSongs = albumSections.flatMap { it.songs }
 
                         val songsById = songs.associateBy { it.id }
-                        val rankedTracks = try {
-                            playbackStatsRepository.loadTopTracks(StatsTimeRange.ALL, songs, 5)
-                                .mapNotNull { songsById[it.songId] }
+                        val allRankedTracks = try {
+                            playbackStatsRepository.loadTopTracks(StatsTimeRange.ALL, songs, Int.MAX_VALUE)
                         } catch (e: Exception) {
                             Timber.tag("ArtistDebug").w("Failed to load artist top tracks: ${e.message}")
                             emptyList()
                         }
+                        val rankedTracks = allRankedTracks.mapNotNull { songsById[it.songId] }
+                        val playCounts = allRankedTracks.associate { it.songId to it.playCount }
                         val popularTracks = if (rankedTracks.size >= 5) {
                             rankedTracks.take(5)
                         } else {
@@ -188,6 +190,7 @@ class ArtistDetailViewModel @Inject constructor(
                             albumSections = primarySections,
                             featuredOnSections = featuredSections,
                             popularTracks = popularTracks,
+                            playCounts = playCounts,
                             effectiveImageUrl = effectiveUrl,
                             isLoading = false
                         )
