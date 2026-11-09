@@ -44,7 +44,6 @@ class LastFmRepository @Inject constructor(
         private const val KEY_SCROBBLE_ENABLED = "scrobble_enabled"
         private const val KEY_NOW_PLAYING_ENABLED = "now_playing_enabled"
         private const val KEY_MIN_DURATION_S = "min_duration_s"
-        private const val KEY_DELAY_PERCENT = "delay_percent"
         private const val KEY_MAX_DELAY_S = "max_delay_s"
         private const val MAX_QUEUE_SIZE = 3000
     }
@@ -63,10 +62,6 @@ class LastFmRepository @Inject constructor(
         minimumTrackDurationSeconds = prefs.getInt(
             KEY_MIN_DURATION_S,
             LastFmScrobbleConfig.DEFAULT_MIN_TRACK_DURATION_SECONDS
-        ),
-        scrobbleDelayPercent = prefs.getInt(
-            KEY_DELAY_PERCENT,
-            LastFmScrobbleConfig.DEFAULT_SCROBBLE_DELAY_PERCENT
         ),
         maxScrobbleDelaySeconds = prefs.getInt(
             KEY_MAX_DELAY_S,
@@ -178,12 +173,10 @@ class LastFmRepository @Inject constructor(
 
     fun setScrobbleThresholds(
         minimumTrackDurationSeconds: Int,
-        scrobbleDelayPercent: Int,
         maxScrobbleDelaySeconds: Int
     ) {
         prefs.edit {
             putInt(KEY_MIN_DURATION_S, minimumTrackDurationSeconds.coerceIn(0, 600))
-            putInt(KEY_DELAY_PERCENT, scrobbleDelayPercent.coerceIn(5, 100))
             putInt(KEY_MAX_DELAY_S, maxScrobbleDelaySeconds.coerceIn(30, 1800))
         }
         _accountState.value = _accountState.value.copy(config = readConfig())

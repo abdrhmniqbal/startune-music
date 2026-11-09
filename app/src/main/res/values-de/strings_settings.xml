@@ -397,7 +397,6 @@
     <string name="lastfm_now_playing_desc">Aktualisieren Sie Ihren Last.fm-Status mit dem aktuellen Titel</string>
     <string name="lastfm_scrobbling_configuration">Scrobbling-Konfiguration</string>
     <string name="lastfm_scrobble_min_track_duration">Mindesttiteldauer: %1$ds</string>
-    <string name="lastfm_scrobble_delay_percent">Scrobble-Schwellenwert-Prozentsatz: %1$d%%</string>
     <string name="lastfm_scrobble_delay_seconds">Maximale Dauer des Scrobble-Schwellenwerts: %1$ds</string>
     <string name="lastfm_username">Benutzername</string>
     <string name="lastfm_password">Passwort</string>

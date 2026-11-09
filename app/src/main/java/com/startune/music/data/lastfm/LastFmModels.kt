@@ -78,12 +78,10 @@ data class LastFmScrobbleConfig(
     val isEnabled: Boolean = false,
     val nowPlayingEnabled: Boolean = true,
     val minimumTrackDurationSeconds: Int = DEFAULT_MIN_TRACK_DURATION_SECONDS,
-    val scrobbleDelayPercent: Int = DEFAULT_SCROBBLE_DELAY_PERCENT,
     val maxScrobbleDelaySeconds: Int = DEFAULT_MAX_SCROBBLE_DELAY_SECONDS
 ) {
     companion object {
         const val DEFAULT_MIN_TRACK_DURATION_SECONDS = 30
-        const val DEFAULT_SCROBBLE_DELAY_PERCENT = 30
         const val DEFAULT_MAX_SCROBBLE_DELAY_SECONDS = 240
     }
 }

@@ -376,7 +376,6 @@ Prompt: %2$s | Saída: %3$s | Pensei: %4$s</string>
     <string name="lastfm_now_playing_desc">Atualize seu status do Last.fm com a faixa atual</string>
     <string name="lastfm_scrobbling_configuration">Configuração de rolagem</string>
     <string name="lastfm_scrobble_min_track_duration">Duração mínima da faixa: %1$ds</string>
-    <string name="lastfm_scrobble_delay_percent">Porcentagem do limite de Scrobble: %1$d%%</string>
     <string name="lastfm_scrobble_delay_seconds">Duração máxima do limite de scrobble: %1$ds</string>
     <string name="lastfm_username">Nome de usuário</string>
     <string name="lastfm_password">Senha</string>

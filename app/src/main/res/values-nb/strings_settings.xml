@@ -401,7 +401,6 @@
     <string name="lastfm_now_playing_desc">Oppdater Last.fm-statusen din med gjeldende spor</string>
     <string name="lastfm_scrobbling_configuration">Scrobbling-konfigurasjon</string>
     <string name="lastfm_scrobble_min_track_duration">Minimum sporvarighet: %1$ds</string>
-    <string name="lastfm_scrobble_delay_percent">Scrobble Threshold Prosent: %1$d%%</string>
     <string name="lastfm_scrobble_delay_seconds">Maks Scrobble Threshold Varighet: %1$ds</string>
     <string name="lastfm_username">Brukernavn</string>
     <string name="lastfm_password">Passord</string>
