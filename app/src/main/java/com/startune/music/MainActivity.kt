@@ -18,6 +18,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.hilt.navigation.compose.hiltViewModel
+
 import androidx.annotation.CallSuper
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedContent
@@ -54,8 +56,12 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -116,6 +122,8 @@ import com.startune.music.data.worker.SyncManager
 import com.startune.music.data.worker.SyncProgress
 import com.startune.music.presentation.components.AllFilesAccessDialog
 import com.startune.music.presentation.components.AppSidebarDrawer
+import com.startune.music.presentation.components.AppUpdateSheet
+
 import com.startune.music.presentation.components.CrashReportDialog
 import com.startune.music.presentation.components.DismissUndoBar
 import com.startune.music.presentation.components.DrawerDestination
@@ -123,15 +131,19 @@ import com.startune.music.presentation.components.MiniPlayerBottomSpacer
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.PlayerInternalNavigationBar
 import com.startune.music.presentation.components.PlayerNavigationRail
+
 import com.startune.music.presentation.components.UnifiedPlayerSheetV2
 import com.startune.music.presentation.components.calculatePlayerSheetCollapsedTargetY
+import com.startune.music.presentation.components.rememberModalSheetState
 import com.startune.music.presentation.components.resolveNavBarOccupiedHeight
 import com.startune.music.presentation.components.resolveNavBarSurfaceHeight
 import com.startune.music.presentation.components.sanitizeNavigationBarBottomInset
 import com.startune.music.presentation.navigation.AppNavigation
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.screens.SetupScreen
+import com.startune.music.presentation.viewmodel.AppUpdateViewModel
 import com.startune.music.presentation.viewmodel.MainViewModel
+
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.ui.theme.StartuneTheme
 import com.startune.music.ui.theme.resolveAppWideNowPlayingColorSchemePair
@@ -172,6 +184,7 @@ private data class DismissUndoBarSlice(
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @AndroidEntryPoint
+@OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
 
     private val playerViewModel: PlayerViewModel by viewModels()
@@ -304,6 +317,9 @@ class MainActivity : ComponentActivity() {
                 lastValidScheme = lastValidNowPlayingScheme
             )
             val isSetupComplete by mainViewModel.isSetupComplete.collectAsStateWithLifecycle()
+            val appUpdateViewModel: AppUpdateViewModel = hiltViewModel()
+            val pendingUpdate by appUpdateViewModel.pendingUpdate.collectAsStateWithLifecycle()
+            val updateSheetState = rememberModalSheetState()
             
             var showCrashReportDialog by remember { mutableStateOf(false) }
             var crashLogData by remember { mutableStateOf<CrashLogData?>(null) }
@@ -328,6 +344,7 @@ class MainActivity : ComponentActivity() {
                 if (showSetupScreen == false) {
                      LogUtils.i(this, "Setup complete/skipped and permissions valid. Starting sync.")
                      mainViewModel.startSync()
+                     appUpdateViewModel.checkOnStartup()
                 }
             }
 
@@ -392,6 +409,20 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
+
+                    if (pendingUpdate != null) {
+                        ModalBottomSheet(
+                            onDismissRequest = { appUpdateViewModel.dismissPendingUpdate(false) },
+                            sheetState = updateSheetState
+                        ) {
+                            AppUpdateSheet(
+                                update = pendingUpdate!!,
+                                onDismiss = { appUpdateViewModel.dismissPendingUpdate(false) },
+                                onDontRemind = { appUpdateViewModel.dismissPendingUpdate(true) }
+                            )
+                        }
+                    }
+
                 }
             }
         }

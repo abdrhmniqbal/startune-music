@@ -400,8 +400,6 @@
     <string name="presentation_batch_g_cast_cd_disconnect_icon">연결 해제</string>
     <string name="presentation_batch_g_cast_connecting_ellipsis">연결 중...</string>
 
-    <string name="presentation_batch_g_changelog_sec_whats_new">새로운 기능</string>
-    <string name="presentation_batch_g_changelog_sec_improvements">개선 사항</string>
     <string name="presentation_batch_g_changelog_sec_fixes">수정 사항</string>
     <string name="presentation_batch_g_changelog_sec_highlights">주요 기능</string>
     <string name="presentation_batch_g_changelog_sec_whats_new_lower">새로운 기능</string>
@@ -578,17 +576,6 @@
         <item>더 깊은 통찰력과 새로운 시각화를 제공하는 향상된 청취 통계.</item>
         <item>모든 클라우드 제공업체에 대한 라이브러리 동기화 흐름 개선.</item>
         <item>앨범 커버 지원을 포함한 향상된 메타데이터 편집.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_070_improvements">
-        <item>시작, 라이브러리, 대기열 및 플레이어 상호작용 전반의 성능 개선.</item>
-        <item>더욱 깔끔하고 일관된 경험을 위한 정교한 Material 3 UI.</item>
-        <item>앱 전반에 걸친 더욱 부드러운 애니메이션 및 전환.</item>
-        <item>향상된 검색 관련성 및 빠른 음악 탐색.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_070_fixes">
-        <item>더 안정적인 재생을 위해 대기열 및 셔플 동작 수정.</item>
-        <item>백그라운드 재생 및 알림 문제 해결.</item>
-        <item>일반적인 버그 수정 및 UI 다듬기.</item>
     </string-array>
 
 </resources>

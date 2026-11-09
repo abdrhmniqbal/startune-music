@@ -149,6 +149,8 @@ constructor(
         val APP_UPDATE_NOTIFICATIONS_ENABLED = booleanPreferencesKey("app_update_notifications_enabled")
         val INCLUDE_PRERELEASES = booleanPreferencesKey("include_prereleases")
         val INDEXER_NOTIFICATIONS_ENABLED = booleanPreferencesKey("indexer_notifications_enabled")
+        val LAST_NOTIFIED_UPDATE_VERSION = stringPreferencesKey("last_notified_update_version")
+        val DISMISSED_UPDATE_VERSION = stringPreferencesKey("dismissed_update_version")
         val FADE_PLAY_PAUSE_STOP = booleanPreferencesKey("fade_play_pause_stop")
         val FADE_ON_SEEK = booleanPreferencesKey("fade_on_seek")
         val RESUME_AFTER_CALL = booleanPreferencesKey("resume_after_call")
@@ -1000,6 +1002,16 @@ constructor(
                 preferences[PreferencesKeys.INDEXER_NOTIFICATIONS_ENABLED] ?: true
             }
 
+    val lastNotifiedUpdateVersionFlow: Flow<String> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.LAST_NOTIFIED_UPDATE_VERSION] ?: ""
+            }
+
+    val dismissedUpdateVersionFlow: Flow<String> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.DISMISSED_UPDATE_VERSION] ?: ""
+            }
+
     val fadePlayPauseStopFlow: Flow<Boolean> =
             dataStore.data.map { preferences ->
                 preferences[PreferencesKeys.FADE_PLAY_PAUSE_STOP] ?: true
@@ -1549,6 +1561,18 @@ constructor(
     suspend fun setIndexerNotificationsEnabled(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.INDEXER_NOTIFICATIONS_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setLastNotifiedUpdateVersion(version: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.LAST_NOTIFIED_UPDATE_VERSION] = version
+        }
+    }
+
+    suspend fun setDismissedUpdateVersion(version: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.DISMISSED_UPDATE_VERSION] = version
         }
     }
 

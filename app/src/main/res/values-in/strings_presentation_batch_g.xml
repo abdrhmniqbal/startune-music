@@ -453,7 +453,6 @@
     <string name="presentation_batch_g_cast_connecting_ellipsis">Menghubungkan…</string>
 
     <string name="presentation_batch_g_changelog_sec_highlights">Sorotan</string>
-    <string name="presentation_batch_g_changelog_sec_improvements">Peningkatan</string>
     <string name="presentation_batch_g_changelog_sec_fixes">Perbaikan</string>
     <string name="presentation_batch_g_changelog_sec_whats_new_lower">Yang baru</string>
     <string name="presentation_batch_g_changelog_sec_added">Ditambahkan</string>
@@ -467,18 +466,7 @@
         <item>Pengeditan metadata yang lebih baik dengan dukungan sampul album.</item>
     </string-array>
 
-    <string-array name="presentation_batch_g_changelog_070_improvements">
-        <item>Peningkatan performa pada startup, pustaka, antrean, dan interaksi pemutar.</item>
-        <item>Tampilan Material 3 yang disempurnakan untuk pengalaman yang lebih rapi dan konsisten.</item>
-        <item>Animasi dan transisi yang lebih mulus di seluruh aplikasi.</item>
-        <item>Pencarian yang lebih relevan dan penemuan lagu yang lebih cepat.</item>
-    </string-array>
 
-    <string-array name="presentation_batch_g_changelog_070_fixes">
-        <item>Memperbaiki perilaku antrean dan shuffle agar pemutaran lebih stabil.</item>
-        <item>Memperbaiki masalah pemutaran latar belakang dan notifikasi.</item>
-        <item>Perbaikan bug umum dan penyempurnaan UI.</item>
-    </string-array>
     <string name="presentation_batch_g_cast_nearby_title">Perangkat terdekat</string>
 
     <!-- Backfilled translations -->
@@ -488,7 +476,6 @@
     <string name="presentation_batch_g_beta05_clean_install_body">•</string>
     <string name="presentation_batch_g_beta05_if_wrong_meta_title">Jelajahi Segarkan</string>
     <string name="presentation_batch_g_beta05_if_wrong_meta_body">Nikmati tata letak Material 3 Ekspresif baru yang ramping di seluruh tab Jelajahi!</string>
-    <string name="presentation_batch_g_changelog_sec_whats_new">Apa yang Baru</string>
     <string-array name="presentation_batch_g_changelog_060_whats_new">
         <item>Dukungan Android Auto kini tersedia untuk pemutaran di mobil.</item>
         <item>Dukungan Wear OS telah hadir, termasuk kontrol pemutaran jam ke ponsel yang lebih baik.</item>

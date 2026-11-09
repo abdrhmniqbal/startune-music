@@ -400,8 +400,6 @@ Backslash (\) can be used to escape character delimiters.</string>
     <string name="presentation_batch_g_cast_cd_disconnect_icon">Disconnect</string>
     <string name="presentation_batch_g_cast_connecting_ellipsis">Connecting...</string>
 
-    <string name="presentation_batch_g_changelog_sec_whats_new">What\'s New</string>
-    <string name="presentation_batch_g_changelog_sec_improvements">Improvements</string>
     <string name="presentation_batch_g_changelog_sec_fixes">Fixes</string>
     <string name="presentation_batch_g_changelog_sec_highlights">Highlights</string>
     <string name="presentation_batch_g_changelog_sec_whats_new_lower">What\'s new</string>
@@ -578,17 +576,6 @@ Backslash (\) can be used to escape character delimiters.</string>
         <item>Estadísticas de escucha mejoradas con información más detallada y nuevas visualizaciones.</item>
         <item>Flujo de sincronización de biblioteca mejorado en todos los proveedores en la nube.</item>
         <item>Mejor edición de metadatos con soporte para carátulas de álbumes.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_070_improvements">
-        <item>Mejoras de rendimiento en el inicio, biblioteca, cola e interacciones del reproductor.</item>
-        <item>Interfaz Material 3 refinada para una experiencia más limpia y cohesiva.</item>
-        <item>Animaciones y transiciones más fluidas en toda la aplicación.</item>
-        <item>Mejor relevancia de búsqueda y descubrimiento más rápido.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_070_fixes">
-        <item>Comportamiento de cola y reproducción aleatoria corregido para una reproducción más estable.</item>
-        <item>Problemas resueltos con la reproducción en segundo plano y las notificaciones.</item>
-        <item>Corrección general de errores y mejoras visuales.</item>
     </string-array>
 
 </resources>

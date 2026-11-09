@@ -460,9 +460,7 @@ A barra invertida (\) pode ser usada para escapar dos delimitadores de caractere
     <string name="presentation_batch_g_cast_cd_disconnect_icon">Desconectar</string>
     <string name="presentation_batch_g_cast_connecting_ellipsis">Conectando...</string>
     <string name="presentation_batch_g_changelog_sec_highlights">Destaques</string>
-    <string name="presentation_batch_g_changelog_sec_improvements">Melhorias</string>
     <string name="presentation_batch_g_changelog_sec_fixes">Correções</string>
-    <string name="presentation_batch_g_changelog_sec_whats_new">Novidades</string>
     <string name="presentation_batch_g_changelog_sec_whats_new_lower">Novidades</string>
     <string name="presentation_batch_g_changelog_sec_added">Adicionado</string>
     <string name="presentation_batch_g_changelog_sec_changed">Alterado</string>
@@ -574,17 +572,6 @@ A barra invertida (\) pode ser usada para escapar dos delimitadores de caractere
         <item>Estatísticas de audição aprimoradas com insights mais profundos e novas visualizações.</item>
         <item>Fluxo de sincronização de biblioteca melhorado em todos os provedores de nuvem.</item>
         <item>Melhor edição de metadados com suporte a capas de álbuns.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_070_improvements">
-        <item>Melhorias de desempenho na inicialização, biblioteca, fila e interações do reprodutor.</item>
-        <item>Interface Material 3 refinada para uma experiência mais limpa e coesa.</item>
-        <item>Animações e transições mais suaves em todo o aplicativo.</item>
-        <item>Maior relevância na busca e descoberta mais rápida.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_070_fixes">
-        <item>Comportamento da fila e reprodução aleatória corrigido para reprodução mais estável.</item>
-        <item>Problemas de reprodução em segundo plano e notificações resolvidos.</item>
-        <item>Correções gerais de bugs e polimento da interface.</item>
     </string-array>
 
 </resources>

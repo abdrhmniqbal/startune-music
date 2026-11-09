@@ -400,8 +400,6 @@ Backslash (\\) kan brukes for å unngå tegn-separatorer.</string>
     <string name="presentation_batch_g_cast_cd_disconnect_icon">Koble fra</string>
     <string name="presentation_batch_g_cast_connecting_ellipsis">Kobler til...</string>
 
-    <string name="presentation_batch_g_changelog_sec_whats_new">Hva er nytt</string>
-    <string name="presentation_batch_g_changelog_sec_improvements">Forbedringer</string>
     <string name="presentation_batch_g_changelog_sec_fixes">Feilrettinger</string>
     <string name="presentation_batch_g_changelog_sec_highlights">Høydepunkter</string>
     <string name="presentation_batch_g_changelog_sec_whats_new_lower">Hva er nytt</string>
@@ -578,17 +576,6 @@ Backslash (\\) kan brukes for å unngå tegn-separatorer.</string>
         <item>Forbedret lyttestatistikk med dypere innsikt og nye visualiseringer.</item>
         <item>Forbedret biblioteksynkroniseringsflyt på tvers av alle skyleverandører.</item>
         <item>Bedre metadataredigering med støtte for albumomslag.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_070_improvements">
-        <item>Ytelsesforbedringer ved oppstart, bibliotek, kø og spillerinteraksjoner.</item>
-        <item>Forfinet Material 3-grensesnitt for en renere og mer helhetlig opplevelse.</item>
-        <item>Mykere animasjoner og overganger i hele appen.</item>
-        <item>Bedre søkerelevans og raskere oppdagelse.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_070_fixes">
-        <item>Rettet kø- og tilfeldig avspilling-oppførsel for mer stabil avspilling.</item>
-        <item>Løste problemer med bakgrunnsavspilling og varsler.</item>
-        <item>Generelle feilrettinger og UI-polering.</item>
     </string-array>
 
 </resources>

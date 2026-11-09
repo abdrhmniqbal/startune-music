@@ -3,6 +3,7 @@
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -48,6 +49,7 @@ import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.rounded.Public
+import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -92,17 +94,20 @@ import androidx.compose.ui.unit.lerp as lerpDp
 import androidx.compose.ui.util.lerp as lerpFloat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import coil.compose.AsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
 import com.startune.music.R
+import com.startune.music.data.updates.AppUpdateManager
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.navigation.navigateSafely
+import com.startune.music.presentation.viewmodel.AppUpdateViewModel
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import kotlinx.coroutines.launch
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
@@ -169,6 +174,7 @@ fun AboutScreen(
     onNavigationIconClick: () -> Unit,
 ) {
     val context = LocalContext.current
+    val appUpdateViewModel: AppUpdateViewModel = hiltViewModel()
     val versionName: String = try {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
         packageInfo.versionName ?: "N/A"
@@ -331,12 +337,46 @@ fun AboutScreen(
             ) { index, link ->
                 AboutLinkCard(
                     link = link,
-                    shape = expressiveListShape(index = index, count = projectLinks.size),
+                    shape = expressiveListShape(index = index, count = projectLinks.size + 1),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .padding(top = if (index == 0) 0.dp else 3.dp),
                     onClick = { openUrl(context, link.url) },
+                )
+            }
+
+            item(key = "check_for_updates") {
+                AboutLinkCard(
+                    link = ProjectLink(
+                        id = "check_for_updates",
+                        title = stringResource(R.string.about_check_for_updates_title),
+                        subtitle = stringResource(R.string.about_check_for_updates_subtitle, versionName),
+                        iconVector = Icons.Rounded.SystemUpdate,
+                        url = "",
+                    ),
+                    shape = expressiveListShape(index = projectLinks.size, count = projectLinks.size + 1),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 3.dp),
+                    onClick = {
+                        coroutineScope.launch {
+                            when (appUpdateViewModel.checkManually()) {
+                                is AppUpdateManager.ManualCheckResult.UpdateAvailable -> Unit
+                                AppUpdateManager.ManualCheckResult.UpToDate -> Toast.makeText(
+                                    context,
+                                    context.getString(R.string.update_up_to_date),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                AppUpdateManager.ManualCheckResult.Error -> Toast.makeText(
+                                    context,
+                                    context.getString(R.string.update_check_failed),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    },
                 )
             }
 
