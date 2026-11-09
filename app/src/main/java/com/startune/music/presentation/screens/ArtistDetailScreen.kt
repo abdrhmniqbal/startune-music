@@ -1361,7 +1361,7 @@ private fun ArtistSubViewHeader(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            IconButton(onClick = onBackClick) {
+            FilledTonalIconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.auth_cd_back)
@@ -1375,7 +1375,7 @@ private fun ArtistSubViewHeader(
             )
         }
         if (onSortClick != null) {
-            IconButton(onClick = onSortClick) {
+            FilledTonalIconButton(onClick = onSortClick) {
                 Icon(
                     imageVector = Icons.Filled.Sort,
                     contentDescription = stringResource(R.string.presentation_batch_d_sort_by)
