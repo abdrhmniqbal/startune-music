@@ -40,7 +40,6 @@ import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.MusicNote
-import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material.icons.rounded.SurroundSound
 import androidx.compose.material.icons.filled.Sort
@@ -113,6 +112,15 @@ import androidx.compose.ui.res.stringResource
 import com.startune.music.R
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.TextButton
 
 private const val UseSharedCollapsibleTopBarProbe = true
 
@@ -294,7 +302,15 @@ fun ArtistDetailScreen(
                         }
                     }
 
-                    when (activeView) {
+                    AnimatedContent(
+                        targetState = activeView,
+                        transitionSpec = {
+                            (fadeIn(tween(250)) + slideInHorizontally(tween(250)) { it / 6 }) togetherWith
+                                (fadeOut(tween(200)) + slideOutHorizontally(tween(200)) { -it / 6 })
+                        },
+                        label = "artist_detail_view"
+                    ) { view ->
+                        when (view) {
                         ArtistDetailView.Overview -> {
                             LazyColumn(
                                 state = lazyListState,
@@ -321,24 +337,6 @@ fun ArtistDetailScreen(
                                         ArtistSectionHeader(
                                             title = stringResource(R.string.artist_songs_title),
                                             onViewMoreClick = { activeView = ArtistDetailView.Tracks }
-                                        )
-                                    }
-                                    item(
-                                        key = "artist_tracks_actions",
-                                        contentType = "artist_section_actions"
-                                    ) {
-                                        ArtistPlayShuffleRow(
-                                            onPlay = {
-                                                val firstSong = songs.firstOrNull() ?: return@ArtistPlayShuffleRow
-                                                playerViewModel.playSongs(songs, firstSong, artist.name)
-                                            },
-                                            onShuffle = {
-                                                playerViewModel.playSongsShuffled(
-                                                    songs,
-                                                    artist.name,
-                                                    startAtZero = true
-                                                )
-                                            }
                                         )
                                     }
                                     itemsIndexed(
@@ -508,24 +506,6 @@ fun ArtistDetailScreen(
                                         onSortClick = { showSortSheet = true }
                                     )
                                 }
-                                item(
-                                    key = "artist_all_tracks_actions",
-                                    contentType = "artist_section_actions"
-                                ) {
-                                    ArtistPlayShuffleRow(
-                                        onPlay = {
-                                            val firstSong = sortedTracks.firstOrNull() ?: return@ArtistPlayShuffleRow
-                                            playerViewModel.playSongs(sortedTracks, firstSong, artist.name)
-                                        },
-                                        onShuffle = {
-                                            playerViewModel.playSongsShuffled(
-                                                sortedTracks,
-                                                artist.name,
-                                                startAtZero = true
-                                            )
-                                        }
-                                    )
-                                }
                                 itemsIndexed(
                                     items = sortedTracks,
                                     key = { _, song -> "artist_track_${song.id}" },
@@ -559,8 +539,8 @@ fun ArtistDetailScreen(
                             }
                         }
                         ArtistDetailView.Albums, ArtistDetailView.FeaturedOn -> {
-                            val gridSections = if (activeView == ArtistDetailView.FeaturedOn) featuredOnSections else albumSections
-                            val gridTitle = if (activeView == ArtistDetailView.FeaturedOn) {
+                            val gridSections = if (view == ArtistDetailView.FeaturedOn) featuredOnSections else albumSections
+                            val gridTitle = if (view == ArtistDetailView.FeaturedOn) {
                                 stringResource(R.string.artist_featured_on_title)
                             } else {
                                 stringResource(R.string.library_tab_albums)
@@ -609,6 +589,7 @@ fun ArtistDetailScreen(
                             }
                         }
                     }
+                }
 
                     if (showSortSheet) {
                         LibrarySortBottomSheet(
@@ -1270,22 +1251,43 @@ private fun MusicIconPattern(modifier: Modifier = Modifier) {
 
 @Composable
 private fun ArtistBioSection(bio: String) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+    var expanded by remember { mutableStateOf(false) }
+    var hasOverflow by remember { mutableStateOf(false) }
+    Card(
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        ),
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Text(
-            text = stringResource(R.string.artist_info_title),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Text(
-            text = bio,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.artist_info_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = bio,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = if (expanded) Int.MAX_VALUE else 4,
+                overflow = TextOverflow.Ellipsis,
+                onTextLayout = { hasOverflow = it.hasVisualOverflow }
+            )
+            if (hasOverflow || expanded) {
+                TextButton(onClick = { expanded = !expanded }) {
+                    Text(
+                        text = stringResource(
+                            if (expanded) R.string.artist_bio_show_less else R.string.artist_bio_show_more
+                        )
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -1379,37 +1381,6 @@ private fun ArtistSubViewHeader(
                     contentDescription = stringResource(R.string.presentation_batch_d_sort_by)
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun ArtistPlayShuffleRow(
-    onPlay: () -> Unit,
-    onShuffle: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        LargeExtendedFloatingActionButton(
-            onClick = onPlay,
-            shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f)
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.PlayArrow,
-                contentDescription = stringResource(R.string.play_playback)
-            )
-        }
-        LargeExtendedFloatingActionButton(
-            onClick = onShuffle,
-            shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f)
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Shuffle,
-                contentDescription = stringResource(R.string.shortcut_shuffle_short)
-            )
         }
     }
 }
