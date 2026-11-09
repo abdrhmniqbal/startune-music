@@ -558,63 +558,61 @@ class MusicService : MediaSessionService() {
                 )
             }
 
-            override fun onPlay(session: MediaSession, controller: MediaSession.ControllerInfo) {
+            override fun onPlayerCommandRequest(
+                session: MediaSession,
+                controller: MediaSession.ControllerInfo,
+                playerCommand: Int
+            ): Int {
                 val player = session.player
-                if (player.mediaItemCount <= 0 || engine.isTransitionRunning() || !fadePlayPauseStopEnabled) {
-                    super.onPlay(session, controller)
-                    return
-                }
-                transportFadeJob?.cancel()
-                transportFadeJob = serviceScope.launch {
-                    val targetVolume = player.volume.coerceIn(0f, 1f)
-                    player.volume = 0f
-                    super.onPlay(session, controller)
-                    fadeMasterVolume(0f, targetVolume)
-                }
-            }
-
-            override fun onPause(session: MediaSession, controller: MediaSession.ControllerInfo) {
-                val player = session.player
-                if (!player.isPlaying || engine.isTransitionRunning() || !fadePlayPauseStopEnabled) {
-                    super.onPause(session, controller)
-                    return
-                }
-                transportFadeJob?.cancel()
-                transportFadeJob = serviceScope.launch {
-                    val targetVolume = player.volume.coerceIn(0f, 1f)
-                    fadeMasterVolume(targetVolume, 0f)
-                    super.onPause(session, controller)
-                    player.volume = targetVolume
-                }
-            }
-
-            override fun onStop(session: MediaSession, controller: MediaSession.ControllerInfo) {
-                val player = session.player
-                if (!player.isPlaying || engine.isTransitionRunning() || !fadePlayPauseStopEnabled) {
-                    super.onStop(session, controller)
-                    return
-                }
-                transportFadeJob?.cancel()
-                transportFadeJob = serviceScope.launch {
-                    val targetVolume = player.volume.coerceIn(0f, 1f)
-                    fadeMasterVolume(targetVolume, 0f)
-                    super.onStop(session, controller)
-                    player.volume = targetVolume
-                }
-            }
-
-            override fun onSeekTo(session: MediaSession, controller: MediaSession.ControllerInfo, positionMs: Long) {
-                val player = session.player
-                if (!player.isPlaying || engine.isTransitionRunning() || !fadeOnSeekEnabled) {
-                    super.onSeekTo(session, controller, positionMs)
-                    return
-                }
-                transportFadeJob?.cancel()
-                transportFadeJob = serviceScope.launch {
-                    val targetVolume = player.volume.coerceIn(0f, 1f)
-                    fadeMasterVolume(targetVolume, 0f)
-                    player.seekTo(positionMs)
-                    fadeMasterVolume(0f, targetVolume)
+                when (playerCommand) {
+                    Player.COMMAND_PLAY_PAUSE -> {
+                        if (engine.isTransitionRunning() || !fadePlayPauseStopEnabled) return playerCommand
+                        if (player.playWhenReady && player.playbackState != Player.STATE_ENDED) {
+                            transportFadeJob?.cancel()
+                            transportFadeJob = serviceScope.launch {
+                                val targetVolume = player.volume.coerceIn(0f, 1f)
+                                fadeMasterVolume(targetVolume, 0f)
+                                player.pause()
+                                player.volume = targetVolume
+                            }
+                            return Player.COMMAND_INVALID
+                        }
+                        if (player.mediaItemCount <= 0) return playerCommand
+                        val targetVolume = player.volume.coerceIn(0f, 1f)
+                        player.volume = 0f
+                        transportFadeJob?.cancel()
+                        transportFadeJob = serviceScope.launch {
+                            fadeMasterVolume(0f, targetVolume)
+                        }
+                        return playerCommand
+                    }
+                    Player.COMMAND_STOP -> {
+                        if (!player.isPlaying || engine.isTransitionRunning() || !fadePlayPauseStopEnabled) return playerCommand
+                        transportFadeJob?.cancel()
+                        transportFadeJob = serviceScope.launch {
+                            val targetVolume = player.volume.coerceIn(0f, 1f)
+                            fadeMasterVolume(targetVolume, 0f)
+                            player.stop()
+                            player.volume = targetVolume
+                        }
+                        return Player.COMMAND_INVALID
+                    }
+                    Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
+                    Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
+                    Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
+                    Player.COMMAND_SEEK_BACK,
+                    Player.COMMAND_SEEK_FORWARD -> {
+                        if (!player.isPlaying || engine.isTransitionRunning() || !fadeOnSeekEnabled) return playerCommand
+                        val targetVolume = player.volume.coerceIn(0f, 1f)
+                        player.volume = 0f
+                        transportFadeJob?.cancel()
+                        transportFadeJob = serviceScope.launch {
+                            delay(TRANSPORT_FADE_MS)
+                            fadeMasterVolume(0f, targetVolume)
+                        }
+                        return playerCommand
+                    }
+                    else -> return playerCommand
                 }
             }
 
