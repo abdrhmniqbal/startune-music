@@ -201,13 +201,13 @@ private sealed interface SettingsUiUpdate {
         val resumeOnFocusGain: Boolean,
         val duckVolume: Boolean,
         val respectPermanentFocusLoss: Boolean,
-        val queueAwareNext: Boolean
-        val appUpdateNotificationsEnabled: Boolean
-        val includePrereleases: Boolean
-        val indexerNotificationsEnabled: Boolean
-        val autoBackupEnabled: Boolean
-        val autoBackupIntervalHours: Int
-        val autoBackupLastRunMs: Long
+        val queueAwareNext: Boolean,
+        val appUpdateNotificationsEnabled: Boolean,
+        val includePrereleases: Boolean,
+        val indexerNotificationsEnabled: Boolean,
+        val autoBackupEnabled: Boolean,
+        val autoBackupIntervalHours: Int,
+        val autoBackupLastRunMs: Long,
         val autoBackupTargetFolder: String
     ) : SettingsUiUpdate
 }
