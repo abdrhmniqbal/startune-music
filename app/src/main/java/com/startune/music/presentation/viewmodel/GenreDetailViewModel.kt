@@ -52,8 +52,6 @@ class GenreDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(GenreDetailUiState())
     val uiState: StateFlow<GenreDetailUiState> = _uiState.asStateFlow()
 
-    private var artistMap: Map<String, String?> = emptyMap()
-
     init {
         savedStateHandle.get<String>("genreId")?.let { genreId ->
             val decodedGenreId = java.net.URLDecoder.decode(genreId, "UTF-8")
@@ -99,11 +97,9 @@ class GenreDetailViewModel @Inject constructor(
 
                     val songs = musicRepository.getMusicByGenre(genre.name).first()
                     val artists = musicRepository.getArtists().first()
-                    artistMap = artists.associate { it.name.trim().lowercase() to it.imageUrl }
-
                     val rankedSongs = rankSongs(songs)
                     val albums = buildAlbums(songs)
-                    val genreArtists = buildArtists(songs, artistMap)
+                    val genreArtists = buildArtists(songs, artists)
 
                     ProcessingResult(
                         genre,
@@ -172,13 +168,20 @@ class GenreDetailViewModel @Inject constructor(
         )
     }
 
-    private fun buildArtists(songs: List<Song>, artistMap: Map<String, String?>): List<Artist> {
-        return songs.groupBy { it.artist }.map { (artistName, artistSongs) ->
+    private fun buildArtists(songs: List<Song>, artists: List<Artist>): List<Artist> {
+        val byId = artists.associateBy { it.id }
+        return songs.groupBy { song ->
+            val id = song.artistId
+            if (id > 0) "id:$id" else "name:${song.artist.trim().lowercase()}"
+        }.values.map { artistSongs ->
+            val first = artistSongs.firstOrNull()
+            val id = first?.artistId ?: -1L
+            val canonical = if (id > 0) byId[id] else null
             Artist(
-                id = artistSongs.firstOrNull()?.artistId ?: -1L,
-                name = artistName,
+                id = id,
+                name = canonical?.name ?: first?.artist.orEmpty(),
                 songCount = artistSongs.size,
-                imageUrl = artistMap[artistName.trim().lowercase()]
+                imageUrl = canonical?.imageUrl
             )
         }.sortedBy { it.name.lowercase() }
     }

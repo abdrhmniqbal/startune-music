@@ -442,7 +442,7 @@ fun GenreDetailScreen(
                         }
                         gridItems(
                             items = uiState.artists,
-                            key = { artist -> "genre_grid_artist_${artist.id}" }
+                            key = { artist -> "genre_grid_artist_${artist.id}_${artist.name}" }
                         ) { artist ->
                             GenreMediaCard(
                                 imageUri = artist.imageUrl,
@@ -1048,7 +1048,7 @@ private fun GenreArtistsSection(
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(artists, key = { artist -> "genre_artist_${artist.id}" }) { artist ->
+            items(artists, key = { artist -> "genre_artist_${artist.id}_${artist.name}" }) { artist ->
                 GenreMediaCard(
                     imageUri = artist.imageUrl,
                     title = artist.name,
