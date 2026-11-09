@@ -935,7 +935,9 @@ fun PlaylistDetailScreen(
             SortOption.SongDateAdded,
             SortOption.SongDateAddedAsc,
             SortOption.SongDuration,
-            SortOption.SongDurationAsc
+            SortOption.SongDurationAsc,
+            SortOption.SongPlayCount,
+            SortOption.SongPlayCountAsc
         )
 
         LibrarySortBottomSheet(
