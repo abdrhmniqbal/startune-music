@@ -327,6 +327,8 @@
     <string name="explore_section_new_releases_desc">Fresh drops &amp; latest albums</string>
     <string name="artist_popular_songs_title">Popular Songs</string>
     <string name="artist_info_title">Artist Info</string>
+    <string name="artist_bio_show_more">Show more</string>
+    <string name="artist_bio_show_less">Show less</string>
     <string name="artist_songs_title">Songs</string>
     <string name="artist_all_songs_title">All Songs</string>
     <string name="artist_featured_on_title">Featured On</string>

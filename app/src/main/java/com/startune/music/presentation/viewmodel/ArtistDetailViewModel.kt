@@ -101,6 +101,7 @@ class ArtistDetailViewModel @Inject constructor(
     private var currentLoadJob: Job? = null
     private var loadedArtistId: Long? = null
     private val bioFetchAttempted = mutableSetOf<Long>()
+    private val bioParagraphRefetchAttempted = mutableSetOf<Long>()
 
     private fun loadArtistData(id: Long) {
         loadedArtistId = id
@@ -138,13 +139,19 @@ class ArtistDetailViewModel @Inject constructor(
                         val orderedSongs = albumSections.flatMap { it.songs }
 
                         val songsById = songs.associateBy { it.id }
-                        val popularTracks = try {
+                        val rankedTracks = try {
                             playbackStatsRepository.loadTopTracks(StatsTimeRange.ALL, songs, 5)
                                 .mapNotNull { songsById[it.songId] }
                         } catch (e: Exception) {
                             Timber.tag("ArtistDebug").w("Failed to load artist top tracks: ${e.message}")
                             emptyList()
-                        }.ifEmpty { songs.sortedBy { it.title.lowercase() }.take(5) }
+                        }
+                        val popularTracks = if (rankedTracks.size >= 5) {
+                            rankedTracks.take(5)
+                        } else {
+                            (rankedTracks + songs.sortedByDescending { it.dateAdded }
+                                .filter { it !in rankedTracks }).take(5)
+                        }
 
                         val (primarySections, featuredSections) = albumSections.partition { section ->
                             section.songs.any { song ->
@@ -199,12 +206,19 @@ class ArtistDetailViewModel @Inject constructor(
 
     /**
      * Fetches the artist bio from Last.fm once, when the cached bio is missing.
-     * The result is stored in Room, so repeat views cost no proxy usage; the artist
-     * flow re-emits with the bio once it is saved.
+     * Bios cached before the paragraph fix were flattened to one block, so a
+     * bio without paragraph breaks is re-fetched once for the fixed text.
+     * The result is stored in Room, so repeat views cost no proxy usage; the
+     * artist flow re-emits with the bio once it is saved.
      */
     private fun maybeFetchArtistBio(artist: Artist) {
-        if (!artist.bio.isNullOrBlank()) return
-        if (!bioFetchAttempted.add(artist.id)) return
+        val bio = artist.bio
+        val needsFetch = when {
+            bio.isNullOrBlank() -> bioFetchAttempted.add(artist.id)
+            !bio.contains("\n\n") -> bioParagraphRefetchAttempted.add(artist.id)
+            else -> false
+        }
+        if (!needsFetch) return
         viewModelScope.launch {
             val fetched = lastFmRepository.fetchArtistBio(artist.name) ?: return@launch
             runCatching {

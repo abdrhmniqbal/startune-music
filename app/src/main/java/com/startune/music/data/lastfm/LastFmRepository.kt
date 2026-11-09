@@ -323,7 +323,10 @@ class LastFmRepository @Inject constructor(
      * Strips tags and entities down to plain text.
      */
     private fun cleanBio(raw: String): String? {
-        val noTags = raw.replace(Regex("<[^>]*>"), " ")
+        val withParagraphs = raw
+            .replace(Regex("(?i)</p>|</div>"), "\n\n")
+            .replace(Regex("(?i)<br\\s*/?>"), "\n")
+        val noTags = withParagraphs.replace(Regex("<[^>]*>"), "")
         val decoded = noTags
             .replace("&amp;", "&")
             .replace("&quot;", "\"")
@@ -333,7 +336,9 @@ class LastFmRepository @Inject constructor(
             .replace("&nbsp;", " ")
         val cleaned = decoded
             .replace(Regex("Read more on Last\\.fm\\.?\\s*$"), "")
-            .replace(Regex("\\s+"), " ")
+            .replace(Regex("[ \\t]+"), " ")
+            .replace(Regex(" *\\n *"), "\n")
+            .replace(Regex("\\n{3,}"), "\n\n")
             .trim()
         return cleaned.takeIf { it.isNotBlank() }
     }
