@@ -150,6 +150,8 @@
     <string name="cd_album_art_for_title">Album art for %1$s</string>
     <string name="cd_options">Options</string>
     <string name="genre_quick_fill">Quick Fill Genre</string>
+    <string name="genre_empty_title">No songs in this genre</string>
+    <string name="genre_empty_subtitle">Songs tagged with this genre will appear here.</string>
     <string name="cd_generic_artist">Generic artist</string>
     <string name="cd_play_album">Play album</string>
     <string name="cd_shuffle_play_album">Shuffle play album</string>

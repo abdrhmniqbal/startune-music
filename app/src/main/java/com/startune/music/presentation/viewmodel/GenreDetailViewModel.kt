@@ -3,9 +3,12 @@
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.startune.music.data.model.Artist
 import com.startune.music.data.model.Genre
 import com.startune.music.data.model.Song
 import com.startune.music.data.repository.MusicRepository
+import com.startune.music.data.stats.PlaybackStatsRepository
+import com.startune.music.data.stats.StatsTimeRange
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,9 +19,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.startune.music.di.DispatcherProvider
+import timber.log.Timber
 import javax.inject.Inject
-
-enum class SortOption { ARTIST, ALBUM, TITLE }
 
 data class AlbumData(
     val name: String,
@@ -26,72 +28,14 @@ data class AlbumData(
     val songs: List<Song>
 )
 
-sealed class SectionData {
-    abstract val id: String
-
-    data class ArtistSection(
-        override val id: String,
-        val artistName: String,
-        val albums: List<AlbumData>
-    ) : SectionData()
-
-    data class AlbumSection(
-        override val id: String,
-        val album: AlbumData
-    ) : SectionData()
-
-    data class FlatList(
-        val songs: List<Song>
-    ) : SectionData() {
-        override val id = "flat_list"
-    }
-}
-
-/**
- * Represents a visual element in the flattened list to improve LazyColumn performance.
- */
-sealed class GenreDetailListItem {
-    abstract val key: String
-
-    data class ArtistHeader(
-        override val key: String,
-        val artistName: String,
-        val artistImageUrl: String? = null
-    ) : GenreDetailListItem()
-
-    data class AlbumHeader(
-        override val key: String,
-        val album: AlbumData,
-        val useArtistStyle: Boolean
-    ) : GenreDetailListItem()
-
-    data class SongItem(
-        override val key: String,
-        val song: Song,
-        val isFirstInAlbum: Boolean,
-        val isLastInAlbum: Boolean,
-        val isLastAlbumInSection: Boolean,
-        val useArtistStyle: Boolean
-    ) : GenreDetailListItem()
-
-    data class Spacer(
-        override val key: String,
-        val heightDp: Int,
-        val useSurfaceBackground: Boolean = false
-    ) : GenreDetailListItem()
-
-    data class Divider(
-        override val key: String
-    ) : GenreDetailListItem()
-}
-
 data class GenreDetailUiState(
     val genre: Genre? = null,
     val songs: List<Song> = emptyList(),
-    val sortedSongs: List<Song> = emptyList(),
-    val displaySections: List<SectionData> = emptyList(),
-    val flattenedItems: List<GenreDetailListItem> = emptyList(),
-    val sortOption: SortOption = SortOption.ARTIST,
+    val rankedSongs: List<Song> = emptyList(),
+    val albums: List<AlbumData> = emptyList(),
+    val artists: List<Artist> = emptyList(),
+    val randomAlbums: List<AlbumData> = emptyList(),
+    val randomArtists: List<Artist> = emptyList(),
     val isLoadingGenreName: Boolean = false,
     val isLoadingSongs: Boolean = false,
     val error: String? = null
@@ -100,6 +44,7 @@ data class GenreDetailUiState(
 @HiltViewModel
 class GenreDetailViewModel @Inject constructor(
     private val musicRepository: MusicRepository,
+    private val playbackStatsRepository: PlaybackStatsRepository,
     private val savedStateHandle: SavedStateHandle,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
@@ -121,9 +66,11 @@ class GenreDetailViewModel @Inject constructor(
     private data class ProcessingResult(
         val genre: Genre,
         val songs: List<Song>,
-        val sortedSongs: List<Song>,
-        val sections: List<SectionData>,
-        val flattened: List<GenreDetailListItem>
+        val rankedSongs: List<Song>,
+        val albums: List<AlbumData>,
+        val artists: List<Artist>,
+        val randomAlbums: List<AlbumData>,
+        val randomArtists: List<Artist>
     )
 
     private fun loadGenreDetails(genreId: String) {
@@ -135,7 +82,7 @@ class GenreDetailViewModel @Inject constructor(
                     val genres = musicRepository.getGenres().first()
                     genres.find { it.id.equals(genreId, ignoreCase = true) }
                 }
-                
+
                 if (initialGenre != null) {
                     _uiState.update { it.copy(genre = initialGenre, isLoadingGenreName = false) }
                 }
@@ -145,7 +92,7 @@ class GenreDetailViewModel @Inject constructor(
                     val genre = initialGenre ?: genres.find { it.id.equals(genreId, ignoreCase = true) }
                         ?: Genre(
                             id = genreId,
-                            name = genreId.replace("_", " ").replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }, 
+                            name = genreId.replace("_", " ").replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() },
                             lightColorHex = "#9E9E9E", onLightColorHex = "#000000",
                             darkColorHex = "#616161", onDarkColorHex = "#FFFFFF"
                         )
@@ -154,20 +101,30 @@ class GenreDetailViewModel @Inject constructor(
                     val artists = musicRepository.getArtists().first()
                     artistMap = artists.associate { it.name.trim().lowercase() to it.imageUrl }
 
-                    val sections = buildDisplaySections(songs, SortOption.ARTIST)
-                    val flattened = flattenSections(sections, artistMap)
-                    val sorted = songs.sortedBy { it.artist }
-                    
-                    ProcessingResult(genre, songs, sorted, sections, flattened)
+                    val rankedSongs = rankSongs(songs)
+                    val albums = buildAlbums(songs)
+                    val genreArtists = buildArtists(songs, artistMap)
+
+                    ProcessingResult(
+                        genre,
+                        songs,
+                        rankedSongs,
+                        albums,
+                        genreArtists,
+                        albums.shuffled().take(GENRE_GRID_PREVIEW),
+                        genreArtists.shuffled().take(GENRE_GRID_PREVIEW)
+                    )
                 }
 
                 _uiState.update {
                     it.copy(
                         genre = result.genre,
                         songs = result.songs,
-                        sortedSongs = result.sortedSongs,
-                        displaySections = result.sections,
-                        flattenedItems = result.flattened,
+                        rankedSongs = result.rankedSongs,
+                        albums = result.albums,
+                        artists = result.artists,
+                        randomAlbums = result.randomAlbums,
+                        randomArtists = result.randomArtists,
                         isLoadingGenreName = false,
                         isLoadingSongs = false
                     )
@@ -185,137 +142,48 @@ class GenreDetailViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Updates the sort option and re-groups the songs.
-     */
-    fun updateSortOption(newSort: SortOption) {
-        val currentState = _uiState.value
-        if (currentState.sortOption == newSort) return
-
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoadingSongs = true) }
-            val (updatedSections, updatedFlattened, updatedSorted) = withContext(dispatchers.default) {
-                val sections = buildDisplaySections(currentState.songs, newSort)
-                val flattened = flattenSections(sections, artistMap)
-                val sorted = when (newSort) {
-                    SortOption.ARTIST -> currentState.songs.sortedBy { it.artist }
-                    SortOption.ALBUM -> currentState.songs.sortedBy { it.album }
-                    SortOption.TITLE -> currentState.songs.sortedBy { it.title }
-                }
-                Triple(sections, flattened, sorted)
-            }
-            _uiState.update {
-                it.copy(
-                    sortOption = newSort,
-                    displaySections = updatedSections,
-                    flattenedItems = updatedFlattened,
-                    sortedSongs = updatedSorted,
-                    isLoadingSongs = false
-                )
-            }
+    private suspend fun rankSongs(songs: List<Song>): List<Song> {
+        val playedIds = try {
+            playbackStatsRepository
+                .loadTopTracks(StatsTimeRange.ALL, songs, songs.size)
+                .map { it.songId }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to load top songs for genre")
+            emptyList()
         }
+        val byId = songs.associateBy { it.id }
+        val played = playedIds.mapNotNull { byId[it] }
+        val playedSet = playedIds.toSet()
+        val unplayed = songs.filter { it.id !in playedSet }.sortedBy { it.title.lowercase() }
+        return played + unplayed
     }
 
-    private fun flattenSections(sections: List<SectionData>, artistMap: Map<String, String?> = emptyMap()): List<GenreDetailListItem> {
-        val items = mutableListOf<GenreDetailListItem>()
-        sections.forEach { section ->
-            when (section) {
-                is SectionData.ArtistSection -> {
-                    items.add(GenreDetailListItem.ArtistHeader(
-                        key = "header_${section.id}", 
-                        artistName = section.artistName,
-                        artistImageUrl = artistMap[section.artistName.trim().lowercase()]
-                    ))
-                    section.albums.forEachIndexed { albumIndex, album ->
-                        if (albumIndex > 0) {
-                            items.add(GenreDetailListItem.Divider("divider_${section.id}_$albumIndex"))
-                        }
-                        
-                        items.add(GenreDetailListItem.AlbumHeader("${section.id}_album_header_${album.name}", album, true))
-                        items.add(GenreDetailListItem.Spacer("${section.id}_album_spacer_${album.name}", 10, true))
-                        
-                        album.songs.forEachIndexed { songIndex, song ->
-                            items.add(GenreDetailListItem.SongItem(
-                                key = "${section.id}_${album.name}_${song.id}",
-                                song = song,
-                                isFirstInAlbum = songIndex == 0,
-                                isLastInAlbum = songIndex == album.songs.lastIndex,
-                                isLastAlbumInSection = albumIndex == section.albums.lastIndex,
-                                useArtistStyle = true
-                            ))
-                        }
-                    }
-                }
-                is SectionData.AlbumSection -> {
-                    val album = section.album
-                    items.add(GenreDetailListItem.AlbumHeader("${section.id}_album_header_${album.name}", album, false))
-                    items.add(GenreDetailListItem.Spacer("${section.id}_album_spacer_${album.name}", 10, true))
-                    
-                    album.songs.forEachIndexed { songIndex, song ->
-                        items.add(GenreDetailListItem.SongItem(
-                            key = "${section.id}_${song.id}",
-                            song = song,
-                            isFirstInAlbum = songIndex == 0,
-                            isLastInAlbum = songIndex == album.songs.lastIndex,
-                            isLastAlbumInSection = true,
-                            useArtistStyle = false
-                        ))
-                    }
-                }
-                is SectionData.FlatList -> {
-                    section.songs.forEach { song ->
-                        items.add(GenreDetailListItem.SongItem(
-                            key = "flat_${song.id}",
-                            song = song,
-                            isFirstInAlbum = false,
-                            isLastInAlbum = false,
-                            isLastAlbumInSection = false,
-                            useArtistStyle = false
-                        ))
-                    }
-                }
-            }
-            items.add(GenreDetailListItem.Spacer("section_spacer_${section.id}", 16))
-        }
-        return items
+    private fun buildAlbums(songs: List<Song>): List<AlbumData> {
+        return songs.groupBy { it.album }.map { (albumName, albumSongs) ->
+            val sortedAlbumSongs = albumSongs.sortedWith(
+                compareBy<Song> { it.discNumber ?: 1 }
+                    .thenBy { if (it.trackNumber > 0) it.trackNumber else Int.MAX_VALUE }
+                    .thenBy { it.title.lowercase() }
+            )
+            AlbumData(albumName, sortedAlbumSongs.firstOrNull()?.albumArtUriString, sortedAlbumSongs)
+        }.sortedWith(
+            compareByDescending<AlbumData> { it.songs.maxOfOrNull { song -> song.year } ?: 0 }
+                .thenBy { it.name.lowercase() }
+        )
     }
 
-    private fun buildDisplaySections(songs: List<Song>, sort: SortOption): List<SectionData> {
-        return when (sort) {
-            SortOption.ARTIST -> {
-                val sorted = songs.sortedBy { it.artist }
-                val grouped = sorted.groupBy { it.artist }
-                grouped.map { (artist, artistSongs) ->
-                    val albums = artistSongs.groupBy { it.album }.map { (albumName, albumSongs) ->
-                        val sortedAlbumSongs = albumSongs.sortedWith(
-                            compareBy<Song> { it.discNumber ?: 1 }
-                                .thenBy { if (it.trackNumber > 0) it.trackNumber else Int.MAX_VALUE }
-                                .thenBy { it.title.lowercase() }
-                        )
-                        AlbumData(albumName, sortedAlbumSongs.firstOrNull()?.albumArtUriString, sortedAlbumSongs)
-                    }
-                    SectionData.ArtistSection("artist_$artist", artist, albums)
-                }
-            }
-            SortOption.ALBUM -> {
-                val sorted = songs.sortedBy { it.album }
-                val grouped = sorted.groupBy { it.album }
-                grouped.map { (album, albumSongs) ->
-                    val sortedAlbumSongs = albumSongs.sortedWith(
-                        compareBy<Song> { it.discNumber ?: 1 }
-                            .thenBy { if (it.trackNumber > 0) it.trackNumber else Int.MAX_VALUE }
-                            .thenBy { it.title.lowercase() }
-                    )
-                    SectionData.AlbumSection(
-                        "album_$album",
-                        AlbumData(album, sortedAlbumSongs.firstOrNull()?.albumArtUriString, sortedAlbumSongs)
-                    )
-                }
-            }
-            SortOption.TITLE -> {
-                listOf(SectionData.FlatList(songs.sortedBy { it.title }))
-            }
-        }
+    private fun buildArtists(songs: List<Song>, artistMap: Map<String, String?>): List<Artist> {
+        return songs.groupBy { it.artist }.map { (artistName, artistSongs) ->
+            Artist(
+                id = artistSongs.firstOrNull()?.artistId ?: -1L,
+                name = artistName,
+                songCount = artistSongs.size,
+                imageUrl = artistMap[artistName.trim().lowercase()]
+            )
+        }.sortedBy { it.name.lowercase() }
+    }
+
+    companion object {
+        const val GENRE_GRID_PREVIEW = 8
     }
 }
-
