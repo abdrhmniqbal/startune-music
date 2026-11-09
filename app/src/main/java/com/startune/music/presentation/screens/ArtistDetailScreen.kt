@@ -288,7 +288,7 @@ fun ArtistDetailScreen(
                     var activeView by remember { mutableStateOf(ArtistDetailView.Overview) }
                     var trackSortOption by remember { mutableStateOf<SortOption>(SortOption.SongTitleAZ) }
                     var showSortSheet by remember { mutableStateOf(false) }
-                    val sortedTracks = remember(songs, trackSortOption) { sortArtistSongs(songs, trackSortOption) }
+                    val sortedTracks = remember(songs, trackSortOption, uiState.playCounts) { sortArtistSongs(songs, trackSortOption, uiState.playCounts) }
                     val tracksListState = rememberLazyListState()
                     val albumsGridState = rememberLazyGridState()
                     BackHandler(enabled = activeView != ArtistDetailView.Overview) {
@@ -594,7 +594,7 @@ fun ArtistDetailScreen(
                     if (showSortSheet) {
                         LibrarySortBottomSheet(
                             title = stringResource(R.string.presentation_batch_d_sort_by),
-                            options = SortOption.SONGS.toImmutableList(),
+                            options = SortOption.SONGS_IN_MEMORY.toImmutableList(),
                             selectedOption = trackSortOption,
                             onDismiss = { showSortSheet = false },
                             onOptionSelected = {
@@ -1295,7 +1295,11 @@ private enum class ArtistDetailView {
     Overview, Tracks, Albums, FeaturedOn
 }
 
-private fun sortArtistSongs(songs: List<Song>, sortOption: SortOption): List<Song> =
+private fun sortArtistSongs(
+    songs: List<Song>,
+    sortOption: SortOption,
+    playCounts: Map<String, Int> = emptyMap()
+): List<Song> =
     when (sortOption) {
         SortOption.SongDefaultOrder -> songs
         SortOption.SongTitleAZ -> songs.sortedBy { it.title.lowercase() }
@@ -1308,6 +1312,16 @@ private fun sortArtistSongs(songs: List<Song>, sortOption: SortOption): List<Son
         SortOption.SongDateAddedAsc -> songs.sortedBy { it.dateAdded }
         SortOption.SongDuration -> songs.sortedByDescending { it.duration }
         SortOption.SongDurationAsc -> songs.sortedBy { it.duration }
+        SortOption.SongPlayCount -> songs.sortedWith(
+            compareByDescending<Song> { playCounts[it.id] ?: 0 }
+                .thenBy { it.title.lowercase() }
+                .thenBy { it.id }
+        )
+        SortOption.SongPlayCountAsc -> songs.sortedWith(
+            compareBy<Song> { playCounts[it.id] ?: 0 }
+                .thenBy { it.title.lowercase() }
+                .thenBy { it.id }
+        )
         else -> songs
     }
 
@@ -1361,10 +1375,20 @@ private fun ArtistSubViewHeader(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            FilledTonalIconButton(onClick = onBackClick) {
+            FilledIconButton(
+                modifier = Modifier
+                    .height(40.dp)
+                    .width(64.dp),
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    contentColor = MaterialTheme.colorScheme.secondary
+                ),
+                onClick = onBackClick
+            ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.auth_cd_back)
+                    contentDescription = stringResource(R.string.auth_cd_back),
+                    modifier = Modifier.size(18.dp)
                 )
             }
             Text(

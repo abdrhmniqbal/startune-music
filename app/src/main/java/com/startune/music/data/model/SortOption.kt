@@ -87,6 +87,20 @@ sealed class SortOption(
         methodKey = "song_duration",
         direction = SortDirection.Ascending
     )
+    object SongPlayCount : SortOption(
+        storageKey = "song_play_count",
+        displayName = "Play Count",
+        methodLabel = "Play Count",
+        methodKey = "song_play_count",
+        direction = SortDirection.Descending
+    )
+    object SongPlayCountAsc : SortOption(
+        storageKey = "song_play_count_asc",
+        displayName = "Play Count (Least Played First)",
+        methodLabel = "Play Count",
+        methodKey = "song_play_count",
+        direction = SortDirection.Ascending
+    )
 
     object AlbumTitleAZ : SortOption(
         storageKey = "album_title_az",
@@ -357,6 +371,13 @@ sealed class SortOption(
             )
         }
 
+        val SONGS_IN_MEMORY: List<SortOption> by lazy {
+            SONGS + listOf(
+                SongPlayCount,
+                SongPlayCountAsc
+            )
+        }
+
         val ALBUMS: List<SortOption> by lazy {
             listOf(
                 AlbumTitleAZ,
@@ -418,7 +439,8 @@ sealed class SortOption(
         }
 
         private val ALL: List<SortOption> by lazy {
-            SONGS + ALBUMS + ARTISTS + PLAYLISTS + FOLDERS + LIKED + GENRES
+            SONGS + ALBUMS + ARTISTS + PLAYLISTS + FOLDERS + LIKED + GENRES +
+                listOf(SongPlayCount, SongPlayCountAsc)
         }
 
         private val defaultOptionByMethodKey: Map<String, SortOption> by lazy {
