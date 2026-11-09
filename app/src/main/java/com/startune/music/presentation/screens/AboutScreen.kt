@@ -106,6 +106,7 @@ import com.startune.music.presentation.viewmodel.PlayerViewModel
 import kotlinx.coroutines.launch
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 import kotlin.math.roundToInt
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 private data class Contributor(
     val id: String,
@@ -407,17 +408,11 @@ private fun AboutHeroCard(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Surface(
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                    ) {
-                        Icon(
-                            painter = painterResource(R.mipmap.ic_launcher_foreground),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(10.dp).size(28.dp),
-                        )
-                    }
+                    Image(
+                        painter = painterResource(R.mipmap.ic_launcher),
+                        contentDescription = null,
+                        modifier = Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)),
+                    )
 
                     Spacer(modifier = Modifier.width(12.dp))
 
