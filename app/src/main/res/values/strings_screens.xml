@@ -105,6 +105,7 @@
     <string name="manage_folders_blacklist_description">All folders are scanned except the ones below.</string>
     <string name="manage_folders_title">Folders</string>
     <string name="manage_folders_add">Add folder</string>
+    <string name="manage_folders_internal_storage">Internal storage</string>
     <string name="manage_folders_empty_title">No folders added</string>
     <string name="manage_folders_empty_message">Without filters every folder on your device is scanned.</string>
     <string name="setup_permission_media_title">Media Permission</string>

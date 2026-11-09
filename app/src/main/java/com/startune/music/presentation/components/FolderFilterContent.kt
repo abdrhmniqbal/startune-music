@@ -54,8 +54,8 @@ fun FolderFilterContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Surface(
-            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
-            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            shape = RoundedCornerShape(28.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
@@ -138,8 +138,8 @@ fun FolderFilterContent(
 
         if (folders.isEmpty()) {
             Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
-                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                shape = RoundedCornerShape(28.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
@@ -172,8 +172,8 @@ fun FolderFilterContent(
             }
         } else {
             Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
-                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                shape = RoundedCornerShape(28.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column {
@@ -195,7 +195,7 @@ fun FolderFilterContent(
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text(
-                                    text = folderDisplayName(path),
+                                    text = folderDisplayName(path, stringResource(R.string.manage_folders_internal_storage)),
                                     style = MaterialTheme.typography.titleMedium,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     maxLines = 1,
@@ -230,7 +230,7 @@ fun FolderFilterContent(
     }
 }
 
-private fun folderDisplayName(path: String): String {
+private fun folderDisplayName(path: String, internalStorageLabel: String): String {
     val name = File(path).name
-    return if (name == "0" || name.isEmpty()) "Internal storage" else name
+    return if (name == "0" || name.isEmpty()) internalStorageLabel else name
 }
