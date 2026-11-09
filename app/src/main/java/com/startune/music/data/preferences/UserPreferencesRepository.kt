@@ -155,8 +155,6 @@ constructor(
         val AUTO_BACKUP_INTERVAL_HOURS = intPreferencesKey("auto_backup_interval_hours")
         val AUTO_BACKUP_LAST_RUN_MS = longPreferencesKey("auto_backup_last_run_ms")
         val AUTO_BACKUP_TARGET_FOLDER = stringPreferencesKey("auto_backup_target_folder")
-        val FADE_PLAY_PAUSE_STOP = booleanPreferencesKey("fade_play_pause_stop")
-        val FADE_ON_SEEK = booleanPreferencesKey("fade_on_seek")
         val RESUME_AFTER_CALL = booleanPreferencesKey("resume_after_call")
         val RESUME_ON_START = booleanPreferencesKey("resume_on_start")
         val RESUME_ON_REOPEN = booleanPreferencesKey("resume_on_reopen")
@@ -1036,16 +1034,6 @@ constructor(
                 preferences[PreferencesKeys.AUTO_BACKUP_TARGET_FOLDER] ?: ""
             }
 
-    val fadePlayPauseStopFlow: Flow<Boolean> =
-            dataStore.data.map { preferences ->
-                preferences[PreferencesKeys.FADE_PLAY_PAUSE_STOP] ?: true
-            }
-
-    val fadeOnSeekFlow: Flow<Boolean> =
-            dataStore.data.map { preferences ->
-                preferences[PreferencesKeys.FADE_ON_SEEK] ?: false
-            }
-
     val resumeAfterCallFlow: Flow<Boolean> =
             dataStore.data.map { preferences ->
                 preferences[PreferencesKeys.RESUME_AFTER_CALL] ?: true
@@ -1621,18 +1609,6 @@ constructor(
     suspend fun setAutoBackupTargetFolder(path: String) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.AUTO_BACKUP_TARGET_FOLDER] = path
-        }
-    }
-
-    suspend fun setFadePlayPauseStop(enabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.FADE_PLAY_PAUSE_STOP] = enabled
-        }
-    }
-
-    suspend fun setFadeOnSeek(enabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.FADE_ON_SEEK] = enabled
         }
     }
 

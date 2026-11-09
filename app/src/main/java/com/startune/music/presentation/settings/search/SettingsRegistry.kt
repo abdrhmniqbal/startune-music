@@ -396,30 +396,6 @@ object SettingsRegistry {
                 onToggle = { viewModel, checked -> viewModel.setRestoreLastPosition(checked) }
             ),
             SettingSpec(
-                id = "playback_fade_play_pause_stop",
-                itemKey = "item_playback_fade_play_pause_stop",
-                titleRes = R.string.setcat_fade_play_pause_stop_title,
-                subtitleRes = R.string.setcat_fade_play_pause_stop_subtitle,
-                category = SettingsCategory.PLAYBACK,
-                subscreenRoute = Screen.SettingsCategory.createRoute("playback"),
-                type = SettingType.SWITCH,
-                keywordsStatic = listOf("fade", "volume", "smooth", "transport", "play", "pause"),
-                getValue = { it.fadePlayPauseStop },
-                onToggle = { viewModel, checked -> viewModel.setFadePlayPauseStop(checked) }
-            ),
-            SettingSpec(
-                id = "playback_fade_on_seek",
-                itemKey = "item_playback_fade_on_seek",
-                titleRes = R.string.setcat_fade_on_seek_title,
-                subtitleRes = R.string.setcat_fade_on_seek_subtitle,
-                category = SettingsCategory.PLAYBACK,
-                subscreenRoute = Screen.SettingsCategory.createRoute("playback"),
-                type = SettingType.SWITCH,
-                keywordsStatic = listOf("fade", "seek", "volume"),
-                getValue = { it.fadeOnSeek },
-                onToggle = { viewModel, checked -> viewModel.setFadeOnSeek(checked) }
-            ),
-            SettingSpec(
                 id = "playback_resume_after_call",
                 itemKey = "item_playback_resume_after_call",
                 titleRes = R.string.setcat_resume_after_call_title,
