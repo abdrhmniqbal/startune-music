@@ -3332,6 +3332,7 @@ fun ArtistGridItem(
                     modifier = Modifier
                         .aspectRatio(1f)
                         .fillMaxSize()
+                        .clip(ShapeCache.expressiveAvatar)
                 )
                 Column(
                     modifier = Modifier
@@ -3393,6 +3394,7 @@ fun ArtistGridItem(
                         contentDescription = artist.name,
                         contentScale = ContentScale.Crop,
                         targetSize = Size(256, 256),
+                        shape = ShapeCache.expressiveAvatar,
                         modifier = Modifier
                             .aspectRatio(1f)
                             .fillMaxSize()
