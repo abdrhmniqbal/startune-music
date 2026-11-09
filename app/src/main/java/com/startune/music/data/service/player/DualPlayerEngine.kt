@@ -347,6 +347,10 @@ class DualPlayerEngine @Inject constructor(
     private var pausedByCall: Boolean = false
     private var delayedTransientPauseJob: Job? = null
     private var audioFocusPrefsJob: Job? = null
+    private var focusFadeJob: Job? = null
+    private var focusFadeTargetVolume: Float = 1f
+    private var focusFadeTargetMediaId: String? = null
+    private var duckedMediaId: String? = null
     private var lastPlayWhenReadyAtMs: Long = 0L
     private var lastPlayingAtMs: Long = 0L
     private var lastSeekAtMs: Long = 0L
@@ -367,13 +371,14 @@ class DualPlayerEngine @Inject constructor(
                 Timber.tag("TransitionDebug").d("AudioFocus LOSS.")
                 delayedTransientPauseJob?.cancel()
                 delayedTransientPauseJob = null
-                clearDuck()
                 if (respectPermanentFocusLossEnabled) {
                     isFocusLossPause = false
                     pausedByCall = false
-                    playerA.playWhenReady = false
-                    playerB?.playWhenReady = false
-                    abandonAudioFocus()
+                    fadeOutAndPause {
+                        playerA.playWhenReady = false
+                        playerB?.playWhenReady = false
+                        abandonAudioFocus()
+                    }
                 } else {
                     // Treat it like a transient loss: pause, but keep the
                     // request so a later gain can resume playback.
@@ -395,8 +400,10 @@ class DualPlayerEngine @Inject constructor(
                             auxiliaryIsPlaying = playerB?.isPlaying == true
                         )
                         isFocusLossPause = false
-                        playerA.playWhenReady = false
-                        playerB?.playWhenReady = false
+                        fadeOutAndPause {
+                            playerA.playWhenReady = false
+                            playerB?.playWhenReady = false
+                        }
                     }
                 } else if (ignoreShortFocusLossEnabled) {
                     // Brief interruptions (notifications): wait out the grace
@@ -418,10 +425,15 @@ class DualPlayerEngine @Inject constructor(
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 if (duckVolumeEnabled && !isDucked && !transitionRunning) {
                     Timber.tag("TransitionDebug").d("AudioFocus CAN_DUCK. Ducking.")
+                    // Flags synchronously: a gain arriving before the fade
+                    // coroutine runs must still see the ducked state.
                     duckedFromVolume = playerA.volume.coerceIn(0f, 1f)
+                    duckedMediaId = playerA.currentMediaItem?.mediaId
                     isDucked = true
-                    playerA.volume = DUCK_VOLUME
-                    playerB?.volume = DUCK_VOLUME
+                    focusFadeJob?.cancel()
+                    focusFadeJob = scope.launch {
+                        fadeEngineVolume(duckedFromVolume, DUCK_VOLUME)
+                    }
                 }
             }
             AudioManager.AUDIOFOCUS_GAIN -> {
@@ -432,14 +444,18 @@ class DualPlayerEngine @Inject constructor(
                 if (pausedByCall) {
                     pausedByCall = false
                     if (resumeAfterCallEnabled) {
-                        playerA.playWhenReady = true
-                        if (transitionRunning) playerB?.playWhenReady = true
+                        fadeInAndResume {
+                            playerA.playWhenReady = true
+                            if (transitionRunning) playerB?.playWhenReady = true
+                        }
                     }
                 } else if (isFocusLossPause) {
                     isFocusLossPause = false
                     if (resumeOnFocusGainEnabled) {
-                        playerA.playWhenReady = true
-                        if (transitionRunning) playerB?.playWhenReady = true
+                        fadeInAndResume {
+                            playerA.playWhenReady = true
+                            if (transitionRunning) playerB?.playWhenReady = true
+                        }
                     }
                 }
             }
@@ -451,8 +467,67 @@ class DualPlayerEngine @Inject constructor(
         return mode == AudioManager.MODE_IN_CALL || mode == AudioManager.MODE_RINGTONE
     }
 
+    private suspend fun fadeEngineVolume(from: Float, to: Float, durationMs: Long = 200L) {
+        val startedAtMs = SystemClock.elapsedRealtime()
+        while (true) {
+            val elapsed = (SystemClock.elapsedRealtime() - startedAtMs).coerceAtMost(durationMs)
+            val progress = (elapsed.toFloat() / durationMs).coerceIn(0f, 1f)
+            playerA.volume = (from + (to - from) * progress).coerceIn(0f, 1f)
+            if (elapsed >= durationMs) break
+            delay(16L)
+        }
+        playerA.volume = to.coerceIn(0f, 1f)
+    }
+
+    private fun fadeOutAndPause(pauseAction: () -> Unit) {
+        if (transitionRunning) {
+            pauseAction()
+            return
+        }
+        if (!playerA.isPlaying && !playerA.playWhenReady) {
+            if (isDucked) {
+                isDucked = false
+                playerA.volume = duckedFromVolume
+            }
+            pauseAction()
+            return
+        }
+        focusFadeJob?.cancel()
+        focusFadeJob = scope.launch {
+            val startVolume = playerA.volume.coerceIn(0f, 1f)
+            // If ducked, the resume target is the pre-duck volume, not the
+            // ducked level the fade starts from.
+            focusFadeTargetVolume = if (isDucked) duckedFromVolume else startVolume
+            focusFadeTargetMediaId = playerA.currentMediaItem?.mediaId
+            isDucked = false
+            fadeEngineVolume(startVolume, 0f)
+            pauseAction()
+            playerA.volume = focusFadeTargetVolume
+        }
+    }
+
+    private fun fadeInAndResume(resumeAction: () -> Unit) {
+        if (transitionRunning) {
+            resumeAction()
+            return
+        }
+        focusFadeJob?.cancel()
+        focusFadeJob = scope.launch {
+            // The track may have changed while paused; then the engine has
+            // already set the fresh volume for it, so use that instead of
+            // the volume captured before the fade-out.
+            val target = if (playerA.currentMediaItem?.mediaId != focusFadeTargetMediaId) {
+                playerA.volume.coerceIn(0f, 1f).takeIf { it > 0f } ?: focusFadeTargetVolume
+            } else {
+                focusFadeTargetVolume
+            }
+            playerA.volume = 0f
+            resumeAction()
+            fadeEngineVolume(0f, target)
+        }
+    }
+
     private fun pauseForTransientLoss() {
-        clearDuck()
         val auxiliaryPlayer = playerB
         isFocusLossPause = shouldResumeAfterTransientAudioFocusLoss(
             masterPlayWhenReady = playerA.playWhenReady,
@@ -461,17 +536,23 @@ class DualPlayerEngine @Inject constructor(
             auxiliaryPlayWhenReady = auxiliaryPlayer?.playWhenReady == true,
             auxiliaryIsPlaying = auxiliaryPlayer?.isPlaying == true
         )
-        playerA.playWhenReady = false
-        auxiliaryPlayer?.playWhenReady = false
+        fadeOutAndPause {
+            playerA.playWhenReady = false
+            auxiliaryPlayer?.playWhenReady = false
+        }
     }
 
     private fun clearDuck() {
         if (!isDucked) return
         isDucked = false
         // Never fight the crossfade loop over volume while it runs.
-        if (!transitionRunning) {
-            playerA.volume = duckedFromVolume
-            playerB?.volume = duckedFromVolume
+        if (transitionRunning) return
+        // The track may have changed while ducked; then the engine has
+        // already set the fresh volume for it, so nothing to restore.
+        if (playerA.currentMediaItem?.mediaId != duckedMediaId) return
+        focusFadeJob?.cancel()
+        focusFadeJob = scope.launch {
+            fadeEngineVolume(playerA.volume.coerceIn(0f, 1f), duckedFromVolume)
         }
     }
 
@@ -1661,6 +1742,7 @@ class DualPlayerEngine @Inject constructor(
         invalidateActiveTransition()
         preResolutionJob?.cancel()
         delayedTransientPauseJob?.cancel()
+        focusFadeJob?.cancel()
         cancelAudioOffloadFallback()
         scope.coroutineContext[Job]?.cancel()
         abandonAudioFocus()
