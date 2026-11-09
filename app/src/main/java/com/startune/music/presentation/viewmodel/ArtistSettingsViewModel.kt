@@ -18,6 +18,8 @@ data class ArtistSettingsUiState(
     val artistDelimiters: List<String> = UserPreferencesRepository.DEFAULT_ARTIST_DELIMITERS,
     val wordDelimiters: List<String> = UserPreferencesRepository.DEFAULT_ARTIST_WORD_DELIMITERS,
     val genreDelimiters: List<String> = UserPreferencesRepository.DEFAULT_GENRE_DELIMITERS,
+    val unsplitArtists: List<String> = emptyList(),
+    val unsplitGenres: List<String> = emptyList(),
     val extractArtistsFromTitle: Boolean = true,
     val groupByAlbumArtist: Boolean = false,
     val rescanRequired: Boolean = false,
@@ -56,6 +58,18 @@ class ArtistSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferencesRepository.genreDelimitersFlow.collect { delimiters ->
                 _uiState.update { it.copy(genreDelimiters = delimiters) }
+            }
+        }
+
+        viewModelScope.launch {
+            userPreferencesRepository.unsplitArtistsFlow.collect { names ->
+                _uiState.update { it.copy(unsplitArtists = names) }
+            }
+        }
+
+        viewModelScope.launch {
+            userPreferencesRepository.unsplitGenresFlow.collect { names ->
+                _uiState.update { it.copy(unsplitGenres = names) }
             }
         }
 
@@ -175,6 +189,46 @@ class ArtistSettingsViewModel @Inject constructor(
     fun resetGenreDelimitersToDefault() {
         viewModelScope.launch {
             userPreferencesRepository.resetGenreDelimitersToDefault()
+        }
+    }
+
+    fun addUnsplitArtist(name: String): Boolean {
+        val trimmed = name.trim()
+        if (trimmed.isEmpty()) return false
+
+        val current = _uiState.value.unsplitArtists
+        if (current.any { it.equals(trimmed, ignoreCase = true) }) return false
+
+        viewModelScope.launch {
+            userPreferencesRepository.setUnsplitArtists(current + trimmed)
+        }
+        return true
+    }
+
+    fun removeUnsplitArtist(name: String) {
+        val current = _uiState.value.unsplitArtists
+        viewModelScope.launch {
+            userPreferencesRepository.setUnsplitArtists(current - name)
+        }
+    }
+
+    fun addUnsplitGenre(name: String): Boolean {
+        val trimmed = name.trim()
+        if (trimmed.isEmpty()) return false
+
+        val current = _uiState.value.unsplitGenres
+        if (current.any { it.equals(trimmed, ignoreCase = true) }) return false
+
+        viewModelScope.launch {
+            userPreferencesRepository.setUnsplitGenres(current + trimmed)
+        }
+        return true
+    }
+
+    fun removeUnsplitGenre(name: String) {
+        val current = _uiState.value.unsplitGenres
+        viewModelScope.launch {
+            userPreferencesRepository.setUnsplitGenres(current - name)
         }
     }
 

@@ -166,6 +166,7 @@ constructor(
 
                     val artistDelimiters = userPreferencesRepository.artistDelimitersFlow.first()
                     val artistWordDelimiters = userPreferencesRepository.artistWordDelimitersFlow.first()
+                    val unsplitArtists = userPreferencesRepository.unsplitArtistsFlow.first()
                     val extractArtistsFromTitle = userPreferencesRepository.extractArtistsFromTitleFlow.first()
                     val groupByAlbumArtist =
                             userPreferencesRepository.groupByAlbumArtistFlow.first()
@@ -548,6 +549,7 @@ constructor(
                             title = song.title,
                             artistDelimiters = artistDelimiters,
                             wordDelimiters = wordDelimiters,
+                            unsplitArtists = unsplitArtists,
                             extractFromTitle = extractFromTitle
                         )
                     }
@@ -568,7 +570,7 @@ constructor(
             val effectiveAlbumArtistName = song.albumArtist
                     ?.trim()
                     ?.takeIf { it.isNotEmpty() && !it.equals("<unknown>", ignoreCase = true) }
-                    ?.splitArtistsByDelimiters(artistDelimiters, wordDelimiters)
+                    ?.splitArtistsByDelimiters(artistDelimiters, wordDelimiters, unsplitArtists)
                     ?.firstOrNull()
                     ?.takeIf { it.isNotEmpty() }
                     ?: primaryArtistName
@@ -637,7 +639,8 @@ constructor(
                  songs = songsInAlbum,
                  artistNameToId = artistNameToId,
                  artistDelimiters = artistDelimiters,
-                 wordDelimiters = wordDelimiters
+                 wordDelimiters = wordDelimiters,
+                 unsplitArtists = unsplitArtists
              )
              val metadataAlbumArtist = songsInAlbum
                  .mapNotNull { song ->

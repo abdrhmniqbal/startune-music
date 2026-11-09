@@ -179,6 +179,8 @@ constructor(
         val ARTIST_DELIMITERS = stringPreferencesKey("artist_delimiters")
         val ARTIST_WORD_DELIMITERS = stringPreferencesKey("artist_word_delimiters")
         val GENRE_DELIMITERS = stringPreferencesKey("genre_delimiters")
+        val UNSPLIT_ARTISTS = stringPreferencesKey("unsplit_artists")
+        val UNSPLIT_GENRES = stringPreferencesKey("unsplit_genres")
         val EXTRACT_ARTISTS_FROM_TITLE = booleanPreferencesKey("extract_artists_from_title")
         val GROUP_BY_ALBUM_ARTIST = booleanPreferencesKey("group_by_album_artist")
         val ARTIST_SETTINGS_RESCAN_REQUIRED =
@@ -523,6 +525,47 @@ constructor(
 
     suspend fun resetGenreDelimitersToDefault() {
         setGenreDelimiters(DEFAULT_GENRE_DELIMITERS)
+    }
+
+    val unsplitArtistsFlow: Flow<List<String>> =
+        dataStore.data.map { preferences ->
+            val stored = preferences[PreferencesKeys.UNSPLIT_ARTISTS]
+            if (stored != null) {
+                try {
+                    json.decodeFromString<List<String>>(stored)
+                } catch (e: Exception) {
+                    emptyList()
+                }
+            } else {
+                emptyList()
+            }
+        }
+
+    suspend fun setUnsplitArtists(names: List<String>) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.UNSPLIT_ARTISTS] = json.encodeToString(names)
+            preferences[PreferencesKeys.ARTIST_SETTINGS_RESCAN_REQUIRED] = true
+        }
+    }
+
+    val unsplitGenresFlow: Flow<List<String>> =
+        dataStore.data.map { preferences ->
+            val stored = preferences[PreferencesKeys.UNSPLIT_GENRES]
+            if (stored != null) {
+                try {
+                    json.decodeFromString<List<String>>(stored)
+                } catch (e: Exception) {
+                    emptyList()
+                }
+            } else {
+                emptyList()
+            }
+        }
+
+    suspend fun setUnsplitGenres(names: List<String>) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.UNSPLIT_GENRES] = json.encodeToString(names)
+        }
     }
 
     val extractArtistsFromTitleFlow: Flow<Boolean> =

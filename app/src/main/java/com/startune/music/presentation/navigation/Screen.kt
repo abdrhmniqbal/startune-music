@@ -69,6 +69,8 @@ sealed class Screen(val route: String) {
     object DelimiterConfig : Screen("delimiter_config")
     object WordDelimiterConfig : Screen("word_delimiter_config")
     object GenreDelimiterConfig : Screen("genre_delimiter_config")
+    object UnsplitArtistsConfig : Screen("unsplit_artists_config")
+    object UnsplitGenresConfig : Screen("unsplit_genres_config")
     object ManageFolders : Screen("manage_folders")
     object Equalizer : Screen("equalizer?highlightKey={highlightKey}") {
         fun createRoute(highlightKey: String? = null) =

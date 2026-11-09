@@ -58,6 +58,55 @@ private const val ESCAPE_SEQUENCE = "\\\\"
 private const val ESCAPE_PLACEHOLDER = "\u0000ESCAPED\u0000"
 
 /**
+ * Placeholder wrapping for names that must never be split (old Startune
+ * "unsplit artists"). The NUL bytes make it impossible for a delimiter or
+ * word delimiter to match inside the token.
+ */
+private const val UNSPLIT_PLACEHOLDER_PREFIX = "\u0000UNSPLIT_"
+private const val UNSPLIT_PLACEHOLDER_SUFFIX = "\u0000"
+
+/**
+ * Masks every occurrence of an unsplit name in [value] (case-insensitive,
+ * literal match) with a placeholder token, mirroring old Startune's
+ * maskUnsplitArtists. Returns the masked value and the original matched
+ * texts in placeholder order, so the casing from the tag is preserved.
+ */
+internal fun maskUnsplitValues(value: String, unsplitValues: List<String>): Pair<String, List<String>> {
+    val placeholders = mutableListOf<String>()
+    var maskedValue = value
+    for (unsplit in unsplitValues) {
+        val trimmed = unsplit.trim()
+        if (trimmed.isEmpty()) continue
+        val regex = Regex(Regex.escape(trimmed), RegexOption.IGNORE_CASE)
+        maskedValue = regex.replace(maskedValue) { match ->
+            val token = "$UNSPLIT_PLACEHOLDER_PREFIX${placeholders.size}$UNSPLIT_PLACEHOLDER_SUFFIX"
+            placeholders.add(match.value)
+            token
+        }
+    }
+    return maskedValue to placeholders
+}
+
+/**
+ * Restores placeholder tokens produced by [maskUnsplitValues] to the
+ * original names. Apply before de-duplicating, so the same name masked
+ * twice still collapses to one entry.
+ */
+internal fun restoreMaskedValues(values: List<String>, placeholders: List<String>): List<String> {
+    if (placeholders.isEmpty()) return values
+    return values.map { value ->
+        var restored = value
+        placeholders.forEachIndexed { index, original ->
+            restored = restored.replace(
+                "$UNSPLIT_PLACEHOLDER_PREFIX$index$UNSPLIT_PLACEHOLDER_SUFFIX",
+                original
+            )
+        }
+        restored
+    }
+}
+
+/**
  * Default word-based delimiters for splitting multi-artist strings.
  * These are matched case-insensitively with word boundaries.
  */
@@ -71,6 +120,9 @@ val DEFAULT_WORD_DELIMITERS = listOf("featuring", "feat.", "feat", "ft.", "ft", 
  * @param wordDelimiters List of word-based delimiters to split by (e.g., ["feat.", "ft.", "vs."])
  *        These are matched case-insensitively with surrounding whitespace.
  *        The single-letter "x" is handled specially — only matched when surrounded by spaces.
+ * @param unsplitValues Names that must never be split, even when they contain
+ *        a delimiter (e.g., ["AC/DC"]). Masked before splitting and restored
+ *        after, like old Startune's unsplit artists.
  * @return List of individual artist names, trimmed and with escaped delimiters restored.
  *         Returns a single-element list with the original string if no splitting occurs.
  *
@@ -82,7 +134,8 @@ val DEFAULT_WORD_DELIMITERS = listOf("featuring", "feat.", "feat", "ft.", "ft", 
  */
 fun String.splitArtistsByDelimiters(
     delimiters: List<String>,
-    wordDelimiters: List<String> = DEFAULT_WORD_DELIMITERS
+    wordDelimiters: List<String> = DEFAULT_WORD_DELIMITERS,
+    unsplitValues: List<String> = emptyList()
 ): List<String> {
     if ((delimiters.isEmpty() && wordDelimiters.isEmpty()) || this.isBlank()) {
         return listOf(this.trim()).filter { it.isNotEmpty() }
@@ -91,6 +144,9 @@ fun String.splitArtistsByDelimiters(
     val sortedDelimiters = delimiters.sortedByDescending { it.length }
 
     var working = this
+
+    val (maskedWorking, unsplitPlaceholders) = maskUnsplitValues(working, unsplitValues)
+    working = maskedWorking
 
     val escapedMappings = mutableMapOf<String, String>()
     sortedDelimiters.forEachIndexed { index, delimiter ->
@@ -126,15 +182,18 @@ fun String.splitArtistsByDelimiters(
 
     val parts = working.split(regex)
 
-    return parts
-        .map { part ->
-            var restored = part
-            escapedMappings.forEach { (placeholder, delimiter) ->
-                restored = restored.replace(placeholder, delimiter)
+    return restoreMaskedValues(
+        parts
+            .map { part ->
+                var restored = part
+                escapedMappings.forEach { (placeholder, delimiter) ->
+                    restored = restored.replace(placeholder, delimiter)
+                }
+                restored.trim()
             }
-            restored.trim()
-        }
-        .filter { it.isNotEmpty() }
+            .filter { it.isNotEmpty() },
+        unsplitPlaceholders
+    )
         .distinct()
         .ifEmpty { if (this.trim().isNotEmpty()) listOf(this.trim()) else emptyList() }
 }
