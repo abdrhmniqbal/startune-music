@@ -25,3 +25,15 @@ data class DeezerArtist(
     @SerializedName("nb_album") val albumCount: Int = 0,
     @SerializedName("nb_fan") val fanCount: Int = 0
 )
+
+/**
+ * One artist from a Deezer artist search, as shown in the artwork picker.
+ * The picture URL is already the high-res variant.
+ */
+data class DeezerArtistCandidate(
+    val id: Long,
+    val name: String,
+    val pictureUrl: String,
+    val fanCount: Int = 0,
+    val albumCount: Int = 0
+)

@@ -123,7 +123,6 @@
     <string name="presentation_batch_d_cd_collapse_title">收起 %1$s</string>
     <string name="presentation_batch_d_cd_expand_title">展开 %1$s</string>
     <string name="presentation_batch_d_edit_artist_image_cd">编辑艺术家图片</string>
-    <string name="presentation_batch_d_change_photo">更换照片</string>
     <string name="presentation_batch_d_reset_to_default">恢复默认</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">随机播放艺术家</string>
     <string name="presentation_batch_d_cd_artist">艺术家</string>

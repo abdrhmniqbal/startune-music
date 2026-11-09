@@ -110,7 +110,6 @@
     <string name="presentation_batch_d_cd_collapse_title">Recolher %1$s</string>
     <string name="presentation_batch_d_cd_expand_title">Expanda %1$s</string>
     <string name="presentation_batch_d_edit_artist_image_cd">Editar imagem do artista</string>
-    <string name="presentation_batch_d_change_photo">Alterar foto</string>
     <string name="presentation_batch_d_reset_to_default">Redefinir para o padrão</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">Artista de reprodução aleatória</string>
     <string name="presentation_batch_d_cd_artist">Artista</string>

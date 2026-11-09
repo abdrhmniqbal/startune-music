@@ -7,7 +7,6 @@
     <string name="presentation_batch_d_cd_folder">Klasör</string>
     <string name="presentation_batch_d_cd_play_title">%1$s Oynat</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">Sanatçıyı karışık çal</string>
-    <string name="presentation_batch_d_change_photo">Fotoğrafı değiştir</string>
     <string name="presentation_batch_d_cloud_only">Sadece Bulut</string>
     <string name="presentation_batch_d_cloud_sources_heading">Bulut</string>
     <string name="presentation_batch_d_edit_artist_image_cd">Sanatçı resmini düzenle</string>
