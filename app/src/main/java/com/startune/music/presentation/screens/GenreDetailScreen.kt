@@ -78,6 +78,12 @@ import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 import kotlin.math.roundToInt
 import androidx.compose.ui.res.stringResource
 import kotlinx.collections.immutable.toImmutableList
+import androidx.compose.ui.BiasAlignment
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.util.lerp
+import com.startune.music.ui.theme.ShapeCache
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -239,8 +245,20 @@ fun GenreDetailScreen(
                 .background(MaterialTheme.colorScheme.background)
         ) {
             val currentTopBarHeightDp = with(density) { topBarHeight.value.toDp() }
+            val solidAlpha = (collapseFraction * 2f).coerceIn(0f, 1f)
+            val expandedContentAlpha = 1f - solidAlpha
+            val titleVerticalBias = lerp(1f, -1f, collapseFraction)
+            val shuffleAlignment = BiasAlignment(horizontalBias = 1f, verticalBias = titleVerticalBias)
 
-            when (activeView) {
+            AnimatedContent(
+                targetState = activeView,
+                transitionSpec = {
+                    (fadeIn(tween(250)) + slideInHorizontally(tween(250)) { it / 6 }) togetherWith
+                        (fadeOut(tween(200)) + slideOutHorizontally(tween(200)) { -it / 6 })
+                },
+                label = "genre_detail_view"
+            ) { view ->
+                when (view) {
                 GenreDetailView.Overview -> {
                     LazyColumn(
                         state = lazyListState,
@@ -330,21 +348,7 @@ fun GenreDetailScreen(
                                 onBackClick = { activeView = GenreDetailView.Overview }
                             )
                         }
-                        item(key = "genre_songs_actions") {
-                            GenrePlayShuffleRow(
-                                onPlay = {
-                                    if (uiState.rankedSongs.isNotEmpty()) {
-                                        playerViewModel.playSongs(uiState.rankedSongs, uiState.rankedSongs.first(), genreDisplayName)
-                                    }
-                                },
-                                onShuffle = {
-                                    if (uiState.rankedSongs.isNotEmpty()) {
-                                        playerViewModel.playSongsShuffled(uiState.rankedSongs, genreDisplayName, startAtZero = true)
-                                    }
-                                }
-                            )
-                        }
-                        itemsIndexed(
+                                                itemsIndexed(
                             items = uiState.rankedSongs,
                             key = { _, song -> "genre_ranked_${song.id}" }
                         ) { index, song ->
@@ -410,7 +414,8 @@ fun GenreDetailScreen(
                                         )
                                     )
                                 },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(),
+                                imageAspectRatio = 3f / 2f
                             )
                         }
                     }
@@ -453,29 +458,61 @@ fun GenreDetailScreen(
                                         com.startune.music.presentation.navigation.Screen.ArtistDetail.createRoute(artist.id)
                                     )
                                 },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(),
+                                imageAspectRatio = 1f,
+                                imageShape = ShapeCache.expressiveAvatar
                             )
                         }
                     }
                 }
+                }
             }
 
-            GenreCollapsibleTopBar(
-                title = genreDisplayName,
-                collapseFraction = collapseFraction,
-                headerHeight = currentTopBarHeightDp,
-                onBackPressed = {
-                    if (activeView != GenreDetailView.Overview) {
-                        activeView = GenreDetailView.Overview
-                    } else {
-                        navController.popBackStack()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(currentTopBarHeightDp)
+                    .clipToBounds()
+            ) {
+                GenreCollapsibleTopBar(
+                    title = genreDisplayName,
+                    collapseFraction = collapseFraction,
+                    headerHeight = currentTopBarHeightDp,
+                    onBackPressed = {
+                        if (activeView != GenreDetailView.Overview) {
+                            activeView = GenreDetailView.Overview
+                        } else {
+                            navController.popBackStack()
+                        }
+                    },
+                    startColor = startColor,
+                    contentColor = contentColor,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    collapsedContentColor = MaterialTheme.colorScheme.onSurface
+                )
+                if (activeView == GenreDetailView.Songs && uiState.rankedSongs.isNotEmpty()) {
+                    LargeExtendedFloatingActionButton(
+                        onClick = {
+                            playerViewModel.playSongsShuffled(uiState.rankedSongs, genreDisplayName, startAtZero = true)
+                        },
+                        shape = RoundedStarShape(sides = 8, curve = 0.05),
+                        modifier = Modifier
+                            .align(shuffleAlignment)
+                            .statusBarsPadding()
+                            .padding(end = 16.dp)
+                            .graphicsLayer {
+                                alpha = expandedContentAlpha
+                                scaleX = expandedContentAlpha
+                                scaleY = expandedContentAlpha
+                            }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Shuffle,
+                            contentDescription = stringResource(R.string.shortcut_shuffle_short)
+                        )
                     }
-                },
-                startColor = startColor,
-                contentColor = contentColor,
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                collapsedContentColor = MaterialTheme.colorScheme.onSurface
-            )
+                }
+            }
 
             if (isUnknownGenre) {
                 Box(
@@ -796,37 +833,6 @@ private fun GenreSubViewHeader(
 }
 
 @Composable
-private fun GenrePlayShuffleRow(
-    onPlay: () -> Unit,
-    onShuffle: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        LargeExtendedFloatingActionButton(
-            onClick = onPlay,
-            shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f)
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.PlayArrow,
-                contentDescription = stringResource(R.string.play_playback)
-            )
-        }
-        LargeExtendedFloatingActionButton(
-            onClick = onShuffle,
-            shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f)
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Shuffle,
-                contentDescription = stringResource(R.string.shortcut_shuffle_short)
-            )
-        }
-    }
-}
-
-@Composable
 private fun GenreTopSongsCarousel(
     songs: List<Song>,
     currentSongId: String?,
@@ -838,68 +844,63 @@ private fun GenreTopSongsCarousel(
     if (songs.isEmpty()) return
     val pages = remember(songs) { songs.chunked(GENRE_TOP_SONGS_PAGE_SIZE) }
     val pagerState = rememberPagerState(pageCount = { pages.size })
-    Card(
+    Column(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Text(
+                text = stringResource(R.string.top_songs_title),
+                style = MaterialTheme.typography.titleLargeEmphasized,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            FilledIconButton(
+                modifier = Modifier
+                    .height(40.dp)
+                    .width(64.dp),
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    contentColor = MaterialTheme.colorScheme.secondary
+                ),
+                onClick = onViewMoreClick
             ) {
-                Text(
-                    text = stringResource(R.string.top_songs_title),
-                    style = MaterialTheme.typography.titleLargeEmphasized,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
                 )
-                FilledIconButton(
-                    modifier = Modifier
-                        .height(40.dp)
-                        .width(64.dp),
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                        contentColor = MaterialTheme.colorScheme.secondary
-                    ),
-                    onClick = onViewMoreClick
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
             }
+        }
 
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 0.dp),
-                pageSpacing = 24.dp,
-                verticalAlignment = Alignment.Top
-            ) { page ->
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    pages[page].forEachIndexed { index, song ->
-                        key(song.id) {
-                            GenreTopSongRow(
-                                rank = page * GENRE_TOP_SONGS_PAGE_SIZE + index + 1,
-                                song = song,
-                                isCurrentSong = currentSongId == song.id,
-                                isPlaying = isPlaying,
-                                onClick = { onSongClick(song) }
-                            )
-                        }
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 0.dp),
+            pageSpacing = 24.dp,
+            verticalAlignment = Alignment.Top
+        ) { page ->
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                pages[page].forEachIndexed { index, song ->
+                    key(song.id) {
+                        GenreTopSongRow(
+                            rank = page * GENRE_TOP_SONGS_PAGE_SIZE + index + 1,
+                            song = song,
+                            isCurrentSong = currentSongId == song.id,
+                            isPlaying = isPlaying,
+                            onClick = { onSongClick(song) }
+                        )
                     }
                 }
             }
         }
+    
     }
 }
 
@@ -1025,7 +1026,8 @@ private fun GenreAlbumsSection(
                     title = album.name,
                     subtitle = album.songs.firstOrNull()?.displayArtist ?: "",
                     onClick = { onAlbumClick(album) },
-                    modifier = Modifier.width(GenreGridCardWidth)
+                    modifier = Modifier.width(GenreGridCardWidth),
+                    imageAspectRatio = 3f / 2f
                 )
             }
         }
@@ -1054,7 +1056,9 @@ private fun GenreArtistsSection(
                     title = artist.name,
                     subtitle = formatSongCount(artist.songCount),
                     onClick = { onArtistClick(artist) },
-                    modifier = Modifier.width(GenreGridCardWidth)
+                    modifier = Modifier.width(GenreGridCardWidth),
+                    imageAspectRatio = 1f,
+                    imageShape = ShapeCache.expressiveAvatar
                 )
             }
         }
@@ -1067,7 +1071,9 @@ private fun GenreMediaCard(
     title: String,
     subtitle: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    imageAspectRatio: Float = 1f,
+    imageShape: Shape = RoundedCornerShape(12.dp)
 ) {
     Column(
         modifier = modifier.clickable(onClick = onClick),
@@ -1076,10 +1082,10 @@ private fun GenreMediaCard(
         SmartImage(
             model = imageUri,
             contentDescription = null,
-            shape = RoundedCornerShape(12.dp),
+            shape = imageShape,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f)
+                .aspectRatio(imageAspectRatio)
         )
         Column(
             verticalArrangement = Arrangement.spacedBy(2.dp)
