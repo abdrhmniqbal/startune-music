@@ -367,12 +367,7 @@ sealed class SortOption(
                 SongDateAdded,
                 SongDateAddedAsc,
                 SongDuration,
-                SongDurationAsc
-            )
-        }
-
-        val SONGS_IN_MEMORY: List<SortOption> by lazy {
-            SONGS + listOf(
+                SongDurationAsc,
                 SongPlayCount,
                 SongPlayCountAsc
             )
@@ -439,8 +434,7 @@ sealed class SortOption(
         }
 
         private val ALL: List<SortOption> by lazy {
-            SONGS + ALBUMS + ARTISTS + PLAYLISTS + FOLDERS + LIKED + GENRES +
-                listOf(SongPlayCount, SongPlayCountAsc)
+            SONGS + ALBUMS + ARTISTS + PLAYLISTS + FOLDERS + LIKED + GENRES
         }
 
         private val defaultOptionByMethodKey: Map<String, SortOption> by lazy {
