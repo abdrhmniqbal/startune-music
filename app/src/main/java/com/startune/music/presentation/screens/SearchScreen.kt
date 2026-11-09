@@ -114,7 +114,6 @@ import com.startune.music.presentation.components.PlaylistCover
 import com.startune.music.presentation.components.resolveMainScreenBottomGradientHeight
 import com.startune.music.presentation.components.resolveNavBarOccupiedHeight
 import com.startune.music.presentation.navigation.Screen
-import com.startune.music.presentation.screens.search.components.GenreCategoriesGrid
 import com.startune.music.presentation.viewmodel.PlaylistViewModel
 import com.startune.music.utils.formatSongCount
 import kotlinx.collections.immutable.ImmutableList
@@ -164,7 +163,6 @@ fun SearchScreen(
             .distinctUntilChanged()
     }.collectAsStateWithLifecycle(initialValue = SearchUiSlice())
     val currentFilter = searchUiState.selectedSearchFilter
-    val genres by playerViewModel.genres.collectAsStateWithLifecycle()
     val stablePlayerState by playerViewModel.stablePlayerState.collectAsStateWithLifecycle()
     val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
@@ -186,7 +184,6 @@ fun SearchScreen(
             mapOf(
                 "durationMs" to
                     (android.os.SystemClock.elapsedRealtime() - searchScreenEnteredAt).toString(),
-                "genreCount" to genres.size.toString(),
             )
         }
     }
@@ -358,81 +355,49 @@ fun SearchScreen(
                 }
             }
 
-            val showGenreBrowse by remember(searchQuery) { derivedStateOf { searchQuery.isBlank() } }
-            AnimatedContent(
-                targetState = showGenreBrowse,
-                transitionSpec = {
-                    val switchingToGenre = targetState
-                    val enter = fadeIn(animationSpec = tween(durationMillis = 320, delayMillis = 70)) +
-                        slideInVertically(animationSpec = tween(durationMillis = 320)) { fullHeight ->
-                            if (switchingToGenre) -fullHeight / 10 else fullHeight / 10
-                        }
-                    val exit = fadeOut(animationSpec = tween(durationMillis = 220)) +
-                        slideOutVertically(animationSpec = tween(durationMillis = 220)) { fullHeight ->
-                            if (switchingToGenre) fullHeight / 12 else -fullHeight / 12
-                        }
-                    (enter togetherWith exit).using(SizeTransform(clip = false))
-                },
-                label = "search_mode_transition"
-            ) { isGenreMode ->
-                if (isGenreMode) {
-                    GenreCategoriesGrid(
-                        genres = genres,
-                        onGenreClick = { genre ->
-                            Timber.tag("SearchScreen")
-                                .d("Genre clicked: ${genre.name} (ID: ${genre.id})")
-                            val encodedGenreId = java.net.URLEncoder.encode(genre.id, "UTF-8")
-                            navController.navigateSafely(Screen.GenreDetail.createRoute(encodedGenreId))
-                        },
-                        playerViewModel = playerViewModel,
-                        modifier = Modifier.padding(top = 12.dp)
-                    )
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp)
-                    ) {
-                        FlowRow(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp, horizontal = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(0.dp)
-                        ) {
-                            SearchFilterChip(SearchFilterType.ALL, currentFilter, playerViewModel)
-                            SearchFilterChip(SearchFilterType.SONGS, currentFilter, playerViewModel)
-                            SearchFilterChip(SearchFilterType.ALBUMS, currentFilter, playerViewModel)
-                            SearchFilterChip(SearchFilterType.ARTISTS, currentFilter, playerViewModel)
-                            SearchFilterChip(SearchFilterType.PLAYLISTS, currentFilter, playerViewModel)
-                        }
-                        Crossfade(
-                            targetState = searchResults.isEmpty(),
-                            animationSpec = tween(durationMillis = 190),
-                            label = "search_results_fade"
-                        ) { isEmpty ->
-                            if (isEmpty) {
-                                EmptySearchResults(
-                                    searchQuery = searchQuery,
-                                    colorScheme = colorScheme
-                                )
-                            } else {
-                                SearchResultsList(
-                                    results = searchResults,
-                                    searchQuery = searchQuery,
-                                    playerViewModel = playerViewModel,
-                                    onItemSelected = {
-                                        if (searchQuery.isNotBlank()) {
-                                            playerViewModel.onSearchQuerySubmitted(searchQuery)
-                                        }
-                                    },
-                                    currentPlayingSongId = stablePlayerState.currentSong?.id,
-                                    isPlaying = stablePlayerState.isPlaying,
-                                    onSongMoreOptionsClick = handleSongMoreOptionsClick,
-                                    navController = navController
-                                )
-                            }
-                        }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+            ) {
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp, horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(0.dp)
+                ) {
+                    SearchFilterChip(SearchFilterType.ALL, currentFilter, playerViewModel)
+                    SearchFilterChip(SearchFilterType.SONGS, currentFilter, playerViewModel)
+                    SearchFilterChip(SearchFilterType.ALBUMS, currentFilter, playerViewModel)
+                    SearchFilterChip(SearchFilterType.ARTISTS, currentFilter, playerViewModel)
+                    SearchFilterChip(SearchFilterType.PLAYLISTS, currentFilter, playerViewModel)
+                }
+                Crossfade(
+                    targetState = searchResults.isEmpty(),
+                    animationSpec = tween(durationMillis = 190),
+                    label = "search_results_fade"
+                ) { isEmpty ->
+                    if (isEmpty) {
+                        EmptySearchResults(
+                            searchQuery = searchQuery,
+                            colorScheme = colorScheme
+                        )
+                    } else {
+                        SearchResultsList(
+                            results = searchResults,
+                            searchQuery = searchQuery,
+                            playerViewModel = playerViewModel,
+                            onItemSelected = {
+                                if (searchQuery.isNotBlank()) {
+                                    playerViewModel.onSearchQuerySubmitted(searchQuery)
+                                }
+                            },
+                            currentPlayingSongId = stablePlayerState.currentSong?.id,
+                            isPlaying = stablePlayerState.isPlaying,
+                            onSongMoreOptionsClick = handleSongMoreOptionsClick,
+                            navController = navController
+                        )
                     }
                 }
             }

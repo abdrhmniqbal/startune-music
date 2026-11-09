@@ -210,6 +210,14 @@ sealed class SortOption(
         direction = SortDirection.Ascending
     )
 
+    object GenreNameAZ : SortOption(
+        storageKey = "genre_name_az",
+        displayName = "Name (A-Z)",
+        methodLabel = "Name",
+        methodKey = "genre_name",
+        direction = SortDirection.Ascending
+    )
+
     object LikedSongTitleAZ : SortOption(
         storageKey = "liked_title_az",
         displayName = "Title (A-Z)",
@@ -405,8 +413,12 @@ sealed class SortOption(
             )
         }
 
+        val GENRES: List<SortOption> by lazy {
+            listOf(GenreNameAZ)
+        }
+
         private val ALL: List<SortOption> by lazy {
-            SONGS + ALBUMS + ARTISTS + PLAYLISTS + FOLDERS + LIKED
+            SONGS + ALBUMS + ARTISTS + PLAYLISTS + FOLDERS + LIKED + GENRES
         }
 
         private val defaultOptionByMethodKey: Map<String, SortOption> by lazy {

@@ -255,6 +255,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.LoadState
 import com.startune.music.presentation.components.ExpressiveScrollBar
+import com.startune.music.presentation.components.GenreCategoriesGrid
 import com.startune.music.presentation.components.LibrarySortBottomSheet
 import com.startune.music.presentation.components.subcomps.EnhancedSongListItem
 import timber.log.Timber
@@ -265,7 +266,6 @@ import com.startune.music.presentation.components.rememberModalSheetState
 val ListExtraBottomGap = 30.dp
 val PlayerSheetCollapsedCornerRadius = 32.dp
 private const val ENABLE_FOLDERS_SOURCE_TOGGLE = true
-private const val ENABLE_FOLDERS_STORAGE_FILTER = false
 private const val FOLDER_NAVIGATION_ROOT_KEY = "__folder_root__"
 private const val FOLDER_NAVIGATION_FORWARD = 1
 private const val FOLDER_NAVIGATION_BACKWARD = -1
@@ -285,6 +285,8 @@ private data class LibraryScreenPlayerProjection(
     val currentFavoriteSortOption: SortOption = SortOption.LikedSongDateLiked,
     val currentFolderSortOption: SortOption = SortOption.FolderNameAZ,
     val isAlbumsListView: Boolean = false,
+    val isArtistsListView: Boolean = true,
+    val isPlaylistsListView: Boolean = true,
     val isSdCardAvailable: Boolean = false,
     val musicFolders: ImmutableList<MusicFolder> = persistentListOf(),
     val isLoadingLibraryCategories: Boolean = true,
@@ -306,6 +308,8 @@ private fun PlayerUiState.toLibraryScreenProjection(): LibraryScreenPlayerProjec
         currentFavoriteSortOption = currentFavoriteSortOption,
         currentFolderSortOption = currentFolderSortOption,
         isAlbumsListView = isAlbumsListView,
+        isArtistsListView = isArtistsListView,
+        isPlaylistsListView = isPlaylistsListView,
         isSdCardAvailable = isSdCardAvailable,
         musicFolders = musicFolders,
         isLoadingLibraryCategories = isLoadingLibraryCategories,
@@ -631,6 +635,7 @@ fun LibraryScreen(
         LibraryTabId.LIKED,
         LibraryTabId.FOLDERS -> isSelectionMode
         LibraryTabId.ARTISTS -> isArtistSelectionMode
+        LibraryTabId.GENRES -> false
     }
     val canHandleFolderBack by remember {
         derivedStateOf {
@@ -669,6 +674,8 @@ fun LibraryScreen(
                         multiSelectionState.clearSelection()
                         showMultiSelectionSheet = false
                     }
+
+                    LibraryTabId.GENRES -> Unit
 
                 }
             }
@@ -960,6 +967,8 @@ fun LibraryScreen(
                         }
 
                         val playlistUiState by playlistViewModel.uiState.collectAsStateWithLifecycle()
+                        val genres by playerViewModel.genres.collectAsStateWithLifecycle()
+                        val isGenreGridView by playerViewModel.isGenreGridView.collectAsStateWithLifecycle()
                         val visiblePlaylists = playlistUiState.playlists
                         val allSongsLazyPagingItems = libraryViewModel.songsPagingFlow.collectAsLazyPagingItems()
                         val albumsLazyPagingItems = libraryViewModel.albumsPagingFlow.collectAsLazyPagingItems()
@@ -984,6 +993,7 @@ fun LibraryScreen(
                             LibraryTabId.PLAYLISTS -> playlistUiState.currentPlaylistSortOption
                             LibraryTabId.LIKED -> playerUiState.currentFavoriteSortOption
                             LibraryTabId.FOLDERS -> playerUiState.currentFolderSortOption
+                            LibraryTabId.GENRES -> SortOption.GenreNameAZ
                         }
 
                         val showLocateButton = when (currentTabId) {
@@ -1008,6 +1018,7 @@ fun LibraryScreen(
                                     LibraryTabId.PLAYLISTS -> playlistViewModel.sortPlaylists(option)
                                     LibraryTabId.LIKED -> playerViewModel.sortFavoriteSongs(option)
                                     LibraryTabId.FOLDERS -> playerViewModel.sortFolders(option)
+                                    LibraryTabId.GENRES -> Unit
                                 }
                             }
                         }
@@ -1132,13 +1143,26 @@ fun LibraryScreen(
                                     onFolderClick = { playerViewModel.navigateToFolder(it) },
                                     onNavigateBack = { playerViewModel.navigateBackFolder() },
                                     isShuffleEnabled = isShuffleEnabled,
-                                    showStorageFilterButton = currentTabId == LibraryTabId.SONGS ||
-                                            currentTabId == LibraryTabId.ALBUMS ||
+                                    showViewToggleButton = currentTabId == LibraryTabId.ALBUMS ||
                                             currentTabId == LibraryTabId.ARTISTS ||
-                                            currentTabId == LibraryTabId.LIKED ||
-                                            (ENABLE_FOLDERS_STORAGE_FILTER && currentTabId == LibraryTabId.FOLDERS),
-                                    currentStorageFilter = playerUiState.currentStorageFilter,
-                                    onStorageFilterClick = { playerViewModel.toggleStorageFilter() }
+                                            currentTabId == LibraryTabId.PLAYLISTS ||
+                                            currentTabId == LibraryTabId.GENRES,
+                                    isCurrentViewList = when (currentTabId) {
+                                        LibraryTabId.ALBUMS -> playerUiState.isAlbumsListView
+                                        LibraryTabId.ARTISTS -> playerUiState.isArtistsListView
+                                        LibraryTabId.PLAYLISTS -> playerUiState.isPlaylistsListView
+                                        LibraryTabId.GENRES -> !isGenreGridView
+                                        else -> false
+                                    },
+                                    onViewToggleClick = {
+                                        when (currentTabId) {
+                                            LibraryTabId.ALBUMS -> playerViewModel.setAlbumsListView(!playerUiState.isAlbumsListView)
+                                            LibraryTabId.ARTISTS -> playerViewModel.setArtistsListView(!playerUiState.isArtistsListView)
+                                            LibraryTabId.PLAYLISTS -> playerViewModel.setPlaylistsListView(!playerUiState.isPlaylistsListView)
+                                            LibraryTabId.GENRES -> playerViewModel.toggleGenreViewMode()
+                                            else -> Unit
+                                        }
+                                    }
                                 )
                             }
                         }
@@ -1159,7 +1183,6 @@ fun LibraryScreen(
                                 ?: sanitizedSortOptions.first()
 
 
-                            val isAlbumTab = currentTabId == LibraryTabId.ALBUMS
                             val isFoldersTab = currentTabId == LibraryTabId.FOLDERS
 
                             LibrarySortBottomSheet(
@@ -1181,46 +1204,6 @@ fun LibraryScreen(
                                 onViewToggleChange = { isChecked ->
                                     playerViewModel.setFoldersPlaylistView(isChecked)
                                 },
-                                viewToggleContent = if (isAlbumTab) {
-                                    {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth().height(48.dp),
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                        ) {
-                                            val isList = playerUiState.isAlbumsListView
-                                            val primaryColor = MaterialTheme.colorScheme.tertiaryContainer
-                                            val onPrimaryColor = MaterialTheme.colorScheme.onTertiaryContainer
-                                            val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
-                                            val onSurfaceColor = MaterialTheme.colorScheme.onSurfaceVariant
-
-                                            ToggleSegmentButton(
-                                                modifier = Modifier.weight(1f),
-                                                active = !isList,
-                                                activeColor = MaterialTheme.colorScheme.primary,
-                                                inactiveColor = MaterialTheme.colorScheme.surfaceVariant,
-                                                activeContentColor = MaterialTheme.colorScheme.onPrimary,
-                                                inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                activeCornerRadius = 32.dp,
-                                                onClick = { playerViewModel.setAlbumsListView(false) },
-                                                text = stringResource(R.string.presentation_batch_d_view_grid),
-                                                imageVector = Icons.Rounded.ViewModule
-                                            )
-
-                                            ToggleSegmentButton(
-                                                modifier = Modifier.weight(1f),
-                                                active = isList,
-                                                activeColor = MaterialTheme.colorScheme.primary,
-                                                inactiveColor = MaterialTheme.colorScheme.surfaceVariant,
-                                                activeContentColor = MaterialTheme.colorScheme.onPrimary,
-                                                inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                activeCornerRadius = 32.dp,
-                                                onClick = { playerViewModel.setAlbumsListView(true) },
-                                                text = stringResource(R.string.presentation_batch_d_view_list),
-                                                imageVector = Icons.AutoMirrored.Rounded.ViewList
-                                            )
-                                        }
-                                    }
-                                } else null,
                                 sourceToggleContent = if (isFoldersTab && ENABLE_FOLDERS_SOURCE_TOGGLE) {
                                     {
                                         Row(
@@ -1370,6 +1353,7 @@ fun LibraryScreen(
                                             isLoading = isLoading,
                                             playerViewModel = playerViewModel,
                                             bottomBarHeight = bottomBarHeightDp,
+                                            isListView = playerUiState.isArtistsListView,
                                             currentArtistSortOption = playerUiState.currentArtistSortOption,
                                             onArtistClick = { artistId ->
                                                 navController.navigateSafelyReplacing(
@@ -1395,6 +1379,7 @@ fun LibraryScreen(
                                             navController = navController,
                                             playerViewModel = playerViewModel,
                                             bottomBarHeight = bottomBarHeightDp,
+                                            isListView = playerUiState.isPlaylistsListView,
                                             isRefreshing = isRefreshing,
                                             onRefresh = onRefresh,
                                             isSelectionMode = isPlaylistSelectionMode,
@@ -1481,6 +1466,19 @@ fun LibraryScreen(
                                         )
                                     }
 
+                                    LibraryTabId.GENRES -> {
+                                        GenreCategoriesGrid(
+                                            genres = genres,
+                                            onGenreClick = { genre ->
+                                                val encodedGenreId = java.net.URLEncoder.encode(genre.id, "UTF-8")
+                                                navController.navigateSafely(
+                                                    Screen.GenreDetail.createRoute(encodedGenreId)
+                                                )
+                                            },
+                                            playerViewModel = playerViewModel
+                                        )
+                                    }
+
                                     null -> Unit
                                 }
                             }
@@ -1492,6 +1490,7 @@ fun LibraryScreen(
                                 LibraryTabId.SONGS,
                                 LibraryTabId.LIKED,
                                 LibraryTabId.FOLDERS -> selectedSongs.size
+                                LibraryTabId.GENRES -> 0
                             }
                             SelectionCountPill(
                                 selectedCount = selectionCount,
@@ -2507,6 +2506,7 @@ private fun LibraryTabId.iconRes(): Int = when (this) {
     LibraryTabId.PLAYLISTS -> R.drawable.rounded_playlist_play_24
     LibraryTabId.FOLDERS -> R.drawable.rounded_folder_24
     LibraryTabId.LIKED -> R.drawable.round_favorite_24
+    LibraryTabId.GENRES -> R.drawable.round_library_music_24
 }
 
 @Composable
@@ -3291,6 +3291,155 @@ fun ArtistListItem(
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold
                     )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun ArtistGridItem(
+    artist: Artist,
+    onClick: () -> Unit,
+    isLoading: Boolean = false,
+    isSelectionMode: Boolean = false,
+    isSelected: Boolean = false,
+    selectionIndex: Int? = null,
+    onLongPress: () -> Unit = {},
+    onSelectionToggle: () -> Unit = {}
+) {
+    val cardShape = RoundedCornerShape(20.dp)
+    val selectionScale by animateFloatAsState(
+        targetValue = if (isSelected) 0.985f else 1f,
+        animationSpec = tween(durationMillis = 220),
+        label = "artistGridSelectionScale"
+    )
+    val selectionBorderWidth by animateDpAsState(
+        targetValue = if (isSelected) 2.dp else 0.dp,
+        animationSpec = tween(durationMillis = 220),
+        label = "artistGridSelectionBorder"
+    )
+
+    if (isLoading) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = cardShape,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+        ) {
+            Column {
+                ShimmerBox(
+                    modifier = Modifier
+                        .aspectRatio(3f / 2f)
+                        .fillMaxSize()
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(84.dp)
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    ShimmerBox(
+                        modifier = Modifier
+                            .fillMaxWidth(0.8f)
+                            .height(20.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    ShimmerBox(
+                        modifier = Modifier
+                            .fillMaxWidth(0.6f)
+                            .height(16.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                    )
+                }
+            }
+        }
+    } else {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .scale(selectionScale)
+                .then(
+                    if (isSelected) {
+                        Modifier.border(
+                            width = selectionBorderWidth,
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = cardShape
+                        )
+                    } else {
+                        Modifier
+                    }
+                )
+                .clip(cardShape)
+                .combinedClickable(
+                    onClick = {
+                        if (isSelectionMode) {
+                            onSelectionToggle()
+                        } else {
+                            onClick()
+                        }
+                    },
+                    onLongClick = onLongPress
+                ),
+            shape = cardShape,
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
+        ) {
+            Box {
+                Column {
+                    SmartImage(
+                        model = artist.effectiveImageUrl,
+                        contentDescription = artist.name,
+                        contentScale = ContentScale.Crop,
+                        targetSize = Size(256, 256),
+                        modifier = Modifier
+                            .aspectRatio(3f / 2f)
+                            .fillMaxSize()
+                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(84.dp)
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            artist.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            formatSongCount(artist.songCount),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+
+                if (isSelectionMode && isSelected) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(10.dp)
+                            .size(28.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = selectionIndex?.toString() ?: "✓",
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }

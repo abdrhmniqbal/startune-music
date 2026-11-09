@@ -41,6 +41,8 @@ data class PlayerUiState(
     val preparingSongId: String? = null,
     val isLoadingLibraryCategories: Boolean = true,
     val isAlbumsListView: Boolean = false,
+    val isArtistsListView: Boolean = true,
+    val isPlaylistsListView: Boolean = true,
     val currentFavoriteSortOption: SortOption = SortOption.LikedSongDateLiked,
     val currentAlbumSortOption: SortOption = SortOption.AlbumTitleAZ,
     val currentArtistSortOption: SortOption = SortOption.ArtistNameAZ,

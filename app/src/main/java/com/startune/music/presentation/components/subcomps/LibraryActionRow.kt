@@ -33,13 +33,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.automirrored.rounded.Sort
+import androidx.compose.material.icons.automirrored.rounded.ViewList
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.MyLocation
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material.icons.rounded.FilterList
-import androidx.compose.material.icons.rounded.Cloud
-import androidx.compose.material.icons.rounded.Dataset
-import androidx.compose.material.icons.rounded.PhoneAndroid
+import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -101,9 +100,9 @@ fun LibraryActionRow(
     onFolderClick: (String) -> Unit,
     onNavigateBack: () -> Unit,
     isShuffleEnabled: Boolean = false,
-    showStorageFilterButton: Boolean = false,
-    currentStorageFilter: com.startune.music.data.model.StorageFilter = com.startune.music.data.model.StorageFilter.ALL,
-    onStorageFilterClick: () -> Unit = {}
+    showViewToggleButton: Boolean = false,
+    isCurrentViewList: Boolean = false,
+    onViewToggleClick: () -> Unit = {}
 ) {
     val shouldShowImport = isPlaylistTab && showImportButton
 
@@ -272,7 +271,7 @@ fun LibraryActionRow(
             val outerCorner = 26.dp
             
             val sortStartCorner by animateDpAsState(
-                targetValue = if (showLocateButton || showStorageFilterButton) 8.dp else outerCorner,
+                targetValue = if (showLocateButton || showViewToggleButton) 8.dp else outerCorner,
                 label = "SortStartCorner"
             )
 
@@ -289,7 +288,7 @@ fun LibraryActionRow(
                 label = "GapLocate"
             )
             val gapBetweenFilterAndSort by animateDpAsState(
-                targetValue = if (showStorageFilterButton) 4.dp else 0.dp,
+                targetValue = if (showViewToggleButton) 4.dp else 0.dp,
                 label = "GapFilter"
             )
 
@@ -320,20 +319,12 @@ fun LibraryActionRow(
                 Spacer(modifier = Modifier.width(gapBetweenLocateAndNext))
 
                 AnimatedVisibility(
-                    visible = showStorageFilterButton,
+                    visible = showViewToggleButton,
                     enter = slideInHorizontally(initialOffsetX = { it / 2 }) + fadeIn(),
                     exit = slideOutHorizontally(targetOffsetX = { it / 2 }) + fadeOut()
                 ) {
-                     val finalIcon = when(currentStorageFilter) {
-                         com.startune.music.data.model.StorageFilter.ALL -> Icons.Rounded.Dataset
-                         com.startune.music.data.model.StorageFilter.ONLINE -> Icons.Rounded.Cloud
-                         com.startune.music.data.model.StorageFilter.OFFLINE -> Icons.Rounded.PhoneAndroid
-                     }
-                     val tooltipText = when(currentStorageFilter) {
-                         com.startune.music.data.model.StorageFilter.ALL -> stringResource(R.string.library_storage_filter_all_songs)
-                         com.startune.music.data.model.StorageFilter.ONLINE -> stringResource(R.string.library_storage_filter_online)
-                         com.startune.music.data.model.StorageFilter.OFFLINE -> stringResource(R.string.library_storage_filter_offline)
-                     }
+                     val finalIcon = if (isCurrentViewList) Icons.Rounded.GridView else Icons.AutoMirrored.Rounded.ViewList
+                     val tooltipText = stringResource(if (isCurrentViewList) R.string.presentation_batch_d_view_grid else R.string.presentation_batch_d_view_list)
                      val tooltipState = rememberTooltipState()
 
                     TooltipBox(
@@ -346,7 +337,7 @@ fun LibraryActionRow(
                         state = tooltipState
                     ) {
                         FilledTonalIconButton(
-                            onClick = onStorageFilterClick,
+                            onClick = onViewToggleClick,
                             shape = RoundedCornerShape(
                                 topStart = filterStartCorner,
                                 bottomStart = filterStartCorner,
