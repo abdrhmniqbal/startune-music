@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import com.startune.music.ui.theme.ShapeCache
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
@@ -1004,7 +1003,7 @@ fun SearchResultArtistItem(
                     targetSize = SmartImageListTargetSize,
                     modifier = Modifier
                         .size(56.dp)
-                        .clip(ShapeCache.expressiveAvatar)
+                        .clip(CircleShape)
                 )
             } else {
                 Icon(
@@ -1012,7 +1011,7 @@ fun SearchResultArtistItem(
                     contentDescription = stringResource(R.string.cd_artist_icon),
                     modifier = Modifier
                         .size(56.dp)
-                        .background(MaterialTheme.colorScheme.tertiaryContainer, ShapeCache.expressiveAvatar)
+                        .background(MaterialTheme.colorScheme.tertiaryContainer, CircleShape)
                         .padding(12.dp),
                     tint = MaterialTheme.colorScheme.onTertiaryContainer
                 )
