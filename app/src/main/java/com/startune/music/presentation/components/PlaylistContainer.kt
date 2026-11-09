@@ -643,10 +643,12 @@ fun PlaylistGridItem(
                         .fillMaxWidth()
                         .aspectRatio(1f)
                 ) {
+                    // Grid covers stay square like old Startune; custom shapes apply only to small covers.
                     PlaylistCover(
                         playlist = playlist,
                         playlistSongs = remember(playlistSongs) { (playlistSongs ?: emptyList()).toImmutableList() },
-                        size = maxWidth
+                        size = maxWidth,
+                        applyCoverShape = false
                     )
                 }
                 Column(

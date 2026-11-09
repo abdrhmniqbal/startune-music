@@ -39,10 +39,12 @@ fun PlaylistCover(
     playlist: Playlist,
     playlistSongs: ImmutableList<Song>,
     modifier: Modifier = Modifier,
-    size: Dp = 48.dp
+    size: Dp = 48.dp,
+    applyCoverShape: Boolean = true
 ) {
-    val shape = remember(playlist.coverShapeType, playlist.coverShapeDetail1, playlist.coverShapeDetail2, playlist.coverShapeDetail3, size) {
-        when (playlist.coverShapeType) {
+    val shapeType = if (applyCoverShape) playlist.coverShapeType else null
+    val shape = remember(shapeType, playlist.coverShapeDetail1, playlist.coverShapeDetail2, playlist.coverShapeDetail3, size) {
+        when (shapeType) {
             PlaylistShapeType.Circle.name -> CircleShape
             PlaylistShapeType.SmoothRect.name -> {
                 val referenceSize = 200f
@@ -70,9 +72,9 @@ fun PlaylistCover(
         }
     }
 
-    val shapeMod = if (playlist.coverShapeType == PlaylistShapeType.RotatedPill.name) Modifier.graphicsLayer(rotationZ = 45f) else Modifier
-    val iconMod = if (playlist.coverShapeType == PlaylistShapeType.RotatedPill.name) Modifier.graphicsLayer(rotationZ = -45f) else Modifier
-    val scaleMod = if (playlist.coverShapeType == PlaylistShapeType.Star.name) {
+    val shapeMod = if (shapeType == PlaylistShapeType.RotatedPill.name) Modifier.graphicsLayer(rotationZ = 45f) else Modifier
+    val iconMod = if (shapeType == PlaylistShapeType.RotatedPill.name) Modifier.graphicsLayer(rotationZ = -45f) else Modifier
+    val scaleMod = if (shapeType == PlaylistShapeType.Star.name) {
         val s = playlist.coverShapeDetail3 ?: 1f
         Modifier.graphicsLayer(scaleX = s, scaleY = s)
     } else Modifier
