@@ -275,6 +275,37 @@ fun ArtistSettingsScreen(
                                 )
                             }
                         )
+
+                        SettingsItem(
+                            title = stringResource(R.string.presentation_batch_g_artist_item_unsplit_artists),
+                            subtitle = if (uiState.unsplitArtists.isEmpty()) {
+                                stringResource(R.string.presentation_batch_g_artist_word_none)
+                            } else {
+                                val preview = uiState.unsplitArtists.take(5).joinToString(", ") +
+                                    if (uiState.unsplitArtists.size > 5) "..." else ""
+                                stringResource(
+                                    R.string.presentation_batch_g_artist_word_current_prefix,
+                                    preview
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Settings,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.secondary
+                                )
+                            },
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.ChevronRight,
+                                    contentDescription = stringResource(R.string.presentation_batch_g_artist_cd_configure),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            },
+                            onClick = {
+                                navController.navigateSafely("unsplit_artists_config")
+                            }
+                        )
                     }
                 }
             }
@@ -316,6 +347,37 @@ fun ArtistSettingsScreen(
                             },
                             onClick = {
                                 navController.navigateSafely("genre_delimiter_config")
+                            }
+                        )
+
+                        SettingsItem(
+                            title = stringResource(R.string.presentation_batch_g_genre_item_unsplit_genres),
+                            subtitle = if (uiState.unsplitGenres.isEmpty()) {
+                                stringResource(R.string.presentation_batch_g_artist_word_none)
+                            } else {
+                                val preview = uiState.unsplitGenres.take(5).joinToString(", ") +
+                                    if (uiState.unsplitGenres.size > 5) "..." else ""
+                                stringResource(
+                                    R.string.presentation_batch_g_artist_word_current_prefix,
+                                    preview
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Settings,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.secondary
+                                )
+                            },
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.ChevronRight,
+                                    contentDescription = stringResource(R.string.presentation_batch_g_artist_cd_configure),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            },
+                            onClick = {
+                                navController.navigateSafely("unsplit_genres_config")
                             }
                         )
                     }

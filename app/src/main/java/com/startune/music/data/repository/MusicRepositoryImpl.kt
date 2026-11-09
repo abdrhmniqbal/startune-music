@@ -644,14 +644,15 @@ class MusicRepositoryImpl @Inject constructor(
             userPreferencesRepository.mockGenresEnabledFlow,
             userPreferencesRepository.allowedDirectoriesFlow,
             userPreferencesRepository.blockedDirectoriesFlow,
-            userPreferencesRepository.genreDelimitersFlow
-        ) { mockEnabled, allowedDirs, blockedDirs, genreDelimiters ->
-            GenreBrowseParams(mockEnabled, allowedDirs, blockedDirs, genreDelimiters)
+            userPreferencesRepository.genreDelimitersFlow,
+            userPreferencesRepository.unsplitGenresFlow
+        ) { mockEnabled, allowedDirs, blockedDirs, genreDelimiters, unsplitGenres ->
+            GenreBrowseParams(mockEnabled, allowedDirs, blockedDirs, genreDelimiters, unsplitGenres)
         }.flatMapLatest { params ->
+            val genreName = if (params.mockEnabled) "Mock" else genreId
             flow {
                 val (allowedParentDirs, applyDirectoryFilter) =
                     computeAllowedDirs(params.allowedDirs, params.blockedDirs)
-                val genreName = if (params.mockEnabled) "Mock" else genreId
                 emit(
                     if (genreName.equals("unknown", ignoreCase = true)) {
                         musicDao.getSongsWithNullGenre(
@@ -672,9 +673,18 @@ class MusicRepositoryImpl @Inject constructor(
                         )
                     }
                 )
-            }.flatMapLatest { it }
-        }.map { entities ->
-            entities.map { it.toSong() }
+            }.flatMapLatest { it }.map { entities ->
+                // The LIKE patterns are a candidate pre-filter only: they can
+                // over-match when a raw genre is an unsplit whole (e.g. "Pop"
+                // matching "Pop/Rock"), so the exact membership check runs
+                // here against the masked split.
+                entities.filter { entity ->
+                    genreName.equals("unknown", ignoreCase = true) ||
+                        (entity.genre ?: "").splitArtistsByDelimiters(
+                            params.genreDelimiters, emptyList(), params.unsplitGenres
+                        ).any { it.equals(genreName, ignoreCase = true) }
+                }.map { it.toSong() }
+            }
         }.flowOn(Dispatchers.IO)
     }
 
@@ -825,7 +835,15 @@ class MusicRepositoryImpl @Inject constructor(
         val mockEnabled: Boolean,
         val allowedDirs: Set<String>,
         val blockedDirs: Set<String>,
-        val genreDelimiters: List<String>
+        val genreDelimiters: List<String>,
+        val unsplitGenres: List<String>
+    )
+
+    private data class GenreListParams(
+        val allowedDirs: Set<String>,
+        val blockedDirs: Set<String>,
+        val genreDelimiters: List<String>,
+        val unsplitGenres: List<String>
     )
 
     private fun buildGenreSongsQuery(
@@ -866,10 +884,11 @@ class MusicRepositoryImpl @Inject constructor(
         return combine(
             userPreferencesRepository.allowedDirectoriesFlow,
             userPreferencesRepository.blockedDirectoriesFlow,
-            userPreferencesRepository.genreDelimitersFlow
-        ) { allowedDirs, blockedDirs, genreDelimiters ->
-            Triple(allowedDirs, blockedDirs, genreDelimiters)
-        }.flatMapLatest { (allowedDirs, blockedDirs, genreDelimiters) ->
+            userPreferencesRepository.genreDelimitersFlow,
+            userPreferencesRepository.unsplitGenresFlow
+        ) { allowedDirs, blockedDirs, genreDelimiters, unsplitGenres ->
+            GenreListParams(allowedDirs, blockedDirs, genreDelimiters, unsplitGenres)
+        }.flatMapLatest { (allowedDirs, blockedDirs, genreDelimiters, unsplitGenres) ->
             flow {
                 val (allowedParentDirs, applyDirectoryFilter) =
                     computeAllowedDirs(allowedDirs, blockedDirs)
@@ -886,7 +905,7 @@ class MusicRepositoryImpl @Inject constructor(
                     ) { genreNames, hasUnknown ->
                         val knownGenres = genreNames
                             .asSequence()
-                            .flatMap { raw -> raw.splitArtistsByDelimiters(genreDelimiters, emptyList()) }
+                            .flatMap { raw -> raw.splitArtistsByDelimiters(genreDelimiters, emptyList(), unsplitGenres) }
                             .map { buildGenre(it) }
                             .distinctBy { it.id }
                             .sortedBy { it.name.lowercase() }

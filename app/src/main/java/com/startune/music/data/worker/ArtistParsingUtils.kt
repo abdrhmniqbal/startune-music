@@ -8,6 +8,7 @@ internal fun collectArtistNames(
     title: String,
     artistDelimiters: List<String>,
     wordDelimiters: List<String> = emptyList(),
+    unsplitArtists: List<String> = emptyList(),
     extractFromTitle: Boolean = true
 ): List<String> {
     return collectArtistNames(
@@ -15,6 +16,7 @@ internal fun collectArtistNames(
         title = title,
         artistDelimiters = artistDelimiters,
         wordDelimiters = wordDelimiters,
+        unsplitArtists = unsplitArtists,
         extractFromTitle = extractFromTitle
     )
 }
@@ -28,12 +30,13 @@ internal fun collectArtistNames(
     title: String,
     artistDelimiters: List<String>,
     wordDelimiters: List<String> = emptyList(),
+    unsplitArtists: List<String> = emptyList(),
     extractFromTitle: Boolean = true
 ): List<String> {
     val splitFromArtist = mutableListOf<String>()
     rawArtistNames.forEach { rawArtistName ->
         rawArtistName
-            .splitArtistsByDelimiters(artistDelimiters, wordDelimiters)
+            .splitArtistsByDelimiters(artistDelimiters, wordDelimiters, unsplitArtists)
             .forEach { artistName ->
                 if (splitFromArtist.none { it.equals(artistName, ignoreCase = true) }) {
                     splitFromArtist += artistName

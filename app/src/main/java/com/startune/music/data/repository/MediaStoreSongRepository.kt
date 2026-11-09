@@ -49,7 +49,8 @@ private data class SearchPrefs(
     val artistDelimiters: List<String>,
     val wordDelims: List<String>,
     val extractFromTitle: Boolean,
-    val minDuration: Int
+    val minDuration: Int,
+    val unsplitArtists: List<String>
 )
 
 @Singleton
@@ -79,7 +80,8 @@ class MediaStoreSongRepository @Inject constructor(
             userPreferencesRepository.artistDelimitersFlow.distinctUntilChanged(),
             userPreferencesRepository.minSongDurationFlow.distinctUntilChanged(),
             userPreferencesRepository.artistWordDelimitersFlow.distinctUntilChanged(),
-            userPreferencesRepository.extractArtistsFromTitleFlow.distinctUntilChanged()
+            userPreferencesRepository.extractArtistsFromTitleFlow.distinctUntilChanged(),
+            userPreferencesRepository.unsplitArtistsFlow.distinctUntilChanged()
         ) { values ->
             val favoriteIds = @Suppress("UNCHECKED_CAST") (values[1] as List<Long>)
             val allowedDirs = @Suppress("UNCHECKED_CAST") (values[2] as Set<String>)
@@ -88,12 +90,14 @@ class MediaStoreSongRepository @Inject constructor(
             val minDuration = values[5] as Int
             val wordDelimiters = @Suppress("UNCHECKED_CAST") (values[6] as List<String>)
             val extractFromTitle = values[7] as Boolean
+            val unsplitArtists = @Suppress("UNCHECKED_CAST") (values[8] as List<String>)
             fetchSongsFromMediaStore(
                 favoriteIds = favoriteIds.toSet(),
                 allowedDirs = allowedDirs.toList(),
                 blockedDirs = blockedDirs.toList(),
                 artistDelimiters = artistDelimiters,
                 wordDelimiters = wordDelimiters,
+                unsplitArtists = unsplitArtists,
                 extractFromTitle = extractFromTitle,
                 minDurationMs = minDuration,
                 extraSelection = extraSelection,
@@ -110,6 +114,7 @@ class MediaStoreSongRepository @Inject constructor(
         blockedDirs: List<String>,
         artistDelimiters: List<String>,
         wordDelimiters: List<String> = emptyList(),
+        unsplitArtists: List<String> = emptyList(),
         extractFromTitle: Boolean = true,
         minDurationMs: Int = 10000,
         extraSelection: String? = null,
@@ -203,7 +208,7 @@ class MediaStoreSongRepository @Inject constructor(
                     val rawArtist = cursor.getString(artistCol).normalizeMetadataTextOrEmpty()
                     val rawTitle = cursor.getString(titleCol).normalizeMetadataTextOrEmpty()
 
-                    val splitArtists = rawArtist.splitArtistsByDelimiters(artistDelimiters, wordDelimiters)
+                    val splitArtists = rawArtist.splitArtistsByDelimiters(artistDelimiters, wordDelimiters, unsplitArtists)
                     val allArtistNames = splitArtists.toMutableList()
 
                     val displayTitle: String
@@ -323,7 +328,7 @@ class MediaStoreSongRepository @Inject constructor(
 
     override suspend fun searchSongs(query: String): List<Song> {
         if (query.isBlank()) return emptyList()
-        val (favoriteIds, allowedDirs, blockedDirs, artistDelimiters, wordDelims, extractFromTitle, minDuration) = coroutineScope {
+        val (favoriteIds, allowedDirs, blockedDirs, artistDelimiters, wordDelims, extractFromTitle, minDuration, unsplitArtists) = coroutineScope {
             val fav = async { getFavoriteIds() }
             val allowed = async { userPreferencesRepository.allowedDirectoriesFlow.first() }
             val blocked = async { userPreferencesRepository.blockedDirectoriesFlow.first() }
@@ -331,7 +336,8 @@ class MediaStoreSongRepository @Inject constructor(
             val wordD = async { userPreferencesRepository.artistWordDelimitersFlow.first() }
             val extract = async { userPreferencesRepository.extractArtistsFromTitleFlow.first() }
             val minDur = async { userPreferencesRepository.minSongDurationFlow.first() }
-            SearchPrefs(fav.await(), allowed.await(), blocked.await(), delims.await(), wordD.await(), extract.await(), minDur.await())
+            val unsplit = async { userPreferencesRepository.unsplitArtistsFlow.first() }
+            SearchPrefs(fav.await(), allowed.await(), blocked.await(), delims.await(), wordD.await(), extract.await(), minDur.await(), unsplit.await())
         }
         val queryTerm = "%${query.trim()}%"
         return fetchSongsFromMediaStore(
@@ -340,6 +346,7 @@ class MediaStoreSongRepository @Inject constructor(
             blockedDirs = blockedDirs.toList(),
             artistDelimiters = artistDelimiters,
             wordDelimiters = wordDelims,
+            unsplitArtists = unsplitArtists,
             extractFromTitle = extractFromTitle,
             minDurationMs = minDuration,
             extraSelection = "${MediaStore.Audio.Media.TITLE} LIKE ? COLLATE NOCASE OR ${MediaStore.Audio.Media.ARTIST} LIKE ? COLLATE NOCASE",

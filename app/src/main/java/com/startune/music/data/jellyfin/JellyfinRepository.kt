@@ -547,6 +547,7 @@ class JellyfinRepository @Inject constructor(
         }
 
         val groupByAlbumArtist = userPreferencesRepository.groupByAlbumArtistFlow.first()
+        val unsplitArtists = userPreferencesRepository.unsplitArtistsFlow.first()
 
         val songs = ArrayList<SongEntity>(jellyfinSongs.size)
         val artists = LinkedHashMap<Long, ArtistEntity>()
@@ -555,14 +556,14 @@ class JellyfinRepository @Inject constructor(
 
         jellyfinSongs.forEach { jellyfinSong ->
             val songId = toUnifiedSongId(jellyfinSong.jellyfinId)
-            val artistNames = parseArtistNames(jellyfinSong.artist)
+            val artistNames = parseArtistNames(jellyfinSong.artist, unsplitArtists)
             val primaryArtistName = artistNames.firstOrNull() ?: "Unknown Artist"
             val primaryArtistId = toUnifiedArtistId(primaryArtistName)
 
             val effectiveAlbumArtistName = jellyfinSong.albumArtist
                 ?.trim()
                 ?.takeIf { it.isNotBlank() }
-                ?.let { parseArtistNames(it).firstOrNull() }
+                ?.let { parseArtistNames(it, unsplitArtists).firstOrNull() }
                 ?.takeIf { it.isNotBlank() && !it.equals("Unknown Artist", ignoreCase = true) }
                 ?: primaryArtistName
             val albumArtistId = toUnifiedArtistId(effectiveAlbumArtistName)

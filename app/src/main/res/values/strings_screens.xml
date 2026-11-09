@@ -37,6 +37,19 @@
     <string name="delimiter_label_space">Space</string>
     <string name="cd_add_path_delimiter">Add delimiter</string>
 
+    <!-- Unsplit (never split) names config -->
+    <string name="unsplit_section_title">Current Names</string>
+    <string name="unsplit_artists_section_subtitle">Names that always stay as one artist, even if they contain a delimiter. Tap a name to remove it.</string>
+    <string name="unsplit_genres_section_subtitle">Names that always stay as one genre, even if they contain a delimiter. Tap a name to remove it.</string>
+    <string name="unsplit_empty">No names added yet</string>
+    <string name="unsplit_add_title">Add New Name</string>
+    <string name="unsplit_artists_hint">e.g., AC/DC</string>
+    <string name="unsplit_genres_hint">e.g., Pop/Rock</string>
+    <string name="unsplit_toast_added">Name added</string>
+    <string name="unsplit_artists_toolbar_title">Artists to Never Split</string>
+    <string name="unsplit_genres_toolbar_title">Genres to Never Split</string>
+    <string name="cd_add_unsplit_name">Add name</string>
+
     <!-- Accounts -->
     <string name="accounts_unable_open_screen">Unable to open this screen right now.</string>
 

@@ -3,6 +3,8 @@
 import DelimiterConfigScreen
 import com.startune.music.presentation.screens.WordDelimiterConfigScreen
 import com.startune.music.presentation.screens.GenreDelimiterConfigScreen
+import com.startune.music.presentation.screens.UnsplitArtistsConfigScreen
+import com.startune.music.presentation.screens.UnsplitGenresConfigScreen
 import com.startune.music.presentation.screens.ManageFoldersScreen
 import android.annotation.SuppressLint
 import androidx.annotation.OptIn
@@ -560,6 +562,28 @@ fun AppNavigation(
             ) {
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
                     GenreDelimiterConfigScreen(navController = navController)
+                }
+            }
+            composable(
+                Screen.UnsplitArtistsConfig.route,
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { popEnterTransition() },
+                popExitTransition = { popExitTransition() },
+            ) {
+                ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
+                    UnsplitArtistsConfigScreen(navController = navController)
+                }
+            }
+            composable(
+                Screen.UnsplitGenresConfig.route,
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { popEnterTransition() },
+                popExitTransition = { popExitTransition() },
+            ) {
+                ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
+                    UnsplitGenresConfigScreen(navController = navController)
                 }
             }
             composable(
