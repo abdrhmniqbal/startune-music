@@ -28,7 +28,7 @@
     <string name="presentation_batch_b_reorder_song">Reorder song</string>
     <string name="presentation_batch_b_playlist_empty_title">This playlist is empty.</string>
     <string name="presentation_batch_b_playlist_empty_folder_body">This folder doesn\'t contain songs.</string>
-    <string name="presentation_batch_b_playlist_empty_add_hint">Tap on \'Add Songs\' to begin.</string>
+    <string name="presentation_batch_b_playlist_empty_add_hint">Tap More options to add songs.</string>
     <string name="presentation_batch_b_playlist_options_title">Playlist options</string>
     <string name="presentation_batch_b_edit_playlist">Edit playlist</string>
     <string name="presentation_batch_b_delete_playlist">Delete playlist</string>
