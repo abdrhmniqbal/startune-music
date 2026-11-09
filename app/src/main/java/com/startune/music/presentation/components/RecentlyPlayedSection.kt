@@ -38,7 +38,7 @@ private const val HomeRecentlyPlayedLimit = 10
 internal const val RecentlyPlayedSectionMinSongsToShow = 4
 private val HomeRecentlyPlayedCardWidth = 144.dp
 private val HomeRecentlyPlayedCardSpacing = 12.dp
-private val HomeRecentlyPlayedDefaultContentPadding = PaddingValues(horizontal = 8.dp)
+private val HomeRecentlyPlayedDefaultContentPadding = PaddingValues(horizontal = 20.dp)
 
 @Composable
 fun RecentlyPlayedSection(

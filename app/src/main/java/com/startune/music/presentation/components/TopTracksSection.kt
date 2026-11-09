@@ -17,8 +17,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -46,9 +44,9 @@ private const val TOP_TRACKS_PAGE_SIZE = 5
 private const val TOP_TRACKS_HOME_LIMIT = 15
 
 /**
- * Home Top Tracks: the Stats card look (rounded card, rank badges) with the
- * original slideable pager, 15 tracks in pages of 5. The playing track shows
- * the same equalizer indicator as song lists elsewhere.
+ * Home Top Tracks: plain list (title + ranked rows) with the slideable
+ * pager, 15 tracks in pages of 5. The playing track shows the same
+ * equalizer indicator as song lists elsewhere.
  */
 @Composable
 fun TopTracksSection(
@@ -63,18 +61,11 @@ fun TopTracksSection(
     if (topTracks.isEmpty()) return
     val pages = remember(topTracks) { topTracks.chunked(TOP_TRACKS_PAGE_SIZE) }
     val pagerState = rememberPagerState(pageCount = { pages.size })
-    val containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
     val contentColor = MaterialTheme.colorScheme.onSurface
-    val supportingColor = MaterialTheme.colorScheme.onSurfaceVariant
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(containerColor = containerColor)
+    Column(
+        modifier = modifier.fillMaxWidth().padding(horizontal = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -127,7 +118,6 @@ fun TopTracksSection(
                     }
                 }
             }
-        }
     }
 }
 

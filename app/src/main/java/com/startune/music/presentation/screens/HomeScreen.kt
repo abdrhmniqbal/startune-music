@@ -461,7 +461,7 @@ fun HomeScreen(
                             },
                             currentSongId = currentSong?.id,
                             isPlaying = isPlaying,
-                            contentPadding = PaddingValues(start = 8.dp, end = 24.dp)
+                            contentPadding = PaddingValues(horizontal = 20.dp)
                         )
                     }
                 }
