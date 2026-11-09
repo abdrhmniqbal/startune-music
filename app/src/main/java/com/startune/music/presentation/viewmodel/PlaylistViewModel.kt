@@ -18,6 +18,8 @@ import com.startune.music.data.playlist.NlpPlaylistGenerator
 import com.startune.music.data.playlist.SmartPlaylistBuilder
 import com.startune.music.data.preferences.PlaylistPreferencesRepository
 import com.startune.music.data.repository.MusicRepository
+import com.startune.music.data.stats.PlaybackStatsRepository
+import com.startune.music.data.stats.StatsTimeRange
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -80,6 +82,7 @@ data class NlpPlaylistPreviewState(
 class PlaylistViewModel @Inject constructor(
     private val playlistPreferencesRepository: PlaylistPreferencesRepository,
     private val musicRepository: MusicRepository,
+    private val playbackStatsRepository: PlaybackStatsRepository,
     private val dailyMixManager: DailyMixManager,
     private val m3uManager: M3uManager,
     private val nlpPlaylistGenerator: NlpPlaylistGenerator,
@@ -715,8 +718,17 @@ class PlaylistViewModel @Inject constructor(
 
         val currentSongs = _uiState.value.currentPlaylistSongs
         viewModelScope.launch {
+            val playCounts = if (sortOption == SortOption.SongPlayCount ||
+                sortOption == SortOption.SongPlayCountAsc
+            ) {
+                playbackStatsRepository
+                    .loadTopTracks(StatsTimeRange.ALL, currentSongs, Int.MAX_VALUE)
+                    .associate { it.songId to it.playCount }
+            } else {
+                emptyMap()
+            }
             val sortedSongs = withContext(Dispatchers.Default) {
-                sortSongsList(currentSongs, sortOption)
+                sortSongsList(currentSongs, sortOption, playCounts)
             }
 
             _uiState.update {
@@ -806,7 +818,8 @@ class PlaylistViewModel @Inject constructor(
 
     private fun sortSongsList(
         songs: List<Song>,
-        sortOption: SortOption
+        sortOption: SortOption,
+        playCounts: Map<String, Int> = emptyMap()
     ): List<Song> {
         return when (sortOption) {
             SortOption.SongTitleAZ -> songs.sortedWith(
@@ -856,6 +869,16 @@ class PlaylistViewModel @Inject constructor(
             )
             SortOption.SongDateAddedAsc -> songs.sortedWith(
                 compareBy<Song> { it.dateAdded }
+                    .thenBy { it.title.lowercase() }
+                    .thenBy { it.id }
+            )
+            SortOption.SongPlayCount -> songs.sortedWith(
+                compareByDescending<Song> { playCounts[it.id] ?: 0 }
+                    .thenBy { it.title.lowercase() }
+                    .thenBy { it.id }
+            )
+            SortOption.SongPlayCountAsc -> songs.sortedWith(
+                compareBy<Song> { playCounts[it.id] ?: 0 }
                     .thenBy { it.title.lowercase() }
                     .thenBy { it.id }
             )
