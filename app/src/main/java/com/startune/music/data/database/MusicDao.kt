@@ -1657,6 +1657,9 @@ interface MusicDao {
     @Query("UPDATE songs SET play_count = :count WHERE id = :songId")
     suspend fun setPlayCount(songId: Long, count: Int)
 
+    @Query("UPDATE songs SET play_count = 0")
+    suspend fun resetAllPlayCounts()
+
     @Query("UPDATE songs SET is_favorite = :isFavorite WHERE id = :songId")
     suspend fun setFavoriteStatus(songId: Long, isFavorite: Boolean)
 

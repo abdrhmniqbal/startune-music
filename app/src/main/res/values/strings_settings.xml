@@ -231,6 +231,16 @@
     <string name="setcat_share_crash_logs_title">Share crash logs</string>
     <string name="setcat_share_crash_logs_subtitle">Share the last crash report for bug reports.</string>
     <string name="toast_no_crash_logs">No crash logs captured yet.</string>
+    <string name="setcat_clear_listening_history_title">Clear listening history</string>
+    <string name="setcat_clear_listening_history_subtitle">Clear every play history entry.</string>
+    <string name="dialog_clear_listening_history_title">Clear listening history?</string>
+    <string name="dialog_clear_listening_history_body">All plays are forgotten. Favorites and playlists are kept.</string>
+    <string name="toast_listening_history_cleared">Listening history cleared.</string>
+    <string name="setcat_clear_search_history_title">Clear search history</string>
+    <string name="setcat_clear_search_history_subtitle">Remove all recent searches.</string>
+    <string name="dialog_clear_search_history_title">Clear search history?</string>
+    <string name="dialog_clear_search_history_body">All recent searches will be removed.</string>
+    <string name="toast_search_history_cleared">Search history cleared.</string>
     <string name="setcat_replaygain_section">Volume Normalization (ReplayGain)</string>
     <string name="setcat_replaygain_enable_title">Enable ReplayGain</string>
     <string name="setcat_replaygain_enable_subtitle">Normalize volume levels using ReplayGain metadata from audio files.</string>

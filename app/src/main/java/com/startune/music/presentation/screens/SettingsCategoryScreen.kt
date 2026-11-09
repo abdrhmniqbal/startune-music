@@ -79,7 +79,9 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.Science
@@ -219,6 +221,8 @@ fun SettingsCategoryScreen(
     var showRebuildDatabaseWarning by remember { mutableStateOf(false) }
     var showRegenerateDailyMixDialog by remember { mutableStateOf(false) }
     var showRegenerateStatsDialog by remember { mutableStateOf(false) }
+    var showClearListeningHistoryDialog by remember { mutableStateOf(false) }
+    var showClearSearchHistoryDialog by remember { mutableStateOf(false) }
     var showRegenerateAllPalettesDialog by remember { mutableStateOf(false) }
     var showExportDataDialog by remember { mutableStateOf(false) }
     var showImportFlow by remember { mutableStateOf(false) }
@@ -1399,6 +1403,22 @@ fun SettingsCategoryScreen(
                                     enabled = paletteRegenerateTargets.isNotEmpty() && !isAnyPaletteRegenerateRunning,
                                     modifier = Modifier.settingHighlight("item_developer_palette_regen", highlightKey)
                                 )
+                                ActionSettingsItem(
+                                    title = stringResource(R.string.setcat_clear_listening_history_title),
+                                    subtitle = stringResource(R.string.setcat_clear_listening_history_subtitle),
+                                    icon = { Icon(Icons.Rounded.History, null, tint = MaterialTheme.colorScheme.error) },
+                                    primaryActionLabel = stringResource(R.string.clear_all),
+                                    onPrimaryAction = { showClearListeningHistoryDialog = true },
+                                    modifier = Modifier.settingHighlight("item_developer_clear_listening_history", highlightKey)
+                                )
+                                ActionSettingsItem(
+                                    title = stringResource(R.string.setcat_clear_search_history_title),
+                                    subtitle = stringResource(R.string.setcat_clear_search_history_subtitle),
+                                    icon = { Icon(Icons.Rounded.DeleteForever, null, tint = MaterialTheme.colorScheme.error) },
+                                    primaryActionLabel = stringResource(R.string.clear_all),
+                                    onPrimaryAction = { showClearSearchHistoryDialog = true },
+                                    modifier = Modifier.settingHighlight("item_developer_clear_search_history", highlightKey)
+                                )
                             }
 
                             SettingsSubsection(
@@ -1733,6 +1753,48 @@ fun SettingsCategoryScreen(
                 }
             },
             dismissButton = { TextButton(onClick = { showRegenerateStatsDialog = false }) { Text(stringResource(R.string.cancel), maxLines = 1, overflow = TextOverflow.Ellipsis) } }
+        )
+    }
+
+    if (showClearListeningHistoryDialog) {
+        AlertDialog(
+            icon = { Icon(Icons.Rounded.History, null, tint = MaterialTheme.colorScheme.primary) },
+            title = { Text(stringResource(R.string.dialog_clear_listening_history_title)) },
+            text = { Text(stringResource(R.string.dialog_clear_listening_history_body)) },
+            onDismissRequest = { showClearListeningHistoryDialog = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showClearListeningHistoryDialog = false
+                        settingsViewModel.clearListeningHistory()
+                        Toast.makeText(context, context.getString(R.string.toast_listening_history_cleared), Toast.LENGTH_SHORT).show()
+                    }
+                ) {
+                    Text(stringResource(R.string.clear_all), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            },
+            dismissButton = { TextButton(onClick = { showClearListeningHistoryDialog = false }) { Text(stringResource(R.string.cancel), maxLines = 1, overflow = TextOverflow.Ellipsis) } }
+        )
+    }
+
+    if (showClearSearchHistoryDialog) {
+        AlertDialog(
+            icon = { Icon(Icons.Rounded.DeleteForever, null, tint = MaterialTheme.colorScheme.primary) },
+            title = { Text(stringResource(R.string.dialog_clear_search_history_title)) },
+            text = { Text(stringResource(R.string.dialog_clear_search_history_body)) },
+            onDismissRequest = { showClearSearchHistoryDialog = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showClearSearchHistoryDialog = false
+                        settingsViewModel.clearSearchHistory()
+                        Toast.makeText(context, context.getString(R.string.toast_search_history_cleared), Toast.LENGTH_SHORT).show()
+                    }
+                ) {
+                    Text(stringResource(R.string.clear_all), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            },
+            dismissButton = { TextButton(onClick = { showClearSearchHistoryDialog = false }) { Text(stringResource(R.string.cancel), maxLines = 1, overflow = TextOverflow.Ellipsis) } }
         )
     }
 

@@ -541,6 +541,13 @@ class PlaybackStatsRepository @Inject constructor(
         }
     }
 
+    suspend fun clearHistory() = withContext(Dispatchers.IO) {
+        val writeSucceeded = updateEventsAtomically { mutableListOf() }
+        if (writeSucceeded) {
+            notifyStatsChanged()
+        }
+    }
+
     fun requestRefresh() {
         notifyStatsChanged()
     }
