@@ -1524,8 +1524,18 @@ constructor(
                         }
                         preferences[PreferencesKeys.LIBRARY_TABS_ORDER] = json.encodeToString(order)
                     }
-                    if (!order.contains("GENRES")) {
-                        order.add("GENRES")
+                    val genresIndex = order.indexOf("GENRES")
+                    val likedIndex = order.indexOf("LIKED")
+                    if (genresIndex == -1) {
+                        if (likedIndex != -1) {
+                            order.add(likedIndex, "GENRES")
+                        } else {
+                            order.add("GENRES")
+                        }
+                        preferences[PreferencesKeys.LIBRARY_TABS_ORDER] = json.encodeToString(order)
+                    } else if (likedIndex != -1 && genresIndex > likedIndex) {
+                        order.removeAt(genresIndex)
+                        order.add(order.indexOf("LIKED"), "GENRES")
                         preferences[PreferencesKeys.LIBRARY_TABS_ORDER] = json.encodeToString(order)
                     }
                 } catch (e: Exception) {
