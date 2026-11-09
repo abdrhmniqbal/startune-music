@@ -151,6 +151,10 @@ constructor(
         val INDEXER_NOTIFICATIONS_ENABLED = booleanPreferencesKey("indexer_notifications_enabled")
         val LAST_NOTIFIED_UPDATE_VERSION = stringPreferencesKey("last_notified_update_version")
         val DISMISSED_UPDATE_VERSION = stringPreferencesKey("dismissed_update_version")
+        val AUTO_BACKUP_ENABLED = booleanPreferencesKey("auto_backup_enabled")
+        val AUTO_BACKUP_INTERVAL_HOURS = intPreferencesKey("auto_backup_interval_hours")
+        val AUTO_BACKUP_LAST_RUN_MS = longPreferencesKey("auto_backup_last_run_ms")
+        val AUTO_BACKUP_TARGET_FOLDER = stringPreferencesKey("auto_backup_target_folder")
         val FADE_PLAY_PAUSE_STOP = booleanPreferencesKey("fade_play_pause_stop")
         val FADE_ON_SEEK = booleanPreferencesKey("fade_on_seek")
         val RESUME_AFTER_CALL = booleanPreferencesKey("resume_after_call")
@@ -1012,6 +1016,26 @@ constructor(
                 preferences[PreferencesKeys.DISMISSED_UPDATE_VERSION] ?: ""
             }
 
+    val autoBackupEnabledFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.AUTO_BACKUP_ENABLED] ?: false
+            }
+
+    val autoBackupIntervalHoursFlow: Flow<Int> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.AUTO_BACKUP_INTERVAL_HOURS] ?: 24
+            }
+
+    val autoBackupLastRunMsFlow: Flow<Long> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.AUTO_BACKUP_LAST_RUN_MS] ?: 0L
+            }
+
+    val autoBackupTargetFolderFlow: Flow<String> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.AUTO_BACKUP_TARGET_FOLDER] ?: ""
+            }
+
     val fadePlayPauseStopFlow: Flow<Boolean> =
             dataStore.data.map { preferences ->
                 preferences[PreferencesKeys.FADE_PLAY_PAUSE_STOP] ?: true
@@ -1573,6 +1597,30 @@ constructor(
     suspend fun setDismissedUpdateVersion(version: String) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.DISMISSED_UPDATE_VERSION] = version
+        }
+    }
+
+    suspend fun setAutoBackupEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.AUTO_BACKUP_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setAutoBackupIntervalHours(hours: Int) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.AUTO_BACKUP_INTERVAL_HOURS] = hours
+        }
+    }
+
+    suspend fun setAutoBackupLastRunMs(timestampMs: Long) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.AUTO_BACKUP_LAST_RUN_MS] = timestampMs
+        }
+    }
+
+    suspend fun setAutoBackupTargetFolder(path: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.AUTO_BACKUP_TARGET_FOLDER] = path
         }
     }
 

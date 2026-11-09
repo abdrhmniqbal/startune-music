@@ -2,6 +2,7 @@
 
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.components.BackupModuleSelectionDialog
+import com.startune.music.utils.AppFolders
 import com.startune.music.utils.BatteryOptimization
 import com.startune.music.utils.CrashHandler
 import java.text.SimpleDateFormat
@@ -262,6 +263,19 @@ fun SettingsCategoryScreen(
         contract = ActivityResultContracts.OpenDocumentTree()
     ) { uri ->
         if (uri != null) m3uSyncViewModel.selectFolder(uri)
+    }
+
+    val backupFolderPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        if (uri != null) {
+            val path = AppFolders.pathFromTreeUri(uri)
+            if (path != null) {
+                settingsViewModel.setAutoBackupTargetFolder(path)
+            } else {
+                Toast.makeText(context, context.getString(R.string.auto_backup_folder_unusable), Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -1362,7 +1376,6 @@ fun SettingsCategoryScreen(
 
                             SettingsSubsection(
                                 title = stringResource(R.string.setcat_restore_backup_section),
-                                addBottomSpace = false
                             ) {
                                 ActionSettingsItem(
                                     title = stringResource(R.string.setcat_import_backup_title),
@@ -1378,6 +1391,70 @@ fun SettingsCategoryScreen(
                                     onPrimaryAction = { showImportFlow = true },
                                     enabled = !uiState.isDataTransferInProgress,
                                     modifier = Modifier.settingHighlight("item_backup_import", highlightKey)
+                                )
+                            }
+
+                            SettingsSubsection(
+                                title = stringResource(R.string.auto_backup_section),
+                                addBottomSpace = false
+                            ) {
+                                ThemeSelectorItem(
+                                    label = stringResource(R.string.auto_backup_title),
+                                    description = stringResource(R.string.auto_backup_hint),
+                                    options = mapOf(
+                                        "0" to stringResource(R.string.auto_backup_off),
+                                        "12" to stringResource(R.string.auto_backup_every_12_hours),
+                                        "24" to stringResource(R.string.auto_backup_every_24_hours),
+                                        "72" to stringResource(R.string.auto_backup_every_3_days),
+                                        "168" to stringResource(R.string.auto_backup_every_week)
+                                    ),
+                                    selectedKey = if (uiState.autoBackupEnabled) uiState.autoBackupIntervalHours.toString() else "0",
+                                    onSelectionChanged = { key ->
+                                        settingsViewModel.setAutoBackupInterval(key.toIntOrNull() ?: 0)
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.rounded_upload_file_24),
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight("item_backup_auto_interval", highlightKey)
+                                )
+                                ActionSettingsItem(
+                                    title = stringResource(R.string.auto_backup_target_folder),
+                                    subtitle = if (uiState.autoBackupTargetFolder.isBlank()) {
+                                        AppFolders.autoBackupDir.absolutePath
+                                    } else {
+                                        uiState.autoBackupTargetFolder
+                                    },
+                                    icon = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.rounded_folder_24),
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary
+                                        )
+                                    },
+                                    primaryActionLabel = stringResource(R.string.auto_backup_choose_folder),
+                                    onPrimaryAction = { backupFolderPicker.launch(null) },
+                                    modifier = Modifier.settingHighlight("item_backup_auto_folder", highlightKey)
+                                )
+                                SettingsItem(
+                                    title = stringResource(R.string.auto_backup_last_backup),
+                                    subtitle = if (uiState.autoBackupLastRunMs > 0) {
+                                        formatAutoBackupDate(uiState.autoBackupLastRunMs)
+                                    } else {
+                                        stringResource(R.string.auto_backup_never_backed_up)
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Rounded.History,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight("item_backup_auto_last", highlightKey),
+                                    onClick = {}
                                 )
                             }
                         }
@@ -1909,6 +1986,22 @@ fun SettingsCategoryScreen(
                 onRemoveHistoryEntry = { settingsViewModel.removeBackupHistoryEntry(it) }
             )
         }
+    }
+}
+
+private fun formatAutoBackupDate(timestampMs: Long): String {
+    return try {
+        java.time.Instant.ofEpochMilli(timestampMs)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDateTime()
+            .format(
+                java.time.format.DateTimeFormatter.ofPattern(
+                    "d MMM yyyy, HH:mm",
+                    java.util.Locale.getDefault()
+                )
+            )
+    } catch (_: Exception) {
+        ""
     }
 }
 

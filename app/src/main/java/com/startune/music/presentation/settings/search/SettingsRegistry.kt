@@ -733,6 +733,26 @@ object SettingsRegistry {
                 keywordsStatic = listOf("backup", "export", "save", "pxpl", "transfer")
             ),
             SettingSpec(
+                id = "backup_auto_interval",
+                itemKey = "item_backup_auto_interval",
+                titleRes = R.string.auto_backup_title,
+                subtitleRes = R.string.auto_backup_hint,
+                category = SettingsCategory.BACKUP_RESTORE,
+                subscreenRoute = Screen.SettingsCategory.createRoute("backup_restore"),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("backup", "automatic", "auto", "schedule", "interval")
+            ),
+            SettingSpec(
+                id = "backup_auto_folder",
+                itemKey = "item_backup_auto_folder",
+                titleRes = R.string.auto_backup_target_folder,
+                subtitleRes = R.string.auto_backup_hint,
+                category = SettingsCategory.BACKUP_RESTORE,
+                subscreenRoute = Screen.SettingsCategory.createRoute("backup_restore"),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("backup", "automatic", "auto", "folder", "location")
+            ),
+            SettingSpec(
                 id = "backup_import",
                 itemKey = "item_backup_import",
                 titleRes = R.string.setcat_import_backup_title,
