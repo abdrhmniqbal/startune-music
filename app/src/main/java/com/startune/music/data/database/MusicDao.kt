@@ -77,7 +77,8 @@ private const val SONG_DETAIL_PROJECTION = """
     songs.genre_user_edited AS genre_user_edited,
     songs.mb_recording_id AS mb_recording_id,
     songs.mb_release_id AS mb_release_id,
-    songs.mb_artist_id AS mb_artist_id
+    songs.mb_artist_id AS mb_artist_id,
+    songs.play_count AS play_count
 """
 
 private const val SONG_LIST_PROJECTION = """
@@ -87,7 +88,7 @@ private const val SONG_LIST_PROJECTION = """
     year, date_added, mime_type, bitrate, sample_rate, artists_json, source_type,
     media_store_date_added, media_store_date_modified, title_user_edited,
     artist_user_edited, album_user_edited, genre_user_edited,
-    mb_recording_id, mb_release_id, mb_artist_id
+    mb_recording_id, mb_release_id, mb_artist_id, play_count
 """
 
 data class DeviceCapabilitySongRow(
@@ -659,6 +660,8 @@ interface MusicDao {
             CASE WHEN :sortOrder = 'song_date_added_asc' THEN date_added END ASC,
             CASE WHEN :sortOrder = 'song_duration' THEN duration END DESC,
             CASE WHEN :sortOrder = 'song_duration_asc' THEN duration END ASC,
+            CASE WHEN :sortOrder = 'song_play_count' THEN play_count END DESC,
+            CASE WHEN :sortOrder = 'song_play_count_asc' THEN play_count END ASC,
             title COLLATE NOCASE ASC,
             id ASC
     """)
@@ -745,6 +748,8 @@ interface MusicDao {
             CASE WHEN :sortOrder = 'song_date_added_asc' THEN date_added END ASC,
             CASE WHEN :sortOrder = 'song_duration' THEN duration END DESC,
             CASE WHEN :sortOrder = 'song_duration_asc' THEN duration END ASC,
+            CASE WHEN :sortOrder = 'song_play_count' THEN play_count END DESC,
+            CASE WHEN :sortOrder = 'song_play_count_asc' THEN play_count END ASC,
 
             -- Secondary sort falls back to title for consistency (case-insensitive)
             title COLLATE NOCASE ASC,
@@ -790,6 +795,8 @@ interface MusicDao {
             CASE WHEN :sortOrder = 'song_date_added_asc' THEN date_added END ASC,
             CASE WHEN :sortOrder = 'song_duration' THEN duration END DESC,
             CASE WHEN :sortOrder = 'song_duration_asc' THEN duration END ASC,
+            CASE WHEN :sortOrder = 'song_play_count' THEN play_count END DESC,
+            CASE WHEN :sortOrder = 'song_play_count_asc' THEN play_count END ASC,
             title COLLATE NOCASE ASC,
             id ASC
         LIMIT :limit OFFSET :offset
@@ -1643,6 +1650,12 @@ interface MusicDao {
           AND NOT EXISTS (SELECT 1 FROM songs WHERE songs.album_artist_id = artists.id)
     """)
     suspend fun deleteOrphanedArtists()
+
+    @Query("UPDATE songs SET play_count = play_count + 1 WHERE id = :songId")
+    suspend fun incrementPlayCount(songId: Long)
+
+    @Query("UPDATE songs SET play_count = :count WHERE id = :songId")
+    suspend fun setPlayCount(songId: Long, count: Int)
 
     @Query("UPDATE songs SET is_favorite = :isFavorite WHERE id = :songId")
     suspend fun setFavoriteStatus(songId: Long, isFavorite: Boolean)

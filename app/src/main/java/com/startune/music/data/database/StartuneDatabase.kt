@@ -26,7 +26,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         AudioBookmarkEntity::class,
         OfflineTrackEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = true
 )
 abstract class StartuneDatabase : RoomDatabase() {
