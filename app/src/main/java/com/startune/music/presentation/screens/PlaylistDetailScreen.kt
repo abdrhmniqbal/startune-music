@@ -278,7 +278,7 @@ fun PlaylistDetailScreen(
 
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val minTopBarHeight = 62.dp + statusBarHeight
-    val maxTopBarHeight = 176.dp
+    val maxTopBarHeight = 200.dp
 
     val minTopBarHeightPx = with(density) { minTopBarHeight.toPx() }
     val maxTopBarHeightPx = with(density) { maxTopBarHeight.toPx() }
