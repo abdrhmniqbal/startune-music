@@ -3,18 +3,22 @@
 import android.os.SystemClock
 import androidx.media3.common.C
 import com.startune.music.data.DailyMixManager
+import com.startune.music.data.database.MusicDao
+import com.startune.music.data.database.toSong
 import com.startune.music.data.preferences.DEFAULT_PLAYED_THRESHOLD_PERCENT
 import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.lastfm.LastFmScrobbleManager
 import com.startune.music.data.listenbrainz.ScrobbleManager
 import com.startune.music.data.model.Song
 import com.startune.music.data.stats.PlaybackStatsRepository
+import com.startune.music.data.stats.StatsTimeRange
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -37,6 +41,7 @@ import timber.log.Timber
 class ListeningStatsTracker @Inject constructor(
     private val dailyMixManager: DailyMixManager,
     private val playbackStatsRepository: PlaybackStatsRepository,
+    private val musicDao: MusicDao,
     private val scrobbleManager: ScrobbleManager,
     private val lastFmScrobbleManager: LastFmScrobbleManager,
     private val userPreferencesRepository: UserPreferencesRepository
@@ -62,6 +67,9 @@ class ListeningStatsTracker @Inject constructor(
             _playbackHistory.value = playbackStatsRepository.loadPlaybackHistory(
                 limit = MAX_INTERNAL_PLAYBACK_HISTORY_ITEMS
             )
+        }
+        coroutineScope.launch(Dispatchers.IO) {
+            backfillPlayCountsIfNeeded()
         }
         coroutineScope.launch {
             userPreferencesRepository.playedThresholdPercentFlow.collect { percent ->
@@ -335,6 +343,30 @@ class ListeningStatsTracker @Inject constructor(
             durationMs = listened,
             timestamp = timestamp
         )
+        songId.toLongOrNull()?.let { musicDao.incrementPlayCount(it) }
+    }
+
+    /**
+     * One-time seed of songs.play_count from playback_history.json.
+     * Runs once after the v9 migration; counted plays afterwards keep the
+     * column current through persistPlaybackInternal. The column is the
+     * all-time count, the JSON history is pruned at 730 days, so the two
+     * diverge only for plays older than that.
+     */
+    private suspend fun backfillPlayCountsIfNeeded() {
+        runCatching {
+            if (userPreferencesRepository.playCountBackfillAppliedFlow.first()) return
+            val songs = musicDao.getAllSongs().first().map { it.toSong() }
+            val playCounts = playbackStatsRepository
+                .loadTopTracks(StatsTimeRange.ALL, songs, Int.MAX_VALUE)
+                .associate { it.songId to it.playCount }
+            playCounts.forEach { (songId, count) ->
+                songId.toLongOrNull()?.let { musicDao.setPlayCount(it, count) }
+            }
+            userPreferencesRepository.markPlayCountBackfillApplied()
+        }.onFailure { throwable ->
+            Timber.e(throwable, "Failed to backfill song play counts")
+        }
     }
 
     private fun accumulateRealtimeListening(session: ActiveSession, nowRealtime: Long) {
