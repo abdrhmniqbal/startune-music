@@ -149,7 +149,7 @@ fun HomeScreen(
         val byId = homeTopTrackSourceSongs.orEmpty().associateBy { it.id }
         homeTopTracks.mapNotNull { byId[it.songId] }.toImmutableList()
     }
-    val topTracksQueueName = stringResource(R.string.top_tracks_queue_name)
+    val topTracksQueueName = stringResource(R.string.top_songs_queue_name)
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val usesFallbackHomeMix = remember(curatedYourMixSongs, dailyMixSongs) {

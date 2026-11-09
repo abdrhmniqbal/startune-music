@@ -356,7 +356,7 @@
     <string name="recap_summary_journeys">나의 음악 여정 요약.</string>
     <string name="recap_listening_time">청취 시간</string>
     <string name="recap_discovered_artists">발견한 아티스트</string>
-    <string name="recap_play_top_tracks_now">지금 인기 트랙 재생</string>
+    <string name="recap_play_top_songs_now">지금 인기 트랙 재생</string>
     <string name="recap_save_playlist">재생목록 저장</string>
     <string name="recap_share_recap">리캡 공유</string>
     <string name="about_donate_support_title">개발 후원하기</string>

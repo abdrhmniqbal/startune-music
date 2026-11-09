@@ -339,7 +339,7 @@ Mix</string>
     <string name="recap_summary_journeys">Resumo das suas jornadas musicais.</string>
     <string name="recap_listening_time">Tempo de Reprodução</string>
     <string name="recap_discovered_artists">Artistas Descobertos</string>
-    <string name="recap_play_top_tracks_now">Tocar Melhores Faixas Agora</string>
+    <string name="recap_play_top_songs_now">Tocar Melhores Faixas Agora</string>
     <string name="recap_save_playlist">Salvar Playlist</string>
     <string name="recap_share_recap">Compartilhar Recap</string>
     <string name="about_donate_support_title">Doar para Apoiar</string>

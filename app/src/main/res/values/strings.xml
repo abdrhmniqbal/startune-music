@@ -301,6 +301,8 @@
     <string name="accounts_listenbrainz_stat_listens">Total listens</string>
     <string name="accounts_listenbrainz_stat_queued">Queued</string>
     <string name="accounts_listenbrainz_title">ListenBrainz</string>
+    <string name="accounts_listenbrainz_subtitle">Scrobble your listens to ListenBrainz</string>
+    <string name="accounts_lastfm_subtitle">Scrobble your listens to Last.fm</string>
     <string name="accounts_listenbrainz_toggle_hint">If your server already scrobbles to ListenBrainz, turn that source off here to avoid duplicate listens.</string>
     <string name="accounts_listenbrainz_token_dialog_body">Paste your user token to scrobble your listens to ListenBrainz. You can find it in your settings on listenbrainz.org.</string>
     <string name="accounts_listenbrainz_token_dialog_title">Connect ListenBrainz</string>
