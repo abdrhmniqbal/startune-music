@@ -64,6 +64,9 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
     lateinit var syncManager: dagger.Lazy<com.startune.music.data.worker.SyncManager>
 
     @Inject
+    lateinit var syncNotificationManager: dagger.Lazy<com.startune.music.data.notifications.SyncNotificationManager>
+
+    @Inject
     lateinit var advancedPerformanceDiagnosticsController: dagger.Lazy<AdvancedPerformanceDiagnosticsController>
 
     @Inject
@@ -112,11 +115,20 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
             )
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
+            notificationManager.createNotificationChannel(
+                NotificationChannel(
+                    com.startune.music.data.notifications.SyncNotificationManager.SYNC_CHANNEL_ID,
+                    "Library sync",
+                    NotificationManager.IMPORTANCE_LOW
+                ).apply { description = "Library scan progress" }
+            )
         }
 
         ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
 
         syncManager.get().start()
+
+        syncNotificationManager.get().start()
 
         m3uSyncCoordinator.get().start()
 
