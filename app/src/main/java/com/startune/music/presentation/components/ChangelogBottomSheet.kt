@@ -3,8 +3,6 @@
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import androidx.annotation.ArrayRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,78 +18,45 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MediumExtendedFloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLinkStyles
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.startune.music.R
+import com.startune.music.data.updates.GitHubRelease
 import com.startune.music.presentation.components.subcomps.SineWaveLine
+import com.startune.music.presentation.viewmodel.ChangelogViewModel
 import com.startune.music.ui.theme.ExpTitleTypography
 import com.startune.music.ui.theme.RoundedSans
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 
-data class ChangelogSection(
-    @StringRes val titleRes: Int,
-    @ArrayRes val itemsRes: Int
-)
-
-data class ChangelogVersion(
-    val version: String,
-    val date: String,
-    val sections: List<ChangelogSection>
-)
-
-@Composable
-private fun changelogVersions(): List<ChangelogVersion> = listOf(
-    ChangelogVersion(
-        version = "0.2.0",
-        date = "2026-07-12",
-        sections = listOf(
-            ChangelogSection(R.string.presentation_batch_g_changelog_sec_whats_new, R.array.presentation_batch_g_changelog_v020_whats_new),
-            ChangelogSection(R.string.presentation_batch_g_changelog_sec_improvements, R.array.presentation_batch_g_changelog_v020_improvements),
-            ChangelogSection(R.string.presentation_batch_g_changelog_sec_under_the_hood, R.array.presentation_batch_g_changelog_v020_under_the_hood)
-        )
-    ),
-    ChangelogVersion(
-        version = "0.1.0",
-        date = "2026-06-09",
-        sections = listOf(
-            ChangelogSection(R.string.presentation_batch_g_changelog_sec_initial_release, R.array.presentation_batch_g_changelog_070_whats_new),
-            ChangelogSection(R.string.presentation_batch_g_changelog_sec_removed_for_foss, R.array.presentation_batch_g_changelog_070_improvements),
-            ChangelogSection(R.string.presentation_batch_g_changelog_sec_release_readiness, R.array.presentation_batch_g_changelog_070_fixes),
-            ChangelogSection(R.string.presentation_batch_g_changelog_sec_security_privacy, R.array.presentation_batch_g_changelog_070_added)
-        )
-    )
-)
-
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ChangelogBottomSheet(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: ChangelogViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val changelogUrl = "https://github.com/abdrhmniqbal/startune-music"
-    val changelog = changelogVersions()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val fabCornerRadius = 16.dp
 
@@ -127,15 +92,62 @@ fun ChangelogBottomSheet(
                 phase = 0f
             )
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-                contentPadding = PaddingValues(bottom = 120.dp)
-            ) {
-                items(changelog, key = { it.version }) { version ->
-                    ChangelogVersionItem(version = version)
+            when (uiState) {
+                ChangelogViewModel.UiState.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 48.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                ChangelogViewModel.UiState.Error -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.presentation_batch_g_changelog_error),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        TextButton(onClick = { viewModel.load() }) {
+                            Text(stringResource(R.string.presentation_batch_g_changelog_retry))
+                        }
+                    }
+                }
+                ChangelogViewModel.UiState.Empty -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 48.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.presentation_batch_g_changelog_empty),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                is ChangelogViewModel.UiState.Content -> {
+                    val releases = (uiState as ChangelogViewModel.UiState.Content).releases
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(24.dp),
+                        contentPadding = PaddingValues(bottom = 120.dp)
+                    ) {
+                        items(releases, key = { it.tag_name ?: it.html_url ?: it.name ?: "" }) { release ->
+                            GitHubReleaseItem(release = release)
+                        }
+                    }
                 }
             }
         }
@@ -186,99 +198,75 @@ fun ChangelogBottomSheet(
 }
 
 @Composable
-fun ChangelogVersionItem(version: ChangelogVersion) {
+fun GitHubReleaseItem(release: GitHubRelease) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            VersionBadge(versionNumber = version.version)
+            VersionBadge(versionNumber = release.tag_name ?: "")
+            if (release.prerelease == true) {
+                Spacer(modifier = Modifier.size(8.dp))
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            shape = CircleShape
+                        )
+                ) {
+                    Text(
+                        modifier = Modifier.padding(vertical = 6.dp, horizontal = 12.dp),
+                        text = stringResource(R.string.presentation_batch_g_changelog_prerelease),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
             Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = version.date,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            val date = formatReleaseDate(release.published_at)
+            if (date.isNotEmpty()) {
+                Text(
+                    text = date,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
 
-        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            version.sections.forEach { section ->
-                ChangelogCategory(section = section)
-            }
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            shape = RoundedCornerShape(22.dp),
+            tonalElevation = 6.dp
+        ) {
+            Text(
+                text = release.body?.takeIf { it.isNotBlank() }
+                    ?: stringResource(R.string.presentation_batch_g_changelog_no_release_notes),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 18.dp),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
 
-@Composable
-fun ChangelogCategory(section: ChangelogSection) {
-    val items = stringArrayResource(section.itemsRes).toList()
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        shape = RoundedCornerShape(22.dp),
-        tonalElevation = 6.dp
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 18.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                text = stringResource(section.titleRes),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
+private fun formatReleaseDate(publishedAt: String?): String {
+    if (publishedAt.isNullOrBlank()) return ""
+    return try {
+        val date = java.time.Instant.parse(publishedAt)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDate()
+        date.format(
+            java.time.format.DateTimeFormatter.ofPattern(
+                "d MMM yyyy",
+                java.util.Locale.ENGLISH
             )
-
-            items.forEachIndexed { index, item ->
-                Row(
-                    verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .padding(top = 6.dp)
-                            .size(8.dp)
-                            .background(MaterialTheme.colorScheme.primary, CircleShape)
-                    )
-                    val linkColor = MaterialTheme.colorScheme.primary
-                    val annotatedText = buildAnnotatedString {
-                        val mentionRegex = Regex("@(\\w+)")
-                        var lastIndex = 0
-                        mentionRegex.findAll(item).forEach { match ->
-                            append(item.substring(lastIndex, match.range.first))
-                            val username = match.groupValues[1]
-                            withLink(
-                                LinkAnnotation.Url(
-                                    url = "https://github.com/$username",
-                                    styles = TextLinkStyles(
-                                        style = SpanStyle(color = linkColor)
-                                    )
-                                )
-                            ) {
-                                append(match.value)
-                            }
-                            lastIndex = match.range.last + 1
-                        }
-                        if (lastIndex < item.length) {
-                            append(item.substring(lastIndex))
-                        }
-                    }
-                    Text(
-                        text = annotatedText,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-
-                if (index != items.lastIndex) {
-                    HorizontalDivider(
-                        modifier = Modifier.padding(vertical = 10.dp),
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
-                    )
-                }
-            }
-        }
+        )
+    } catch (_: Exception) {
+        ""
     }
 }
 

@@ -122,6 +122,13 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
                     NotificationManager.IMPORTANCE_LOW
                 ).apply { description = "Library scan progress" }
             )
+            notificationManager.createNotificationChannel(
+                NotificationChannel(
+                    com.startune.music.data.updates.AppUpdateManager.UPDATES_CHANNEL_ID,
+                    "App updates",
+                    NotificationManager.IMPORTANCE_DEFAULT
+                ).apply { description = "App update availability and download progress" }
+            )
         }
 
         ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)

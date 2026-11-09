@@ -399,8 +399,6 @@ La barra rovesciata (\) può essere usata per sfuggire ai delimitatori carattere
     <string name="presentation_batch_g_cast_cd_disconnect_icon">Disconnetti</string>
     <string name="presentation_batch_g_cast_connecting_ellipsis">Connessione...</string>
 
-    <string name="presentation_batch_g_changelog_sec_whats_new">Novità</string>
-    <string name="presentation_batch_g_changelog_sec_improvements">Miglioramenti</string>
     <string name="presentation_batch_g_changelog_sec_fixes">Correzioni</string>
     <string name="presentation_batch_g_changelog_sec_highlights">Highlights</string>
     <string name="presentation_batch_g_changelog_sec_whats_new_lower">Novità</string>
@@ -577,17 +575,6 @@ La barra rovesciata (\) può essere usata per sfuggire ai delimitatori carattere
         <item>Statistiche di ascolto avanzate con approfondimenti più dettagliati e nuove visualizzazioni.</item>
         <item>Flusso di sincronizzazione della libreria migliorato su tutti i provider cloud.</item>
         <item>Migliore modifica dei metadati con supporto per le copertine degli album.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_070_improvements">
-        <item>Miglioramenti delle prestazioni all\'avvio, nella libreria, nella coda e nel lettore.</item>
-        <item>Interfaccia Material 3 perfezionata per un\'esperienza più pulita e coerente.</item>
-        <item>Animazioni e transizioni più fluide in tutta l\'app.</item>
-        <item>Migliore pertinenza della ricerca e scoperta più rapida.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_070_fixes">
-        <item>Comportamento della coda e della riproduzione casuale corretto per una riproduzione più stabile.</item>
-        <item>Risolti i problemi di riproduzione in background e delle notifiche.</item>
-        <item>Correzioni generali di bug e rifiniture dell\'interfaccia.</item>
     </string-array>
 
 </resources>

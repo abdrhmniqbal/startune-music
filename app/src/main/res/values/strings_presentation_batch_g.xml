@@ -284,6 +284,29 @@ Backslash (\) can be used to escape character delimiters.</string>
     <string name="presentation_batch_g_cd_selected">Selected</string>
     <string name="presentation_batch_g_changelog_title">Changelog</string>
     <string name="presentation_batch_g_changelog_view_github">View on GitHub</string>
+    <string name="presentation_batch_g_changelog_error">Couldn\'t load the changelog. Check your connection and try again.</string>
+    <string name="presentation_batch_g_changelog_retry">Retry</string>
+    <string name="presentation_batch_g_changelog_empty">No releases yet.</string>
+    <string name="presentation_batch_g_changelog_no_release_notes">No release notes for this version.</string>
+    <string name="presentation_batch_g_changelog_prerelease">Pre-release</string>
+    <string name="update_notification_title">Startune Music update available</string>
+    <string name="update_notification_body">Version %1$s is available (you have %2$s).</string>
+    <string name="update_download_title">Downloading update</string>
+    <string name="update_downloading">Downloading\u2026 %1$d%%</string>
+    <string name="update_downloaded_title">Update downloaded</string>
+    <string name="update_downloaded_body">Tap to install Startune Music %1$s.</string>
+    <string name="update_sheet_title">Update available</string>
+    <string name="update_download_and_install">Download and install</string>
+    <string name="update_install">Install</string>
+    <string name="update_later">Later</string>
+    <string name="update_dont_remind">Don\'t remind me for this version</string>
+    <string name="update_download_failed">Download failed. Try again.</string>
+    <string name="update_up_to_date">You\'re up to date.</string>
+    <string name="update_check_failed">Couldn\'t check for updates. Try again.</string>
+    <string name="update_view_on_github">View on GitHub</string>
+    <string name="update_enable_install">Enable \"Install unknown apps\" to install the update.</string>
+    <string name="about_check_for_updates_title">Check for updates</string>
+    <string name="about_check_for_updates_subtitle">Version %1$s</string>
     <string name="presentation_batch_g_presets_saved_title">Saved Presets</string>
     <string name="presentation_batch_g_presets_empty">No custom presets saved yet.</string>
     <string name="presentation_batch_g_presets_cd_unpin">Unpin</string>
@@ -471,9 +494,7 @@ Backslash (\) can be used to escape character delimiters.</string>
     <string name="presentation_batch_g_cast_connecting_ellipsis">Connecting...</string>
 
     <string name="presentation_batch_g_changelog_sec_highlights">Highlights</string>
-    <string name="presentation_batch_g_changelog_sec_improvements">Improvements</string>
     <string name="presentation_batch_g_changelog_sec_fixes">Fixes</string>
-    <string name="presentation_batch_g_changelog_sec_whats_new">What\'s New</string>
     <string name="presentation_batch_g_changelog_sec_whats_new_lower">What\'s new</string>
     <string name="presentation_batch_g_changelog_sec_added">Added</string>
     <string name="presentation_batch_g_changelog_sec_changed">Changed</string>
@@ -586,17 +607,6 @@ Backslash (\) can be used to escape character delimiters.</string>
         <item>Improved library sync flow across all cloud providers.</item>
         <item>Better metadata editing with cover art support.</item>
     </string-array>
-    <string-array name="presentation_batch_g_changelog_070_improvements">
-        <item>Performance improvements across startup, library, queue, and player interactions.</item>
-        <item>Refined Material 3 UI for a cleaner and more cohesive experience.</item>
-        <item>Smoother animations and transitions throughout the app.</item>
-        <item>Better search relevance and faster discovery.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_070_fixes">
-        <item>Fixed queue and shuffle behavior for more stable playback.</item>
-        <item>Resolved background playback and notification issues.</item>
-        <item>General bug fixes and UI polish.</item>
-    </string-array>
     <string name="device_capabilities_advanced_diagnostics_description">Off by default. Records a short lag timeline for beta troubleshooting.</string>
     <string name="device_capabilities_advanced_diagnostics_expires">Active until %1$s</string>
     <string name="device_capabilities_advanced_diagnostics_mark_lag">Mark lag now</string>
@@ -611,36 +621,6 @@ Backslash (\) can be used to escape character delimiters.</string>
     <string name="device_capabilities_report_share_title">Startune performance report</string>
     <string name="device_capabilities_report_title">Performance report</string>
     <string name="presentation_batch_g_beta_sheet_welcome_body_stable">You\'re running the stable release build. Check the changelog to see what\'s new, and report anything that misbehaves.</string>
-    <string name="presentation_batch_g_changelog_sec_initial_release">Initial release</string>
-    <string name="presentation_batch_g_changelog_sec_release_readiness">Release readiness</string>
-    <string name="presentation_batch_g_changelog_sec_removed_for_foss">Removed for FOSS</string>
-    <string name="presentation_batch_g_changelog_sec_security_privacy">Security and privacy</string>
-    <string name="presentation_batch_g_changelog_sec_under_the_hood">Under the hood</string>
     <string name="presentation_batch_g_topbar_build_debug">Debug</string>
     <string name="presentation_batch_g_topbar_build_stable">Stable</string>
-    <string-array name="presentation_batch_g_changelog_070_added">
-        <item>Loopback cloud streaming now requires a per-session token.</item>
-        <item>Backup restore ignores preference keys owned by dedicated module handlers.</item>
-        <item>Release logging is tightened so HTTP request headers and raw Android logs do not bypass the Timber release filter.</item>
-        <item>Also includes smart playlist persistence, duplicate-track scanning, playback speed control, clearer playback/sync failure messages, and improved accessibility.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_070_whats_new">
-        <item>First public FOSS release of Startune Music.</item>
-        <item>Includes local playback, playlists, favorites, lyrics, listening stats, dynamic Material 3 theming, widgets, and backup/restore.</item>
-        <item>Keeps self-hosted Navidrome/Subsonic and Jellyfin support, plus optional LRCLIB lyrics and Deezer artist artwork lookup.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_v020_improvements">
-        <item>Smaller app: leaner code-shrinking rules trim about 1.5 MB off the install size.</item>
-        <item>Faster, smoother startup: Baseline Profiles were regenerated from scratch to match the new UI and code paths.</item>
-        <item>Snappier lists, sheets, and the equalizer thanks to a wide Compose performance pass.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_v020_under_the_hood">
-        <item>More reliable cloud playback: cancelled Navidrome/Jellyfin requests are no longer misreported as network errors when skipping tracks quickly.</item>
-        <item>Backup, restore, and setup events can no longer be lost during screen rotation.</item>
-        <item>Spring cleaning: dead code removed, deprecated APIs migrated, and dependencies updated.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_v020_whats_new">
-        <item>Material 3 Expressive design pass: a new motion scheme, wavy progress indicators, and shape-morphing animations throughout the app.</item>
-        <item>Jellyfin servers over plain HTTP are now allowed for VPN and local-network hosts.</item>
-    </string-array>
 </resources>
