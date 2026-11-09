@@ -1312,6 +1312,16 @@ class MusicService : MediaSessionService() {
         }
         if (alreadyHasQueue) return
 
+        val restoreLastPosition = runCatching {
+            userPreferencesRepository.restoreLastPositionFlow.first()
+        }.getOrDefault(true)
+        if (!restoreLastPosition) {
+            // Off means start fresh: drop the stored position, like old
+            // Startune resetting lastPosition to 0 when the setting is off.
+            runCatching { userPreferencesRepository.setPlaybackQueueSnapshot(null) }
+            return
+        }
+
         val snapshot = runCatching {
             userPreferencesRepository.getPlaybackQueueSnapshotOnce()
         }.getOrNull() ?: return

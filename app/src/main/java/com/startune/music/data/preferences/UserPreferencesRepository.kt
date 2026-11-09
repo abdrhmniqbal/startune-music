@@ -145,6 +145,7 @@ constructor(
         val FOLDER_BACK_GESTURE_NAVIGATION = booleanPreferencesKey("folder_back_gesture_navigation")
         val USE_SMOOTH_CORNERS = booleanPreferencesKey("use_smooth_corners")
         val KEEP_PLAYING_IN_BACKGROUND = booleanPreferencesKey("keep_playing_in_background")
+        val RESTORE_LAST_POSITION = booleanPreferencesKey("restore_last_position")
         val KEEP_SCREEN_AWAKE_WHILE_PLAYING =
                 booleanPreferencesKey("keep_screen_awake_while_playing")
         val IS_CROSSFADE_ENABLED = booleanPreferencesKey("is_crossfade_enabled")
@@ -965,6 +966,11 @@ constructor(
                 preferences[PreferencesKeys.KEEP_PLAYING_IN_BACKGROUND] ?: true
             }
 
+    val restoreLastPositionFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.RESTORE_LAST_POSITION] ?: true
+            }
+
     val keepScreenAwakeWhilePlayingFlow: Flow<Boolean> =
             dataStore.data.map { preferences ->
                 preferences[PreferencesKeys.KEEP_SCREEN_AWAKE_WHILE_PLAYING] ?: false
@@ -1435,6 +1441,12 @@ constructor(
     suspend fun setKeepPlayingInBackground(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.KEEP_PLAYING_IN_BACKGROUND] = enabled
+        }
+    }
+
+    suspend fun setRestoreLastPosition(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.RESTORE_LAST_POSITION] = enabled
         }
     }
 
