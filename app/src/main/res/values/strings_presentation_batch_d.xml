@@ -123,8 +123,17 @@
     <string name="presentation_batch_d_cd_collapse_title">Collapse %1$s</string>
     <string name="presentation_batch_d_cd_expand_title">Expand %1$s</string>
     <string name="presentation_batch_d_edit_artist_image_cd">Edit artist image</string>
-    <string name="presentation_batch_d_change_photo">Change photo</string>
     <string name="presentation_batch_d_reset_to_default">Reset to default</string>
+    <string name="presentation_batch_d_select_artwork">Select artwork</string>
+    <string name="presentation_batch_d_search_deezer_hint">Search artist on Deezer...</string>
+    <string name="presentation_batch_d_choose_from_device">Choose from device</string>
+    <string name="presentation_batch_d_no_artwork_found">No artist images found on Deezer</string>
+    <string name="presentation_batch_d_artwork_updated">Artist artwork updated</string>
+    <string name="presentation_batch_d_artwork_update_failed">Failed to update artwork</string>
+    <string name="presentation_batch_d_artwork_removed">Artist artwork removed</string>
+    <string name="presentation_batch_d_artwork_remove_failed">Failed to remove artwork</string>
+    <string name="presentation_batch_d_fans">%1$d fans</string>
+    <string name="presentation_batch_d_albums">%1$d albums</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">Shuffle play artist</string>
     <string name="presentation_batch_d_cd_artist">Artist</string>
 </resources>

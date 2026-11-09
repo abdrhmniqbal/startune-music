@@ -10,13 +10,16 @@ import com.startune.music.R
 import com.startune.music.data.lastfm.LastFmRepository
 import com.startune.music.data.model.Artist
 import com.startune.music.data.model.Song
+import com.startune.music.data.network.deezer.DeezerArtistCandidate
 import com.startune.music.data.repository.ArtistImageRepository
 import com.startune.music.data.repository.MusicRepository
 import com.startune.music.data.stats.PlaybackStatsRepository
 import com.startune.music.data.stats.StatsTimeRange
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -241,33 +244,123 @@ class ArtistDetailViewModel @Inject constructor(
         loadedArtistId?.let { loadArtistData(it) }
     }
 
+    private val _artworkSearchQuery = MutableStateFlow("")
+    val artworkSearchQuery: StateFlow<String> = _artworkSearchQuery.asStateFlow()
+
+    private val _artworkCandidates = MutableStateFlow<List<DeezerArtistCandidate>>(emptyList())
+    val artworkCandidates: StateFlow<List<DeezerArtistCandidate>> = _artworkCandidates.asStateFlow()
+
+    private val _isSearchingArtwork = MutableStateFlow(false)
+    val isSearchingArtwork: StateFlow<Boolean> = _isSearchingArtwork.asStateFlow()
+
+    private var artworkSearchJob: Job? = null
+
+    /**
+     * Open the artwork picker: search Deezer right away for the artist name.
+     */
+    fun openArtworkSearch(artistName: String) {
+        _artworkSearchQuery.value = artistName
+        artworkSearchJob?.cancel()
+        searchArtworkNow(artistName)
+    }
+
+    /**
+     * Update the picker search query; the search runs 350 ms after the last
+     * keystroke, like old Startune's debounced sheet search.
+     */
+    fun setArtworkSearchQuery(query: String) {
+        _artworkSearchQuery.value = query
+        artworkSearchJob?.cancel()
+        if (query.isBlank()) {
+            _artworkCandidates.value = emptyList()
+            _isSearchingArtwork.value = false
+            return
+        }
+        artworkSearchJob = viewModelScope.launch {
+            delay(350)
+            searchArtworkNow(query)
+        }
+    }
+
+    fun closeArtworkSearch() {
+        artworkSearchJob?.cancel()
+        artworkSearchJob = null
+    }
+
+    private fun searchArtworkNow(query: String) {
+        val trimmed = query.trim()
+        if (trimmed.isEmpty()) {
+            _artworkCandidates.value = emptyList()
+            _isSearchingArtwork.value = false
+            return
+        }
+        artworkSearchJob = viewModelScope.launch {
+            _isSearchingArtwork.value = true
+            try {
+                _artworkCandidates.value = artistImageRepository.searchDeezerArtists(trimmed)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Timber.tag("ArtistDebug").w("Deezer artwork search failed: ${e.message}")
+                _artworkCandidates.value = emptyList()
+            } finally {
+                _isSearchingArtwork.value = false
+            }
+        }
+    }
+
+    /**
+     * Apply a Deezer picture picked in the artwork sheet. The picture is
+     * downloaded and stored as the custom image, so it sticks until Reset to
+     * default. Returns false when the download or save failed.
+     */
+    suspend fun applyDeezerArtwork(pictureUrl: String): Boolean {
+        val artistId = _uiState.value.artist?.id ?: return false
+        return try {
+            val internalPath = artistImageRepository.setCustomArtistImageFromUrl(context, artistId, pictureUrl)
+            if (internalPath.isNullOrBlank()) {
+                false
+            } else {
+                applyCustomImageInternalPath(internalPath)
+                true
+            }
+        } catch (e: Exception) {
+            Timber.tag("ArtistDebug").e("Failed to apply Deezer artwork: ${e.message}")
+            false
+        }
+    }
+
+    private suspend fun applyCustomImageInternalPath(internalPath: String) {
+        val oldEffectiveUrl = _uiState.value.effectiveImageUrl
+
+        if (!oldEffectiveUrl.isNullOrBlank() && oldEffectiveUrl != internalPath) {
+            themeStateHolder.forceRegenerateColorScheme(oldEffectiveUrl)
+        }
+        val newScheme = try {
+            themeStateHolder.forceRegenerateColorScheme(internalPath)
+            themeStateHolder.getOrGenerateColorScheme(internalPath)
+        } catch (e: Exception) {
+            Timber.tag("ArtistDebug").w("Failed to regenerate color scheme for custom image: ${e.message}")
+            null
+        }
+
+        _artistColorScheme.value = newScheme
+        _uiState.update { state ->
+            val effectiveUrlWithBust = "$internalPath?t=${System.currentTimeMillis()}"
+            state.copy(
+                effectiveImageUrl = effectiveUrlWithBust,
+                artist = state.artist?.copy(customImageUri = internalPath)
+            )
+        }
+    }
+
     fun setCustomImage(sourceUri: Uri) {
         val artistId = _uiState.value.artist?.id ?: return
         viewModelScope.launch {
             try {
                 val internalPath = artistImageRepository.setCustomArtistImage(context, artistId, sourceUri)
                 if (!internalPath.isNullOrBlank()) {
-                    val oldEffectiveUrl = _uiState.value.effectiveImageUrl
-
-                    if (!oldEffectiveUrl.isNullOrBlank() && oldEffectiveUrl != internalPath) {
-                        themeStateHolder.forceRegenerateColorScheme(oldEffectiveUrl)
-                    }
-                    val newScheme = try {
-                        themeStateHolder.forceRegenerateColorScheme(internalPath)
-                        themeStateHolder.getOrGenerateColorScheme(internalPath)
-                    } catch (e: Exception) {
-                        Timber.tag("ArtistDebug").w("Failed to regenerate color scheme for custom image: ${e.message}")
-                        null
-                    }
-
-                    _artistColorScheme.value = newScheme
-                    _uiState.update { state ->
-                        val effectiveUrlWithBust = "$internalPath?t=${System.currentTimeMillis()}"
-                        state.copy(
-                            effectiveImageUrl = effectiveUrlWithBust,
-                            artist = state.artist?.copy(customImageUri = internalPath)
-                        )
-                    }
+                    applyCustomImageInternalPath(internalPath)
                 }
             } catch (e: Exception) {
                 Timber.tag("ArtistDebug").e("Failed to set custom image: ${e.message}")

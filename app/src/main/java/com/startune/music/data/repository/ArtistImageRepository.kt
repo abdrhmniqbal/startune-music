@@ -28,6 +28,10 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import timber.log.Timber
 import androidx.core.graphics.scale
+import com.startune.music.data.network.deezer.DeezerArtist
+import com.startune.music.data.network.deezer.DeezerArtistCandidate
+import java.io.ByteArrayOutputStream
+import java.net.URL
 
 /**
  * Repository for fetching and caching artist images from Deezer API.
@@ -51,6 +55,14 @@ class ArtistImageRepository @Inject constructor(
         private const val MAX_CUSTOM_IMAGE_TOTAL_PIXELS = 80_000_000L
         private const val TARGET_CUSTOM_IMAGE_MAX_DIMENSION_PX = 2_048
         private const val TARGET_CUSTOM_IMAGE_MAX_PIXELS = 4_194_304L
+
+        // Deezer placeholder silhouettes, ported from old Startune. A candidate
+        // whose picture is one of these has no real artist photo.
+        private val DEEZER_DEFAULT_AVATAR_HASHES = listOf(
+            "e23066163f21176a822b54001ee648a2",
+            "270b9a0569709219d84e115ceba415f9",
+            "d41d8cd98f00b204e9800998ecf8427e"
+        )
 
         internal fun calculateCustomImageSampleSize(width: Int, height: Int): Int {
             var sampleSize = 1
@@ -158,9 +170,12 @@ class ArtistImageRepository @Inject constructor(
         return try {
             withContext(Dispatchers.IO) {
                 val response = withNetworkRetry("deezer_search:$artistName") {
-                    deezerApiService.searchArtist(artistName, limit = 1)
+                    deezerApiService.searchArtist(artistName, limit = 10)
                 }
-                val deezerArtist = response.data.firstOrNull()
+                val deezerArtist = selectArtistCandidate(
+                    preferRealPhotos(response.data),
+                    artistName
+                )
 
                 if (deezerArtist != null) {
                     val imageUrl = (
@@ -221,6 +236,75 @@ class ArtistImageRepository @Inject constructor(
     }
     
     /**
+     * Search Deezer for artists matching [query], for the artwork picker.
+     * Returns candidates with a real photo, in Deezer's relevance order.
+     */
+    suspend fun searchDeezerArtists(query: String, limit: Int = 25): List<DeezerArtistCandidate> {
+        val trimmed = query.trim()
+        if (trimmed.isEmpty()) return emptyList()
+        return try {
+            val response = withNetworkRetry("deezer_search:$trimmed") {
+                deezerApiService.searchArtist(trimmed, limit)
+            }
+            response.data.mapNotNull { artist ->
+                val picture = bestPictureUrl(artist)?.let(::upgradeToHighResDeezerUrl)
+                if (picture.isNullOrEmpty() || isDeezerDefaultAvatar(picture)) {
+                    null
+                } else {
+                    DeezerArtistCandidate(
+                        id = artist.id,
+                        name = artist.name,
+                        pictureUrl = picture,
+                        fanCount = artist.fanCount,
+                        albumCount = artist.albumCount
+                    )
+                }
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Timber.tag(TAG).e("Error searching Deezer artists for $trimmed: ${e.message}")
+            emptyList()
+        }
+    }
+
+    /**
+     * Pick the best Deezer match for an artist name: exact name, then the same
+     * name ignoring case and punctuation, then the first result. Ported from
+     * old Startune's selectArtistCandidate.
+     */
+    private fun selectArtistCandidate(candidates: List<DeezerArtist>, artistName: String): DeezerArtist? {
+        if (candidates.isEmpty()) return null
+        val normalized = normalizeArtistName(artistName)
+        return candidates.firstOrNull { it.name == artistName }
+            ?: candidates.firstOrNull { normalizeArtistName(it.name) == normalized }
+            ?: candidates.firstOrNull()
+    }
+
+    private fun normalizeArtistName(value: String): String =
+        value.lowercase().filter { it in 'a'..'z' || it in '0'..'9' }
+
+    private fun preferRealPhotos(candidates: List<DeezerArtist>): List<DeezerArtist> {
+        val withRealPhoto = candidates.filter { !isDeezerDefaultAvatar(bestPictureUrl(it)) }
+        return withRealPhoto.ifEmpty { candidates }
+    }
+
+    private fun bestPictureUrl(artist: DeezerArtist): String? =
+        artist.pictureXl ?: artist.pictureBig ?: artist.pictureMedium ?: artist.picture
+
+    private fun isDeezerDefaultAvatar(url: String?): Boolean {
+        if (url.isNullOrEmpty()) return true
+        if (
+            url.contains("/artist//") ||
+            url.contains("/artist/default") ||
+            url.contains("default_artist")
+        ) {
+            return true
+        }
+        return DEEZER_DEFAULT_AVATAR_HASHES.any { url.contains(it) }
+    }
+
+    /**
      * Clear all cached images. Useful for debugging or forced refresh.
      */
     fun clearCache() {
@@ -255,31 +339,96 @@ class ArtistImageRepository @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val bitmap = decodeCustomArtistBitmap(context, sourceUri) ?: return@withContext null
-                val scaledBitmap = scaleBitmapIfNeeded(bitmap)
-                try {
-                    val destFile = File(context.filesDir, "artist_art_${artistId}.jpg")
-                    FileOutputStream(destFile).use { out ->
-                        scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
-                    }
-
-                    val internalPath = destFile.absolutePath
-
-                    musicDao.updateArtistCustomImage(artistId, internalPath)
-
-                    Timber.tag(TAG).d("Custom artist image saved: $internalPath")
-                    internalPath
-                } finally {
-                    if (scaledBitmap !== bitmap) {
-                        bitmap.recycle()
-                    }
-                    scaledBitmap.recycle()
-                }
+                persistCustomArtistBitmap(context, artistId, bitmap)
             } catch (e: Exception) {
                 Timber.tag(TAG)
                     .e("Failed to save custom artist image for id=$artistId: ${e.message}")
                 null
             }
         }
+    }
+
+    /**
+     * Download a Deezer picture and store it as the artist's custom image,
+     * same file and DB column as the photo picker, so a picked Deezer photo
+     * sticks until Reset to default. Returns the internal path on success.
+     */
+    suspend fun setCustomArtistImageFromUrl(context: Context, artistId: Long, imageUrl: String): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val bytes = downloadBytes(imageUrl, MAX_CUSTOM_IMAGE_SOURCE_BYTES) ?: return@withContext null
+                val bitmap = decodeCustomArtistBitmap(bytes) ?: return@withContext null
+                persistCustomArtistBitmap(context, artistId, bitmap)
+            } catch (e: Exception) {
+                Timber.tag(TAG)
+                    .e("Failed to save Deezer artist image for id=$artistId: ${e.message}")
+                null
+            }
+        }
+    }
+
+    private suspend fun persistCustomArtistBitmap(context: Context, artistId: Long, bitmap: Bitmap): String? {
+        val scaledBitmap = scaleBitmapIfNeeded(bitmap)
+        try {
+            val destFile = File(context.filesDir, "artist_art_${artistId}.jpg")
+            FileOutputStream(destFile).use { out ->
+                scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+            }
+
+            val internalPath = destFile.absolutePath
+
+            musicDao.updateArtistCustomImage(artistId, internalPath)
+
+            Timber.tag(TAG).d("Custom artist image saved: $internalPath")
+            return internalPath
+        } finally {
+            if (scaledBitmap !== bitmap) {
+                bitmap.recycle()
+            }
+            scaledBitmap.recycle()
+        }
+    }
+
+    private fun downloadBytes(imageUrl: String, maxBytes: Long): ByteArray? {
+        val connection = URL(imageUrl).openConnection().apply {
+            connectTimeout = 15_000
+            readTimeout = 30_000
+        }
+        connection.getInputStream().use { input ->
+            val buffer = ByteArrayOutputStream()
+            val chunk = ByteArray(8192)
+            var total = 0L
+            while (true) {
+                val read = input.read(chunk)
+                if (read == -1) break
+                total += read
+                if (total > maxBytes) {
+                    Timber.tag(TAG).w("Rejected Deezer artist image larger than allowed source size: $total")
+                    return null
+                }
+                buffer.write(chunk, 0, read)
+            }
+            return buffer.toByteArray()
+        }
+    }
+
+    private fun checkCustomImageBounds(width: Int, height: Int): Boolean {
+        if (width <= 0 || height <= 0) {
+            Timber.tag(TAG)
+                .w("Rejected custom artist image with invalid bounds: ${width}x${height}")
+            return false
+        }
+        if (width > MAX_CUSTOM_IMAGE_DIMENSION_PX || height > MAX_CUSTOM_IMAGE_DIMENSION_PX) {
+            Timber.tag(TAG)
+                .w("Rejected custom artist image with oversized bounds: ${width}x${height}")
+            return false
+        }
+        if (width.toLong() * height.toLong() > MAX_CUSTOM_IMAGE_TOTAL_PIXELS) {
+            Timber.tag(TAG)
+                .w("Rejected custom artist image with excessive pixel count: ${width}x${height}")
+            return false
+        }
+        return true
     }
 
     private fun decodeCustomArtistBitmap(context: Context, sourceUri: Uri): Bitmap? {
@@ -309,21 +458,7 @@ class ArtistImageRepository @Inject constructor(
 
         val width = bounds.outWidth
         val height = bounds.outHeight
-        if (width <= 0 || height <= 0) {
-            Timber.tag(TAG)
-                .w("Rejected custom artist image with invalid bounds: ${width}x${height}")
-            return null
-        }
-        if (width > MAX_CUSTOM_IMAGE_DIMENSION_PX || height > MAX_CUSTOM_IMAGE_DIMENSION_PX) {
-            Timber.tag(TAG)
-                .w("Rejected custom artist image with oversized bounds: ${width}x${height}")
-            return null
-        }
-        if (width.toLong() * height.toLong() > MAX_CUSTOM_IMAGE_TOTAL_PIXELS) {
-            Timber.tag(TAG)
-                .w("Rejected custom artist image with excessive pixel count: ${width}x${height}")
-            return null
-        }
+        if (!checkCustomImageBounds(width, height)) return null
 
         val decodeOptions = BitmapFactory.Options().apply {
             inSampleSize = calculateCustomImageSampleSize(width, height)
@@ -334,6 +469,29 @@ class ArtistImageRepository @Inject constructor(
             resolver.openInputStream(sourceUri)?.use { inputStream ->
                 BitmapFactory.decodeStream(inputStream, null, decodeOptions)
             }
+        } catch (oom: OutOfMemoryError) {
+            Timber.tag(TAG).e(oom, "Failed to decode custom artist image due to OOM")
+            null
+        }
+    }
+
+    private fun decodeCustomArtistBitmap(bytes: ByteArray): Bitmap? {
+        val bounds = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+
+        val width = bounds.outWidth
+        val height = bounds.outHeight
+        if (!checkCustomImageBounds(width, height)) return null
+
+        val decodeOptions = BitmapFactory.Options().apply {
+            inSampleSize = calculateCustomImageSampleSize(width, height)
+            inPreferredConfig = Bitmap.Config.RGB_565
+        }
+
+        return try {
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size, decodeOptions)
         } catch (oom: OutOfMemoryError) {
             Timber.tag(TAG).e(oom, "Failed to decode custom artist image due to OOM")
             null

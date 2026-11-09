@@ -123,7 +123,6 @@
     <string name="presentation_batch_d_cd_collapse_title">Comprimi %1$s</string>
     <string name="presentation_batch_d_cd_expand_title">Espandi %1$s</string>
     <string name="presentation_batch_d_edit_artist_image_cd">Modifica immagine artista</string>
-    <string name="presentation_batch_d_change_photo">Cambia foto</string>
     <string name="presentation_batch_d_reset_to_default">Reimposta a predefinito</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">Riproduzione casuale artista</string>
     <string name="presentation_batch_d_cd_artist">Artista</string>

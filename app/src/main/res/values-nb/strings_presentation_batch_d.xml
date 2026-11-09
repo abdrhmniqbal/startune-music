@@ -123,7 +123,6 @@
     <string name="presentation_batch_d_cd_collapse_title">Slå sammen %1$s</string>
     <string name="presentation_batch_d_cd_expand_title">Utvid %1$s</string>
     <string name="presentation_batch_d_edit_artist_image_cd">Rediger artistbilde</string>
-    <string name="presentation_batch_d_change_photo">Endre bilde</string>
     <string name="presentation_batch_d_reset_to_default">Nullstill til standard</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">Bland artist</string>
     <string name="presentation_batch_d_cd_artist">Artist</string>
