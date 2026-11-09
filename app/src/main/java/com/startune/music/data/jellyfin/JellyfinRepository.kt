@@ -562,6 +562,8 @@ class JellyfinRepository @Inject constructor(
             val effectiveAlbumArtistName = jellyfinSong.albumArtist
                 ?.trim()
                 ?.takeIf { it.isNotBlank() }
+                ?.let { parseArtistNames(it).firstOrNull() }
+                ?.takeIf { it.isNotBlank() && !it.equals("Unknown Artist", ignoreCase = true) }
                 ?: primaryArtistName
             val albumArtistId = toUnifiedArtistId(effectiveAlbumArtistName)
             artists.putIfAbsent(
