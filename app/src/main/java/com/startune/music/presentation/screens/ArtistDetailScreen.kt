@@ -6,6 +6,7 @@ import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.navigation.navigateSafelyReplacing
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
@@ -18,23 +19,31 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items as gridItems
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.rounded.Album
 import androidx.compose.material.icons.rounded.AddAPhoto
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material.icons.rounded.SurroundSound
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -55,6 +64,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
@@ -68,9 +78,12 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.startune.music.data.model.Artist
+import com.startune.music.data.model.Album
 import com.startune.music.data.model.Song
+import com.startune.music.data.model.SortOption
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.ExpressiveScrollBar
+import com.startune.music.presentation.components.LibrarySortBottomSheet
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.PlaylistBottomSheet
 import com.startune.music.presentation.components.SmartImageCompactListTargetSize
@@ -88,7 +101,6 @@ import kotlinx.coroutines.launch
 import com.startune.music.presentation.components.subcomps.EnhancedSongListItem
 import kotlin.math.roundToInt
 import androidx.compose.ui.unit.IntOffset
-import kotlinx.coroutines.delay
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextGeometricTransform
@@ -100,6 +112,7 @@ import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 import androidx.compose.ui.res.stringResource
 import com.startune.music.R
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 
 private const val UseSharedCollapsibleTopBarProbe = true
 
@@ -116,11 +129,6 @@ fun ArtistDetailScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val stablePlayerState by playerViewModel.stablePlayerState.collectAsStateWithLifecycle()
     
-    var isTransitionFinished by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        delay(300)
-        isTransitionFinished = true
-    }
 
     val lazyListState = rememberLazyListState()
     val favoriteIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
@@ -267,17 +275,16 @@ fun ArtistDetailScreen(
                     val currentTopBarHeightDp = with(density) { topBarHeight.value.toDp() }
 
                     val albumSections = uiState.albumSections
-                    val expandedSections = remember { mutableStateMapOf<String, Boolean>() }
-                    LaunchedEffect(albumSections) {
-                        val currentKeys = albumSections.map { it.collapseKey() }.toSet()
-                        currentKeys.forEach { key ->
-                            if (expandedSections[key] == null) {
-                                expandedSections[key] = true
-                            }
-                        }
-                        expandedSections.keys
-                            .filterNot { it in currentKeys }
-                            .forEach { staleKey -> expandedSections.remove(staleKey) }
+                    val featuredOnSections = uiState.featuredOnSections
+                    val popularTracks = uiState.popularTracks
+                    var activeView by remember { mutableStateOf(ArtistDetailView.Overview) }
+                    var trackSortOption by remember { mutableStateOf<SortOption>(SortOption.SongTitleAZ) }
+                    var showSortSheet by remember { mutableStateOf(false) }
+                    val sortedTracks = remember(songs, trackSortOption) { sortArtistSongs(songs, trackSortOption) }
+                    val tracksListState = rememberLazyListState()
+                    val albumsGridState = rememberLazyGridState()
+                    BackHandler(enabled = activeView != ArtistDetailView.Overview) {
+                        activeView = ArtistDetailView.Overview
                     }
 
                     val showScrollBar by remember {
@@ -287,115 +294,333 @@ fun ArtistDetailScreen(
                         }
                     }
 
-                    LazyColumn(
-                        state = lazyListState,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .offset {
-                                val extraHeight =
-                                    (topBarHeight.value - minTopBarHeightPx).roundToInt()
-                                IntOffset(0, extraHeight)
-                            },
-                        contentPadding = PaddingValues(
-                            top = minTopBarHeight + 8.dp,
-                            start = 16.dp,
-                            end = if (showScrollBar) 24.dp else 16.dp,
-                            bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp
-                        )
-                    ) {
-                        val artistBio = artist.bio
-                        if (!artistBio.isNullOrBlank()) {
-                            item(
-                                key = "artist_bio",
-                                contentType = "artist_bio"
-                            ) {
-                                ArtistBioSection(bio = artistBio)
-                            }
-                        }
-
-                        albumSections.forEachIndexed { index, section ->
-                            if (section.songs.isEmpty()) return@forEachIndexed
-
-                            val sectionKey = section.collapseKey()
-                            val isExpanded = expandedSections[sectionKey] ?: true
-                            val sectionSongs = if (isTransitionFinished) section.songs else section.songs.take(5)
-
-                            item(
-                                key = "${sectionKey}_header",
-                                contentType = "artist_section_header"
-                            ) {
-                                CollapsibleAlbumSectionHeader(
-                                    section = section,
-                                    isExpanded = isExpanded,
-                                    onToggleExpanded = {
-                                        expandedSections[sectionKey] = !isExpanded
+                    when (activeView) {
+                        ArtistDetailView.Overview -> {
+                            LazyColumn(
+                                state = lazyListState,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .offset {
+                                        val extraHeight =
+                                            (topBarHeight.value - minTopBarHeightPx).roundToInt()
+                                        IntOffset(0, extraHeight)
                                     },
-                                    onPlayAlbum = {
-                                        section.songs.firstOrNull()?.let { firstSong ->
-                                            playerViewModel.showAndPlaySong(firstSong, section.songs)
+                                contentPadding = PaddingValues(
+                                    top = minTopBarHeight + 8.dp,
+                                    start = 16.dp,
+                                    end = if (showScrollBar) 24.dp else 16.dp,
+                                    bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp
+                                ),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                if (songs.isNotEmpty()) {
+                                    item(
+                                        key = "artist_tracks_header",
+                                        contentType = "artist_section_header"
+                                    ) {
+                                        ArtistSectionHeader(
+                                            title = stringResource(R.string.artist_tracks_title),
+                                            onViewMoreClick = { activeView = ArtistDetailView.Tracks }
+                                        )
+                                    }
+                                    item(
+                                        key = "artist_tracks_actions",
+                                        contentType = "artist_section_actions"
+                                    ) {
+                                        ArtistPlayShuffleRow(
+                                            onPlay = {
+                                                val firstSong = songs.firstOrNull() ?: return@ArtistPlayShuffleRow
+                                                playerViewModel.playSongs(songs, firstSong, artist.name)
+                                            },
+                                            onShuffle = {
+                                                playerViewModel.playSongsShuffled(
+                                                    songs,
+                                                    artist.name,
+                                                    startAtZero = true
+                                                )
+                                            }
+                                        )
+                                    }
+                                    itemsIndexed(
+                                        items = popularTracks,
+                                        key = { _, song -> "artist_popular_${song.id}" },
+                                        contentType = { _, _ -> "artist_popular_song" }
+                                    ) { index, song ->
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = (index + 1).toString(),
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                textAlign = TextAlign.Center,
+                                                modifier = Modifier.width(28.dp)
+                                            )
+                                            LibraryPlaybackAwareSongItem(
+                                                modifier = Modifier.weight(1f),
+                                                song = song,
+                                                playerViewModel = playerViewModel,
+                                                showAlbumArt = true,
+                                                onMoreOptionsClick = {
+                                                    playerViewModel.selectSongForInfo(song)
+                                                    showSongInfoBottomSheet = true
+                                                },
+                                                onClick = { playerViewModel.showAndPlaySong(song, songs) }
+                                            )
                                         }
                                     }
-                                )
-                            }
-
-                            if (isExpanded) {
-                                item(
-                                    key = "${sectionKey}_song_group_spacer",
-                                    contentType = "artist_section_spacer"
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .animateItem(
-                                                fadeInSpec = tween(durationMillis = 160),
-                                                fadeOutSpec = tween(durationMillis = 120),
-                                                placementSpec = tween(durationMillis = 180)
-                                            )
-                                            .fillMaxWidth()
-                                            .height(10.dp)
-                                            .background(MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.5f))
-                                    )
+                                    item(
+                                        key = "artist_tracks_spacer",
+                                        contentType = "artist_section_spacer"
+                                    ) {
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                    }
                                 }
 
-                                itemsIndexed(
-                                    items = sectionSongs,
-                                    key = { songIndex, song -> "${sectionKey}_song_${song.id}_$songIndex" },
-                                    contentType = { _, _ -> "artist_section_song" }
-                                ) { songIndex, song ->
-                                    ArtistAlbumSectionSongItem(
-                                        modifier = Modifier.animateItem(
-                                            fadeInSpec = tween(durationMillis = 180),
-                                            fadeOutSpec = tween(durationMillis = 120),
-                                            placementSpec = tween(durationMillis = 200)
-                                        ),
-                                        song = song,
-                                        songIndex = songIndex,
-                                        songCount = section.songs.size,
-                                        isCurrentSong = stablePlayerState.currentSong?.id == song.id,
-                                        isPlaying = stablePlayerState.isPlaying,
-                                        onSongClick = {
-                                            playerViewModel.showAndPlaySong(song, section.songs)
+                                if (albumSections.isNotEmpty()) {
+                                    item(
+                                        key = "artist_albums_header",
+                                        contentType = "artist_section_header"
+                                    ) {
+                                        ArtistSectionHeader(
+                                            title = stringResource(R.string.library_tab_albums),
+                                            onViewMoreClick = { activeView = ArtistDetailView.Albums }
+                                        )
+                                    }
+                                    item(
+                                        key = "artist_albums_row",
+                                        contentType = "artist_albums_row"
+                                    ) {
+                                        LazyRow(
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                            contentPadding = PaddingValues(vertical = 8.dp)
+                                        ) {
+                                            items(
+                                                items = albumSections,
+                                                key = { section -> "artist_album_${section.albumId}" },
+                                                contentType = { "artist_album_card" }
+                                            ) { section ->
+                                                ArtistAlbumCard(
+                                                    section = section,
+                                                    artistName = artist.name,
+                                                    viewModel = viewModel,
+                                                    modifier = Modifier.width(180.dp),
+                                                    onClick = {
+                                                        navController.navigateSafely(
+                                                            Screen.AlbumDetail.createRoute(section.albumId)
+                                                        )
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
+                                    item(
+                                        key = "artist_albums_spacer",
+                                        contentType = "artist_section_spacer"
+                                    ) {
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                    }
+                                }
+
+                                if (featuredOnSections.isNotEmpty()) {
+                                    item(
+                                        key = "artist_featured_header",
+                                        contentType = "artist_section_header"
+                                    ) {
+                                        ArtistSectionHeader(
+                                            title = stringResource(R.string.artist_featured_on_title),
+                                            onViewMoreClick = { activeView = ArtistDetailView.FeaturedOn }
+                                        )
+                                    }
+                                    item(
+                                        key = "artist_featured_row",
+                                        contentType = "artist_albums_row"
+                                    ) {
+                                        LazyRow(
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                            contentPadding = PaddingValues(vertical = 8.dp)
+                                        ) {
+                                            items(
+                                                items = featuredOnSections,
+                                                key = { section -> "artist_featured_${section.albumId}" },
+                                                contentType = { "artist_album_card" }
+                                            ) { section ->
+                                                ArtistAlbumCard(
+                                                    section = section,
+                                                    artistName = artist.name,
+                                                    viewModel = viewModel,
+                                                    modifier = Modifier.width(180.dp),
+                                                    onClick = {
+                                                        navController.navigateSafely(
+                                                            Screen.AlbumDetail.createRoute(section.albumId)
+                                                        )
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
+                                    item(
+                                        key = "artist_featured_spacer",
+                                        contentType = "artist_section_spacer"
+                                    ) {
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                    }
+                                }
+
+                                val artistBio = artist.bio
+                                if (!artistBio.isNullOrBlank()) {
+                                    item(
+                                        key = "artist_bio",
+                                        contentType = "artist_bio"
+                                    ) {
+                                        ArtistBioSection(bio = artistBio)
+                                    }
+                                }
+                            }
+                        }
+                        ArtistDetailView.Tracks -> {
+                            LazyColumn(
+                                state = tracksListState,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .offset {
+                                        val extraHeight =
+                                            (topBarHeight.value - minTopBarHeightPx).roundToInt()
+                                        IntOffset(0, extraHeight)
+                                    },
+                                contentPadding = PaddingValues(
+                                    top = minTopBarHeight + 8.dp,
+                                    start = 16.dp,
+                                    end = if (showScrollBar) 24.dp else 16.dp,
+                                    bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp
+                                ),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                item(
+                                    key = "artist_all_tracks_header",
+                                    contentType = "artist_subview_header"
+                                ) {
+                                    ArtistSubViewHeader(
+                                        title = stringResource(R.string.artist_all_tracks_title),
+                                        onBackClick = { activeView = ArtistDetailView.Overview },
+                                        onSortClick = { showSortSheet = true }
+                                    )
+                                }
+                                item(
+                                    key = "artist_all_tracks_actions",
+                                    contentType = "artist_section_actions"
+                                ) {
+                                    ArtistPlayShuffleRow(
+                                        onPlay = {
+                                            val firstSong = sortedTracks.firstOrNull() ?: return@ArtistPlayShuffleRow
+                                            playerViewModel.playSongs(sortedTracks, firstSong, artist.name)
                                         },
-                                        onMoreOptionsClick = {
-                                            playerViewModel.selectSongForInfo(song)
-                                            showSongInfoBottomSheet = true
+                                        onShuffle = {
+                                            playerViewModel.playSongsShuffled(
+                                                sortedTracks,
+                                                artist.name,
+                                                startAtZero = true
+                                            )
+                                        }
+                                    )
+                                }
+                                itemsIndexed(
+                                    items = sortedTracks,
+                                    key = { _, song -> "artist_track_${song.id}" },
+                                    contentType = { _, _ -> "artist_track_song" }
+                                ) { index, song ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = (index + 1).toString(),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier.width(28.dp)
+                                        )
+                                        LibraryPlaybackAwareSongItem(
+                                            modifier = Modifier.weight(1f),
+                                            song = song,
+                                            playerViewModel = playerViewModel,
+                                            showAlbumArt = true,
+                                            onMoreOptionsClick = {
+                                                playerViewModel.selectSongForInfo(song)
+                                                showSongInfoBottomSheet = true
+                                            },
+                                            onClick = { playerViewModel.showAndPlaySong(song, sortedTracks) }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        ArtistDetailView.Albums, ArtistDetailView.FeaturedOn -> {
+                            val gridSections = if (activeView == ArtistDetailView.FeaturedOn) featuredOnSections else albumSections
+                            val gridTitle = if (activeView == ArtistDetailView.FeaturedOn) {
+                                stringResource(R.string.artist_featured_on_title)
+                            } else {
+                                stringResource(R.string.library_tab_albums)
+                            }
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                state = albumsGridState,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .offset {
+                                        val extraHeight =
+                                            (topBarHeight.value - minTopBarHeightPx).roundToInt()
+                                        IntOffset(0, extraHeight)
+                                    },
+                                contentPadding = PaddingValues(
+                                    top = minTopBarHeight + 8.dp,
+                                    start = 16.dp,
+                                    end = 16.dp,
+                                    bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp
+                                ),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                item(span = { GridItemSpan(2) }) {
+                                    ArtistSubViewHeader(
+                                        title = gridTitle,
+                                        onBackClick = { activeView = ArtistDetailView.Overview }
+                                    )
+                                }
+                                gridItems(
+                                    items = gridSections,
+                                    key = { section -> "artist_grid_album_${section.albumId}" },
+                                    contentType = { "artist_album_card" }
+                                ) { section ->
+                                    ArtistAlbumCard(
+                                        section = section,
+                                        artistName = artist.name,
+                                        viewModel = viewModel,
+                                        onClick = {
+                                            navController.navigateSafely(
+                                                Screen.AlbumDetail.createRoute(section.albumId)
+                                            )
                                         }
                                     )
                                 }
                             }
-
-                            item(
-                                key = "${sectionKey}_footer",
-                                contentType = "artist_section_footer"
-                            ) {
-                                Spacer(
-                                    modifier = Modifier.height(
-                                        if (index == albumSections.lastIndex) 24.dp else 16.dp
-                                    )
-                                )
-                            }
                         }
+                    }
 
-
+                    if (showSortSheet) {
+                        LibrarySortBottomSheet(
+                            title = stringResource(R.string.presentation_batch_d_sort_by),
+                            options = SortOption.SONGS.toImmutableList(),
+                            selectedOption = trackSortOption,
+                            onDismiss = { showSortSheet = false },
+                            onOptionSelected = {
+                                trackSortOption = it
+                                showSortSheet = false
+                            }
+                        )
                     }
 
                     if (collapseFraction > 0.95f) {
@@ -419,7 +644,13 @@ fun ArtistDetailScreen(
                             headerHeight = currentTopBarHeightDp,
                             headerImageRequestSize = headerImageRequestSize,
                             hasCustomImage = !artist.customImageUri.isNullOrBlank(),
-                            onBackPressed = { navController.popBackStack() },
+                            onBackPressed = {
+                                if (activeView != ArtistDetailView.Overview) {
+                                    activeView = ArtistDetailView.Overview
+                                } else {
+                                    navController.popBackStack()
+                                }
+                            },
                             onPlayClick = {
                                 if (songs.isNotEmpty()) {
                                     playerViewModel.playSongsShuffled(
@@ -441,7 +672,13 @@ fun ArtistDetailScreen(
                             collapseFraction = collapseFraction,
                             headerHeight = currentTopBarHeightDp,
                             headerImageRequestSize = headerImageRequestSize,
-                            onBackPressed = { navController.popBackStack() },
+                            onBackPressed = {
+                                if (activeView != ArtistDetailView.Overview) {
+                                    activeView = ArtistDetailView.Overview
+                                } else {
+                                    navController.popBackStack()
+                                }
+                            },
                             onPlayClick = {
                                 if (songs.isNotEmpty()) {
                                     playerViewModel.playSongsShuffled(
@@ -561,177 +798,6 @@ fun ArtistDetailScreen(
     }
 }
 
-private fun ArtistAlbumSection.collapseKey(): String = "artist_album_${albumId}_${title}"
-
-@Composable
-private fun CollapsibleAlbumSectionHeader(
-    section: ArtistAlbumSection,
-    isExpanded: Boolean,
-    onToggleExpanded: () -> Unit,
-    modifier: Modifier = Modifier,
-    onPlayAlbum: () -> Unit
-) {
-    val expandIconRotation by animateFloatAsState(
-        targetValue = if (isExpanded) 180f else 0f,
-        animationSpec = tween(durationMillis = 260),
-        label = "ArtistAlbumExpandRotation"
-    )
-    val subtitle = remember(section.year, section.songs.size) {
-        buildString {
-            section.year?.takeIf { it > 0 }?.let {
-                append(it.toString())
-                append(" • ")
-            }
-            append(formatSongCount(section.songs.size))
-        }
-    }
-
-    val containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.5f)
-    val shape = if (isExpanded) {
-        AbsoluteSmoothCornerShape(
-            cornerRadiusTR = 24.dp, smoothnessAsPercentTR = 60,
-            cornerRadiusTL = 24.dp, smoothnessAsPercentTL = 60,
-            cornerRadiusBR = 0.dp, smoothnessAsPercentBR = 0,
-            cornerRadiusBL = 0.dp, smoothnessAsPercentBL = 0
-        )
-    } else {
-        AbsoluteSmoothCornerShape(24.dp, 60)
-    }
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(containerColor, shape)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(shape)
-                .clickable(onClick = onToggleExpanded)
-                .padding(horizontal = 14.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            SmartImage(
-                model = section.albumArtUriString,
-                contentDescription = section.title,
-                targetSize = SmartImageCompactListTargetSize,
-                modifier = Modifier
-                    .size(52.dp)
-                    .clip(RoundedCornerShape(10.dp))
-            )
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = section.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            FilledTonalIconButton(
-                onClick = onPlayAlbum,
-                colors = IconButtonDefaults.filledTonalIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                )
-            ) {
-                Icon(Icons.Rounded.PlayArrow, contentDescription = stringResource(R.string.presentation_batch_d_cd_play_title, section.title))
-            }
-            Icon(
-                imageVector = Icons.Rounded.ExpandMore,
-                contentDescription = if (isExpanded) {
-                    stringResource(R.string.presentation_batch_d_cd_collapse_title, section.title)
-                } else {
-                    stringResource(R.string.presentation_batch_d_cd_expand_title, section.title)
-                },
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.graphicsLayer {
-                    rotationZ = expandIconRotation
-                }
-            )
-        }
-    }
-}
-
-@Composable
-private fun ArtistAlbumSectionSongItem(
-    modifier: Modifier = Modifier,
-    song: Song,
-    songIndex: Int,
-    songCount: Int,
-    isCurrentSong: Boolean,
-    isPlaying: Boolean,
-    onSongClick: () -> Unit,
-    onMoreOptionsClick: () -> Unit
-) {
-    val isLastSong = songIndex == songCount - 1
-
-    val songItemShape = when {
-        songCount == 1 -> RoundedCornerShape(16.dp)
-        songIndex == 0 -> RoundedCornerShape(
-            topStart = 16.dp,
-            topEnd = 16.dp,
-            bottomStart = 4.dp,
-            bottomEnd = 4.dp
-        )
-        isLastSong -> RoundedCornerShape(
-            topStart = 4.dp,
-            topEnd = 4.dp,
-            bottomStart = 16.dp,
-            bottomEnd = 16.dp
-        )
-        else -> RoundedCornerShape(4.dp)
-    }
-
-    val containerShape = if (isLastSong) {
-        AbsoluteSmoothCornerShape(
-            cornerRadiusTR = 0.dp, smoothnessAsPercentTR = 0,
-            cornerRadiusTL = 0.dp, smoothnessAsPercentTL = 0,
-            cornerRadiusBR = 24.dp, smoothnessAsPercentBR = 60,
-            cornerRadiusBL = 24.dp, smoothnessAsPercentBL = 60
-        )
-    } else {
-        RectangleShape
-    }
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.5f), containerShape)
-            .padding(horizontal = 8.dp)
-    ) {
-        Column {
-            if (songIndex > 0) {
-                Spacer(modifier = Modifier.height(2.dp))
-            }
-
-            EnhancedSongListItem(
-                modifier = Modifier.fillMaxWidth(),
-                song = song,
-                isCurrentSong = isCurrentSong,
-                isPlaying = isPlaying,
-                showAlbumArt = false,
-                customShape = songItemShape,
-                onMoreOptionsClick = { onMoreOptionsClick() },
-                onClick = onSongClick
-            )
-
-            if (isLastSong) {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-        }
-    }
-}
 
 @Composable
 private fun SharedArtistTopBarProbe(
@@ -1209,7 +1275,7 @@ private fun ArtistBioSection(bio: String) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            text = stringResource(R.string.artist_bio_title),
+            text = stringResource(R.string.artist_info_title),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
@@ -1220,5 +1286,162 @@ private fun ArtistBioSection(bio: String) {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(8.dp))
+    }
+}
+
+private enum class ArtistDetailView {
+    Overview, Tracks, Albums, FeaturedOn
+}
+
+private fun sortArtistSongs(songs: List<Song>, sortOption: SortOption): List<Song> =
+    when (sortOption) {
+        SortOption.SongDefaultOrder -> songs
+        SortOption.SongTitleAZ -> songs.sortedBy { it.title.lowercase() }
+        SortOption.SongTitleZA -> songs.sortedByDescending { it.title.lowercase() }
+        SortOption.SongArtist -> songs.sortedBy { it.displayArtist.lowercase() }
+        SortOption.SongArtistDesc -> songs.sortedByDescending { it.displayArtist.lowercase() }
+        SortOption.SongAlbum -> songs.sortedBy { it.album.lowercase() }
+        SortOption.SongAlbumDesc -> songs.sortedByDescending { it.album.lowercase() }
+        SortOption.SongDateAdded -> songs.sortedByDescending { it.dateAdded }
+        SortOption.SongDateAddedAsc -> songs.sortedBy { it.dateAdded }
+        SortOption.SongDuration -> songs.sortedByDescending { it.duration }
+        SortOption.SongDurationAsc -> songs.sortedBy { it.duration }
+        else -> songs
+    }
+
+@Composable
+private fun ArtistSectionHeader(
+    title: String,
+    onViewMoreClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLargeEmphasized,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        FilledIconButton(
+            modifier = Modifier
+                .height(40.dp)
+                .width(64.dp),
+            colors = IconButtonDefaults.filledIconButtonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                contentColor = MaterialTheme.colorScheme.secondary
+            ),
+            onClick = onViewMoreClick
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ArtistSubViewHeader(
+    title: String,
+    onBackClick: () -> Unit,
+    onSortClick: (() -> Unit)? = null
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.auth_cd_back)
+                )
+            }
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        if (onSortClick != null) {
+            IconButton(onClick = onSortClick) {
+                Icon(
+                    imageVector = Icons.Filled.Sort,
+                    contentDescription = stringResource(R.string.presentation_batch_d_sort_by)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ArtistPlayShuffleRow(
+    onPlay: () -> Unit,
+    onShuffle: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        LargeExtendedFloatingActionButton(
+            onClick = onPlay,
+            shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f)
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.PlayArrow,
+                contentDescription = stringResource(R.string.play_playback)
+            )
+        }
+        LargeExtendedFloatingActionButton(
+            onClick = onShuffle,
+            shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f)
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Shuffle,
+                contentDescription = stringResource(R.string.shortcut_shuffle_short)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ArtistAlbumCard(
+    section: ArtistAlbumSection,
+    artistName: String,
+    viewModel: ArtistDetailViewModel,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    val album = remember(section, artistName) {
+        Album(
+            id = section.albumId,
+            title = section.title,
+            artist = artistName,
+            year = section.year ?: 0,
+            dateAdded = 0,
+            albumArtUriString = section.albumArtUriString,
+            songCount = section.songs.size,
+            albumArtist = section.songs.firstNotNullOfOrNull { it.albumArtist }
+        )
+    }
+    val albumColorSchemeFlow = remember(album.albumArtUriString) {
+        viewModel.themeStateHolder.getAlbumColorSchemeFlow(album.albumArtUriString ?: "")
+    }
+    Box(modifier = modifier) {
+        AlbumGridItemRedesigned(
+            album = album,
+            albumColorSchemePairFlow = albumColorSchemeFlow,
+            onClick = onClick
+        )
     }
 }
