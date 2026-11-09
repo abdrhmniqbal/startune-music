@@ -528,6 +528,16 @@ object SettingsRegistry {
                 onToggle = { viewModel, checked -> viewModel.setQueueAwareNext(checked) }
             ),
             SettingSpec(
+                id = "playback_battery_optimization",
+                itemKey = "item_playback_battery_optimization",
+                titleRes = R.string.setcat_battery_optimization_title,
+                subtitleRes = R.string.setcat_battery_optimization_subtitle,
+                category = SettingsCategory.PLAYBACK,
+                subscreenRoute = Screen.SettingsCategory.createRoute("playback"),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("battery", "optimization", "background", "playback", "interruptions")
+            ),
+            SettingSpec(
                 id = "playback_keep_screen_awake",
                 itemKey = "item_playback_keep_screen_awake",
                 titleRes = R.string.setcat_keep_screen_awake_title,
@@ -757,6 +767,16 @@ object SettingsRegistry {
                 subscreenRoute = Screen.SettingsCategory.createRoute("developer"),
                 type = SettingType.NAVIGABLE_CARD,
                 keywordsStatic = listOf("crash", "test", "diagnostics", "debug")
+            ),
+            SettingSpec(
+                id = "developer_share_crash_logs",
+                itemKey = "item_developer_share_crash_logs",
+                titleRes = R.string.setcat_share_crash_logs_title,
+                subtitleRes = R.string.setcat_share_crash_logs_subtitle,
+                category = SettingsCategory.DEVELOPER,
+                subscreenRoute = Screen.SettingsCategory.createRoute("developer"),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("crash", "log", "logs", "share", "bug report")
             ),
 
             // --- EQUALIZER & DEVICE ---

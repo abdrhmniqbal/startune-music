@@ -18,6 +18,7 @@ import com.startune.music.data.backup.model.RestoreResult
 import com.startune.music.data.preferences.AppThemeMode
 import com.startune.music.data.preferences.ThemePreferencesRepository
 import com.startune.music.data.preferences.UserPreferencesRepository
+import com.startune.music.utils.BatteryOptimization
 import com.startune.music.data.repository.MusicRepository
 import com.startune.music.data.worker.SyncManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,6 +49,7 @@ data class SetupUiState(
     val externalLyricsEnabled: Boolean = false,
     val externalArtistImagesEnabled: Boolean = false,
     val alarmsPermissionGranted: Boolean = false,
+    val batteryOptimizationDisabled: Boolean = false,
     val appThemeMode: String = AppThemeMode.DARK,
     val isInspectingBackup: Boolean = false,
     val isRestoringBackup: Boolean = false,
@@ -194,11 +196,14 @@ class SetupViewModel @Inject constructor(
             true
         }
 
+        val batteryOptimizationDisabled = BatteryOptimization.isIgnoringBatteryOptimizations(context)
+
         _uiState.update {
             it.copy(
                 mediaPermissionGranted = mediaPermissionGranted,
                 notificationsPermissionGranted = notificationsPermissionGranted,
-                alarmsPermissionGranted = alarmsPermissionGranted
+                alarmsPermissionGranted = alarmsPermissionGranted,
+                batteryOptimizationDisabled = batteryOptimizationDisabled
             )
         }
     }

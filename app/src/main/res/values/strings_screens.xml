@@ -130,6 +130,9 @@
     <string name="setup_enable_notifications">Enable Notifications</string>
     <string name="setup_permission_alarms_title">Alarms &amp; Reminders</string>
     <string name="setup_permission_alarms_description">Allows Sleep Timer to stop playback accurately on time.</string>
+    <string name="setup_battery_optimization_title">Battery Optimization</string>
+    <string name="setup_battery_optimization_description">Disable battery optimization to prevent playback interruptions in background.</string>
+    <string name="setup_disable_battery_optimization">Disable Optimization</string>
     <string name="setup_grant_permission_generic">Grant Permission</string>
     <string name="setup_backup_have_title">Do you have a backup?</string>
     <string name="setup_backup_have_description">Restore an existing Startune Music backup to skip setup on this device.</string>
@@ -490,6 +493,8 @@
     <string name="about_link_fdroid_subtitle">Available on the F-Droid catalog</string>
     <string name="about_link_fdroid_title">F-Droid</string>
     <string name="about_link_source_subtitle">github.com/lostf1sh/Startune Music</string>
+    <string name="about_link_translate_title">Help translate</string>
+    <string name="about_link_translate_subtitle">Contribute translations on Crowdin</string>
     <string name="about_link_source_title">Source code</string>
     <string name="about_project_subtitle">Source, releases, and community entry points.</string>
     <string name="about_project_title">Project</string>

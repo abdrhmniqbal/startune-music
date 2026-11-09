@@ -2,6 +2,8 @@
 
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.components.BackupModuleSelectionDialog
+import com.startune.music.utils.BatteryOptimization
+import com.startune.music.utils.CrashHandler
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.Date
@@ -15,6 +17,7 @@ import android.os.Build
 import android.os.Environment
 import android.os.SystemClock
 import android.text.format.Formatter
+import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -71,6 +74,7 @@ import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Style
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.BatteryFull
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
@@ -80,6 +84,7 @@ import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.Science
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
@@ -894,6 +899,26 @@ fun SettingsCategoryScreen(
                                         highlightKey,
                                     ),
                                 )
+                                SettingsItem(
+                                    title = stringResource(R.string.setcat_battery_optimization_title),
+                                    subtitle = stringResource(R.string.setcat_battery_optimization_subtitle),
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Rounded.BatteryFull,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary,
+                                        )
+                                    },
+                                    trailingIcon = { Icon(Icons.Rounded.ChevronRight, stringResource(R.string.cd_open), tint = MaterialTheme.colorScheme.onSurfaceVariant) },
+                                    modifier = Modifier.settingHighlight("item_playback_battery_optimization", highlightKey),
+                                    onClick = {
+                                        if (BatteryOptimization.isIgnoringBatteryOptimizations(context)) {
+                                            Toast.makeText(context, R.string.toast_battery_already_disabled, Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            BatteryOptimization.requestIgnoreBatteryOptimizations(context)
+                                        }
+                                    }
+                                )
                             }
 
                             SettingsSubsection(title = stringResource(R.string.setcat_audio_focus)) {
@@ -1386,6 +1411,27 @@ fun SettingsCategoryScreen(
                                     leadingIcon = { Icon(Icons.Outlined.Warning, null, tint = MaterialTheme.colorScheme.error) },
                                     modifier = Modifier.settingHighlight("item_developer_test_crash", highlightKey),
                                     onClick = { settingsViewModel.triggerTestCrash() }
+                                )
+                                SettingsItem(
+                                    title = stringResource(R.string.setcat_share_crash_logs_title),
+                                    subtitle = stringResource(R.string.setcat_share_crash_logs_subtitle),
+                                    leadingIcon = { Icon(Icons.Rounded.Share, null, tint = MaterialTheme.colorScheme.secondary) },
+                                    modifier = Modifier.settingHighlight("item_developer_share_crash_logs", highlightKey),
+                                    onClick = {
+                                        val crashLog = CrashHandler.getCrashLog()
+                                        if (crashLog == null) {
+                                            Toast.makeText(context, R.string.toast_no_crash_logs, Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                                type = "text/plain"
+                                                putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.crash_report_share_subject))
+                                                putExtra(Intent.EXTRA_TEXT, crashLog.getFullLog())
+                                            }
+                                            context.startActivity(
+                                                Intent.createChooser(shareIntent, context.getString(R.string.crash_report_share_chooser)),
+                                            )
+                                        }
+                                    }
                                 )
                             }
                         }

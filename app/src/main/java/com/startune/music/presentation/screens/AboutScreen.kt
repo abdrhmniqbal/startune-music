@@ -46,6 +46,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
@@ -64,6 +65,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -148,13 +150,15 @@ private val AboutMaintainers = listOf(
 
 private const val SourceRepoUrl = "https://github.com/ianshulyadav/Startune Music"
 private const val FDroidUrl = "https://f-droid.org/packages/com.startune.music/"
+private const val CrowdinUrl = "https://crowdin.com/project/startune-music/"
 private const val SponsorUrl = "https://ko-fi.com/ianshulyadav"
 
 private data class ProjectLink(
     val id: String,
     val title: String,
     val subtitle: String,
-    @DrawableRes val iconRes: Int,
+    @DrawableRes val iconRes: Int = 0,
+    val iconVector: ImageVector? = null,
     val url: String,
 )
 
@@ -188,6 +192,13 @@ fun AboutScreen(
             subtitle = stringResource(R.string.about_link_fdroid_subtitle),
             iconRes = R.drawable.fdroid,
             url = FDroidUrl,
+        ),
+        ProjectLink(
+            id = "translate",
+            title = stringResource(R.string.about_link_translate_title),
+            subtitle = stringResource(R.string.about_link_translate_subtitle),
+            iconVector = Icons.Outlined.Language,
+            url = CrowdinUrl,
         ),
     )
 
@@ -683,14 +694,25 @@ private fun AboutLinkCard(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.primaryContainer,
             ) {
-                Icon(
-                    painter = painterResource(link.iconRes),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .size(24.dp),
-                )
+                if (link.iconVector != null) {
+                    Icon(
+                        imageVector = link.iconVector,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .size(24.dp),
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(link.iconRes),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .size(24.dp),
+                    )
+                }
             }
 
             Spacer(Modifier.width(12.dp))
