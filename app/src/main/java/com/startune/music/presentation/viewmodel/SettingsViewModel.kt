@@ -487,9 +487,11 @@ class SettingsViewModel @Inject constructor(
             val whitelist = userPreferencesRepository.folderFilterModeFlow.first() ?: allowed.isNotEmpty()
             if (whitelist) {
                 if (normalized in allowed) return@launch
+                fileExplorerStateHolder.noteDirectorySelections(allowed + normalized, blocked - normalized)
                 userPreferencesRepository.updateDirectorySelections(allowed + normalized, blocked - normalized)
             } else {
                 if (normalized in blocked) return@launch
+                fileExplorerStateHolder.noteDirectorySelections(allowed - normalized, blocked + normalized)
                 userPreferencesRepository.updateDirectorySelections(allowed - normalized, blocked + normalized)
             }
         }
@@ -500,6 +502,7 @@ class SettingsViewModel @Inject constructor(
             val allowed = userPreferencesRepository.allowedDirectoriesFlow.first()
             val blocked = userPreferencesRepository.blockedDirectoriesFlow.first()
             if (path !in allowed && path !in blocked) return@launch
+            fileExplorerStateHolder.noteDirectorySelections(allowed - path, blocked - path)
             userPreferencesRepository.updateDirectorySelections(allowed - path, blocked - path)
         }
     }
@@ -511,8 +514,10 @@ class SettingsViewModel @Inject constructor(
             val blocked = userPreferencesRepository.blockedDirectoriesFlow.first()
             val all = allowed + blocked
             if (whitelist) {
+                fileExplorerStateHolder.noteDirectorySelections(all, emptySet())
                 userPreferencesRepository.updateDirectorySelections(all, emptySet())
             } else {
+                fileExplorerStateHolder.noteDirectorySelections(emptySet(), all)
                 userPreferencesRepository.updateDirectorySelections(emptySet(), all)
             }
         }
