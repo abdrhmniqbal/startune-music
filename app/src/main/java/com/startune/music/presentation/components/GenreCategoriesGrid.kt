@@ -3,7 +3,7 @@
 import androidx.annotation.OptIn
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,8 +18,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
@@ -48,6 +51,7 @@ import androidx.compose.ui.res.stringResource
 import com.startune.music.R
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -55,7 +59,11 @@ fun GenreCategoriesGrid(
     genres: ImmutableList<Genre>,
     onGenreClick: (Genre) -> Unit,
     playerViewModel: PlayerViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedGenres: ImmutableList<Genre> = persistentListOf(),
+    isSelectionMode: Boolean = false,
+    onLongPress: (Genre) -> Unit = {},
+    onSelectionToggle: (Genre) -> Unit = {}
 ) {
     if (genres.isEmpty()) {
         Box(
@@ -99,22 +107,34 @@ fun GenreCategoriesGrid(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(genres, key = { it.id }) { genre ->
+            val genreSelectionIndex = selectedGenres.indexOfFirst { it.id == genre.id }
             GenreCard(
                 genre = genre,
                 customIcons = customGenreIcons,
                 onClick = { onGenreClick(genre) },
-                isGridView = isGridView
+                isGridView = isGridView,
+                isSelected = genreSelectionIndex >= 0,
+                selectionIndex = genreSelectionIndex.takeIf { it >= 0 }?.plus(1),
+                isSelectionMode = isSelectionMode,
+                onLongPress = { onLongPress(genre) },
+                onSelectionToggle = { onSelectionToggle(genre) }
             )
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun GenreCard(
     genre: Genre,
     customIcons: Map<String, Int>,
     onClick: () -> Unit,
-    isGridView: Boolean
+    isGridView: Boolean,
+    isSelected: Boolean = false,
+    selectionIndex: Int? = null,
+    isSelectionMode: Boolean = false,
+    onLongPress: () -> Unit = {},
+    onSelectionToggle: () -> Unit = {}
 ) {
     val isDark = LocalStartuneDarkTheme.current
     val themeColor = remember(genre, isDark) {
@@ -138,7 +158,10 @@ private fun GenreCard(
     Card(
         modifier = cardModifier
             .clip(shape)
-            .clickable(onClick = onClick),
+            .combinedClickable(
+                onClick = { if (isSelectionMode) onSelectionToggle() else onClick() },
+                onLongClick = onLongPress
+            ),
         shape = shape,
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
@@ -209,6 +232,37 @@ private fun GenreCard(
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                         modifier = Modifier.fillMaxWidth(titlePresentation.secondLineWidthFraction)
                     )
+                }
+            }
+
+            if (isSelectionMode) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(8.dp)
+                        .size(28.dp)
+                        .background(
+                            if (isSelected) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+                            CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isSelected && selectionIndex != null) {
+                        Text(
+                            text = selectionIndex.toString(),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    } else if (isSelected) {
+                        Icon(
+                            imageVector = Icons.Rounded.Check,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(17.dp)
+                        )
+                    }
                 }
             }
         }

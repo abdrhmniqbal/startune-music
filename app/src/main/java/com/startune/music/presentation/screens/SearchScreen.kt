@@ -13,6 +13,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,14 +35,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Card
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -59,6 +64,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -78,6 +87,11 @@ import com.startune.music.data.model.Song
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SmartImageListTargetSize
 import com.startune.music.presentation.components.SongInfoBottomSheet
+import com.startune.music.presentation.components.PlaylistMultiSelectionBottomSheet
+import com.startune.music.presentation.components.SongMultiSelectionHost
+import com.startune.music.presentation.components.subcomps.SelectionActionRow
+import com.startune.music.presentation.components.subcomps.SelectionCountPill
+import androidx.compose.ui.zIndex
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.ui.theme.LocalStartuneDarkTheme
 import androidx.compose.material.icons.rounded.DeleteForever
@@ -400,6 +414,7 @@ fun SearchScreen(
                             results = searchResults,
                             searchQuery = searchQuery,
                             playerViewModel = playerViewModel,
+                            playlistViewModel = playlistViewModel,
                             onItemSelected = {
                                 if (searchQuery.isNotBlank()) {
                                     playerViewModel.onSearchQuerySubmitted(searchQuery)
@@ -665,6 +680,7 @@ fun SearchResultsList(
     results: ImmutableList<SearchResultItem>,
     searchQuery: String,
     playerViewModel: PlayerViewModel,
+    playlistViewModel: PlaylistViewModel = hiltViewModel(),
     onItemSelected: () -> Unit,
     currentPlayingSongId: String?,
     isPlaying: Boolean,
@@ -723,6 +739,75 @@ fun SearchResultsList(
         }
     }
 
+    val multiSelectionState = playerViewModel.multiSelectionStateHolder
+    val selectedSongs by multiSelectionState.selectedSongs.collectAsStateWithLifecycle()
+    val isSongSelectionMode by multiSelectionState.isSelectionMode.collectAsStateWithLifecycle()
+    val selectedSongIds by multiSelectionState.selectedSongIds.collectAsStateWithLifecycle()
+    val playlistSelectionState = playerViewModel.playlistSelectionStateHolder
+    val selectedPlaylists by playlistSelectionState.selectedPlaylists.collectAsStateWithLifecycle()
+    val isPlaylistSelectionMode by playlistSelectionState.isSelectionMode.collectAsStateWithLifecycle()
+    val selectedPlaylistIds by playlistSelectionState.selectedPlaylistIds.collectAsStateWithLifecycle()
+    val haptic = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
+    var showMultiSelectionSheet by remember { mutableStateOf(false) }
+    var showPlaylistMultiSelectionSheet by remember { mutableStateOf(false) }
+    var showMergePlaylistDialog by remember { mutableStateOf(false) }
+    var pendingMergePlaylistIds by remember { mutableStateOf(emptyList<String>()) }
+    var selectedAlbums by remember { mutableStateOf<ImmutableList<Album>>(persistentListOf()) }
+    val selectedAlbumIds = remember(selectedAlbums) { selectedAlbums.map { it.id }.toSet() }
+    val isAlbumSelectionMode = selectedAlbums.isNotEmpty()
+    var selectedArtists by remember { mutableStateOf<ImmutableList<Artist>>(persistentListOf()) }
+    val selectedArtistIds = remember(selectedArtists) { selectedArtists.map { it.id }.toSet() }
+    val isArtistSelectionMode = selectedArtists.isNotEmpty()
+
+    val albumItems = remember(groupedResults) {
+        groupedResults[SearchFilterType.ALBUMS].orEmpty().mapNotNull { (it as? SearchResultItem.AlbumItem)?.album }
+    }
+    val artistItems = remember(groupedResults) {
+        groupedResults[SearchFilterType.ARTISTS].orEmpty().mapNotNull { (it as? SearchResultItem.ArtistItem)?.artist }
+    }
+    val playlistItems = remember(groupedResults) {
+        groupedResults[SearchFilterType.PLAYLISTS].orEmpty().mapNotNull { (it as? SearchResultItem.PlaylistItem)?.playlist }
+    }
+    val singleType = remember(groupedResults) { groupedResults.keys.singleOrNull() }
+    val hasAnySelection = isSongSelectionMode || isAlbumSelectionMode || isArtistSelectionMode || isPlaylistSelectionMode
+
+    val toggleAlbumSelection: (Album) -> Unit = { album ->
+        multiSelectionState.clearSelection()
+        selectedAlbums = if (selectedAlbumIds.contains(album.id)) {
+            selectedAlbums.filterNot { it.id == album.id }.toImmutableList()
+        } else {
+            (selectedAlbums + album).toImmutableList()
+        }
+    }
+    val toggleArtistSelection: (Artist) -> Unit = { artist ->
+        multiSelectionState.clearSelection()
+        selectedArtists = if (selectedArtistIds.contains(artist.id)) {
+            selectedArtists.filterNot { it.id == artist.id }.toImmutableList()
+        } else {
+            (selectedArtists + artist).toImmutableList()
+        }
+    }
+
+    BackHandler(enabled = hasAnySelection) {
+        multiSelectionState.clearSelection()
+        playlistSelectionState.clearSelection()
+        selectedAlbums = persistentListOf()
+        selectedArtists = persistentListOf()
+    }
+    LaunchedEffect(singleType, searchQuery) {
+        multiSelectionState.clearSelection()
+        playlistSelectionState.clearSelection()
+        selectedAlbums = persistentListOf()
+        selectedArtists = persistentListOf()
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            multiSelectionState.clearSelection()
+            playlistSelectionState.clearSelection()
+        }
+    }
+
     val sectionOrder = listOf(
         SearchFilterType.SONGS,
         SearchFilterType.ALBUMS,
@@ -733,20 +818,82 @@ fun SearchResultsList(
     val imePadding = WindowInsets.ime.getBottom(localDensity).dp
     val systemBarPaddingBottom = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding() + 94.dp
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .clip(
-                RoundedCornerShape(
-                    topStart = 28.dp,
-                    topEnd = 28.dp
-                )
-            ),
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(
+                    RoundedCornerShape(
+                        topStart = 28.dp,
+                        topEnd = 28.dp
+                    )
+                ),
         contentPadding = PaddingValues(
             top = 8.dp,
             bottom = if (imePadding <= 8.dp) (MiniPlayerHeight + systemBarPaddingBottom) else imePadding
         )
     ) {
+        if (singleType != null && hasAnySelection) {
+            item(key = "search_selection_row") {
+                when (singleType) {
+                    SearchFilterType.SONGS -> SelectionActionRow(
+                        selectedCount = selectedSongs.size,
+                        onSelectAll = { multiSelectionState.selectAll(songResultsQueue) },
+                        onDeselect = { multiSelectionState.clearSelection() },
+                        onOptionsClick = { showMultiSelectionSheet = true }
+                    )
+                    SearchFilterType.ALBUMS -> SelectionActionRow(
+                        selectedCount = selectedAlbums.size,
+                        onSelectAll = {
+                            multiSelectionState.clearSelection()
+                            selectedAlbums = (selectedAlbums + albumItems.filterNot { selectedAlbumIds.contains(it.id) }).toImmutableList()
+                        },
+                        onDeselect = {
+                            selectedAlbums = persistentListOf()
+                            multiSelectionState.clearSelection()
+                        },
+                        onOptionsClick = {
+                            scope.launch {
+                                val songs = playerViewModel.resolveAlbumSongsForBatchActions(selectedAlbums)
+                                if (songs.isNotEmpty()) {
+                                    multiSelectionState.replaceSelection(songs)
+                                    showMultiSelectionSheet = true
+                                }
+                            }
+                        }
+                    )
+                    SearchFilterType.ARTISTS -> SelectionActionRow(
+                        selectedCount = selectedArtists.size,
+                        onSelectAll = {
+                            multiSelectionState.clearSelection()
+                            selectedArtists = (selectedArtists + artistItems.filterNot { selectedArtistIds.contains(it.id) }).toImmutableList()
+                        },
+                        onDeselect = {
+                            selectedArtists = persistentListOf()
+                            multiSelectionState.clearSelection()
+                        },
+                        onOptionsClick = {
+                            val snapshot = selectedArtists.toList()
+                            val snapshotIds = snapshot.map { it.id }
+                            scope.launch {
+                                val songs = playerViewModel.resolveArtistSongsForBatchActions(snapshot)
+                                if (songs.isNotEmpty() && selectedArtists.map { it.id } == snapshotIds) {
+                                    multiSelectionState.replaceSelection(songs)
+                                    showMultiSelectionSheet = true
+                                }
+                            }
+                        }
+                    )
+                    SearchFilterType.PLAYLISTS -> SelectionActionRow(
+                        selectedCount = selectedPlaylists.size,
+                        onSelectAll = { playlistSelectionState.selectAll(playlistItems) },
+                        onDeselect = { playlistSelectionState.clearSelection() },
+                        onOptionsClick = { showPlaylistMultiSelectionSheet = true }
+                    )
+                    else -> Unit
+                }
+            }
+        }
         sectionOrder.forEach { filterType ->
             val itemsForSection = groupedResults[filterType] ?: emptyList()
 
@@ -791,8 +938,21 @@ fun SearchResultsList(
                                     song = item.song,
                                     isPlaying = isPlaying,
                                     isCurrentSong = currentPlayingSongId == item.song.id,
+                                    isSelected = selectedSongIds.contains(item.song.id),
+                                    selectionIndex = if (isSongSelectionMode) multiSelectionState.getSelectionIndex(item.song.id) else null,
+                                    isSelectionMode = isSongSelectionMode,
+                                    onLongPress = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        multiSelectionState.toggleSelection(item.song)
+                                    },
                                     onMoreOptionsClick = onSongMoreOptionsClick,
-                                    onClick = { onSongResultClick(item.song) }
+                                    onClick = {
+                                        if (isSongSelectionMode) {
+                                            multiSelectionState.toggleSelection(item.song)
+                                        } else {
+                                            onSongResultClick(item.song)
+                                        }
+                                    }
                                 )
                             }
 
@@ -820,7 +980,17 @@ fun SearchResultsList(
                                 SearchResultAlbumItem(
                                     album = item.album,
                                     onPlayClick = onPlayClick,
-                                    onOpenClick = onOpenClick
+                                    onOpenClick = onOpenClick,
+                                    isSelected = selectedAlbumIds.contains(item.album.id),
+                                    selectionIndex = if (isAlbumSelectionMode) {
+                                        selectedAlbums.indexOfFirst { it.id == item.album.id }.takeIf { it >= 0 }?.plus(1)
+                                    } else null,
+                                    isSelectionMode = isAlbumSelectionMode,
+                                    onLongPress = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        toggleAlbumSelection(item.album)
+                                    },
+                                    onSelectionToggle = { toggleAlbumSelection(item.album) }
                                 )
                             }
 
@@ -848,7 +1018,17 @@ fun SearchResultsList(
                                 SearchResultArtistItem(
                                     artist = item.artist,
                                     onPlayClick = onPlayClick,
-                                    onOpenClick = onOpenClick
+                                    onOpenClick = onOpenClick,
+                                    isSelected = selectedArtistIds.contains(item.artist.id),
+                                    selectionIndex = if (isArtistSelectionMode) {
+                                        selectedArtists.indexOfFirst { it.id == item.artist.id }.takeIf { it >= 0 }?.plus(1)
+                                    } else null,
+                                    isSelectionMode = isArtistSelectionMode,
+                                    onLongPress = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        toggleArtistSelection(item.artist)
+                                    },
+                                    onSelectionToggle = { toggleArtistSelection(item.artist) }
                                 )
                             }
 
@@ -887,7 +1067,17 @@ fun SearchResultsList(
                                     playlist = item.playlist,
                                     playlistSongs = playlistSongs,
                                     onPlayClick = onPlayClick,
-                                    onOpenClick = onOpenClick
+                                    onOpenClick = onOpenClick,
+                                    isSelected = selectedPlaylistIds.contains(item.playlist.id),
+                                    selectionIndex = if (isPlaylistSelectionMode) {
+                                        playlistSelectionState.getSelectionIndex(item.playlist.id)
+                                    } else null,
+                                    isSelectionMode = isPlaylistSelectionMode,
+                                    onLongPress = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        playlistSelectionState.toggleSelection(item.playlist)
+                                    },
+                                    onSelectionToggle = { playlistSelectionState.toggleSelection(item.playlist) }
                                 )
                             }
                         }
@@ -896,6 +1086,156 @@ fun SearchResultsList(
             }
         }
     }
+
+        SelectionCountPill(
+            selectedCount = when (singleType) {
+                SearchFilterType.SONGS -> selectedSongs.size
+                SearchFilterType.ALBUMS -> selectedAlbums.size
+                SearchFilterType.ARTISTS -> selectedArtists.size
+                SearchFilterType.PLAYLISTS -> selectedPlaylists.size
+                else -> 0
+            },
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .zIndex(1f)
+        )
+    }
+
+    SongMultiSelectionHost(
+        playerViewModel = playerViewModel,
+        multiSelectionState = multiSelectionState,
+        showSheet = showMultiSelectionSheet,
+        onDismiss = { showMultiSelectionSheet = false },
+        onActionTaken = {
+            selectedAlbums = persistentListOf()
+            selectedArtists = persistentListOf()
+        }
+    )
+
+    if (showPlaylistMultiSelectionSheet && selectedPlaylists.isNotEmpty()) {
+        val activity = LocalContext.current as? android.app.Activity
+        PlaylistMultiSelectionBottomSheet(
+            selectedPlaylists = selectedPlaylists,
+            onDismiss = { showPlaylistMultiSelectionSheet = false },
+            onDeleteAll = {
+                playlistViewModel.deletePlaylistsInBatch(selectedPlaylistIds.toList())
+                showPlaylistMultiSelectionSheet = false
+                playlistSelectionState.clearSelection()
+            },
+            onExportAll = {
+                playlistViewModel.exportPlaylistsAsM3u(selectedPlaylistIds.toList())
+                showPlaylistMultiSelectionSheet = false
+                playlistSelectionState.clearSelection()
+            },
+            onMergeAll = {
+                pendingMergePlaylistIds = selectedPlaylistIds.toList()
+                showMergePlaylistDialog = true
+                showPlaylistMultiSelectionSheet = false
+            },
+            onShareAll = {
+                activity?.let { playlistViewModel.shareSelectedPlaylistsAsZip(selectedPlaylistIds.toList(), it) }
+                showPlaylistMultiSelectionSheet = false
+                playlistSelectionState.clearSelection()
+            }
+        )
+    }
+
+    if (showMergePlaylistDialog && pendingMergePlaylistIds.isNotEmpty()) {
+        var mergePlaylistName by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = {
+                showMergePlaylistDialog = false
+                pendingMergePlaylistIds = emptyList()
+                mergePlaylistName = ""
+            },
+            title = { Text(stringResource(R.string.presentation_batch_d_merge_playlists_title)) },
+            text = {
+                Column {
+                    Text(stringResource(R.string.presentation_batch_d_merge_playlists_prompt))
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = mergePlaylistName,
+                        onValueChange = { mergePlaylistName = it },
+                        placeholder = { Text(stringResource(R.string.presentation_batch_d_merge_playlists_placeholder)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(
+                            R.string.presentation_batch_d_merge_playlists_body,
+                            pendingMergePlaylistIds.size
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (mergePlaylistName.isNotEmpty()) {
+                            playlistViewModel.mergePlaylistsIntoOne(
+                                pendingMergePlaylistIds,
+                                mergePlaylistName
+                            )
+                            playlistSelectionState.clearSelection()
+                            showMergePlaylistDialog = false
+                            pendingMergePlaylistIds = emptyList()
+                            mergePlaylistName = ""
+                        }
+                    }
+                ) {
+                    Text(stringResource(R.string.action_merge))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showMergePlaylistDialog = false
+                    pendingMergePlaylistIds = emptyList()
+                    mergePlaylistName = ""
+                }) {
+                    Text(stringResource(R.string.cancel), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun SearchSelectionBadge(
+    isSelected: Boolean,
+    selectionIndex: Int?,
+    size: Dp = 28.dp,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(size)
+            .background(
+                if (isSelected) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+                CircleShape
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        if (isSelected && selectionIndex != null) {
+            Text(
+                text = selectionIndex.toString(),
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold
+            )
+        } else if (isSelected) {
+            Icon(
+                imageVector = Icons.Rounded.Check,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.size(size * 0.6f)
+            )
+        }
+    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -903,7 +1243,12 @@ fun SearchResultsList(
 fun SearchResultAlbumItem(
     album: Album,
     onOpenClick: () -> Unit,
-    onPlayClick: () -> Unit
+    onPlayClick: () -> Unit,
+    isSelected: Boolean = false,
+    selectionIndex: Int? = null,
+    isSelectionMode: Boolean = false,
+    onLongPress: () -> Unit = {},
+    onSelectionToggle: () -> Unit = {}
 ) {
     val itemShape = remember {
         AbsoluteSmoothCornerShape(
@@ -919,12 +1264,14 @@ fun SearchResultAlbumItem(
     }
 
     Card(
-        onClick = onOpenClick,
         shape = itemShape,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().combinedClickable(
+            onClick = { if (isSelectionMode) onSelectionToggle() else onOpenClick() },
+            onLongClick = onLongPress
+        )
     ) {
         Row(
             modifier = Modifier
@@ -932,14 +1279,24 @@ fun SearchResultAlbumItem(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            SmartImage(
-                model = album.albumArtUriString,
-                contentDescription = stringResource(R.string.cd_album_art_of, album.title),
-                targetSize = SmartImageListTargetSize,
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(itemShape)
-            )
+            Box(modifier = Modifier.size(56.dp), contentAlignment = Alignment.Center) {
+                SmartImage(
+                    model = album.albumArtUriString,
+                    contentDescription = stringResource(R.string.cd_album_art_of, album.title),
+                    targetSize = SmartImageListTargetSize,
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(itemShape)
+                )
+                if (isSelectionMode) {
+                    SearchSelectionBadge(
+                        isSelected = isSelected,
+                        selectionIndex = selectionIndex,
+                        size = 24.dp,
+                        modifier = Modifier.align(Alignment.TopStart).padding(2.dp)
+                    )
+                }
+            }
             Spacer(Modifier.width(12.dp))
             Column(
                 modifier = Modifier.weight(1f),
@@ -960,16 +1317,18 @@ fun SearchResultAlbumItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            FilledIconButton(
-                onClick = onPlayClick,
-                modifier = Modifier.size(40.dp),
-                shape = CircleShape,
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
-                    contentColor = MaterialTheme.colorScheme.onSecondary
-                )
-            ) {
-                Icon(Icons.Rounded.PlayArrow, contentDescription = stringResource(R.string.cd_play_album), modifier = Modifier.size(24.dp))
+            if (!isSelectionMode) {
+                FilledIconButton(
+                    onClick = onPlayClick,
+                    modifier = Modifier.size(40.dp),
+                    shape = CircleShape,
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
+                        contentColor = MaterialTheme.colorScheme.onSecondary
+                    )
+                ) {
+                    Icon(Icons.Rounded.PlayArrow, contentDescription = stringResource(R.string.cd_play_album), modifier = Modifier.size(24.dp))
+                }
             }
         }
     }
@@ -980,7 +1339,12 @@ fun SearchResultAlbumItem(
 fun SearchResultArtistItem(
     artist: Artist,
     onOpenClick: () -> Unit,
-    onPlayClick: () -> Unit
+    onPlayClick: () -> Unit,
+    isSelected: Boolean = false,
+    selectionIndex: Int? = null,
+    isSelectionMode: Boolean = false,
+    onLongPress: () -> Unit = {},
+    onSelectionToggle: () -> Unit = {}
 ) {
     val itemShape = remember {
         AbsoluteSmoothCornerShape(
@@ -996,12 +1360,14 @@ fun SearchResultArtistItem(
     }
 
     Card(
-        onClick = onOpenClick,
         shape = itemShape,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().combinedClickable(
+            onClick = { if (isSelectionMode) onSelectionToggle() else onOpenClick() },
+            onLongClick = onLongPress
+        )
     ) {
         Row(
             modifier = Modifier
@@ -1009,25 +1375,35 @@ fun SearchResultArtistItem(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (!artist.effectiveImageUrl.isNullOrBlank()) {
-                SmartImage(
-                    model = artist.effectiveImageUrl,
-                    contentDescription = stringResource(R.string.cd_artist_format, artist.name),
-                    targetSize = SmartImageListTargetSize,
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(CircleShape)
-                )
-            } else {
-                Icon(
-                    painter = painterResource(id = R.drawable.rounded_artist_24),
-                    contentDescription = stringResource(R.string.cd_artist_icon),
-                    modifier = Modifier
-                        .size(56.dp)
-                        .background(MaterialTheme.colorScheme.tertiaryContainer, CircleShape)
-                        .padding(12.dp),
-                    tint = MaterialTheme.colorScheme.onTertiaryContainer
-                )
+            Box(modifier = Modifier.size(56.dp), contentAlignment = Alignment.Center) {
+                if (!artist.effectiveImageUrl.isNullOrBlank()) {
+                    SmartImage(
+                        model = artist.effectiveImageUrl,
+                        contentDescription = stringResource(R.string.cd_artist_format, artist.name),
+                        targetSize = SmartImageListTargetSize,
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(CircleShape)
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(id = R.drawable.rounded_artist_24),
+                        contentDescription = stringResource(R.string.cd_artist_icon),
+                        modifier = Modifier
+                            .size(56.dp)
+                            .background(MaterialTheme.colorScheme.tertiaryContainer, CircleShape)
+                            .padding(12.dp),
+                        tint = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                }
+                if (isSelectionMode) {
+                    SearchSelectionBadge(
+                        isSelected = isSelected,
+                        selectionIndex = selectionIndex,
+                        size = 24.dp,
+                        modifier = Modifier.align(Alignment.TopStart).padding(2.dp)
+                    )
+                }
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
@@ -1044,16 +1420,18 @@ fun SearchResultArtistItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            FilledIconButton(
-                onClick = onPlayClick,
-                modifier = Modifier.size(40.dp),
-                shape = CircleShape,
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f),
-                    contentColor = MaterialTheme.colorScheme.onTertiary
-                )
-            ) {
-                Icon(Icons.Rounded.PlayArrow, contentDescription = stringResource(R.string.cd_play_artist), modifier = Modifier.size(24.dp))
+            if (!isSelectionMode) {
+                FilledIconButton(
+                    onClick = onPlayClick,
+                    modifier = Modifier.size(40.dp),
+                    shape = CircleShape,
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f),
+                        contentColor = MaterialTheme.colorScheme.onTertiary
+                    )
+                ) {
+                    Icon(Icons.Rounded.PlayArrow, contentDescription = stringResource(R.string.cd_play_artist), modifier = Modifier.size(24.dp))
+                }
             }
         }
     }
@@ -1065,7 +1443,12 @@ fun SearchResultPlaylistItem(
     playlist: Playlist,
     playlistSongs: ImmutableList<Song>,
     onOpenClick: () -> Unit,
-    onPlayClick: () -> Unit
+    onPlayClick: () -> Unit,
+    isSelected: Boolean = false,
+    selectionIndex: Int? = null,
+    isSelectionMode: Boolean = false,
+    onLongPress: () -> Unit = {},
+    onSelectionToggle: () -> Unit = {}
 ) {
     val itemShape = remember {
         AbsoluteSmoothCornerShape(
@@ -1081,12 +1464,14 @@ fun SearchResultPlaylistItem(
     }
 
     Card(
-        onClick = onOpenClick,
         shape = itemShape,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().combinedClickable(
+            onClick = { if (isSelectionMode) onSelectionToggle() else onOpenClick() },
+            onLongClick = onLongPress
+        )
     ) {
         Row(
             modifier = Modifier
@@ -1094,11 +1479,21 @@ fun SearchResultPlaylistItem(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            PlaylistCover(
-                playlist = playlist,
-                playlistSongs = playlistSongs,
-                size = 56.dp
-            )
+            Box(modifier = Modifier.size(56.dp), contentAlignment = Alignment.Center) {
+                PlaylistCover(
+                    playlist = playlist,
+                    playlistSongs = playlistSongs,
+                    size = 56.dp
+                )
+                if (isSelectionMode) {
+                    SearchSelectionBadge(
+                        isSelected = isSelected,
+                        selectionIndex = selectionIndex,
+                        size = 24.dp,
+                        modifier = Modifier.align(Alignment.TopStart).padding(2.dp)
+                    )
+                }
+            }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(
@@ -1114,16 +1509,18 @@ fun SearchResultPlaylistItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            FilledIconButton(
-                onClick = onPlayClick,
-                modifier = Modifier.size(40.dp),
-                shape = CircleShape,
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            ) {
-                Icon(Icons.Rounded.PlayArrow, contentDescription = stringResource(R.string.cd_play_playlist), modifier = Modifier.size(24.dp))
+            if (!isSelectionMode) {
+                FilledIconButton(
+                    onClick = onPlayClick,
+                    modifier = Modifier.size(40.dp),
+                    shape = CircleShape,
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Icon(Icons.Rounded.PlayArrow, contentDescription = stringResource(R.string.cd_play_playlist), modifier = Modifier.size(24.dp))
+                }
             }
         }
     }

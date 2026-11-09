@@ -10,6 +10,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +48,7 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -62,6 +64,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.graphicsLayer
@@ -99,6 +103,10 @@ import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.PlaylistBottomSheet
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SongInfoBottomSheet
+import com.startune.music.presentation.components.SongMultiSelectionHost
+import com.startune.music.presentation.components.subcomps.SelectionActionRow
+import com.startune.music.presentation.components.subcomps.SelectionCountPill
+import androidx.compose.ui.zIndex
 import com.startune.music.presentation.components.resolveNavBarOccupiedHeight
 import com.startune.music.presentation.components.subcomps.EnhancedSongListItem
 import com.startune.music.presentation.navigation.Screen
@@ -138,6 +146,16 @@ fun AlbumDetailScreen(
     val systemNavBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val bottomBarHeightDp = resolveNavBarOccupiedHeight(systemNavBarInset, navBarCompactMode)
     var showPlaylistBottomSheet by remember { mutableStateOf(false) }
+
+    val multiSelectionState = playerViewModel.multiSelectionStateHolder
+    val selectedSongs by multiSelectionState.selectedSongs.collectAsStateWithLifecycle()
+    val isSelectionMode by multiSelectionState.isSelectionMode.collectAsStateWithLifecycle()
+    val selectedSongIds by multiSelectionState.selectedSongIds.collectAsStateWithLifecycle()
+    val haptic = LocalHapticFeedback.current
+    var showMultiSelectionSheet by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = isSelectionMode) { multiSelectionState.clearSelection() }
+    DisposableEffect(Unit) { onDispose { multiSelectionState.clearSelection() } }
     val isDarkTheme = LocalStartuneDarkTheme.current
     val baseColorScheme = MaterialTheme.colorScheme
     val albumArtUri = uiState.album?.albumArtUriString?.takeIf { it.isNotBlank() }
@@ -334,6 +352,16 @@ fun AlbumDetailScreen(
                         ),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        if (isSelectionMode) {
+                            item(key = "album_selection_row") {
+                                SelectionActionRow(
+                                    selectedCount = selectedSongs.size,
+                                    onSelectAll = { multiSelectionState.selectAll(songs) },
+                                    onDeselect = { multiSelectionState.clearSelection() },
+                                    onOptionsClick = { showMultiSelectionSheet = true }
+                                )
+                            }
+                        }
                         songsByDisc.forEach { (discNumber, discSongs) ->
                             if (songsByDisc.size > 1) {
                                 item(key = "disc_header_$discNumber") {
@@ -369,16 +397,37 @@ fun AlbumDetailScreen(
                                         song = song,
                                         playerViewModel = playerViewModel,
                                         showAlbumArt = false,
+                                        isSelected = selectedSongIds.contains(song.id),
+                                        selectionIndex = if (isSelectionMode) multiSelectionState.getSelectionIndex(song.id) else null,
+                                        isSelectionMode = isSelectionMode,
+                                        onLongPress = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            multiSelectionState.toggleSelection(song)
+                                        },
                                         onMoreOptionsClick = {
                                             playerViewModel.selectSongForInfo(song)
                                             showSongInfoBottomSheet = true
                                         },
-                                        onClick = { playerViewModel.showAndPlaySong(song, songs) }
+                                        onClick = {
+                                            if (isSelectionMode) {
+                                                multiSelectionState.toggleSelection(song)
+                                            } else {
+                                                playerViewModel.showAndPlaySong(song, songs)
+                                            }
+                                        }
                                     )
                                 }
                             }
                         }
                     }
+
+                    SelectionCountPill(
+                        selectedCount = selectedSongs.size,
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = currentTopBarHeightDp)
+                            .zIndex(1f)
+                    )
 
                     if (showScrollBar) {
                         ExpressiveScrollBar(
@@ -546,6 +595,13 @@ fun AlbumDetailScreen(
                 }
             }
         }
+
+        SongMultiSelectionHost(
+            playerViewModel = playerViewModel,
+            multiSelectionState = multiSelectionState,
+            showSheet = showMultiSelectionSheet,
+            onDismiss = { showMultiSelectionSheet = false }
+        )
     }
 }
 
