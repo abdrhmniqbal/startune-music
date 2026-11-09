@@ -45,22 +45,18 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.DragIndicator
-import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -68,8 +64,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -83,8 +77,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -97,7 +89,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
@@ -112,7 +103,6 @@ import com.startune.music.presentation.components.SongPickerBottomSheet
 import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SongInfoBottomSheet
-import com.startune.music.presentation.components.subcomps.TightWrapText
 import com.startune.music.presentation.components.resolveNavBarOccupiedHeight
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.viewmodel.PlayerViewModel
@@ -122,7 +112,6 @@ import com.startune.music.data.offline.CloudOfflineRepository
 import com.startune.music.presentation.viewmodel.PlaylistViewModel.Companion.FOLDER_PLAYLIST_PREFIX
 import com.startune.music.presentation.utils.LocalAppHapticsConfig
 import com.startune.music.presentation.utils.performAppCompatHapticFeedback
-import com.startune.music.ui.theme.RoundedSans
 import com.startune.music.presentation.viewmodel.PlaylistSongsOrderMode
 import com.startune.music.utils.formatSongCount
 import com.startune.music.utils.formatTotalDuration
@@ -138,6 +127,22 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import com.startune.music.presentation.components.rememberModalSheetState
 import kotlinx.collections.immutable.persistentListOf
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.LargeExtendedFloatingActionButton
+import androidx.compose.ui.BiasAlignment
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.util.lerp
+import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.utils.shapes.RoundedStarShape
+import kotlin.math.roundToInt
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(
@@ -164,7 +169,6 @@ fun PlaylistDetailScreen(
     val sortSongsLabel = stringResource(R.string.presentation_batch_b_sort_songs)
     val moreOptionsLabel = stringResource(R.string.presentation_batch_b_more_options)
     val confirmLabel = stringResource(R.string.confirm)
-    val playItLabel = stringResource(R.string.presentation_batch_b_play_it)
     val shuffleLabel = stringResource(R.string.shortcut_shuffle_short)
     val addSongsCd = stringResource(R.string.presentation_batch_b_add_songs)
     val removeSongsCd = stringResource(R.string.presentation_batch_b_remove_songs)
@@ -270,86 +274,159 @@ fun PlaylistDetailScreen(
         }
     }
 
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    val density = LocalDensity.current
+
+    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val minTopBarHeight = 62.dp + statusBarHeight
+    val maxTopBarHeight = 176.dp
+
+    val minTopBarHeightPx = with(density) { minTopBarHeight.toPx() }
+    val maxTopBarHeightPx = with(density) { maxTopBarHeight.toPx() }
+
+    val topBarHeight = remember { Animatable(maxTopBarHeightPx) }
+    var collapseFraction by remember { mutableStateOf(0f) }
+
+    LaunchedEffect(topBarHeight.value) {
+        collapseFraction = 1f - ((topBarHeight.value - minTopBarHeightPx) / (maxTopBarHeightPx - minTopBarHeightPx)).coerceIn(0f, 1f)
+    }
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val delta = available.y
+                val scrollingDown = delta < 0
+
+                if (!scrollingDown && (listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0)) {
+                    return Offset.Zero
+                }
+
+                val previousHeight = topBarHeight.value
+                val newHeight = (previousHeight + delta).coerceIn(minTopBarHeightPx, maxTopBarHeightPx)
+                val consumed = newHeight - previousHeight
+
+                if (consumed.roundToInt() != 0) {
+                    scope.launch {
+                        topBarHeight.snapTo(newHeight)
+                    }
+                }
+
+                val canConsume = !(scrollingDown && newHeight == minTopBarHeightPx)
+                return if (canConsume) Offset(0f, consumed) else Offset.Zero
+            }
+        }
+    }
+
+    LaunchedEffect(listState.isScrollInProgress) {
+        if (!listState.isScrollInProgress) {
+            val shouldExpand = topBarHeight.value > (minTopBarHeightPx + maxTopBarHeightPx) / 2
+            val canExpand = listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
+            val target = if (shouldExpand && canExpand) maxTopBarHeightPx else minTopBarHeightPx
+
+            if (topBarHeight.value != target) {
+                scope.launch {
+                    topBarHeight.animateTo(target, spring(stiffness = Spring.StiffnessMedium))
+                }
+            }
+        }
+    }
+
+    val currentTopBarHeightDp = with(density) { topBarHeight.value.toDp() }
+    val solidAlpha = (collapseFraction * 2f).coerceIn(0f, 1f)
+    val expandedContentAlpha = 1f - solidAlpha
+    val titleVerticalBias = lerp(1f, -1f, collapseFraction)
+    val shuffleAlignment = BiasAlignment(horizontalBias = 1f, verticalBias = titleVerticalBias)
+
 
     Scaffold(
         modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
+            .nestedScroll(nestedScrollConnection),
         topBar = {
-            LargeFlexibleTopAppBar(
-                title = {
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = currentPlaylist?.name ?: fallbackPlaylistName,
-                        fontFamily = RoundedSans,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    scrolledContainerColor = Color.Transparent,
-                    containerColor = Color.Transparent
-                ),
-                subtitle = {
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = stringResource(
-                            R.string.presentation_batch_f_status_bullet_step,
-                            formatSongCount(songsInPlaylist.size),
-                            formatTotalDuration(songsInPlaylist)
-                        ),
-                        style = MaterialTheme.typography.labelMedium.copy(fontFamily = RoundedSans),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                navigationIcon = {
-                    FilledTonalIconButton(
-                        modifier = Modifier.padding(start = 10.dp),
-                        colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                        onClick = onBackClick
-                    ) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.auth_cd_back))
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = {
-                            playerViewModel.showSortingSheet() 
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.Sort,
-                            contentDescription = sortSongsLabel
-                        )
-                    }
-                    if (!isFolderPlaylist) {
-                        FilledTonalIconButton(
-                            modifier = Modifier.padding(end = 10.dp),
-                            colors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                contentColor = MaterialTheme.colorScheme.onSurface
-                            ),
-                            onClick = {
-                                if (isReorderModeEnabled) {
-                                    isReorderModeEnabled = false
-                                } else {
-                                    showPlaylistOptionsSheet = true
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(currentTopBarHeightDp)
+                    .clipToBounds()
+            ) {
+                CollapsibleCommonTopBar(
+                    title = currentPlaylist?.name ?: fallbackPlaylistName,
+                    subtitle = stringResource(
+                        R.string.presentation_batch_f_status_bullet_step,
+                        formatSongCount(songsInPlaylist.size),
+                        formatTotalDuration(songsInPlaylist)
+                    ),
+                    collapseFraction = collapseFraction,
+                    headerHeight = currentTopBarHeightDp,
+                    onBackClick = onBackClick,
+                    expandedTitleEndPadding = 136.dp,
+                    collapsedTitleEndPadding = 136.dp,
+                    actions = {
+                        Row(
+                            modifier = Modifier.padding(end = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    playerViewModel.showSortingSheet()
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Rounded.Sort,
+                                    contentDescription = sortSongsLabel
+                                )
+                            }
+                            if (!isFolderPlaylist) {
+                                FilledTonalIconButton(
+                                    colors = IconButtonDefaults.filledIconButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                        contentColor = MaterialTheme.colorScheme.onSurface
+                                    ),
+                                    onClick = {
+                                        if (isReorderModeEnabled) {
+                                            isReorderModeEnabled = false
+                                        } else {
+                                            showPlaylistOptionsSheet = true
+                                        }
+                                    }
+                                ) {
+                                    if (isReorderModeEnabled) {
+                                        Icon(Icons.Rounded.Check, confirmLabel)
+                                    } else {
+                                        Icon(Icons.Filled.MoreVert, moreOptionsLabel)
+                                    }
                                 }
                             }
-                        ) {
-                            if (isReorderModeEnabled) {
-                                Icon(Icons.Rounded.Check, confirmLabel)
-                            } else {
-                                Icon(Icons.Filled.MoreVert, moreOptionsLabel)
-                            }
                         }
                     }
-                },
-                scrollBehavior = scrollBehavior
-            )
+                )
+                if (!isReorderModeEnabled && localReorderableSongs.isNotEmpty()) {
+                    LargeExtendedFloatingActionButton(
+                        onClick = {
+                            playerViewModel.playSongsShuffled(
+                                songsToPlay = localReorderableSongs,
+                                queueName = currentPlaylist?.name ?: fallbackPlaylistName,
+                                playlistId = currentPlaylist?.id,
+                                startAtZero = true
+                            )
+                        },
+                        shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f),
+                        modifier = Modifier
+                            .align(shuffleAlignment)
+                            .statusBarsPadding()
+                            .padding(end = 16.dp)
+                            .graphicsLayer {
+                                alpha = expandedContentAlpha
+                                scaleX = expandedContentAlpha
+                                scaleY = expandedContentAlpha
+                            }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Shuffle,
+                            contentDescription = shuffleLabel
+                        )
+                    }
+                }
+            }
         }
     ) { innerPadding ->
         if (uiState.isLoading && currentPlaylist == null) {
@@ -377,98 +454,6 @@ fun PlaylistDetailScreen(
                     .padding(top = innerPadding.calculateTopPadding())
             ) {
                 val playbackControlBottomPadding = if (isFolderPlaylist) 8.dp else 6.dp
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(62.dp)
-                        .padding(horizontal = 20.dp)
-                        .padding(bottom = playbackControlBottomPadding),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = {
-                            if (localReorderableSongs.isNotEmpty()) {
-                                playerViewModel.playSongs(
-                                    localReorderableSongs,
-                                    localReorderableSongs.first(),
-                                    currentPlaylist.name,
-                                    currentPlaylist.id,
-                                )
-                                if (playerStableState.isShuffleEnabled) playerViewModel.toggleShuffle()
-                            }
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(76.dp),
-                        enabled = localReorderableSongs.isNotEmpty(),
-                        shape = AbsoluteSmoothCornerShape(
-                            cornerRadiusTL = 60.dp,
-                            smoothnessAsPercentTR = 60,
-                            cornerRadiusTR = 14.dp,
-                            smoothnessAsPercentTL = 60,
-                            cornerRadiusBL = 60.dp,
-                            smoothnessAsPercentBR = 60,
-                            cornerRadiusBR = 14.dp,
-                            smoothnessAsPercentBL = 60
-                        ),
-                        contentPadding = PaddingValues(horizontal = 10.dp)
-                    ) {
-                        Icon(
-                            Icons.Rounded.PlayArrow,
-                            contentDescription = stringResource(R.string.cd_play),
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        TightWrapText(
-                            text = playItLabel,
-                            modifier = Modifier.padding(end = 4.dp),
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 2,
-                            lineHeight = 20.sp
-                        )
-                    }
-                    FilledTonalButton(
-                        onClick = {
-                            if (localReorderableSongs.isNotEmpty()) {
-                                playerViewModel.playSongsShuffled(
-                                    songsToPlay = localReorderableSongs,
-                                    queueName = currentPlaylist.name,
-                                    playlistId = currentPlaylist.id,
-                                    startAtZero = true,
-                                )
-                            }
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(76.dp),
-                        enabled = localReorderableSongs.isNotEmpty(),
-                        shape = AbsoluteSmoothCornerShape(
-                            cornerRadiusTL = 14.dp,
-                            smoothnessAsPercentTR = 60,
-                            cornerRadiusTR = 60.dp,
-                            smoothnessAsPercentTL = 60,
-                            cornerRadiusBL = 14.dp,
-                            smoothnessAsPercentBR = 60,
-                            cornerRadiusBR = 60.dp,
-                            smoothnessAsPercentBL = 60
-                        ),
-                        contentPadding = PaddingValues(horizontal = 10.dp)
-                    ) {
-                        Icon(
-                            Icons.Rounded.Shuffle,
-                            contentDescription = shuffleLabel,
-                            modifier = Modifier.size(ButtonDefaults.IconSize)
-                        )
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        TightWrapText(
-                            text = shuffleLabel,
-                            modifier = Modifier.padding(end = 4.dp),
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 2,
-                            lineHeight = 20.sp
-                        )
-                    }
-                }
 
 
                 if (localReorderableSongs.isEmpty()) {
