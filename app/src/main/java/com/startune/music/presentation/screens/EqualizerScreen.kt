@@ -103,6 +103,7 @@ import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.ExpressiveTopBarContent
 import com.startune.music.presentation.viewmodel.EqualizerViewModel
 import com.startune.music.presentation.viewmodel.PlayerViewModel
+import com.startune.music.presentation.viewmodel.sharedPlayerViewModel
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.animation.animateColorAsState
@@ -158,7 +159,7 @@ import kotlinx.collections.immutable.toImmutableList
 @Composable
 fun EqualizerScreen(
     navController: NavController,
-    playerViewModel: PlayerViewModel = hiltViewModel(),
+    playerViewModel: PlayerViewModel = sharedPlayerViewModel(),
     equalizerViewModel: EqualizerViewModel = hiltViewModel()
 ) {
     val uiState by equalizerViewModel.uiState.collectAsStateWithLifecycle()

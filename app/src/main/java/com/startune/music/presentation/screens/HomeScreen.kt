@@ -103,6 +103,7 @@ import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.components.StreamingProviderSheet
 import com.startune.music.presentation.viewmodel.MixIds
 import com.startune.music.presentation.viewmodel.PlayerViewModel
+import com.startune.music.presentation.viewmodel.sharedPlayerViewModel
 import com.startune.music.presentation.viewmodel.SettingsViewModel
 import com.startune.music.presentation.viewmodel.StatsViewModel
 import com.startune.music.ui.theme.ExpTitleTypography
@@ -128,7 +129,7 @@ private const val HomeScrollRestoreGraceMillis = 1_500L
 fun HomeScreen(
     navController: NavController,
     paddingValuesParent: PaddingValues,
-    playerViewModel: PlayerViewModel = hiltViewModel(),
+    playerViewModel: PlayerViewModel = sharedPlayerViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel(),
     jellyfinViewModel: JellyfinDashboardViewModel = hiltViewModel(),
     navidromeViewModel: com.startune.music.presentation.navidrome.dashboard.NavidromeDashboardViewModel = hiltViewModel(),
