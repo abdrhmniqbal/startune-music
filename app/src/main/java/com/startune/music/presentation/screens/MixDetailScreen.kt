@@ -109,7 +109,6 @@ import com.startune.music.presentation.viewmodel.MixIds
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.PlaylistViewModel
 import com.startune.music.utils.formatDuration
-import com.startune.music.utils.shapes.RoundedStarShape
 import com.startune.music.ui.theme.ShapeCache
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -309,36 +308,19 @@ fun MixDetailScreen(
                         scrollState = lazyListState,
                         coverImageUri = userMix?.coverImageUri,
                         coverColorArgb = userMix?.coverColorArgb,
-                        coverIconName = userMix?.coverIconName
+                        coverIconName = userMix?.coverIconName,
+                        shuffleLabel = shuffleLabel,
+                        onShuffleClick = {
+                            if (mixSongs.isNotEmpty()) {
+                                playerViewModel.playSongsShuffled(
+                                    songsToPlay = mixSongs,
+                                    queueName = mixTitle,
+                                    startAtZero = true,
+                                )
+                            }
+                        }
                     )
                 }
-
-                item(key = "shuffle_button") {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        LargeExtendedFloatingActionButton(
-                            onClick = {
-                                if (mixSongs.isNotEmpty()) {
-                                    playerViewModel.playSongsShuffled(
-                                        songsToPlay = mixSongs,
-                                        queueName = mixTitle,
-                                        startAtZero = true,
-                                    )
-                                }
-                            },
-                            shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f)
-                        ) {
-                            Icon(Icons.Rounded.Shuffle, contentDescription = shuffleLabel)
-                            Spacer(Modifier.width(8.dp))
-                            Text(shuffleLabel)
-                        }
-                    }
-                }
-
 
                 item(key = "mix_selection_row") {
                     AnimatedVisibility(
@@ -607,7 +589,9 @@ private fun ExpressiveMixDetailHeader(
     scrollState: LazyListState,
     coverImageUri: String? = null,
     coverColorArgb: Int? = null,
-    coverIconName: String? = null
+    coverIconName: String? = null,
+    shuffleLabel: String,
+    onShuffleClick: () -> Unit
 ) = traceSection("ExpressiveMixDetailHeader.Composition") {
     val albumArts = remember(songs) { songs.map { it.albumArtUriString }.distinct().take(3) }
     val totalDuration = remember(songs) { songs.sumOf { it.duration } }
@@ -760,6 +744,7 @@ private fun ExpressiveMixDetailHeader(
         ) {
             Column(
                 modifier = Modifier
+                    .weight(1f, fill = false)
                     .padding(start = 6.dp),
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.Start
@@ -783,6 +768,14 @@ private fun ExpressiveMixDetailHeader(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 )
+            }
+            LargeExtendedFloatingActionButton(
+                onClick = onShuffleClick,
+                modifier = Modifier.padding(start = 12.dp)
+            ) {
+                Icon(Icons.Rounded.Shuffle, contentDescription = shuffleLabel)
+                Spacer(Modifier.width(8.dp))
+                Text(shuffleLabel)
             }
         }
     }
