@@ -116,6 +116,7 @@ import com.startune.music.data.preferences.AppThemeMode
 import com.startune.music.data.preferences.NavBarStyle
 import com.startune.music.data.preferences.sanitizeNavBarCornerRadius
 import com.startune.music.data.preferences.ThemePreferencesRepository
+import com.startune.music.data.preferences.SidebarShortcutKeys
 import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.service.MusicService
 import com.startune.music.data.worker.SyncManager
@@ -788,9 +789,15 @@ class MainActivity : ComponentActivity() {
             LocalHapticFeedback provides scopedHapticFeedback,
             LocalShowScrollbar provides showScrollbar
         ) {
+            val sidebarShortcuts by userPreferencesRepository.sidebarShortcutsFlow
+                .collectAsStateWithLifecycle(initialValue = SidebarShortcutKeys.DEFAULT)
             AppSidebarDrawer(
                 drawerState = drawerState,
                 selectedRoute = currentRoute ?: Screen.Home.route,
+                enabledShortcuts = sidebarShortcuts,
+                onShortcutsChanged = { shortcuts ->
+                    scope.launch { userPreferencesRepository.setSidebarShortcuts(shortcuts) }
+                },
                 onDestinationSelected = { destination ->
                     scope.launch { drawerState.close() }
                     when (destination) {
@@ -798,6 +805,7 @@ class MainActivity : ComponentActivity() {
                             popUpTo(Screen.Home.route) { inclusive = true }
                         }
                         DrawerDestination.Equalizer -> navController.navigateSafely(Screen.Equalizer.route)
+                        DrawerDestination.Bookmarks -> navController.navigateSafely(Screen.AudioBookmarks.route)
                         DrawerDestination.Settings -> navController.navigateSafely(Screen.Settings.route)
                     }
                 }
