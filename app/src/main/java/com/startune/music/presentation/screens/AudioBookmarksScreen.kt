@@ -138,6 +138,7 @@ import androidx.navigation.NavController
 import androidx.compose.ui.res.stringResource
 import com.startune.music.R
 import com.startune.music.data.database.AudioBookmarkEntity
+import com.startune.music.data.database.backupSongIdOfRestoredBookmark
 import com.startune.music.data.model.Song
 import androidx.compose.material3.ModalBottomSheet
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -185,6 +186,9 @@ fun AudioBookmarksScreen(
     val folders = remember(rawFolders, sortMode) {
         sortAudioBookmarkFolders(rawFolders, sortMode)
     }
+    // A bookmark loses its song when the file is re-indexed under a new id, or when a backup is
+    // restored before the library was scanned; move those onto the song's current id.
+    LaunchedEffect(Unit) { bookmarksViewModel.relinkOrphanedBookmarks() }
     val stablePlayerState by playerViewModel.stablePlayerState.collectAsStateWithLifecycle()
     val isMiniplayerVisible = stablePlayerState.currentSong != null
 
@@ -438,7 +442,11 @@ fun AudioBookmarkFolderScreen(
                             BookmarkMomentCard(
                                 bookmark = bookmark,
                                 onPlay = {
-                                    if (song.id.isNotBlank() && song.id != "-1") {
+                                    if (
+                                        song.id.isNotBlank() && song.id != "-1" &&
+                                        // A restored bookmark whose song wasn't found names none.
+                                        backupSongIdOfRestoredBookmark(song.id) == null
+                                    ) {
                                         playerViewModel.playSongAtPosition(song, bookmark.timestampMs)
                                     } else {
                                         Toast.makeText(context, "Audio file not found", Toast.LENGTH_SHORT).show()

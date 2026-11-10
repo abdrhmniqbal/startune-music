@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -48,6 +49,17 @@ class AudioBookmarksViewModel @Inject constructor(
     fun deleteBookmark(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             bookmarkRepository.deleteBookmark(id)
+        }
+    }
+
+    /**
+     * Re-attaches bookmarks whose song id changed (rescan, or a restore before the library was
+     * scanned) to the song's current id.
+     */
+    fun relinkOrphanedBookmarks() {
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching { bookmarkRepository.relinkOrphanedBookmarks() }
+                .onFailure { Timber.w(it, "Failed to relink orphaned bookmarks") }
         }
     }
 
