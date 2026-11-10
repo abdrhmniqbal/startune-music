@@ -204,6 +204,7 @@
     <string name="cd_search_history_icon">History</string>
     <string name="cd_delete_search_history_item">Delete search history item</string>
     <string name="cd_no_search_results">No results</string>
+    <string name="search_filter_all">All</string>
     <string name="search_no_results_for_query">No results for \"%1$s\"</string>
     <string name="search_nothing_found">Nothing found</string>
     <string name="search_try_different_or_filters">Try a different search term or check your filters.</string>

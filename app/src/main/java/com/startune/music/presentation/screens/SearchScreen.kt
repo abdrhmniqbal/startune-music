@@ -893,13 +893,7 @@ fun SearchResultsList(
             if (itemsForSection.isNotEmpty()) {
                 item(key = "header_${filterType.name}") {
                     SearchResultSectionHeader(
-                        title = when (filterType) {
-                            SearchFilterType.SONGS -> "Songs"
-                            SearchFilterType.ALBUMS -> "Albums"
-                            SearchFilterType.ARTISTS -> "Artists"
-                            SearchFilterType.PLAYLISTS -> "Playlists"
-                            else -> "Results"
-                        }
+                        title = stringResource(searchFilterLabelRes(filterType))
                     )
                 }
 
@@ -1549,6 +1543,14 @@ fun SearchFilterChip(
             )
             Spacer(Modifier.width(8.dp))
         }
-        Text(filterType.name.lowercase().replaceFirstChar { it.titlecase() })
+        Text(stringResource(searchFilterLabelRes(filterType)))
     }
+}
+
+private fun searchFilterLabelRes(filterType: SearchFilterType): Int = when (filterType) {
+    SearchFilterType.ALL -> R.string.search_filter_all
+    SearchFilterType.SONGS -> R.string.library_tab_songs
+    SearchFilterType.ALBUMS -> R.string.library_tab_albums
+    SearchFilterType.ARTISTS -> R.string.library_tab_artists
+    SearchFilterType.PLAYLISTS -> R.string.library_tab_playlists
 }
