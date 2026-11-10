@@ -38,7 +38,7 @@
     <string name="settings_category_ai_subtitle">AI providers, API keys, and model settings</string>
     <string name="settings_category_backup_title">Backup &amp; Restore</string>
     <string name="settings_category_backup_subtitle">Export and recover your personal app data</string>
-    <string name="settings_category_developer_title">Developer Options</string>
+    <string name="settings_category_developer_title">Advanced Options</string>
     <string name="settings_category_developer_subtitle">Experimental features and debugging</string>
     <string name="settings_category_equalizer_title">Equalizer</string>
     <string name="settings_category_equalizer_subtitle">Adjust audio frequencies and presets</string>

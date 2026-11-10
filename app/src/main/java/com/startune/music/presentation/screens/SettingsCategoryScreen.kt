@@ -917,26 +917,6 @@ fun SettingsCategoryScreen(
                                         highlightKey,
                                     ),
                                 )
-                                SettingsItem(
-                                    title = stringResource(R.string.setcat_battery_optimization_title),
-                                    subtitle = stringResource(R.string.setcat_battery_optimization_subtitle),
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Rounded.BatteryFull,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.secondary,
-                                        )
-                                    },
-                                    trailingIcon = { Icon(Icons.Rounded.ChevronRight, stringResource(R.string.cd_open), tint = MaterialTheme.colorScheme.onSurfaceVariant) },
-                                    modifier = Modifier.settingHighlight("item_playback_battery_optimization", highlightKey),
-                                    onClick = {
-                                        if (BatteryOptimization.isIgnoringBatteryOptimizations(context)) {
-                                            Toast.makeText(context, R.string.toast_battery_already_disabled, Toast.LENGTH_SHORT).show()
-                                        } else {
-                                            BatteryOptimization.requestIgnoreBatteryOptimizations(context)
-                                        }
-                                    }
-                                )
                             }
 
                             SettingsSubsection(title = stringResource(R.string.setcat_audio_focus)) {
@@ -1243,14 +1223,6 @@ fun SettingsCategoryScreen(
                                     modifier = Modifier.settingHighlight("item_notifications_app_update", highlightKey)
                                 )
                                 SwitchSettingItem(
-                                    title = stringResource(R.string.setcat_include_prereleases_title),
-                                    subtitle = if (uiState.includePrereleases) stringResource(R.string.setcat_include_prereleases_enabled) else stringResource(R.string.setcat_include_prereleases_disabled),
-                                    leadingIcon = { Icon(Icons.Rounded.Science, null, tint = MaterialTheme.colorScheme.secondary) },
-                                    checked = uiState.includePrereleases,
-                                    onCheckedChange = { settingsViewModel.setIncludePrereleases(it) },
-                                    modifier = Modifier.settingHighlight("item_notifications_include_prereleases", highlightKey)
-                                )
-                                SwitchSettingItem(
                                     title = stringResource(R.string.setcat_indexer_notifications_title),
                                     subtitle = if (uiState.indexerNotificationsEnabled) stringResource(R.string.setcat_indexer_notifications_enabled) else stringResource(R.string.setcat_indexer_notifications_disabled),
                                     leadingIcon = { Icon(painterResource(R.drawable.rounded_circle_notifications_24), null, tint = MaterialTheme.colorScheme.secondary) },
@@ -1436,6 +1408,14 @@ fun SettingsCategoryScreen(
                                         settingsViewModel.resetSetupFlow()
                                     }
                                 )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_include_prereleases_title),
+                                    subtitle = if (uiState.includePrereleases) stringResource(R.string.setcat_include_prereleases_enabled) else stringResource(R.string.setcat_include_prereleases_disabled),
+                                    leadingIcon = { Icon(Icons.Rounded.Science, null, tint = MaterialTheme.colorScheme.secondary) },
+                                    checked = uiState.includePrereleases,
+                                    onCheckedChange = { settingsViewModel.setIncludePrereleases(it) },
+                                    modifier = Modifier.settingHighlight("item_notifications_include_prereleases", highlightKey)
+                                )
                             }
 
                             SettingsSubsection(title = stringResource(R.string.setcat_maintenance)) {
@@ -1485,6 +1465,26 @@ fun SettingsCategoryScreen(
                                     primaryActionLabel = stringResource(R.string.clear_all),
                                     onPrimaryAction = { showClearSearchHistoryDialog = true },
                                     modifier = Modifier.settingHighlight("item_developer_clear_search_history", highlightKey)
+                                )
+                                SettingsItem(
+                                    title = stringResource(R.string.setcat_battery_optimization_title),
+                                    subtitle = stringResource(R.string.setcat_battery_optimization_subtitle),
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Rounded.BatteryFull,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary,
+                                        )
+                                    },
+                                    trailingIcon = { Icon(Icons.Rounded.ChevronRight, stringResource(R.string.cd_open), tint = MaterialTheme.colorScheme.onSurfaceVariant) },
+                                    modifier = Modifier.settingHighlight("item_playback_battery_optimization", highlightKey),
+                                    onClick = {
+                                        if (BatteryOptimization.isIgnoringBatteryOptimizations(context)) {
+                                            Toast.makeText(context, R.string.toast_battery_already_disabled, Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            BatteryOptimization.requestIgnoreBatteryOptimizations(context)
+                                        }
+                                    }
                                 )
                             }
 
