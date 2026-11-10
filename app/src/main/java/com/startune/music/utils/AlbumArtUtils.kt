@@ -12,6 +12,9 @@ import com.startune.music.data.media.AudioMetadataReader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
@@ -37,6 +40,13 @@ object AlbumArtUtils {
     private const val OVERSIZED_CACHED_ART_BYTES = 900L * 1024
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val _artworkCacheVersion = MutableStateFlow(0L)
+    val artworkCacheVersion = _artworkCacheVersion.asStateFlow()
+
+    /** Publish after artwork cache files are cleared, so mounted images reload with a new version instead of serving stale Coil entries. */
+    internal fun notifyArtworkCacheInvalidated() {
+        _artworkCacheVersion.update { it + 1L }
+    }
     // Tracks cache files currently being shrunk so rapid repeated loads of the same oversized
     // cover don't read the large blob into memory more than once concurrently.
     private val artworkShrinkInFlight = ConcurrentHashMap.newKeySet<String>()
@@ -327,6 +337,7 @@ object AlbumArtUtils {
             legacyCachedAlbumArtFile(appContext, songId),
             legacyNoArtMarkerFile(appContext, songId)
         ).forEach { it.delete() }
+        notifyArtworkCacheInvalidated()
     }
 
     private const val ALBUM_ART_DIR_NAME = "album_art"
