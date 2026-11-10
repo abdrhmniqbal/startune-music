@@ -1452,7 +1452,7 @@ private fun ArtistSubViewHeader(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             FilledIconButton(
                 modifier = Modifier
