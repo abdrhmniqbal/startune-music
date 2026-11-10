@@ -382,6 +382,8 @@ fun PlaylistDetailScreen(
                     onBackClick = onBackClick,
                     expandedTitleEndPadding = 136.dp,
                     collapsedTitleEndPadding = 136.dp,
+                    maxLines = if (collapseFraction < 0.5f) Int.MAX_VALUE else 1,
+                    containerHeightRange = 160.dp to 56.dp,
                     actions = {
                         Row(
                             modifier = Modifier.padding(end = 12.dp),
