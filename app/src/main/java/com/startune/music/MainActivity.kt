@@ -129,6 +129,7 @@ import com.startune.music.presentation.components.DismissUndoBar
 import com.startune.music.presentation.components.DrawerDestination
 import com.startune.music.presentation.components.MiniPlayerBottomSpacer
 import com.startune.music.presentation.components.MiniPlayerHeight
+import com.startune.music.presentation.components.SmartMixHost
 import com.startune.music.presentation.components.PlayerInternalNavigationBar
 import com.startune.music.presentation.components.PlayerNavigationRail
 
@@ -1039,6 +1040,14 @@ class MainActivity : ComponentActivity() {
                                 durationMillis = dismissUndoBarSlice.durationMillis
                             )
                         }
+
+                        SmartMixHost(
+                            playerViewModel = playerViewModel,
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = innerPadding.calculateBottomPadding() + MiniPlayerHeight)
+                                .padding(horizontal = horizontalPadding)
+                        )
                     }
                 }
             }

@@ -45,6 +45,10 @@
     <!-- PlaylistCreationDialogs: create flow -->
     <string name="presentation_batch_e_create_playlist_title">Create playlist</string>
     <string name="presentation_batch_e_create_playlist_subtitle">Choose the creation flow.</string>
+    <string name="presentation_batch_e_creation_mode_manual">Manual</string>
+    <string name="presentation_batch_e_creation_mode_manual_subtitle">Design artwork, icon, shape and pick songs yourself.</string>
+    <string name="mix_title">Smart Mix</string>
+    <string name="mix_library_subtitle">Make a mix from your music library</string>
     <string name="presentation_batch_e_setup_api_key">Set up API key</string>
 
     <!-- AI playlist lab -->
