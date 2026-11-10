@@ -202,11 +202,6 @@
     <string name="setcat_restore_last_position_subtitle">Resume the last song from where it stopped when you reopen the app.</string>
     <string name="setcat_audio_focus">Audio focus</string>
     <string name="setcat_resume_behavior">Resume behavior</string>
-    <string name="setcat_volume_transitions">Volume transitions</string>
-    <string name="setcat_fade_play_pause_stop_title">Fade play, pause and stop</string>
-    <string name="setcat_fade_play_pause_stop_subtitle">Smoothly fade volume on transport changes.</string>
-    <string name="setcat_fade_on_seek_title">Fade on seek</string>
-    <string name="setcat_fade_on_seek_subtitle">Fade volume while seeking.</string>
     <string name="setcat_resume_after_call_title">Resume after a call ends</string>
     <string name="setcat_resume_after_call_subtitle">Continue playback once phone calls finish.</string>
     <string name="setcat_resume_on_start_title">Resume when the app starts</string>

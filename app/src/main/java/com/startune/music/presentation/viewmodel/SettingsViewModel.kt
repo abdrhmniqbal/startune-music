@@ -71,8 +71,6 @@ data class SettingsUiState(
     val launchTab: String = LaunchTab.HOME,
     val keepPlayingInBackground: Boolean = true,
     val restoreLastPosition: Boolean = true,
-    val fadePlayPauseStop: Boolean = true,
-    val fadeOnSeek: Boolean = false,
     val resumeAfterCall: Boolean = true,
     val resumeOnStart: Boolean = false,
     val resumeOnReopen: Boolean = false,
@@ -191,8 +189,6 @@ private sealed interface SettingsUiUpdate {
         val animatedLyricsBlurStrength: Float,
         val playedThresholdPercent: Int,
         val restoreLastPosition: Boolean,
-        val fadePlayPauseStop: Boolean,
-        val fadeOnSeek: Boolean,
         val resumeAfterCall: Boolean,
         val resumeOnStart: Boolean,
         val resumeOnReopen: Boolean,
@@ -373,8 +369,6 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.animatedLyricsBlurStrengthFlow,
                 userPreferencesRepository.playedThresholdPercentFlow,
                 userPreferencesRepository.restoreLastPositionFlow,
-                userPreferencesRepository.fadePlayPauseStopFlow,
-                userPreferencesRepository.fadeOnSeekFlow,
                 userPreferencesRepository.resumeAfterCallFlow,
                 userPreferencesRepository.resumeOnStartFlow,
                 userPreferencesRepository.resumeOnReopenFlow,
@@ -419,24 +413,22 @@ class SettingsViewModel @Inject constructor(
                     animatedLyricsBlurStrength = values[15] as Float,
                     playedThresholdPercent = values[16] as Int,
                     restoreLastPosition = values[17] as Boolean,
-                    fadePlayPauseStop = values[18] as Boolean,
-                    fadeOnSeek = values[19] as Boolean,
-                    resumeAfterCall = values[20] as Boolean,
-                    resumeOnStart = values[21] as Boolean,
-                    resumeOnReopen = values[22] as Boolean,
-                    ignoreShortFocusLoss = values[23] as Boolean,
-                    pauseInCall = values[24] as Boolean,
-                    resumeOnFocusGain = values[25] as Boolean,
-                    duckVolume = values[26] as Boolean,
-                    respectPermanentFocusLoss = values[27] as Boolean,
-                    queueAwareNext = values[28] as Boolean,
-                    appUpdateNotificationsEnabled = values[29] as Boolean,
-                    includePrereleases = values[30] as Boolean,
-                    indexerNotificationsEnabled = values[31] as Boolean,
-                    autoBackupEnabled = values[32] as Boolean,
-                    autoBackupIntervalHours = values[33] as Int,
-                    autoBackupLastRunMs = values[34] as Long,
-                    autoBackupTargetFolder = values[35] as String
+                    resumeAfterCall = values[18] as Boolean,
+                    resumeOnStart = values[19] as Boolean,
+                    resumeOnReopen = values[18] as Boolean,
+                    ignoreShortFocusLoss = values[19] as Boolean,
+                    pauseInCall = values[18] as Boolean,
+                    resumeOnFocusGain = values[19] as Boolean,
+                    duckVolume = values[18] as Boolean,
+                    respectPermanentFocusLoss = values[19] as Boolean,
+                    queueAwareNext = values[18] as Boolean,
+                    appUpdateNotificationsEnabled = values[19] as Boolean,
+                    includePrereleases = values[18] as Boolean,
+                    indexerNotificationsEnabled = values[19] as Boolean,
+                    autoBackupEnabled = values[18] as Boolean,
+                    autoBackupIntervalHours = values[19] as Int,
+                    autoBackupLastRunMs = values[18] as Long,
+                    autoBackupTargetFolder = values[19] as String
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -459,8 +451,6 @@ class SettingsViewModel @Inject constructor(
                         animatedLyricsBlurStrength = update.animatedLyricsBlurStrength,
                         playedThresholdPercent = update.playedThresholdPercent,
                         restoreLastPosition = update.restoreLastPosition,
-                        fadePlayPauseStop = update.fadePlayPauseStop,
-                        fadeOnSeek = update.fadeOnSeek,
                         resumeAfterCall = update.resumeAfterCall,
                         resumeOnStart = update.resumeOnStart,
                         resumeOnReopen = update.resumeOnReopen,
@@ -763,18 +753,6 @@ class SettingsViewModel @Inject constructor(
     fun setRestoreLastPosition(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setRestoreLastPosition(enabled)
-        }
-    }
-
-    fun setFadePlayPauseStop(enabled: Boolean) {
-        viewModelScope.launch {
-            userPreferencesRepository.setFadePlayPauseStop(enabled)
-        }
-    }
-
-    fun setFadeOnSeek(enabled: Boolean) {
-        viewModelScope.launch {
-            userPreferencesRepository.setFadeOnSeek(enabled)
         }
     }
 

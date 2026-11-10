@@ -1093,46 +1093,6 @@ fun SettingsCategoryScreen(
                                 )
                             }
 
-                            SettingsSubsection(title = stringResource(R.string.setcat_volume_transitions)) {
-                                SwitchSettingItem(
-                                    title = stringResource(R.string.setcat_fade_play_pause_stop_title),
-                                    subtitle = stringResource(R.string.setcat_fade_play_pause_stop_subtitle),
-                                    checked = uiState.fadePlayPauseStop,
-                                    onCheckedChange = {
-                                        settingsViewModel.setFadePlayPauseStop(it)
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Rounded.MusicNote,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.secondary,
-                                        )
-                                    },
-                                    modifier = Modifier.settingHighlight(
-                                        "item_playback_fade_play_pause_stop",
-                                        highlightKey,
-                                    ),
-                                )
-                                SwitchSettingItem(
-                                    title = stringResource(R.string.setcat_fade_on_seek_title),
-                                    subtitle = stringResource(R.string.setcat_fade_on_seek_subtitle),
-                                    checked = uiState.fadeOnSeek,
-                                    onCheckedChange = {
-                                        settingsViewModel.setFadeOnSeek(it)
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Rounded.MusicNote,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.secondary,
-                                        )
-                                    },
-                                    modifier = Modifier.settingHighlight(
-                                        "item_playback_fade_on_seek",
-                                        highlightKey,
-                                    ),
-                                )
-                            }
 
                             SettingsSubsection(title = stringResource(R.string.setcat_replaygain_section)) {
                                 SwitchSettingItem(

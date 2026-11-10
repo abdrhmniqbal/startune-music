@@ -195,9 +195,6 @@ class MusicService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var keepPlayingInBackground = true
-    private var fadePlayPauseStopEnabled = true
-    private var fadeOnSeekEnabled = false
-    private var transportFadeJob: Job? = null
     private var isManualShuffleEnabled = false
     private var persistentShuffleEnabled = false
     private var previousMainThreadExceptionHandler: Thread.UncaughtExceptionHandler? = null
@@ -234,7 +231,6 @@ class MusicService : MediaSessionService() {
         private const val MEDIA_SESSION_BUTTON_DEBOUNCE_MS = 250L
         private const val DEFERRED_SERVICE_STARTUP_WORK_DELAY_MS = 1_000L
         private const val PAUSED_RESTORE_PREPARE_QUEUE_LIMIT = 50
-        private const val TRANSPORT_FADE_MS = 200L
         private val pendingMediaButtonForegroundStarts = AtomicInteger(0)
 
         private const val APP_PACKAGE_PREFIX = "com.startune.music"
@@ -492,18 +488,6 @@ class MusicService : MediaSessionService() {
         }
 
         serviceScope.launch {
-            userPreferencesRepository.fadePlayPauseStopFlow.collect { enabled ->
-                fadePlayPauseStopEnabled = enabled
-            }
-        }
-
-        serviceScope.launch {
-            userPreferencesRepository.fadeOnSeekFlow.collect { enabled ->
-                fadeOnSeekEnabled = enabled
-            }
-        }
-
-        serviceScope.launch {
             val persistent = userPreferencesRepository.persistentShuffleEnabledFlow.first()
             if (persistent) {
                 isManualShuffleEnabled = userPreferencesRepository.isShuffleOnFlow.first()
@@ -558,63 +542,6 @@ class MusicService : MediaSessionService() {
                 )
             }
 
-            override fun onPlayerCommandRequest(
-                session: MediaSession,
-                controller: MediaSession.ControllerInfo,
-                playerCommand: Int
-            ): Int {
-                val player = session.player
-                when (playerCommand) {
-                    Player.COMMAND_PLAY_PAUSE -> {
-                        if (engine.isTransitionRunning() || !fadePlayPauseStopEnabled) return playerCommand
-                        if (player.playWhenReady && player.playbackState != Player.STATE_ENDED) {
-                            transportFadeJob?.cancel()
-                            transportFadeJob = serviceScope.launch {
-                                val targetVolume = player.volume.coerceIn(0f, 1f)
-                                fadeMasterVolume(targetVolume, 0f)
-                                player.pause()
-                                player.volume = targetVolume
-                            }
-                            return Player.COMMAND_INVALID
-                        }
-                        if (player.mediaItemCount <= 0) return playerCommand
-                        val targetVolume = player.volume.coerceIn(0f, 1f)
-                        player.volume = 0f
-                        transportFadeJob?.cancel()
-                        transportFadeJob = serviceScope.launch {
-                            fadeMasterVolume(0f, targetVolume)
-                        }
-                        return playerCommand
-                    }
-                    Player.COMMAND_STOP -> {
-                        if (!player.isPlaying || engine.isTransitionRunning() || !fadePlayPauseStopEnabled) return playerCommand
-                        transportFadeJob?.cancel()
-                        transportFadeJob = serviceScope.launch {
-                            val targetVolume = player.volume.coerceIn(0f, 1f)
-                            fadeMasterVolume(targetVolume, 0f)
-                            player.stop()
-                            player.volume = targetVolume
-                        }
-                        return Player.COMMAND_INVALID
-                    }
-                    Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
-                    Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
-                    Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
-                    Player.COMMAND_SEEK_BACK,
-                    Player.COMMAND_SEEK_FORWARD -> {
-                        if (!player.isPlaying || engine.isTransitionRunning() || !fadeOnSeekEnabled) return playerCommand
-                        val targetVolume = player.volume.coerceIn(0f, 1f)
-                        player.volume = 0f
-                        transportFadeJob?.cancel()
-                        transportFadeJob = serviceScope.launch {
-                            delay(TRANSPORT_FADE_MS)
-                            fadeMasterVolume(0f, targetVolume)
-                        }
-                        return playerCommand
-                    }
-                    else -> return playerCommand
-                }
-            }
 
             override fun onCustomCommand(
                 session: MediaSession,
@@ -1286,20 +1213,6 @@ class MusicService : MediaSessionService() {
             }
             persistPlaybackSnapshot()
         }
-    }
-
-    private suspend fun fadeMasterVolume(from: Float, to: Float) {
-        val player = engine.masterPlayer
-        val durationMs = TRANSPORT_FADE_MS
-        val startedAtMs = SystemClock.elapsedRealtime()
-        while (true) {
-            val elapsed = (SystemClock.elapsedRealtime() - startedAtMs).coerceAtMost(durationMs)
-            val progress = (elapsed.toFloat() / durationMs).coerceIn(0f, 1f)
-            player.volume = (from + (to - from) * progress).coerceIn(0f, 1f)
-            if (elapsed >= durationMs) break
-            delay(16L)
-        }
-        player.volume = to.coerceIn(0f, 1f)
     }
 
     private suspend fun persistPlaybackSnapshot(playWhenReadyOverride: Boolean? = null) {
