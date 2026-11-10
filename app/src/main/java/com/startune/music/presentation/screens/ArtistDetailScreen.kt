@@ -24,11 +24,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items as gridItems
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,7 +38,6 @@ import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material.icons.rounded.SurroundSound
-import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -85,7 +79,6 @@ import com.startune.music.data.model.Song
 import com.startune.music.data.model.SortOption
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.ExpressiveScrollBar
-import com.startune.music.presentation.components.LibrarySortBottomSheet
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.PlaylistBottomSheet
 import com.startune.music.presentation.components.SmartImageCompactListTargetSize
@@ -160,9 +153,6 @@ fun ArtistDetailScreen(
     val selectedSongIds by multiSelectionState.selectedSongIds.collectAsStateWithLifecycle()
     val haptic = LocalHapticFeedback.current
     var showMultiSelectionSheet by remember { mutableStateOf(false) }
-    var selectedAlbumSections by remember { mutableStateOf<ImmutableList<ArtistAlbumSection>>(persistentListOf()) }
-    val selectedAlbumSectionIds = remember(selectedAlbumSections) { selectedAlbumSections.map { it.albumId }.toSet() }
-    val isAlbumSelectionMode = selectedAlbumSections.isNotEmpty()
 
     DisposableEffect(Unit) { onDispose { multiSelectionState.clearSelection() } }
     val configuration = LocalConfiguration.current
@@ -306,24 +296,8 @@ fun ArtistDetailScreen(
                     val albumSections = uiState.albumSections
                     val featuredOnSections = uiState.featuredOnSections
                     val popularTracks = uiState.popularTracks
-                    var activeView by remember { mutableStateOf(ArtistDetailView.Overview) }
-                    LaunchedEffect(activeView) {
+                    BackHandler(enabled = isSelectionMode) {
                         multiSelectionState.clearSelection()
-                        selectedAlbumSections = persistentListOf()
-                    }
-                    var trackSortOption by remember { mutableStateOf<SortOption>(SortOption.SongTitleAZ) }
-                    var showSortSheet by remember { mutableStateOf(false) }
-                    var albumSortOption by remember { mutableStateOf<SortOption>(SortOption.AlbumReleaseYear) }
-                    var showAlbumSortSheet by remember { mutableStateOf(false) }
-                    val sortedTracks = remember(songs, trackSortOption, uiState.playCounts) { sortArtistSongs(songs, trackSortOption, uiState.playCounts) }
-                    val tracksListState = rememberLazyListState()
-                    val albumsGridState = rememberLazyGridState()
-                    BackHandler(enabled = activeView != ArtistDetailView.Overview) {
-                        activeView = ArtistDetailView.Overview
-                    }
-                    BackHandler(enabled = isSelectionMode || isAlbumSelectionMode) {
-                        multiSelectionState.clearSelection()
-                        selectedAlbumSections = persistentListOf()
                     }
 
                     val showScrollBar by remember {
@@ -333,406 +307,172 @@ fun ArtistDetailScreen(
                         }
                     }
 
-                    AnimatedContent(
-                        targetState = activeView,
-                        transitionSpec = {
-                            (fadeIn(tween(250)) + slideInHorizontally(tween(250)) { it / 6 }) togetherWith
-                                (fadeOut(tween(200)) + slideOutHorizontally(tween(200)) { -it / 6 })
-                        },
-                        label = "artist_detail_view"
-                    ) { view ->
-                        when (view) {
-                        ArtistDetailView.Overview -> {
-                            LazyColumn(
-                                state = lazyListState,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .offset {
-                                        val extraHeight =
-                                            (topBarHeight.value - minTopBarHeightPx).roundToInt()
-                                        IntOffset(0, extraHeight)
-                                    },
-                                contentPadding = PaddingValues(
-                                    top = minTopBarHeight + 8.dp,
-                                    start = 16.dp,
-                                    end = if (showScrollBar) 24.dp else 16.dp,
-                                    bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp
-                                ),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    LazyColumn(
+                        state = lazyListState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .offset {
+                                val extraHeight =
+                                    (topBarHeight.value - minTopBarHeightPx).roundToInt()
+                                IntOffset(0, extraHeight)
+                            },
+                        contentPadding = PaddingValues(
+                            top = minTopBarHeight + 8.dp,
+                            start = 16.dp,
+                            end = if (showScrollBar) 24.dp else 16.dp,
+                            bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        if (songs.isNotEmpty()) {
+                            item(
+                                key = "artist_tracks_header",
+                                contentType = "artist_section_header"
                             ) {
-                                if (songs.isNotEmpty()) {
-                                    item(
-                                        key = "artist_tracks_header",
-                                        contentType = "artist_section_header"
-                                    ) {
-                                        ArtistSectionHeader(
-                                            title = stringResource(R.string.artist_songs_title),
-                                            onViewMoreClick = { activeView = ArtistDetailView.Tracks }
-                                        )
-                                    }
-                                    itemsIndexed(
-                                        items = popularTracks,
-                                        key = { _, song -> "artist_popular_${song.id}" },
-                                        contentType = { _, _ -> "artist_popular_song" }
-                                    ) { index, song ->
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                text = (index + 1).toString(),
-                                                style = MaterialTheme.typography.titleMedium,
-                                                fontWeight = FontWeight.SemiBold,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                textAlign = TextAlign.Center,
-                                                modifier = Modifier.width(28.dp)
-                                            )
-                                            LibraryPlaybackAwareSongItem(
-                                                modifier = Modifier.weight(1f),
-                                                song = song,
-                                                playerViewModel = playerViewModel,
-                                                showAlbumArt = true,
-                                                onMoreOptionsClick = {
-                                                    playerViewModel.selectSongForInfo(song)
-                                                    showSongInfoBottomSheet = true
-                                                },
-                                                onClick = { playerViewModel.showAndPlaySong(song, songs) }
-                                            )
-                                        }
-                                    }
-                                    item(
-                                        key = "artist_tracks_spacer",
-                                        contentType = "artist_section_spacer"
-                                    ) {
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                    }
-                                }
-
-                                if (albumSections.isNotEmpty()) {
-                                    item(
-                                        key = "artist_albums_header",
-                                        contentType = "artist_section_header"
-                                    ) {
-                                        ArtistSectionHeader(
-                                            title = stringResource(R.string.library_tab_albums),
-                                            onViewMoreClick = { activeView = ArtistDetailView.Albums }
-                                        )
-                                    }
-                                    item(
-                                        key = "artist_albums_row",
-                                        contentType = "artist_albums_row"
-                                    ) {
-                                        LazyRow(
-                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                            contentPadding = PaddingValues(vertical = 8.dp)
-                                        ) {
-                                            items(
-                                                items = albumSections,
-                                                key = { section -> "artist_album_${section.albumId}" },
-                                                contentType = { "artist_album_card" }
-                                            ) { section ->
-                                                ArtistAlbumCard(
-                                                    section = section,
-                                                    artistName = artist.name,
-                                                    viewModel = viewModel,
-                                                    modifier = Modifier.width(180.dp),
-                                                    onClick = {
-                                                        navController.navigateSafely(
-                                                            Screen.AlbumDetail.createRoute(section.albumId)
-                                                        )
-                                                    }
-                                                )
-                                            }
-                                        }
-                                    }
-                                    item(
-                                        key = "artist_albums_spacer",
-                                        contentType = "artist_section_spacer"
-                                    ) {
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                    }
-                                }
-
-                                if (featuredOnSections.isNotEmpty()) {
-                                    item(
-                                        key = "artist_featured_header",
-                                        contentType = "artist_section_header"
-                                    ) {
-                                        ArtistSectionHeader(
-                                            title = stringResource(R.string.artist_featured_on_title),
-                                            onViewMoreClick = { activeView = ArtistDetailView.FeaturedOn }
-                                        )
-                                    }
-                                    item(
-                                        key = "artist_featured_row",
-                                        contentType = "artist_albums_row"
-                                    ) {
-                                        LazyRow(
-                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                            contentPadding = PaddingValues(vertical = 8.dp)
-                                        ) {
-                                            items(
-                                                items = featuredOnSections,
-                                                key = { section -> "artist_featured_${section.albumId}" },
-                                                contentType = { "artist_album_card" }
-                                            ) { section ->
-                                                ArtistAlbumCard(
-                                                    section = section,
-                                                    artistName = artist.name,
-                                                    viewModel = viewModel,
-                                                    modifier = Modifier.width(180.dp),
-                                                    onClick = {
-                                                        navController.navigateSafely(
-                                                            Screen.AlbumDetail.createRoute(section.albumId)
-                                                        )
-                                                    }
-                                                )
-                                            }
-                                        }
-                                    }
-                                    item(
-                                        key = "artist_featured_spacer",
-                                        contentType = "artist_section_spacer"
-                                    ) {
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                    }
-                                }
-
-                                val artistBio = artist.bio
-                                if (!artistBio.isNullOrBlank()) {
-                                    item(
-                                        key = "artist_bio",
-                                        contentType = "artist_bio"
-                                    ) {
-                                        ArtistBioSection(bio = artistBio)
-                                    }
-                                }
+                                ArtistSectionHeader(
+                                    title = stringResource(R.string.artist_songs_title),
+                                    onViewMoreClick = { navController.navigateSafely(Screen.ArtistDetailList.createRoute(artist.id, ArtistDetailView.Tracks.name)) }
+                                )
                             }
-                        }
-                        ArtistDetailView.Tracks -> {
-                            LazyColumn(
-                                state = tracksListState,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .offset {
-                                        val extraHeight =
-                                            (topBarHeight.value - minTopBarHeightPx).roundToInt()
-                                        IntOffset(0, extraHeight)
-                                    },
-                                contentPadding = PaddingValues(
-                                    top = minTopBarHeight + 8.dp,
-                                    start = 16.dp,
-                                    end = if (showScrollBar) 24.dp else 16.dp,
-                                    bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp
-                                ),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                item(
-                                    key = "artist_all_tracks_header",
-                                    contentType = "artist_subview_header"
+                            itemsIndexed(
+                                items = popularTracks,
+                                key = { _, song -> "artist_popular_${song.id}" },
+                                contentType = { _, _ -> "artist_popular_song" }
+                            ) { index, song ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    AnimatedContent(
-                                        targetState = isSelectionMode,
-                                        label = "ActionRowModeSwitch",
-                                        transitionSpec = {
-                                            (slideInHorizontally { -it } + fadeIn()) togetherWith
-                                                (slideOutHorizontally { it } + fadeOut())
-                                        }
-                                    ) { inSelectionMode ->
-                                        if (inSelectionMode) {
-                                            SelectionActionRow(
-                                                selectedCount = selectedSongs.size,
-                                                onSelectAll = { multiSelectionState.selectAll(sortedTracks) },
-                                                onDeselect = { multiSelectionState.clearSelection() },
-                                                onOptionsClick = { showMultiSelectionSheet = true }
-                                            )
-                                        } else {
-                                            ArtistSubViewHeader(
-                                                title = stringResource(R.string.artist_all_songs_title),
-                                                onBackClick = { activeView = ArtistDetailView.Overview },
-                                                onSortClick = { showSortSheet = true }
-                                            )
-                                        }
-                                    }
-                                }
-                                itemsIndexed(
-                                    items = sortedTracks,
-                                    key = { _, song -> "artist_track_${song.id}" },
-                                    contentType = { _, _ -> "artist_track_song" }
-                                ) { index, song ->
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = (index + 1).toString(),
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            textAlign = TextAlign.Center,
-                                            modifier = Modifier.width(28.dp)
-                                        )
-                                        LibraryPlaybackAwareSongItem(
-                                            modifier = Modifier.weight(1f),
-                                            song = song,
-                                            playerViewModel = playerViewModel,
-                                            showAlbumArt = true,
-                                            isSelected = selectedSongIds.contains(song.id),
-                                            selectionIndex = if (isSelectionMode) multiSelectionState.getSelectionIndex(song.id) else null,
-                                            isSelectionMode = isSelectionMode,
-                                            onLongPress = {
-                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                multiSelectionState.toggleSelection(song)
-                                            },
-                                            onMoreOptionsClick = {
-                                                playerViewModel.selectSongForInfo(song)
-                                                showSongInfoBottomSheet = true
-                                            },
-                                            onClick = {
-                                                if (isSelectionMode) {
-                                                    multiSelectionState.toggleSelection(song)
-                                                } else {
-                                                    playerViewModel.showAndPlaySong(song, sortedTracks)
-                                                }
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        ArtistDetailView.Albums, ArtistDetailView.FeaturedOn -> {
-                            val sortedAlbumSections = remember(albumSections, albumSortOption) { sortAlbumSections(albumSections, albumSortOption, artist.name) }
-                            val sortedFeaturedOnSections = remember(featuredOnSections, albumSortOption) { sortAlbumSections(featuredOnSections, albumSortOption, artist.name) }
-                            val gridSections = if (view == ArtistDetailView.FeaturedOn) sortedFeaturedOnSections else sortedAlbumSections
-                            val gridTitle = if (view == ArtistDetailView.FeaturedOn) {
-                                stringResource(R.string.artist_featured_on_title)
-                            } else {
-                                stringResource(R.string.library_tab_albums)
-                            }
-                            LazyVerticalGrid(
-                                columns = GridCells.Fixed(2),
-                                state = albumsGridState,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .offset {
-                                        val extraHeight =
-                                            (topBarHeight.value - minTopBarHeightPx).roundToInt()
-                                        IntOffset(0, extraHeight)
-                                    },
-                                contentPadding = PaddingValues(
-                                    top = minTopBarHeight + 8.dp,
-                                    start = 16.dp,
-                                    end = 16.dp,
-                                    bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp
-                                ),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                item(span = { GridItemSpan(2) }) {
-                                    AnimatedContent(
-                                        targetState = isAlbumSelectionMode,
-                                        label = "ActionRowModeSwitch",
-                                        transitionSpec = {
-                                            (slideInHorizontally { -it } + fadeIn()) togetherWith
-                                                (slideOutHorizontally { it } + fadeOut())
-                                        }
-                                    ) { inSelectionMode ->
-                                        if (inSelectionMode) {
-                                            SelectionActionRow(
-                                                selectedCount = selectedAlbumSections.size,
-                                                onSelectAll = {
-                                                    multiSelectionState.clearSelection()
-                                                    selectedAlbumSections = (selectedAlbumSections + gridSections.filterNot { section -> selectedAlbumSectionIds.contains(section.albumId) }).toImmutableList()
-                                                },
-                                                onDeselect = {
-                                                    selectedAlbumSections = persistentListOf()
-                                                    multiSelectionState.clearSelection()
-                                                },
-                                                onOptionsClick = {
-                                                    val songs = selectedAlbumSections.flatMap { it.songs }.distinctBy { it.id }
-                                                    if (songs.isNotEmpty()) {
-                                                        multiSelectionState.replaceSelection(songs)
-                                                        showMultiSelectionSheet = true
-                                                    }
-                                                }
-                                            )
-                                        } else {
-                                            ArtistSubViewHeader(
-                                                title = gridTitle,
-                                                onBackClick = { activeView = ArtistDetailView.Overview },
-                                                onSortClick = { showAlbumSortSheet = true }
-                                            )
-                                        }
-                                    }
-                                }
-                                gridItems(
-                                    items = gridSections,
-                                    key = { section -> "artist_grid_album_${section.albumId}" },
-                                    contentType = { "artist_album_card" }
-                                ) { section ->
-                                    ArtistAlbumCard(
-                                        section = section,
-                                        artistName = artist.name,
-                                        viewModel = viewModel,
-                                        isSelected = selectedAlbumSectionIds.contains(section.albumId),
-                                        selectionIndex = if (isAlbumSelectionMode) {
-                                            selectedAlbumSections.indexOfFirst { it.albumId == section.albumId }.takeIf { it >= 0 }?.plus(1)
-                                        } else null,
-                                        isSelectionMode = isAlbumSelectionMode,
-                                        onLongPress = {
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                            multiSelectionState.clearSelection()
-                                            selectedAlbumSections = if (selectedAlbumSectionIds.contains(section.albumId)) {
-                                                selectedAlbumSections.filterNot { it.albumId == section.albumId }.toImmutableList()
-                                            } else {
-                                                (selectedAlbumSections + section).toImmutableList()
-                                            }
+                                    Text(
+                                        text = (index + 1).toString(),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.width(28.dp)
+                                    )
+                                    LibraryPlaybackAwareSongItem(
+                                        modifier = Modifier.weight(1f),
+                                        song = song,
+                                        playerViewModel = playerViewModel,
+                                        showAlbumArt = true,
+                                        onMoreOptionsClick = {
+                                            playerViewModel.selectSongForInfo(song)
+                                            showSongInfoBottomSheet = true
                                         },
-                                        onSelectionToggle = {
-                                            multiSelectionState.clearSelection()
-                                            selectedAlbumSections = if (selectedAlbumSectionIds.contains(section.albumId)) {
-                                                selectedAlbumSections.filterNot { it.albumId == section.albumId }.toImmutableList()
-                                            } else {
-                                                (selectedAlbumSections + section).toImmutableList()
-                                            }
-                                        },
-                                        onClick = {
-                                            navController.navigateSafely(
-                                                Screen.AlbumDetail.createRoute(section.albumId)
-                                            )
-                                        }
+                                        onClick = { playerViewModel.showAndPlaySong(song, songs) }
                                     )
                                 }
                             }
+                            item(
+                                key = "artist_tracks_spacer",
+                                contentType = "artist_section_spacer"
+                            ) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+                        }
+
+                        if (albumSections.isNotEmpty()) {
+                            item(
+                                key = "artist_albums_header",
+                                contentType = "artist_section_header"
+                            ) {
+                                ArtistSectionHeader(
+                                    title = stringResource(R.string.library_tab_albums),
+                                    onViewMoreClick = { navController.navigateSafely(Screen.ArtistDetailList.createRoute(artist.id, ArtistDetailView.Albums.name)) }
+                                )
+                            }
+                            item(
+                                key = "artist_albums_row",
+                                contentType = "artist_albums_row"
+                            ) {
+                                LazyRow(
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    contentPadding = PaddingValues(vertical = 8.dp)
+                                ) {
+                                    items(
+                                        items = albumSections,
+                                        key = { section -> "artist_album_${section.albumId}" },
+                                        contentType = { "artist_album_card" }
+                                    ) { section ->
+                                        ArtistAlbumCard(
+                                            section = section,
+                                            artistName = artist.name,
+                                            viewModel = viewModel,
+                                            modifier = Modifier.width(180.dp),
+                                            onClick = {
+                                                navController.navigateSafely(
+                                                    Screen.AlbumDetail.createRoute(section.albumId)
+                                                )
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                            item(
+                                key = "artist_albums_spacer",
+                                contentType = "artist_section_spacer"
+                            ) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+                        }
+
+                        if (featuredOnSections.isNotEmpty()) {
+                            item(
+                                key = "artist_featured_header",
+                                contentType = "artist_section_header"
+                            ) {
+                                ArtistSectionHeader(
+                                    title = stringResource(R.string.artist_featured_on_title),
+                                    onViewMoreClick = { navController.navigateSafely(Screen.ArtistDetailList.createRoute(artist.id, ArtistDetailView.FeaturedOn.name)) }
+                                )
+                            }
+                            item(
+                                key = "artist_featured_row",
+                                contentType = "artist_albums_row"
+                            ) {
+                                LazyRow(
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    contentPadding = PaddingValues(vertical = 8.dp)
+                                ) {
+                                    items(
+                                        items = featuredOnSections,
+                                        key = { section -> "artist_featured_${section.albumId}" },
+                                        contentType = { "artist_album_card" }
+                                    ) { section ->
+                                        ArtistAlbumCard(
+                                            section = section,
+                                            artistName = artist.name,
+                                            viewModel = viewModel,
+                                            modifier = Modifier.width(180.dp),
+                                            onClick = {
+                                                navController.navigateSafely(
+                                                    Screen.AlbumDetail.createRoute(section.albumId)
+                                                )
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                            item(
+                                key = "artist_featured_spacer",
+                                contentType = "artist_section_spacer"
+                            ) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+                        }
+
+                        val artistBio = artist.bio
+                        if (!artistBio.isNullOrBlank()) {
+                            item(
+                                key = "artist_bio",
+                                contentType = "artist_bio"
+                            ) {
+                                ArtistBioSection(bio = artistBio)
+                            }
                         }
                     }
-                }
-
-                    if (showSortSheet) {
-                        LibrarySortBottomSheet(
-                            title = stringResource(R.string.presentation_batch_d_sort_by),
-                            options = SortOption.SONGS.toImmutableList(),
-                            selectedOption = trackSortOption,
-                            onDismiss = { showSortSheet = false },
-                            onOptionSelected = {
-                                trackSortOption = it
-                                showSortSheet = false
-                            }
-                        )
-                    }
-
-                    if (showAlbumSortSheet) {
-                        LibrarySortBottomSheet(
-                            title = stringResource(R.string.presentation_batch_d_sort_by),
-                            options = SortOption.ALBUMS.toImmutableList(),
-                            selectedOption = albumSortOption,
-                            onDismiss = { showAlbumSortSheet = false },
-                            onOptionSelected = {
-                                albumSortOption = it
-                                showAlbumSortSheet = false
-                            }
-                        )
-                    }
+                
 
                     if (collapseFraction > 0.95f) {
                         ExpressiveScrollBar(
@@ -755,11 +495,7 @@ fun ArtistDetailScreen(
                             headerHeight = currentTopBarHeightDp,
                             headerImageRequestSize = headerImageRequestSize,
                             onBackPressed = {
-                                if (activeView != ArtistDetailView.Overview) {
-                                    activeView = ArtistDetailView.Overview
-                                } else {
-                                    navController.popBackStack()
-                                }
+                                navController.popBackStack()
                             },
                             onPlayClick = {
                                 if (songs.isNotEmpty()) {
@@ -781,11 +517,7 @@ fun ArtistDetailScreen(
                             headerHeight = currentTopBarHeightDp,
                             headerImageRequestSize = headerImageRequestSize,
                             onBackPressed = {
-                                if (activeView != ArtistDetailView.Overview) {
-                                    activeView = ArtistDetailView.Overview
-                                } else {
-                                    navController.popBackStack()
-                                }
+                                navController.popBackStack()
                             },
                             onPlayClick = {
                                 if (songs.isNotEmpty()) {
@@ -804,7 +536,7 @@ fun ArtistDetailScreen(
 
             // Song and album selections are mutually exclusive, so the sum is the active count.
             SelectionCountPill(
-                selectedCount = selectedSongs.size + selectedAlbumSections.size,
+                selectedCount = selectedSongs.size,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = with(density) { topBarHeight.value.toDp() })
@@ -928,11 +660,10 @@ fun ArtistDetailScreen(
         multiSelectionState = multiSelectionState,
         showSheet = showMultiSelectionSheet,
         onDismiss = { showMultiSelectionSheet = false },
-        onActionTaken = { selectedAlbumSections = persistentListOf() }
+        onActionTaken = {}
     )
     }
 }
-
 
 @Composable
 private fun SharedArtistTopBarProbe(
@@ -1134,7 +865,6 @@ private fun CustomCollapsingTopBar(
     val animatedTitleAlignment = BiasAlignment(horizontalBias = -1f, verticalBias = titleVerticalBias)
     val titleContainerHeight = lerp(88.dp, 56.dp, collapseFraction)
     val yOffsetCorrection = lerp( (titleContainerHeight / 2) - 64.dp, 0.dp, collapseFraction)
-
 
     Box(
         modifier = Modifier
@@ -1345,7 +1075,6 @@ private fun MusicIconPattern(modifier: Modifier = Modifier) {
     }
 }
 
-
 @Composable
 private fun ArtistBioSection(bio: String) {
     var expanded by remember { mutableStateOf(false) }
@@ -1388,27 +1117,9 @@ private fun ArtistBioSection(bio: String) {
     }
 }
 
-private enum class ArtistDetailView {
+enum class ArtistDetailView {
     Overview, Tracks, Albums, FeaturedOn
 }
-
-private fun sortAlbumSections(
-    sections: List<ArtistAlbumSection>,
-    sortOption: SortOption,
-    artistName: String
-): List<ArtistAlbumSection> =
-    when (sortOption) {
-        SortOption.AlbumTitleAZ -> sections.sortedWith(compareBy<ArtistAlbumSection> { it.title.lowercase() }.thenBy { it.albumId })
-        SortOption.AlbumTitleZA -> sections.sortedWith(compareByDescending<ArtistAlbumSection> { it.title.lowercase() }.thenBy { it.albumId })
-        SortOption.AlbumArtist -> sections.sortedWith(compareBy<ArtistAlbumSection> { artistName.lowercase() }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
-        SortOption.AlbumArtistDesc -> sections.sortedWith(compareByDescending<ArtistAlbumSection> { artistName.lowercase() }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
-        SortOption.AlbumReleaseYear -> sections.sortedWith(compareByDescending<ArtistAlbumSection> { it.year ?: 0 }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
-        SortOption.AlbumReleaseYearAsc -> sections.sortedWith(compareBy<ArtistAlbumSection> { it.year ?: 0 }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
-        SortOption.AlbumDateAdded -> sections.sortedWith(compareByDescending<ArtistAlbumSection> { it.songs.maxOfOrNull { song -> song.dateAdded } ?: 0 }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
-        SortOption.AlbumSizeAsc -> sections.sortedWith(compareBy<ArtistAlbumSection> { it.songs.size }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
-        SortOption.AlbumSizeDesc -> sections.sortedWith(compareByDescending<ArtistAlbumSection> { it.songs.size }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
-        else -> sections
-    }
 
 fun sortArtistSongs(
     songs: List<Song>,
@@ -1441,6 +1152,24 @@ fun sortArtistSongs(
     }
 
 @Composable
+fun sortAlbumSections(
+    sections: List<ArtistAlbumSection>,
+    sortOption: SortOption,
+    artistName: String
+): List<ArtistAlbumSection> =
+    when (sortOption) {
+        SortOption.AlbumTitleAZ -> sections.sortedWith(compareBy<ArtistAlbumSection> { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumTitleZA -> sections.sortedWith(compareByDescending<ArtistAlbumSection> { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumArtist -> sections.sortedWith(compareBy<ArtistAlbumSection> { artistName.lowercase() }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumArtistDesc -> sections.sortedWith(compareByDescending<ArtistAlbumSection> { artistName.lowercase() }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumReleaseYear -> sections.sortedWith(compareByDescending<ArtistAlbumSection> { it.year ?: 0 }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumReleaseYearAsc -> sections.sortedWith(compareBy<ArtistAlbumSection> { it.year ?: 0 }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumDateAdded -> sections.sortedWith(compareByDescending<ArtistAlbumSection> { it.songs.maxOfOrNull { song -> song.dateAdded } ?: 0 }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumSizeAsc -> sections.sortedWith(compareBy<ArtistAlbumSection> { it.songs.size }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumSizeDesc -> sections.sortedWith(compareByDescending<ArtistAlbumSection> { it.songs.size }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
+        else -> sections
+    }
+
 private fun ArtistSectionHeader(
     title: String,
     onViewMoreClick: () -> Unit
@@ -1476,56 +1205,7 @@ private fun ArtistSectionHeader(
 }
 
 @Composable
-private fun ArtistSubViewHeader(
-    title: String,
-    onBackClick: () -> Unit,
-    onSortClick: (() -> Unit)? = null
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            FilledIconButton(
-                modifier = Modifier
-                    .height(40.dp)
-                    .width(64.dp),
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                    contentColor = MaterialTheme.colorScheme.secondary
-                ),
-                onClick = onBackClick
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.auth_cd_back),
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-        if (onSortClick != null) {
-            FilledTonalIconButton(onClick = onSortClick) {
-                Icon(
-                    imageVector = Icons.Filled.Sort,
-                    contentDescription = stringResource(R.string.presentation_batch_d_sort_by)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ArtistAlbumCard(
+fun ArtistAlbumCard(
     section: ArtistAlbumSection,
     artistName: String,
     viewModel: ArtistDetailViewModel,
