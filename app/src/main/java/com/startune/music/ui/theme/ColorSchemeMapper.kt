@@ -114,31 +114,25 @@ fun ColorScheme.withDerivedRoles(dark: Boolean): ColorScheme {
 }
 
 /**
- * Pitch-black (AMOLED) variant of a dark scheme. The large background areas
- * become pure black so OLED pixels turn off, while the elevated surfaces
- * keep 30% of the scheme's tone so cards and sheets stay distinguishable
- * and the scheme still reads as itself. Accent and text roles are untouched,
- * so the scheme's tone is carried by its accents.
+ * Pitch-black (AMOLED) variant of a dark scheme. The surface hierarchy is
+ * replaced by the fixed neutral ramp from the upstream PixelPlayerOSS AMOLED
+ * preset (background/surface/dim/lowest pure black; the elevated surfaces
+ * step through 0x080808, 0x101010, 0x181818, 0x242424), so cards and sheets
+ * stay distinguishable on a pure-black background. Accent and text roles
+ * are untouched, so the scheme's tone is carried by its accents.
  */
-fun ColorScheme.toPitchBlack(): ColorScheme {
-    fun tonedDown(color: Color): Color =
-        Color(ColorUtils.blendARGB(color.toArgb(), Color.Black.toArgb(), PITCH_BLACK_TONE_DOWN))
-    return copy(
-        background = Color.Black,
-        surface = Color.Black,
-        surfaceDim = Color.Black,
-        surfaceContainerLowest = Color.Black,
-        surfaceContainerLow = tonedDown(surfaceContainerLow),
-        surfaceContainer = tonedDown(surfaceContainer),
-        surfaceContainerHigh = tonedDown(surfaceContainerHigh),
-        surfaceContainerHighest = tonedDown(surfaceContainerHighest),
-        surfaceVariant = tonedDown(surfaceVariant),
-        surfaceBright = tonedDown(surfaceBright)
-    )
-}
-
-/** Fraction of the original color blended toward black for elevated surfaces. */
-private const val PITCH_BLACK_TONE_DOWN = 0.7f
+fun ColorScheme.toPitchBlack(): ColorScheme = copy(
+    background = Color.Black,
+    surface = Color.Black,
+    surfaceDim = Color.Black,
+    surfaceBright = Color(0xFF242424),
+    surfaceContainerLowest = Color.Black,
+    surfaceContainerLow = Color(0xFF080808),
+    surfaceContainer = Color(0xFF101010),
+    surfaceContainerHigh = Color(0xFF181818),
+    surfaceContainerHighest = Color(0xFF242424),
+    surfaceVariant = Color(0xFF242424)
+)
 
 /**
  * Builds a full Material3 scheme from the six editable roles. on-colors are
