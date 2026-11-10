@@ -119,7 +119,10 @@ fun LibrarySongsTab(
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(playerViewModel, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            playerViewModel.scrollToIndexEvent.collect { index ->
+            playerViewModel.scrollToIndexEvent.collect { request ->
+                // A neighbouring pager page (e.g. Liked) is composed too; ignore its requests.
+                if (request.tab != LibraryTabId.SONGS) return@collect
+                val index = request.index
                 if (index >= 0) {
                     val firstVisible = listState.firstVisibleItemIndex
                     if (Math.abs(index - firstVisible) > 20) {
@@ -137,7 +140,7 @@ fun LibrarySongsTab(
             null
         } else {
             {
-                playerViewModel.requestLocateCurrentSong()
+                playerViewModel.requestLocateCurrentSong(LibraryTabId.SONGS)
             }
         }
     }

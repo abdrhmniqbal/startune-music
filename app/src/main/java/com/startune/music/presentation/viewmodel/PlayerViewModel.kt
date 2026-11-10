@@ -191,6 +191,15 @@ data class PlaybackAudioMetadata(
     val bitDepth: Int? = null
 )
 
+/**
+ * A Locate request for one Library list. [index] is the current song's position in [tab]'s own
+ * order, so only that tab's list scrolls; a neighbouring pager page keeps its position.
+ */
+data class LocateScrollRequest(
+    val tab: LibraryTabId,
+    val index: Int
+)
+
 private data class SortOptionsSnapshot(
     val songSort: SortOption,
     val albumSort: SortOption,
@@ -586,7 +595,7 @@ class PlayerViewModel @Inject constructor(
     private val _searchNavDoubleTapEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val searchNavDoubleTapEvents = _searchNavDoubleTapEvents.asSharedFlow()
     
-    private val _scrollToIndexEvent = MutableSharedFlow<Int>(extraBufferCapacity = 1)
+    private val _scrollToIndexEvent = MutableSharedFlow<LocateScrollRequest>(extraBufferCapacity = 1)
     val scrollToIndexEvent = _scrollToIndexEvent.asSharedFlow()
     
     private var albumNavigationJob: Job? = null
@@ -597,16 +606,24 @@ class PlayerViewModel @Inject constructor(
     private var directPlaybackToken: Long = 0L
     private var pendingQueueSegmentsJob: Job? = null
 
-    fun requestLocateCurrentSong() {
+    /**
+     * Finds the current song in [tab]'s list and emits its index on [scrollToIndexEvent].
+     * Liked only holds favourites in its own sort, so its index comes from that order rather
+     * than from the full Songs order.
+     */
+    fun requestLocateCurrentSong(tab: LibraryTabId) {
         val currentSong = stablePlayerState.value.currentSong ?: return
 
         viewModelScope.launch {
             try {
-                val sortOption = playerUiState.value.currentSongSortOption
-                
-                val storageFilter = currentEffectiveLibraryStorageFilter()
+                val state = playerUiState.value
+                val storageFilter = currentEffectiveLibraryStorageFilter(state)
 
-                val sortedIds = musicRepository.getSongIdsSorted(sortOption, storageFilter)
+                val sortedIds = if (tab == LibraryTabId.LIKED) {
+                    musicRepository.getFavoriteSongIdsSorted(state.currentFavoriteSortOption, storageFilter)
+                } else {
+                    musicRepository.getSongIdsSorted(state.currentSongSortOption, storageFilter)
+                }
 
                 val unifiedId = currentSong.id.toLongOrNull()
                     ?: currentSong.contentUriString
@@ -616,7 +633,7 @@ class PlayerViewModel @Inject constructor(
                 val index = unifiedId?.let { sortedIds.indexOf(it) } ?: -1
 
                 if (index != -1) {
-                    _scrollToIndexEvent.emit(index)
+                    _scrollToIndexEvent.emit(LocateScrollRequest(tab = tab, index = index))
                 } else {
                     sendToast(context.getString(R.string.player_song_not_found_in_list))
                 }
@@ -4238,8 +4255,9 @@ class PlayerViewModel @Inject constructor(
         mediaController = null
         mediaControllerFuture.cancel(true)
         super.onCleared()
-        stopProgressUpdates()
-        playbackStateHolder.onCleared()
+        // The holder stops progress updates itself, and only when this instance still owns it;
+        // stopping them here would freeze the seek bar of a newer PlayerViewModel.
+        playbackStateHolder.onCleared(ownerScope)
         // The listening session belongs to MusicService, which finalizes it on track end,
         // stop/unload and onDestroy. Finalizing here would split a session that keeps
         // playing in the background after the activity finishes.
