@@ -26,6 +26,8 @@ object MixBuilder {
      *
      * @param now current epoch millis (injected so tests are deterministic).
      * @param limit requested size; clamped to `1..allSongs.size`.
+     * @param artistIds picked artists for [MixRule.ARTISTS], in pick order;
+     *   ignored by every other rule.
      */
     fun buildSongIds(
         rule: MixRule,
@@ -34,6 +36,7 @@ object MixBuilder {
         favoriteIds: Set<String>,
         now: Long,
         limit: Int,
+        artistIds: List<Long> = emptyList(),
     ): List<String> {
         if (allSongs.isEmpty()) return emptyList()
 
@@ -87,6 +90,71 @@ object MixBuilder {
                     .filter { song -> (engagements[song.id]?.playCount ?: 0) <= NEW_GEM_MAX_PLAY_COUNT }
                     .take(safeLimit)
                     .toList()
+            }
+
+            MixRule.ARTISTS -> {
+                val pool = allSongs.filter { song -> song.artists.any { it.id in artistIds } }
+                if (pool.isEmpty() || artistIds.isEmpty()) return emptyList()
+                val artistLimit = limit.coerceAtLeast(1).coerceAtMost(pool.size)
+                val playCountOf = { song: Song -> engagements[song.id]?.playCount ?: 0 }
+                val played = pool
+                    .filter { playCountOf(it) > 0 }
+                    .sortedWith(
+                        compareByDescending<Song> { playCountOf(it) }
+                            .thenByDescending { engagements[it.id]?.totalPlayDurationMs ?: 0L }
+                            .thenByDescending { engagements[it.id]?.lastPlayedTimestamp ?: 0L }
+                    )
+                // Day seed so the rotating and fresh tiers change every day
+                // while the anchor (most played) stays put. Offset from the
+                // daily mix seed (+17) so the two mixes do not rotate in lockstep.
+                val calendar = java.util.Calendar.getInstance().apply { timeInMillis = now }
+                val daySeed = calendar.get(java.util.Calendar.YEAR) * 1000 +
+                    calendar.get(java.util.Calendar.DAY_OF_YEAR) + 41
+                // 50% anchor (most played, always there), 45% rotation
+                // (played but not top), 5% fresh (least played).
+                val freshCount = (artistLimit * 5 / 100).coerceAtLeast(1)
+                val anchorCount = (artistLimit / 2).coerceAtMost(artistLimit - freshCount)
+                val rotationCount = artistLimit - anchorCount - freshCount
+                val anchor = played.take(anchorCount)
+                val rotation = played.drop(anchorCount)
+                    .shuffled(kotlin.random.Random(daySeed.toLong()))
+                    .take(rotationCount)
+                val unplayed = pool.filter { playCountOf(it) == 0 }
+                val leastPlayed = if (unplayed.isNotEmpty()) unplayed
+                    else played.takeLast(played.size / 4 + 1)
+                val fresh = leastPlayed
+                    .shuffled(kotlin.random.Random((daySeed + 1).toLong()))
+                    .take(freshCount)
+                val picked = (anchor + rotation + fresh).distinct()
+                val selected = if (picked.size < artistLimit) {
+                    picked + pool.shuffled(kotlin.random.Random((daySeed + 2).toLong()))
+                        .filter { it !in picked }
+                        .take(artistLimit - picked.size)
+                } else {
+                    picked
+                }
+                // Round-robin across the picked artists, in the order they
+                // were picked, so the mix sounds like a mixture instead of
+                // one artist then the next.
+                val byArtist = selected.groupBy { song ->
+                    song.artists.firstOrNull { it.id in artistIds }?.id ?: artistIds.first()
+                }
+                val artistOrder = artistIds.filter { it in byArtist }
+                val ordered = mutableListOf<Song>()
+                var index = 0
+                while (ordered.size < selected.size) {
+                    var progressed = false
+                    for (artistId in artistOrder) {
+                        val group = byArtist[artistId] ?: continue
+                        if (index < group.size) {
+                            ordered.add(group[index])
+                            progressed = true
+                        }
+                    }
+                    if (!progressed) break
+                    index++
+                }
+                ordered
             }
         }
 

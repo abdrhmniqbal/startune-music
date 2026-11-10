@@ -1,4 +1,4 @@
-﻿@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, ExperimentalLayoutApi::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, ExperimentalLayoutApi::class)
 
 package com.startune.music.presentation.screens
 
@@ -123,6 +123,10 @@ import com.startune.music.data.model.Song
 import com.startune.music.presentation.components.ImageCropView
 import com.startune.music.data.model.PlaylistShapeType
 import com.startune.music.presentation.components.SongPickerSelectionPane
+import com.startune.music.presentation.components.CoverColorPicker
+import com.startune.music.presentation.components.CoverIconPicker
+import com.startune.music.presentation.components.getIconByName
+import com.startune.music.presentation.components.getThemeContentColor
 import com.startune.music.ui.theme.RoundedSans
 import androidx.compose.material3.Slider
 import androidx.compose.material3.FilterChip
@@ -1177,100 +1181,17 @@ private fun PlaylistFormContent(
                      modifier = Modifier.padding(top = 14.dp),
                      verticalArrangement = Arrangement.spacedBy(16.dp)
                  ) {
-                     Text(
-                         modifier = Modifier.padding(start = 22.dp),
-                         text = stringResource(R.string.presentation_batch_f_background_color),
-                         style = MaterialTheme.typography.titleSmall,
-                         color = MaterialTheme.colorScheme.onSurfaceVariant
-                     )
-                     
-                     val colors = listOf( 
-                         MaterialTheme.colorScheme.primary.toArgb(),
-                         MaterialTheme.colorScheme.primaryContainer.toArgb(),
-                         MaterialTheme.colorScheme.secondary.toArgb(),
-                         MaterialTheme.colorScheme.secondaryContainer.toArgb(),
-                         MaterialTheme.colorScheme.tertiary.toArgb(),
-                         MaterialTheme.colorScheme.tertiaryContainer.toArgb(),
-                         MaterialTheme.colorScheme.error.toArgb(),
-                         MaterialTheme.colorScheme.errorContainer.toArgb(),
-                         MaterialTheme.colorScheme.surfaceContainerHigh.toArgb(),
-                         MaterialTheme.colorScheme.inverseSurface.toArgb()
-                     )
-                     
-                     FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 18.dp)
-                     ) {
-                         colors.forEach { color ->
-                             val isSelected = selectedColor == color
-                             val cornerRadius by animateDpAsState(targetValue = if (isSelected) 12.dp else 24.dp, label = "CornerRadius")
-                             
-                             Box(
-                                 modifier = Modifier
-                                     .size(52.dp)
-                                    .clip(RoundedCornerShape(cornerRadius))
-                                     .background(if (isSelected) Color(color) else Color.Transparent)
-                                    .border(
-                                        width = if (isSelected) 3.dp else 0.dp,
-                                        color = if (isSelected) Color(color) else Color.Transparent,
-                                        shape = RoundedCornerShape(cornerRadius)
-                                    ),
-                                 contentAlignment = Alignment.Center
-                             ) {
-                                  Box(
-                                     modifier = Modifier
-                                         .size(if (isSelected) 42.dp else 48.dp)
-                                        .clip(RoundedCornerShape(if (isSelected) 8.dp else cornerRadius))
-                                        .background(Color(color))
-                                         .clickable { onColorChange(color) }
-                                  )
-                             }
-                         }
-                     }
+                    CoverColorPicker(
+                        selectedColor = selectedColor,
+                        onColorChange = onColorChange
+                    )
                      
                      Spacer(Modifier.height(8.dp))
 
-                     Text(
-                         modifier = Modifier.padding(start = 22.dp),
-                         text = stringResource(R.string.presentation_batch_f_icon_symbol),
-                         style = MaterialTheme.typography.titleSmall,
-                         color = MaterialTheme.colorScheme.onSurfaceVariant
-                     )
-
-                     val icons = listOf(
-                        "MusicNote", "Headphones", "Album", "Mic", "Speaker", "Favorite", "Piano", "Queue"
-                     )
-                     
-                     FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 18.dp)
-                     ) {
-                         icons.forEach { iconName ->
-                             val isSelected = selectedIconName == iconName
-                             val cornerRadius by animateDpAsState(targetValue = if (isSelected) 12.dp else 24.dp, label = "CornerRadius")
-
-                             Box(
-                                 modifier = Modifier
-                                     .size(52.dp)
-                                     .clip(RoundedCornerShape(cornerRadius))
-                                     .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer)
-                                     .clickable { onIconChange(iconName) },
-                                 contentAlignment = Alignment.Center
-                             ) {
-                                 Icon(
-                                     imageVector = getIconByName(iconName) ?: Icons.Rounded.MusicNote,
-                                     contentDescription = null,
-                                     tint = if(isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
-                                 )
-                             }
-                         }
-                     }
+                    CoverIconPicker(
+                        selectedIconName = selectedIconName,
+                        onIconChange = onIconChange
+                    )
 
                      Spacer(Modifier.height(16.dp))
 
@@ -1363,19 +1284,6 @@ private fun PlaylistFormContent(
 
 
 
-fun getIconByName(name: String?): ImageVector? {
-    return when (name) {
-        "MusicNote" -> Icons.Rounded.MusicNote
-        "Headphones" -> Icons.Rounded.Headphones
-        "Album" -> Icons.Rounded.Album
-        "Mic" -> Icons.Rounded.MicExternalOn 
-        "Speaker" -> Icons.Rounded.Speaker
-        "Favorite" -> Icons.Rounded.Favorite
-        "Piano" -> Icons.Rounded.Piano
-        "Queue" -> Icons.AutoMirrored.Rounded.QueueMusic
-        else -> null
-    }
-}
 
 @Composable
 fun ExpressiveButtonGroup(
@@ -1518,6 +1426,3 @@ fun ThickSlider(
 }
 
 
-fun getThemeContentColor(colorArgb: Int, scheme: androidx.compose.material3.ColorScheme): Color {
-    return resolvePlaylistCoverContentColor(colorArgb, scheme)
-}

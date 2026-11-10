@@ -23,7 +23,9 @@ data class Playlist(
     val coverShapeDetail4: Float? = null,
     val source: String = "LOCAL",
     /** Song count for a mix (a playlist whose source is a mix rule). Null for regular playlists. */
-    val mixSongCount: Int? = null
+    val mixSongCount: Int? = null,
+    /** Picked artist ids for an ARTISTS mix, in pick order. Null for other mixes and playlists. */
+    val mixArtistIds: List<Long>? = null
 )
 
 enum class PlaylistShapeType {

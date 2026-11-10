@@ -167,7 +167,6 @@ import com.startune.music.presentation.components.subcomps.LibraryActionRow
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.components.MultiSelectionBottomSheet
 import com.startune.music.presentation.components.PlaylistMultiSelectionBottomSheet
-import com.startune.music.presentation.components.CreateMixDialog
 import com.startune.music.presentation.components.subcomps.SelectionActionRow
 import com.startune.music.presentation.components.subcomps.SelectionCountPill
 import com.startune.music.presentation.viewmodel.ColorSchemePair
@@ -379,7 +378,7 @@ fun LibraryScreen(
             .distinctUntilChanged()
     }.collectAsStateWithLifecycle(initialValue = false)
     var showCreatePlaylistDialog by remember { mutableStateOf(false) }
-    var showCreateMixDialog by remember { mutableStateOf(false) }
+    var showCreateMixForm by remember { mutableStateOf(false) }
 
     val m3uImportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -1202,7 +1201,7 @@ fun LibraryScreen(
                                     onMainActionClick = {
                                         when (tabTitles.getOrNull(currentTabIndex)?.toLibraryTabIdOrNull()) {
                                             LibraryTabId.PLAYLISTS -> showCreatePlaylistDialog = true
-                                            LibraryTabId.MIXES -> showCreateMixDialog = true
+                                            LibraryTabId.MIXES -> showCreateMixForm = true
                                             LibraryTabId.LIKED -> playerViewModel.shuffleFavoriteSongs()
                                             LibraryTabId.ALBUMS -> playerViewModel.shuffleRandomAlbum()
                                             LibraryTabId.ARTISTS -> playerViewModel.shuffleRandomArtist()
@@ -1657,17 +1656,25 @@ fun LibraryScreen(
         }
     )
 
-    CreateMixDialog(
-        visible = showCreateMixDialog,
-        onDismiss = { showCreateMixDialog = false },
-        onCreate = { name, rule, songCount ->
+    CreateMixForm(
+        visible = showCreateMixForm,
+        onDismiss = { showCreateMixForm = false },
+        onCreate = { name, rule, songCount, artistIds, coverImageUri, coverColor, coverIcon, cropScale, cropPanX, cropPanY ->
             playlistViewModel.createMix(
                 name = name,
                 rule = rule,
-                songCount = songCount
+                songCount = songCount,
+                artistIds = artistIds,
+                coverImageUri = coverImageUri,
+                coverColor = coverColor,
+                coverIcon = coverIcon,
+                cropScale = cropScale,
+                cropPanX = cropPanX,
+                cropPanY = cropPanY
             )
-            showCreateMixDialog = false
-        }
+            showCreateMixForm = false
+        },
+        playerViewModel = playerViewModel
     )
 
 
