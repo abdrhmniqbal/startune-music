@@ -22,7 +22,6 @@ import androidx.compose.material.icons.rounded.AddAPhoto
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,7 +32,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
+import androidx.compose.material3.OutlinedTextField
 import com.startune.music.presentation.components.rememberModalSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -56,7 +55,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.startune.music.R
-import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 import com.startune.music.data.network.deezer.DeezerArtistCandidate
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SmartImageListTargetSize
@@ -108,18 +106,15 @@ fun ArtistArtworkSheet(
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)
         ) {
-            TextField(
+            OutlinedTextField(
                 value = query,
                 onValueChange = { viewModel.setArtworkSearchQuery(it) },
-                placeholder = { Text(stringResource(R.string.presentation_batch_d_search_deezer_hint)) },
+                label = { Text(stringResource(R.string.presentation_batch_d_search_deezer_hint)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(
                     onSearch = { keyboardController?.hide() }
                 ),
-                leadingIcon = {
-                    Icon(Icons.Rounded.Search, contentDescription = null)
-                },
                 trailingIcon = {
                     if (isSearching) {
                         CircularProgressIndicator(
@@ -136,19 +131,16 @@ fun ArtistArtworkSheet(
                     }
                 },
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
+                    disabledIndicatorColor = Color.Transparent,
+                    unfocusedTrailingIconColor = Color.Transparent,
+                    focusedSupportingTextColor = Color.Transparent,
                 ),
-                shape = AbsoluteSmoothCornerShape(
-                    cornerRadiusTL = 10.dp, smoothnessAsPercentBL = 60,
-                    cornerRadiusTR = 10.dp, smoothnessAsPercentBR = 60,
-                    cornerRadiusBL = 10.dp, smoothnessAsPercentTL = 60,
-                    cornerRadiusBR = 10.dp, smoothnessAsPercentTR = 60
-                ),
+                shape = CircleShape,
                 modifier = Modifier.fillMaxWidth()
             )
 
