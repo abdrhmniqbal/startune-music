@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -86,7 +87,7 @@ class MainViewModel @Inject constructor(
     fun startSync() {
         LogUtils.i(this, "startSync called")
         viewModelScope.launch {
-            if (isSetupComplete.value == true) {
+            if (isSetupComplete.value == true && userPreferencesRepository.autoScanOnLaunchFlow.first()) {
                 syncManager.sync()
             }
         }

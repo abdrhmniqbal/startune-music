@@ -99,6 +99,18 @@ object SettingsRegistry {
                 onToggle = { viewModel, checked -> viewModel.setAutoScanLrcFiles(checked) }
             ),
             SettingSpec(
+                id = "library_auto_scan_on_launch",
+                itemKey = "item_library_auto_scan_on_launch",
+                titleRes = R.string.setcat_auto_scan_on_launch_title,
+                subtitleRes = R.string.setcat_auto_scan_on_launch_subtitle,
+                category = SettingsCategory.LIBRARY,
+                subscreenRoute = Screen.SettingsCategory.createRoute("library"),
+                type = SettingType.SWITCH,
+                keywordsStatic = listOf("scan", "library", "launch", "startup", "open", "automatic"),
+                getValue = { it.autoScanOnLaunch },
+                onToggle = { viewModel, checked -> viewModel.setAutoScanOnLaunch(checked) }
+            ),
+            SettingSpec(
                 id = "library_find_duplicates",
                 itemKey = "item_library_find_duplicates",
                 titleRes = R.string.setcat_find_duplicates_title,
