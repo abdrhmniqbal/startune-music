@@ -124,6 +124,13 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
             )
             notificationManager.createNotificationChannel(
                 NotificationChannel(
+                    com.startune.music.data.backup.AutoBackupManager.AUTO_BACKUP_CHANNEL_ID,
+                    "Automatic backup",
+                    NotificationManager.IMPORTANCE_LOW
+                ).apply { description = "Automatic backup progress" }
+            )
+            notificationManager.createNotificationChannel(
+                NotificationChannel(
                     com.startune.music.data.updates.AppUpdateManager.UPDATES_CHANNEL_ID,
                     "App updates",
                     NotificationManager.IMPORTANCE_DEFAULT

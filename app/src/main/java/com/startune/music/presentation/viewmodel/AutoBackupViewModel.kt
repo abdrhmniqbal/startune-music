@@ -14,6 +14,7 @@ class AutoBackupViewModel @Inject constructor(
     fun runCheck() {
         viewModelScope.launch {
             autoBackupManager.runCheck()
+            autoBackupManager.ensureScheduled()
         }
     }
 }

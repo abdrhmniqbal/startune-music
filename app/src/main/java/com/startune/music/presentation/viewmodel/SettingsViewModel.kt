@@ -88,6 +88,7 @@ data class SettingsUiState(
     val autoBackupEnabled: Boolean = false,
     val autoBackupIntervalHours: Int = 24,
     val autoBackupLastRunMs: Long = 0L,
+    val autoBackupNotificationsEnabled: Boolean = true,
     val dataStorageRoot: String = "",
     val keepScreenAwakeWhilePlaying: Boolean = false,
     val resumeOnHeadsetReconnect: Boolean = false,
@@ -211,7 +212,8 @@ private sealed interface SettingsUiUpdate {
         val autoBackupLastRunMs: Long,
         val dataStorageRoot: String,
         val autoScanOnLaunch: Boolean,
-        val lyricsFontSizeSp: Float
+        val lyricsFontSizeSp: Float,
+        val autoBackupNotificationsEnabled: Boolean
     ) : SettingsUiUpdate
 }
 
@@ -225,6 +227,7 @@ class SettingsViewModel @Inject constructor(
     private val lyricsRepository: LyricsRepository,
     private val musicRepository: MusicRepository,
     private val backupManager: BackupManager,
+    private val autoBackupManager: com.startune.music.data.backup.AutoBackupManager,
     private val searchStateHolder: SearchStateHolder,
     private val playbackStatsRepository: PlaybackStatsRepository,
     private val musicDao: MusicDao,
@@ -396,7 +399,8 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.autoBackupLastRunMsFlow,
                 userPreferencesRepository.dataStorageRootFlow,
                 userPreferencesRepository.autoScanOnLaunchFlow,
-                userPreferencesRepository.lyricsFontSizeFlow
+                userPreferencesRepository.lyricsFontSizeFlow,
+                userPreferencesRepository.autoBackupNotificationsEnabledFlow
             ) { values ->
                 val requestedAudioOutputMode = values[4] as AudioOutputMode
                 SettingsUiUpdate.Group2(
@@ -442,7 +446,8 @@ class SettingsViewModel @Inject constructor(
                     autoBackupLastRunMs = values[32] as Long,
                     dataStorageRoot = values[33] as String,
                     autoScanOnLaunch = values[34] as Boolean,
-                    lyricsFontSizeSp = values[35] as Float
+                    lyricsFontSizeSp = values[35] as Float,
+                    autoBackupNotificationsEnabled = values[36] as Boolean
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -481,6 +486,7 @@ class SettingsViewModel @Inject constructor(
                         autoBackupEnabled = update.autoBackupEnabled,
                         autoBackupIntervalHours = update.autoBackupIntervalHours,
                         autoBackupLastRunMs = update.autoBackupLastRunMs,
+                        autoBackupNotificationsEnabled = update.autoBackupNotificationsEnabled,
                         dataStorageRoot = update.dataStorageRoot,
                         autoScanOnLaunch = update.autoScanOnLaunch,
                     )
@@ -856,6 +862,13 @@ class SettingsViewModel @Inject constructor(
             if (intervalHours > 0) {
                 userPreferencesRepository.setAutoBackupIntervalHours(intervalHours)
             }
+            autoBackupManager.ensureScheduled()
+        }
+    }
+
+    fun setAutoBackupNotificationsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setAutoBackupNotificationsEnabled(enabled)
         }
     }
 
