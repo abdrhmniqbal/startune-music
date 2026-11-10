@@ -1699,6 +1699,11 @@ class PlayerViewModel @Inject constructor(
                     SortOption.FOLDERS,
                     SortOption.FolderNameAZ
                 )
+                val initialFolderSongSort = resolveSortOption(
+                    userPreferencesRepository.folderSongsSortOptionFlow.first(),
+                    SortOption.FOLDER_SONGS,
+                    SortOption.FolderSongTitleAZ
+                )
                 val initialLikedSort = resolveSortOption(
                     userPreferencesRepository.likedSongsSortOptionFlow.first(),
                     SortOption.LIKED,
@@ -1711,6 +1716,7 @@ class PlayerViewModel @Inject constructor(
                         currentAlbumSortOption = initialAlbumSort,
                         currentArtistSortOption = initialArtistSort,
                         currentFolderSortOption = initialFolderSort,
+                        currentFolderSongSortOption = initialFolderSongSort,
                         currentFavoriteSortOption = initialLikedSort
                     )
                 }
@@ -1719,6 +1725,7 @@ class PlayerViewModel @Inject constructor(
                 sortAlbums(initialAlbumSort, persist = false)
                 sortArtists(initialArtistSort, persist = false)
                 sortFolders(initialFolderSort, persist = false)
+                sortFolderSongs(initialFolderSongSort, persist = false)
                 sortFavoriteSongs(initialLikedSort, persist = false)
             }
 
@@ -1843,6 +1850,11 @@ class PlayerViewModel @Inject constructor(
                             currentFavoriteSortOption = snapshot.favoriteSort,
                         )
                     }
+                }
+            }
+            viewModelScope.launch {
+                libraryStateHolder.currentFolderSongSortOption.collect { folderSongSort ->
+                    _playerUiState.update { it.copy(currentFolderSongSortOption = folderSongSort) }
                 }
             }
             viewModelScope.launch {
@@ -4159,6 +4171,10 @@ class PlayerViewModel @Inject constructor(
 
     fun sortFolders(sortOption: SortOption, persist: Boolean = true) {
         libraryStateHolder.sortFolders(sortOption, persist)
+    }
+
+    fun sortFolderSongs(sortOption: SortOption, persist: Boolean = true) {
+        libraryStateHolder.sortFolderSongs(sortOption, persist)
     }
 
     fun setFoldersPlaylistView(isPlaylistView: Boolean) {
