@@ -958,11 +958,25 @@ class PlayerViewModel @Inject constructor(
 
     private fun decodeStoredTabOrder(orderJson: String?): ImmutableList<String> {
         if (orderJson == null) return defaultLibraryTabs
-        return try {
-            Json.decodeFromString<List<String>>(orderJson).toImmutableList()
+        val stored = try {
+            Json.decodeFromString<List<String>>(orderJson)
         } catch (e: Exception) {
-            defaultLibraryTabs
+            return defaultLibraryTabs
         }
+        // A stored order predates tabs added later (GENRES once went missing
+        // this way): keep the user's arrangement, drop unknown keys, and
+        // insert each missing default tab right after its default predecessor
+        // so a new tab always shows up instead of silently disappearing.
+        val known = defaultLibraryTabs.toSet()
+        val merged = stored.filter { it in known }.toMutableList()
+        defaultLibraryTabs.forEach { key ->
+            if (key !in stored) {
+                val predecessor = defaultLibraryTabs.takeWhile { it != key }.lastOrNull { it in merged }
+                val index = if (predecessor == null) 0 else merged.indexOf(predecessor) + 1
+                merged.add(index, key)
+            }
+        }
+        return merged.toImmutableList()
     }
 
     val allLibraryTabsFlow: StateFlow<ImmutableList<String>> = userPreferencesRepository.libraryTabsOrderFlow
