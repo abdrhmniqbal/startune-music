@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -38,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -47,7 +45,9 @@ import com.startune.music.R
 import com.startune.music.presentation.model.SettingsCategory
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.screens.ExpressiveSettingsGroup
-import com.startune.music.presentation.screens.getCategoryColors
+import com.startune.music.presentation.screens.iconTone
+import com.startune.music.presentation.screens.settingsAccentColor
+import com.startune.music.presentation.screens.settingsGroupItemShape
 import com.startune.music.presentation.viewmodel.SettingsUiState
 import com.startune.music.presentation.viewmodel.SettingsViewModel
 
@@ -91,8 +91,6 @@ fun SettingsSearchResultsContent(
         return
     }
 
-    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-
     LazyColumn(
         contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -124,15 +122,11 @@ fun SettingsSearchResultsContent(
                 ExpressiveSettingsGroup {
                     items.forEachIndexed { index, resultItem ->
                         val spec = resultItem.spec
-                        val colors = getCategoryColors(spec.category, isDark)
+                        val colorScheme = MaterialTheme.colorScheme
+                        val accentColor = colorScheme.settingsAccentColor(spec.category.iconTone)
                         val total = items.size
 
-                        val shape = when {
-                            total == 1 -> RoundedCornerShape(24.dp)
-                            index == 0 -> RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 4.dp, bottomEnd = 4.dp)
-                            index == total - 1 -> RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 24.dp, bottomEnd = 24.dp)
-                            else -> RoundedCornerShape(4.dp)
-                        }
+                        val shape = settingsGroupItemShape(index, total)
 
                         when (spec.type) {
                             SettingType.SWITCH -> {
@@ -140,7 +134,7 @@ fun SettingsSearchResultsContent(
                                 SearchResultSwitchItem(
                                     title = resultItem.matchedTitle,
                                     subtitle = resultItem.matchedSubtitle,
-                                    accentColor = colors.first,
+                                    accentColor = accentColor,
                                     checked = isChecked,
                                     onToggle = { checked ->
                                         spec.onToggle?.invoke(settingsViewModel, checked)
@@ -155,7 +149,7 @@ fun SettingsSearchResultsContent(
                                 SearchResultNavigableItem(
                                     title = resultItem.matchedTitle,
                                     subtitle = resultItem.matchedSubtitle,
-                                    accentColor = colors.first,
+                                    accentColor = accentColor,
                                     onClick = {
                                         navController.navigateSafely(spec.createNavigationRoute())
                                     },
@@ -166,7 +160,7 @@ fun SettingsSearchResultsContent(
                                 SearchResultNavigableItem(
                                     title = resultItem.matchedTitle,
                                     subtitle = resultItem.matchedSubtitle,
-                                    accentColor = colors.first,
+                                    accentColor = accentColor,
                                     onClick = {
                                         spec.onAction?.invoke(navController) ?: run {
                                             navController.navigateSafely(spec.createNavigationRoute())
