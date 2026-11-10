@@ -1812,6 +1812,17 @@ interface MusicDao {
     @Query("SELECT album_art_uri_string FROM songs WHERE id=:id")
     suspend fun getAlbumArtUriById(id: Long) : String?
 
+    /** Artwork URI of the album that the song with [contentUri] belongs to, if any. */
+    @Query(
+        """
+        SELECT albums.album_art_uri_string FROM songs
+        INNER JOIN albums ON albums.id = songs.album_id
+        WHERE songs.content_uri_string = :contentUri
+        LIMIT 1
+        """
+    )
+    suspend fun getAlbumArtUriByContentUri(contentUri: String): String?
+
     @Query("DELETE FROM songs WHERE id=:id")
     suspend fun deleteById(id: Long)
 
