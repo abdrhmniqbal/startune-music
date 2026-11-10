@@ -27,6 +27,11 @@ enum class MixRule(
         storageKey = "new_gems",
         title = "New Gems",
         subtitle = "Recently added tracks with low play counts."
+    ),
+    ARTISTS(
+        storageKey = "artists",
+        title = "Artists",
+        subtitle = "Songs from artists you pick."
     );
 
     companion object {

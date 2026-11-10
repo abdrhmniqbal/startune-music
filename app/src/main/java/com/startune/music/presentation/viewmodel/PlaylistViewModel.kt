@@ -311,23 +311,89 @@ class PlaylistViewModel @Inject constructor(
     fun createMix(
         name: String,
         rule: MixRule,
-        songCount: Int
+        songCount: Int,
+        artistIds: List<Long> = emptyList(),
+        coverImageUri: String? = null,
+        coverColor: Int? = null,
+        coverIcon: String? = null,
+        cropScale: Float = 1f,
+        cropPanX: Float = 0f,
+        cropPanY: Float = 0f
     ) {
         viewModelScope.launch {
-            val songIds = buildMixSongIds(rule = rule, limit = songCount)
+            var savedCoverPath: String? = null
+            if (coverImageUri != null) {
+                val imageId = UUID.randomUUID().toString()
+                savedCoverPath = saveCoverImageToInternalStorage(
+                    Uri.parse(coverImageUri),
+                    imageId,
+                    cropScale,
+                    cropPanX,
+                    cropPanY
+                )
+            }
+            val songIds = buildMixSongIds(rule = rule, limit = songCount, artistIds = artistIds)
             playlistPreferencesRepository.createPlaylist(
                 name = name,
                 songIds = songIds,
+                coverImageUri = savedCoverPath,
+                coverColorArgb = coverColor,
+                coverIconName = coverIcon,
                 source = rule.toMixSource(),
-                mixSongCount = songCount
+                mixSongCount = songCount,
+                mixArtistIds = artistIds.ifEmpty { null }
             )
             _playlistCreationEvent.emit(true)
         }
     }
 
+    /** Changes a mix's song count and rebuilds it from its rule at the new size. */
+    fun setMixSongCount(playlistId: String, count: Int) {
+        viewModelScope.launch {
+            val playlist = playlistPreferencesRepository.getPlaylistsOnce()
+                .firstOrNull { it.id == playlistId } ?: return@launch
+            playlistPreferencesRepository.updatePlaylist(
+                playlist.copy(mixSongCount = count, lastModified = System.currentTimeMillis())
+            )
+            loadPlaylistDetails(playlistId)
+        }
+    }
+
+    /**
+     * Removes a song from a mix and backfills it from the same rule. Only
+     * used after the song was deleted from the device, so the backfill is
+     * stable: the next refresh builds the same list, because the deleted
+     * song is no longer in the library to be picked again.
+     */
+    fun removeSongFromMix(playlistId: String, songId: String) {
+        viewModelScope.launch {
+            val playlist = playlistPreferencesRepository.getPlaylistsOnce()
+                .firstOrNull { it.id == playlistId } ?: return@launch
+            if (songId !in playlist.songIds) return@launch
+            val rule = MixRule.fromPlaylistSource(playlist.source) ?: return@launch
+            val remaining = playlist.songIds - songId
+            val candidates = buildMixSongIds(
+                rule = rule,
+                limit = playlist.songIds.size + 1,
+                artistIds = playlist.mixArtistIds ?: emptyList()
+            )
+            val backfill = candidates.firstOrNull { it !in remaining && it != songId }
+            playlistPreferencesRepository.updatePlaylist(
+                playlist.copy(
+                    songIds = remaining + listOfNotNull(backfill),
+                    lastModified = System.currentTimeMillis()
+                )
+            )
+            if (_uiState.value.currentPlaylistDetails?.id == playlistId) {
+                loadPlaylistDetails(playlistId)
+            }
+        }
+    }
+
     private suspend fun buildMixSongIds(
         rule: MixRule,
-        limit: Int
+        limit: Int,
+        artistIds: List<Long> = emptyList()
     ): List<String> {
         val allSongs = musicRepository.getAllSongsOnce()
         if (allSongs.isEmpty()) return emptyList()
@@ -338,7 +404,8 @@ class PlaylistViewModel @Inject constructor(
             engagements = dailyMixManager.getAllEngagementStats(),
             favoriteIds = musicRepository.getFavoriteSongIdsOnce(),
             now = System.currentTimeMillis(),
-            limit = limit
+            limit = limit,
+            artistIds = artistIds
         )
     }
 
@@ -346,7 +413,8 @@ class PlaylistViewModel @Inject constructor(
         val mixRule = MixRule.fromPlaylistSource(playlist.source) ?: return playlist
         val refreshedSongIds = buildMixSongIds(
             rule = mixRule,
-            limit = playlist.mixSongCount ?: 60
+            limit = playlist.mixSongCount ?: 60,
+            artistIds = playlist.mixArtistIds ?: emptyList()
         )
 
         if (refreshedSongIds == playlist.songIds) return playlist

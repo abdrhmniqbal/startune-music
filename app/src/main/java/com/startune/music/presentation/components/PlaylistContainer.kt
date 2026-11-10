@@ -39,6 +39,7 @@ import androidx.compose.material.icons.automirrored.rounded.PlaylistPlay
 import androidx.compose.material.icons.rounded.Album
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.LibraryMusic
+import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Topic
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
@@ -94,6 +95,7 @@ import com.startune.music.presentation.viewmodel.PlaylistUiState
 import com.startune.music.presentation.viewmodel.PlaylistSelectionStateHolder
 import com.startune.music.utils.formatSongCount
 import com.startune.music.ui.theme.RoundedSans
+import com.startune.music.ui.theme.ShapeCache
 import androidx.compose.foundation.combinedClickable
 import kotlinx.coroutines.flow.map
 import kotlinx.collections.immutable.ImmutableList
@@ -121,6 +123,7 @@ fun PlaylistContainer(
     onPlaylistSelectionToggle: (Playlist) -> Unit = {},
     playlistSelectionStateHolder: PlaylistSelectionStateHolder? = null,
     useMixCover: Boolean = false,
+    navigateToMixDetail: Boolean = false,
     @androidx.annotation.StringRes emptyTitleRes: Int = R.string.presentation_batch_e_no_playlist_created,
     @androidx.annotation.StringRes emptyHintRes: Int = R.string.presentation_batch_e_new_playlist_hint
 ) {
@@ -215,7 +218,8 @@ fun PlaylistContainer(
                         selectedPlaylistIds = selectedPlaylistIds,
                         onPlaylistLongPress = onPlaylistLongPress,
                         onPlaylistSelectionToggle = onPlaylistSelectionToggle,
-                        useMixCover = useMixCover
+                        useMixCover = useMixCover,
+                        navigateToMixDetail = navigateToMixDetail
                     )
                 }
             }
@@ -253,7 +257,8 @@ fun PlaylistItems(
     selectedPlaylistIds: Set<String> = emptySet(),
     onPlaylistLongPress: (Playlist) -> Unit = {},
     onPlaylistSelectionToggle: (Playlist) -> Unit = {},
-    useMixCover: Boolean = false
+    useMixCover: Boolean = false,
+    navigateToMixDetail: Boolean = false
 ) {
     val stablePlayerState by playerViewModel.stablePlayerState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
@@ -310,7 +315,11 @@ fun PlaylistItems(
                         } else if (isSelectionMode) {
                             onPlaylistSelectionToggle(playlist)
                         } else {
-                            navController?.navigateSafely(Screen.PlaylistDetail.createRoute(playlist.id))
+                            if (navigateToMixDetail) {
+                                navController?.navigateSafely(Screen.MixDetail.createRoute(playlist.id))
+                            } else {
+                                navController?.navigateSafely(Screen.PlaylistDetail.createRoute(playlist.id))
+                            }
                         }
                     }
                 }
@@ -376,7 +385,11 @@ fun PlaylistItems(
                             } else if (isSelectionMode) {
                                 onPlaylistSelectionToggle(playlist)
                             } else {
+                                if (navigateToMixDetail) {
+                                navController?.navigateSafely(Screen.MixDetail.createRoute(playlist.id))
+                            } else {
                                 navController?.navigateSafely(Screen.PlaylistDetail.createRoute(playlist.id))
+                            }
                             }
                         }
                     }
@@ -652,11 +665,50 @@ fun PlaylistGridItem(
                 ) {
                     // Grid covers stay square like old Startune; custom shapes apply only to small covers.
                     // Mixes use the old collage arrangement clipped to the cookie shape instead.
+                    // A custom cover wins over the collage; the cookie shape is
+                    // the mix identity either way.
                     if (useMixCover) {
-                        MixCover(
-                            songs = remember(playlistSongs) { (playlistSongs ?: emptyList()).toImmutableList() },
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        when {
+                            playlist.coverImageUri != null -> {
+                                SmartImage(
+                                    model = playlist.coverImageUri,
+                                    contentDescription = playlist.name,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(ShapeCache.expressiveAvatar)
+                                )
+                            }
+                            playlist.coverColorArgb != null -> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(ShapeCache.expressiveAvatar)
+                                        .background(Color(playlist.coverColorArgb)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    val icon = getIconByName(playlist.coverIconName)
+                                        ?: Icons.Rounded.MusicNote
+                                    Icon(
+                                        imageVector = icon,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(12.dp),
+                                        tint = getThemeContentColor(
+                                            playlist.coverColorArgb,
+                                            MaterialTheme.colorScheme
+                                        )
+                                    )
+                                }
+                            }
+                            else -> {
+                                MixCover(
+                                    songs = remember(playlistSongs) { (playlistSongs ?: emptyList()).toImmutableList() },
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                        }
                     } else {
                         PlaylistCover(
                             playlist = playlist,

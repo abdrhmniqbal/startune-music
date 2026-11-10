@@ -75,6 +75,8 @@
     <string name="mix_rule_forgotten_favorites_subtitle">Favorite songs you haven\'t played in a while.</string>
     <string name="mix_rule_new_gems_title">New Gems</string>
     <string name="mix_rule_new_gems_subtitle">Recently added songs with low play counts.</string>
+    <string name="mix_rule_artists_title">Artists</string>
+    <string name="mix_rule_artists_subtitle">Songs from artists you pick.</string>
     <!-- Palette style -->
     <string name="presentation_batch_f_palette_style_heading">Palette style</string>
     <string name="presentation_batch_f_palette_style_subtitle">Choose the album colors for the player UI.</string>
@@ -215,6 +217,11 @@
     <string name="mix_name_label">Mix name</string>
     <string name="mix_name_placeholder">My mix</string>
     <string name="mix_preset_label">Preset</string>
+    <string name="mix_artists_label">Artists</string>
+    <string name="mix_artists_hint">Choose one or more artists for this mix.</string>
+    <string name="mix_artists_add">Add artists</string>
+    <string name="mix_artists_search_placeholder">Search artists</string>
+    <string name="mix_artists_empty">No artists in your library yet.</string>
     <string name="mix_empty_title">No mixes yet</string>
     <string name="mix_empty_hint">Create your first mix to get started.</string>
 </resources>

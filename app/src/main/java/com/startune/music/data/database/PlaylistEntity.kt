@@ -5,6 +5,9 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.startune.music.data.model.Playlist
+import kotlinx.serialization.json.Json
+
+private val artistIdsJson = Json { ignoreUnknownKeys = true }
 
 @Entity(
     tableName = "playlists",
@@ -44,6 +47,8 @@ data class PlaylistEntity(
     val source: String = "LOCAL",
     @ColumnInfo(name = "mix_song_count")
     val mixSongCount: Int? = null,
+    @ColumnInfo(name = "mix_artist_ids")
+    val mixArtistIds: String? = null,
 )
 
 fun PlaylistEntity.toPlaylist(songIds: List<String>): Playlist {
@@ -64,6 +69,9 @@ fun PlaylistEntity.toPlaylist(songIds: List<String>): Playlist {
         coverShapeDetail4 = coverShapeDetail4,
         source = source,
         mixSongCount = mixSongCount,
+        mixArtistIds = mixArtistIds?.let {
+            runCatching { artistIdsJson.decodeFromString<List<Long>>(it) }.getOrNull()
+        },
     )
 }
 
@@ -84,5 +92,6 @@ fun Playlist.toEntity(): PlaylistEntity {
         coverShapeDetail4 = coverShapeDetail4,
         source = source,
         mixSongCount = mixSongCount,
+        mixArtistIds = mixArtistIds?.let { artistIdsJson.encodeToString(it) },
     )
 }

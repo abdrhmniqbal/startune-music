@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material3.AlertDialog
@@ -43,6 +44,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -82,6 +84,8 @@ import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.PlaylistBottomSheet
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SongInfoBottomSheet
+import com.startune.music.presentation.components.getIconByName
+import com.startune.music.presentation.components.getThemeContentColor
 import com.startune.music.presentation.components.threeShapeSwitch
 import com.startune.music.presentation.components.resolveNavBarOccupiedHeight
 import com.startune.music.presentation.navigation.Screen
@@ -91,6 +95,7 @@ import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.PlaylistViewModel
 import com.startune.music.utils.formatDuration
 import com.startune.music.utils.shapes.RoundedStarShape
+import com.startune.music.ui.theme.ShapeCache
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -98,6 +103,7 @@ import com.startune.music.presentation.components.subcomps.EnhancedSongListItem
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -110,16 +116,28 @@ fun MixDetailScreen(
     navController: NavController,
 ) = traceSection("MixDetailScreen.Composition") {
     val isForYouMix = mixId == MixIds.FOR_YOU
-    val mixTitle = if (isForYouMix) {
-        stringResource(R.string.mix_for_you_title)
-    } else {
-        stringResource(R.string.presentation_batch_b_daily_mix_title)
+    val isUserMix = !isForYouMix && mixId != MixIds.DAILY
+    val playlistUiState by playlistViewModel.uiState.collectAsStateWithLifecycle()
+    val userMix = if (isUserMix) playlistUiState.currentPlaylistDetails else null
+    val mixTitle = when {
+        isForYouMix -> stringResource(R.string.mix_for_you_title)
+        isUserMix -> userMix?.name ?: ""
+        else -> stringResource(R.string.presentation_batch_b_daily_mix_title)
     }
-    val mixSongs: ImmutableList<Song> by (if (isForYouMix) playerViewModel.yourMixSongs else playerViewModel.mixSongs).collectAsStateWithLifecycle()
+    val mixSongs: ImmutableList<Song> = when {
+        isForYouMix -> playerViewModel.yourMixSongs.collectAsStateWithLifecycle().value
+        isUserMix -> playlistUiState.currentPlaylistSongs.toImmutableList()
+        else -> playerViewModel.mixSongs.collectAsStateWithLifecycle().value
+    }
     val playItLabel = stringResource(R.string.presentation_batch_b_play_it)
     val shuffleLabel = stringResource(R.string.shortcut_shuffle_short)
     val forYouMixSongCount by playerViewModel.forYouMixSongCount.collectAsStateWithLifecycle()
+    val mixSizeCount = if (isForYouMix) forYouMixSongCount else (userMix?.mixSongCount ?: 60)
     var showMixSizeDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(mixId) {
+        if (isUserMix) playlistViewModel.loadPlaylistDetails(mixId)
+    }
     val currentSongId by remember { playerViewModel.stablePlayerState.map { it.currentSong?.id }.distinctUntilChanged() }.collectAsStateWithLifecycle(initialValue = null)
     val isPlaying by remember { playerViewModel.stablePlayerState.map { it.isPlaying }.distinctUntilChanged() }.collectAsStateWithLifecycle(initialValue = false)
     val isShuffleEnabled by remember { playerViewModel.stablePlayerState.map { it.isShuffleEnabled }.distinctUntilChanged() }.collectAsStateWithLifecycle(initialValue = false)
@@ -151,7 +169,11 @@ fun MixDetailScreen(
         val song = selectedSongForInfo!!
         val removeFromListTrigger = remember(mixSongs) {
             {
-                if (isForYouMix) playerViewModel.removeFromYourMix(song.id) else playerViewModel.removeFromDailyMix(song.id)
+                when {
+                    isForYouMix -> playerViewModel.removeFromYourMix(song.id)
+                    isUserMix -> playlistViewModel.removeSongFromMix(mixId, song.id)
+                    else -> playerViewModel.removeFromDailyMix(song.id)
+                }
             }
         }
         SongInfoBottomSheet(
@@ -233,7 +255,7 @@ fun MixDetailScreen(
             .fillMaxSize()
             .background(backgroundBrush)
     ) {
-        if (mixSongs.isEmpty()) {
+        if (mixSongs.isEmpty() && (!isUserMix || playlistUiState.isLoading)) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -251,7 +273,10 @@ fun MixDetailScreen(
                     ExpressiveMixDetailHeader(
                         title = mixTitle,
                         songs = mixSongs,
-                        scrollState = lazyListState
+                        scrollState = lazyListState,
+                        coverImageUri = userMix?.coverImageUri,
+                        coverColorArgb = userMix?.coverColorArgb,
+                        coverIconName = userMix?.coverIconName
                     )
                 }
 
@@ -315,7 +340,7 @@ fun MixDetailScreen(
                     }
                 }
 
-                if (isForYouMix) {
+                if (isForYouMix || isUserMix) {
                     item(key = "mix_size") {
                         Surface(
                             color = MaterialTheme.colorScheme.surfaceContainer,
@@ -338,7 +363,7 @@ fun MixDetailScreen(
                                         style = MaterialTheme.typography.titleMedium
                                     )
                                     Text(
-                                        text = stringResource(R.string.mix_detail_size_songs, forYouMixSongCount),
+                                        text = stringResource(R.string.mix_detail_size_songs, mixSizeCount),
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -425,11 +450,12 @@ fun MixDetailScreen(
 
     if (showMixSizeDialog) {
         MixSizeDialog(
-            currentCount = forYouMixSongCount,
+            currentCount = mixSizeCount,
             onDismiss = { showMixSizeDialog = false },
             onConfirm = { count ->
                 showMixSizeDialog = false
-                playerViewModel.setForYouMixSongCount(count)
+                if (isForYouMix) playerViewModel.setForYouMixSongCount(count)
+                else playlistViewModel.setMixSongCount(mixId, count)
             }
         )
     }
@@ -441,7 +467,10 @@ fun MixDetailScreen(
 private fun ExpressiveMixDetailHeader(
     title: String,
     songs: ImmutableList<Song>,
-    scrollState: LazyListState
+    scrollState: LazyListState,
+    coverImageUri: String? = null,
+    coverColorArgb: Int? = null,
+    coverIconName: String? = null
 ) = traceSection("ExpressiveMixDetailHeader.Composition") {
     val albumArts = remember(songs) { songs.map { it.albumArtUriString }.distinct().take(3) }
     val totalDuration = remember(songs) { songs.sumOf { it.duration } }
@@ -466,6 +495,7 @@ private fun ExpressiveMixDetailHeader(
             }
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            if (coverImageUri == null && coverColorArgb == null) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy((-80).dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -522,6 +552,41 @@ private fun ExpressiveMixDetailHeader(
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+                }
+            }
+            } else {
+                when {
+                    coverImageUri != null -> {
+                        Box(
+                            modifier = Modifier
+                                .size(220.dp)
+                                .clip(ShapeCache.expressiveAvatar)
+                        ) {
+                            SmartImage(
+                                model = coverImageUri,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+                    coverColorArgb != null -> {
+                        Box(
+                            modifier = Modifier
+                                .size(220.dp)
+                                .clip(ShapeCache.expressiveAvatar)
+                                .background(Color(coverColorArgb)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            val icon = getIconByName(coverIconName) ?: Icons.Rounded.MusicNote
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(80.dp),
+                                tint = getThemeContentColor(coverColorArgb, MaterialTheme.colorScheme)
                             )
                         }
                     }

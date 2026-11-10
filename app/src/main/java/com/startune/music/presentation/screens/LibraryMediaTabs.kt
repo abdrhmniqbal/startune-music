@@ -839,6 +839,7 @@ fun LibraryMixesTab(
         navController = navController,
         playerViewModel = playerViewModel,
         useMixCover = true,
+        navigateToMixDetail = true,
         emptyTitleRes = R.string.mix_empty_title,
         emptyHintRes = R.string.mix_empty_hint
     )
