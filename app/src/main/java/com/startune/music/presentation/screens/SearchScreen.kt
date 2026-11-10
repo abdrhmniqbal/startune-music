@@ -4,6 +4,9 @@ import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.navigation.navigateSafelyReplacing
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.tween
@@ -833,8 +836,13 @@ fun SearchResultsList(
             bottom = if (imePadding <= 8.dp) (MiniPlayerHeight + systemBarPaddingBottom) else imePadding
         )
     ) {
-        if (singleType != null && hasAnySelection) {
+        if (singleType != null) {
             item(key = "search_selection_row") {
+                AnimatedVisibility(
+                    visible = hasAnySelection,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
                 when (singleType) {
                     SearchFilterType.SONGS -> SelectionActionRow(
                         selectedCount = selectedSongs.size,
@@ -891,6 +899,7 @@ fun SearchResultsList(
                         onOptionsClick = { showPlaylistMultiSelectionSheet = true }
                     )
                     else -> Unit
+                }
                 }
             }
         }

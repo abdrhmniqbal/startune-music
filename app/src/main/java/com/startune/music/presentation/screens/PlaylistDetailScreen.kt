@@ -7,6 +7,11 @@ import com.startune.music.presentation.navigation.navigateSafelyReplacing
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -523,8 +528,12 @@ fun PlaylistDetailScreen(
                                 )
                             }
                         ) {
-                            if (isSelectionMode) {
-                                item(key = "playlist_selection_row") {
+                            item(key = "playlist_selection_row") {
+                                AnimatedVisibility(
+                                    visible = isSelectionMode,
+                                    enter = expandVertically() + fadeIn(),
+                                    exit = shrinkVertically() + fadeOut()
+                                ) {
                                     SelectionActionRow(
                                         selectedCount = selectedSongs.size,
                                         onSelectAll = { multiSelectionState.selectAll(localReorderableSongs) },

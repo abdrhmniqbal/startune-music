@@ -392,19 +392,27 @@ fun GenreDetailScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         item(key = "genre_songs_header") {
-                            GenreSubViewHeader(
-                                title = stringResource(R.string.top_songs_title),
-                                onBackClick = { activeView = GenreDetailView.Overview }
-                            )
-                        }
-                        if (isSelectionMode) {
-                            item(key = "genre_songs_selection_row") {
-                                SelectionActionRow(
-                                    selectedCount = selectedSongs.size,
-                                    onSelectAll = { multiSelectionState.selectAll(uiState.rankedSongs) },
-                                    onDeselect = { multiSelectionState.clearSelection() },
-                                    onOptionsClick = { showMultiSelectionSheet = true }
-                                )
+                            AnimatedContent(
+                                targetState = isSelectionMode,
+                                label = "ActionRowModeSwitch",
+                                transitionSpec = {
+                                    (slideInHorizontally { -it } + fadeIn()) togetherWith
+                                        (slideOutHorizontally { it } + fadeOut())
+                                }
+                            ) { inSelectionMode ->
+                                if (inSelectionMode) {
+                                    SelectionActionRow(
+                                        selectedCount = selectedSongs.size,
+                                        onSelectAll = { multiSelectionState.selectAll(uiState.rankedSongs) },
+                                        onDeselect = { multiSelectionState.clearSelection() },
+                                        onOptionsClick = { showMultiSelectionSheet = true }
+                                    )
+                                } else {
+                                    GenreSubViewHeader(
+                                        title = stringResource(R.string.top_songs_title),
+                                        onBackClick = { activeView = GenreDetailView.Overview }
+                                    )
+                                }
                             }
                         }
                                                 itemsIndexed(
@@ -464,31 +472,39 @@ fun GenreDetailScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         item(span = { GridItemSpan(2) }) {
-                            GenreSubViewHeader(
-                                title = stringResource(R.string.library_tab_albums),
-                                onBackClick = { activeView = GenreDetailView.Overview }
-                            )
-                        }
-                        if (isAlbumSelectionMode) {
-                            item(span = { GridItemSpan(2) }) {
-                                SelectionActionRow(
-                                    selectedCount = selectedAlbums.size,
-                                    onSelectAll = {
-                                        multiSelectionState.clearSelection()
-                                        selectedAlbums = (selectedAlbums + uiState.albums.filterNot { selectedAlbumNames.contains(it.name) }).toImmutableList()
-                                    },
-                                    onDeselect = {
-                                        selectedAlbums = persistentListOf()
-                                        multiSelectionState.clearSelection()
-                                    },
-                                    onOptionsClick = {
-                                        val songs = selectedAlbums.flatMap { it.songs }.distinctBy { it.id }
-                                        if (songs.isNotEmpty()) {
-                                            multiSelectionState.replaceSelection(songs)
-                                            showMultiSelectionSheet = true
+                            AnimatedContent(
+                                targetState = isAlbumSelectionMode,
+                                label = "ActionRowModeSwitch",
+                                transitionSpec = {
+                                    (slideInHorizontally { -it } + fadeIn()) togetherWith
+                                        (slideOutHorizontally { it } + fadeOut())
+                                }
+                            ) { inSelectionMode ->
+                                if (inSelectionMode) {
+                                    SelectionActionRow(
+                                        selectedCount = selectedAlbums.size,
+                                        onSelectAll = {
+                                            multiSelectionState.clearSelection()
+                                            selectedAlbums = (selectedAlbums + uiState.albums.filterNot { selectedAlbumNames.contains(it.name) }).toImmutableList()
+                                        },
+                                        onDeselect = {
+                                            selectedAlbums = persistentListOf()
+                                            multiSelectionState.clearSelection()
+                                        },
+                                        onOptionsClick = {
+                                            val songs = selectedAlbums.flatMap { it.songs }.distinctBy { it.id }
+                                            if (songs.isNotEmpty()) {
+                                                multiSelectionState.replaceSelection(songs)
+                                                showMultiSelectionSheet = true
+                                            }
                                         }
-                                    }
-                                )
+                                    )
+                                } else {
+                                    GenreSubViewHeader(
+                                        title = stringResource(R.string.library_tab_albums),
+                                        onBackClick = { activeView = GenreDetailView.Overview }
+                                    )
+                                }
                             }
                         }
                         gridItems(
@@ -542,35 +558,43 @@ fun GenreDetailScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         item(span = { GridItemSpan(2) }) {
-                            GenreSubViewHeader(
-                                title = stringResource(R.string.library_tab_artists),
-                                onBackClick = { activeView = GenreDetailView.Overview }
-                            )
-                        }
-                        if (isArtistSelectionMode) {
-                            item(span = { GridItemSpan(2) }) {
-                                SelectionActionRow(
-                                    selectedCount = selectedArtists.size,
-                                    onSelectAll = {
-                                        multiSelectionState.clearSelection()
-                                        selectedArtists = (selectedArtists + uiState.artists.filterNot { selectedArtistIds.contains(it.id) }).toImmutableList()
-                                    },
-                                    onDeselect = {
-                                        selectedArtists = persistentListOf()
-                                        multiSelectionState.clearSelection()
-                                    },
-                                    onOptionsClick = {
-                                        val snapshot = selectedArtists.toList()
-                                        val snapshotIds = snapshot.map { it.id }
-                                        coroutineScope.launch {
-                                            val songs = playerViewModel.resolveArtistSongsForBatchActions(snapshot)
-                                            if (songs.isNotEmpty() && selectedArtists.map { it.id } == snapshotIds) {
-                                                multiSelectionState.replaceSelection(songs)
-                                                showMultiSelectionSheet = true
+                            AnimatedContent(
+                                targetState = isArtistSelectionMode,
+                                label = "ActionRowModeSwitch",
+                                transitionSpec = {
+                                    (slideInHorizontally { -it } + fadeIn()) togetherWith
+                                        (slideOutHorizontally { it } + fadeOut())
+                                }
+                            ) { inSelectionMode ->
+                                if (inSelectionMode) {
+                                    SelectionActionRow(
+                                        selectedCount = selectedArtists.size,
+                                        onSelectAll = {
+                                            multiSelectionState.clearSelection()
+                                            selectedArtists = (selectedArtists + uiState.artists.filterNot { selectedArtistIds.contains(it.id) }).toImmutableList()
+                                        },
+                                        onDeselect = {
+                                            selectedArtists = persistentListOf()
+                                            multiSelectionState.clearSelection()
+                                        },
+                                        onOptionsClick = {
+                                            val snapshot = selectedArtists.toList()
+                                            val snapshotIds = snapshot.map { it.id }
+                                            coroutineScope.launch {
+                                                val songs = playerViewModel.resolveArtistSongsForBatchActions(snapshot)
+                                                if (songs.isNotEmpty() && selectedArtists.map { it.id } == snapshotIds) {
+                                                    multiSelectionState.replaceSelection(songs)
+                                                    showMultiSelectionSheet = true
+                                                }
                                             }
                                         }
-                                    }
-                                )
+                                    )
+                                } else {
+                                    GenreSubViewHeader(
+                                        title = stringResource(R.string.library_tab_artists),
+                                        onBackClick = { activeView = GenreDetailView.Overview }
+                                    )
+                                }
                             }
                         }
                         gridItems(

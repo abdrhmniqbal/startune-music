@@ -6,6 +6,11 @@ import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.navigation.navigateSafelyReplacing
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.animateDpAsState
@@ -352,8 +357,12 @@ fun AlbumDetailScreen(
                         ),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        if (isSelectionMode) {
-                            item(key = "album_selection_row") {
+                        item(key = "album_selection_row") {
+                            AnimatedVisibility(
+                                visible = isSelectionMode,
+                                enter = expandVertically() + fadeIn(),
+                                exit = shrinkVertically() + fadeOut()
+                            ) {
                                 SelectionActionRow(
                                     selectedCount = selectedSongs.size,
                                     onSelectAll = { multiSelectionState.selectAll(songs) },
