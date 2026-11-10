@@ -368,7 +368,9 @@ class PlaybackStateHolder @Inject constructor(
             // override behind and the displayed position could lag the restart.
             seekTo(0L)
         } else {
-            controller.seekToPrevious()
+            // Not seekToPrevious(): Media3 restarts the track past its own 3 s
+            // maxSeekToPreviousPosition, which made this 10 s rule behave like 3 s.
+            controller.seekToPreviousMediaItem()
         }
     }
 
