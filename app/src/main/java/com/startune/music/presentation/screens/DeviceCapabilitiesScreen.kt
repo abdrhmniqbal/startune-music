@@ -353,6 +353,10 @@ fun LocalMusicStorageCard(
     modifier: Modifier = Modifier
 ) {
     val showVolumeHeaders = storageSummary.volumes.size > 1
+    val context = LocalContext.current
+    val appDataSize = remember(storageSummary.appDataBytes) {
+        Formatter.formatShortFileSize(context, storageSummary.appDataBytes)
+    }
 
     CapabilityCard(
         title = stringResource(R.string.device_capabilities_storage_title),
@@ -363,6 +367,14 @@ fun LocalMusicStorageCard(
             VolumeStorageSection(
                 volume = volume,
                 showHeader = showVolumeHeaders
+            )
+        }
+
+        if (storageSummary.appDataBytes > 0) {
+            InfoTile(
+                label = stringResource(R.string.device_capabilities_storage_app_data),
+                value = appDataSize,
+                modifier = Modifier.fillMaxWidth()
             )
         }
 

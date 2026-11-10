@@ -22,6 +22,7 @@ import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material.icons.rounded.Translate
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -30,7 +31,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -100,15 +100,6 @@ fun DictionariesScreen(
             ),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            item {
-                Text(
-                    text = stringResource(R.string.dictionaries_intro),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
-                )
-            }
-
             items(state.packs, key = { it.pack.id }) { packState ->
                 DictionaryPackCard(
                     packState = packState,
@@ -133,11 +124,12 @@ private fun DictionaryPackCard(
     val pack = packState.pack
     val downloadSize = Formatter.formatShortFileSize(context, pack.downloadSizeBytes)
     val installedSize = Formatter.formatShortFileSize(context, pack.installedSizeBytes)
-    val statusText = when (packState.status) {
+    // Downloaded needs no text: the check icon already says it.
+    val statusText: String? = when (packState.status) {
         DictionaryStatus.DOWNLOADED -> if (packState.hasUpdate) {
             stringResource(R.string.dictionaries_update_available)
         } else {
-            stringResource(R.string.dictionaries_downloaded)
+            null
         }
         DictionaryStatus.DOWNLOADING -> stringResource(
             R.string.dictionaries_downloading,
@@ -192,27 +184,23 @@ private fun DictionaryPackCard(
                 }
             }
 
-            Text(
-                text = stringResource(R.string.dictionaries_download_size, downloadSize),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            // One size only, as a badge: the download size before download,
+            // the extracted size once installed.
+            TonalChip(
+                text = if (packState.status == DictionaryStatus.DOWNLOADED) installedSize else downloadSize,
+                compact = true
             )
-            if (packState.status == DictionaryStatus.DOWNLOADED) {
+
+            statusText?.let {
                 Text(
-                    text = stringResource(R.string.dictionaries_installed_size, installedSize),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = it,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = when (packState.status) {
+                        DictionaryStatus.FAILED -> MaterialTheme.colorScheme.error
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                    }
                 )
             }
-
-            Text(
-                text = statusText,
-                style = MaterialTheme.typography.bodyMedium,
-                color = when (packState.status) {
-                    DictionaryStatus.FAILED -> MaterialTheme.colorScheme.error
-                    else -> MaterialTheme.colorScheme.onSurfaceVariant
-                }
-            )
 
             if (packState.status == DictionaryStatus.DOWNLOADING) {
                 LinearProgressIndicator(
@@ -243,9 +231,13 @@ private fun DictionaryPackCard(
                                 Text(stringResource(R.string.dictionaries_update))
                             }
                         }
-                        OutlinedButton(
+                        FilledTonalButton(
                             onClick = onDelete,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.filledTonalButtonColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                            )
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.Delete,

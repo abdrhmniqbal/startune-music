@@ -19,10 +19,13 @@ import androidx.media3.common.util.UnstableApi
 import com.startune.music.R
 import com.startune.music.data.database.DeviceCapabilitySongRow
 import com.startune.music.data.database.MusicDao
+import com.startune.music.data.dictionary.DictionaryManager
+import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.database.SourceType
 import com.startune.music.data.service.player.ActiveDecoderInfo
 import com.startune.music.data.service.player.DualPlayerEngine
 import com.startune.music.data.service.player.HiFiCapabilityChecker
+import com.startune.music.utils.AppFolders
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
@@ -30,6 +33,7 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -107,7 +111,8 @@ data class VolumeStorageSummary(
 data class LocalMusicStorageSummary(
     val cloudSongCount: Int,
     val unavailableLocalFileCount: Int,
-    val volumes: List<VolumeStorageSummary>
+    val volumes: List<VolumeStorageSummary>,
+    val appDataBytes: Long = 0L
 )
 
 data class PlaybackCompatibilitySummary(
@@ -157,7 +162,9 @@ private data class AudioFormatCandidate(
 class DeviceCapabilitiesViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val engine: DualPlayerEngine,
-    private val musicDao: MusicDao
+    private val musicDao: MusicDao,
+    private val userPreferencesRepository: UserPreferencesRepository,
+    private val dictionaryManager: DictionaryManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DeviceCapabilitiesState())
@@ -270,7 +277,7 @@ class DeviceCapabilitiesViewModel @Inject constructor(
         return codecs.sortedBy { it.name }
     }
 
-    private fun getLocalMusicStorageSummary(rows: List<DeviceCapabilitySongRow>): LocalMusicStorageSummary {
+    private suspend fun getLocalMusicStorageSummary(rows: List<DeviceCapabilitySongRow>): LocalMusicStorageSummary {
         val localRows = rows.filter { it.sourceType == SourceType.LOCAL }
         val cloudCount = rows.count { it.sourceType != SourceType.LOCAL }
         val volumes = getMountedStorageVolumes()
@@ -291,9 +298,15 @@ class DeviceCapabilitiesViewModel @Inject constructor(
             songCountByVolume[index] += 1
         }
 
+        // App Data is everything the app itself stores: the whole Data Storage
+        // root folder (Startune/Music) plus the dictionaries in filesDir.
+        val dataRoot = AppFolders.resolveRoot(userPreferencesRepository.dataStorageRootFlow.first())
+        val appDataBytes = folderSize(dataRoot) + folderSize(dictionaryManager.dictionariesDir())
+
         return LocalMusicStorageSummary(
             cloudSongCount = cloudCount,
             unavailableLocalFileCount = unavailableFiles,
+            appDataBytes = appDataBytes,
             volumes = volumes.mapIndexed { index, volume ->
                 val stats = runCatching { StatFs(volume.directory.path) }.getOrNull()
                 VolumeStorageSummary(
@@ -307,6 +320,12 @@ class DeviceCapabilitiesViewModel @Inject constructor(
             }
         )
     }
+
+    /** Recursive file total of a folder, 0 when it does not exist or cannot be read. */
+    private fun folderSize(root: File): Long = runCatching {
+        if (!root.isDirectory) return@runCatching 0L
+        root.walkTopDown().onFail { _, _ -> }.filter { it.isFile }.sumOf { it.length() }
+    }.getOrDefault(0L)
 
     private data class MountedVolume(
         val label: String,

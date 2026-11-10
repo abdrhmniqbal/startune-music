@@ -3,8 +3,6 @@
     <string name="data_storage_section_dictionaries">Dictionaries</string>
     <string name="dictionaries_title">Dictionaries</string>
     <string name="dictionaries_subtitle">Download dictionaries for lyric romanization</string>
-    <string name="dictionaries_intro">Dictionaries are downloaded only when you ask for them. Japanese lyric romanization needs the IPADIC dictionary.</string>
-    <string name="dictionaries_downloaded">Downloaded</string>
     <string name="dictionaries_not_downloaded">Not downloaded</string>
     <string name="dictionaries_update_available">Update available</string>
     <string name="dictionaries_downloading">Downloading… %1$d%%</string>
@@ -14,8 +12,6 @@
     <string name="dictionaries_delete">Delete</string>
     <string name="dictionaries_cancel">Cancel</string>
     <string name="dictionaries_retry">Retry</string>
-    <string name="dictionaries_download_size">Download: %1$s</string>
-    <string name="dictionaries_installed_size">On device: %1$s</string>
     <string name="dictionaries_notification_title">Downloading dictionary</string>
     <string name="dictionaries_notification_downloading">Downloading… %1$d%%</string>
     <string name="dictionaries_deleted">Dictionary deleted</string>

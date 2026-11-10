@@ -125,6 +125,7 @@
     <string name="device_capabilities_storage_total">%1$s total</string>
     <string name="device_capabilities_storage_music_footprint">Music footprint</string>
     <string name="device_capabilities_storage_device_used">Device used</string>
+    <string name="device_capabilities_storage_app_data">App Data</string>
     <string name="device_capabilities_storage_percent">%1$d%%</string>
     <string name="device_capabilities_storage_less_than_one_percent">&lt;1%</string>
     <string name="device_capabilities_storage_cloud_count">%1$d cloud songs</string>
