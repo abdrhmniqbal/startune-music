@@ -11,6 +11,7 @@ import com.startune.music.data.stats.StatsTimeRange
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -50,8 +51,12 @@ class StatsViewModel @Inject constructor(
     private val _weeklyOverview = MutableStateFlow<PlaybackStatsSummary?>(null)
     val weeklyOverview: StateFlow<PlaybackStatsSummary?> = _weeklyOverview.asStateFlow()
 
-    private val _homeOverview = MutableStateFlow<PlaybackStatsSummary?>(null)
-    val homeOverview: StateFlow<PlaybackStatsSummary?> = _homeOverview.asStateFlow()
+    private val _homeOverviewState =
+        MutableStateFlow<HomeStatsOverviewState>(HomeStatsOverviewState.Loading)
+    val homeOverviewState: StateFlow<HomeStatsOverviewState> = _homeOverviewState.asStateFlow()
+
+    /** Only the latest home refresh may publish, so an older result never overwrites a newer one. */
+    private var homeOverviewJob: Job? = null
 
     private var refreshJob: Job? = null
 
@@ -99,8 +104,9 @@ class StatsViewModel @Inject constructor(
     }
 
     fun refreshHomeOverview() {
-        viewModelScope.launch {
-            runCatching {
+        homeOverviewJob?.cancel()
+        homeOverviewJob = viewModelScope.launch {
+            val (summary, topTracks) = try {
                 withContext(Dispatchers.IO) {
                     val songs = loadSongs()
                     val topTracks = playbackStatsRepository.loadTopTracks(
@@ -108,19 +114,26 @@ class StatsViewModel @Inject constructor(
                         songs,
                         HOME_TOP_TRACKS_LIMIT
                     )
-                    val summary = HomeOverviewRanges.firstNotNullOfOrNull { range ->
+                    val summary = firstSummaryWithActivity(HomeOverviewRanges) { range ->
                         playbackStatsRepository.loadSummary(range, songs)
-                            .takeIf { it.hasListeningActivity() }
                     }
                     summary to topTracks
                 }
-            }.onSuccess { (summary, topTracks) ->
-                _homeOverview.value = summary
-                _homeTopTracks.value = topTracks.toImmutableList()
-            }.onFailure { throwable ->
+            } catch (cancellation: CancellationException) {
+                // A newer refresh replaced this one; it publishes the result instead.
+                throw cancellation
+            } catch (throwable: Exception) {
                 Timber.e(throwable, "Failed to load home stats overview")
-                _homeOverview.value = null
+                // Keep showing the last good summary rather than flashing the empty state.
+                if (_homeOverviewState.value !is HomeStatsOverviewState.Ready) {
+                    _homeOverviewState.value = HomeStatsOverviewState.Empty
+                }
+                return@launch
             }
+            _homeOverviewState.value = summary
+                ?.let { HomeStatsOverviewState.Ready(it) }
+                ?: HomeStatsOverviewState.Empty
+            _homeTopTracks.value = topTracks.toImmutableList()
         }
     }
 
@@ -206,14 +219,6 @@ class StatsViewModel @Inject constructor(
         return songs
     }
 
-    private fun PlaybackStatsSummary.hasListeningActivity(): Boolean {
-        return totalDurationMs > 0L ||
-            totalPlayCount > 0 ||
-            uniqueSongs > 0 ||
-            activeDays > 0 ||
-            totalSessions > 0
-    }
-
     private companion object {
         val HomeOverviewRanges = listOf(
             StatsTimeRange.WEEK,
@@ -223,4 +228,19 @@ class StatsViewModel @Inject constructor(
         )
         const val HOME_TOP_TRACKS_LIMIT = 15
     }
+}
+
+/**
+ * Loads [ranges] in order and returns the first summary with listening activity, or null when
+ * none has any. Ranges after the first match are never loaded.
+ */
+internal suspend fun firstSummaryWithActivity(
+    ranges: List<StatsTimeRange>,
+    load: suspend (StatsTimeRange) -> PlaybackStatsSummary
+): PlaybackStatsSummary? {
+    for (range in ranges) {
+        val summary = load(range)
+        if (summary.hasListeningActivity()) return summary
+    }
+    return null
 }
