@@ -913,7 +913,7 @@ private fun ArtistPickerBottomSheet(
                 }
             }
             Spacer(Modifier.height(12.dp))
-            Button(
+            FilledTonalButton(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth()
             ) {

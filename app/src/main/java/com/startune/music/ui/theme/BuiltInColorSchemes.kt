@@ -1,7 +1,6 @@
 package com.startune.music.ui.theme
 
 import com.startune.music.data.preferences.AppColorScheme
-import com.startune.music.data.preferences.ColorSchemeIds
 import com.startune.music.data.preferences.SchemeRoles
 
 /**
@@ -30,36 +29,14 @@ import com.startune.music.data.preferences.SchemeRoles
  * colours as a bright ambiance (nord6 background). Tokyo Night Day has no
  * literal hex values in the folke repo (it inverts Night at runtime), so the
  * light surface is Night's bg_highlight with its lightness inverted, and the
- * other light values come from the original enkia Light theme. Startune has
- * no external source: its brand accents (purple/pink/orange) are kept and
- * its background/surface were rebuilt with proper separation.
+ * other light values come from the original enkia Light theme.
  *
  * Dynamic Color is not a scheme here: selecting it means "no pair", so
- * StartuneTheme falls back to wallpaper dynamic color (or the Startune pair
- * below Android 12), exactly like the app behaved before schemes existed.
+ * StartuneTheme falls back to wallpaper dynamic color (or the hardcoded
+ * fallback pair below Android 12), exactly like the app behaved before
+ * schemes existed.
  */
 object BuiltInColorSchemes {
-    val startune = AppColorScheme(
-        id = ColorSchemeIds.STARTUNE,
-        name = "Startune",
-        light = SchemeRoles(
-            primary = "#6C4FF5",
-            secondary = "#F06292",
-            tertiary = "#FF8A65",
-            background = "#F7F2FF",
-            surface = "#DBD1FF",
-            error = "#D32F2F"
-        ),
-        dark = SchemeRoles(
-            primary = "#AB47BC",
-            secondary = "#F06292",
-            tertiary = "#FF8A65",
-            background = "#180E2C",
-            surface = "#33265C",
-            error = "#FF5252"
-        )
-    )
-
     val nord = AppColorScheme(
         id = "nord",
         name = "Nord",
@@ -229,7 +206,7 @@ object BuiltInColorSchemes {
     )
 
     val all: List<AppColorScheme> = listOf(
-        startune, nord, catppuccin, dracula, gruvbox, tokyo, solarized, everforest, ayu
+        nord, catppuccin, dracula, gruvbox, tokyo, solarized, everforest, ayu
     )
 
     fun find(id: String): AppColorScheme? = all.firstOrNull { it.id == id }

@@ -22,7 +22,7 @@ import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material.icons.rounded.Translate
-import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilledTonalIconButton
@@ -230,7 +230,7 @@ private fun DictionaryPackCard(
                     }
                     DictionaryStatus.DOWNLOADED -> {
                         if (packState.hasUpdate) {
-                            Button(
+                            FilledTonalButton(
                                 onClick = onDownload,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
@@ -257,7 +257,7 @@ private fun DictionaryPackCard(
                         }
                     }
                     DictionaryStatus.FAILED -> {
-                        Button(
+                        FilledTonalButton(
                             onClick = onDownload,
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -271,7 +271,7 @@ private fun DictionaryPackCard(
                         }
                     }
                     DictionaryStatus.NOT_DOWNLOADED -> {
-                        Button(
+                        FilledTonalButton(
                             onClick = onDownload,
                             modifier = Modifier.fillMaxWidth()
                         ) {
