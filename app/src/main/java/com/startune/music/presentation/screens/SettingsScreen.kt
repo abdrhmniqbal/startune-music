@@ -2,6 +2,7 @@
 
 import com.startune.music.presentation.navigation.navigateSafely
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
@@ -216,6 +217,13 @@ fun SettingsScreen(
             kotlinx.coroutines.delay(150)
             searchFocusRequester.requestFocus()
         }
+    }
+
+    // The search overlay is a state of this screen, not a destination, so the system Back
+    // gesture has to dismiss it first instead of popping Settings entirely.
+    BackHandler(enabled = isSearchActive) {
+        isSearchActive = false
+        searchQuery = ""
     }
 
     val searchResults = remember(searchQuery) {
