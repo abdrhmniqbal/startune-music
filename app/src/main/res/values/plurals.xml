@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <plurals name="delete_playlists_confirmation_title">
+        <item quantity="one">Delete %d playlist?</item>
+        <item quantity="other">Delete %d playlists?</item>
+    </plurals>
+    <plurals name="delete_playlists_confirmation_body">
+        <item quantity="one">Are you sure you want to delete %d playlist?</item>
+        <item quantity="other">Are you sure you want to delete %d playlists?</item>
+    </plurals>
     <plurals name="sharing_playlists_message">
         <item quantity="one">Sharing %d playlist</item>
         <item quantity="other">Sharing %d playlists</item>

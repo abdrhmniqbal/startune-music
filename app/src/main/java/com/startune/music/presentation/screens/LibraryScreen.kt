@@ -166,6 +166,7 @@ import com.startune.music.presentation.components.SongInfoBottomSheet
 import com.startune.music.presentation.components.subcomps.LibraryActionRow
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.components.MultiSelectionBottomSheet
+import com.startune.music.presentation.components.DeletePlaylistsConfirmationDialog
 import com.startune.music.presentation.components.PlaylistMultiSelectionBottomSheet
 import com.startune.music.presentation.components.subcomps.SelectionActionRow
 import com.startune.music.presentation.components.subcomps.SelectionCountPill
@@ -596,6 +597,8 @@ fun LibraryScreen(
     var showPlaylistMultiSelectionSheet by remember { mutableStateOf(false) }
     var showMergePlaylistDialog by remember { mutableStateOf(false) }
     var pendingMergePlaylistIds by remember { mutableStateOf(emptyList<String>()) }
+    var showDeletePlaylistConfirmation by remember { mutableStateOf(false) }
+    var pendingDeletePlaylistIds by remember { mutableStateOf(emptyList<String>()) }
 
     val onPlaylistLongPress: (com.startune.music.data.model.Playlist) -> Unit = remember(playlistMultiSelectionState, haptic) {
         { playlist ->
@@ -707,6 +710,8 @@ fun LibraryScreen(
                         showPlaylistMultiSelectionSheet = false
                         showMergePlaylistDialog = false
                         pendingMergePlaylistIds = emptyList()
+                        showDeletePlaylistConfirmation = false
+                        pendingDeletePlaylistIds = emptyList()
                     }
 
                     LibraryTabId.ALBUMS -> {
@@ -1878,9 +1883,10 @@ fun LibraryScreen(
                 showPlaylistMultiSelectionSheet = false
             },
             onDeleteAll = {
-                playlistViewModel.deletePlaylistsInBatch(selectedPlaylistIds.toList())
+                // Keep the selection until the deletion is confirmed, so Cancel leaves it as it was.
+                pendingDeletePlaylistIds = selectedPlaylistIds.toList()
                 showPlaylistMultiSelectionSheet = false
-                playlistMultiSelectionState.clearSelection()
+                showDeletePlaylistConfirmation = true
             },
             onExportAll = {
                 playlistViewModel.exportPlaylistsAsM3u(selectedPlaylistIds.toList())
@@ -1898,6 +1904,22 @@ fun LibraryScreen(
                 }
                 showPlaylistMultiSelectionSheet = false
                 playlistMultiSelectionState.clearSelection()
+            }
+        )
+    }
+
+    if (showDeletePlaylistConfirmation && pendingDeletePlaylistIds.isNotEmpty()) {
+        DeletePlaylistsConfirmationDialog(
+            count = pendingDeletePlaylistIds.size,
+            onConfirm = {
+                playlistViewModel.deletePlaylistsInBatch(pendingDeletePlaylistIds)
+                playlistMultiSelectionState.clearSelection()
+                showDeletePlaylistConfirmation = false
+                pendingDeletePlaylistIds = emptyList()
+            },
+            onDismiss = {
+                showDeletePlaylistConfirmation = false
+                pendingDeletePlaylistIds = emptyList()
             }
         )
     }
