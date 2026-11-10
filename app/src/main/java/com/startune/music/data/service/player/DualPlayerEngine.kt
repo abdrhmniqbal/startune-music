@@ -1187,6 +1187,9 @@ class DualPlayerEngine @Inject constructor(
     }
 
     private fun buildPlayer(): ExoPlayer {
+        // Decoder selection happens on the playback thread. Keep it tied to this player's sink
+        // even while a mode change is rebuilding the players.
+        val outputMode = audioOutputMode
         val mediaCodecSelector = MediaCodecSelector { mimeType, requiresSecureDecoder, requiresTunnelingDecoder ->
             val decoderInfos = MediaCodecSelector.DEFAULT.getDecoderInfos(
                 mimeType,
@@ -1194,7 +1197,7 @@ class DualPlayerEngine @Inject constructor(
                 requiresTunnelingDecoder
             )
 
-            AudioDecoderPolicy.selectPlatformDecoders(mimeType, decoderInfos)
+            AudioDecoderPolicy.selectPlatformDecoders(mimeType, decoderInfos, outputMode)
         }
         val renderersFactory = object : DefaultRenderersFactory(context) {
             override fun buildAudioSink(
@@ -1583,12 +1586,11 @@ class DualPlayerEngine @Inject constructor(
         }
 
         if (auxiliaryPlayer.playbackState == Player.STATE_IDLE) auxiliaryPlayer.prepare()
-        if (auxiliaryPlayer.playbackState == Player.STATE_BUFFERING) {
-            if (!awaitPlayerReady(auxiliaryPlayer, 3000L)) {
-                playerA.volume = 1f
-                setPauseAtEndOfMediaItems(false)
-                return
-            }
+        // READY can also mean that no audio track can be decoded. Do not fade into silence.
+        if (!awaitPlayerReady(auxiliaryPlayer, 3000L)) {
+            playerA.volume = 1f
+            setPauseAtEndOfMediaItems(false)
+            return
         }
 
         val outgoingStartVolume = playerA.volume.coerceIn(0f, 1f)
@@ -1793,14 +1795,19 @@ class DualPlayerEngine @Inject constructor(
     }
 
     private suspend fun awaitPlayerReady(player: ExoPlayer, timeoutMs: Long): Boolean {
-        if (player.playbackState == Player.STATE_READY) return true
+        if (player.playbackState == Player.STATE_READY) {
+            return !AudioDecoderPolicy.hasUnsupportedAudio(player.currentTracks)
+        }
         return kotlinx.coroutines.withTimeoutOrNull(timeoutMs) {
             suspendCancellableCoroutine { cont ->
                 val listener = object : Player.Listener {
                     override fun onPlaybackStateChanged(playbackState: Int) {
                         if (playbackState != Player.STATE_BUFFERING) {
                             player.removeListener(this)
-                            if (cont.isActive) cont.resume(playbackState == Player.STATE_READY)
+                            if (cont.isActive) cont.resume(
+                                playbackState == Player.STATE_READY &&
+                                    !AudioDecoderPolicy.hasUnsupportedAudio(player.currentTracks)
+                            )
                         }
                     }
                 }
