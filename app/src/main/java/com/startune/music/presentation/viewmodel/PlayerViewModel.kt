@@ -122,7 +122,6 @@ import javax.inject.Inject
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import coil.memory.MemoryCache
-import com.startune.music.data.diagnostics.AdvancedPerformanceDiagnostics
 
 private const val ENABLE_FOLDERS_SOURCE_SWITCHING = true
 private const val MAX_ALBUM_BATCH_SELECTION = 6
@@ -3951,18 +3950,10 @@ class PlayerViewModel @Inject constructor(
     }
 
     fun nextSong() {
-        AdvancedPerformanceDiagnostics.recordEventIfEnabled(
-            type = AdvancedPerformanceDiagnostics.EventTypes.PLAYBACK,
-            name = "next_requested",
-        )
         playbackStateHolder.nextSong()
     }
 
     fun previousSong() {
-        AdvancedPerformanceDiagnostics.recordEventIfEnabled(
-            type = AdvancedPerformanceDiagnostics.EventTypes.PLAYBACK,
-            name = "previous_requested",
-        )
         playbackStateHolder.previousSong()
     }
 

@@ -750,6 +750,16 @@ object SettingsRegistry {
                 keywordsStatic = listOf("storage", "data", "folder", "location", "backup", "downloads")
             ),
             SettingSpec(
+                id = "dictionaries",
+                itemKey = "item_dictionaries",
+                titleRes = R.string.dictionaries_title,
+                subtitleRes = R.string.dictionaries_subtitle,
+                category = SettingsCategory.DATA_STORAGE,
+                subscreenRoute = Screen.Dictionaries.route,
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("dictionary", "dictionaries", "romanization", "japanese", "kuromoji", "download")
+            ),
+            SettingSpec(
                 id = "backup_import",
                 itemKey = "item_backup_import",
                 titleRes = R.string.setcat_import_backup_title,
@@ -858,20 +868,12 @@ object SettingsRegistry {
                 itemKey = "item_device_capabilities",
                 titleRes = R.string.settings_category_device_capabilities_title,
                 subtitleRes = R.string.settings_category_device_capabilities_subtitle,
-                category = SettingsCategory.DEVICE_CAPABILITIES,
+                category = SettingsCategory.ABOUT,
                 subscreenRoute = Screen.DeviceCapabilities.createRoute(),
                 type = SettingType.NAVIGABLE_CARD,
                 keywordsStatic = listOf("device", "audio output", "capabilities", "formats", "hardware")
             ),
             SettingSpec(
-                id = "device_capabilities_performance_diagnostics",
-                itemKey = "item_device_capabilities_performance_diagnostics",
-                titleRes = R.string.device_capabilities_advanced_diagnostics_title,
-                subtitleRes = R.string.device_capabilities_advanced_diagnostics_description,
-                category = SettingsCategory.DEVICE_CAPABILITIES,
-                subscreenRoute = Screen.DeviceCapabilities.createRoute(),
-                type = SettingType.NAVIGABLE_CARD,
-                keywordsStatic = listOf("performance", "diagnostics", "lag", "stall", "report", "beta", "debug")
             ),
 
             // --- ABOUT ---

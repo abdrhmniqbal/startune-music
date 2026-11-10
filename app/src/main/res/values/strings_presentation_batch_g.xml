@@ -609,19 +609,6 @@ Backslash (\) can be used to escape character delimiters.</string>
         <item>Improved library sync flow across all cloud providers.</item>
         <item>Better metadata editing with cover art support.</item>
     </string-array>
-    <string name="device_capabilities_advanced_diagnostics_description">Off by default. Records a short lag timeline for beta troubleshooting.</string>
-    <string name="device_capabilities_advanced_diagnostics_expires">Active until %1$s</string>
-    <string name="device_capabilities_advanced_diagnostics_mark_lag">Mark lag now</string>
-    <string name="device_capabilities_advanced_diagnostics_marked">Lag moment marked</string>
-    <string name="device_capabilities_advanced_diagnostics_title">Advanced performance diagnostics</string>
-    <string name="device_capabilities_report_copied">Report copied to clipboard</string>
-    <string name="device_capabilities_report_copy">Copy</string>
-    <string name="device_capabilities_report_description">Generate a shareable diagnostic report to help us classify playback or scan lag. It contains only device, library, and timing data — no file paths, titles, or artists.</string>
-    <string name="device_capabilities_report_generate">Generate report</string>
-    <string name="device_capabilities_report_regenerate">Regenerate</string>
-    <string name="device_capabilities_report_share">Share</string>
-    <string name="device_capabilities_report_share_title">Startune performance report</string>
-    <string name="device_capabilities_report_title">Performance report</string>
     <string name="presentation_batch_g_beta_sheet_welcome_body_stable">You\'re running the stable release build. Check the changelog to see what\'s new, and report anything that misbehaves.</string>
     <string name="presentation_batch_g_topbar_build_debug">Debug</string>
     <string name="presentation_batch_g_topbar_build_stable">Stable</string>
