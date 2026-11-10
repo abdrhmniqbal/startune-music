@@ -9,6 +9,7 @@ import com.startune.music.data.model.Song
 import com.startune.music.data.repository.MusicRepository
 import com.startune.music.data.stats.PlaybackStatsRepository
 import com.startune.music.data.stats.StatsTimeRange
+import com.startune.music.utils.GenreParser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +22,12 @@ import kotlinx.coroutines.withContext
 import com.startune.music.di.DispatcherProvider
 import timber.log.Timber
 import javax.inject.Inject
+
+/** The id MusicRepository gives its Unknown bucket. */
+internal const val UNKNOWN_GENRE_ID = "unknown"
+
+/** Matches the name MusicRepository gives its Unknown bucket. */
+private const val UNKNOWN_GENRE_NAME = "Unknown"
 
 data class AlbumData(
     val name: String,
@@ -95,12 +102,31 @@ class GenreDetailViewModel @Inject constructor(
                 val result = withContext(dispatchers.default) {
                     val genres = musicRepository.getGenres().first()
                     val genre = initialGenre ?: genres.find { it.id.equals(genreId, ignoreCase = true) }
-                        ?: Genre(
-                            id = genreId,
-                            name = genreId.replace("_", " ").replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() },
-                            lightColorHex = "#9E9E9E", onLightColorHex = "#000000",
-                            darkColorHex = "#616161", onDarkColorHex = "#FFFFFF"
-                        )
+                        ?: run {
+                            // A placeholder such as "<unknown>" holds no genre, so it opens
+                            // the Unknown bucket its songs are counted in.
+                            val requestedName = GenreParser.split(genreId).firstOrNull()
+                            if (requestedName == null) {
+                                genres.find { it.id == UNKNOWN_GENRE_ID } ?: Genre(
+                                    id = UNKNOWN_GENRE_ID,
+                                    name = UNKNOWN_GENRE_NAME,
+                                    lightColorHex = "#9E9E9E", onLightColorHex = "#000000",
+                                    darkColorHex = "#616161", onDarkColorHex = "#FFFFFF"
+                                )
+                            } else {
+                                Genre(
+                                    id = GenreParser.key(requestedName),
+                                    // A bare id such as "hip_hop" reads better with its spaces back.
+                                    name = if (requestedName.none(Char::isWhitespace) && '_' in requestedName) {
+                                        requestedName.replace("_", " ").replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                                    } else {
+                                        requestedName
+                                    },
+                                    lightColorHex = "#9E9E9E", onLightColorHex = "#000000",
+                                    darkColorHex = "#616161", onDarkColorHex = "#FFFFFF"
+                                )
+                            }
+                        }
 
                     val songs = musicRepository.getMusicByGenre(genre.name).first()
                     val artists = musicRepository.getArtists().first()
