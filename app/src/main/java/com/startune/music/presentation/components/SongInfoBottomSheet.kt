@@ -1,5 +1,6 @@
-﻿package com.startune.music.presentation.components
+﻿@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
+package com.startune.music.presentation.components
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -48,6 +49,8 @@ import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.TravelExplore
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -918,7 +921,7 @@ fun SongInfoBottomSheet(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        CircularProgressIndicator(modifier = Modifier.size(28.dp))
+                        LoadingIndicator(modifier = Modifier.size(28.dp))
                         Text(stringResource(R.string.musicbrainz_searching))
                     }
                 }

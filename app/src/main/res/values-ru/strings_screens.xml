@@ -449,4 +449,6 @@
     <string name="toast_download_started">Загрузка началась</string>
     <string name="toast_removed_dislike">Дизлайк удален</string>
     <string name="setup_external_services_subtitle">По умолчанию PixelPlayerOSS работает офлайн. Включайте только те онлайн-запросы, которые вам нужны.</string>
+    <string name="navigation_rail_expand">Развернуть навигацию</string>
+    <string name="navigation_rail_collapse">Свернуть навигацию</string>
 </resources>

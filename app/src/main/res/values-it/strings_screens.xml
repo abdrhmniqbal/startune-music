@@ -448,4 +448,6 @@
     <string name="toast_download_started">Download avviato</string>
     <string name="toast_removed_dislike">Non mi piace rimosso</string>
     <string name="setup_external_services_subtitle">PixelPlayerOSS funziona offline per impostazione predefinita. Attiva solo le ricerche che vuoi.</string>
+    <string name="navigation_rail_expand">Espandi navigazione</string>
+    <string name="navigation_rail_collapse">Comprimi navigazione</string>
 </resources>

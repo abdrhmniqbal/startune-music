@@ -448,4 +448,6 @@
     <string name="toast_download_started">Nedlasting startet</string>
     <string name="toast_removed_dislike">Fjernet misliker</string>
     <string name="setup_external_services_subtitle">PixelPlayerOSS fungerer offline som standard. Aktiver bare oppslagene du vil ha.</string>
+    <string name="navigation_rail_expand">Vis navigasjon</string>
+    <string name="navigation_rail_collapse">Skjul navigasjon</string>
 </resources>

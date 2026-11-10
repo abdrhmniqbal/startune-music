@@ -1,7 +1,7 @@
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
-package com.startune.music.presentation.components
 
+package com.startune.music.presentation.components
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState

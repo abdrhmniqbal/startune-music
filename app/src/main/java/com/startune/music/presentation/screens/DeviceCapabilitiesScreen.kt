@@ -1,4 +1,6 @@
-﻿package com.startune.music.presentation.screens
+﻿@file:kotlin.OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
+package com.startune.music.presentation.screens
 
 import android.text.format.Formatter
 import androidx.annotation.OptIn
