@@ -52,9 +52,16 @@ class GenreDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(GenreDetailUiState())
     val uiState: StateFlow<GenreDetailUiState> = _uiState.asStateFlow()
 
+    private var currentGenreId: String? = null
+
+    fun retry() {
+        currentGenreId?.let { loadGenreDetails(it) }
+    }
+
     init {
         savedStateHandle.get<String>("genreId")?.let { genreId ->
             val decodedGenreId = java.net.URLDecoder.decode(genreId, "UTF-8")
+            currentGenreId = decodedGenreId
             loadGenreDetails(decodedGenreId)
         } ?: run {
             _uiState.update { it.copy(error = "Genre ID not found", isLoadingGenreName = false, isLoadingSongs = false) }

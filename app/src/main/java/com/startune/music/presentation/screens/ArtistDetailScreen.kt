@@ -1170,6 +1170,7 @@ fun sortAlbumSections(
         else -> sections
     }
 
+@Composable
 private fun ArtistSectionHeader(
     title: String,
     onViewMoreClick: () -> Unit

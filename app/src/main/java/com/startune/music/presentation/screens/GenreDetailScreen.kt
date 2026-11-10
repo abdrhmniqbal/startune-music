@@ -640,8 +640,6 @@ private fun GenreSectionHeader(
 }
 
 @Composable
-
-@Composable
 private fun GenreTopSongsCarousel(
     songs: List<Song>,
     currentSongId: String?,

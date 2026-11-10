@@ -361,7 +361,7 @@ fun RecentlyPlayedScreen(
                         }
                     }
                 } else {
-                    itemsIndexed(displaySongs, key = { _, song -> song.id }, contentType = { "recently_played_song" }) { _, song ->
+                    itemsIndexed(displaySongs, key = { _, song -> song.id }, contentType = { _, _ -> "recently_played_song" }) { _, song ->
                         EnhancedSongListItem(
                             modifier = Modifier.padding(horizontal = 16.dp),
                             song = song,

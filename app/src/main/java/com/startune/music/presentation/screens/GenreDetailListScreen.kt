@@ -2,6 +2,7 @@ package com.startune.music.presentation.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material3.ContainedLoadingIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,7 +57,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.BiasAlignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
@@ -74,12 +76,11 @@ import com.startune.music.data.model.Song
 import com.startune.music.data.model.SortOption
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.ExpressiveScrollBar
-import com.startune.music.presentation.components.LibraryPlaybackAwareSongItem
 import com.startune.music.presentation.components.LibrarySortBottomSheet
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.PlaylistBottomSheet
-import com.startune.music.presentation.components.SelectionActionRow
-import com.startune.music.presentation.components.SelectionCountPill
+import com.startune.music.presentation.components.subcomps.SelectionActionRow
+import com.startune.music.presentation.components.subcomps.SelectionCountPill
 import com.startune.music.presentation.components.SongInfoBottomSheet
 import com.startune.music.presentation.components.SongMultiSelectionHost
 import com.startune.music.presentation.components.resolveNavBarOccupiedHeight
@@ -94,7 +95,9 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun GenreDetailListScreen(
     genreId: String,
@@ -265,7 +268,7 @@ fun GenreDetailListScreen(
             .nestedScroll(nestedScrollConnection)
     ) {
         when {
-            uiState.isLoading && uiState.genre == null -> {
+            (uiState.isLoadingSongs || uiState.isLoadingGenreName) && uiState.genre == null -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     ContainedLoadingIndicator()
                 }
