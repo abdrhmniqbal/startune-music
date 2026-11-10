@@ -181,6 +181,8 @@ import com.startune.music.data.preferences.NavBarStyle
 import com.startune.music.data.preferences.ThemePreference
 import com.startune.music.data.model.Song
 import com.startune.music.data.model.LyricsSourcePreference
+import com.startune.music.data.preferences.MAX_LYRICS_FONT_SIZE_SP
+import com.startune.music.data.preferences.MIN_LYRICS_FONT_SIZE_SP
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.ExpressiveTopBarContent
 import com.startune.music.presentation.components.MiniPlayerHeight
@@ -239,6 +241,10 @@ fun SettingsCategoryScreen(
     var importFileUri by remember { mutableStateOf<Uri?>(null) }
     var showExportEncryptionDialog by remember { mutableStateOf(false) }
     var exportPassphrase by remember { mutableStateOf<String?>(null) }
+    var lyricsFontSizeDraft by remember(uiState.lyricsFontSizeSp) {
+        mutableFloatStateOf(uiState.lyricsFontSizeSp)
+    }
+
     var minSongDurationDraft by remember(uiState.minSongDuration) {
         mutableStateOf(uiState.minSongDuration.toFloat())
     }
@@ -858,6 +864,21 @@ fun SettingsCategoryScreen(
                                     onCheckedChange = { settingsViewModel.setImmersiveLyricsEnabled(it) },
                                     leadingIcon = { Icon(painterResource(R.drawable.rounded_lyrics_24), null, tint = MaterialTheme.colorScheme.secondary) },
                                     modifier = Modifier.settingHighlight("item_appearance_immersive_lyrics", highlightKey)
+                                )
+
+                                SliderSettingsItem(
+                                    label = stringResource(R.string.setcat_lyrics_font_size_title),
+                                    value = lyricsFontSizeDraft,
+                                    valueRange = MIN_LYRICS_FONT_SIZE_SP..MAX_LYRICS_FONT_SIZE_SP,
+                                    steps = 25,
+                                    onValueChange = { lyricsFontSizeDraft = it },
+                                    onValueChangeFinished = {
+                                        if (lyricsFontSizeDraft != uiState.lyricsFontSizeSp) {
+                                            settingsViewModel.setLyricsFontSize(lyricsFontSizeDraft)
+                                        }
+                                    },
+                                    valueText = { value -> stringResource(R.string.setcat_lyrics_font_size_value, value) },
+                                    modifier = Modifier.settingHighlight("item_appearance_lyrics_font_size", highlightKey)
                                 )
 
                                 if (uiState.immersiveLyricsEnabled) {

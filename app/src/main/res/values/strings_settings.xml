@@ -221,6 +221,9 @@
     <string name="setcat_navbar_corner_subtitle">Adjust the corner radius of the navigation bar.</string>
     <string name="setcat_navbar_height_adjustment">NavBar Height Adjustment</string>
     <string name="setcat_lyrics_screen">Lyrics Screen</string>
+    <string name="setcat_lyrics_font_size_title">Lyrics size</string>
+    <string name="setcat_lyrics_font_size_subtitle">Text size for synced and plain lyrics</string>
+    <string name="setcat_lyrics_font_size_value">%1$.0f sp</string>
     <string name="setcat_immersive_lyrics_title">Immersive Lyrics</string>
     <string name="setcat_immersive_lyrics_subtitle">Auto-hide controls and enlarge text.</string>
     <string name="setcat_auto_hide_delay_label">Auto-hide Delay</string>

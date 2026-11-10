@@ -812,6 +812,18 @@ constructor(
         }
     }
 
+    val lyricsFontSizeFlow: Flow<Float> = dataStore.data
+        .map { preferences ->
+            sanitizeLyricsFontSize(preferences[LYRICS_FONT_SIZE_SP_KEY] ?: DEFAULT_LYRICS_FONT_SIZE_SP)
+        }
+        .distinctUntilChanged()
+
+    suspend fun setLyricsFontSize(fontSizeSp: Float) {
+        dataStore.edit { preferences ->
+            preferences[LYRICS_FONT_SIZE_SP_KEY] = sanitizeLyricsFontSize(fontSizeSp)
+        }
+    }
+
     val globalTransitionSettingsFlow: Flow<TransitionSettings> =
             dataStore.data.map { preferences ->
                 val duration = (preferences[PreferencesKeys.CROSSFADE_DURATION] ?: 2000).coerceIn(1000, 12000)
