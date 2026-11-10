@@ -1174,7 +1174,12 @@ fun LibraryScreen(
                                         onSelectAll = {
                                             when (tabTitles.getOrNull(currentTabIndex)?.toLibraryTabIdOrNull()) {
                                                 LibraryTabId.LIKED -> {
-                                                    multiSelectionState.selectAll(favoritePagingItems.itemSnapshotList.items)
+                                                    // The paged list only holds the loaded window, so ask for every favorite.
+                                                    scope.launch {
+                                                        multiSelectionState.selectAll(
+                                                            playerViewModel.getSongsForCurrentFavoriteSelection()
+                                                        )
+                                                    }
                                                 }
                                                 LibraryTabId.FOLDERS -> {
                                                     val songsToSelect =
