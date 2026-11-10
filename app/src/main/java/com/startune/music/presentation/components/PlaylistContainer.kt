@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -67,16 +69,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -97,6 +104,7 @@ import com.startune.music.utils.formatSongCount
 import com.startune.music.ui.theme.RoundedSans
 import com.startune.music.ui.theme.ShapeCache
 import androidx.compose.foundation.combinedClickable
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -260,7 +268,11 @@ fun PlaylistItems(
     useMixCover: Boolean = false,
     navigateToMixDetail: Boolean = false
 ) {
-    val stablePlayerState by playerViewModel.stablePlayerState.collectAsStateWithLifecycle()
+    val hasCurrentSong by remember(playerViewModel) {
+        playerViewModel.stablePlayerState
+            .map { it.currentSong != null && it.currentSong != Song.emptySong() }
+            .distinctUntilChanged()
+    }.collectAsStateWithLifecycle(initialValue = false)
     val listState = rememberLazyListState()
     val gridState = rememberLazyGridState()
     val playlistFastScrollLabelProvider = remember(filteredPlaylists, currentSortOption) {
@@ -345,10 +357,11 @@ fun PlaylistItems(
             }
         }
         
-        val bottomPadding = if (stablePlayerState.currentSong != null && stablePlayerState.currentSong != Song.emptySong()) 
-            bottomBarHeight + MiniPlayerHeight + 16.dp 
-        else 
+        val bottomPadding = if (hasCurrentSong) {
+            bottomBarHeight + MiniPlayerHeight + 16.dp
+        } else {
             bottomBarHeight + 16.dp
+        }
 
             ExpressiveScrollBar(
                 modifier = Modifier
@@ -783,6 +796,14 @@ fun CreatePlaylistDialogRedesigned(
 ) {
     var playlistName by remember { mutableStateOf("") }
 
+    // Open straight into typing: the name is the only required input here.
+    val nameFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        // Wait a frame so the dialog window exists before asking the IME to show.
+        withFrameNanos { }
+        nameFocusRequester.requestFocus()
+    }
+
     BasicAlertDialog(
         onDismissRequest = onDismiss,
     ) {
@@ -813,7 +834,15 @@ fun CreatePlaylistDialogRedesigned(
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 24.dp),
+                        .padding(bottom = 24.dp)
+                        .focusRequester(nameFocusRequester),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = { if (playlistName.isNotBlank()) onCreate(playlistName.trim()) }
+                    ),
                     singleLine = true,
                     colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -834,9 +863,9 @@ fun CreatePlaylistDialogRedesigned(
                     }
 
                     Button(
-                        onClick = { onCreate(playlistName) },
+                        onClick = { onCreate(playlistName.trim()) },
                         modifier = Modifier.weight(1f),
-                        enabled = playlistName.isNotEmpty(),
+                        enabled = playlistName.isNotBlank(),
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
