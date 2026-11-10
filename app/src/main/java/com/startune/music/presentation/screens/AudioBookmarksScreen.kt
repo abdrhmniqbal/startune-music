@@ -3,6 +3,7 @@
 package com.startune.music.presentation.screens
 
 import android.content.ClipData
+import androidx.activity.compose.BackHandler
 import android.widget.Toast
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -209,10 +210,23 @@ fun AudioBookmarksScreen(
             label = "BookmarkKeepTopBarSurfaceFraction"
         )
 
+        // Only jump to the top when the query or sort actually changes. A plain
+        // LaunchedEffect(query, sortMode) also runs when the screen re-enters composition after
+        // returning from a bookmark folder, which wiped the restored scroll position.
+        var appliedQuery by rememberSaveable { mutableStateOf(query) }
+        var appliedSortMode by rememberSaveable { mutableStateOf(sortMode) }
         LaunchedEffect(query, sortMode) {
+            if (query == appliedQuery && sortMode == appliedSortMode) return@LaunchedEffect
+            appliedQuery = query
+            appliedSortMode = sortMode
             if (listState.firstVisibleItemIndex != 0 || listState.firstVisibleItemScrollOffset != 0) {
                 listState.scrollToItem(0)
             }
+        }
+
+        // Back collapses the FAB menu before leaving the screen.
+        BackHandler(enabled = fabMenuExpanded) {
+            fabMenuExpanded = false
         }
 
         Box(
