@@ -259,6 +259,7 @@ import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.GenreCategoriesGrid
 import com.startune.music.presentation.components.LibrarySortBottomSheet
 import com.startune.music.presentation.library.sortFolderSongs
+import com.startune.music.presentation.library.KeepUnscrolledListAtTop
 import com.startune.music.presentation.components.subcomps.EnhancedSongListItem
 import timber.log.Timber
 import java.io.File
@@ -2789,6 +2790,8 @@ fun LibraryFoldersTab(
         val songsToShow = remember(activeFolder, songSortOption) {
             sortFolderSongs(activeFolder?.songs ?: emptyList(), songSortOption)
         }.toImmutableList()
+        // Uncached folder songs re-sort once their details load; an unscrolled folder stays at its top.
+        KeepUnscrolledListAtTop(listState = listState, rows = songsToShow)
         val currentSong = stablePlayerState.currentSong
         val currentSongId = currentSong?.id
         val currentSongIndexInSongs = remember(songsToShow, currentSongId) {
