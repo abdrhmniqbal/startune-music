@@ -679,7 +679,6 @@ fun AppNavigation(
                 }
             }
             composable(
-            composable(
                 route = Screen.Licenses.route,
                 enterTransition = { enterTransition() },
                 exitTransition = { exitTransition() },
