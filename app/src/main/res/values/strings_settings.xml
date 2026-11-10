@@ -571,4 +571,20 @@
     <string name="settings_search_no_results">No results for \"%1$s\"</string>
     <string name="settings_search_section_related">Related settings</string>
     <string name="settings_search_section_top_matches">Top matches</string>
+    <string name="setcat_playback_behavior">Playback</string>
+    <string name="setcat_autoplay_on_skip_title">Auto-play on skip</string>
+    <string name="setcat_autoplay_on_skip_subtitle">Start playing automatically when you skip to another song while paused.</string>
+    <!-- Playback speed -->
+    <string name="playback_speed_description">Pitch stays the same. Applies to everything you play.</string>
+    <string name="playback_speed_value">%1$s×</string>
+    <string name="playback_speed_state_description">%1$s times</string>
+    <string name="playback_speed_decrease">Decrease playback speed</string>
+    <string name="playback_speed_increase">Increase playback speed</string>
+    <string name="playback_speed_presets">Presets</string>
+    <string name="playback_speed_custom_action">Enter exact speed</string>
+    <string name="playback_speed_custom_title">Exact playback speed</string>
+    <string name="playback_speed_custom_field_label">Speed</string>
+    <string name="playback_speed_custom_supporting">From %1$s× to %2$s×, up to two decimals</string>
+    <string name="playback_speed_custom_error">Enter a speed from %1$s× to %2$s×</string>
+    <string name="playback_speed_multiplier_suffix">×</string>
 </resources>

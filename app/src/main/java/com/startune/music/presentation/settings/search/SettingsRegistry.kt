@@ -387,6 +387,17 @@ object SettingsRegistry {
                 getValue = { it.immersiveLyricsEnabled },
                 onToggle = { viewModel, checked -> viewModel.setImmersiveLyricsEnabled(checked) }
             ),
+            // Shown only while immersive lyrics is on.
+            SettingSpec(
+                id = "appearance_lyrics_auto_hide_delay",
+                itemKey = "item_appearance_lyrics_auto_hide_delay",
+                titleRes = R.string.setcat_auto_hide_delay_label,
+                subtitleRes = R.string.setcat_auto_hide_delay_desc,
+                category = SettingsCategory.APPEARANCE,
+                subscreenRoute = Screen.SettingsCategory.createRoute("appearance"),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("auto hide", "delay", "timeout", "lyrics", "controls")
+            ),
             SettingSpec(
                 id = "appearance_default_tab",
                 itemKey = "item_appearance_default_tab",
@@ -579,6 +590,17 @@ object SettingsRegistry {
                 getValue = { it.replayGainEnabled },
                 onToggle = { viewModel, checked -> viewModel.setReplayGainEnabled(checked) }
             ),
+            // Shown only while ReplayGain is on.
+            SettingSpec(
+                id = "playback_gain_mode",
+                itemKey = "item_playback_gain_mode",
+                titleRes = R.string.setcat_gain_mode_label,
+                subtitleRes = R.string.setcat_gain_mode_desc,
+                category = SettingsCategory.PLAYBACK,
+                subscreenRoute = Screen.SettingsCategory.createRoute("playback"),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("gain mode", "replaygain", "album gain", "track gain", "normalization")
+            ),
             SettingSpec(
                 id = "playback_headset_resume",
                 itemKey = "item_playback_headset_resume",
@@ -603,6 +625,16 @@ object SettingsRegistry {
                 getValue = { it.isCrossfadeEnabled },
                 onToggle = { viewModel, checked -> viewModel.setCrossfadeEnabled(checked) }
             ),
+            // Shown only while crossfade is on.
+            SettingSpec(
+                id = "playback_crossfade_duration",
+                itemKey = "item_playback_crossfade_duration",
+                titleRes = R.string.setcat_crossfade_duration,
+                category = SettingsCategory.PLAYBACK,
+                subscreenRoute = Screen.SettingsCategory.createRoute("playback"),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("crossfade", "duration", "seconds", "fade length", "transition time")
+            ),
             SettingSpec(
                 id = "playback_smart_crossfade",
                 itemKey = "item_playback_smart_crossfade",
@@ -619,10 +651,14 @@ object SettingsRegistry {
                 id = "playback_speed",
                 itemKey = "item_playback_speed",
                 titleRes = R.string.setcat_playback_speed,
+                subtitleRes = R.string.playback_speed_description,
                 category = SettingsCategory.PLAYBACK,
                 subscreenRoute = Screen.SettingsCategory.createRoute("playback"),
                 type = SettingType.NAVIGABLE_CARD,
-                keywordsStatic = listOf("speed", "tempo", "rate", "faster", "slower")
+                keywordsStatic = listOf(
+                    "speed", "tempo", "rate", "faster", "slower",
+                    "podcast", "audiobook", "custom", "exact"
+                )
             ),
             SettingSpec(
                 id = "playback_audio_output_mode",
@@ -722,6 +758,20 @@ object SettingsRegistry {
                 keywordsStatic = listOf("tap", "background", "close player", "gesture", "dismiss"),
                 getValue = { it.tapBackgroundClosesPlayer },
                 onToggle = { viewModel, checked -> viewModel.setTapBackgroundClosesPlayer(checked) }
+            ),
+            SettingSpec(
+                id = "behavior_autoplay_skip",
+                itemKey = "item_behavior_autoplay_skip",
+                titleRes = R.string.setcat_autoplay_on_skip_title,
+                subtitleRes = R.string.setcat_autoplay_on_skip_subtitle,
+                category = SettingsCategory.BEHAVIOR,
+                subscreenRoute = Screen.SettingsCategory.createRoute("behavior"),
+                type = SettingType.SWITCH,
+                keywordsStatic = listOf(
+                    "autoplay", "auto play", "skip", "next song", "previous song", "paused", "resume"
+                ),
+                getValue = { it.autoplayOnSkip },
+                onToggle = { viewModel, checked -> viewModel.setAutoplayOnSkip(checked) }
             ),
             SettingSpec(
                 id = "behavior_haptics",

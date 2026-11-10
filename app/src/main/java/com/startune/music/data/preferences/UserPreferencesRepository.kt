@@ -20,6 +20,7 @@ import com.startune.music.data.model.LyricsSourcePreference
 import com.startune.music.data.model.AudioOutputMode
 import com.startune.music.data.model.TransitionSettings
 import com.startune.music.data.equalizer.EqualizerPreset
+import com.startune.music.utils.PlaybackSpeedUtils
 import com.startune.music.data.model.StorageFilter
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -171,6 +172,7 @@ constructor(
         val RECAP_HOME_CARD_DISMISSED_YEAR = intPreferencesKey("recap_home_card_dismissed_year")
         val PLAYED_THRESHOLD_PERCENT = intPreferencesKey("played_threshold_percent")
         val PLAYBACK_SPEED = androidx.datastore.preferences.core.floatPreferencesKey("playback_speed")
+        val AUTOPLAY_ON_SKIP = booleanPreferencesKey("autoplay_on_skip")
         val CUSTOM_GENRES = androidx.datastore.preferences.core.stringSetPreferencesKey("custom_genres")
         val CUSTOM_GENRE_ICONS = stringPreferencesKey("custom_genre_icons")
         val REPEAT_MODE = intPreferencesKey("repeat_mode")
@@ -369,14 +371,35 @@ constructor(
         }
     }
 
+    /**
+     * Normalized to hundredths on read and write, so legacy noisy values such as 0.74999994f,
+     * NaN or backup imports outside the range come back as a clean, supported speed.
+     */
     val playbackSpeedFlow: Flow<Float> =
             dataStore.data.map { preferences ->
-                (preferences[PreferencesKeys.PLAYBACK_SPEED] ?: 1.0f).coerceIn(0.25f, 3.0f)
-            }
+                PlaybackSpeedUtils.normalize(
+                    preferences[PreferencesKeys.PLAYBACK_SPEED] ?: PlaybackSpeedUtils.DEFAULT_SPEED
+                )
+            }.distinctUntilChanged()
 
     suspend fun setPlaybackSpeed(speed: Float) {
         dataStore.edit { preferences ->
-            preferences[PreferencesKeys.PLAYBACK_SPEED] = speed.coerceIn(0.25f, 3.0f)
+            preferences[PreferencesKeys.PLAYBACK_SPEED] = PlaybackSpeedUtils.normalize(speed)
+        }
+    }
+
+    /**
+     * Whether skipping to another song from the app's own controls while paused starts
+     * playback. On by default.
+     */
+    val autoplayOnSkipFlow: Flow<Boolean> =
+        dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.AUTOPLAY_ON_SKIP] ?: true
+        }.distinctUntilChanged()
+
+    suspend fun setAutoplayOnSkip(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.AUTOPLAY_ON_SKIP] = enabled
         }
     }
 

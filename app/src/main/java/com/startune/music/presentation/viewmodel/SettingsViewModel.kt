@@ -61,6 +61,7 @@ data class SettingsUiState(
     val appThemeMode: String = AppThemeMode.FOLLOW_SYSTEM,
     val globalNowPlayingThemeEnabled: Boolean = false,
     val pitchBlackEnabled: Boolean = false,
+    val autoplayOnSkip: Boolean = true,
     val playerThemePreference: String = ThemePreference.ALBUM_ART,
     val albumArtPaletteStyle: AlbumArtPaletteStyle = AlbumArtPaletteStyle.default,
     val albumArtColorAccuracy: Int = AlbumArtColorAccuracy.DEFAULT,
@@ -289,6 +290,12 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferencesRepository.collageAutoRotateFlow.collect { autoRotate ->
                 _uiState.update { it.copy(collageAutoRotate = autoRotate) }
+            }
+        }
+
+        viewModelScope.launch {
+            userPreferencesRepository.autoplayOnSkipFlow.collect { enabled ->
+                _uiState.update { it.copy(autoplayOnSkip = enabled) }
             }
         }
     }
@@ -935,6 +942,12 @@ class SettingsViewModel @Inject constructor(
 
     val playbackSpeed: StateFlow<Float> = userPreferencesRepository.playbackSpeedFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1.0f)
+
+    fun setAutoplayOnSkip(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setAutoplayOnSkip(enabled)
+        }
+    }
 
     fun setPlaybackSpeed(speed: Float) {
         viewModelScope.launch {

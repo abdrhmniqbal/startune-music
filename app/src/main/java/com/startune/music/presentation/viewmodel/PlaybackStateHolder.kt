@@ -129,6 +129,11 @@ class PlaybackStateHolder @Inject constructor(
     ) {
         this.scope = coroutineScope
         scope?.launch {
+            userPreferencesRepository.autoplayOnSkipFlow.collect { enabled ->
+                autoplayOnSkip = enabled
+            }
+        }
+        scope?.launch {
             val snapshot = runCatching {
                 userPreferencesRepository.getPlaybackQueueSnapshotOnce()
             }.getOrNull() ?: return@launch
@@ -360,6 +365,10 @@ class PlaybackStateHolder @Inject constructor(
         player.seekTo(targetPosition)
     }
 
+    /** Mirrors the "Auto-play on skip" preference; the default matches the repository's. */
+    @Volatile
+    private var autoplayOnSkip: Boolean = true
+
     fun previousSong() {
         val controller = activeLocalPlayer()
         if (controller.currentPosition > 10000) {
@@ -370,12 +379,33 @@ class PlaybackStateHolder @Inject constructor(
         } else {
             // Not seekToPrevious(): Media3 restarts the track past its own 3 s
             // maxSeekToPreviousPosition, which made this 10 s rule behave like 3 s.
-            controller.seekToPreviousMediaItem()
+            val wasPaused = !controller.playWhenReady
+            if (controller.hasPreviousMediaItem()) {
+                controller.seekToPreviousMediaItem()
+                resumeAfterSkip(controller, wasPaused)
+            } else {
+                seekTo(0L)
+            }
         }
     }
 
     fun nextSong() {
-        activeLocalPlayer().seekToNext()
+        val player = activeLocalPlayer()
+        val wasPaused = !player.playWhenReady
+        // On the last item with repeat off the seek is a no-op; resuming there would only
+        // unpause the song the user tried to leave.
+        val hadNext = player.hasNextMediaItem()
+        player.seekToNext()
+        if (hadNext) resumeAfterSkip(player, wasPaused)
+    }
+
+    /** Starts playback after a skip from a paused player when "Auto-play on skip" is on. */
+    private fun resumeAfterSkip(player: Player, wasPaused: Boolean) {
+        if (!wasPaused || !autoplayOnSkip) return
+        if (player.playbackState == Player.STATE_IDLE && player.mediaItemCount > 0) {
+            player.prepare()
+        }
+        player.play()
     }
 
     fun cycleRepeatMode() {
