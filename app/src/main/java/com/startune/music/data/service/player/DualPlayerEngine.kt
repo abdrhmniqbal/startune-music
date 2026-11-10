@@ -231,7 +231,7 @@ class DualPlayerEngine @Inject constructor(
     private companion object {
         private const val AUDIO_OFFLOAD_STALL_FALLBACK_MS = 1_500L
         private const val POST_TRANSITION_OFFLOAD_GUARD_MS = 2_000L
-        private const val MAX_AUXILIARY_TIMELINE_ITEMS = 200
+        private const val MAX_AUXILIARY_TIMELINE_ITEMS = QueueWindowPolicy.MAX_AUXILIARY_TIMELINE_ITEMS
         private const val SHORT_FOCUS_LOSS_GRACE_MS = 2_000L
         private const val DUCK_VOLUME = 0.2f
         private val LOCAL_MEDIA_SCHEMES = setOf("content", "file", "android.resource")
@@ -1036,6 +1036,7 @@ class DualPlayerEngine @Inject constructor(
             activePlayerUsesWindowedQueue = state.queueWindow.usesWindowedQueue
             preserveQueueSnapshotOnNextPlaylistChange = state.queueWindow.usesWindowedQueue
             playerA.setMediaItems(state.mediaItems, state.currentIndex, state.positionMs)
+            restoreFullMasterTimelineIfWindowed()
             playerA.repeatMode = state.repeatMode
             playerA.shuffleModeEnabled = state.shuffleModeEnabled
             playerA.prepare()
@@ -1639,6 +1640,12 @@ class DualPlayerEngine @Inject constructor(
         playerA.pauseAtEndOfMediaItems = false
         playerB?.pauseAtEndOfMediaItems = false
         addMasterPlayerListeners(playerA)
+
+        // Splice the rest of the queue back in *before* the new master is published, so
+        // the MediaSession, the queue sheet and the persisted snapshot never observe the
+        // truncated crossfade window.
+        restoreFullMasterTimelineIfWindowed()
+
         if (playerA.playWhenReady) requestAudioFocus()
 
         onPlayerSwappedListeners.forEach { it(playerA) }
@@ -1658,6 +1665,67 @@ class DualPlayerEngine @Inject constructor(
             refreshQueueSnapshotFromMaster(windowStartIndex = 0, usesWindowedQueue = false)
         }
         return queueSnapshot
+    }
+
+    /**
+     * Puts the whole queue back on the master player after a crossfade swap or a player
+     * rebuild that promoted the windowed auxiliary player.
+     *
+     * [prepareNext] only gives the auxiliary player a [MAX_AUXILIARY_TIMELINE_ITEMS]-wide
+     * window around the incoming track, so preparing a crossfade stays cheap on huge queues.
+     * Once that player becomes the master, its timeline *is* the app's queue: the
+     * MediaSession, the queue sheet, every absolute-index queue edit and the persisted
+     * snapshot all read it. Leaving it windowed truncated large queues to the window.
+     *
+     * The tail is appended before the head so the append indices stay valid; prepending
+     * afterwards shifts the current index, which Media3 handles without interrupting playback.
+     */
+    private fun restoreFullMasterTimelineIfWindowed() {
+        if (!activePlayerUsesWindowedQueue) return
+        if (!::playerA.isInitialized) return
+
+        val snapshot = queueSnapshot
+        val windowStart = activeWindowStartIndex
+        val windowLength = playerA.mediaItemCount
+
+        val plan = QueueWindowPolicy.restorePlan(windowStart, windowLength, snapshot.size)
+        // If the snapshot no longer describes the queue this window was cut from we cannot
+        // splice safely; fall back to trusting the player timeline rather than corrupting it.
+        if (plan == null || !windowMatchesSnapshot(windowStart, windowStart + windowLength, snapshot)) {
+            Timber.tag("DualPlayerEngine").w(
+                "Cannot restore full timeline: window [%d,%d) does not match snapshot of %d",
+                windowStart, windowStart + windowLength, snapshot.size
+            )
+            refreshQueueSnapshotFromMaster(windowStartIndex = 0, usesWindowedQueue = false)
+            return
+        }
+
+        try {
+            plan.tail?.let { playerA.addMediaItems(ArrayList(snapshot.subList(it.first, it.last + 1))) }
+            plan.head?.let { playerA.addMediaItems(0, ArrayList(snapshot.subList(it.first, it.last + 1))) }
+        } catch (e: Exception) {
+            Timber.tag("DualPlayerEngine").e(e, "Failed to restore full master timeline")
+            refreshQueueSnapshotFromMaster(windowStartIndex = 0, usesWindowedQueue = false)
+            return
+        }
+
+        refreshQueueSnapshotFromMaster(windowStartIndex = 0, usesWindowedQueue = false)
+    }
+
+    /**
+     * Cheap sanity check that the master's windowed timeline is still the slice of
+     * [snapshot] it was cut from. Anything that edited the queue while the window was in
+     * place invalidates the offsets, and splicing against it would duplicate or drop tracks.
+     */
+    private fun windowMatchesSnapshot(
+        windowStart: Int,
+        windowEnd: Int,
+        snapshot: List<MediaItem>
+    ): Boolean {
+        if (windowEnd <= windowStart) return false
+        val lastPlayerIndex = windowEnd - windowStart - 1
+        return playerA.getMediaItemAt(0).mediaId == snapshot[windowStart].mediaId &&
+            playerA.getMediaItemAt(lastPlayerIndex).mediaId == snapshot[windowEnd - 1].mediaId
     }
 
     private fun refreshQueueSnapshotFromMaster(windowStartIndex: Int, usesWindowedQueue: Boolean) {
@@ -1716,15 +1784,8 @@ class DualPlayerEngine @Inject constructor(
         return fallback
     }
 
-    private fun auxiliaryWindowBounds(targetIndex: Int, count: Int): Pair<Int, Int> {
-        if (count <= MAX_AUXILIARY_TIMELINE_ITEMS) return 0 to count
-
-        val halfWindow = MAX_AUXILIARY_TIMELINE_ITEMS / 2
-        var start = (targetIndex - halfWindow).coerceAtLeast(0)
-        var end = (start + MAX_AUXILIARY_TIMELINE_ITEMS).coerceAtMost(count)
-        start = (end - MAX_AUXILIARY_TIMELINE_ITEMS).coerceAtLeast(0)
-        return start to end
-    }
+    private fun auxiliaryWindowBounds(targetIndex: Int, count: Int): Pair<Int, Int> =
+        QueueWindowPolicy.windowBounds(targetIndex, count)
 
     private fun resetPreparedWindowState() {
         preparedWindowStartIndex = 0
