@@ -267,6 +267,14 @@ import com.startune.music.presentation.components.rememberModalSheetState
 val ListExtraBottomGap = 30.dp
 val PlayerSheetCollapsedCornerRadius = 32.dp
 private const val ENABLE_FOLDERS_SOURCE_TOGGLE = true
+private const val ENABLE_FOLDERS_STORAGE_FILTER = false
+
+/** Tabs whose header shows the quick source filter (all / cloud / on-device). */
+private fun LibraryTabId.hasStorageFilterButton(): Boolean = when (this) {
+    LibraryTabId.SONGS, LibraryTabId.ALBUMS, LibraryTabId.ARTISTS, LibraryTabId.LIKED -> true
+    LibraryTabId.FOLDERS -> ENABLE_FOLDERS_STORAGE_FILTER
+    LibraryTabId.PLAYLISTS, LibraryTabId.MIXES, LibraryTabId.GENRES -> false
+}
 private const val FOLDER_NAVIGATION_ROOT_KEY = "__folder_root__"
 private const val FOLDER_NAVIGATION_FORWARD = 1
 private const val FOLDER_NAVIGATION_BACKWARD = -1
@@ -350,7 +358,6 @@ fun LibraryScreen(
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
     val tabTitles by playerViewModel.libraryTabsFlow.collectAsStateWithLifecycle()
     val allLibraryTabs by playerViewModel.allLibraryTabsFlow.collectAsStateWithLifecycle()
-    val hiddenLibraryTabs by playerViewModel.libraryTabsHiddenFlow.collectAsStateWithLifecycle()
     val currentTabId by playerViewModel.currentLibraryTabId.collectAsStateWithLifecycle()
     val libraryNavigationMode by playerViewModel.libraryNavigationMode.collectAsStateWithLifecycle()
     val isCompactNavigation = libraryNavigationMode == LibraryNavigationMode.COMPACT_PILL
@@ -1239,6 +1246,9 @@ fun LibraryScreen(
                                     onLocateClick = { locateAction?.invoke() },
                                     isPlaylistTab = currentTabId == LibraryTabId.PLAYLISTS,
                                     isMixesTab = currentTabId == LibraryTabId.MIXES,
+                                    showStorageFilterButton = currentTabId.hasStorageFilterButton(),
+                                    currentStorageFilter = playerUiState.currentStorageFilter,
+                                    onStorageFilterClick = { playerViewModel.toggleStorageFilter() },
                                     isFoldersTab = currentTabId == LibraryTabId.FOLDERS && (!playerUiState.isFoldersPlaylistView || playerUiState.currentFolder != null),
                                     onImportM3uClick = { m3uImportLauncher.launch("audio/x-mpegurl") },
                                     currentFolder = playerUiState.currentFolder,
@@ -1964,9 +1974,8 @@ fun LibraryScreen(
     if (showReorderTabsSheet) {
         ReorderTabsSheet(
             tabs = allLibraryTabs,
-            hiddenTabs = hiddenLibraryTabs,
-            onReorder = { newOrder, newHidden ->
-                playerViewModel.saveLibraryTabsOrderAndVisibility(newOrder, newHidden)
+            onReorder = { newOrder ->
+                playerViewModel.saveLibraryTabsOrder(newOrder)
             },
             onReset = {
                 playerViewModel.resetLibraryTabsOrder()

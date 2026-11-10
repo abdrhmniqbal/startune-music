@@ -2,13 +2,21 @@
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
@@ -16,7 +24,10 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,19 +44,25 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.automirrored.rounded.Sort
-import androidx.compose.material.icons.automirrored.rounded.ViewList
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.MyLocation
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material.icons.rounded.FilterList
+import androidx.compose.material.icons.automirrored.rounded.ViewList
 import androidx.compose.material.icons.rounded.GridView
+import androidx.compose.material.icons.rounded.Cloud
+import androidx.compose.material.icons.rounded.Dataset
+import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
@@ -73,6 +90,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.startune.music.R
 import com.startune.music.data.model.MusicFolder
+import com.startune.music.data.model.StorageFilter
 import com.startune.music.ui.theme.RoundedSans
 import java.io.File
 import androidx.compose.ui.res.stringResource
@@ -80,7 +98,34 @@ import androidx.compose.ui.res.stringResource
 val defaultShape = RoundedCornerShape(26.dp)
 val genHeight = 42.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
+private enum class LibraryToolbarMode { SHUFFLE, PLAYLIST, BREADCRUMBS }
+
+// Holds the folder's path rather than the MusicFolder itself: AnimatedContent hashes and compares
+// its target state on every recomposition, and a MusicFolder hashes its whole song tree.
+private data class LibraryToolbarContent(
+    val isFoldersTab: Boolean,
+    val isPlaylistTab: Boolean,
+    val showImportButton: Boolean,
+    val showSortButton: Boolean,
+    val showLocateButton: Boolean,
+    val showStorageFilterButton: Boolean,
+    val showViewToggleButton: Boolean,
+    val isCurrentViewList: Boolean,
+    val isMixesTab: Boolean,
+    val currentFolderPath: String?,
+    val folderRootPath: String,
+    val folderRootLabel: String,
+    val currentStorageFilter: StorageFilter,
+    val iconRotation: Float
+) {
+    val mode: LibraryToolbarMode
+        get() = when {
+            isFoldersTab -> LibraryToolbarMode.BREADCRUMBS
+            isPlaylistTab -> LibraryToolbarMode.PLAYLIST
+            else -> LibraryToolbarMode.SHUFFLE
+        }
+}
+
 @Composable
 fun LibraryActionRow(
     onMainActionClick: () -> Unit,
@@ -101,38 +146,95 @@ fun LibraryActionRow(
     onFolderClick: (String) -> Unit,
     onNavigateBack: () -> Unit,
     isShuffleEnabled: Boolean = false,
+    showStorageFilterButton: Boolean = false,
+    currentStorageFilter: StorageFilter = StorageFilter.ALL,
+    onStorageFilterClick: () -> Unit = {},
     showViewToggleButton: Boolean = false,
     isCurrentViewList: Boolean = false,
     onViewToggleClick: () -> Unit = {}
 ) {
-    val shouldShowImport = isPlaylistTab && showImportButton
+    // Animate complete arrangements so departing controls keep their tab's labels and width.
+    AnimatedContent(
+        targetState = LibraryToolbarContent(
+            isFoldersTab = isFoldersTab,
+            isPlaylistTab = isPlaylistTab,
+            showImportButton = showImportButton,
+            showSortButton = showSortButton,
+            showLocateButton = showLocateButton,
+            showStorageFilterButton = showStorageFilterButton,
+            showViewToggleButton = showViewToggleButton,
+            isCurrentViewList = isCurrentViewList,
+            isMixesTab = isMixesTab,
+            currentFolderPath = currentFolder?.path,
+            folderRootPath = folderRootPath,
+            folderRootLabel = folderRootLabel,
+            currentStorageFilter = currentStorageFilter,
+            iconRotation = iconRotation
+        ),
+        contentKey = { it.mode },
+        contentAlignment = Alignment.CenterStart,
+        modifier = modifier.fillMaxWidth().height(48.dp),
+        transitionSpec = {
+            val direction = if (targetState.mode == LibraryToolbarMode.BREADCRUMBS) 1 else -1
+            ((slideInVertically(tween(240, easing = FastOutSlowInEasing)) { direction * it / 2 } +
+                fadeIn(tween(180))) togetherWith
+                (slideOutVertically(tween(240, easing = FastOutSlowInEasing)) { -direction * it / 2 } +
+                    fadeOut(tween(120)))).using(SizeTransform(clip = false))
+        },
+        label = "LibraryToolbarMode"
+    ) { content ->
+        LibraryActionRowContent(
+            content = content,
+            onMainActionClick = onMainActionClick,
+            onSortClick = onSortClick,
+            onLocateClick = onLocateClick,
+            onImportM3uClick = onImportM3uClick,
+            onFolderClick = onFolderClick,
+            onNavigateBack = onNavigateBack,
+            onStorageFilterClick = onStorageFilterClick,
+            onViewToggleClick = onViewToggleClick
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun LibraryActionRowContent(
+    content: LibraryToolbarContent,
+    onMainActionClick: () -> Unit,
+    onSortClick: () -> Unit,
+    onLocateClick: () -> Unit,
+    onImportM3uClick: () -> Unit,
+    onFolderClick: (String) -> Unit,
+    onNavigateBack: () -> Unit,
+    onStorageFilterClick: () -> Unit,
+    onViewToggleClick: () -> Unit
+) {
+    val isPlaylistTab = content.isPlaylistTab
+    val isMixesTab = content.isMixesTab
+    val showSortButton = content.showSortButton
+    val showLocateButton = content.showLocateButton
+    val showStorageFilterButton = content.showStorageFilterButton
+    val showViewToggleButton = content.showViewToggleButton
+    val isCurrentViewList = content.isCurrentViewList
+    val currentStorageFilter = content.currentStorageFilter
+    val iconRotation = content.iconRotation
+    val shouldShowImport = isPlaylistTab && content.showImportButton
 
     Row(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
+            .height(48.dp)
             .padding(start = 4.dp),
         horizontalArrangement = Arrangement.Absolute.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AnimatedContent(
-            targetState = isFoldersTab,
-            label = "ActionRowContent",
-            transitionSpec = {
-                if (targetState) {
-                    slideInVertically { height -> height } + fadeIn() togetherWith
-                            slideOutVertically { height -> -height } + fadeOut()
-                } else {
-                    slideInVertically { height -> -height } + fadeIn() togetherWith
-                            slideOutVertically { height -> height } + fadeOut()
-                }
-            },
-            modifier = Modifier.weight(1f)
-        ) { isFolders ->
-            if (isFolders) {
+        Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
+            if (content.isFoldersTab) {
                 Breadcrumbs(
-                    currentFolder = currentFolder,
-                    rootPath = folderRootPath,
-                    rootLabel = folderRootLabel,
+                    currentFolderPath = content.currentFolderPath,
+                    rootPath = content.folderRootPath,
+                    rootLabel = content.folderRootLabel,
                     onFolderClick = onFolderClick,
                     onNavigateBack = onNavigateBack
                 )
@@ -274,7 +376,7 @@ fun LibraryActionRow(
             val outerCorner = 26.dp
             
             val sortStartCorner by animateDpAsState(
-                targetValue = if (showLocateButton || showViewToggleButton) 8.dp else outerCorner,
+                targetValue = if (showLocateButton || showStorageFilterButton || showViewToggleButton) 8.dp else outerCorner,
                 label = "SortStartCorner"
             )
 
@@ -283,6 +385,12 @@ fun LibraryActionRow(
                 targetValue = if (showLocateButton) 8.dp else outerCorner,
                 label = "FilterStartCorner"
             )
+
+            val viewToggleEndCorner = 8.dp
+            val viewToggleStartCorner by animateDpAsState(
+                targetValue = if (showLocateButton || showStorageFilterButton) 8.dp else outerCorner,
+                label = "ViewToggleStartCorner"
+            )
             
             val locateEndCorner = 8.dp
 
@@ -290,9 +398,13 @@ fun LibraryActionRow(
                 targetValue = if (showLocateButton) 4.dp else 0.dp,
                 label = "GapLocate"
             )
-            val gapBetweenFilterAndSort by animateDpAsState(
-                targetValue = if (showViewToggleButton) 4.dp else 0.dp,
+            val gapBetweenFilterAndViewToggle by animateDpAsState(
+                targetValue = if (showStorageFilterButton) 4.dp else 0.dp,
                 label = "GapFilter"
+            )
+            val gapBetweenViewToggleAndSort by animateDpAsState(
+                targetValue = if (showViewToggleButton) 4.dp else 0.dp,
+                label = "GapViewToggle"
             )
 
 
@@ -322,13 +434,117 @@ fun LibraryActionRow(
                 Spacer(modifier = Modifier.width(gapBetweenLocateAndNext))
 
                 AnimatedVisibility(
+                    visible = showStorageFilterButton,
+                    enter = slideInHorizontally(initialOffsetX = { it / 2 }) + fadeIn(),
+                    exit = slideOutHorizontally(targetOffsetX = { it / 2 }) + fadeOut()
+                ) {
+                     val finalIcon = when(currentStorageFilter) {
+                         StorageFilter.ALL -> Icons.Rounded.Dataset
+                         StorageFilter.ONLINE -> Icons.Rounded.Cloud
+                         StorageFilter.OFFLINE -> Icons.Rounded.PhoneAndroid
+                     }
+                     val tooltipText = when(currentStorageFilter) {
+                         StorageFilter.ALL -> stringResource(R.string.library_storage_filter_all_songs)
+                         StorageFilter.ONLINE -> stringResource(R.string.library_storage_filter_online)
+                         StorageFilter.OFFLINE -> stringResource(R.string.library_storage_filter_offline)
+                     }
+                     val tooltipState = rememberTooltipState()
+
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                        tooltip = {
+                            PlainTooltip {
+                                Text(tooltipText)
+                            }
+                        },
+                        state = tooltipState
+                    ) {
+                        // The button squishes and rounds out while held, the icon spins in when
+                        // the source changes, and a source other than All keeps a tertiary tint.
+                        val filterMotion = remember { MotionScheme.expressive() }
+                        val filterInteraction = remember { MutableInteractionSource() }
+                        val filterPressed by filterInteraction.collectIsPressedAsState()
+                        val filterScale by animateFloatAsState(
+                            targetValue = if (filterPressed) 0.88f else 1f,
+                            animationSpec = filterMotion.fastSpatialSpec(),
+                            label = "StorageFilterScale"
+                        )
+                        val pressedCorner = genHeight / 2
+                        val filterStart by animateDpAsState(
+                            targetValue = if (filterPressed) pressedCorner else filterStartCorner,
+                            animationSpec = filterMotion.fastSpatialSpec(),
+                            label = "StorageFilterStartCorner"
+                        )
+                        val filterEnd by animateDpAsState(
+                            targetValue = if (filterPressed) pressedCorner else filterEndCorner,
+                            animationSpec = filterMotion.fastSpatialSpec(),
+                            label = "StorageFilterEndCorner"
+                        )
+                        val isFiltering = currentStorageFilter != StorageFilter.ALL
+                        val filterContainer by animateColorAsState(
+                            targetValue = if (isFiltering) MaterialTheme.colorScheme.tertiaryContainer
+                            else MaterialTheme.colorScheme.secondaryContainer,
+                            animationSpec = filterMotion.defaultEffectsSpec(),
+                            label = "StorageFilterContainer"
+                        )
+                        val filterContent by animateColorAsState(
+                            targetValue = if (isFiltering) MaterialTheme.colorScheme.onTertiaryContainer
+                            else MaterialTheme.colorScheme.onSecondaryContainer,
+                            animationSpec = filterMotion.defaultEffectsSpec(),
+                            label = "StorageFilterContent"
+                        )
+                        FilledTonalIconButton(
+                            onClick = onStorageFilterClick,
+                            shape = RoundedCornerShape(
+                                topStart = filterStart,
+                                bottomStart = filterStart,
+                                topEnd = filterEnd,
+                                bottomEnd = filterEnd
+                            ),
+                            colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                containerColor = filterContainer,
+                                contentColor = filterContent
+                            ),
+                            interactionSource = filterInteraction,
+                            modifier = Modifier
+                                .size(genHeight)
+                                .graphicsLayer {
+                                    scaleX = filterScale
+                                    scaleY = filterScale
+                                }
+                        ) {
+                            AnimatedContent(
+                                targetState = finalIcon,
+                                transitionSpec = {
+                                    (scaleIn(filterMotion.fastSpatialSpec(), initialScale = 0.4f) +
+                                        fadeIn(filterMotion.fastEffectsSpec())) togetherWith
+                                        (scaleOut(filterMotion.fastSpatialSpec(), targetScale = 0.4f) +
+                                            fadeOut(filterMotion.fastEffectsSpec()))
+                                },
+                                label = "StorageFilterIcon"
+                            ) { icon ->
+                                val spin = remember { Animatable(-90f) }
+                                LaunchedEffect(Unit) { spin.animateTo(0f, filterMotion.defaultSpatialSpec()) }
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = tooltipText,
+                                    modifier = Modifier.graphicsLayer { rotationZ = spin.value }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(gapBetweenFilterAndViewToggle))
+
+                AnimatedVisibility(
                     visible = showViewToggleButton,
                     enter = slideInHorizontally(initialOffsetX = { it / 2 }) + fadeIn(),
                     exit = slideOutHorizontally(targetOffsetX = { it / 2 }) + fadeOut()
                 ) {
-                     val finalIcon = if (isCurrentViewList) Icons.Rounded.GridView else Icons.AutoMirrored.Rounded.ViewList
-                     val tooltipText = stringResource(if (isCurrentViewList) R.string.presentation_batch_d_view_grid else R.string.presentation_batch_d_view_list)
-                     val tooltipState = rememberTooltipState()
+                    val finalIcon = if (isCurrentViewList) Icons.Rounded.GridView else Icons.AutoMirrored.Rounded.ViewList
+                    val tooltipText = stringResource(if (isCurrentViewList) R.string.presentation_batch_d_view_grid else R.string.presentation_batch_d_view_list)
+                    val tooltipState = rememberTooltipState()
 
                     TooltipBox(
                         positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
@@ -342,14 +558,14 @@ fun LibraryActionRow(
                         FilledTonalIconButton(
                             onClick = onViewToggleClick,
                             shape = RoundedCornerShape(
-                                topStart = filterStartCorner,
-                                bottomStart = filterStartCorner,
-                                topEnd = filterEndCorner,
-                                bottomEnd = filterEndCorner
+                                topStart = viewToggleStartCorner,
+                                bottomStart = viewToggleStartCorner,
+                                topEnd = viewToggleEndCorner,
+                                bottomEnd = viewToggleEndCorner
                             ),
                             modifier = Modifier.size(genHeight)
                         ) {
-                             Icon(
+                            Icon(
                                 imageVector = finalIcon,
                                 contentDescription = tooltipText
                             )
@@ -357,7 +573,7 @@ fun LibraryActionRow(
                     }
                 }
 
-                Spacer(modifier = Modifier.width(gapBetweenFilterAndSort))
+                Spacer(modifier = Modifier.width(gapBetweenViewToggleAndSort))
 
                 FilledTonalIconButton(
                     onClick = onSortClick,
@@ -381,15 +597,15 @@ fun LibraryActionRow(
 
 @Composable
 fun Breadcrumbs(
-    currentFolder: MusicFolder?,
+    currentFolderPath: String?,
     rootPath: String,
     rootLabel: String,
     onFolderClick: (String) -> Unit,
     onNavigateBack: () -> Unit
 ) {
     val rowState = rememberLazyListState()
-    val pathSegments = remember(currentFolder?.path, rootPath, rootLabel) {
-        val path = currentFolder?.path ?: rootPath
+    val pathSegments = remember(currentFolderPath, rootPath, rootLabel) {
+        val path = currentFolderPath ?: rootPath
         val normalizedRoot = rootPath.removeSuffix("/")
         val normalizedPath = path.removeSuffix("/")
         val relativePath = normalizedPath
@@ -411,7 +627,7 @@ fun Breadcrumbs(
     val showStartFade by remember { derivedStateOf { rowState.canScrollBackward } }
     val showEndFade by remember { derivedStateOf { rowState.canScrollForward } }
 
-    LaunchedEffect(pathSegments.size) {
+    LaunchedEffect(pathSegments) {
         if (pathSegments.isNotEmpty()) {
             rowState.animateScrollToItem(pathSegments.lastIndex + 1)
         }
@@ -423,12 +639,19 @@ fun Breadcrumbs(
             .padding(start = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // At the root there is nowhere to go back to, so a disabled back arrow just reads as a
+        // broken control. Show a Home icon instead to say "this is the top".
+        val isAtRoot = currentFolderPath == null
         FilledTonalIconButton(
             onClick = onNavigateBack,
             modifier = Modifier.size(36.dp),
-            enabled = currentFolder != null
+            enabled = !isAtRoot
         ) {
-            Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.auth_cd_back))
+            if (isAtRoot) {
+                Icon(Icons.Rounded.Home, contentDescription = stringResource(R.string.tab_home))
+            } else {
+                Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.auth_cd_back))
+            }
         }
         Spacer(Modifier.width(8.dp))
 

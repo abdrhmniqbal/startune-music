@@ -155,6 +155,10 @@
     <string name="reorder_tabs_reset_dialog_title">순서 초기화</string>
     <string name="reorder_tabs_reset_dialog_body">탭 순서를 기본값으로 초기화하시겠습니까?</string>
     <string name="reorder_tabs_reordering">탭 순서 변경 중…</string>
+    <string name="reorder_tabs_visible_title">표시되는 탭</string>
+    <string name="reorder_tabs_hidden_title">숨겨진 탭</string>
+    <string name="reorder_tabs_hide_action">탭 숨기기</string>
+    <string name="reorder_tabs_show_action">탭 표시</string>
     <string name="cd_drag_handle">드래그 핸들</string>
     <string name="cd_reset">초기화</string>
     <string name="action_done">완료</string>

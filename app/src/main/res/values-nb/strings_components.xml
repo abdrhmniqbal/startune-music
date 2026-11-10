@@ -155,6 +155,10 @@
     <string name="reorder_tabs_reset_dialog_title">Nullstill rekkefølge</string>
     <string name="reorder_tabs_reset_dialog_body">Nullstill rekkefølgen til standard?</string>
     <string name="reorder_tabs_reordering">Endrer rekkefølge…</string>
+    <string name="reorder_tabs_visible_title">Synlige faner</string>
+    <string name="reorder_tabs_hidden_title">Skjulte faner</string>
+    <string name="reorder_tabs_hide_action">Skjul fane</string>
+    <string name="reorder_tabs_show_action">Vis fane</string>
     <string name="cd_drag_handle">Dra-håndtak</string>
     <string name="cd_reset">Nullstill</string>
     <string name="action_done">Ferdig</string>

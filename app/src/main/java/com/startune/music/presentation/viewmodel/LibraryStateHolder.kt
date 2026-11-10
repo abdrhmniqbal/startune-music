@@ -205,6 +205,7 @@ class LibraryStateHolder @Inject constructor(
             val likedSortKey = userPreferencesRepository.likedSongsSortOptionFlow.first()
             _currentFavoriteSortOption.value = SortOption.LIKED.find { it.storageKey == likedSortKey } ?: SortOption.LikedSongDateLiked
 
+            _currentStorageFilter.value = userPreferencesRepository.lastStorageFilterFlow.first()
         }
     }
 
@@ -516,6 +517,13 @@ class LibraryStateHolder @Inject constructor(
     fun updateSong(updatedSong: Song) {
         _allSongs.update { currentList ->
             currentList.map { if (it.id == updatedSong.id) updatedSong else it }.toImmutableList()
+        }
+    }
+
+    fun setStorageFilter(filter: com.startune.music.data.model.StorageFilter) {
+        _currentStorageFilter.value = filter
+        scope?.launch {
+            userPreferencesRepository.saveLastStorageFilter(filter)
         }
     }
 
