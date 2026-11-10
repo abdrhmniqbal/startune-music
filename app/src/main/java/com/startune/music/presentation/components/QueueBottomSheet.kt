@@ -316,6 +316,12 @@ fun QueueBottomSheet(
     val displaySongsSignature = remember(displaySongs, queueIndexOffset) {
         (queueIndexOffset * 31) + System.identityHashCode(displaySongs)
     }
+
+    var lastMovedFrom by remember { mutableStateOf<Int?>(null) }
+    var lastMovedTo by remember { mutableStateOf<Int?>(null) }
+    var reorderHandleInUse by remember { mutableStateOf(false) }
+    val updatedReorderHandleInUse by rememberUpdatedState(reorderHandleInUse)
+
     fun remapCommittedKeysForDisplay(newSongs: List<Song>) {
         if (committedDisplaySongIds.isNotEmpty() && newSongs.isNotEmpty()) {
             val firstNewId = newSongs.first().id
