@@ -2385,6 +2385,11 @@ class PlayerViewModel @Inject constructor(
     }
 
     private fun preparePlaybackAudioMetadataForMedia(mediaId: String?) {
+        // Queue-only changes (shuffle/unshuffle, reordering, repeat toggles) re-announce
+        // the same media id while the same track keeps playing. No tracks-changed event
+        // follows, so wiping here would blank the player file info until the next real
+        // transition. Keep the already-resolved format info instead.
+        if (mediaId != null && _playbackAudioMetadata.value.mediaId == mediaId) return
         metadataProbeJob?.cancel()
         metadataProbeJob = null
         metadataProbeMediaId = null
