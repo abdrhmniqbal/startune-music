@@ -59,6 +59,8 @@ class ModuleSchemaValidator @Inject constructor(
         when (section) {
             BackupSection.PLAYLISTS -> {
             }
+            BackupSection.AUDIO_BOOKMARKS -> {
+            }
             BackupSection.FAVORITES -> validateFavorites(jsonElement.asJsonArray, errors)
             BackupSection.LYRICS -> validateLyrics(jsonElement.asJsonArray, errors)
             BackupSection.SEARCH_HISTORY -> validateSearchHistory(jsonElement.asJsonArray, errors)
