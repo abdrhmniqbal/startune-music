@@ -354,4 +354,8 @@
     <string name="sync_failed_toast">Library sync failed. Pull down to refresh and try again.</string>
     <string name="sync_preparing_library">Preparing your library…</string>
     <string name="sync_scanned_count">Scanned %1$d of %2$d songs</string>
+    <string name="duration_hours_minutes_short">%1$dh %2$02dm</string>
+    <string name="duration_hours_short">%1$dh</string>
+    <string name="duration_minutes_short">%1$dm</string>
+    <string name="duration_seconds_short">%1$ds</string>
 </resources>

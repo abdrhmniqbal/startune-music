@@ -365,7 +365,6 @@ fun AppNavigation(
                 }
             }
             composable(
-            composable(
                 route = Screen.Recap.route,
                 arguments = listOf(navArgument(com.startune.music.presentation.viewmodel.RecapViewModel.YEAR_ARG) { type = NavType.IntType }),
                 enterTransition = { enterTransition() },
