@@ -29,8 +29,20 @@ fun hexToColor(hex: String): Color {
     )
 }
 
-private fun onColorFor(color: Color): Color =
-    if (ColorUtils.calculateLuminance(color.toArgb()) > 0.55) Color.Black else Color.White
+/**
+ * Picks the text color (black or white) with the higher WCAG contrast ratio
+ * against [color], so text stays readable on any role. A fixed luminance
+ * threshold gets this wrong for light but blue-heavy colors: Nord dark
+ * #88C0D0 has luminance 0.475, so the old threshold gave it white text at
+ * 2:1, while black is 10.5:1. With this rule every built-in primary is at
+ * least 5.1:1 (worst case Nord light #4C709C, white at 5.12:1).
+ */
+private fun onColorFor(color: Color): Color {
+    val luminance = ColorUtils.calculateLuminance(color.toArgb())
+    val whiteContrast = 1.05 / (luminance + 0.05)
+    val blackContrast = (luminance + 0.05) / 0.05
+    return if (whiteContrast > blackContrast) Color.White else Color.Black
+}
 
 /**
  * Returns [color] with its HSL lightness replaced by [targetLightness]
