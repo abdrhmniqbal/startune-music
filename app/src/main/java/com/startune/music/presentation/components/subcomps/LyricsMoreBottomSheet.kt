@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.Abc
 import androidx.compose.material.icons.rounded.FormatAlignCenter
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Translate
+import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.BrightnessHigh
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
@@ -62,6 +63,8 @@ import androidx.compose.ui.text.style.TextOverflow
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun LyricsMoreBottomSheet(
+    canCopyLyrics: Boolean,
+    onCopyLyrics: () -> Unit,
     onDismissRequest: () -> Unit,
     sheetState: SheetState,
     lyrics: Lyrics?,
@@ -147,6 +150,33 @@ fun LyricsMoreBottomSheet(
                             .clickable {
                                 onDismissRequest()
                                 onSaveLyricsAsLrc()
+                            },
+                        colors = ListItemDefaults.colors(
+                            containerColor = Color.Transparent,
+                            headlineColor = contentColor,
+                            leadingIconColor = contentColor
+                        )
+                    )
+                }
+
+                // Copyable lyrics imply lyrics != null, so this row always sits between
+                // Save and Reset.
+                if (canCopyLyrics) {
+                    ListItem(
+                        content = { Text(stringResource(R.string.lyrics_more_copy_lyrics)) },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Rounded.ContentCopy,
+                                contentDescription = null
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(itemBackgroundColor)
+                            .clickable {
+                                onDismissRequest()
+                                onCopyLyrics()
                             },
                         colors = ListItemDefaults.colors(
                             containerColor = Color.Transparent,
