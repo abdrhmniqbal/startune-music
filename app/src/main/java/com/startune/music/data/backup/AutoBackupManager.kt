@@ -30,8 +30,8 @@ class AutoBackupManager @Inject constructor(
         val now = System.currentTimeMillis()
         if (!force && now - lastRunMs < intervalHours * 3_600_000L) return false
 
-        val targetPath = userPreferencesRepository.autoBackupTargetFolderFlow.first()
-        val targetDir = AppFolders.resolveAutoBackupDir(targetPath)
+        val dataRoot = userPreferencesRepository.dataStorageRootFlow.first()
+        val targetDir = AppFolders.autoBackupDir(AppFolders.resolveRoot(dataRoot))
         if (!targetDir.exists() && !targetDir.mkdirs()) {
             Timber.e("Auto-backup failed: cannot create ${targetDir.absolutePath}")
             return false

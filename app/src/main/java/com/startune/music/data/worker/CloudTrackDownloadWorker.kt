@@ -10,6 +10,7 @@ import com.startune.music.data.database.OfflineTrackDao
 import com.startune.music.data.jellyfin.JellyfinRepository
 import com.startune.music.data.offline.CloudOfflineRepository
 import com.startune.music.data.offline.OfflineDownloadStatus
+import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.stream.CloudStreamSecurity
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -32,6 +34,7 @@ class CloudTrackDownloadWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val dao: OfflineTrackDao,
     private val jellyfinRepository: JellyfinRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
     baseOkHttpClient: OkHttpClient
 ) : CoroutineWorker(appContext, workerParams) {
     private val client = baseOkHttpClient.newBuilder()
@@ -64,7 +67,8 @@ class CloudTrackDownloadWorker @AssistedInject constructor(
             updatedAt = now
         ) == 0) return@withContext Result.success()
 
-        val tempFile = CloudOfflineRepository.downloadDirectory(applicationContext)
+        val dataRoot = userPreferencesRepository.dataStorageRootFlow.first()
+        val tempFile = CloudOfflineRepository.downloadDirectory(applicationContext, dataRoot)
             .resolve("${CloudOfflineRepository.attemptFileStem(downloadId, attemptId)}.part")
         tempFile.delete()
         var finalizedFile: File? = null
@@ -88,7 +92,7 @@ class CloudTrackDownloadWorker @AssistedInject constructor(
                 val body = response.body
                 val total = body.contentLength().takeIf { it >= 0L }
                 val extension = extensionFor(response.header("Content-Type"), entity.mimeType)
-                val finalFile = CloudOfflineRepository.downloadDirectory(applicationContext)
+                val finalFile = CloudOfflineRepository.downloadDirectory(applicationContext, dataRoot)
                     .resolve(
                         "${CloudOfflineRepository.attemptFileStem(downloadId, attemptId)}.$extension"
                     )

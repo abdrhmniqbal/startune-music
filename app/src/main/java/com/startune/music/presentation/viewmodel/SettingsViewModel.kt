@@ -86,7 +86,7 @@ data class SettingsUiState(
     val autoBackupEnabled: Boolean = false,
     val autoBackupIntervalHours: Int = 24,
     val autoBackupLastRunMs: Long = 0L,
-    val autoBackupTargetFolder: String = "",
+    val dataStorageRoot: String = "",
     val keepScreenAwakeWhilePlaying: Boolean = false,
     val resumeOnHeadsetReconnect: Boolean = false,
     val showQueueHistory: Boolean = true,
@@ -204,7 +204,7 @@ private sealed interface SettingsUiUpdate {
         val autoBackupEnabled: Boolean,
         val autoBackupIntervalHours: Int,
         val autoBackupLastRunMs: Long,
-        val autoBackupTargetFolder: String
+        val dataStorageRoot: String
     ) : SettingsUiUpdate
 }
 
@@ -384,7 +384,7 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.autoBackupEnabledFlow,
                 userPreferencesRepository.autoBackupIntervalHoursFlow,
                 userPreferencesRepository.autoBackupLastRunMsFlow,
-                userPreferencesRepository.autoBackupTargetFolderFlow
+                userPreferencesRepository.dataStorageRootFlow
             ) { values ->
                 val requestedAudioOutputMode = values[4] as AudioOutputMode
                 SettingsUiUpdate.Group2(
@@ -428,7 +428,7 @@ class SettingsViewModel @Inject constructor(
                     autoBackupEnabled = values[30] as Boolean,
                     autoBackupIntervalHours = values[31] as Int,
                     autoBackupLastRunMs = values[32] as Long,
-                    autoBackupTargetFolder = values[33] as String
+                    dataStorageRoot = values[33] as String
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -466,7 +466,7 @@ class SettingsViewModel @Inject constructor(
                         autoBackupEnabled = update.autoBackupEnabled,
                         autoBackupIntervalHours = update.autoBackupIntervalHours,
                         autoBackupLastRunMs = update.autoBackupLastRunMs,
-                        autoBackupTargetFolder = update.autoBackupTargetFolder,
+                        dataStorageRoot = update.dataStorageRoot,
                     )
                 }
             }
@@ -837,9 +837,9 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun setAutoBackupTargetFolder(path: String) {
+    fun setDataStorageRoot(path: String) {
         viewModelScope.launch {
-            userPreferencesRepository.setAutoBackupTargetFolder(path)
+            userPreferencesRepository.setDataStorageRoot(path)
         }
     }
 

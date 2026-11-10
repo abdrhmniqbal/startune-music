@@ -9,6 +9,7 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.LibraryMusic
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.startune.music.R
 
@@ -54,6 +55,12 @@ enum class SettingsCategory(
         titleRes = R.string.settings_category_backup_title,
         subtitleRes = R.string.settings_category_backup_subtitle,
         iconRes = R.drawable.rounded_upload_file_24
+    ),
+    DATA_STORAGE(
+        id = "data_storage",
+        titleRes = R.string.settings_category_data_storage_title,
+        subtitleRes = R.string.settings_category_data_storage_subtitle,
+        icon = Icons.Rounded.Storage
     ),
     DEVELOPER(
         id = "developer",

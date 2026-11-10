@@ -155,7 +155,7 @@ constructor(
         val AUTO_BACKUP_ENABLED = booleanPreferencesKey("auto_backup_enabled")
         val AUTO_BACKUP_INTERVAL_HOURS = intPreferencesKey("auto_backup_interval_hours")
         val AUTO_BACKUP_LAST_RUN_MS = longPreferencesKey("auto_backup_last_run_ms")
-        val AUTO_BACKUP_TARGET_FOLDER = stringPreferencesKey("auto_backup_target_folder")
+        val DATA_STORAGE_ROOT = stringPreferencesKey("data_storage_root")
         val RESUME_AFTER_CALL = booleanPreferencesKey("resume_after_call")
         val RESUME_ON_START = booleanPreferencesKey("resume_on_start")
         val RESUME_ON_REOPEN = booleanPreferencesKey("resume_on_reopen")
@@ -1043,9 +1043,9 @@ constructor(
                 preferences[PreferencesKeys.AUTO_BACKUP_LAST_RUN_MS] ?: 0L
             }
 
-    val autoBackupTargetFolderFlow: Flow<String> =
+    val dataStorageRootFlow: Flow<String> =
             dataStore.data.map { preferences ->
-                preferences[PreferencesKeys.AUTO_BACKUP_TARGET_FOLDER] ?: ""
+                preferences[PreferencesKeys.DATA_STORAGE_ROOT] ?: ""
             }
 
     val resumeAfterCallFlow: Flow<Boolean> =
@@ -1620,9 +1620,9 @@ constructor(
         }
     }
 
-    suspend fun setAutoBackupTargetFolder(path: String) {
+    suspend fun setDataStorageRoot(path: String) {
         dataStore.edit { preferences ->
-            preferences[PreferencesKeys.AUTO_BACKUP_TARGET_FOLDER] = path
+            preferences[PreferencesKeys.DATA_STORAGE_ROOT] = path
         }
     }
 
