@@ -242,7 +242,7 @@ fun SettingsCategoryScreen(
     var showExportEncryptionDialog by remember { mutableStateOf(false) }
     var exportPassphrase by remember { mutableStateOf<String?>(null) }
     var lyricsFontSizeDraft by remember(uiState.lyricsFontSizeSp) {
-        mutableFloatStateOf(uiState.lyricsFontSizeSp)
+        mutableStateOf(uiState.lyricsFontSizeSp)
     }
 
     var minSongDurationDraft by remember(uiState.minSongDuration) {
@@ -877,7 +877,7 @@ fun SettingsCategoryScreen(
                                             settingsViewModel.setLyricsFontSize(lyricsFontSizeDraft)
                                         }
                                     },
-                                    valueText = { value -> stringResource(R.string.setcat_lyrics_font_size_value, value) },
+                                    valueText = { value -> "${value.toInt()} sp" },
                                     modifier = Modifier.settingHighlight("item_appearance_lyrics_font_size", highlightKey)
                                 )
 
