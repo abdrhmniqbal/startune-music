@@ -294,7 +294,6 @@
     <string name="song_info_available_offline">Доступно офлайн</string>
     <string name="song_info_downloading">Загрузка...</string>
     <string name="song_info_download_for_offline">Скачать для офлайна</string>
-    <string name="setup_nav_floating_pill_m3_title">Капсула Expressive</string>
     <string name="setup_nav_floating_pill_m3_desc">Плавающая капсула с отдельной кнопкой поиска.</string>
     <string name="setup_nav_floating_pill_bar_title">Классическая капсула</string>
     <string name="setup_nav_floating_pill_bar_desc">Плавающая капсула с настройкой радиуса углов.</string>

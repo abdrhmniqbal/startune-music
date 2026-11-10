@@ -293,7 +293,6 @@
     <string name="song_info_available_offline">Disponible hors ligne</string>
     <string name="song_info_downloading">Téléchargement en cours...</string>
     <string name="song_info_download_for_offline">Télécharger pour hors ligne</string>
-    <string name="setup_nav_floating_pill_m3_title">Pilule Expressive</string>
     <string name="setup_nav_floating_pill_m3_desc">Capsule flottante avec bouton de recherche séparé.</string>
     <string name="setup_nav_floating_pill_bar_title">Pilule classique</string>
     <string name="setup_nav_floating_pill_bar_desc">Capsule flottante avec rayon de courbure ajustable.</string>

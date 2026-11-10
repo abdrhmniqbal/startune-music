@@ -291,7 +291,6 @@
     <string name="song_info_available_offline">Tersedia Offline</string>
     <string name="song_info_downloading">Mengunduh...</string>
     <string name="song_info_download_for_offline">Unduh untuk Offline</string>
-    <string name="setup_nav_floating_pill_m3_title">Pil Ekspresif</string>
     <string name="setup_nav_floating_pill_m3_desc">Kapsul mengambang dengan tombol cari terpisah.</string>
     <string name="setup_nav_floating_pill_bar_title">Pil Klasik</string>
     <string name="setup_nav_floating_pill_bar_desc">Kapsul mengambang dengan radius sudut yang dapat disesuaikan.</string>

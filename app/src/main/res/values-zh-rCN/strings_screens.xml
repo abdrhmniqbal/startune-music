@@ -293,7 +293,6 @@
     <string name="song_info_available_offline">可离线使用</string>
     <string name="song_info_downloading">正在下载...</string>
     <string name="song_info_download_for_offline">下载以供离线收听</string>
-    <string name="setup_nav_floating_pill_m3_title">灵动胶囊</string>
     <string name="setup_nav_floating_pill_m3_desc">带有独立搜索按钮的悬浮胶囊。</string>
     <string name="setup_nav_floating_pill_bar_title">经典胶囊</string>
     <string name="setup_nav_floating_pill_bar_desc">支持自定义圆角半径的悬浮胶囊。</string>
