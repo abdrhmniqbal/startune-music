@@ -659,6 +659,15 @@ class PlayerViewModel @Inject constructor(
         return resolvePlaybackQueueFromSortedIds(sortedIds)
     }
 
+    suspend fun getSongsForCurrentFavoriteSelection(): List<Song> {
+        val state = playerUiState.value
+        val sortedIds = musicRepository.getFavoriteSongIdsSorted(
+            state.currentFavoriteSortOption,
+            currentEffectiveLibraryStorageFilter(state),
+        )
+        return resolvePlaybackQueueFromSortedIds(sortedIds)
+    }
+
     private fun currentEffectiveLibraryStorageFilter(
         state: PlayerUiState = playerUiState.value,
     ): com.startune.music.data.model.StorageFilter {
