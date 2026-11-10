@@ -40,7 +40,6 @@
     <string name="presentation_batch_f_ai_preset_energy_catalyst_prompt">You are a high-momentum rhythm generator. Your philosophy centers on driving basslines, percussive intensity, and infectious grooves. Prioritize high-BPM club compatibility, syncopated energy, and continuous rhythmic tension to keep the listener\'s heart rate and motivation peak-level.</string>
 
     <!-- Create playlist -->
-    <string name="presentation_batch_f_new_smart_playlist">New smart playlist</string>
     <string name="presentation_batch_f_new_playlist">New playlist</string>
     <string name="presentation_batch_f_add_songs">Add Songs</string>
     <string name="presentation_batch_f_cd_back_or_cancel">Back or Cancel</string>
@@ -54,10 +53,7 @@
     <string name="presentation_batch_f_pick_image">Pick Image</string>
     <string name="presentation_batch_f_playlist_name_label">Playlist Name</string>
     <string name="presentation_batch_f_playlist_name_placeholder">My awesome mix</string>
-    <string name="presentation_batch_f_creation_mode_manual">Manual</string>
-    <string name="presentation_batch_f_creation_mode_smart">Smart</string>
     <string name="presentation_batch_f_generate_with_ai">Generate with AI</string>
-    <string name="presentation_batch_f_smart_rule">Smart Rule</string>
     <string name="presentation_batch_f_tab_default">Default</string>
     <string name="presentation_batch_f_tab_image">Image</string>
     <string name="presentation_batch_f_tab_icon">Icon</string>
@@ -71,15 +67,14 @@
     <string name="presentation_batch_f_curve">Curve</string>
     <string name="presentation_batch_f_rotation">Rotation</string>
     <string name="presentation_batch_f_scale">Scale</string>
-    <string name="presentation_batch_f_smart_rule_top_played_title">Top Played</string>
-    <string name="presentation_batch_f_smart_rule_top_played_subtitle">Your most played songs.</string>
-    <string name="presentation_batch_f_smart_rule_recently_played_title">Recently Played</string>
-    <string name="presentation_batch_f_smart_rule_recently_played_subtitle">Songs you listened to most recently.</string>
-    <string name="presentation_batch_f_smart_rule_forgotten_favorites_title">Forgotten Favorites</string>
-    <string name="presentation_batch_f_smart_rule_forgotten_favorites_subtitle">Favorite songs you haven\'t played in a while.</string>
-    <string name="presentation_batch_f_smart_rule_new_gems_title">New Gems</string>
-    <string name="presentation_batch_f_smart_rule_new_gems_subtitle">Recently added songs with low play counts.</string>
-
+    <string name="mix_rule_top_played_title">Top Played</string>
+    <string name="mix_rule_top_played_subtitle">Your most played songs.</string>
+    <string name="mix_rule_recently_played_title">Recently Played</string>
+    <string name="mix_rule_recently_played_subtitle">Songs you listened to most recently.</string>
+    <string name="mix_rule_forgotten_favorites_title">Forgotten Favorites</string>
+    <string name="mix_rule_forgotten_favorites_subtitle">Favorite songs you haven\'t played in a while.</string>
+    <string name="mix_rule_new_gems_title">New Gems</string>
+    <string name="mix_rule_new_gems_subtitle">Recently added songs with low play counts.</string>
     <!-- Palette style -->
     <string name="presentation_batch_f_palette_style_heading">Palette style</string>
     <string name="presentation_batch_f_palette_style_subtitle">Choose the album colors for the player UI.</string>
@@ -216,4 +211,10 @@
     <string name="presentation_batch_f_change">Change</string>
     <string name="presentation_batch_f_edit_cover_title">Edit Cover</string>
     <string name="presentation_batch_f_remove">Remove</string>
+    <string name="mix_create_title">New mix</string>
+    <string name="mix_name_label">Mix name</string>
+    <string name="mix_name_placeholder">My mix</string>
+    <string name="mix_preset_label">Preset</string>
+    <string name="mix_empty_title">No mixes yet</string>
+    <string name="mix_empty_hint">Create your first mix to get started.</string>
 </resources>

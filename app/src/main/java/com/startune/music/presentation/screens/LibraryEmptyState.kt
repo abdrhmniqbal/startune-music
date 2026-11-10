@@ -123,6 +123,12 @@ private fun libraryEmptySpec(
             subtitleRes = R.string.lib_empty_playlists_subtitle
         )
 
+        LibraryTabId.MIXES -> LibraryEmptySpec(
+            iconRes = R.drawable.rounded_instant_mix_24,
+            titleRes = R.string.mix_empty_title,
+            subtitleRes = R.string.mix_empty_hint
+        )
+
         LibraryTabId.GENRES -> LibraryEmptySpec(
             iconRes = R.drawable.rounded_music_off_24,
             titleRes = R.string.lib_empty_genres_title,

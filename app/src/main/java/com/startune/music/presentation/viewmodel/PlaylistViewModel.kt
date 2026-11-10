@@ -7,15 +7,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.startune.music.data.DailyMixManager
 import com.startune.music.data.model.Playlist
-import com.startune.music.data.model.SmartPlaylistRule
+import com.startune.music.data.model.MixRule
+import com.startune.music.data.model.toMixSource
 import com.startune.music.data.model.Song
 import com.startune.music.data.model.SortOption
 import com.startune.music.data.model.fromPlaylistSource
-import com.startune.music.data.model.isSmartPlaylist
-import com.startune.music.data.model.toPlaylistSource
+import com.startune.music.data.model.isMix
 import com.startune.music.data.playlist.M3uManager
-import com.startune.music.data.playlist.NlpPlaylistGenerator
-import com.startune.music.data.playlist.SmartPlaylistBuilder
+import com.startune.music.data.playlist.MixBuilder
 import com.startune.music.data.preferences.PlaylistPreferencesRepository
 import com.startune.music.data.repository.MusicRepository
 import com.startune.music.data.stats.PlaybackStatsRepository
@@ -70,14 +69,6 @@ sealed class PlaylistSongsOrderMode {
     data class Sorted(val option: SortOption) : PlaylistSongsOrderMode()
 }
 
-/** Preview state for the offline "describe it" playlist creation flow. */
-data class NlpPlaylistPreviewState(
-    val isGenerating: Boolean = false,
-    val songs: ImmutableList<Song> = persistentListOf(),
-    /** True once a generation finished, so the UI can tell "no matches" from "not asked yet". */
-    val hasResult: Boolean = false,
-)
-
 @HiltViewModel
 class PlaylistViewModel @Inject constructor(
     private val playlistPreferencesRepository: PlaylistPreferencesRepository,
@@ -85,15 +76,11 @@ class PlaylistViewModel @Inject constructor(
     private val playbackStatsRepository: PlaybackStatsRepository,
     private val dailyMixManager: DailyMixManager,
     private val m3uManager: M3uManager,
-    private val nlpPlaylistGenerator: NlpPlaylistGenerator,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PlaylistUiState())
     val uiState: StateFlow<PlaylistUiState> = _uiState.asStateFlow()
-
-    private val _nlpPlaylistPreviewState = MutableStateFlow(NlpPlaylistPreviewState())
-    val nlpPlaylistPreviewState: StateFlow<NlpPlaylistPreviewState> = _nlpPlaylistPreviewState.asStateFlow()
 
     private val _playlistCreationEvent = MutableSharedFlow<Boolean>(
         extraBufferCapacity = 1,
@@ -104,7 +91,6 @@ class PlaylistViewModel @Inject constructor(
     companion object {
         const val FOLDER_PLAYLIST_PREFIX = "folder_playlist:"
         private const val MANUAL_ORDER_MODE = "manual"
-        private const val SMART_PLAYLIST_MAX_ITEMS = 100
 
         fun sanitizeFileName(name: String): String {
             val sanitized = name.replace(Regex("[\\\\/:*?\"<>|\\s]+"), "_").trim('_')
@@ -220,7 +206,7 @@ class PlaylistViewModel @Inject constructor(
                         .find { it.id == playlistId }
 
                     if (playlist != null) {
-                        val playlistForDisplay = refreshSmartPlaylistIfNeeded(playlist)
+                        val playlistForDisplay = refreshMixIfNeeded(playlist)
                         val orderMode = _uiState.value.playlistOrderModes[playlistId]
                             ?: PlaylistSongsOrderMode.Manual
 
@@ -288,8 +274,7 @@ class PlaylistViewModel @Inject constructor(
         coverShapeDetail2: Float? = null,
         coverShapeDetail3: Float? = null,
         coverShapeDetail4: Float? = null,
-        source: String = "LOCAL",
-        smartRuleKey: String? = null
+        source: String = "LOCAL"
     ) {
         viewModelScope.launch {
             var savedCoverPath: String? = null
@@ -305,20 +290,9 @@ class PlaylistViewModel @Inject constructor(
                 )
             }
 
-            val resolvedSmartRule = SmartPlaylistRule.fromStorageKey(smartRuleKey)
-            val resolvedSongIds = if (resolvedSmartRule != null) {
-                buildSmartPlaylistSongIds(
-                    rule = resolvedSmartRule,
-                    limit = SMART_PLAYLIST_MAX_ITEMS
-                )
-            } else {
-                songIds
-            }
-            val resolvedSource = resolvedSmartRule?.toPlaylistSource() ?: source
-
             playlistPreferencesRepository.createPlaylist(
                 name = name,
-                songIds = resolvedSongIds,
+                songIds = songIds,
                 isQueueGenerated = isQueueGenerated,
                 coverImageUri = savedCoverPath,
                 coverColorArgb = coverColor,
@@ -328,44 +302,37 @@ class PlaylistViewModel @Inject constructor(
                 coverShapeDetail2 = coverShapeDetail2,
                 coverShapeDetail3 = coverShapeDetail3,
                 coverShapeDetail4 = coverShapeDetail4,
-                source = resolvedSource
+                source = source
             )
             _playlistCreationEvent.emit(true)
         }
     }
 
-    /** Runs the offline NLP engine over the library and publishes the ranked preview. */
-    fun generateNlpPlaylistPreview(description: String) {
-        if (description.isBlank()) return
+    fun createMix(
+        name: String,
+        rule: MixRule,
+        songCount: Int
+    ) {
         viewModelScope.launch {
-            _nlpPlaylistPreviewState.update { it.copy(isGenerating = true) }
-            val songs = try {
-                nlpPlaylistGenerator.generate(description)
-            } catch (e: Exception) {
-                Timber.tag("PlaylistVM").e(e, "NLP playlist generation failed")
-                emptyList()
-            }
-            _nlpPlaylistPreviewState.value = NlpPlaylistPreviewState(
-                isGenerating = false,
-                songs = songs.toImmutableList(),
-                hasResult = true
+            val songIds = buildMixSongIds(rule = rule, limit = songCount)
+            playlistPreferencesRepository.createPlaylist(
+                name = name,
+                songIds = songIds,
+                source = rule.toMixSource(),
+                mixSongCount = songCount
             )
+            _playlistCreationEvent.emit(true)
         }
     }
 
-    /** Clears the "describe it" preview when its dialog closes. */
-    fun resetNlpPlaylistPreview() {
-        _nlpPlaylistPreviewState.value = NlpPlaylistPreviewState()
-    }
-
-    private suspend fun buildSmartPlaylistSongIds(
-        rule: SmartPlaylistRule,
+    private suspend fun buildMixSongIds(
+        rule: MixRule,
         limit: Int
     ): List<String> {
         val allSongs = musicRepository.getAllSongsOnce()
         if (allSongs.isEmpty()) return emptyList()
 
-        return SmartPlaylistBuilder.buildSongIds(
+        return MixBuilder.buildSongIds(
             rule = rule,
             allSongs = allSongs,
             engagements = dailyMixManager.getAllEngagementStats(),
@@ -375,11 +342,11 @@ class PlaylistViewModel @Inject constructor(
         )
     }
 
-    private suspend fun refreshSmartPlaylistIfNeeded(playlist: Playlist): Playlist {
-        val smartRule = SmartPlaylistRule.fromPlaylistSource(playlist.source) ?: return playlist
-        val refreshedSongIds = buildSmartPlaylistSongIds(
-            rule = smartRule,
-            limit = SMART_PLAYLIST_MAX_ITEMS
+    private suspend fun refreshMixIfNeeded(playlist: Playlist): Playlist {
+        val mixRule = MixRule.fromPlaylistSource(playlist.source) ?: return playlist
+        val refreshedSongIds = buildMixSongIds(
+            rule = mixRule,
+            limit = playlist.mixSongCount ?: 60
         )
 
         if (refreshedSongIds == playlist.songIds) return playlist
@@ -597,7 +564,7 @@ class PlaylistViewModel @Inject constructor(
     fun addSongsToPlaylist(playlistId: String, songIdsToAdd: List<String>) {
         if (isFolderPlaylistId(playlistId)) return
         viewModelScope.launch {
-            if (playlistPreferencesRepository.getPlaylistsOnce().any { it.id == playlistId && it.isSmartPlaylist }) {
+            if (playlistPreferencesRepository.getPlaylistsOnce().any { it.id == playlistId && it.isMix }) {
                 return@launch
             }
             playlistPreferencesRepository.addSongsToPlaylist(playlistId, songIdsToAdd)
@@ -617,7 +584,7 @@ class PlaylistViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             val smartPlaylistIds = playlistPreferencesRepository.getPlaylistsOnce()
-                .filter { it.isSmartPlaylist }
+                .filter { it.isMix }
                 .map { it.id }
                 .toSet()
             val editablePlaylistIds = playlistIds.filterNot { it in smartPlaylistIds }
@@ -632,7 +599,7 @@ class PlaylistViewModel @Inject constructor(
     fun addSongsToPlaylists(songIds: List<String>, playlistIds: List<String>) {
         viewModelScope.launch {
             val smartPlaylistIds = playlistPreferencesRepository.getPlaylistsOnce()
-                .filter { it.isSmartPlaylist }
+                .filter { it.isMix }
                 .map { it.id }
                 .toSet()
             playlistIds.filterNot { it in smartPlaylistIds }.forEach { playlistId ->
@@ -644,7 +611,7 @@ class PlaylistViewModel @Inject constructor(
     fun removeSongFromPlaylist(playlistId: String, songIdToRemove: String) {
         if (isFolderPlaylistId(playlistId)) return
         viewModelScope.launch {
-            if (playlistPreferencesRepository.getPlaylistsOnce().any { it.id == playlistId && it.isSmartPlaylist }) {
+            if (playlistPreferencesRepository.getPlaylistsOnce().any { it.id == playlistId && it.isMix }) {
                 return@launch
             }
             playlistPreferencesRepository.removeSongFromPlaylist(playlistId, songIdToRemove)
@@ -659,7 +626,7 @@ class PlaylistViewModel @Inject constructor(
     fun reorderSongsInPlaylist(playlistId: String, fromIndex: Int, toIndex: Int) {
         if (isFolderPlaylistId(playlistId)) return
         val currentPlaylist = _uiState.value.currentPlaylistDetails ?: return
-        if (currentPlaylist.id != playlistId || currentPlaylist.isSmartPlaylist) return
+        if (currentPlaylist.id != playlistId || currentPlaylist.isMix) return
         viewModelScope.launch {
             val currentSongs = _uiState.value.currentPlaylistSongs.toMutableList()
             if (fromIndex in currentSongs.indices && toIndex in currentSongs.indices) {

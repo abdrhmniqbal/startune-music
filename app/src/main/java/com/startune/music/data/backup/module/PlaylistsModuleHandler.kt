@@ -7,7 +7,7 @@ import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import com.startune.music.data.model.Playlist
 import com.startune.music.data.model.SortOption
-import com.startune.music.data.model.isSmartPlaylistSource
+import com.startune.music.data.model.isMixSource
 import com.startune.music.data.backup.model.BackupSection
 import com.startune.music.data.database.MusicDao
 import com.startune.music.data.database.SongSummary
@@ -344,7 +344,7 @@ class PlaylistsModuleHandler @Inject constructor(
 
         /** Playlist sources that are backed up. Cloud-sourced playlists are excluded. */
         private fun isBackedUpPlaylistSource(source: String): Boolean =
-            source == "LOCAL" || isSmartPlaylistSource(source)
+            source == "LOCAL" || isMixSource(source)
 
         const val LEGACY_USER_PLAYLISTS_KEY = "user_playlists_json_v1"
         const val LEGACY_PLAYLIST_ORDER_MODES_KEY = "playlist_song_order_modes"

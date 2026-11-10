@@ -7,7 +7,7 @@ import android.net.Uri
 import android.provider.DocumentsContract
 import com.startune.music.data.model.Playlist
 import com.startune.music.data.model.Song
-import com.startune.music.data.model.isSmartPlaylist
+import com.startune.music.data.model.isMix
 import com.startune.music.data.preferences.M3uSyncConfig
 import com.startune.music.data.preferences.M3uSyncLink
 import com.startune.music.data.preferences.M3uSyncPreferences
@@ -550,7 +550,7 @@ class M3uSyncRepository @Inject constructor(
     }
 
     private fun isSyncablePlaylist(playlist: Playlist): Boolean =
-        !playlist.isQueueGenerated && !playlist.isSmartPlaylist && playlist.source == "LOCAL"
+        !playlist.isQueueGenerated && !playlist.isMix && playlist.source == "LOCAL"
 
     private fun appHash(playlist: Playlist, completeSongs: List<Song>): String {
         val name = desiredFileName(playlist.name)

@@ -119,7 +119,10 @@ fun PlaylistContainer(
     selectedPlaylistIds: Set<String> = emptySet(),
     onPlaylistLongPress: (Playlist) -> Unit = {},
     onPlaylistSelectionToggle: (Playlist) -> Unit = {},
-    playlistSelectionStateHolder: PlaylistSelectionStateHolder? = null
+    playlistSelectionStateHolder: PlaylistSelectionStateHolder? = null,
+    useMixCover: Boolean = false,
+    @androidx.annotation.StringRes emptyTitleRes: Int = R.string.presentation_batch_e_no_playlist_created,
+    @androidx.annotation.StringRes emptyHintRes: Int = R.string.presentation_batch_e_new_playlist_hint
 ) {
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -162,12 +165,12 @@ fun PlaylistContainer(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        stringResource(R.string.presentation_batch_e_no_playlist_created),
+                        stringResource(emptyTitleRes),
                         style = MaterialTheme.typography.titleMedium
                     )
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        stringResource(R.string.presentation_batch_e_new_playlist_hint),
+                        stringResource(emptyHintRes),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -211,7 +214,8 @@ fun PlaylistContainer(
                         isSelectionMode = isSelectionMode,
                         selectedPlaylistIds = selectedPlaylistIds,
                         onPlaylistLongPress = onPlaylistLongPress,
-                        onPlaylistSelectionToggle = onPlaylistSelectionToggle
+                        onPlaylistSelectionToggle = onPlaylistSelectionToggle,
+                        useMixCover = useMixCover
                     )
                 }
             }
@@ -248,7 +252,8 @@ fun PlaylistItems(
     isSelectionMode: Boolean = false,
     selectedPlaylistIds: Set<String> = emptySet(),
     onPlaylistLongPress: (Playlist) -> Unit = {},
-    onPlaylistSelectionToggle: (Playlist) -> Unit = {}
+    onPlaylistSelectionToggle: (Playlist) -> Unit = {},
+    useMixCover: Boolean = false
 ) {
     val stablePlayerState by playerViewModel.stablePlayerState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
@@ -390,7 +395,8 @@ fun PlaylistItems(
                         isSelected = selectedPlaylistIds.contains(playlist.id),
                         selectionIndex = selectionIndex,
                         onLongPress = { onPlaylistLongPress(playlist) },
-                        onPlaylistSelectionToggle = { onPlaylistSelectionToggle(playlist) }
+                        onPlaylistSelectionToggle = { onPlaylistSelectionToggle(playlist) },
+                        useMixCover = useMixCover
                     )
                 }
             }
@@ -566,7 +572,8 @@ fun PlaylistGridItem(
     isSelected: Boolean = false,
     selectionIndex: Int = -1,
     onLongPress: () -> Unit = {},
-    onPlaylistSelectionToggle: () -> Unit = {}
+    onPlaylistSelectionToggle: () -> Unit = {},
+    useMixCover: Boolean = false
 ) {
     val playlistPreviewSongIds = remember(playlist.songIds) {
         playlist.songIds.take(16)
@@ -644,12 +651,20 @@ fun PlaylistGridItem(
                         .aspectRatio(1f)
                 ) {
                     // Grid covers stay square like old Startune; custom shapes apply only to small covers.
-                    PlaylistCover(
-                        playlist = playlist,
-                        playlistSongs = remember(playlistSongs) { (playlistSongs ?: emptyList()).toImmutableList() },
-                        size = maxWidth,
-                        applyCoverShape = false
-                    )
+                    // Mixes use the old collage arrangement clipped to the cookie shape instead.
+                    if (useMixCover) {
+                        MixCover(
+                            songs = remember(playlistSongs) { (playlistSongs ?: emptyList()).toImmutableList() },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        PlaylistCover(
+                            playlist = playlist,
+                            playlistSongs = remember(playlistSongs) { (playlistSongs ?: emptyList()).toImmutableList() },
+                            size = maxWidth,
+                            applyCoverShape = false
+                        )
+                    }
                 }
                 Column(
                     modifier = Modifier

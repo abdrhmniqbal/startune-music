@@ -49,7 +49,7 @@ import com.startune.music.presentation.screens.ArtistDetailListScreen
 import com.startune.music.presentation.screens.ArtistDetailView
 import com.startune.music.presentation.screens.GenreDetailView
 import com.startune.music.presentation.screens.ArtistSettingsScreen
-import com.startune.music.presentation.screens.DailyMixScreen
+import com.startune.music.presentation.screens.MixDetailScreen
 import com.startune.music.presentation.screens.TopTracksScreen
 import com.startune.music.presentation.screens.EditTransitionScreen
 import com.startune.music.presentation.screens.EasterEggScreen
@@ -71,6 +71,7 @@ import com.startune.music.presentation.screens.DuplicateSongsScreen
 import com.startune.music.presentation.screens.SettingsScreen
 import com.startune.music.presentation.screens.SettingsCategoryScreen
 import com.startune.music.presentation.screens.EqualizerScreen
+import com.startune.music.presentation.viewmodel.MixIds
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.PlaylistViewModel
 import kotlinx.coroutines.flow.first
@@ -306,14 +307,16 @@ fun AppNavigation(
                 }
             }
             composable(
-                Screen.DailyMixScreen.route,
+                Screen.MixDetail.route,
+                arguments = listOf(navArgument("mixId") { type = NavType.StringType }),
                 enterTransition = { enterTransition() },
                 exitTransition = { exitTransition() },
                 popEnterTransition = { popEnterTransition() },
                 popExitTransition = { popExitTransition() },
-            ) {
+            ) { backStackEntry ->
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
-                    DailyMixScreen(
+                    MixDetailScreen(
+                        mixId = backStackEntry.arguments?.getString("mixId") ?: MixIds.FOR_YOU,
                         playerViewModel = playerViewModel,
                         navController = navController
                     )

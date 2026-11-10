@@ -679,7 +679,7 @@ class MainActivity : ComponentActivity() {
                 Screen.Settings.route,
                 Screen.Accounts.route,
                 Screen.PlaylistDetail.route,
-                Screen.DailyMixScreen.route,
+                Screen.MixDetail.route,
                 Screen.RecentlyPlayed.route,
                 Screen.TopTracks.route,
                 Screen.GenreDetail.route,

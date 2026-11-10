@@ -156,7 +156,10 @@
     <string name="dialog_delete_song_message">\"%1$s\" by %2$s\n\nThis song will be permanently deleted from your device and cannot be recovered.</string>
 
     <!-- Home / detail shared -->
-    <string name="home_your_mix_title">Your\nMix</string>
+    <string name="home_your_mix_title">For You\nMix</string>
+    <string name="mix_for_you_title">For You Mix</string>
+    <string name="mix_detail_size_title">Mix size</string>
+    <string name="mix_detail_size_songs">%1$d songs</string>
     <string name="home_empty_placeholder_title">No data to show yet</string>
     <string name="home_empty_placeholder_subtitle">Your mix will appear here when Startune Music finds songs or syncs a source.</string>
     <string name="home_empty_placeholder_refresh">Refresh</string>

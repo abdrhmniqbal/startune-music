@@ -24,6 +24,15 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
+ * Mix ids used by the generic mix detail page. "daily" is the Daily Mix,
+ * "for-you" is the For You Mix (the Home personalized mix).
+ */
+object MixIds {
+    const val DAILY = "daily"
+    const val FOR_YOU = "for-you"
+}
+
+/**
  * Manages Daily Mix and Your Mix state.
  * Extracted from PlayerViewModel to improve modularity.
  *
@@ -64,6 +73,50 @@ class DailyMixStateHolder @Inject constructor(
     }
 
     /**
+     * Remove a song from the For You Mix and backfill it with another song so
+     * the mix keeps its size. The backfill uses the same ranking as the mix
+     * generation. The new list is persisted, so the replacement survives a
+     * restart. When the library has no song left to backfill with, the mix
+     * just shrinks by one.
+     */
+    fun removeFromYourMix(
+        songId: String,
+        favoriteSongIdsFlow: kotlinx.coroutines.flow.Flow<Set<String>>
+    ) {
+        scope?.launch(Dispatchers.IO) {
+            val current = _yourMixSongs.value
+            if (current.none { it.id == songId }) return@launch
+            val remaining = current.filterNot { it.id == songId }
+            val allSongs = musicRepository.getAllSongsOnce()
+            val favoriteIds = favoriteSongIdsFlow.first()
+            val excludeIds = remaining.map { it.id }.toSet() + songId
+            val replacement = dailyMixManager.pickBackfillSong(allSongs, favoriteIds, excludeIds)
+            val updated = (remaining + listOfNotNull(replacement)).toImmutableList()
+            _yourMixSongs.value = updated
+            userPreferencesRepository.saveYourMixSongIds(updated.map { it.id })
+        }
+    }
+
+    /**
+     * Regenerates only the For You Mix, with the given song count.
+     */
+    fun updateYourMix(
+        favoriteSongIdsFlow: kotlinx.coroutines.flow.Flow<Set<String>>,
+        limit: Int
+    ) {
+        updateJob?.cancel()
+        updateJob = scope?.launch(Dispatchers.IO) {
+            val allSongs = musicRepository.getAllSongsOnce()
+            if (allSongs.isNotEmpty()) {
+                val favoriteIds = favoriteSongIdsFlow.first()
+                val yourMix = dailyMixManager.generateYourMix(allSongs, favoriteIds, limit)
+                _yourMixSongs.value = yourMix.toImmutableList()
+                userPreferencesRepository.saveYourMixSongIds(yourMix.map { it.id })
+            }
+        }
+    }
+
+    /**
      * Update the daily mix with new songs.
      * Uses getAllSongsOnce() to load songs on-demand instead of keeping a permanent subscription.
      */
@@ -78,7 +131,8 @@ class DailyMixStateHolder @Inject constructor(
                 _dailyMixSongs.value = mix.toImmutableList()
                 userPreferencesRepository.saveDailyMixSongIds(mix.map { it.id })
 
-                val yourMix = dailyMixManager.generateYourMix(allSongs, favoriteIds)
+                val yourMixLimit = userPreferencesRepository.forYouMixSongCountFlow.first()
+                val yourMix = dailyMixManager.generateYourMix(allSongs, favoriteIds, yourMixLimit)
                 _yourMixSongs.value = yourMix.toImmutableList()
                 userPreferencesRepository.saveYourMixSongIds(yourMix.map { it.id })
             } else {

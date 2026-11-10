@@ -38,7 +38,6 @@
     <string name="presentation_batch_f_ai_preset_energy_catalyst_prompt">Vous êtes un générateur de rythme à haute impulsion. Votre philosophie est centrée sur des lignes de basse entraînantes, une intensité percutante et des grooves contagieux. Privilégiez la compatibilité club à haut BPM, l\'énergie syncopée et une tension rythmique continue pour maintenir le rythme cardiaque et la motivation de l\'auditeur à leur maximum.</string>
 
     <!-- Create playlist -->
-    <string name="presentation_batch_f_new_smart_playlist">Nouvelle liste de lecture intelligente</string>
     <string name="presentation_batch_f_new_playlist">Nouvelle liste de lecture</string>
     <string name="presentation_batch_f_add_songs">Ajouter des chansons</string>
     <string name="presentation_batch_f_cd_back_or_cancel">Retour ou Annuler</string>
@@ -52,10 +51,7 @@
     <string name="presentation_batch_f_pick_image">Choisir une image</string>
     <string name="presentation_batch_f_playlist_name_label">Nom de la liste de lecture</string>
     <string name="presentation_batch_f_playlist_name_placeholder">Mon super mix</string>
-    <string name="presentation_batch_f_creation_mode_manual">Manuel</string>
-    <string name="presentation_batch_f_creation_mode_smart">Intelligent</string>
     <string name="presentation_batch_f_generate_with_ai">Générer avec l\'IA</string>
-    <string name="presentation_batch_f_smart_rule">Règle intelligente</string>
     <string name="presentation_batch_f_tab_default">Par défaut</string>
     <string name="presentation_batch_f_tab_image">Image</string>
     <string name="presentation_batch_f_tab_icon">Icône</string>
@@ -69,15 +65,14 @@
     <string name="presentation_batch_f_curve">Courbe</string>
     <string name="presentation_batch_f_rotation">Rotation</string>
     <string name="presentation_batch_f_scale">Échelle</string>
-    <string name="presentation_batch_f_smart_rule_top_played_title">Le plus écouté</string>
-    <string name="presentation_batch_f_smart_rule_top_played_subtitle">Vos pistes les plus écoutées.</string>
-    <string name="presentation_batch_f_smart_rule_recently_played_title">Écouté récemment</string>
-    <string name="presentation_batch_f_smart_rule_recently_played_subtitle">Chansons que vous avez écoutées le plus récemment.</string>
-    <string name="presentation_batch_f_smart_rule_forgotten_favorites_title">Favoris oubliés</string>
-    <string name="presentation_batch_f_smart_rule_forgotten_favorites_subtitle">Pistes favorites que vous n\'avez pas écoutées depuis un moment.</string>
-    <string name="presentation_batch_f_smart_rule_new_gems_title">Nouvelles pépites</string>
-    <string name="presentation_batch_f_smart_rule_new_gems_subtitle">Pistes récemment ajoutées avec peu d\'écoutes.</string>
-
+    <string name="mix_rule_top_played_title">Le plus écouté</string>
+    <string name="mix_rule_top_played_subtitle">Vos pistes les plus écoutées.</string>
+    <string name="mix_rule_recently_played_title">Écouté récemment</string>
+    <string name="mix_rule_recently_played_subtitle">Chansons que vous avez écoutées le plus récemment.</string>
+    <string name="mix_rule_forgotten_favorites_title">Favoris oubliés</string>
+    <string name="mix_rule_forgotten_favorites_subtitle">Pistes favorites que vous n\'avez pas écoutées depuis un moment.</string>
+    <string name="mix_rule_new_gems_title">Nouvelles pépites</string>
+    <string name="mix_rule_new_gems_subtitle">Pistes récemment ajoutées avec peu d\'écoutes.</string>
     <!-- Palette style -->
     <string name="presentation_batch_f_palette_style_heading">Style de palette</string>
     <string name="presentation_batch_f_palette_style_subtitle">Choisissez les couleurs de l\'album pour l\'interface du lecteur.</string>

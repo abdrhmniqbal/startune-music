@@ -1,7 +1,7 @@
 ﻿package com.startune.music.data.playlist
 
 import com.startune.music.data.DailyMixManager
-import com.startune.music.data.model.SmartPlaylistRule
+import com.startune.music.data.model.MixRule
 import com.startune.music.data.model.Song
 import java.util.concurrent.TimeUnit
 
@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
  * ordering) can be unit-tested without a ViewModel, repository, or Android
  * runtime. The ViewModel is responsible only for fetching the inputs.
  */
-object SmartPlaylistBuilder {
+object MixBuilder {
 
     /** Days of inactivity after which a favorite is considered "forgotten". */
     const val FORGOTTEN_FAVORITE_DAYS = 30L
@@ -28,7 +28,7 @@ object SmartPlaylistBuilder {
      * @param limit requested size; clamped to `1..allSongs.size`.
      */
     fun buildSongIds(
-        rule: SmartPlaylistRule,
+        rule: MixRule,
         allSongs: List<Song>,
         engagements: Map<String, DailyMixManager.SongEngagementStats>,
         favoriteIds: Set<String>,
@@ -41,7 +41,7 @@ object SmartPlaylistBuilder {
         val safeLimit = limit.coerceAtLeast(1).coerceAtMost(allSongs.size)
 
         val pickedSongs = when (rule) {
-            SmartPlaylistRule.TOP_PLAYED -> {
+            MixRule.TOP_PLAYED -> {
                 engagements.entries
                     .filter { it.value.playCount > 0 || it.value.totalPlayDurationMs > 0L }
                     .sortedWith(
@@ -53,7 +53,7 @@ object SmartPlaylistBuilder {
                     .take(safeLimit)
             }
 
-            SmartPlaylistRule.RECENTLY_PLAYED -> {
+            MixRule.RECENTLY_PLAYED -> {
                 engagements.entries
                     .filter { it.value.lastPlayedTimestamp > 0L }
                     .sortedByDescending { it.value.lastPlayedTimestamp }
@@ -61,7 +61,7 @@ object SmartPlaylistBuilder {
                     .take(safeLimit)
             }
 
-            SmartPlaylistRule.FORGOTTEN_FAVORITES -> {
+            MixRule.FORGOTTEN_FAVORITES -> {
                 val staleThreshold = now - TimeUnit.DAYS.toMillis(FORGOTTEN_FAVORITE_DAYS)
                 allSongs
                     .asSequence()
@@ -77,7 +77,7 @@ object SmartPlaylistBuilder {
                     .toList()
             }
 
-            SmartPlaylistRule.NEW_GEMS -> {
+            MixRule.NEW_GEMS -> {
                 allSongs
                     .asSequence()
                     .sortedWith(

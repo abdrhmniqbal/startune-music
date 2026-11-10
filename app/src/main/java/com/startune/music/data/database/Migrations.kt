@@ -246,6 +246,23 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
     }
 }
 
+/**
+ * v9 -> v10: Mixes (Startune v2.0.0).
+ *
+ * Smart Playlists become Mixes: the playlists table gains the per-mix song
+ * count, and existing smart-playlist rows are rewritten from the SMART:
+ * source prefix to MIX:, keeping their previous 100-song limit. A bare
+ * "SMART" source (no rule key) is left untouched; it stays recognized as a
+ * mix but has no rule to refresh from.
+ */
+val MIGRATION_9_10 = object : Migration(9, 10) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `playlists` ADD COLUMN `mix_song_count` INTEGER")
+        db.execSQL("UPDATE `playlists` SET `source` = REPLACE(`source`, 'SMART:', 'MIX:') WHERE `source` LIKE 'SMART:%'")
+        db.execSQL("UPDATE `playlists` SET `mix_song_count` = 100 WHERE `source` LIKE 'MIX:%'")
+    }
+}
+
 val MIGRATION_6_7 = object : Migration(6, 7) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("DELETE FROM song_artist_cross_ref WHERE song_id IN (SELECT id FROM songs WHERE source_type = 5)")

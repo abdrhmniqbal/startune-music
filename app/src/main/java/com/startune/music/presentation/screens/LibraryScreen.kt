@@ -167,8 +167,7 @@ import com.startune.music.presentation.components.subcomps.LibraryActionRow
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.components.MultiSelectionBottomSheet
 import com.startune.music.presentation.components.PlaylistMultiSelectionBottomSheet
-import com.startune.music.presentation.components.DescribePlaylistDialog
-import com.startune.music.presentation.components.PlaylistCreationTypeDialog
+import com.startune.music.presentation.components.CreateMixDialog
 import com.startune.music.presentation.components.subcomps.SelectionActionRow
 import com.startune.music.presentation.components.subcomps.SelectionCountPill
 import com.startune.music.presentation.viewmodel.ColorSchemePair
@@ -251,6 +250,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.ui.focus.focusModifier
 import com.startune.music.data.model.PlaylistShapeType
+import com.startune.music.data.model.isMix
 import kotlinx.coroutines.flow.first
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
@@ -379,8 +379,7 @@ fun LibraryScreen(
             .distinctUntilChanged()
     }.collectAsStateWithLifecycle(initialValue = false)
     var showCreatePlaylistDialog by remember { mutableStateOf(false) }
-    var showPlaylistCreationTypeDialog by remember { mutableStateOf(false) }
-    var showDescribePlaylistDialog by remember { mutableStateOf(false) }
+    var showCreateMixDialog by remember { mutableStateOf(false) }
 
     val m3uImportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -688,6 +687,7 @@ fun LibraryScreen(
         LibraryTabId.FOLDERS -> isSelectionMode
         LibraryTabId.ARTISTS -> isArtistSelectionMode
         LibraryTabId.GENRES -> isGenreSelectionMode
+        LibraryTabId.MIXES -> false
     }
     val canHandleFolderBack by remember {
         derivedStateOf {
@@ -732,6 +732,8 @@ fun LibraryScreen(
                         multiSelectionState.clearSelection()
                         showMultiSelectionSheet = false
                     }
+
+                    LibraryTabId.MIXES -> Unit
 
                 }
             }
@@ -1026,7 +1028,8 @@ fun LibraryScreen(
                         val playlistUiState by playlistViewModel.uiState.collectAsStateWithLifecycle()
                         val genres by playerViewModel.genres.collectAsStateWithLifecycle()
                         val isGenreGridView by playerViewModel.isGenreGridView.collectAsStateWithLifecycle()
-                        val visiblePlaylists = playlistUiState.playlists
+                        val visiblePlaylists = playlistUiState.playlists.filterNot { it.isMix }.toImmutableList()
+                        val visibleMixes = playlistUiState.playlists.filter { it.isMix }.toImmutableList()
                         val allSongsLazyPagingItems = libraryViewModel.songsPagingFlow.collectAsLazyPagingItems()
                         val albumsLazyPagingItems = libraryViewModel.albumsPagingFlow.collectAsLazyPagingItems()
                         val artistsLazyPagingItems = libraryViewModel.artistsPagingFlow.collectAsLazyPagingItems()
@@ -1048,6 +1051,7 @@ fun LibraryScreen(
                             LibraryTabId.ALBUMS -> playerUiState.currentAlbumSortOption
                             LibraryTabId.ARTISTS -> playerUiState.currentArtistSortOption
                             LibraryTabId.PLAYLISTS -> playlistUiState.currentPlaylistSortOption
+                            LibraryTabId.MIXES -> playlistUiState.currentPlaylistSortOption
                             LibraryTabId.LIKED -> playerUiState.currentFavoriteSortOption
                             LibraryTabId.FOLDERS -> playerUiState.currentFolderSortOption
                             LibraryTabId.GENRES -> SortOption.GenreNameAZ
@@ -1073,6 +1077,7 @@ fun LibraryScreen(
                                     LibraryTabId.ALBUMS -> playerViewModel.sortAlbums(option)
                                     LibraryTabId.ARTISTS -> playerViewModel.sortArtists(option)
                                     LibraryTabId.PLAYLISTS -> playlistViewModel.sortPlaylists(option)
+                                    LibraryTabId.MIXES -> playlistViewModel.sortPlaylists(option)
                                     LibraryTabId.LIKED -> playerViewModel.sortFavoriteSongs(option)
                                     LibraryTabId.FOLDERS -> playerViewModel.sortFolders(option)
                                     LibraryTabId.GENRES -> Unit
@@ -1196,7 +1201,8 @@ fun LibraryScreen(
                                         .padding(end = 4.dp),
                                     onMainActionClick = {
                                         when (tabTitles.getOrNull(currentTabIndex)?.toLibraryTabIdOrNull()) {
-                                            LibraryTabId.PLAYLISTS -> showPlaylistCreationTypeDialog = true
+                                            LibraryTabId.PLAYLISTS -> showCreatePlaylistDialog = true
+                                            LibraryTabId.MIXES -> showCreateMixDialog = true
                                             LibraryTabId.LIKED -> playerViewModel.shuffleFavoriteSongs()
                                             LibraryTabId.ALBUMS -> playerViewModel.shuffleRandomAlbum()
                                             LibraryTabId.ARTISTS -> playerViewModel.shuffleRandomArtist()
@@ -1466,6 +1472,18 @@ fun LibraryScreen(
                                         )
                                     }
 
+                                    LibraryTabId.MIXES -> {
+                                        LibraryMixesTab(
+                                            playlistUiState = playlistUiState,
+                                            filteredMixes = visibleMixes,
+                                            navController = navController,
+                                            playerViewModel = playerViewModel,
+                                            bottomBarHeight = bottomBarHeightDp,
+                                            isRefreshing = isRefreshing,
+                                            onRefresh = onRefresh
+                                        )
+                                    }
+
                                     LibraryTabId.LIKED -> {
                                         LibraryFavoritesTab(
                                             favoriteSongs = favoritePagingItems,
@@ -1565,6 +1583,7 @@ fun LibraryScreen(
 
                             val selectionCount = when (currentTabId) {
                                 LibraryTabId.PLAYLISTS -> selectedPlaylists.size.takeIf { isPlaylistSelectionMode } ?: 0
+                                LibraryTabId.MIXES -> 0
                                 LibraryTabId.ALBUMS -> selectedAlbums.size.takeIf { isAlbumSelectionMode } ?: 0
                                 LibraryTabId.ARTISTS -> selectedArtists.size.takeIf { isArtistSelectionMode } ?: 0
                                 LibraryTabId.SONGS,
@@ -1615,39 +1634,10 @@ fun LibraryScreen(
 
 
 
-    PlaylistCreationTypeDialog(
-        visible = showPlaylistCreationTypeDialog,
-        onDismiss = { showPlaylistCreationTypeDialog = false },
-        onManualSelected = {
-            showPlaylistCreationTypeDialog = false
-            showCreatePlaylistDialog = true
-        },
-        onDescribeSelected = {
-            showPlaylistCreationTypeDialog = false
-            showDescribePlaylistDialog = true
-        }
-    )
-
-    val nlpPlaylistPreviewState by playlistViewModel.nlpPlaylistPreviewState.collectAsStateWithLifecycle()
-    DescribePlaylistDialog(
-        visible = showDescribePlaylistDialog,
-        state = nlpPlaylistPreviewState,
-        onGenerate = playlistViewModel::generateNlpPlaylistPreview,
-        onSave = { name, songIds ->
-            playlistViewModel.createPlaylist(name = name, songIds = songIds)
-            playlistViewModel.resetNlpPlaylistPreview()
-            showDescribePlaylistDialog = false
-        },
-        onDismiss = {
-            playlistViewModel.resetNlpPlaylistPreview()
-            showDescribePlaylistDialog = false
-        }
-    )
-
     CreatePlaylistDialog(
         visible = showCreatePlaylistDialog,
         onDismiss = { showCreatePlaylistDialog = false },
-        onCreate = { name, imageUri, color, icon, songIds, cropScale, cropPanX, cropPanY, shapeType, d1, d2, d3, d4, smartRuleKey ->
+        onCreate = { name, imageUri, color, icon, songIds, cropScale, cropPanX, cropPanY, shapeType, d1, d2, d3, d4 ->
             playlistViewModel.createPlaylist(
                 name = name,
                 coverImageUri = imageUri,
@@ -1662,9 +1652,21 @@ fun LibraryScreen(
                 coverShapeDetail1 = d1,
                 coverShapeDetail2 = d2,
                 coverShapeDetail3 = d3,
-                coverShapeDetail4 = d4,
-                smartRuleKey = smartRuleKey
+                coverShapeDetail4 = d4
             )
+        }
+    )
+
+    CreateMixDialog(
+        visible = showCreateMixDialog,
+        onDismiss = { showCreateMixDialog = false },
+        onCreate = { name, rule, songCount ->
+            playlistViewModel.createMix(
+                name = name,
+                rule = rule,
+                songCount = songCount
+            )
+            showCreateMixDialog = false
         }
     )
 
@@ -2585,6 +2587,7 @@ private fun LibraryTabId.iconRes(): Int = when (this) {
     LibraryTabId.ALBUMS -> R.drawable.rounded_album_24
     LibraryTabId.ARTISTS -> R.drawable.rounded_artist_24
     LibraryTabId.PLAYLISTS -> R.drawable.rounded_playlist_play_24
+    LibraryTabId.MIXES -> R.drawable.rounded_instant_mix_24
     LibraryTabId.FOLDERS -> R.drawable.rounded_folder_24
     LibraryTabId.LIKED -> R.drawable.round_favorite_24
     LibraryTabId.GENRES -> R.drawable.round_library_music_24
