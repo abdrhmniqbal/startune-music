@@ -1,7 +1,6 @@
 ﻿package com.startune.music.presentation.components
 
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -45,6 +44,7 @@ import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -63,10 +63,14 @@ import com.startune.music.data.preferences.sanitizeNavBarCornerRadius
 import com.startune.music.presentation.components.scoped.PlayerAlbumNavigationEffect
 import com.startune.music.presentation.components.scoped.PlayerArtistNavigationEffect
 import com.startune.music.presentation.components.scoped.PlayerSheetPredictiveBackHandler
+import com.startune.music.presentation.components.scoped.QueuePredictiveBackHandler
 import com.startune.music.presentation.components.scoped.QueueSheetRuntimeEffects
 import com.startune.music.presentation.components.scoped.SheetMotionController
 import com.startune.music.presentation.components.scoped.miniPlayerHorizontalGesture
+import com.startune.music.presentation.components.scoped.playerContentOffsetXPx
+import com.startune.music.presentation.components.scoped.playerContentWidthPx
 import com.startune.music.presentation.components.scoped.playerSheetVerticalDragGesture
+import com.startune.music.presentation.components.scoped.sheetHorizontalPaddingPx
 import com.startune.music.presentation.components.scoped.rememberFullPlayerCompositionPolicy
 import com.startune.music.presentation.components.scoped.rememberFullPlayerVisualState
 import com.startune.music.presentation.components.scoped.rememberMiniPlayerDismissGestureHandler
@@ -483,10 +487,30 @@ fun UnifiedPlayerSheetV2(
         registrationKey = currentBackStackEntry?.id
     )
 
+    val queuePredictiveBackProgress = remember { Animatable(0f) }
+    val sheetOverlayState = rememberSheetOverlayState(
+        density = density,
+        showPlayerContentArea = showPlayerContentArea,
+        hideMiniPlayer = hideMiniPlayer,
+        showQueueSheet = showQueueSheet,
+        queueHiddenOffsetPx = queueHiddenOffsetPx,
+        screenHeightPx = screenHeightPx,
+        queueSheetOffset = queueSheetOffset,
+        queuePredictiveBackProgress = queuePredictiveBackProgress
+    )
+    val internalIsKeyboardVisible = sheetOverlayState.internalIsKeyboardVisible
+    val actuallyShowSheetContent = sheetOverlayState.actuallyShowSheetContent
+    val isQueueVisible = sheetOverlayState.isQueueVisible
+    val queueVisualOpenFractionProvider = sheetOverlayState.queueVisualOpenFractionProvider
+    val queueScrimAlphaProvider = sheetOverlayState.queueScrimAlphaProvider
+    val showQueueScrim = sheetOverlayState.showQueueScrim
+    val isQueueOccludingPlayer = sheetOverlayState.isQueueOccludingPlayer
+
     // Update underlying callbacks in the same composition commit as the sheet handlers. A Flow
     // handoff would leave folder back disabled until LibraryScreen's next recomposition.
+    val isPlayerSheetHandlingBack = canHandlePlayerBack || (isQueueVisible && !internalIsKeyboardVisible)
     SideEffect {
-        playerViewModel.playerSheetBackCoordinator.updatePlayerSheetHandlingBack(canHandlePlayerBack)
+        playerViewModel.playerSheetBackCoordinator.updatePlayerSheetHandlingBack(isPlayerSheetHandlingBack)
     }
     DisposableEffect(playerViewModel) {
         onDispose {
@@ -494,19 +518,6 @@ fun UnifiedPlayerSheetV2(
         }
     }
 
-    val sheetOverlayState = rememberSheetOverlayState(
-        density = density,
-        showPlayerContentArea = showPlayerContentArea,
-        hideMiniPlayer = hideMiniPlayer,
-        showQueueSheet = showQueueSheet,
-        queueHiddenOffsetPx = queueHiddenOffsetPx,
-        screenHeightPx = screenHeightPx
-    )
-    val internalIsKeyboardVisible = sheetOverlayState.internalIsKeyboardVisible
-    val actuallyShowSheetContent = sheetOverlayState.actuallyShowSheetContent
-    val isQueueVisible = sheetOverlayState.isQueueVisible
-    val bottomSheetOpenFraction = sheetOverlayState.bottomSheetOpenFraction
-    val queueScrimAlpha = sheetOverlayState.queueScrimAlpha
     val shouldRenderQueueHost by remember(internalIsKeyboardVisible, selectedSongForInfo) {
         derivedStateOf {
             !internalIsKeyboardVisible || selectedSongForInfo != null
@@ -666,18 +677,6 @@ fun UnifiedPlayerSheetV2(
                                 shape = sheetInteractionState.playerShadowShape
                             )
                             .clip(sheetInteractionState.playerShadowShape)
-                            .layout { measurable, constraints ->
-                                val targetContentHeightPx = containerHeight.roundToPx()
-                                val placeable = measurable.measure(
-                                    constraints.copy(
-                                        minHeight = targetContentHeightPx,
-                                        maxHeight = targetContentHeightPx
-                                    )
-                                )
-                                layout(constraints.maxWidth, constraints.maxHeight) {
-                                    placeable.placeRelative(0, 0)
-                                }
-                            }
                             .miniPlayerHorizontalGesture(
                                 enabled = currentSheetContentState == PlayerSheetState.COLLAPSED,
                                 skipMode = miniPlayerSwipeToSkip,
@@ -699,32 +698,65 @@ fun UnifiedPlayerSheetV2(
                                 contentDescription = playerSheetSemanticsDescription
                             }
                     ) {
-                        UnifiedPlayerMiniAndFullLayers(
-                            currentSong = infrequentPlayerState.currentSong,
-                            miniPlayerScheme = miniPlayerScheme,
-                            overallSheetTopCornerRadiusProvider = overallSheetTopCornerRadiusProvider,
-                            infrequentPlayerState = infrequentPlayerState,
-                            isOutputConnecting = isOutputConnecting,
-                            isPreparingPlayback = isPreparingPlayback,
-                            playerContentExpansionFraction = playerContentExpansionFraction,
-                            albumColorScheme = albumColorScheme,
-                            bottomSheetOpenFraction = bottomSheetOpenFraction,
-                            fullPlayerVisualState = fullPlayerVisualState,
-                            containerHeight = containerHeight,
-                            currentQueueSourceName = currentQueueSourceName,
-                            currentSheetContentState = currentSheetContentState,
-                            carouselStyle = carouselStyle,
-                            fullPlayerLoadingTweaks = fullPlayerLoadingTweaks,
-                            isSheetDragGestureActive = sheetBackAndDragState.isDraggingPlayerArea,
-                            playerViewModel = playerViewModel,
-                            currentPositionProvider = positionToDisplayProvider,
-                            isFavorite = isFavorite,
-                            shouldRenderFullPlayer = shouldRenderFullPlayer,
-                            onShowQueueClicked = sheetActionHandlers.openQueueSheet,
-                            onQueueDragStart = sheetActionHandlers.beginQueueDrag,
-                            onQueueDrag = sheetActionHandlers.dragQueueBy,
-                            onQueueRelease = sheetActionHandlers.endQueueDrag,
-                        )
+                        // Measure the player content at full container height and, while the
+                        // player is expanding or expanded, at the sheet's full width, so the
+                        // full player keeps a stable layout across the transition and the card
+                        // only clips it. See PlayerSheetHorizontalLayout.
+                        Box(
+                            modifier = Modifier.layout { measurable, constraints ->
+                                val targetContentHeightPx = containerHeight.roundToPx()
+                                val fraction = playerContentExpansionFraction.value
+                                val startPaddingPx =
+                                    sheetHorizontalPaddingPx(currentHorizontalPaddingStartPxProvider())
+                                val endPaddingPx =
+                                    sheetHorizontalPaddingPx(currentHorizontalPaddingEndPxProvider())
+                                val contentWidthPx = playerContentWidthPx(
+                                    cardInnerWidthPx = constraints.maxWidth,
+                                    startPaddingPx = startPaddingPx,
+                                    endPaddingPx = endPaddingPx,
+                                    expansionFraction = fraction
+                                )
+                                val placeable = measurable.measure(
+                                    Constraints.fixed(contentWidthPx, targetContentHeightPx)
+                                )
+                                layout(constraints.maxWidth, constraints.maxHeight) {
+                                    placeable.placeRelative(
+                                        playerContentOffsetXPx(startPaddingPx, fraction),
+                                        0
+                                    )
+                                }
+                            }
+                        ) {
+                            UnifiedPlayerMiniAndFullLayers(
+                                currentSong = infrequentPlayerState.currentSong,
+                                miniPlayerScheme = miniPlayerScheme,
+                                overallSheetTopCornerRadiusProvider = overallSheetTopCornerRadiusProvider,
+                                infrequentPlayerState = infrequentPlayerState,
+                                isOutputConnecting = isOutputConnecting,
+                                isPreparingPlayback = isPreparingPlayback,
+                                playerContentExpansionFraction = playerContentExpansionFraction,
+                                albumColorScheme = albumColorScheme,
+                                bottomSheetOpenFractionProvider = queueVisualOpenFractionProvider,
+                                isQueueOccludingPlayer = isQueueOccludingPlayer,
+                                fullPlayerVisualState = fullPlayerVisualState,
+                                containerHeight = containerHeight,
+                                currentQueueSourceName = currentQueueSourceName,
+                                currentSheetContentState = currentSheetContentState,
+                                carouselStyle = carouselStyle,
+                                fullPlayerLoadingTweaks = fullPlayerLoadingTweaks,
+                                isSheetDragGestureActive = sheetBackAndDragState.isDraggingPlayerArea,
+                                playerViewModel = playerViewModel,
+                                currentPositionProvider = positionToDisplayProvider,
+                                isFavorite = isFavorite,
+                                shouldRenderFullPlayer = shouldRenderFullPlayer,
+                                currentHorizontalPaddingStartPxProvider = currentHorizontalPaddingStartPxProvider,
+                                currentHorizontalPaddingEndPxProvider = currentHorizontalPaddingEndPxProvider,
+                                onShowQueueClicked = sheetActionHandlers.openQueueSheet,
+                                onQueueDragStart = sheetActionHandlers.beginQueueDrag,
+                                onQueueDrag = sheetActionHandlers.dragQueueBy,
+                                onQueueRelease = sheetActionHandlers.endQueueDrag,
+                            )
+                        }
                     }
                 }
 
@@ -748,8 +780,13 @@ fun UnifiedPlayerSheetV2(
                 )
             }
 
-            BackHandler(enabled = isQueueVisible && !internalIsKeyboardVisible) {
-                sheetActionHandlers.animateQueueSheet(false)
+            QueuePredictiveBackHandler(
+                enabled = isQueueVisible && !internalIsKeyboardVisible,
+                progress = queuePredictiveBackProgress,
+                animationDurationMs = ANIMATION_DURATION_MS,
+                scope = scope
+            ) {
+                queueSheetController.animateTo(false)
             }
 
             UnifiedPlayerQueueAndSongInfoHost(
@@ -758,10 +795,12 @@ fun UnifiedPlayerSheetV2(
                     !internalIsKeyboardVisible,
                 isQueueTelemetryActive = isQueueTelemetryActive,
                 albumColorScheme = albumColorScheme,
-                queueScrimAlpha = queueScrimAlpha,
+                queueScrimAlphaProvider = queueScrimAlphaProvider,
+                showQueueScrim = showQueueScrim,
                 showQueueSheet = showQueueSheet,
                 queueHiddenOffsetPx = queueHiddenOffsetPx,
                 queueSheetOffset = queueSheetOffset,
+                queuePredictiveBackProgress = queuePredictiveBackProgress,
                 queueSheetHeightPx = queueSheetHeightPx,
                 onQueueSheetHeightPxChange = onQueueSheetHeightPxChange,
                 configurationResetKey = configuration,
