@@ -91,7 +91,7 @@ fun LibraryFavoritesTab(
     storageFilter: StorageFilter = StorageFilter.ALL,
     hasCurrentSong: Boolean = false
 ) {
-    val listState = rememberLazyListState()
+    val listState = rememberRestoredLazyListState(favoriteSongs)
     val coroutineScope = rememberCoroutineScope()
     val visibilityCallback by rememberUpdatedState(onLocateCurrentSongVisibilityChanged)
     val registerActionCallback by rememberUpdatedState(onRegisterLocateCurrentSongAction)
@@ -103,9 +103,6 @@ fun LibraryFavoritesTab(
             )
         }
     }
-    var lastHandledFavoriteSortKey by remember { mutableStateOf(sortOption.storageKey) }
-    var pendingFavoriteSortScrollReset by remember { mutableStateOf(false) }
-    var favoriteSortSawRefreshLoading by remember { mutableStateOf(false) }
     val currentSongId by remember(playerViewModel) {
         playerViewModel.stablePlayerState
             .map { it.currentSong?.id }
@@ -148,25 +145,11 @@ fun LibraryFavoritesTab(
         registerActionCallback(locateCurrentSongAction)
     }
 
-    LaunchedEffect(sortOption) {
-        val currentSortKey = sortOption.storageKey
-        if (currentSortKey == lastHandledFavoriteSortKey) return@LaunchedEffect
-        lastHandledFavoriteSortKey = currentSortKey
-        pendingFavoriteSortScrollReset = true
-        favoriteSortSawRefreshLoading = false
-        listState.scrollToItem(0)
-    }
-
-    LaunchedEffect(favoriteSongs.loadState.refresh, pendingFavoriteSortScrollReset) {
-        if (!pendingFavoriteSortScrollReset) return@LaunchedEffect
-        if (favoriteSongs.loadState.refresh is LoadState.Loading) {
-            favoriteSortSawRefreshLoading = true
-            return@LaunchedEffect
-        }
-        if (!favoriteSortSawRefreshLoading) return@LaunchedEffect
-        listState.scrollToItem(0)
-        pendingFavoriteSortScrollReset = false
-    }
+    ResetScrollOnSortChange(
+        sortKey = sortOption.storageKey,
+        items = favoriteSongs,
+        scrollToTop = { listState.scrollToItem(0) }
+    )
 
     LaunchedEffect(currentSongListIndex, favoriteSongs.itemCount, listState, currentSongId) {
         if (currentSongId == null || favoriteSongs.itemCount == 0) {
@@ -308,6 +291,7 @@ fun LibrarySongsTabPaginated(
     onRefresh: () -> Unit
 ) {
     val listState = rememberLazyListState()
+    val dummyListState = rememberLazyListState()
     val pullToRefreshState = rememberPullToRefreshState()
 
     when {
@@ -324,7 +308,6 @@ fun LibrarySongsTabPaginated(
                         )
                     )
                     .fillMaxSize(),
-                state = listState,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap)
             ) {
@@ -409,9 +392,10 @@ fun LibrarySongsTabPaginated(
                     }
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
+                        val activeListState = if (paginatedSongs.itemCount > 0) listState else dummyListState
                         LazyColumn(
                             modifier = Modifier
-                                .padding(start = 12.dp, end = if (listState.canScrollForward || listState.canScrollBackward) 22.dp else 12.dp, bottom = 6.dp)
+                                .padding(start = 12.dp, end = if (activeListState.canScrollForward || activeListState.canScrollBackward) 22.dp else 12.dp, bottom = 6.dp)
                                 .clip(
                                     RoundedCornerShape(
                                         topStart = 26.dp,
@@ -420,7 +404,7 @@ fun LibrarySongsTabPaginated(
                                         bottomEnd = PlayerSheetCollapsedCornerRadius
                                     )
                                 ),
-                            state = listState,
+                            state = activeListState,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + 30.dp)
                         ) {
