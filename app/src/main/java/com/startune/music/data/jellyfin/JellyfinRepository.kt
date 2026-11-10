@@ -519,6 +519,14 @@ class JellyfinRepository @Inject constructor(
         return api.getImageUrl(itemId, maxWidth = size)
     }
 
+    suspend fun getAlbumCoverItemId(songItemId: String): String? {
+        val albumArtUri = withContext(Dispatchers.IO) {
+            musicDao.getAlbumArtUriByContentUri("jellyfin://$songItemId")
+        } ?: return null
+        return albumArtUri.removePrefix("jellyfin_cover://")
+            .takeIf { it != albumArtUri && it.isNotBlank() }
+    }
+
     suspend fun getLyrics(songId: String): Result<String> {
         return withContext(Dispatchers.IO) {
             try {
