@@ -269,6 +269,22 @@ val MIGRATION_10_11 = object : Migration(10, 11) {
     }
 }
 
+/**
+ * v11 -> v12: restore the Navidrome/Subsonic cloud cache tables.
+ * MIGRATION_6_7 (Startune v2.0.0) dropped them when the integration was
+ * removed; the v2.0.0 alignment with upstream PixelPlayerOSS brings it
+ * back. CREATE TABLE is verbatim from upstream's Room schema v6.
+ */
+val MIGRATION_11_12 = object : Migration(11, 12) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS `navidrome_songs` (`id` TEXT NOT NULL, `navidrome_id` TEXT NOT NULL, `playlist_id` TEXT NOT NULL, `title` TEXT NOT NULL, `artist` TEXT NOT NULL, `artist_id` TEXT, `album_artist` TEXT, `album` TEXT NOT NULL, `album_id` TEXT, `cover_art_id` TEXT, `duration` INTEGER NOT NULL, `track_number` INTEGER NOT NULL, `disc_number` INTEGER NOT NULL, `year` INTEGER NOT NULL, `genre` TEXT, `bitRate` INTEGER, `mime_type` TEXT, `suffix` TEXT, `path` TEXT NOT NULL, `date_added` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_navidrome_songs_navidrome_id` ON `navidrome_songs` (`navidrome_id`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_navidrome_songs_playlist_id` ON `navidrome_songs` (`playlist_id`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_navidrome_songs_playlist_id_date_added` ON `navidrome_songs` (`playlist_id`, `date_added`)")
+        db.execSQL("CREATE TABLE IF NOT EXISTS `navidrome_playlists` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `comment` TEXT, `owner` TEXT, `cover_art_id` TEXT, `song_count` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `public` INTEGER NOT NULL, `last_sync_time` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+    }
+}
+
 val MIGRATION_6_7 = object : Migration(6, 7) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("DELETE FROM song_artist_cross_ref WHERE song_id IN (SELECT id FROM songs WHERE source_type = 5)")

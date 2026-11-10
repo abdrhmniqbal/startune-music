@@ -224,6 +224,7 @@ internal fun shouldDisableAudioOffloadOnEarlyBuffering(
 class DualPlayerEngine @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val jellyfinStreamProxy: com.startune.music.data.jellyfin.JellyfinStreamProxy,
+    private val navidromeStreamProxy: com.startune.music.data.navidrome.NavidromeStreamProxy,
     private val cloudOfflineRepository: CloudOfflineRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
@@ -234,8 +235,8 @@ class DualPlayerEngine @Inject constructor(
         private const val SHORT_FOCUS_LOSS_GRACE_MS = 2_000L
         private const val DUCK_VOLUME = 0.2f
         private val LOCAL_MEDIA_SCHEMES = setOf("content", "file", "android.resource")
-        private val REMOTE_MEDIA_SCHEMES = setOf("http", "https", "jellyfin")
-        private val CLOUD_PROXY_SCHEMES = setOf("jellyfin")
+        private val REMOTE_MEDIA_SCHEMES = setOf("http", "https", "jellyfin", "navidrome")
+        private val CLOUD_PROXY_SCHEMES = setOf("jellyfin", "navidrome")
     }
 
     data class TransitionTarget(
@@ -1354,6 +1355,9 @@ class DualPlayerEngine @Inject constructor(
             "jellyfin" -> jellyfinStreamProxy
                 .takeIf { it.isReady() }
                 ?.resolveJellyfinUri(uriString)
+            "navidrome" -> navidromeStreamProxy
+                .takeIf { it.isReady() }
+                ?.resolveNavidromeUri(uriString)
             else -> null
         }
         return proxyUrl?.let(Uri::parse)
@@ -1424,6 +1428,7 @@ class DualPlayerEngine @Inject constructor(
             resolveRemote = {
                 when (uri.scheme) {
                     "jellyfin" -> resolveJellyfinUriAsync(uriString)
+                    "navidrome" -> resolveNavidromeUriAsync(uriString)
                     else -> null
                 }
             },
@@ -1435,6 +1440,12 @@ class DualPlayerEngine @Inject constructor(
         if (!jellyfinStreamProxy.ensureReady(5_000L)) return@withContext null
         jellyfinStreamProxy.warmUpStreamUrl(uriString)
         jellyfinStreamProxy.resolveJellyfinUri(uriString)?.let { Uri.parse(it) }
+    }
+
+    private suspend fun resolveNavidromeUriAsync(uriString: String): Uri? = withContext(Dispatchers.IO) {
+        if (!navidromeStreamProxy.ensureReady(5_000L)) return@withContext null
+        navidromeStreamProxy.warmUpStreamUrl(uriString)
+        navidromeStreamProxy.resolveNavidromeUri(uriString)?.let { Uri.parse(it) }
     }
 
     suspend fun resolveMediaItem(mediaItem: MediaItem): MediaItem {

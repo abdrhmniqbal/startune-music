@@ -707,6 +707,19 @@ fun AppNavigation(
                 }
             }
             composable(
+                Screen.NavidromeDashboard.route,
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { popEnterTransition() },
+                popExitTransition = { popExitTransition() },
+            ) {
+                ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
+                    com.startune.music.presentation.navidrome.dashboard.NavidromeDashboardScreen(
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+            }
+            composable(
                 Screen.CloudDownloads.route,
                 enterTransition = { enterTransition() },
                 exitTransition = { exitTransition() },

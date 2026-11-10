@@ -47,6 +47,9 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
     lateinit var jellyfinCoilFetcherFactory: dagger.Lazy<com.startune.music.data.image.JellyfinCoilFetcher.Factory>
 
     @Inject
+    lateinit var navidromeCoilFetcherFactory: dagger.Lazy<com.startune.music.data.image.NavidromeCoilFetcher.Factory>
+
+    @Inject
     lateinit var localArtworkCoilFetcherFactory: dagger.Lazy<com.startune.music.data.image.LocalArtworkCoilFetcher.Factory>
 
     @Inject
@@ -167,6 +170,7 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
             .components {
                 add(localArtworkCoilFetcherFactory.get())
                 add(jellyfinCoilFetcherFactory.get())
+                add(navidromeCoilFetcherFactory.get())
             }
             .build()
     }

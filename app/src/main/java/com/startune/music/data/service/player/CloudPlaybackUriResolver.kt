@@ -18,7 +18,7 @@ internal suspend fun <T> resolvePreferredCloudPlaybackValue(
     return resolveRemote()?.also(onRemoteResolved) ?: original
 }
 
-private val CANONICAL_CLOUD_SCHEMES = setOf("jellyfin")
+private val CANONICAL_CLOUD_SCHEMES = setOf("jellyfin", "navidrome")
 
 /**
  * Keeps queue and persisted snapshot URIs independent from process-local proxy ports and from
