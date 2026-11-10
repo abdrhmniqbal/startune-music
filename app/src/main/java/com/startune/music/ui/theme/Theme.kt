@@ -113,6 +113,7 @@ fun StartuneTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     colorSchemePairOverride: ColorSchemePair? = null,
     baseColorSchemePair: ColorSchemePair? = null,
+    pitchBlack: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -134,14 +135,18 @@ fun StartuneTheme(
         else -> LightColorScheme
     }
 
+    // Pitch black only applies in dark mode; the tone is kept via the
+    // scheme's accents and the toned-down elevated surfaces.
+    val displayColorScheme = if (pitchBlack && darkTheme) finalColorScheme.toPitchBlack() else finalColorScheme
+
     StartuneStatusBarStyle(
-        color = finalColorScheme.background,
-        navigationColor = finalColorScheme.background
+        color = displayColorScheme.background,
+        navigationColor = displayColorScheme.background
     )
 
     CompositionLocalProvider(LocalStartuneDarkTheme provides darkTheme) {
         MaterialTheme(
-            colorScheme = finalColorScheme,
+            colorScheme = displayColorScheme,
             motionScheme = MotionScheme.expressive(),
             typography = Typography,
             shapes = Shapes,

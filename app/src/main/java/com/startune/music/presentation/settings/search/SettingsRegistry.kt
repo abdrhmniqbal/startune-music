@@ -239,6 +239,22 @@ object SettingsRegistry {
                 keywordsStatic = listOf("color", "scheme", "theme", "nord", "dracula", "catppuccin", "gruvbox", "tokyo", "solarized", "everforest", "ayu", "dynamic", "custom")
             ),
             SettingSpec(
+                id = "appearance_pitch_black",
+                itemKey = "item_appearance_pitch_black",
+                titleRes = R.string.setcat_pitch_black_title,
+                subtitleRes = R.string.setcat_pitch_black_subtitle,
+                category = SettingsCategory.APPEARANCE,
+                subscreenRoute = Screen.SettingsCategory.createRoute("appearance"),
+                type = SettingType.SWITCH,
+                keywordsStatic = listOf(
+                    "pitch black", "amoled", "oled", "black", "battery", "dark", "pure black"
+                ),
+                getValue = { it.pitchBlackEnabled },
+                onToggle = { viewModel, checked ->
+                    viewModel.setPitchBlackEnabled(checked)
+                }
+            ),
+            SettingSpec(
                 id = "appearance_global_now_playing_theme",
                 itemKey = "item_appearance_global_now_playing_theme",
                 titleRes = R.string.setcat_global_now_playing_theme_title,

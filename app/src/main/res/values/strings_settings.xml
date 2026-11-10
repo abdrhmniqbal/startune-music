@@ -161,6 +161,9 @@
     <string name="setcat_player_theme_dynamic">Color Scheme</string>
     <string name="setcat_color_scheme_title">Color Scheme</string>
     <string name="setcat_color_scheme_subtitle">Choose colors for the app</string>
+    <string name="setcat_color_scheme_current_subtitle">Current: %1$s. Select a custom color scheme preset.</string>
+    <string name="setcat_pitch_black_title">Pitch Black</string>
+    <string name="setcat_pitch_black_subtitle">Pure black backgrounds in dark mode. Saves battery on OLED screens.</string>
     <string name="color_scheme_builtin">Built-in</string>
     <string name="color_scheme_custom">Custom</string>
     <string name="color_scheme_dynamic_name">Dynamic Color</string>

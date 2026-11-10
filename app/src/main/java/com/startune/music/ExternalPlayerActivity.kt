@@ -63,7 +63,8 @@ class ExternalPlayerActivity : ComponentActivity() {
             val baseColorSchemePair = remember(selectedColorSchemeId, customColorSchemes) {
                 resolveSelectedSchemePair(selectedColorSchemeId, customColorSchemes)
             }
-            StartuneTheme(darkTheme = useDarkTheme, baseColorSchemePair = baseColorSchemePair) {
+            val pitchBlackEnabled by themePreferencesRepository.pitchBlackEnabledFlow.collectAsStateWithLifecycle(initialValue = false)
+            StartuneTheme(darkTheme = useDarkTheme, pitchBlack = pitchBlackEnabled, baseColorSchemePair = baseColorSchemePair) {
                 ExternalPlayerOverlay(
                     playerViewModel = playerViewModel,
                     onDismiss = { finish() },
