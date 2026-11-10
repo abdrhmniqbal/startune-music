@@ -53,8 +53,8 @@ fun SchemeRoles.toColorScheme(dark: Boolean): ColorScheme {
     val outline = Color(ColorUtils.blendARGB(onSurface.toArgb(), background.toArgb(), 0.45f))
     val primaryContainer = Color(ColorUtils.blendARGB(primary.toArgb(), background.toArgb(), 0.80f))
     val onPrimaryContainer = Color(ColorUtils.blendARGB(primary.toArgb(), onBackground.toArgb(), 0.55f))
-    val builder = if (dark) ::darkColorScheme else ::lightColorScheme
-    return builder(
+    val base = if (dark) darkColorScheme() else lightColorScheme()
+    return base.copy(
         primary = primary,
         onPrimary = onColorFor(primary),
         secondary = secondary,

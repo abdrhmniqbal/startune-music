@@ -1,11 +1,11 @@
 package com.startune.music.utils
 
-import com.atilika.kuromoji.CharacterDefinitions
-import com.atilika.kuromoji.ConnectionCosts
-import com.atilika.kuromoji.DoubleArrayTrie
-import com.atilika.kuromoji.InsertedDictionary
-import com.atilika.kuromoji.UnknownDictionary
-import com.atilika.kuromoji.ipadic.TokenInfoDictionary
+import com.atilika.kuromoji.dict.CharacterDefinitions
+import com.atilika.kuromoji.dict.ConnectionCosts
+import com.atilika.kuromoji.trie.DoubleArrayTrie
+import com.atilika.kuromoji.dict.InsertedDictionary
+import com.atilika.kuromoji.dict.UnknownDictionary
+import com.atilika.kuromoji.dict.TokenInfoDictionary
 import com.atilika.kuromoji.ipadic.Tokenizer
 import com.atilika.kuromoji.util.ResourceResolver
 import java.io.File
