@@ -354,4 +354,12 @@
     <string name="presentation_batch_g_topbar_build_stable">Kararlı</string>
     <string name="presentation_batch_g_topbar_cd_changelog">Değişiklik Günlüğü</string>
     <string name="presentation_batch_g_yes">Evet</string>
+    <string name="presentation_batch_g_artist_info_body">PixelPlayerOSS, sanatçı etiketlerini karakter sınırlayıcılar (/, ;, &amp;) ve kelime sınırlayıcılar (feat., ft., vs., x) kullanarak böler. Kelime sınırlayıcılar büyük/küçük harf duyarsız olarak eşleştirilir.
+
+"Başlıktan Sanatçıları Çıkar" seçeneği, şarkı başlıklarındaki (feat. Artist) gibi kalıpları algılar.
+
+    Karakter sınırlayıcıları etkisiz hale getirmek için ters eğik çizgi (\) kullanılabilir.</string>
+    <string name="presentation_batch_g_beta_sheet_welcome_title">Hoş geldiniz: PixelPlayerOSS %1$s</string>
+    <string name="presentation_batch_g_beta_sheet_before_2">En son PixelPlayerOSS sürümüne güncelleyin ve sorunun hâlâ devam ettiğini doğrulayın.</string>
+    <string name="presentation_batch_g_beta_sheet_env_version">PixelPlayerOSS sürümü:</string>
 </resources>

@@ -1,5 +1,5 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">Startune Music</string>
+<resources>
+    <string name="app_name" translatable="false">Startune Music</string>
     <string name="app_name_change_title">App Name Change</string>
     <string name="app_name_change_message">We have changed our app\'s name from Startune Music to Startune Music due to a trademark-related issue. Keep playing!</string>
     <string name="do_not_show_again">Do not show again</string>
@@ -19,7 +19,7 @@
     <string name="loading_lyrics">Loading lyrics…</string>
     <string name="cant_find_lyrics">Couldn\'t find lyrics for this song.</string>
     <string name="lyrics_provided_by">Lyrics provided by</string>
-    <string name="lrclib_uri">https://lrclib.net/</string>
+    <string name="lrclib_uri" translatable="false">https://lrclib.net/</string>
     <string name="lyrics_not_found">Lyrics not found</string>
     <string name="search_lyrics_online_prompt">Would you like to search for lyrics online?</string>
     <string name="lyrics_custom_search_hint">We couldn\'t find lyrics automatically. You can edit the title or artist and try searching manually.</string>
@@ -123,7 +123,7 @@
     <string name="playlist_share_failed">Share failed: %1$s</string>
     <string name="playlist_none_to_export">No playlists to export</string>
     <string name="playlist_export_failed">Export failed: %1$s</string>
-    <string name="playlist_export_folder_display">Music/Startune Music Exports</string>
+    <string name="playlist_export_folder_display" translatable="false">Music/Startune Music Exports</string>
     <string name="ai_playlist_gemini_key_required">Please configure your Gemini API key in Settings.</string>
     <string name="error_unknown">Unknown error</string>
 
@@ -338,8 +338,7 @@
     <string name="cloud_download_action">Download</string>
     <string name="cloud_download_selected">Download selected cloud tracks</string>
     <string name="cloud_download_selected_count">Download %1$d cloud tracks</string>
-    <string name="cloud_download_selected_started">Preparing %1$d cloud tracks for offline playback</string>
-    <string name="cloud_playlist_download" tools:ignore="MissingTranslation">Download playlist</string>
+    <string name="cloud_playlist_download">Download playlist</string>
     <string name="duplicates_group_count">%1$d copies</string>
     <string name="duplicates_group_title_format">%1$s — %2$s</string>
     <string name="duplicates_none">No duplicate tracks found.</string>

@@ -182,7 +182,11 @@
     <string name="presentation_batch_g_artist_group_by_album_artist">Grouper par artiste de l\'album</string>
     <string name="presentation_batch_g_artist_group_by_album_artist_sub">Afficher les albums de collaboration sous l\'artiste principal</string>
     <string name="presentation_batch_g_artist_info_title">À propos de l\'analyse multi-artistes</string>
-    <string name="presentation_batch_g_artist_info_body">Startune Music sépare les tags d\'artistes en utilisant des délimiteurs de caractères (/, ;, &amp;) et des délimiteurs de mots (feat., ft., vs., x). Les délimiteurs de mots sont reconnus sans distinction de casse.\n\n\"Extraire les artistes du titre\" détecte les motifs comme (feat. Artiste) dans les titres de chansons.\n\nL\'antislash (\\) peut être utilisé pour échapper les délimiteurs de caractères.</string>
+    <string name="presentation_batch_g_artist_info_body">PixelPlayerOSS sépare les balises d\'artistes à l\'aide de délimiteurs de caractères (/, ;, &amp;) et de délimiteurs de mots (feat., ft., vs., x). Les délimiteurs de mots ne sont pas sensibles à la casse.
+
+« Extraire les artistes du titre » détecte les motifs comme (feat. Artiste) dans les titres des chansons.
+
+La barre oblique inverse (\) permet d\'échapper les délimiteurs de caractères.</string>
     <string name="presentation_batch_g_artist_example_arrow"> → </string>
     <string name="presentation_batch_g_artist_examples_title">Exemples</string>
     <string name="presentation_batch_g_artist_ex_1_in">\"Artiste1/Artiste2\"</string>
@@ -282,7 +286,7 @@
     <string name="presentation_batch_g_presets_cd_rename">Renommer</string>
     <string name="presentation_batch_g_presets_cd_delete">Supprimer</string>
     <string name="presentation_batch_g_beta_sheet_version">Bêta 0.6.0</string>
-    <string name="presentation_batch_g_beta_sheet_welcome_title">Bienvenue dans Startune Music 0.6.0-bêta</string>
+    <string name="presentation_batch_g_beta_sheet_welcome_title">Bienvenue dans PixelPlayerOSS %1$s</string>
     <string name="presentation_batch_g_beta_sheet_welcome_body">Cette bêta se concentre désormais sur la stabilité, les performances et la lecture multi-appareils tout en intégrant de nouvelles fonctionnalités majeures.</string>
     <string name="presentation_batch_g_beta_sheet_expect_title">À attendre</string>
     <string name="presentation_batch_g_beta_sheet_expect_1">Utilisation quotidienne plus rapide : démarrage, navigation et interactions avec le lecteur plus fluides dans toute l\'application.</string>
@@ -511,7 +515,7 @@
     <string name="presentation_batch_g_beta_sheet_report_summary">Une liste de contrôle rapide avant d\'ouvrir un nouveau numéro.</string>
     <string name="presentation_batch_g_beta_sheet_before_title">Avant d\'ouvrir un numéro</string>
     <string name="presentation_batch_g_beta_sheet_before_1">Recherchez les problèmes ouverts et fermés existants pour éviter les doublons.</string>
-    <string name="presentation_batch_g_beta_sheet_before_2">Mettez à jour vers la dernière version de Startune Music et confirmez que le problème persiste.</string>
+    <string name="presentation_batch_g_beta_sheet_before_2">Passez à la dernière version de PixelPlayerOSS et vérifiez que le problème persiste.</string>
     <string name="presentation_batch_g_beta_sheet_before_3">Redémarrez l\'application et confirmez que le problème persiste.</string>
     <string name="presentation_batch_g_beta_sheet_before_4">Essayez de le reproduire et notez les étapes exactes.</string>
     <string name="presentation_batch_g_beta_sheet_issue_type_title">Quel type de problème ?</string>
@@ -529,7 +533,7 @@
     <string name="presentation_batch_g_beta_sheet_bug_screenshot">Capture d\'écran/vidéo : si disponible.</string>
     <string name="presentation_batch_g_beta_sheet_bug_logs">Journaux/trace de pile : si disponible.</string>
     <string name="presentation_batch_g_beta_sheet_env_title">Environnement</string>
-    <string name="presentation_batch_g_beta_sheet_env_version">Version Startune Music :</string>
+    <string name="presentation_batch_g_beta_sheet_env_version">Version de PixelPlayerOSS :</string>
     <string name="presentation_batch_g_beta_sheet_env_source">Source d\'installation : version GitHub, version de débogage, version nocturne, etc.</string>
     <string name="presentation_batch_g_beta_sheet_env_android">Version Android :</string>
     <string name="presentation_batch_g_beta_sheet_env_device">Modèle d\'appareil :</string>

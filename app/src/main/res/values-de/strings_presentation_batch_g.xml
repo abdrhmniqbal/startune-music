@@ -182,7 +182,11 @@
     <string name="presentation_batch_g_artist_group_by_album_artist">Nach Album-Künstler gruppieren</string>
     <string name="presentation_batch_g_artist_group_by_album_artist_sub">Kollaborations-Alben unter dem Hauptkünstler anzeigen</string>
     <string name="presentation_batch_g_artist_info_title">Über Mehrkünstler-Parsing</string>
-    <string name="presentation_batch_g_artist_info_body">Startune Music trennt Künstler-Tags mit Zeichen- (/, ;, &amp;) und Wort-Trennzeichen (feat., ft., vs., x). Wort-Trennzeichen ignorieren Groß-/Kleinschreibung.\n\n\"Künstler aus Titel extrahieren\" erkennt Muster wie (feat. Künstler) in Songtiteln.\n\nBackslash (\\) kann verwendet werden, um Zeichen-Trennzeichen zu maskieren.</string>
+    <string name="presentation_batch_g_artist_info_body">PixelPlayerOSS teilt Künstler-Tags anhand von Zeichen-Trennzeichen (/, ;, &amp;) und Wort-Trennzeichen (feat., ft., vs., x). Bei Wort-Trennzeichen wird die Groß-/Kleinschreibung nicht beachtet.
+
+„Künstler aus Titel extrahieren“ erkennt Muster wie (feat. Künstler) in Songtiteln.
+
+Mit einem Backslash (\) lassen sich Zeichen-Trennzeichen maskieren.</string>
     <string name="presentation_batch_g_artist_example_arrow"> → </string>
     <string name="presentation_batch_g_artist_examples_title">Beispiele</string>
     <string name="presentation_batch_g_artist_ex_1_in">\"Artist1/Artist2\"</string>
@@ -282,7 +286,7 @@
     <string name="presentation_batch_g_presets_cd_rename">Umbenennen</string>
     <string name="presentation_batch_g_presets_cd_delete">Löschen</string>
     <string name="presentation_batch_g_beta_sheet_version">Beta 0.6.0</string>
-    <string name="presentation_batch_g_beta_sheet_welcome_title">Willkommen bei Startune Music 0.6.0-beta</string>
+    <string name="presentation_batch_g_beta_sheet_welcome_title">Willkommen bei PixelPlayerOSS %1$s</string>
     <string name="presentation_batch_g_beta_sheet_welcome_body">Diese Beta konzentriert sich auf Stabilität, Performance und geräteübergreifende Wiedergabe, während wichtige neue Integrationen eingeführt werden.</string>
     <string name="presentation_batch_g_beta_sheet_expect_title">Was dich erwartet</string>
     <string name="presentation_batch_g_beta_sheet_expect_1">Schnellerer Alltag: flüssigerer Start, Navigation und Player-Interaktionen.</string>
@@ -513,7 +517,7 @@
     <string name="presentation_batch_g_beta_sheet_report_summary">Eine kurze Checkliste vor dem Öffnen einer neuen Ausgabe.</string>
     <string name="presentation_batch_g_beta_sheet_before_title">Vor dem Öffnen einer Ausgabe</string>
     <string name="presentation_batch_g_beta_sheet_before_1">Durchsuchen Sie vorhandene offene und geschlossene Probleme, um Duplikate zu vermeiden.</string>
-    <string name="presentation_batch_g_beta_sheet_before_2">Aktualisieren Sie auf die neueste Startune Music-Version und stellen Sie sicher, dass das Problem weiterhin auftritt.</string>
+    <string name="presentation_batch_g_beta_sheet_before_2">Aktualisiere auf die neueste PixelPlayerOSS-Version und prüfe, ob das Problem weiterhin auftritt.</string>
     <string name="presentation_batch_g_beta_sheet_before_3">Starten Sie die App neu und stellen Sie sicher, dass das Problem weiterhin besteht.</string>
     <string name="presentation_batch_g_beta_sheet_before_4">Versuchen Sie es zu reproduzieren und schreiben Sie die genauen Schritte auf.</string>
     <string name="presentation_batch_g_beta_sheet_issue_type_title">Welcher Problemtyp?</string>
@@ -531,7 +535,7 @@
     <string name="presentation_batch_g_beta_sheet_bug_screenshot">Screenshot/Video: falls verfügbar.</string>
     <string name="presentation_batch_g_beta_sheet_bug_logs">Protokolle/Stack-Trace: falls verfügbar.</string>
     <string name="presentation_batch_g_beta_sheet_env_title">Umwelt</string>
-    <string name="presentation_batch_g_beta_sheet_env_version">Startune Music-Version:</string>
+    <string name="presentation_batch_g_beta_sheet_env_version">PixelPlayerOSS-Version:</string>
     <string name="presentation_batch_g_beta_sheet_env_source">Installationsquelle: GitHub-Release, Debug-Build, Nightly Build usw.</string>
     <string name="presentation_batch_g_beta_sheet_env_android">Android-Version:</string>
     <string name="presentation_batch_g_beta_sheet_env_device">Gerätemodell:</string>

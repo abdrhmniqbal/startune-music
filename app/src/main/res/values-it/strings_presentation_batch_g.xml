@@ -182,11 +182,11 @@
     <string name="presentation_batch_g_artist_group_by_album_artist">Raggruppa per album artist</string>
     <string name="presentation_batch_g_artist_group_by_album_artist_sub">Mostra album di collaborazione sotto l\'artista principale</string>
     <string name="presentation_batch_g_artist_info_title">Informazioni parsing multi-artista</string>
-    <string name="presentation_batch_g_artist_info_body">Startune Music divide i tag artista usando delimitatori carattere (/, ;, &amp;) e delimitatori parola (feat., ft., vs., x). I delimitatori parola corrispondono senza distinzione tra maiuscole e minuscole.
+    <string name="presentation_batch_g_artist_info_body">PixelPlayerOSS divide i tag degli artisti usando delimitatori di carattere (/, ;, &amp;) e delimitatori di parola (feat., ft., vs., x). I delimitatori di parola vengono riconosciuti senza distinzione tra maiuscole e minuscole.
 
-"Estrai artisti dal titolo" rileva pattern come (feat. Artista) nei titoli dei brani.
+"Estrai artisti dal titolo" rileva schemi come (feat. Artista) nei titoli dei brani.
 
-La barra rovesciata (\) può essere usata per sfuggire ai delimitatori carattere.</string>
+La barra rovesciata (\) può essere usata per l\'escape dei delimitatori di carattere.</string>
     <string name="presentation_batch_g_artist_example_arrow"> → </string>
     <string name="presentation_batch_g_artist_examples_title">Esempi</string>
     <string name="presentation_batch_g_artist_ex_1_in">"Artista1/Artista2"</string>
@@ -286,7 +286,7 @@ La barra rovesciata (\) può essere usata per sfuggire ai delimitatori carattere
     <string name="presentation_batch_g_presets_cd_rename">Rinomina</string>
     <string name="presentation_batch_g_presets_cd_delete">Elimina</string>
     <string name="presentation_batch_g_beta_sheet_version">Beta 0.6.0</string>
-    <string name="presentation_batch_g_beta_sheet_welcome_title">Benvenuto in Startune Music 0.6.0-beta</string>
+    <string name="presentation_batch_g_beta_sheet_welcome_title">Benvenuto in PixelPlayerOSS %1$s</string>
     <string name="presentation_batch_g_beta_sheet_welcome_body">Questa beta è ora focalizzata su stabilità, prestazioni e riproduzione cross-dispositivo, con nuove integrazioni importanti.</string>
     <string name="presentation_batch_g_beta_sheet_expect_title">Cosa aspettarsi</string>
     <string name="presentation_batch_g_beta_sheet_expect_1">Uso quotidiano più veloce: avvio, navigazione e interazioni con il player più fluidi in tutta l\'app.</string>
@@ -515,7 +515,7 @@ La barra rovesciata (\) può essere usata per sfuggire ai delimitatori carattere
     <string name="presentation_batch_g_beta_sheet_report_summary">Una rapida lista di controllo prima di aprire un nuovo numero.</string>
     <string name="presentation_batch_g_beta_sheet_before_title">Prima di aprire un numero</string>
     <string name="presentation_batch_g_beta_sheet_before_1">Cerca i problemi aperti e chiusi esistenti per evitare duplicati.</string>
-    <string name="presentation_batch_g_beta_sheet_before_2">Aggiorna all\'ultima versione di Startune Music e conferma che il problema persiste.</string>
+    <string name="presentation_batch_g_beta_sheet_before_2">Aggiorna all\'ultima versione di PixelPlayerOSS e verifica che il problema si presenti ancora.</string>
     <string name="presentation_batch_g_beta_sheet_before_3">Riavvia l\'app e conferma che il problema persiste.</string>
     <string name="presentation_batch_g_beta_sheet_before_4">Prova a riprodurlo e scrivi i passaggi esatti.</string>
     <string name="presentation_batch_g_beta_sheet_issue_type_title">Quale tipo di problema?</string>
@@ -533,7 +533,7 @@ La barra rovesciata (\) può essere usata per sfuggire ai delimitatori carattere
     <string name="presentation_batch_g_beta_sheet_bug_screenshot">Screenshot/video: se disponibile.</string>
     <string name="presentation_batch_g_beta_sheet_bug_logs">Log/analisi dello stack: se disponibile.</string>
     <string name="presentation_batch_g_beta_sheet_env_title">Ambiente</string>
-    <string name="presentation_batch_g_beta_sheet_env_version">Versione Startune Music:</string>
+    <string name="presentation_batch_g_beta_sheet_env_version">Versione di PixelPlayerOSS:</string>
     <string name="presentation_batch_g_beta_sheet_env_source">Origine di installazione: versione GitHub, build di debug, build notturna, ecc.</string>
     <string name="presentation_batch_g_beta_sheet_env_android">Versione Android:</string>
     <string name="presentation_batch_g_beta_sheet_env_device">Modello dispositivo:</string>

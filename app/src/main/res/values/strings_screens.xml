@@ -216,7 +216,7 @@
 
     <!-- About -->
     <string name="about_no_contributors">No contributors found right now. Please try again later.</string>
-    <string name="about_app_name">Startune Music</string>
+    <string name="about_app_name" translatable="false">Startune Music</string>
     <string name="about_tagline">Open source music player built with its community.</string>
     <string name="about_version_format">Version v%1$s</string>
     <string name="about_contributions_format">%1$d contrib.</string>
@@ -511,7 +511,7 @@
     <string name="toast_removed_dislike">Removed dislike</string>
     <string name="about_link_fdroid_subtitle">Available on the F-Droid catalog</string>
     <string name="about_link_fdroid_title">F-Droid</string>
-    <string name="about_link_source_subtitle">github.com/abdrhmniqbal/startune-music</string>
+    <string name="about_link_source_subtitle" translatable="false">github.com/abdrhmniqbal/startune-music</string>
     <string name="about_link_translate_title">Help translate</string>
     <string name="about_link_translate_subtitle">Contribute translations on Crowdin</string>
     <string name="about_link_source_title">Source code</string>

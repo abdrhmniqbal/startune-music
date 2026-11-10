@@ -182,9 +182,11 @@
     <string name="presentation_batch_g_artist_group_by_album_artist">Kelompokkan berdasarkan Artis Album</string>
     <string name="presentation_batch_g_artist_group_by_album_artist_sub">Tampilkan album kolaborasi di bawah artis utama</string>
     <string name="presentation_batch_g_artist_info_title">Tentang Penguraian Multi-Artis</string>
-    <string name="presentation_batch_g_artist_info_body">Startune Music membagi tag artis menggunakan pemisah karakter (/, ;, &amp;) dan pemisah kata (feat., ft., vs., x). Pemisah kata dicocokkan tanpa membedakan huruf besar-kecil.
-\n\n"Ekstrak Artis dari Judul" mendeteksi pola seperti (feat. Artis) dalam judul lagu.
-\n\nBackslash (\\) dapat digunakan untuk mengabaikan pemisah karakter.</string>
+    <string name="presentation_batch_g_artist_info_body">PixelPlayerOSS memisahkan tag artis menggunakan pemisah karakter (/, ;, &amp;) dan pemisah kata (feat., ft., vs., x). Pemisah kata dicocokkan tanpa peka huruf besar-kecil.
+
+\"Ekstrak Artis dari Judul\" mendeteksi pola seperti (feat. Artis) pada judul lagu.
+
+Garis miring terbalik (\) dapat digunakan untuk meloloskan pemisah karakter.</string>
     <string name="presentation_batch_g_artist_example_arrow"> → </string>
     <string name="presentation_batch_g_artist_examples_title">Contoh</string>
     <string name="presentation_batch_g_artist_ex_1_in">\"Artis1/Artis2\"</string>
@@ -285,7 +287,7 @@
     <string name="presentation_batch_g_presets_cd_rename">Ubah nama</string>
     <string name="presentation_batch_g_presets_cd_delete">Hapus</string>
     <string name="presentation_batch_g_beta_sheet_version">Beta 0.7.0</string>
-    <string name="presentation_batch_g_beta_sheet_welcome_title">Selamat datang di Startune Music 0.7.0-beta</string>
+    <string name="presentation_batch_g_beta_sheet_welcome_title">Selamat datang di PixelPlayerOSS %1$s</string>
     <string name="presentation_batch_g_beta_sheet_welcome_body">Anda menggunakan versi beta yang mungkin berisi bug, crash, atau fitur eksperimental. Bantu kami meningkatkannya dengan melaporkan masalah.</string>
     <string name="presentation_batch_g_beta_sheet_expect_title">Yang perlu diharapkan</string>
     <string name="presentation_batch_g_beta_sheet_expect_1">Bug, crash, atau fitur yang belum selesai dapat terjadi sewaktu-waktu.</string>
@@ -301,7 +303,7 @@
     <string name="presentation_batch_g_beta_sheet_report_summary">Checklist singkat sebelum membuat issue baru.</string>
     <string name="presentation_batch_g_beta_sheet_before_title">Sebelum membuat issue</string>
     <string name="presentation_batch_g_beta_sheet_before_1">Cari issue terbuka dan tertutup yang sudah ada untuk menghindari duplikat.</string>
-    <string name="presentation_batch_g_beta_sheet_before_2">Perbarui ke versi Startune Music terbaru dan pastikan masalah masih terjadi.</string>
+    <string name="presentation_batch_g_beta_sheet_before_2">Perbarui ke versi PixelPlayerOSS terbaru dan pastikan masalah tetap terjadi.</string>
     <string name="presentation_batch_g_beta_sheet_before_3">Mulai ulang aplikasi dan pastikan masalah tetap terjadi.</string>
     <string name="presentation_batch_g_beta_sheet_before_4">Coba reproduksi masalah dan catat langkah-langkahnya secara jelas.</string>
     <string name="presentation_batch_g_beta_sheet_issue_type_title">Jenis issue apa?</string>
@@ -319,7 +321,7 @@
     <string name="presentation_batch_g_beta_sheet_bug_screenshot">Screenshot / video: jika tersedia.</string>
     <string name="presentation_batch_g_beta_sheet_bug_logs">Log / stack trace: jika tersedia.</string>
     <string name="presentation_batch_g_beta_sheet_env_title">Lingkungan</string>
-    <string name="presentation_batch_g_beta_sheet_env_version">Versi Startune Music:</string>
+    <string name="presentation_batch_g_beta_sheet_env_version">Versi PixelPlayerOSS:</string>
     <string name="presentation_batch_g_beta_sheet_env_source">Sumber instalasi: GitHub Release, debug build, nightly build, dll.</string>
     <string name="presentation_batch_g_beta_sheet_env_android">Versi Android:</string>
     <string name="presentation_batch_g_beta_sheet_env_device">Model perangkat:</string>

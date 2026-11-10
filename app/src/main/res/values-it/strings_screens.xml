@@ -2,7 +2,7 @@
 <resources>
     <!-- Navigation / misc -->
     <string name="nav_error_genre_id_missing">Errore: ID genere mancante</string>
-    <string name="easter_egg_thank_you">Grazie per usare Startune Music!</string>
+    <string name="easter_egg_thank_you">Grazie per aver scelto PixelPlayerOSS!</string>
 
     <!-- Word delimiter config -->
     <string name="word_delimiter_section_title">Delimitatori parola attuali</string>
@@ -94,22 +94,22 @@
     <string name="setup_excluded_folders_description">Scegli le cartelle da ignorare durante la scansione della raccolta.</string>
     <string name="setup_choose_folders_ignore">Scegli cartelle da ignorare</string>
     <string name="setup_permission_media_title">Permesso media</string>
-    <string name="setup_permission_media_description">Startune Music necessita accesso ai tuoi file audio per costruire la tua libreria musicale.</string>
+    <string name="setup_permission_media_description">PixelPlayerOSS ha bisogno di accedere ai tuoi file audio per creare la tua libreria musicale.</string>
     <string name="setup_permission_granted">Permesso concesso</string>
     <string name="setup_grant_media_permission">Concedi permesso media</string>
     <string name="setup_permission_notifications_title">Notifiche</string>
     <string name="setup_permission_notifications_description">Abilita le notifiche per controllare la tua musica dalla schermata di blocco e dal pannello notifiche.</string>
     <string name="setup_enable_notifications">Abilita notifiche</string>
     <string name="setup_permission_alarms_title">Allarmi e promemoria</string>
-    <string name="setup_permission_alarms_description">Consente al timer di spegnimento di arrestare la musica con precisione.</string>
+    <string name="setup_permission_alarms_description">Facoltativo, ma consigliato se usi il timer di spegnimento e vuoi che PixelPlayerOSS interrompa la riproduzione esattamente all\'ora impostata.</string>
     <string name="setup_grant_permission_generic">Concedi permesso</string>
     <string name="setup_backup_have_title">Hai un backup?</string>
-    <string name="setup_backup_have_description">Ripristina un backup di Startune Music per saltare la configurazione.</string>
+    <string name="setup_backup_have_description">Se hai già un backup di PixelPlayerOSS, ripristinalo ora e salta gran parte della configurazione rimanente su questo dispositivo.</string>
     <string name="setup_inspecting_backup">Ispezione backup</string>
     <string name="setup_restoring_backup">Ripristino backup</string>
     <string name="setup_import_backup">Importa backup</string>
     <string name="setup_theme_dark_title">Scuro</string>
-    <string name="setup_theme_dark_description">L\'aspetto scuro Material 3 predefinito per Startune Music.</string>
+    <string name="setup_theme_dark_description">L\'aspetto scuro Material 3 predefinito per PixelPlayerOSS.</string>
     <string name="setup_theme_light_title">Chiaro</string>
     <string name="setup_theme_light_description">Un aspetto Material 3 più luminoso in tutta l\'app.</string>
     <string name="setup_theme_follow_title">Segui sistema</string>
@@ -149,7 +149,7 @@
     <string name="crash_report_stack_preview_label">Stack trace (anteprima):</string>
     <string name="crash_report_clipboard_label">Log crash</string>
     <string name="toast_crash_log_copied">Log crash copiato negli appunti</string>
-    <string name="crash_report_share_subject">Report crash Startune Music</string>
+    <string name="crash_report_share_subject">Report crash di PixelPlayerOSS</string>
     <string name="crash_report_share_chooser">Condividi report crash</string>
     <string name="action_copy">Copia</string>
     <string name="action_share">Condividi</string>
@@ -231,7 +231,7 @@
 
     <!-- Backfilled translations -->
     <string name="home_empty_placeholder_title">Nessun dato da mostrare ancora</string>
-    <string name="home_empty_placeholder_subtitle">Il tuo mix apparirà qui quando Startune Music trova brani o sincronizza una fonte.</string>
+    <string name="home_empty_placeholder_subtitle">Il tuo mix apparirà qui quando PixelPlayerOSS troverà dei brani o sincronizzerà una sorgente.</string>
     <string name="home_empty_placeholder_refresh">Aggiorna</string>
     <string name="song_info_resolving_format">Risoluzione del formato audio...</string>
     <string name="cd_back">Indietro</string>
@@ -447,4 +447,5 @@
     <string name="toast_download_cancelled">Download annullato</string>
     <string name="toast_download_started">Download avviato</string>
     <string name="toast_removed_dislike">Non mi piace rimosso</string>
+    <string name="setup_external_services_subtitle">PixelPlayerOSS funziona offline per impostazione predefinita. Attiva solo le ricerche che vuoi.</string>
 </resources>

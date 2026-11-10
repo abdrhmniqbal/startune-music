@@ -1878,7 +1878,11 @@ fun LibraryScreen(
                 multiSelectionState.clearSelection()
                 clearResolvedCategorySelection()
                 playerViewModel.sendToast(
-                    context.getString(R.string.cloud_download_selected_started, cloudSongCount)
+                    context.resources.getQuantityString(
+                        R.plurals.cloud_download_selected_started,
+                        cloudSongCount,
+                        cloudSongCount
+                    )
                 )
                 showMultiSelectionSheet = false
             },
