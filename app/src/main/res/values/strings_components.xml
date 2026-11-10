@@ -126,6 +126,8 @@
     <!-- Multi-selection bottom sheet -->
     <string name="multi_selection_songs_count_upper">%1$d SONGS</string>
     <string name="multi_selection_selected">selected</string>
+    <string name="multi_selection_genres_count_upper">%1$d GENRES</string>
+    <string name="multi_selection_genres_queue_hint">Perform batch operations on all songs within these genres.</string>
     <string name="cd_play_all">Play all</string>
     <string name="action_play_all">Play all</string>
     <string name="cd_like_all">Like all</string>

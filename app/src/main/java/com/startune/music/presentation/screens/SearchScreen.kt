@@ -83,6 +83,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.startune.music.data.model.Album
 import com.startune.music.data.model.Artist
 import com.startune.music.data.model.Playlist
+import com.startune.music.data.model.Genre
 import com.startune.music.data.model.SearchFilterType
 import com.startune.music.data.model.SearchHistoryItem
 import com.startune.music.data.model.SearchResultItem
@@ -92,6 +93,8 @@ import com.startune.music.presentation.components.SmartImageListTargetSize
 import com.startune.music.presentation.components.SongInfoBottomSheet
 import com.startune.music.presentation.components.PlaylistMultiSelectionBottomSheet
 import com.startune.music.presentation.components.SongMultiSelectionHost
+import com.startune.music.presentation.components.GenreCategoriesGrid
+import com.startune.music.presentation.components.GenreMultiSelectionOptionSheet
 import com.startune.music.presentation.components.subcomps.SelectionActionRow
 import com.startune.music.presentation.components.subcomps.SelectionCountPill
 import androidx.compose.ui.zIndex
@@ -167,6 +170,26 @@ fun SearchScreen(
     val bottomBarHeightDp = resolveNavBarOccupiedHeight(systemNavBarInset, navBarCompactMode)
     val bottomGradientHeight = resolveMainScreenBottomGradientHeight(navBarCompactMode)
     var showPlaylistBottomSheet by remember { mutableStateOf(false) }
+    val genres by playerViewModel.genres.collectAsStateWithLifecycle()
+    var selectedGenres by remember { mutableStateOf<ImmutableList<Genre>>(persistentListOf()) }
+    val selectedGenreIds = remember(selectedGenres) { selectedGenres.mapTo(HashSet()) { it.id } }
+    val isGenreSelectionMode = selectedGenres.isNotEmpty()
+    var showGenreMultiSelectionSheet by remember { mutableStateOf(false) }
+    var playlistSheetSongs by remember { mutableStateOf<ImmutableList<Song>?>(null) }
+    val haptic = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val toggleGenreSelection: (Genre) -> Unit = { genre ->
+        selectedGenres = if (genre.id in selectedGenreIds) {
+            selectedGenres.filterNot { it.id == genre.id }.toImmutableList()
+        } else {
+            (selectedGenres + genre).toImmutableList()
+        }
+    }
+
+    BackHandler(enabled = isGenreSelectionMode) {
+        selectedGenres = persistentListOf()
+    }
     val searchUiState by remember(playerViewModel) {
         playerViewModel.playerUiState
             .map { uiState ->
@@ -357,6 +380,66 @@ fun SearchScreen(
                 }
             }
 
+            val showGenreBrowse by remember(searchQuery) { derivedStateOf { searchQuery.isBlank() } }
+            AnimatedContent(
+                targetState = showGenreBrowse,
+                transitionSpec = {
+                    val switchingToGenre = targetState
+                    val enter = fadeIn(animationSpec = tween(durationMillis = 320, delayMillis = 70)) +
+                        slideInVertically(animationSpec = tween(durationMillis = 320)) { fullHeight ->
+                            if (switchingToGenre) -fullHeight / 10 else fullHeight / 10
+                        }
+                    val exit = fadeOut(animationSpec = tween(durationMillis = 220)) +
+                        slideOutVertically(animationSpec = tween(durationMillis = 220)) { fullHeight ->
+                            if (switchingToGenre) fullHeight / 12 else -fullHeight / 12
+                        }
+                    (enter togetherWith exit).using(SizeTransform(clip = false))
+                },
+                label = "search_mode_transition"
+            ) { isGenreMode ->
+                if (isGenreMode) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        if (isGenreSelectionMode) {
+                            SelectionActionRow(
+                                selectedCount = selectedGenres.size,
+                                onSelectAll = { selectedGenres = genres },
+                                onDeselect = { selectedGenres = persistentListOf() },
+                                onOptionsClick = { showGenreMultiSelectionSheet = true },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 6.dp)
+                            )
+                        }
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            GenreCategoriesGrid(
+                                genres = genres,
+                                onGenreClick = { genre ->
+                                    Timber.tag("SearchScreen")
+                                        .d("Genre clicked: ${genre.name} (ID: ${genre.id})")
+                                    val encodedGenreId = java.net.URLEncoder.encode(genre.id, "UTF-8")
+                                    navController.navigateSafely(Screen.GenreDetail.createRoute(encodedGenreId))
+                                },
+                                playerViewModel = playerViewModel,
+                                modifier = Modifier.padding(top = 12.dp),
+                                selectedGenres = selectedGenres,
+                                isSelectionMode = isGenreSelectionMode,
+                                onLongPress = { genre ->
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    toggleGenreSelection(genre)
+                                },
+                                onSelectionToggle = toggleGenreSelection
+                            )
+
+                            SelectionCountPill(
+                                selectedCount = selectedGenres.size,
+                                modifier = Modifier
+                                    .align(Alignment.TopCenter)
+                                    .zIndex(2f)
+                                    .padding(top = 16.dp)
+                            )
+                        }
+                    }
+                } else {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -413,6 +496,8 @@ fun SearchScreen(
                             navController = navController
                         )
                     }
+                }
+            }
                 }
             }
         }
@@ -515,12 +600,48 @@ fun SearchScreen(
 
                 PlaylistBottomSheet(
                     playlistUiState = playlistUiState,
-                    songs = persistentListOf(currentSong),
-                    onDismiss = { showPlaylistBottomSheet = false },
+                    songs = playlistSheetSongs ?: persistentListOf(currentSong),
+                    onDismiss = { showPlaylistBottomSheet = false; playlistSheetSongs = null },
                     bottomBarHeight = bottomBarHeightDp,
                     playerViewModel = playerViewModel,
                 )
             }
+
+    if (showGenreMultiSelectionSheet && selectedGenres.isNotEmpty()) {
+        GenreMultiSelectionOptionSheet(
+            selectedGenres = selectedGenres,
+            onDismiss = { showGenreMultiSelectionSheet = false },
+            onPlay = {
+                playerViewModel.playSelectedGenres(selectedGenres)
+                selectedGenres = persistentListOf()
+                showGenreMultiSelectionSheet = false
+            },
+            onPlayNext = {
+                playerViewModel.addSelectedGenresAsNext(selectedGenres)
+                selectedGenres = persistentListOf()
+                showGenreMultiSelectionSheet = false
+            },
+            onAddToQueue = {
+                playerViewModel.addSelectedGenresToQueue(selectedGenres)
+                selectedGenres = persistentListOf()
+                showGenreMultiSelectionSheet = false
+            },
+            onAddToPlaylist = {
+                val genresToResolve = selectedGenres
+                selectedGenres = persistentListOf()
+                showGenreMultiSelectionSheet = false
+                scope.launch {
+                    val songs = playerViewModel.getSongsForGenres(genresToResolve)
+                    if (songs.isNotEmpty()) {
+                        playlistSheetSongs = songs.toImmutableList()
+                        showPlaylistBottomSheet = true
+                    } else {
+                        playerViewModel.sendToast(context.getString(R.string.player_no_playable_songs_in_genres))
+                    }
+                }
+            }
+        )
+    }
         }
     }
 }
