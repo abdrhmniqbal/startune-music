@@ -30,7 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -46,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -55,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.startune.music.R
+import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 import com.startune.music.data.network.deezer.DeezerArtistCandidate
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SmartImageListTargetSize
@@ -133,11 +135,19 @@ fun ArtistArtworkSheet(
                         }
                     }
                 },
-                colors = OutlinedTextFieldDefaults.colors(
+                colors = TextFieldDefaults.colors(
                     focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                     unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                    focusedBorderColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.surfaceContainerLow
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent
+                ),
+                shape = AbsoluteSmoothCornerShape(
+                    cornerRadiusTL = 10.dp, smoothnessAsPercentBL = 60,
+                    cornerRadiusTR = 10.dp, smoothnessAsPercentBR = 60,
+                    cornerRadiusBL = 10.dp, smoothnessAsPercentTL = 60,
+                    cornerRadiusBR = 10.dp, smoothnessAsPercentTR = 60
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
