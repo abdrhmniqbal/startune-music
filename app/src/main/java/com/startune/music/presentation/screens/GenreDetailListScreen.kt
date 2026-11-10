@@ -1,6 +1,5 @@
 package com.startune.music.presentation.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -58,6 +57,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.BiasAlignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
@@ -82,12 +82,16 @@ import com.startune.music.presentation.components.PlaylistBottomSheet
 import com.startune.music.presentation.components.subcomps.SelectionActionRow
 import com.startune.music.presentation.components.subcomps.SelectionCountPill
 import com.startune.music.presentation.components.SongInfoBottomSheet
+import com.startune.music.data.offline.CloudOfflineRepository
+import com.startune.music.presentation.components.EditMultipleSongsSheet
+import com.startune.music.presentation.components.PlayerSheetAwareBackHandler
 import com.startune.music.presentation.components.SongMultiSelectionHost
 import com.startune.music.presentation.components.resolveNavBarOccupiedHeight
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.navigation.navigateSafelyReplacing
 import com.startune.music.presentation.viewmodel.GenreDetailViewModel
+import com.startune.music.presentation.viewmodel.CloudDownloadsViewModel
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.PlaylistViewModel
 import com.startune.music.utils.shapes.RoundedStarShape
@@ -105,7 +109,8 @@ fun GenreDetailListScreen(
     navController: NavHostController,
     playerViewModel: PlayerViewModel,
     viewModel: GenreDetailViewModel = hiltViewModel(),
-    playlistViewModel: PlaylistViewModel = hiltViewModel()
+    playlistViewModel: PlaylistViewModel = hiltViewModel(),
+    cloudDownloadsViewModel: CloudDownloadsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
@@ -124,6 +129,8 @@ fun GenreDetailListScreen(
     val selectedSongIds by multiSelectionState.selectedSongIds.collectAsStateWithLifecycle()
     val haptic = LocalHapticFeedback.current
     var showMultiSelectionSheet by remember { mutableStateOf(false) }
+    var showBatchEditSheet by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     var showSongOptionsSheet by remember { mutableStateOf<Song?>(null) }
     var showPlaylistBottomSheet by remember { mutableStateOf(false) }
     val toastAddedToQueue = stringResource(R.string.toast_added_to_queue)
@@ -168,11 +175,25 @@ fun GenreDetailListScreen(
     val sortedAlbums = remember(uiState.albums, albumsSortOption) { sortGenreAlbums(uiState.albums, albumsSortOption) }
     val sortedArtists = remember(uiState.artists, artistsSortOption) { sortGenreArtists(uiState.artists, artistsSortOption) }
 
-    DisposableEffect(Unit) { onDispose { multiSelectionState.clearSelection() } }
-    BackHandler(enabled = isSelectionMode || isAlbumSelectionMode || isArtistSelectionMode) {
+    DisposableEffect(multiSelectionState) {
+        multiSelectionState.clearSelection()
+        onDispose { multiSelectionState.clearSelection() }
+    }
+    // The coordinator restores this callback as soon as the sheet stops handling back, even if
+    // this screen has not recomposed yet.
+    PlayerSheetAwareBackHandler(
+        coordinator = playerViewModel.playerSheetBackCoordinator,
+        enabled = isSelectionMode || isAlbumSelectionMode || isArtistSelectionMode
+    ) {
         multiSelectionState.clearSelection()
         selectedAlbums = persistentListOf()
         selectedArtists = persistentListOf()
+    }
+    LaunchedEffect(isSelectionMode) {
+        if (!isSelectionMode) {
+            showMultiSelectionSheet = false
+            showBatchEditSheet = false
+        }
     }
     LaunchedEffect(Unit) { playerViewModel.collapsePlayerSheet() }
 
@@ -721,6 +742,40 @@ fun GenreDetailListScreen(
         onActionTaken = {
             selectedAlbums = persistentListOf()
             selectedArtists = persistentListOf()
+        },
+        onBatchEdit = { showBatchEditSheet = true },
+        onDownloadAll = {
+            val cloudSongCount = CloudOfflineRepository.downloadCandidates(selectedSongs).size
+            cloudDownloadsViewModel.downloadSelected(selectedSongs)
+            multiSelectionState.clearSelection()
+            playerViewModel.sendToast(
+                context.getString(R.string.cloud_download_selected_started, cloudSongCount)
+            )
+            showMultiSelectionSheet = false
+        },
+    )
+
+    EditMultipleSongsSheet(
+        visible = showBatchEditSheet,
+        songs = selectedSongs.toImmutableList(),
+        onDismiss = { showBatchEditSheet = false },
+        onSave = { songs, title, artist, album, albumArtist, composer, genre, lyrics, trackNumber, discNumber, replayGainTrackGainDb, replayGainAlbumGainDb, coverArtUpdate ->
+            playerViewModel.saveBatchMetadata(
+                songs,
+                title,
+                artist,
+                album,
+                albumArtist,
+                composer,
+                genre,
+                lyrics,
+                trackNumber,
+                discNumber,
+                replayGainTrackGainDb,
+                replayGainAlbumGainDb,
+                coverArtUpdate
+            )
+            showBatchEditSheet = false
         }
     )
 }
