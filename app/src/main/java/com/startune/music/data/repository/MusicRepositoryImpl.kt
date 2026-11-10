@@ -470,6 +470,12 @@ class MusicRepositoryImpl @Inject constructor(
         musicDao.getArtistIdByName(name)
     }
 
+    override suspend fun getEffectiveArtistImageUrlByName(name: String): String? = withContext(Dispatchers.IO) {
+        val artistId = musicDao.getArtistIdByNormalizedName(name) ?: return@withContext null
+        musicDao.getArtistCustomImage(artistId)?.takeIf { it.isNotBlank() }
+            ?: musicDao.getArtistImageUrl(artistId)?.takeIf { it.isNotBlank() }
+    }
+
     override fun getArtistsForSong(songId: Long): Flow<List<Artist>> {
         return musicDao.getArtistsForSong(songId)
             .map { entities -> entities.map { it.toArtist() } }
