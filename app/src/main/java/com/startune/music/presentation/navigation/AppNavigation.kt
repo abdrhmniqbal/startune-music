@@ -45,12 +45,14 @@ import com.startune.music.presentation.screens.AccountsScreen
 import com.startune.music.presentation.screens.ArtistDetailScreen
 import com.startune.music.presentation.screens.ArtistDetailListScreen
 import com.startune.music.presentation.screens.ArtistDetailView
+import com.startune.music.presentation.screens.GenreDetailView
 import com.startune.music.presentation.screens.ArtistSettingsScreen
 import com.startune.music.presentation.screens.DailyMixScreen
 import com.startune.music.presentation.screens.TopTracksScreen
 import com.startune.music.presentation.screens.EditTransitionScreen
 import com.startune.music.presentation.screens.EasterEggScreen
 import com.startune.music.presentation.screens.ExperimentalSettingsScreen
+import com.startune.music.presentation.screens.GenreDetailListScreen
 import com.startune.music.presentation.screens.GenreDetailScreen
 import com.startune.music.presentation.screens.HomeScreen
 import com.startune.music.presentation.screens.LibraryScreen
@@ -420,6 +422,35 @@ fun AppNavigation(
                         GenreDetailScreen(
                             navController = navController,
                             genreId = genreId,
+                            playerViewModel = playerViewModel
+                        )
+                    }
+                } else {
+                    Text(stringResource(R.string.nav_error_genre_id_missing), modifier = Modifier)
+                }
+            }
+            composable(
+                route = Screen.GenreDetailList.route,
+                arguments = listOf(
+                    navArgument("genreId") { type = NavType.StringType },
+                    navArgument("view") { type = NavType.StringType }
+                ),
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { popEnterTransition() },
+                popExitTransition = { popExitTransition() },
+            ) { backStackEntry ->
+                val genreId = backStackEntry.arguments?.getString("genreId")
+                val viewName = backStackEntry.arguments?.getString("view")
+                val view = viewName?.let {
+                    runCatching { GenreDetailView.valueOf(it) }.getOrDefault(GenreDetailView.Songs)
+                } ?: GenreDetailView.Songs
+                if (genreId != null) {
+                    ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
+                        GenreDetailListScreen(
+                            genreId = genreId,
+                            view = view,
+                            navController = navController,
                             playerViewModel = playerViewModel
                         )
                     }
