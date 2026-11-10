@@ -255,6 +255,16 @@
     <string name="presentation_batch_g_sort_original_order">الترتيب الأصلي</string>
     <string name="presentation_batch_g_sort_source">المصدر</string>
     <string name="presentation_batch_g_stats_avatar_placeholder">\?</string>
+    <string name="presentation_batch_g_stats_hero_per_day">%1$s / يوم</string>
+    <string name="presentation_batch_g_stats_section_heavy_rotation">الأكثر تكراراً</string>
+    <string name="presentation_batch_g_stats_heavy_rotation_subtitle">ما ظللت تعود إليه خلال هذه الفترة.</string>
+    <string name="presentation_batch_g_stats_tab_tracks">المسارات</string>
+    <string name="presentation_batch_g_stats_tab_artists">الفنانون</string>
+    <string name="presentation_batch_g_stats_tab_albums">الألبومات</string>
+    <string name="presentation_batch_g_stats_tab_genres">الأنواع</string>
+    <string name="presentation_batch_g_stats_top_pick">الاختيار الأول</string>
+    <string name="presentation_batch_g_stats_section_listening_variety">تنوع الاستماع</string>
+    <string name="presentation_batch_g_stats_habit_longest_streak">أطول سلسلة متتالية</string>
     <string name="presentation_batch_g_stats_avg_plays_per_track">معدل التشغيل/المسار</string>
     <string name="presentation_batch_g_stats_card_listening_by_album">الاستماع حسب الألبوم</string>
     <string name="presentation_batch_g_stats_card_listening_by_artist">الاستماع حسب الفنان</string>

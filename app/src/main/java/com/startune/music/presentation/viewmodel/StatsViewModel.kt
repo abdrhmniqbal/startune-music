@@ -3,38 +3,39 @@
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.startune.music.data.model.Song
+import com.startune.music.data.repository.ArtistImageRepository
 import com.startune.music.data.repository.MusicRepository
 import com.startune.music.data.stats.PlaybackStatsRepository
 import com.startune.music.data.stats.PlaybackStatsRepository.PlaybackStatsSummary
 import com.startune.music.data.stats.PlaybackStatsRepository.SongPlaybackSummary
 import com.startune.music.data.stats.StatsTimeRange
 import com.startune.music.di.DispatcherProvider
+import com.startune.music.presentation.stats.resolveStatsArtistImages
+import com.startune.music.utils.GenreParser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.collections.immutable.persistentListOf
 
 @HiltViewModel
 class StatsViewModel @Inject constructor(
     private val playbackStatsRepository: PlaybackStatsRepository,
     private val musicRepository: MusicRepository,
+    private val artistImageRepository: ArtistImageRepository,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
@@ -44,7 +45,6 @@ class StatsViewModel @Inject constructor(
         val isRefreshing: Boolean = false,
         val summary: PlaybackStatsSummary? = null,
         val topTracks: ImmutableList<SongPlaybackSummary> = persistentListOf(),
-        val topArtistImageUrls: ImmutableMap<String, String> = persistentMapOf(),
         val availableRanges: ImmutableList<StatsTimeRange> = StatsTimeRange.entries.toImmutableList()
     )
 
@@ -163,15 +163,10 @@ class StatsViewModel @Inject constructor(
                     val songs = loadSongs()
                     val summary = playbackStatsRepository.loadSummary(range, songs)
                     val topTracks = playbackStatsRepository.loadTopTracks(range, songs)
-                    val artistImageUrls = summary.topArtists.mapNotNull { artistSummary ->
-                        val url = musicRepository.getEffectiveArtistImageUrlByName(artistSummary.artist)
-                            ?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-                        artistSummary.artist to url
-                    }.toMap().toImmutableMap()
-                    Triple(summary, topTracks, artistImageUrls)
+                    summary to topTracks
                 }
             }
-            loaded.getOrNull()?.let { (summary, _, _) ->
+            loaded.getOrNull()?.let { (summary, _) ->
                 if (updateWeeklyOverview) {
                     _weeklyOverview.value = summary
                 }
@@ -183,7 +178,6 @@ class StatsViewModel @Inject constructor(
                     isRefreshing = false,
                     summary = result?.first,
                     topTracks = result?.second?.toImmutableList() ?: persistentListOf(),
-                    topArtistImageUrls = result?.third ?: persistentMapOf(),
                     selectedRange = range
                 )
             }
@@ -233,6 +227,48 @@ class StatsViewModel @Inject constructor(
         val songs = musicRepository.getSongsByIdsOnce(playedSongIds)
         cachedSongs = PlayedSongs(playedSongIds, songs)
         songs
+    }
+
+    /** Library songs for [songIds], in the given order; ids no longer in the library are dropped. */
+    suspend fun resolveSongs(songIds: List<String>): List<Song> = withContext(dispatchers.io) {
+        val byId = musicRepository.getSongsByIdsOnce(songIds).associateBy { it.id }
+        songIds.mapNotNull { byId[it] }
+    }
+
+    /**
+     * Stats group artists by display name, so the id has to be looked up. Falls back to the
+     * played songs for names the artists table does not know (e.g. multi-artist display names);
+     * every artist in a summary comes from one of them.
+     */
+    suspend fun resolveArtistId(name: String): Long? = withContext(dispatchers.io) {
+        musicRepository.getArtistIdByName(name)
+            ?: loadSongs().firstOrNull { it.displayArtist == name || it.artist == name }?.artistId
+    }
+
+    /**
+     * The artist pictures the rest of the app shows: the user's custom image or a local folder
+     * portrait, otherwise the Deezer picture when external artist images are enabled.
+     * Names with no picture are absent.
+     */
+    suspend fun resolveArtistImages(names: Collection<String>): Map<String, String> =
+        withContext(dispatchers.io) {
+            resolveStatsArtistImages(names, musicRepository, artistImageRepository)
+        }
+
+    /**
+     * Stats group albums by title, which is ambiguous across artists. Prefer an album that owns
+     * one of [preferredSongIds] (the tracks actually played in range) before a played namesake.
+     */
+    suspend fun resolveAlbumId(name: String, preferredSongIds: Collection<String>): Long? =
+        withContext(dispatchers.io) {
+            val preferred = preferredSongIds.toSet()
+            val candidates = loadSongs().filter { it.album == name }
+            (candidates.firstOrNull { it.id in preferred } ?: candidates.firstOrNull())?.albumId
+        }
+
+    /** False for the synthetic "unknown" bucket stats create for songs without a genre tag. */
+    suspend fun isLibraryGenre(name: String): Boolean = withContext(dispatchers.io) {
+        loadSongs().any { GenreParser.matches(it.genre, name) }
     }
 
     private companion object {

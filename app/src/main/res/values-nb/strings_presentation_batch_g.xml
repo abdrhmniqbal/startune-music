@@ -88,6 +88,16 @@
     <string name="presentation_batch_g_stats_unique_tracks">Unike spor</string>
     <string name="presentation_batch_g_stats_top_three_share_label">Andel topp 3</string>
     <string name="presentation_batch_g_stats_avatar_placeholder">\?</string>
+    <string name="presentation_batch_g_stats_hero_per_day">%1$s / dag</string>
+    <string name="presentation_batch_g_stats_section_heavy_rotation">På repeat</string>
+    <string name="presentation_batch_g_stats_heavy_rotation_subtitle">Det du stadig vendte tilbake til i denne perioden.</string>
+    <string name="presentation_batch_g_stats_tab_tracks">Spor</string>
+    <string name="presentation_batch_g_stats_tab_artists">Artister</string>
+    <string name="presentation_batch_g_stats_tab_albums">Album</string>
+    <string name="presentation_batch_g_stats_tab_genres">Sjangre</string>
+    <string name="presentation_batch_g_stats_top_pick">Toppvalg</string>
+    <string name="presentation_batch_g_stats_section_listening_variety">Lyttevariasjon</string>
+    <string name="presentation_batch_g_stats_habit_longest_streak">Lengste rekke</string>
     <string name="presentation_batch_g_device_info_title">Enhetsinfo</string>
     <string name="presentation_batch_g_device_supported_codecs_title">Støttede lydkodeker</string>
     <string name="presentation_batch_g_device_section_audio_output">Lydutgang</string>

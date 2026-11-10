@@ -88,6 +88,16 @@
     <string name="presentation_batch_g_stats_unique_tracks">Trek unik</string>
     <string name="presentation_batch_g_stats_top_three_share_label">Top 3 share</string>
     <string name="presentation_batch_g_stats_avatar_placeholder">\?</string>
+    <string name="presentation_batch_g_stats_hero_per_day">%1$s / hari</string>
+    <string name="presentation_batch_g_stats_section_heavy_rotation">Paling sering diputar</string>
+    <string name="presentation_batch_g_stats_heavy_rotation_subtitle">Yang terus kamu dengarkan di rentang ini.</string>
+    <string name="presentation_batch_g_stats_tab_tracks">Lagu</string>
+    <string name="presentation_batch_g_stats_tab_artists">Artis</string>
+    <string name="presentation_batch_g_stats_tab_albums">Album</string>
+    <string name="presentation_batch_g_stats_tab_genres">Genre</string>
+    <string name="presentation_batch_g_stats_top_pick">Teratas</string>
+    <string name="presentation_batch_g_stats_section_listening_variety">Ragam dengar</string>
+    <string name="presentation_batch_g_stats_habit_longest_streak">Rentetan terpanjang</string>
     <string name="presentation_batch_g_device_info_title">Info Perangkat</string>
     <string name="presentation_batch_g_device_supported_codecs_title">Codec Audio yang Didukung</string>
     <string name="presentation_batch_g_device_section_audio_output">Output Audio</string>

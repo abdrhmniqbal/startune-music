@@ -88,6 +88,16 @@
     <string name="presentation_batch_g_stats_unique_tracks">不同曲目数</string>
     <string name="presentation_batch_g_stats_top_three_share_label">前 3 占比</string>
     <string name="presentation_batch_g_stats_avatar_placeholder">\?</string>
+    <string name="presentation_batch_g_stats_hero_per_day">每天 %1$s</string>
+    <string name="presentation_batch_g_stats_section_heavy_rotation">单曲循环</string>
+    <string name="presentation_batch_g_stats_heavy_rotation_subtitle">这段时间里你反复收听的内容。</string>
+    <string name="presentation_batch_g_stats_tab_tracks">歌曲</string>
+    <string name="presentation_batch_g_stats_tab_artists">艺人</string>
+    <string name="presentation_batch_g_stats_tab_albums">专辑</string>
+    <string name="presentation_batch_g_stats_tab_genres">流派</string>
+    <string name="presentation_batch_g_stats_top_pick">最爱</string>
+    <string name="presentation_batch_g_stats_section_listening_variety">收听多样性</string>
+    <string name="presentation_batch_g_stats_habit_longest_streak">最长连续天数</string>
     <string name="presentation_batch_g_device_info_title">设备信息</string>
     <string name="presentation_batch_g_device_supported_codecs_title">支持的音频编解码器</string>
     <string name="presentation_batch_g_device_section_audio_output">音频输出</string>
