@@ -1,16 +1,21 @@
 ﻿package com.startune.music.presentation.screens
 
 import com.startune.music.presentation.navigation.navigateSafely
+import com.startune.music.data.offline.CloudOfflineRepository
+import com.startune.music.presentation.components.EditMultipleSongsSheet
+import com.startune.music.presentation.components.PlayerSheetAwareBackHandler
 import com.startune.music.presentation.components.SongMultiSelectionHost
+import com.startune.music.presentation.components.subcomps.SelectionActionRow
 import com.startune.music.presentation.components.subcomps.SelectionCountPill
 import com.startune.music.presentation.navigation.navigateSafelyReplacing
-import androidx.activity.compose.BackHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -36,7 +41,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -61,6 +69,7 @@ import com.startune.music.presentation.components.SongInfoBottomSheet
 import com.startune.music.presentation.screens.QuickFillDialog
 import com.startune.music.presentation.viewmodel.GenreDetailViewModel
 import com.startune.music.presentation.viewmodel.AlbumData
+import com.startune.music.presentation.viewmodel.CloudDownloadsViewModel
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.ui.theme.LocalStartuneDarkTheme
 import kotlinx.collections.immutable.persistentListOf
@@ -80,7 +89,8 @@ fun GenreDetailScreen(
     decodedGenreId: String = java.net.URLDecoder.decode(genreId, "UTF-8"),
     playerViewModel: PlayerViewModel,
     viewModel: GenreDetailViewModel = hiltViewModel(),
-    playlistViewModel: com.startune.music.presentation.viewmodel.PlaylistViewModel = hiltViewModel()
+    playlistViewModel: com.startune.music.presentation.viewmodel.PlaylistViewModel = hiltViewModel(),
+    cloudDownloadsViewModel: CloudDownloadsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val stablePlayerState by playerViewModel.stablePlayerState.collectAsStateWithLifecycle()
@@ -194,11 +204,34 @@ fun GenreDetailScreen(
     val isSelectionMode by multiSelectionState.isSelectionMode.collectAsStateWithLifecycle()
     val selectedSongIds by multiSelectionState.selectedSongIds.collectAsStateWithLifecycle()
     var showMultiSelectionSheet by remember { mutableStateOf(false) }
+    var showBatchEditSheet by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
+    val onSongLongPress = remember(haptic, multiSelectionState) {
+        { song: Song ->
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            multiSelectionState.toggleSelection(song)
+        }
+    }
 
-    BackHandler(enabled = isSelectionMode) {
+    // The coordinator restores this callback as soon as the sheet stops handling back, even if
+    // this screen has not recomposed yet.
+    PlayerSheetAwareBackHandler(
+        coordinator = playerViewModel.playerSheetBackCoordinator,
+        enabled = isSelectionMode
+    ) {
         multiSelectionState.clearSelection()
     }
-    DisposableEffect(Unit) { onDispose { multiSelectionState.clearSelection() } }
+    DisposableEffect(multiSelectionState) {
+        multiSelectionState.clearSelection()
+        onDispose { multiSelectionState.clearSelection() }
+    }
+    LaunchedEffect(isSelectionMode) {
+        if (!isSelectionMode) {
+            showMultiSelectionSheet = false
+            showBatchEditSheet = false
+        }
+    }
     var showQuickFillDialog by remember { mutableStateOf(false) }
 
     val isUnknownGenre = remember(decodedGenreId) {
@@ -263,8 +296,16 @@ fun GenreDetailScreen(
                                 songs = uiState.rankedSongs.take(GENRE_TOP_SONGS_PREVIEW),
                                 currentSongId = stablePlayerState.currentSong?.id,
                                 isPlaying = stablePlayerState.isPlaying,
+                                selectedSongIds = selectedSongIds,
+                                isSelectionMode = isSelectionMode,
+                                onSongLongPress = onSongLongPress,
+                                selectionIndexFor = { song -> multiSelectionState.getSelectionIndex(song.id) },
                                 onSongClick = { song ->
-                                    playerViewModel.showAndPlaySong(song, uiState.rankedSongs, genreDisplayName)
+                                    if (isSelectionMode) {
+                                        multiSelectionState.toggleSelection(song)
+                                    } else {
+                                        playerViewModel.showAndPlaySong(song, uiState.rankedSongs, genreDisplayName)
+                                    }
                                 },
                                 onViewMoreClick = {
                                     navController.navigateSafely(
@@ -331,6 +372,25 @@ fun GenreDetailScreen(
                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
                     collapsedContentColor = MaterialTheme.colorScheme.onSurface
                 )
+            }
+
+            if (isSelectionMode) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = fabBottomPadding + 26.dp, start = 16.dp, end = 16.dp)
+                        .zIndex(10f),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    shadowElevation = 8.dp
+                ) {
+                    SelectionActionRow(
+                        selectedCount = selectedSongs.size,
+                        onSelectAll = { multiSelectionState.selectAll(uiState.songs) },
+                        onDeselect = { multiSelectionState.clearSelection() },
+                        onOptionsClick = { showMultiSelectionSheet = true }
+                    )
+                }
             }
 
             if (isUnknownGenre) {
@@ -476,6 +536,40 @@ fun GenreDetailScreen(
             multiSelectionState = multiSelectionState,
             showSheet = showMultiSelectionSheet,
             onDismiss = { showMultiSelectionSheet = false },
+            onBatchEdit = { showBatchEditSheet = true },
+            onDownloadAll = {
+                val cloudSongCount = CloudOfflineRepository.downloadCandidates(selectedSongs).size
+                cloudDownloadsViewModel.downloadSelected(selectedSongs)
+                multiSelectionState.clearSelection()
+                playerViewModel.sendToast(
+                    context.getString(R.string.cloud_download_selected_started, cloudSongCount)
+                )
+                showMultiSelectionSheet = false
+            },
+        )
+
+        EditMultipleSongsSheet(
+            visible = showBatchEditSheet,
+            songs = selectedSongs.toImmutableList(),
+            onDismiss = { showBatchEditSheet = false },
+            onSave = { songs, title, artist, album, albumArtist, composer, genre, lyrics, trackNumber, discNumber, replayGainTrackGainDb, replayGainAlbumGainDb, coverArtUpdate ->
+                playerViewModel.saveBatchMetadata(
+                    songs,
+                    title,
+                    artist,
+                    album,
+                    albumArtist,
+                    composer,
+                    genre,
+                    lyrics,
+                    trackNumber,
+                    discNumber,
+                    replayGainTrackGainDb,
+                    replayGainAlbumGainDb,
+                    coverArtUpdate
+                )
+                showBatchEditSheet = false
+            }
         )
 
         SelectionCountPill(
@@ -646,7 +740,11 @@ private fun GenreTopSongsCarousel(
     isPlaying: Boolean,
     onSongClick: (Song) -> Unit,
     onViewMoreClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedSongIds: Set<String> = emptySet(),
+    isSelectionMode: Boolean = false,
+    onSongLongPress: ((Song) -> Unit)? = null,
+    selectionIndexFor: ((Song) -> Int?)? = null
 ) {
     if (songs.isEmpty()) return
     val pages = remember(songs) { songs.chunked(GENRE_TOP_SONGS_PAGE_SIZE) }
@@ -701,7 +799,10 @@ private fun GenreTopSongsCarousel(
                             song = song,
                             isCurrentSong = currentSongId == song.id,
                             isPlaying = isPlaying,
-                            onClick = { onSongClick(song) }
+                            isSelected = selectedSongIds.contains(song.id),
+                            selectionIndex = if (isSelectionMode) selectionIndexFor?.invoke(song) else null,
+                            onClick = { onSongClick(song) },
+                            onLongPress = onSongLongPress?.let { longPress -> { longPress(song) } }
                         )
                     }
                 }
@@ -717,13 +818,19 @@ private fun GenreTopSongRow(
     song: Song,
     isCurrentSong: Boolean,
     isPlaying: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    isSelected: Boolean = false,
+    selectionIndex: Int? = null,
+    onLongPress: (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongPress
+            )
             .padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -734,14 +841,46 @@ private fun GenreTopSongRow(
             accentOnColor = MaterialTheme.colorScheme.onPrimary,
             highlighted = rank == 1
         )
-        SmartImage(
-            model = song.albumArtUriString,
-            contentDescription = song.title,
-            modifier = Modifier
-                .size(52.dp)
-                .clip(RoundedCornerShape(14.dp)),
-            shape = RoundedCornerShape(14.dp)
-        )
+        Box(
+            modifier = Modifier.size(52.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            SmartImage(
+                model = song.albumArtUriString,
+                contentDescription = song.title,
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(RoundedCornerShape(14.dp)),
+                shape = RoundedCornerShape(14.dp)
+            )
+            if (isSelected) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                            shape = RoundedCornerShape(14.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (selectionIndex != null && selectionIndex >= 0) {
+                        Text(
+                            text = selectionIndex.toString(),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Rounded.CheckCircle,
+                            contentDescription = stringResource(R.string.presentation_batch_g_list_cd_selected),
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+            }
+        }
         Column(
             modifier = Modifier.weight(1f)
         ) {

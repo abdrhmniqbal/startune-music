@@ -21,8 +21,8 @@ import kotlinx.collections.immutable.persistentListOf
  * and opens [PlaylistBottomSheet] for Add to playlist, so detail, search and
  * history screens do not each copy the same ten-callback call site.
  *
- * Batch edit and cloud download are library-only and stay hidden here
- * ([MultiSelectionBottomSheet] hides them when their callbacks are null).
+ * Batch edit and cloud download are wired by the caller when the screen
+ * offers them ([MultiSelectionBottomSheet] hides them when their callbacks are null).
  *
  * [onActionTaken] runs after any batch action completes, so a screen that
  * resolved a category selection (albums, artists) into songs can clear
@@ -38,7 +38,9 @@ fun SongMultiSelectionHost(
     playlistViewModel: PlaylistViewModel = hiltViewModel(),
     onActionTaken: () -> Unit = {},
     onRemoveFromList: (() -> Unit)? = null,
-    removeFromListLabel: String? = null
+    removeFromListLabel: String? = null,
+    onBatchEdit: (() -> Unit)? = null,
+    onDownloadAll: (() -> Unit)? = null
 ) {
     val selectedSongs by multiSelectionState.selectedSongs.collectAsStateWithLifecycle()
     val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
@@ -101,7 +103,9 @@ fun SongMultiSelectionHost(
                     onActionTaken()
                 }
             },
-            removeFromListLabel = removeFromListLabel
+            removeFromListLabel = removeFromListLabel,
+            onBatchEdit = onBatchEdit,
+            onDownloadAll = onDownloadAll
         )
     }
 
