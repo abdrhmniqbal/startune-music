@@ -2405,7 +2405,10 @@ private fun BottomToggleRow(
     val isFavorite = isFavoriteProvider()
     val rowCorners = 60.dp
     val inactiveBg = LocalMaterialTheme.current.onSurface.copy(alpha = 0.07f)
-    val inactiveContentColor = LocalMaterialTheme.current.onSurface
+    // onSurface renders as the light variant's dark tone inside the player
+    // sheet, which made the inactive icons invisible (1.19:1). onPrimaryContainer
+    // is the player's base text color and stays light here (9.95:1 on the pill).
+    val inactiveContentColor = LocalMaterialTheme.current.onPrimaryContainer
 
 
     Box(
