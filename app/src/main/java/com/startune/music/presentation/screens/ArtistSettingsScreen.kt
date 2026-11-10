@@ -95,8 +95,10 @@ import com.startune.music.R
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.ExpressiveTopBarContent
 import com.startune.music.presentation.settings.search.settingHighlight
+import com.startune.music.presentation.settings.search.LocalSettingsHighlightTarget
 import com.startune.music.presentation.viewmodel.ArtistSettingsViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -112,6 +114,10 @@ fun ArtistSettingsScreen(
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
+
+    // LazyColumn index of the Library org section below that settings search can point into.
+    // (Upstream's artist-page section does not exist in the fork.)
+    val artistSettingsLibraryOrgItemIndex = 3
 
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val minTopBarHeight = 64.dp + statusBarHeight
@@ -151,6 +157,21 @@ fun ArtistSettingsScreen(
                 return if (canConsumeScroll) Offset(0f, consumed) else Offset.Zero
             }
         }
+    }
+
+    // The sections live in separate lazy items, and on a short or landscape screen the lower
+    // ones start below the viewport, so they are never composed and their row cannot scroll
+    // itself into view. Bring the target's item in first; the row then clears the bars itself.
+    // Skipped once the highlight was consumed, so returning here or rotating does not scroll.
+    val highlightPending = LocalSettingsHighlightTarget.current != null
+    LaunchedEffect(highlightKey) {
+        if (!highlightPending) return@LaunchedEffect
+        val targetIndex = when (highlightKey) {
+            "item_artist_group_by_album_artist" -> artistSettingsLibraryOrgItemIndex
+            else -> return@LaunchedEffect
+        }
+        delay(200)
+        lazyListState.animateScrollToItem(targetIndex)
     }
 
     LaunchedEffect(lazyListState.isScrollInProgress) {
