@@ -86,7 +86,6 @@ import com.startune.music.data.preferences.CollagePattern
 import com.startune.music.presentation.components.AlbumArtCollage
 import com.startune.music.presentation.components.BetaInfoBottomSheet
 import com.startune.music.presentation.components.ChangelogBottomSheet
-import com.startune.music.presentation.jellyfin.dashboard.JellyfinDashboardViewModel
 import com.startune.music.presentation.components.TopTracksSection
 import com.startune.music.presentation.components.HomeGradientTopBar
 import com.startune.music.presentation.components.HomeOptionsBottomSheet
@@ -110,6 +109,7 @@ import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.RecapEntryViewModel
 import com.startune.music.presentation.viewmodel.sharedPlayerViewModel
 import com.startune.music.presentation.viewmodel.SettingsViewModel
+import com.startune.music.presentation.viewmodel.StreamingProviderLoginViewModel
 import com.startune.music.presentation.viewmodel.StatsViewModel
 import com.startune.music.ui.theme.ExpTitleTypography
 import kotlinx.collections.immutable.persistentListOf
@@ -136,8 +136,7 @@ fun HomeScreen(
     paddingValuesParent: PaddingValues,
     playerViewModel: PlayerViewModel = sharedPlayerViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel(),
-    jellyfinViewModel: JellyfinDashboardViewModel = hiltViewModel(),
-    navidromeViewModel: com.startune.music.presentation.navidrome.dashboard.NavidromeDashboardViewModel = hiltViewModel(),
+    streamingLoginViewModel: StreamingProviderLoginViewModel = hiltViewModel(),
     onOpenSidebar: () -> Unit
 ) {
     val context = LocalContext.current
@@ -636,8 +635,8 @@ fun HomeScreen(
         }
     }
     if (showStreamingProviderSheet) {
-        val isJellyfinLoggedIn by jellyfinViewModel.isLoggedIn.collectAsStateWithLifecycle()
-        val isNavidromeLoggedIn by navidromeViewModel.isLoggedIn.collectAsStateWithLifecycle()
+        val isJellyfinLoggedIn by streamingLoginViewModel.isJellyfinLoggedIn.collectAsStateWithLifecycle()
+        val isNavidromeLoggedIn by streamingLoginViewModel.isNavidromeLoggedIn.collectAsStateWithLifecycle()
         StreamingProviderSheet(
             onDismissRequest = { showStreamingProviderSheet = false },
             isJellyfinLoggedIn = isJellyfinLoggedIn,
