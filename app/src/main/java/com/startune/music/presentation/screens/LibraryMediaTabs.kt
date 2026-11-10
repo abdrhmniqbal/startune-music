@@ -96,8 +96,10 @@ fun LibraryAlbumsTab(
     getSelectionIndex: (Long) -> Int? = { null },
     storageFilter: StorageFilter = StorageFilter.ALL
 ) {
-    val gridState = rememberLazyGridState()
-    val listState = rememberLazyListState()
+    val gridState = rememberRestoredLazyGridState(albums)
+    val listState = rememberRestoredLazyListState(albums)
+    val dummyListState = rememberLazyListState()
+    val dummyGridState = rememberLazyGridState()
     val context = LocalContext.current
     val imageLoader = context.imageLoader
 
@@ -110,39 +112,20 @@ fun LibraryAlbumsTab(
         }
     }
 
-    var lastHandledAlbumSortKey by remember {
-        mutableStateOf(currentAlbumSortOption.storageKey)
-    }
-    var pendingAlbumSortScrollReset by remember { mutableStateOf(false) }
-    var albumSortSawRefreshLoading by remember { mutableStateOf(false) }
+    ResetScrollOnSortChange(
+        sortKey = currentAlbumSortOption.storageKey,
+        items = albums,
+        scrollToTop = {
+            if (isListView) {
+                listState.scrollToItem(0)
+            } else {
+                gridState.scrollToItem(0)
+            }
+        }
+    )
 
-    LaunchedEffect(currentAlbumSortOption) {
-        val currentSortKey = currentAlbumSortOption.storageKey
-        if (currentSortKey == lastHandledAlbumSortKey) return@LaunchedEffect
-        lastHandledAlbumSortKey = currentSortKey
-        pendingAlbumSortScrollReset = true
-        albumSortSawRefreshLoading = false
-        if (isListView) {
-            listState.scrollToItem(0)
-        } else {
-            gridState.scrollToItem(0)
-        }
-    }
-
-    LaunchedEffect(albums.loadState.refresh, pendingAlbumSortScrollReset, isListView) {
-        if (!pendingAlbumSortScrollReset) return@LaunchedEffect
-        if (albums.loadState.refresh is LoadState.Loading) {
-            albumSortSawRefreshLoading = true
-            return@LaunchedEffect
-        }
-        if (!albumSortSawRefreshLoading) return@LaunchedEffect
-        if (isListView) {
-            listState.scrollToItem(0)
-        } else {
-            gridState.scrollToItem(0)
-        }
-        pendingAlbumSortScrollReset = false
-    }
+    val activeAlbumListState = if (albums.itemCount > 0) listState else dummyListState
+    val activeAlbumGridState = if (albums.itemCount > 0) gridState else dummyGridState
 
     LaunchedEffect(albums, gridState, listState, isListView) {
         if (isListView) {
@@ -208,11 +191,7 @@ fun LibraryAlbumsTab(
 
     val refreshState = albums.loadState.refresh
     val reachedEndOfPagination = albums.loadState.append.endOfPaginationReached
-    val shouldShowInitialLoading = albums.itemCount == 0 && (
-        isLoading ||
-            refreshState is LoadState.Loading ||
-            (refreshState is LoadState.NotLoading && !reachedEndOfPagination)
-    )
+    val shouldShowInitialLoading = albums.itemCount == 0 && isLoading
 
     when {
         refreshState is LoadState.Error && albums.itemCount == 0 -> {
@@ -252,7 +231,6 @@ fun LibraryAlbumsTab(
                             )
                         )
                         .fillMaxSize(),
-                    state = listState,
                     contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap + 4.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -278,7 +256,6 @@ fun LibraryAlbumsTab(
                             )
                         )
                         .fillMaxSize(),
-                    state = gridState,
                     columns = GridCells.Fixed(2),
                     contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap + 4.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -333,7 +310,7 @@ fun LibraryAlbumsTab(
                                             bottomEnd = PlayerSheetCollapsedCornerRadius
                                         )
                                     ),
-                                state = listState,
+                                state = activeAlbumListState,
                                 contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap + 4.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
@@ -405,7 +382,7 @@ fun LibraryAlbumsTab(
                                             bottomEnd = PlayerSheetCollapsedCornerRadius
                                         )
                                     ),
-                                state = gridState,
+                                state = activeAlbumGridState,
                                 columns = GridCells.Fixed(2),
                                 contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap + 4.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -495,8 +472,10 @@ fun LibraryArtistsTab(
     getSelectionIndex: (Long) -> Int? = { null },
     storageFilter: StorageFilter = StorageFilter.ALL
 ) {
-    val listState = rememberLazyListState()
-    val gridState = rememberLazyGridState()
+    val listState = rememberRestoredLazyListState(artists)
+    val gridState = rememberRestoredLazyGridState(artists)
+    val dummyListState = rememberLazyListState()
+    val dummyGridState = rememberLazyGridState()
     val artistFastScrollLabelProvider = remember(artists, currentArtistSortOption) {
         { index: Int ->
             artistFastScrollLabel(
@@ -505,47 +484,24 @@ fun LibraryArtistsTab(
             )
         }
     }
-    var lastHandledArtistSortKey by remember {
-        mutableStateOf(currentArtistSortOption.storageKey)
-    }
-    var pendingArtistSortScrollReset by remember { mutableStateOf(false) }
-    var artistSortSawRefreshLoading by remember { mutableStateOf(false) }
+    ResetScrollOnSortChange(
+        sortKey = currentArtistSortOption.storageKey,
+        items = artists,
+        scrollToTop = {
+            if (isListView) {
+                listState.scrollToItem(0)
+            } else {
+                gridState.scrollToItem(0)
+            }
+        }
+    )
 
-    LaunchedEffect(currentArtistSortOption) {
-        val currentSortKey = currentArtistSortOption.storageKey
-        if (currentSortKey == lastHandledArtistSortKey) return@LaunchedEffect
-        lastHandledArtistSortKey = currentSortKey
-        pendingArtistSortScrollReset = true
-        artistSortSawRefreshLoading = false
-        if (isListView) {
-            listState.scrollToItem(0)
-        } else {
-            gridState.scrollToItem(0)
-        }
-    }
-
-    LaunchedEffect(artists.loadState.refresh, pendingArtistSortScrollReset) {
-        if (!pendingArtistSortScrollReset) return@LaunchedEffect
-        if (artists.loadState.refresh is LoadState.Loading) {
-            artistSortSawRefreshLoading = true
-            return@LaunchedEffect
-        }
-        if (!artistSortSawRefreshLoading) return@LaunchedEffect
-        if (isListView) {
-            listState.scrollToItem(0)
-        } else {
-            gridState.scrollToItem(0)
-        }
-        pendingArtistSortScrollReset = false
-    }
+    val activeArtistListState = if (artists.itemCount > 0) listState else dummyListState
+    val activeArtistGridState = if (artists.itemCount > 0) gridState else dummyGridState
 
     val refreshState = artists.loadState.refresh
     val reachedEndOfPagination = artists.loadState.append.endOfPaginationReached
-    val shouldShowInitialLoading = artists.itemCount == 0 && (
-        isLoading ||
-            refreshState is LoadState.Loading ||
-            (refreshState is LoadState.NotLoading && !reachedEndOfPagination)
-    )
+    val shouldShowInitialLoading = artists.itemCount == 0 && isLoading
 
     when {
         refreshState is LoadState.Error && artists.itemCount == 0 -> {
@@ -585,7 +541,6 @@ fun LibraryArtistsTab(
                             )
                         )
                         .fillMaxSize(),
-                    state = listState,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap)
                 ) {
@@ -611,7 +566,6 @@ fun LibraryArtistsTab(
                             )
                         )
                         .fillMaxSize(),
-                    state = gridState,
                     columns = GridCells.Fixed(2),
                     contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap + 4.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -667,7 +621,7 @@ fun LibraryArtistsTab(
                                         bottomEnd = PlayerSheetCollapsedCornerRadius
                                     )
                                 ),
-                            state = listState,
+                            state = activeArtistListState,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap)
                         ) {
@@ -735,7 +689,7 @@ fun LibraryArtistsTab(
                                             bottomEnd = PlayerSheetCollapsedCornerRadius
                                         )
                                     ),
-                                state = gridState,
+                                state = activeArtistGridState,
                                 columns = GridCells.Fixed(2),
                                 contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
