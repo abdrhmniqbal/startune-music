@@ -36,6 +36,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.startune.music.R
+import com.startune.music.utils.MediaStorePermissionHelper
 import com.startune.music.data.EotStateHolder
 import com.startune.music.data.database.AlbumArtThemeDao
 import com.startune.music.data.media.CoverArtUpdate
@@ -563,6 +564,10 @@ class PlayerViewModel @Inject constructor(
     val deletePermissionRequest: SharedFlow<android.content.IntentSender> = _deletePermissionRequest.asSharedFlow()
 
     private var pendingMetadataEdit: PendingMetadataEdit? = null
+    /** A write request for songs left cut off by an interrupted save is waiting for its result. */
+    private var pendingInterruptedSaveRestore = false
+    /** Cut-off songs already asked about, so a denied request is not repeated while this ViewModel lives. */
+    private val askedInterruptedSaveRestoreUris = mutableSetOf<String>()
     private var pendingBatchMetadataEdit: PendingBatchMetadataEdit? = null
     private var pendingLyricsSave: PendingLyricsSave? = null
     private var pendingDeleteSong: Song? = null
@@ -832,6 +837,7 @@ class PlayerViewModel @Inject constructor(
     lateinit var imageCacheManager: com.startune.music.data.media.ImageCacheManager
 
     init {
+        viewModelScope.launch { offerToRestoreInterruptedSaves() }
         listeningStatsTracker.initialize(viewModelScope)
         dailyMixStateHolder.initialize(viewModelScope)
         lyricsStateHolder.initialize(viewModelScope, lyricsLoadCallback, playbackStateHolder.stablePlayerState)
@@ -4520,6 +4526,42 @@ class PlayerViewModel @Inject constructor(
     }
 
     /** Called from the UI after the user approves or denies the MediaStore write permission. */
+    /**
+     * Asks the user for write access to songs that an interrupted save left cut off, when the
+     * app can no longer write to them (its write access for the edit ended with the process),
+     * and restores them once it is granted. Each song is asked about once per ViewModel.
+     */
+    private suspend fun offerToRestoreInterruptedSaves() {
+        metadataEditStateHolder.songsAwaitingWriteAccess.collect { uris ->
+            if (uris.all { it.toString() in askedInterruptedSaveRestoreUris }) return@collect
+            // A request emitted while the player sheet is not collecting would be dropped.
+            _writePermissionRequest.subscriptionCount.first { it > 0 }
+            val otherRequestPending = pendingMetadataEdit != null || pendingBatchMetadataEdit != null ||
+                pendingBatchGenreEdit != null || pendingLyricsSave != null
+            if (otherRequestPending) return@collect
+            val intentSender = MediaStorePermissionHelper
+                .createWriteRequestIntentSender(context, uris) ?: return@collect
+            uris.mapTo(askedInterruptedSaveRestoreUris) { it.toString() }
+            pendingInterruptedSaveRestore = true
+            _toastEvents.emit(context.getString(R.string.metadata_restore_permission_prompt))
+            _writePermissionRequest.emit(intentSender)
+        }
+    }
+
+    private fun onInterruptedSaveRestorePermissionResult(granted: Boolean) {
+        pendingInterruptedSaveRestore = false
+        viewModelScope.launch {
+            val message = if (!granted) {
+                R.string.metadata_restore_permission_denied
+            } else if (metadataEditStateHolder.resumeInterruptedWriteBacks().stillPending == 0) {
+                R.string.metadata_restore_done
+            } else {
+                R.string.metadata_restore_incomplete
+            }
+            _toastEvents.emit(context.getString(message))
+        }
+    }
+
     fun onWritePermissionResult(granted: Boolean) {
         val batchMetadata = pendingBatchMetadataEdit
         if (batchMetadata != null) {
@@ -4576,7 +4618,11 @@ class PlayerViewModel @Inject constructor(
             return
         }
 
-        val pending = pendingMetadataEdit ?: return
+        val pending = pendingMetadataEdit
+        if (pending == null) {
+            if (pendingInterruptedSaveRestore) onInterruptedSaveRestorePermissionResult(granted)
+            return
+        }
         pendingMetadataEdit = null
         if (!granted) {
             viewModelScope.launch {
