@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,7 +31,9 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
+import androidx.compose.material3.TimeScroll
+import androidx.compose.material3.VibrantTimePickerDialog
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -175,7 +176,11 @@ fun TimerOptionsBottomSheet(
                         )
                 ) {
                     Slider(
-                        value = timerSliderPosition,
+                        state = rememberSyncedSliderState(
+                            value = timerSliderPosition,
+                            steps = predefinedTimes.size - 2,
+                            valueRange = 0f..(predefinedTimes.size - 1).toFloat()
+                        ),
                         onValueChange = { newValue ->
                             timerSliderPosition = newValue
                             isTimerMode = true
@@ -189,8 +194,6 @@ fun TimerOptionsBottomSheet(
                                 )
                             }
                         },
-                        valueRange = 0f..(predefinedTimes.size - 1).toFloat(),
-                        steps = predefinedTimes.size - 2,
                         enabled = isTimerMode || counterSliderPosition == 1f,
                         onValueChangeFinished = {
                             val selectedIndexOnFinish = timerSliderPosition.roundToInt()
@@ -265,7 +268,11 @@ fun TimerOptionsBottomSheet(
                         )
                 ) {
                     Slider(
-                        value = counterSliderPosition,
+                        state = rememberSyncedSliderState(
+                            value = counterSliderPosition,
+                            steps = 8,
+                            valueRange = 1f..10f
+                        ),
                         onValueChange = { newValue ->
                             counterSliderPosition = newValue
                             isTimerMode = false
@@ -279,8 +286,6 @@ fun TimerOptionsBottomSheet(
                                 )
                             }
                         },
-                        valueRange = 1f..10f,
-                        steps = 8,
                         enabled = !isTimerMode || timerSliderPosition == 0f,
                         onValueChangeFinished = {
                             onCancelTimer()
@@ -432,29 +437,20 @@ fun TimerOptionsBottomSheet(
     }
 
     if (showCustomTimePicker) {
-        val initialHour = 0
-        val initialMinute = 15
-
         val timePickerState = rememberTimePickerState(
-            initialHour = initialHour,
-            initialMinute = initialMinute,
+            initialHour = 0,
+            initialMinute = 15,
             is24Hour = true
         )
 
-        AlertDialog(
+        VibrantTimePickerDialog(
             onDismissRequest = {
                 showCustomTimePicker = false
-            },
-            title = { Text(stringResource(R.string.sleep_timer_ui_set_custom_duration)) },
-            text = {
-                TimePicker(state = timePickerState)
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        val hour = timePickerState.hour
-                        val minute = timePickerState.minute
-                        val totalMinutes = hour * 60 + minute
+                        val totalMinutes = timePickerState.hour * 60 + timePickerState.minute
 
                         if (totalMinutes > 0) {
                             onSetPredefinedTimer(totalMinutes)
@@ -475,6 +471,15 @@ fun TimerOptionsBottomSheet(
                     Text(stringResource(R.string.cancel), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
-        )
+        ) {
+            Text(
+                text = stringResource(R.string.sleep_timer_ui_set_custom_duration),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = 20.dp)
+            )
+            // Scroll wheels only: the keyboard input mode raises the IME, which dismisses the
+            // timer sheet this dialog sits on. In 24-hour mode the wheels read as hours and minutes.
+            TimeScroll(state = timePickerState, shapes = TimePickerDefaults.shapes())
+        }
     }
 }

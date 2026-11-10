@@ -1105,7 +1105,7 @@ private fun ListeningTimelineSection(
                 ToggleButton(
                     checked = isSelected,
                     onCheckedChange = { onMetricSelected(metric) },
-                    colors = ToggleButtonDefaults.toggleButtonColors(
+                    colors = ToggleButtonDefaults.colors(
                         checkedContainerColor = MaterialTheme.colorScheme.primary,
                         checkedContentColor = MaterialTheme.colorScheme.onPrimary,
                         containerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -1249,7 +1249,7 @@ private fun CategoryMetricsSection(
                 ToggleButton(
                     checked = isSelected,
                     onCheckedChange = { onDimensionSelected(dimension) },
-                    colors = ToggleButtonDefaults.toggleButtonColors(
+                    colors = ToggleButtonDefaults.colors(
                         checkedContainerColor = chipPalette.accentColor,
                         checkedContentColor = chipPalette.accentOnColor,
                         containerColor = MaterialTheme.colorScheme.surfaceContainer,

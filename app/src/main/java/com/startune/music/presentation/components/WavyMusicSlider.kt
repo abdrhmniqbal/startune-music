@@ -159,7 +159,7 @@ fun WavyMusicSlider(
         val lastHapticStep = remember { mutableIntStateOf(-1) }
 
         Slider(
-            value = clampedValue,
+            state = rememberSyncedSliderState(value = clampedValue, valueRange = valueRange),
             onValueChange = { newValue ->
                 val normalizedNew = if (valueRange.endInclusive == valueRange.start) {
                     0f
@@ -195,7 +195,6 @@ fun WavyMusicSlider(
                     }
                 },
             enabled = enabled,
-            valueRange = valueRange,
             onValueChangeFinished = onValueChangeFinished,
             interactionSource = interactionSource,
             colors = SliderDefaults.colors(

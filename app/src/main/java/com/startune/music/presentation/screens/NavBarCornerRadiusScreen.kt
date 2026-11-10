@@ -69,6 +69,7 @@ import com.startune.music.data.preferences.MIN_NAV_BAR_CORNER_RADIUS
 import com.startune.music.presentation.viewmodel.SettingsViewModel
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 import com.startune.music.data.preferences.NavBarStyle
+import com.startune.music.presentation.components.rememberSyncedSliderState
 import com.startune.music.presentation.components.resolveNavBarSurfaceHeight
 import androidx.compose.ui.res.stringResource
 
@@ -268,7 +269,10 @@ fun NavBarCornerRadiusContent(
 
                             Box(modifier = Modifier.weight(1f)) {
                                 Slider(
-                                    value = sliderValue,
+                                    state = rememberSyncedSliderState(
+                                        value = sliderValue,
+                                        valueRange = MIN_NAV_BAR_CORNER_RADIUS.toFloat()..MAX_NAV_BAR_CORNER_RADIUS.toFloat()
+                                    ),
                                     onValueChange = {
                                         if (sliderValue != it) {
                                             if (it.toInt() != sliderValue.toInt()) {
@@ -277,7 +281,6 @@ fun NavBarCornerRadiusContent(
                                             sliderValue = it.safeRadius()
                                         }
                                     },
-                                    valueRange = MIN_NAV_BAR_CORNER_RADIUS.toFloat()..MAX_NAV_BAR_CORNER_RADIUS.toFloat(),
                                     colors = SliderDefaults.colors(
                                         thumbColor = MaterialTheme.colorScheme.primary,
                                         activeTrackColor = MaterialTheme.colorScheme.primary,
