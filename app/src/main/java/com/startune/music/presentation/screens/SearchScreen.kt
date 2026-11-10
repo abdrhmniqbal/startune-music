@@ -95,6 +95,9 @@ import com.startune.music.presentation.components.SongInfoBottomSheet
 import com.startune.music.presentation.components.PlaylistMultiSelectionBottomSheet
 import com.startune.music.presentation.components.SongMultiSelectionHost
 import com.startune.music.presentation.components.GenreCategoriesGrid
+import com.startune.music.presentation.selection.dragToSelect
+import com.startune.music.presentation.selection.rememberDragToSelectState
+
 import com.startune.music.presentation.components.GenreMultiSelectionOptionSheet
 import com.startune.music.presentation.components.subcomps.SelectionActionRow
 import com.startune.music.presentation.components.subcomps.SelectionCountPill
@@ -941,6 +944,27 @@ fun SearchResultsList(
     val imePadding = WindowInsets.ime.getBottom(localDensity).dp
     val systemBarPaddingBottom = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding() + 94.dp
 
+    val dragSelectState = rememberDragToSelectState<Song>()
+    // The selection row (when present) and section headers share the list with the songs but
+    // are not selectable, so each list index maps to its song, if any.
+    val dragSelectRows = remember(groupedResults, singleType) {
+        buildList<Song?> {
+            if (singleType != null) add(null)
+            sectionOrder.forEach { filterType ->
+                val itemsForSection = groupedResults[filterType].orEmpty()
+                if (itemsForSection.isNotEmpty()) {
+                    add(null)
+                    itemsForSection.forEach { add((it as? SearchResultItem.SongItem)?.song) }
+                }
+            }
+        }
+    }
+    val dragSelectSongAt: (Int) -> Song? = remember(dragSelectRows) {
+        { index -> dragSelectRows.getOrNull(index) }
+    }
+    // The keyboard, when open, covers the navigation bar and the mini player.
+    val dragSelectBottomInset = if (imePadding <= 8.dp) MiniPlayerHeight + systemBarPaddingBottom else imePadding
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             state = listState,
@@ -951,6 +975,15 @@ fun SearchResultsList(
                         topStart = 28.dp,
                         topEnd = 28.dp
                     )
+                )
+                .dragToSelect(
+                    state = dragSelectState,
+                    listState = listState,
+                    itemAt = dragSelectSongAt,
+                    itemKey = Song::id,
+                    selectedKeys = multiSelectionState.selectedSongIds::value,
+                    onSelectionChange = multiSelectionState::applyDragSelection,
+                    bottomInset = dragSelectBottomInset
                 ),
         contentPadding = PaddingValues(
             top = 8.dp,
@@ -1068,6 +1101,7 @@ fun SearchResultsList(
                                     onLongPress = {
                                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                         multiSelectionState.toggleSelection(item.song)
+                                        dragSelectState.onItemLongPressed(item.song)
                                     },
                                     onMoreOptionsClick = onSongMoreOptionsClick,
                                     onClick = {
