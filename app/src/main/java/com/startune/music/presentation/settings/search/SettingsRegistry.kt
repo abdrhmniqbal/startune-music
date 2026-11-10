@@ -727,7 +727,7 @@ object SettingsRegistry {
                 category = SettingsCategory.DATA_STORAGE,
                 subscreenRoute = Screen.SettingsCategory.createRoute("data_storage"),
                 type = SettingType.NAVIGABLE_CARD,
-                keywordsStatic = listOf("backup", "export", "save", "pxpl", "transfer")
+                keywordsStatic = listOf("backup", "export", "save", "pxpl", "starbk", "transfer")
             ),
             SettingSpec(
                 id = "backup_auto_interval",

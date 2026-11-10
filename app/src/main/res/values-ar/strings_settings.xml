@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="backup_confirm_export_pxpl">تصدير ملف .pxpl</string>
+    <string name="backup_confirm_export_pxpl">تصدير ملف .starbk</string>
     <string name="backup_dialog_creating">جاري إنشاء النسخة الاحتياطية</string>
     <string name="backup_dialog_restoring">جاري استعادة النسخة الاحتياطية</string>
     <string name="backup_dialog_supporting_export">اختر بدقة ما ترغب في تضمينه داخل حزمة النسخ الاحتياطي.</string>
@@ -11,7 +11,7 @@
     <string name="backup_entries_will_replace">إدخالات عدد %1$d · ستستبدل البيانات الحالية بالكامل</string>
     <string name="backup_exporting">جاري التصدير</string>
     <string name="backup_history_modules_line">وحدات عدد %1$d · إصدار %2$s · إصدار المخطط البرمجي %3$d</string>
-    <string name="backup_how_body">اختر الأقسام، وقم بتصدير ملف بصيغة .pxpl، واستورده لاحقاً. الاستعادة ستقوم فقط باستبدال الأقسام التي تحددها بنفسك.</string>
+    <string name="backup_how_body">اختر الأقسام، وقم بتصدير ملف بصيغة .starbk، واستورده لاحقاً. الاستعادة ستقوم فقط باستبدال الأقسام التي تحددها بنفسك.</string>
     <string name="backup_how_title">كيفية عمل النسخ الاحتياطي</string>
     <string name="backup_importing">جاري الاستيراد</string>
     <string name="backup_password_confirm_hint">تأكيد كلمة المرور</string>
@@ -47,7 +47,7 @@
     <string name="dialog_regenerate_stats_title">إعادة توليد الإحصائيات؟</string>
     <string name="dialog_regenerating_palettes_title">جاري إعادة توليد لوحات ألوان الألبومات…</string>
     <string name="dialog_reset_lyrics_title">إعادة تعيين كلمات الأغاني المستوردة؟</string>
-    <string name="import_backup_hint">اختر ملف نسخة احتياطية بصيغة .pxpl لفحصه. ستتمكن من اختيار الأقسام المراد استعادتها في الخطوة التالية.</string>
+    <string name="import_backup_hint">اختر ملف نسخة احتياطية بصيغة .starbk لفحصه. ستتمكن من اختيار الأقسام المراد استعادتها في الخطوة التالية.</string>
     <string name="import_backup_toolbar_title">استيراد نسخة احتياطية</string>
     <string name="import_browse_file">تصفح لاختيار الملف</string>
     <string name="import_inspecting">جاري الفحص المعمق…</string>
@@ -104,7 +104,7 @@
     <string name="setcat_experimental_subtitle">تجارب ومفاتيح تبديل لتحميل واجهة المستخدم للمشغل.</string>
     <string name="setcat_experimental_title">تجريبي</string>
     <string name="setcat_experiments">الميزات التجريبية</string>
-    <string name="setcat_export_backup_subtitle">يقوم بإنشاء ملف نسخة احتياطية بصيغة %1$s .pxpl.</string>
+    <string name="setcat_export_backup_subtitle">يقوم بإنشاء ملف نسخة احتياطية بصيغة %1$s .starbk.</string>
     <string name="setcat_export_backup_title">تصدير النسخة الاحتياطية</string>
     <string name="setcat_external_artist_images_subtitle">السماح بجلب صور الفنانين المفقودة من Deezer وتخزينها محلياً.</string>
     <string name="setcat_external_artist_images_title">صور الفنانين من Deezer</string>

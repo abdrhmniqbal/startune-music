@@ -207,7 +207,7 @@
     <!-- Backup / developer / dialogs -->
     <string name="setcat_create_backup">Создать бэкап</string>
     <string name="setcat_export_backup_title">Экспорт бэкапа</string>
-    <string name="setcat_export_backup_subtitle">%1$s Создает файл бэкапа .pxpl.</string>
+    <string name="setcat_export_backup_subtitle">%1$s Создает файл бэкапа .starbk.</string>
     <string name="setcat_restore_backup_section">Восстановление бэкапа</string>
     <string name="setcat_import_backup_title">Импорт бэкапа</string>
     <string name="setcat_import_backup_subtitle">Поиск в файлах или выбор из недавних. Данные заменят текущие.</string>
@@ -231,9 +231,9 @@
     <string name="backup_summary_all">Все разделы выбраны.</string>
     <string name="backup_summary_partial">Выбрано %1$d из %2$d разделов.</string>
     <string name="backup_how_title">Как работает бэкап</string>
-    <string name="backup_how_body">Выберите разделы, экспортируйте файл .pxpl и импортируйте его позже. Восстановление заменит только выбранные разделы.</string>
+    <string name="backup_how_body">Выберите разделы, экспортируйте файл .starbk и импортируйте его позже. Восстановление заменит только выбранные разделы.</string>
     <string name="backup_dialog_supporting_export">Выберите точно, что вы хотите включить в пакет бэкапа.</string>
-    <string name="backup_confirm_export_pxpl">Экспорт .pxpl</string>
+    <string name="backup_confirm_export_pxpl">Экспорт .starbk</string>
     <string name="backup_sections_selected_format">Выбрано разделов: %1$d из %2$d</string>
     <string name="backup_transfer_in_progress">Передача данных…</string>
     <string name="backup_exporting">Экспорт</string>
@@ -266,7 +266,7 @@
     <string name="dialog_regenerate_stats_title">Обновить статистику?</string>
     <string name="dialog_regenerate_stats_body">Это очистит кэш статистики и принудительно пересчитает её из истории в базе.</string>
     <string name="toast_stats_regeneration_started">Обновление статистики запущено</string>
-    <string name="backup_file_name_format">Startune Music_Backup_%1$d.pxpl</string>
+    <string name="backup_file_name_format">Startune Music_Backup_%1$d.starbk</string>
 
     <string name="setcat_regenerate_stats_action">Обновить статистику</string>
     <string name="setcat_force_palette_empty">Песен с обложками не найдено.</string>
@@ -286,7 +286,7 @@
     <string name="import_backup_toolbar_title">Импорт бэкапа</string>
     <string name="import_inspecting">Проверка…</string>
     <string name="import_browse_file">Найти файл</string>
-    <string name="import_backup_hint">Выберите файл .pxpl для проверки. На следующем шаге вы выберете разделы для восстановления.</string>
+    <string name="import_backup_hint">Выберите файл .starbk для проверки. На следующем шаге вы выберете разделы для восстановления.</string>
     <string name="import_recent_backups">Недавние бэкапы</string>
     <string name="import_no_recent_title">Нет недавних бэкапов</string>
     <string name="import_no_recent_subtitle">Ранее импортированные бэкапы появятся здесь.</string>

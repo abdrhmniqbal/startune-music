@@ -203,7 +203,7 @@
     <!-- Backup / developer / dialogs -->
     <string name="setcat_create_backup">Créer une sauvegarde</string>
     <string name="setcat_export_backup_title">Exporter la sauvegarde</string>
-    <string name="setcat_export_backup_subtitle">%1$s Crée un fichier de sauvegarde .pxpl.</string>
+    <string name="setcat_export_backup_subtitle">%1$s Crée un fichier de sauvegarde .starbk.</string>
     <string name="setcat_restore_backup_section">Restaurer une sauvegarde</string>
     <string name="setcat_import_backup_title">Importer une sauvegarde</string>
     <string name="setcat_import_backup_subtitle">Parcourir ou choisir parmi les sauvegardes récentes. Les données sélectionnées remplaceront les données actuelles.</string>
@@ -227,9 +227,9 @@
     <string name="backup_summary_all">Toutes les sections sélectionnées.</string>
     <string name="backup_summary_partial">%1$d sur %2$d sections sélectionnées.</string>
     <string name="backup_how_title">Comment fonctionne la sauvegarde</string>
-    <string name="backup_how_body">Choisissez les sections, exportez un fichier .pxpl et importez-le plus tard. La restauration remplace uniquement les sections que vous sélectionnez.</string>
+    <string name="backup_how_body">Choisissez les sections, exportez un fichier .starbk et importez-le plus tard. La restauration remplace uniquement les sections que vous sélectionnez.</string>
     <string name="backup_dialog_supporting_export">Choisissez exactement ce que vous voulez inclure dans le paquet de sauvegarde.</string>
-    <string name="backup_confirm_export_pxpl">Exporter .pxpl</string>
+    <string name="backup_confirm_export_pxpl">Exporter .starbk</string>
     <string name="backup_sections_selected_format">%1$d sur %2$d sections sélectionnées</string>
     <string name="backup_transfer_in_progress">Transfert en cours…</string>
     <string name="backup_exporting">Exportation</string>
@@ -262,7 +262,7 @@
     <string name="dialog_regenerate_stats_title">Régénérer les statistiques ?</string>
     <string name="dialog_regenerate_stats_body">Cela effacera le cache des statistiques et forcera un recalcul à partir de l\'historique de la base de données.</string>
     <string name="toast_stats_regeneration_started">Régénération des statistiques démarrée</string>
-    <string name="backup_file_name_format">Startune Music_Backup_%1$d.pxpl</string>
+    <string name="backup_file_name_format">Startune Music_Backup_%1$d.starbk</string>
 
     <string name="setcat_regenerate_stats_action">Régénérer les statistiques</string>
     <string name="setcat_force_palette_empty">Aucune chanson avec pochette n\'a été trouvée.</string>
@@ -282,7 +282,7 @@
     <string name="import_backup_toolbar_title">Importer une sauvegarde</string>
     <string name="import_inspecting">Inspection…</string>
     <string name="import_browse_file">Parcourir les fichiers</string>
-    <string name="import_backup_hint">Sélectionnez un fichier de sauvegarde .pxpl à inspecter. Vous choisirez quelles sections restaurer à l\'étape suivante.</string>
+    <string name="import_backup_hint">Sélectionnez un fichier de sauvegarde .starbk à inspecter. Vous choisirez quelles sections restaurer à l\'étape suivante.</string>
     <string name="import_recent_backups">Sauvegardes récentes</string>
     <string name="import_no_recent_title">Aucune sauvegarde récente</string>
     <string name="import_no_recent_subtitle">Les sauvegardes importées précédemment apparaîtront ici.</string>

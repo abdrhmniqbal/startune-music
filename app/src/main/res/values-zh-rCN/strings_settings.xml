@@ -206,7 +206,7 @@
     <!-- Backup / developer / dialogs -->
     <string name="setcat_create_backup">创建备份</string>
     <string name="setcat_export_backup_title">导出备份</string>
-    <string name="setcat_export_backup_subtitle">%1$s 创建一个 .pxpl 备份文件。</string>
+    <string name="setcat_export_backup_subtitle">%1$s 创建一个 .starbk 备份文件。</string>
     <string name="setcat_restore_backup_section">恢复备份</string>
     <string name="setcat_import_backup_title">导入备份</string>
     <string name="setcat_import_backup_subtitle">浏览或从最近备份中选择。所选数据将替换当前数据。</string>
@@ -230,9 +230,9 @@
     <string name="backup_summary_all">已选择全部部分。</string>
     <string name="backup_summary_partial">已选择 %1$d/%2$d 个部分。</string>
     <string name="backup_how_title">备份如何工作</string>
-    <string name="backup_how_body">选择要备份的部分，导出 .pxpl 文件，稍后再导入。恢复时只会替换你所选的部分。</string>
+    <string name="backup_how_body">选择要备份的部分，导出 .starbk 文件，稍后再导入。恢复时只会替换你所选的部分。</string>
     <string name="backup_dialog_supporting_export">精确选择你想包含在备份包中的内容。</string>
-    <string name="backup_confirm_export_pxpl">导出 .pxpl</string>
+    <string name="backup_confirm_export_pxpl">导出 .starbk</string>
     <string name="backup_sections_selected_format">已选择 %1$d/%2$d 个部分</string>
     <string name="backup_transfer_in_progress">正在传输……</string>
     <string name="backup_exporting">导出中</string>
@@ -265,7 +265,7 @@
     <string name="dialog_regenerate_stats_title">重新生成统计？</string>
     <string name="dialog_regenerate_stats_body">这将清除统计缓存，并根据数据库历史强制重新计算。</string>
     <string name="toast_stats_regeneration_started">统计重新生成已开始</string>
-    <string name="backup_file_name_format">Startune Music_Backup_%1$d.pxpl</string>
+    <string name="backup_file_name_format">Startune Music_Backup_%1$d.starbk</string>
 
     <string name="setcat_regenerate_stats_action">重新生成统计</string>
     <string name="setcat_force_palette_empty">未找到带专辑封面的歌曲。</string>
@@ -285,7 +285,7 @@
     <string name="import_backup_toolbar_title">导入备份</string>
     <string name="import_inspecting">检查中……</string>
     <string name="import_browse_file">浏览文件</string>
-    <string name="import_backup_hint">选择一个 .pxpl 备份文件进行检查。你将在下一步中选择要恢复的部分。</string>
+    <string name="import_backup_hint">选择一个 .starbk 备份文件进行检查。你将在下一步中选择要恢复的部分。</string>
     <string name="import_recent_backups">最近备份</string>
     <string name="import_no_recent_title">没有最近备份</string>
     <string name="import_no_recent_subtitle">之前导入过的备份会显示在这里。</string>

@@ -21,7 +21,7 @@ class BackupWrongPassphraseException :
     Exception("Incorrect password, or the backup file is corrupted.")
 
 /**
- * Passphrase-based encryption for .pxpl archives.
+ * Passphrase-based encryption for .starbk archives.
  *
  * Encrypted layout: `PXPL` magic, then the [ENC_MARKER] bytes, a 16-byte
  * random salt, a 12-byte random GCM IV, a big-endian iteration count, and

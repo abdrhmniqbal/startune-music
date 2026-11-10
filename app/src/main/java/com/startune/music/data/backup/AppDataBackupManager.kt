@@ -231,7 +231,7 @@ class AppDataBackupManager @Inject constructor(
                 step = ++step,
                 totalSteps = totalSteps,
                 title = "Packaging backup",
-                detail = "Compressing selected data into .pxpl."
+                detail = "Compressing selected data into .starbk."
             )
             val bytes = encodePayload(payload)
 

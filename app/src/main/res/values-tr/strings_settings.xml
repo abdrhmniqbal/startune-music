@@ -8,7 +8,7 @@
     <string name="setcat_m3u_sync_now_title">Çalma listelerini şimdi eşitle</string>
     <string name="setcat_m3u_sync_now_subtitle">Çakışmaların üzerine yazmadan değişiklikleri içe ve dışa aktar</string>
     <string name="setcat_m3u_sync_result">%1$d değişti · %2$d çakışma · %3$d çözülemeyen kayıt</string>
-    <string name="backup_confirm_export_pxpl">.pxpl Olarak Dışa Aktar</string>
+    <string name="backup_confirm_export_pxpl">.starbk Olarak Dışa Aktar</string>
     <string name="backup_dialog_creating">Yedek Oluşturuluyor</string>
     <string name="backup_dialog_restoring">Yedek Geri Yükleniyor</string>
     <string name="backup_dialog_supporting_export">Yedekleme paketine tam olarak neleri dahil etmek istediğinizi seçin.</string>
@@ -19,7 +19,7 @@
     <string name="backup_entries_will_replace">%1$d öge · Mevcut verilerin yerine geçecek</string>
     <string name="backup_exporting">Dışa aktarılıyor</string>
     <string name="backup_history_modules_line">%1$d modül · v%2$s · şema v%3$d</string>
-    <string name="backup_how_body">Bölümleri seçin, bir .pxpl dosyası olarak dışa aktarın ve daha sonra içe aktarın. Geri yükleme işlemi yalnızca seçtiğiniz bölümleri değiştirir.</string>
+    <string name="backup_how_body">Bölümleri seçin, bir .starbk dosyası olarak dışa aktarın ve daha sonra içe aktarın. Geri yükleme işlemi yalnızca seçtiğiniz bölümleri değiştirir.</string>
     <string name="backup_how_title">Yedekleme nasıl çalışır?</string>
     <string name="backup_importing">İçe aktarılıyor</string>
     <string name="backup_password_confirm_hint">Şifreyi onaylayın</string>
@@ -55,7 +55,7 @@
     <string name="dialog_regenerate_stats_title">İstatistikler Yeniden Oluşturulsun mu?</string>
     <string name="dialog_regenerating_palettes_title">Albüm paletleri yeniden oluşturuluyor…</string>
     <string name="dialog_reset_lyrics_title">İçe aktarılan şarkı sözleri sıfırlansın mı?</string>
-    <string name="import_backup_hint">İncelemek için bir .pxpl yedekleme dosyası seçin. Bir sonraki adımda hangi bölümlerin geri yükleneceğini seçeceksiniz.</string>
+    <string name="import_backup_hint">İncelemek için bir .starbk yedekleme dosyası seçin. Bir sonraki adımda hangi bölümlerin geri yükleneceğini seçeceksiniz.</string>
     <string name="import_backup_toolbar_title">Yedeği İçe Aktar</string>
     <string name="import_browse_file">Dosyaya göz at</string>
     <string name="import_inspecting">İnceleniyor…</string>
@@ -114,7 +114,7 @@
     <string name="setcat_experimental_subtitle">Oynatıcı arayüzü yükleme deneyleri ve geçişleri.</string>
     <string name="setcat_experimental_title">Deneysel</string>
     <string name="setcat_experiments">Deneyler</string>
-    <string name="setcat_export_backup_subtitle">%1$s Bir .pxpl yedekleme dosyası oluşturur.</string>
+    <string name="setcat_export_backup_subtitle">%1$s Bir .starbk yedekleme dosyası oluşturur.</string>
     <string name="setcat_export_backup_title">Yedeği Dışa Aktar</string>
     <string name="setcat_external_artist_images_subtitle">Eksik sanatçı görsellerinin Deezer\'den getirilip yerel olarak önbelleğe alınmasına izin verin.</string>
     <string name="setcat_external_artist_images_title">Deezer\'den sanatçı görselleri</string>
