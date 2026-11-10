@@ -128,6 +128,7 @@ fun HomeScreen(
     playerViewModel: PlayerViewModel = hiltViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel(),
     jellyfinViewModel: JellyfinDashboardViewModel = hiltViewModel(),
+    navidromeViewModel: com.startune.music.presentation.navidrome.dashboard.NavidromeDashboardViewModel = hiltViewModel(),
     onOpenSidebar: () -> Unit
 ) {
     val context = LocalContext.current
@@ -539,11 +540,16 @@ fun HomeScreen(
     }
     if (showStreamingProviderSheet) {
         val isJellyfinLoggedIn by jellyfinViewModel.isLoggedIn.collectAsStateWithLifecycle()
+        val isNavidromeLoggedIn by navidromeViewModel.isLoggedIn.collectAsStateWithLifecycle()
         StreamingProviderSheet(
             onDismissRequest = { showStreamingProviderSheet = false },
             isJellyfinLoggedIn = isJellyfinLoggedIn,
             onNavigateToJellyfinDashboard = {
                 navController.navigateSafely(Screen.JellyfinDashboard.route)
+            },
+            isNavidromeLoggedIn = isNavidromeLoggedIn,
+            onNavigateToNavidromeDashboard = {
+                navController.navigateSafely(Screen.NavidromeDashboard.route)
             }
         )
     }

@@ -35,6 +35,7 @@ import com.startune.music.data.database.MIGRATION_7_8
 import com.startune.music.data.database.MIGRATION_8_9
 import com.startune.music.data.database.MIGRATION_10_11
 import com.startune.music.data.database.MIGRATION_9_10
+import com.startune.music.data.database.MIGRATION_11_12
 import com.startune.music.data.database.MusicDao
 import com.startune.music.data.database.OfflineTrackDao
 import com.startune.music.data.database.StartuneDatabase
@@ -150,6 +151,7 @@ object AppModule {
                 MIGRATION_8_9,
                 MIGRATION_9_10,
                 MIGRATION_10_11,
+                MIGRATION_11_12,
             )
             .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
 
@@ -212,6 +214,12 @@ object AppModule {
     @Provides
     fun provideJellyfinDao(database: StartuneDatabase): com.startune.music.data.database.JellyfinDao {
         return database.jellyfinDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideNavidromeDao(database: StartuneDatabase): com.startune.music.data.database.NavidromeDao {
+        return database.navidromeDao()
     }
 
     @Singleton

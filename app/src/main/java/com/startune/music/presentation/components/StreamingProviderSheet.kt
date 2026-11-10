@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.startune.music.R
 import com.startune.music.presentation.jellyfin.auth.JellyfinLoginActivity
+import com.startune.music.presentation.navidrome.auth.NavidromeLoginActivity
 import com.startune.music.ui.theme.RoundedSans
 
 /**
@@ -39,6 +40,8 @@ fun StreamingProviderSheet(
     onDismissRequest: () -> Unit,
     isJellyfinLoggedIn: Boolean = false,
     onNavigateToJellyfinDashboard: () -> Unit = {},
+    isNavidromeLoggedIn: Boolean = false,
+    onNavigateToNavidromeDashboard: () -> Unit = {},
     sheetState: SheetState = rememberModalSheetState(
         skipPartiallyExpanded = true
     )
@@ -106,6 +109,22 @@ fun StreamingProviderSheet(
                                 onNavigateToJellyfinDashboard()
                             } else {
                                 context.startActivity(Intent(context, JellyfinLoginActivity::class.java))
+                            }
+                            onDismissRequest()
+                        }
+                    )
+                    ProviderRow(
+                        iconPainter = painterResource(R.drawable.ic_navidrome_md3),
+                        iconTint = Color(0xFF1A9E75),
+                        title = "Navidrome",
+                        subtitle = if (isNavidromeLoggedIn) "Connected · Navidrome/Airsonic" else "Connect Navidrome & others",
+                        shape = providerSegmentItemShape,
+                        isConnected = isNavidromeLoggedIn,
+                        onClick = {
+                            if (isNavidromeLoggedIn) {
+                                onNavigateToNavidromeDashboard()
+                            } else {
+                                context.startActivity(Intent(context, NavidromeLoginActivity::class.java))
                             }
                             onDismissRequest()
                         }
