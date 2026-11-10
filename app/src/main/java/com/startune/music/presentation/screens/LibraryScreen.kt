@@ -328,7 +328,8 @@ fun LibraryScreen(
     playlistViewModel: PlaylistViewModel = hiltViewModel(),
     libraryViewModel: LibraryViewModel = hiltViewModel(),
     songInfoBottomSheetViewModel: SongInfoBottomSheetViewModel = hiltViewModel(),
-    cloudDownloadsViewModel: CloudDownloadsViewModel = hiltViewModel()
+    cloudDownloadsViewModel: CloudDownloadsViewModel = hiltViewModel(),
+    smartMixViewModel: com.startune.music.presentation.viewmodel.SmartMixViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
@@ -378,6 +379,7 @@ fun LibraryScreen(
             .distinctUntilChanged()
     }.collectAsStateWithLifecycle(initialValue = false)
     var showCreatePlaylistDialog by remember { mutableStateOf(false) }
+    var showPlaylistCreationTypeDialog by remember { mutableStateOf(false) }
     var showCreateMixForm by remember { mutableStateOf(false) }
 
     val m3uImportLauncher = rememberLauncherForActivityResult(
@@ -1200,7 +1202,7 @@ fun LibraryScreen(
                                         .padding(end = 4.dp),
                                     onMainActionClick = {
                                         when (tabTitles.getOrNull(currentTabIndex)?.toLibraryTabIdOrNull()) {
-                                            LibraryTabId.PLAYLISTS -> showCreatePlaylistDialog = true
+                                            LibraryTabId.PLAYLISTS -> showPlaylistCreationTypeDialog = true
                                             LibraryTabId.MIXES -> showCreateMixForm = true
                                             LibraryTabId.LIKED -> playerViewModel.shuffleFavoriteSongs()
                                             LibraryTabId.ALBUMS -> playerViewModel.shuffleRandomAlbum()
@@ -1633,6 +1635,19 @@ fun LibraryScreen(
     }
 
 
+
+    com.startune.music.presentation.components.PlaylistCreationTypeDialog(
+        visible = showPlaylistCreationTypeDialog,
+        onDismiss = { showPlaylistCreationTypeDialog = false },
+        onManualSelected = {
+            showPlaylistCreationTypeDialog = false
+            showCreatePlaylistDialog = true
+        },
+        onSmartMixSelected = {
+            showPlaylistCreationTypeDialog = false
+            smartMixViewModel.open(com.startune.music.presentation.viewmodel.SmartMixTarget.Library)
+        }
+    )
 
     CreatePlaylistDialog(
         visible = showCreatePlaylistDialog,
