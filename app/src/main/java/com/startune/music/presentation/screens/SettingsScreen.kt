@@ -83,7 +83,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -208,12 +210,20 @@ fun SettingsScreen(
     }
 
     val context = LocalContext.current
-    var searchQuery by rememberSaveable { mutableStateOf("") }
+    // Kept as a TextFieldValue so the caret survives navigating into a result and back;
+    // a plain String restored the field with the cursor parked at the start.
+    var searchFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(""))
+    }
+    val searchQuery = searchFieldValue.text
     var isSearchActive by rememberSaveable { mutableStateOf(false) }
 
     val searchFocusRequester = remember { FocusRequester() }
     LaunchedEffect(isSearchActive) {
         if (isSearchActive) {
+            if (searchFieldValue.selection != TextRange(searchFieldValue.text.length)) {
+                searchFieldValue = searchFieldValue.copy(selection = TextRange(searchFieldValue.text.length))
+            }
             kotlinx.coroutines.delay(150)
             searchFocusRequester.requestFocus()
         }
@@ -223,7 +233,7 @@ fun SettingsScreen(
     // gesture has to dismiss it first instead of popping Settings entirely.
     BackHandler(enabled = isSearchActive) {
         isSearchActive = false
-        searchQuery = ""
+        searchFieldValue = TextFieldValue("")
     }
 
     val searchResults = remember(searchQuery) {
@@ -385,7 +395,7 @@ fun SettingsScreen(
                         ) {
                             IconButton(onClick = {
                                 isSearchActive = false
-                                searchQuery = ""
+                                searchFieldValue = TextFieldValue("")
                             }) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
@@ -395,8 +405,8 @@ fun SettingsScreen(
                             }
 
                             OutlinedTextField(
-                                value = searchQuery,
-                                onValueChange = { searchQuery = it },
+                                value = searchFieldValue,
+                                onValueChange = { searchFieldValue = it },
                                 placeholder = {
                                     Text(
                                         text = stringResource(R.string.settings_search_hint),
@@ -417,7 +427,7 @@ fun SettingsScreen(
                             )
 
                             if (searchQuery.isNotEmpty()) {
-                                IconButton(onClick = { searchQuery = "" }) {
+                                IconButton(onClick = { searchFieldValue = TextFieldValue("") }) {
                                     Icon(
                                         imageVector = Icons.Rounded.Close,
                                         contentDescription = stringResource(R.string.cd_clear_search_query),
