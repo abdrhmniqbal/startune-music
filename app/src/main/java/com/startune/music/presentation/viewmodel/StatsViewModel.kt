@@ -100,7 +100,7 @@ class StatsViewModel @Inject constructor(
                 withContext(Dispatchers.IO) {
                     val songs = loadSongs()
                     val topTracks = playbackStatsRepository.loadTopTracks(
-                        StatsTimeRange.ALL,
+                        StatsTimeRange.DAY,
                         songs,
                         HOME_TOP_TRACKS_LIMIT
                     )
