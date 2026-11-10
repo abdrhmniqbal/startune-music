@@ -365,6 +365,22 @@ fun AppNavigation(
                 }
             }
             composable(
+            composable(
+                route = Screen.Recap.route,
+                arguments = listOf(navArgument(com.startune.music.presentation.viewmodel.RecapViewModel.YEAR_ARG) { type = NavType.IntType }),
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { popEnterTransition() },
+                popExitTransition = { popExitTransition() },
+            ) {
+                ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
+                    com.startune.music.presentation.recap.RecapScreen(
+                        navController = navController,
+                        playerViewModel = playerViewModel
+                    )
+                }
+            }
+            composable(
                 route = Screen.Duplicates.route,
                 arguments = listOf(navArgument("highlightKey") { type = NavType.StringType; nullable = true; defaultValue = null }),
                 enterTransition = { enterTransition() },

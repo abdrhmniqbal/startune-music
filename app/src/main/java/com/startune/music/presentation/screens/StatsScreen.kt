@@ -104,6 +104,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.startune.music.presentation.navigation.Screen
+import com.startune.music.presentation.navigation.navigateSafely
+import com.startune.music.presentation.recap.RecapStatsCard
+import com.startune.music.presentation.viewmodel.RecapEntryViewModel
 import androidx.navigation.NavController
 import com.startune.music.R
 import com.startune.music.data.stats.PlaybackStatsRepository
@@ -143,9 +147,11 @@ private const val PULL_TO_REFRESH_MIN_DURATION_MS = 3500L
 @Composable
 fun StatsScreen(
     navController: NavController,
-    statsViewModel: StatsViewModel = hiltViewModel()
+    statsViewModel: StatsViewModel = hiltViewModel(),
+    recapEntryViewModel: RecapEntryViewModel = hiltViewModel()
 ) {
     val uiState by statsViewModel.uiState.collectAsStateWithLifecycle()
+    val recapEntries by recapEntryViewModel.statsEntries.collectAsStateWithLifecycle()
     val summary = uiState.summary
     val lazyListState = rememberLazyListState()
     val density = LocalDensity.current
@@ -160,6 +166,19 @@ fun StatsScreen(
 
     val topBarHeight = remember { Animatable(maxTopBarHeightPx) }
     var collapseFraction by remember { mutableStateOf(0f) }
+
+    // The recap card usually arrives after the first items are laid out. The list keeps its
+    // first visible item in place when something is inserted above it, so an untouched list
+    // is moved back to the top to actually show the card.
+    val hasRecapEntries = recapEntries.isNotEmpty()
+    LaunchedEffect(hasRecapEntries) {
+        if (hasRecapEntries &&
+            lazyListState.firstVisibleItemIndex <= 1 &&
+            lazyListState.firstVisibleItemScrollOffset == 0
+        ) {
+            lazyListState.scrollToItem(0)
+        }
+    }
 
     LaunchedEffect(topBarHeight.value) {
         collapseFraction = 1f - ((topBarHeight.value - minTopBarHeightPx) / (maxTopBarHeightPx - minTopBarHeightPx)).coerceIn(0f, 1f)
@@ -283,6 +302,17 @@ fun StatsScreen(
                     ),
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
+                    if (hasRecapEntries) {
+                        item(key = "recap_entry", contentType = "recap_entry") {
+                            RecapStatsCard(
+                                entries = recapEntries,
+                                onOpen = { year -> navController.navigateSafely(Screen.Recap.createRoute(year)) },
+                                modifier = Modifier
+                                    .animateItem()
+                                    .padding(horizontal = 20.dp)
+                            )
+                        }
+                    }
                     item(key = "hero_section") {
                         StatsHeroSection(
                             summary = summary,
