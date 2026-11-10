@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 
 object ColorSchemeIds {
     const val DYNAMIC = "dynamic"
-    const val STARTUNE = "startune"
 }
 
 /**

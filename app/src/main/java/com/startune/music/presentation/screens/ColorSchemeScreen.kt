@@ -25,13 +25,13 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.FileUpload
+import androidx.compose.material.icons.rounded.FileDownload
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Upload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -154,7 +154,7 @@ fun ColorSchemeScreen(
                 actions = {
                     IconButton(onClick = { importLauncher.launch(arrayOf("application/json")) }) {
                         Icon(
-                            Icons.Rounded.FileUpload,
+                            Icons.Rounded.FileDownload,
                             contentDescription = stringResource(R.string.color_scheme_import)
                         )
                     }
@@ -173,12 +173,12 @@ fun ColorSchemeScreen(
                 start = 16.dp,
                 top = scaffoldPadding.calculateTopPadding() + 12.dp,
                 end = 16.dp,
-                bottom = MiniPlayerHeight + 24.dp
+                bottom = scaffoldPadding.calculateBottomPadding() + MiniPlayerHeight + 24.dp
             ),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                Button(
+                FilledTonalButton(
                     onClick = { onEditTheme("new") },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -213,13 +213,15 @@ fun ColorSchemeScreen(
                 )
             }
 
-            item {
-                Text(
-                    text = stringResource(R.string.color_scheme_custom),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 12.dp)
-                )
+            if (customs.isNotEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(R.string.color_scheme_custom),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                }
             }
             items(customs, key = { it.id }) { scheme ->
                 val roles = if (isDark) scheme.dark else scheme.light

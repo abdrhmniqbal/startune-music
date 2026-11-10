@@ -169,8 +169,7 @@ fun AppColorScheme.toColorSchemePair(): ColorSchemePair =
 /**
  * Resolves the selected scheme id to the pair StartuneTheme should use as its
  * base. Dynamic Color resolves to null (StartuneTheme keeps its current
- * behavior: wallpaper dynamic color on Android 12+, Startune pair below it).
- * Startune resolves to the existing hardcoded pair, byte-identical to today.
+ * behavior: wallpaper dynamic color on Android 12+, hardcoded pair below it).
  * An unknown id (e.g. a deleted custom theme) also resolves to null.
  */
 fun resolveSelectedSchemePair(
@@ -178,9 +177,6 @@ fun resolveSelectedSchemePair(
     customs: List<AppColorScheme>
 ): ColorSchemePair? {
     if (selectedId == ColorSchemeIds.DYNAMIC) return null
-    if (selectedId == ColorSchemeIds.STARTUNE) {
-        return ColorSchemePair(light = LightColorScheme, dark = DarkColorScheme)
-    }
     val scheme = BuiltInColorSchemes.find(selectedId)
         ?: customs.firstOrNull { it.id == selectedId }
         ?: return null
