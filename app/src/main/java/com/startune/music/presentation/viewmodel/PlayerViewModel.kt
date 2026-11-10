@@ -1006,47 +1006,19 @@ class PlayerViewModel @Inject constructor(
         } catch (e: Exception) {
             return defaultLibraryTabs
         }
-        // A stored order predates tabs added later (GENRES once went missing
-        // this way): keep the user's arrangement, drop unknown keys, and
-        // insert each missing default tab right after its default predecessor
-        // so a new tab always shows up instead of silently disappearing.
+        // The stored order *is* the visible list: a missing key means the user hid
+        // that tab, so it must not be re-added here. New tabs are backfilled once
+        // by migrateTabOrder instead.
         val known = defaultLibraryTabs.toSet()
-        val merged = stored.filter { it in known }.toMutableList()
-        defaultLibraryTabs.forEach { key ->
-            if (key !in stored) {
-                val predecessor = defaultLibraryTabs.takeWhile { it != key }.lastOrNull { it in merged }
-                val index = if (predecessor == null) 0 else merged.indexOf(predecessor) + 1
-                merged.add(index, key)
-            }
-        }
-        return merged.toImmutableList()
+        return stored.filter { it in known }.toImmutableList().ifEmpty { defaultLibraryTabs }
     }
 
     val allLibraryTabsFlow: StateFlow<ImmutableList<String>> = userPreferencesRepository.libraryTabsOrderFlow
         .map { orderJson -> decodeStoredTabOrder(orderJson) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), defaultLibraryTabs)
 
-    val libraryTabsHiddenFlow: StateFlow<Set<String>> = userPreferencesRepository.libraryTabsHiddenFlow
-        .map { hiddenJson ->
-            val stored = hiddenJson?.let {
-                try {
-                    Json.decodeFromString<Set<String>>(it)
-                } catch (e: Exception) {
-                    emptySet()
-                }
-            } ?: emptySet()
-            val knownKeys = LibraryTabId.entries.map { it.storageKey }.toSet()
-            stored.filter { it in knownKeys }.toSet()
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
-
-    val libraryTabsFlow: StateFlow<ImmutableList<String>> = combine(
-        allLibraryTabsFlow,
-        libraryTabsHiddenFlow
-    ) { ordered, hidden ->
-        val visible = ordered.filterNot { it in hidden }
-        if (visible.isEmpty()) ordered else visible.toImmutableList()
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), defaultLibraryTabs)
+    // The stored order is the visible list; hiding a tab removes it from the order.
+    val libraryTabsFlow: StateFlow<ImmutableList<String>> = allLibraryTabsFlow
 
     private val _loadedTabs = MutableStateFlow(emptySet<String>())
     private var lastBlockedDirectories: Set<String>? = null
@@ -1952,6 +1924,20 @@ class PlayerViewModel @Inject constructor(
 
     fun setPlaylistPickerStorageFilter(filter: com.startune.music.data.model.StorageFilter) {
         _playlistPickerStorageFilter.value = filter
+    }
+
+    fun setStorageFilter(filter: com.startune.music.data.model.StorageFilter) {
+        libraryStateHolder.setStorageFilter(filter)
+    }
+
+    fun toggleStorageFilter() {
+        val current = _playerUiState.value.currentStorageFilter
+        val next = when (current) {
+            com.startune.music.data.model.StorageFilter.ALL -> com.startune.music.data.model.StorageFilter.ONLINE
+            com.startune.music.data.model.StorageFilter.ONLINE -> com.startune.music.data.model.StorageFilter.OFFLINE
+            com.startune.music.data.model.StorageFilter.OFFLINE -> com.startune.music.data.model.StorageFilter.ALL
+        }
+        setStorageFilter(next)
     }
 
     fun setHideLocalMedia(hide: Boolean) {
@@ -4370,11 +4356,10 @@ class PlayerViewModel @Inject constructor(
         )
     }
 
-    fun saveLibraryTabsOrderAndVisibility(tabs: List<String>, hiddenTabs: Set<String>) {
+    fun saveLibraryTabsOrder(tabs: List<String>) {
         viewModelScope.launch {
             val orderJson = Json.encodeToString(tabs)
             userPreferencesRepository.saveLibraryTabsOrder(orderJson)
-            userPreferencesRepository.saveLibraryTabsHidden(Json.encodeToString(hiddenTabs.sorted()))
         }
     }
 

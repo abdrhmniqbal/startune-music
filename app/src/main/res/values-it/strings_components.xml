@@ -155,6 +155,10 @@
     <string name="reorder_tabs_reset_dialog_title">Reimposta ordine</string>
     <string name="reorder_tabs_reset_dialog_body">Reimpostare l\'ordine delle schede a quello predefinito?</string>
     <string name="reorder_tabs_reordering">Riordinamento schede…</string>
+    <string name="reorder_tabs_visible_title">Schede visibili</string>
+    <string name="reorder_tabs_hidden_title">Schede nascoste</string>
+    <string name="reorder_tabs_hide_action">Nascondi scheda</string>
+    <string name="reorder_tabs_show_action">Mostra scheda</string>
     <string name="cd_drag_handle">Maniglia trascinamento</string>
     <string name="cd_reset">Reimposta</string>
     <string name="action_done">Fatto</string>

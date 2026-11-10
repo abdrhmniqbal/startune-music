@@ -117,6 +117,7 @@ constructor(
 
         val LAST_LIBRARY_TAB_INDEX =
                 intPreferencesKey("last_library_tab_index")
+        val LAST_STORAGE_FILTER = stringPreferencesKey("last_storage_filter")
         val MOCK_GENRES_ENABLED = booleanPreferencesKey("mock_genres_enabled")
         val LAST_DAILY_MIX_UPDATE = longPreferencesKey("last_daily_mix_update")
         val DAILY_MIX_SONG_IDS = stringPreferencesKey("daily_mix_song_ids")
@@ -131,6 +132,7 @@ constructor(
 
         val GLOBAL_TRANSITION_SETTINGS = stringPreferencesKey("global_transition_settings_json")
         val LIBRARY_TABS_ORDER = stringPreferencesKey("library_tabs_order")
+        val LIBRARY_TABS_FOLDERS_MIGRATED = booleanPreferencesKey("library_tabs_folders_migrated")
         val LIBRARY_TABS_HIDDEN = stringPreferencesKey("library_tabs_hidden")
         val FOLDER_FILTER_MODE = stringPreferencesKey("folder_filter_mode")
         val IS_FOLDER_FILTER_ACTIVE = booleanPreferencesKey("is_folder_filter_active")
@@ -1637,6 +1639,21 @@ constructor(
         }
     }
 
+    val lastStorageFilterFlow: Flow<StorageFilter> =
+        dataStore.data.map { preferences ->
+            when (preferences[PreferencesKeys.LAST_STORAGE_FILTER]) {
+                "ONLINE"  -> StorageFilter.ONLINE
+                "OFFLINE" -> StorageFilter.OFFLINE
+                else      -> StorageFilter.ALL
+            }
+        }
+
+    suspend fun saveLastStorageFilter(filter: StorageFilter) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.LAST_STORAGE_FILTER] = filter.name
+        }
+    }
+
     val mockGenresEnabledFlow: Flow<Boolean> =
             dataStore.data.map { preferences ->
                 preferences[PreferencesKeys.MOCK_GENRES_ENABLED] ?: false
@@ -2011,15 +2028,6 @@ constructor(
         dataStore.edit { preferences -> preferences[PreferencesKeys.LIBRARY_TABS_ORDER] = order }
     }
 
-    val libraryTabsHiddenFlow: Flow<String?> = dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.LIBRARY_TABS_HIDDEN]
-        }
-
-    suspend fun saveLibraryTabsHidden(hidden: String) {
-        dataStore.edit { preferences -> preferences[PreferencesKeys.LIBRARY_TABS_HIDDEN] = hidden }
-    }
-
     suspend fun resetLibraryTabsOrder() {
         dataStore.edit { preferences ->
             preferences.remove(PreferencesKeys.LIBRARY_TABS_ORDER)
@@ -2027,38 +2035,54 @@ constructor(
         }
     }
 
+    /**
+     * One-shot backfill for orders saved before FOLDERS / GENRES existed, plus the
+     * one-time move from the old hidden-set model: the stored order is now the
+     * list of *visible* tabs, so keys the user had hidden are dropped from it.
+     *
+     * Must never run more than once: re-adding FOLDERS on every launch would
+     * undo a user who deliberately hid that tab.
+     */
     suspend fun migrateTabOrder() {
         dataStore.edit { preferences ->
-            val orderJson = preferences[PreferencesKeys.LIBRARY_TABS_ORDER]
-            if (orderJson != null) {
-                try {
-                    val order = json.decodeFromString<MutableList<String>>(orderJson)
-                    if (!order.contains("FOLDERS")) {
-                        val likedIndex = order.indexOf("LIKED")
-                        if (likedIndex != -1) {
-                            order.add(likedIndex + 1, "FOLDERS")
-                        } else {
-                            order.add("FOLDERS")
-                        }
-                        preferences[PreferencesKeys.LIBRARY_TABS_ORDER] = json.encodeToString(order)
-                    }
-                    val genresIndex = order.indexOf("GENRES")
-                    val likedIndex = order.indexOf("LIKED")
-                    if (genresIndex == -1) {
-                        if (likedIndex != -1) {
-                            order.add(likedIndex, "GENRES")
-                        } else {
-                            order.add("GENRES")
-                        }
-                        preferences[PreferencesKeys.LIBRARY_TABS_ORDER] = json.encodeToString(order)
-                    } else if (likedIndex != -1 && genresIndex > likedIndex) {
-                        order.removeAt(genresIndex)
-                        order.add(order.indexOf("LIKED"), "GENRES")
-                        preferences[PreferencesKeys.LIBRARY_TABS_ORDER] = json.encodeToString(order)
-                    }
-                } catch (e: Exception) {
+            if (preferences[PreferencesKeys.LIBRARY_TABS_FOLDERS_MIGRATED] == true) return@edit
+            preferences[PreferencesKeys.LIBRARY_TABS_FOLDERS_MIGRATED] = true
+
+            val hiddenJson = preferences[PreferencesKeys.LIBRARY_TABS_HIDDEN]
+            val hiddenKeys = hiddenJson?.let {
+                runCatching { json.decodeFromString<Set<String>>(it) }.getOrNull()
+            } ?: emptySet()
+            if (hiddenKeys.isNotEmpty()) {
+                preferences.remove(PreferencesKeys.LIBRARY_TABS_HIDDEN)
+            }
+
+            val orderJson = preferences[PreferencesKeys.LIBRARY_TABS_ORDER] ?: return@edit
+            val order = runCatching {
+                json.decodeFromString<MutableList<String>>(orderJson)
+            }.getOrNull() ?: return@edit // Abort on malformed data; don't overwrite user data.
+
+            order.removeAll(hiddenKeys)
+            if (!order.contains("FOLDERS")) {
+                val likedIndex = order.indexOf("LIKED")
+                if (likedIndex != -1) {
+                    order.add(likedIndex + 1, "FOLDERS")
+                } else {
+                    order.add("FOLDERS")
                 }
             }
+            val genresIndex = order.indexOf("GENRES")
+            val likedIndex = order.indexOf("LIKED")
+            if (genresIndex == -1) {
+                if (likedIndex != -1) {
+                    order.add(likedIndex, "GENRES")
+                } else {
+                    order.add("GENRES")
+                }
+            } else if (likedIndex != -1 && genresIndex > likedIndex) {
+                order.removeAt(genresIndex)
+                order.add(order.indexOf("LIKED"), "GENRES")
+            }
+            preferences[PreferencesKeys.LIBRARY_TABS_ORDER] = json.encodeToString(order)
         }
     }
 

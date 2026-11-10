@@ -124,6 +124,10 @@
     <string name="playlist_saved_toast">Kaydedildi</string>
     <string name="playlist_songs_added_toast">Şarkılar çalma listelerine eklendi</string>
     <string name="reorder_tabs_reordering">Sekmeler yeniden sıralanıyor…</string>
+    <string name="reorder_tabs_visible_title">Görünen sekmeler</string>
+    <string name="reorder_tabs_hidden_title">Gizli sekmeler</string>
+    <string name="reorder_tabs_hide_action">Sekmeyi gizle</string>
+    <string name="reorder_tabs_show_action">Sekmeyi göster</string>
     <string name="reorder_tabs_reset_dialog_body">Sekme sırası varsayılana sıfırlansın mı?</string>
     <string name="reorder_tabs_reset_dialog_title">Sırayı sıfırla</string>
     <string name="reorder_tabs_sheet_title">Kitaplık sekmelerini yeniden sırala</string>
