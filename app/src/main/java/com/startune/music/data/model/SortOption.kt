@@ -268,6 +268,14 @@ sealed class SortOption(
         methodKey = "genre_name",
         direction = SortDirection.Ascending
     )
+    object GenreNameZA : SortOption(
+        storageKey = "genre_name_za",
+        displayName = "Name (Z-A)",
+        methodLabel = "Name",
+        methodLabelRes = R.string.sort_method_name,
+        methodKey = "genre_name",
+        direction = SortDirection.Descending
+    )
 
     object LikedSongTitleAZ : SortOption(
         storageKey = "liked_title_az",
@@ -597,7 +605,10 @@ sealed class SortOption(
         }
 
         val GENRES: List<SortOption> by lazy {
-            listOf(GenreNameAZ)
+            listOf(
+                GenreNameAZ,
+                GenreNameZA
+            )
         }
 
         private val ALL: List<SortOption> by lazy {

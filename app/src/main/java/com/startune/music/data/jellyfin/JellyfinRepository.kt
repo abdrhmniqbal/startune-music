@@ -23,6 +23,7 @@ import com.startune.music.data.model.Song
 import com.startune.music.data.network.jellyfin.JellyfinApiService
 import com.startune.music.data.network.jellyfin.JellyfinResponseParser
 import com.startune.music.data.preferences.PlaylistPreferencesRepository
+import com.startune.music.utils.GenreParser
 import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.stream.BulkSyncResult
 import com.startune.music.data.stream.CloudMusicUtils
@@ -63,7 +64,7 @@ class JellyfinRepository @Inject constructor(
         private const val JELLYFIN_ALBUM_ID_OFFSET = 13_000_000_000_000L
         private const val JELLYFIN_ARTIST_ID_OFFSET = 14_000_000_000_000L
         private const val JELLYFIN_PARENT_DIRECTORY = "/Cloud/Jellyfin"
-        private const val JELLYFIN_GENRE = "Jellyfin"
+        private const val JELLYFIN_GENRE = GenreParser.JELLYFIN_PLACEHOLDER
         private const val JELLYFIN_PLAYLIST_PREFIX = "jellyfin_playlist:"
         private const val LIBRARY_PLAYLIST_ID = "__library__"
     }
