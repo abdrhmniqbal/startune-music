@@ -165,7 +165,6 @@
     <string name="mix_delete_confirm_title">Delete mix?</string>
     <string name="mix_delete_confirm_body">Are you sure you want to delete this mix?</string>
     <string name="mix_remove_from_mix">Remove from mix</string>
-    <string name="mix_remove_songs_title">Remove songs</string>
     <string name="home_empty_placeholder_title">No data to show yet</string>
     <string name="home_empty_placeholder_subtitle">Your mix will appear here when Startune Music finds songs or syncs a source.</string>
     <string name="home_empty_placeholder_refresh">Refresh</string>

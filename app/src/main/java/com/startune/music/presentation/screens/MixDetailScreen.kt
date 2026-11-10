@@ -49,7 +49,8 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material.icons.filled.LibraryAdd
-import androidx.compose.material.icons.rounded.RemoveCircleOutline
+import androidx.compose.material.icons.filled.RemoveCircleOutline
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -160,6 +161,7 @@ fun MixDetailScreen(
     val haptic = LocalHapticFeedback.current
     var showMultiSelectionSheet by remember { mutableStateOf(false) }
     var showMixOptionsSheet by remember { mutableStateOf(false) }
+    var isRemoveModeEnabled by remember { mutableStateOf(false) }
     var showEditMixForm by remember { mutableStateOf(false) }
     var showDeleteConfirmation by remember { mutableStateOf(false) }
     var showSaveAsPlaylistSheet by remember { mutableStateOf(false) }
@@ -370,7 +372,15 @@ fun MixDetailScreen(
                         onMoreOptionsClick = {
                             playerViewModel.selectSongForInfo(song)
                             showSongInfoSheet = true
-                        }
+                        },
+                        onRemoveClick = {
+                            when {
+                                isForYouMix -> playerViewModel.removeFromYourMix(song.id)
+                                isUserMix -> playlistViewModel.removeSongFromMix(mixId, song.id)
+                                else -> playerViewModel.removeFromDailyMix(song.id)
+                            }
+                        },
+                        isRemoveButtonVisible = isRemoveModeEnabled && !isSelectionMode
                     )
                 }
             }
@@ -395,7 +405,13 @@ fun MixDetailScreen(
 
         if (isForYouMix || isUserMix) {
             FilledIconButton(
-                onClick = { showMixOptionsSheet = true },
+                onClick = {
+                    if (isRemoveModeEnabled) {
+                        isRemoveModeEnabled = false
+                    } else {
+                        showMixOptionsSheet = true
+                    }
+                },
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     contentColor = MaterialTheme.colorScheme.onSurface
@@ -406,10 +422,17 @@ fun MixDetailScreen(
                     .padding(end = 10.dp, top = 8.dp)
                     .clip(CircleShape)
             ) {
-                Icon(
-                    imageVector = Icons.Filled.MoreVert,
-                    contentDescription = stringResource(R.string.presentation_batch_b_more_options)
-                )
+                if (isRemoveModeEnabled) {
+                    Icon(
+                        imageVector = Icons.Rounded.Check,
+                        contentDescription = stringResource(R.string.confirm)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = stringResource(R.string.presentation_batch_b_more_options)
+                    )
+                }
             }
         }
 
@@ -498,11 +521,12 @@ fun MixDetailScreen(
                     }
                 )
                 MixOptionsItem(
-                    icon = rememberVectorPainter(Icons.Rounded.RemoveCircleOutline),
-                    label = stringResource(R.string.mix_remove_songs_title),
+                    icon = rememberVectorPainter(Icons.Filled.RemoveCircleOutline),
+                    label = stringResource(R.string.presentation_batch_b_remove_songs),
+                    selected = isRemoveModeEnabled,
                     onClick = {
                         showMixOptionsSheet = false
-                        multiSelectionState.enterSelectionMode()
+                        isRemoveModeEnabled = !isRemoveModeEnabled
                     }
                 )
                 MixOptionsItem(
@@ -873,7 +897,8 @@ private fun rememberMixDetailTitleStyle(): TextStyle {
 private fun MixOptionsItem(
     icon: androidx.compose.ui.graphics.painter.Painter,
     label: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    selected: Boolean = false
 ) {
     Row(
         modifier = Modifier
@@ -905,5 +930,12 @@ private fun MixOptionsItem(
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
+        if (selected) {
+            Icon(
+                imageVector = Icons.Rounded.Check,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }

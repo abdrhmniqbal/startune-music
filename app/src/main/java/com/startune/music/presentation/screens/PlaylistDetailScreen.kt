@@ -409,12 +409,14 @@ fun PlaylistDetailScreen(
                                     onClick = {
                                         if (isReorderModeEnabled) {
                                             isReorderModeEnabled = false
+                                        } else if (isRemoveModeEnabled) {
+                                            isRemoveModeEnabled = false
                                         } else {
                                             showPlaylistOptionsSheet = true
                                         }
                                     }
                                 ) {
-                                    if (isReorderModeEnabled) {
+                                    if (isReorderModeEnabled || isRemoveModeEnabled) {
                                         Icon(Icons.Rounded.Check, confirmLabel)
                                     } else {
                                         Icon(Icons.Filled.MoreVert, moreOptionsLabel)
