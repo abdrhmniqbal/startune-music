@@ -34,6 +34,9 @@ import com.startune.music.data.repository.LyricsRepository
 import com.startune.music.data.repository.MusicRepository
 import com.startune.music.data.model.LyricsSourcePreference
 import com.startune.music.data.preferences.DEFAULT_LYRICS_FONT_SIZE_SP
+import com.startune.music.data.preferences.LyricsWordHighlightStyle
+import com.startune.music.data.preferences.DEFAULT_SHOW_LYRICS_BACKGROUND_VOCALS
+import com.startune.music.data.preferences.DEFAULT_LYRICS_DUET_LAYOUT_ENABLED
 import com.startune.music.data.worker.SyncManager
 import com.startune.music.data.worker.SyncProgress
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -110,6 +113,9 @@ data class SettingsUiState(
     val autoScanLrcFiles: Boolean = false,
     val autoScanOnLaunch: Boolean = true,
     val externalLyricsEnabled: Boolean = false,
+    val lyricsWordHighlightStyle: LyricsWordHighlightStyle = LyricsWordHighlightStyle.DEFAULT,
+    val lyricsDuetLayoutEnabled: Boolean = DEFAULT_LYRICS_DUET_LAYOUT_ENABLED,
+    val showLyricsBackgroundVocals: Boolean = DEFAULT_SHOW_LYRICS_BACKGROUND_VOCALS,
     val externalArtistImagesEnabled: Boolean = false,
     val blockedDirectories: Set<String> = emptySet(),
     val appRebrandDialogShown: Boolean = false,
@@ -544,6 +550,24 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferencesRepository.useAnimatedLyricsFlow.collect { enabled ->
                 _uiState.update { it.copy(useAnimatedLyrics = enabled) }
+            }
+        }
+
+        viewModelScope.launch {
+            combine(
+                userPreferencesRepository.lyricsWordHighlightStyleFlow,
+                userPreferencesRepository.lyricsDuetLayoutEnabledFlow,
+                userPreferencesRepository.showLyricsBackgroundVocalsFlow
+            ) { highlightStyle, duetLayoutEnabled, showBackgroundVocals ->
+                Triple(highlightStyle, duetLayoutEnabled, showBackgroundVocals)
+            }.collect { (highlightStyle, duetLayoutEnabled, showBackgroundVocals) ->
+                _uiState.update {
+                    it.copy(
+                        lyricsWordHighlightStyle = highlightStyle,
+                        lyricsDuetLayoutEnabled = duetLayoutEnabled,
+                        showLyricsBackgroundVocals = showBackgroundVocals
+                    )
+                }
             }
         }
 
@@ -1121,6 +1145,24 @@ class SettingsViewModel @Inject constructor(
     fun setAnimatedLyricsBlurStrength(strength: Float) {
         viewModelScope.launch {
             userPreferencesRepository.setAnimatedLyricsBlurStrength(strength)
+        }
+    }
+
+    fun setLyricsWordHighlightStyle(style: LyricsWordHighlightStyle) {
+        viewModelScope.launch {
+            userPreferencesRepository.setLyricsWordHighlightStyle(style)
+        }
+    }
+
+    fun setLyricsDuetLayoutEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setLyricsDuetLayoutEnabled(enabled)
+        }
+    }
+
+    fun setShowLyricsBackgroundVocals(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setShowLyricsBackgroundVocals(enabled)
         }
     }
 

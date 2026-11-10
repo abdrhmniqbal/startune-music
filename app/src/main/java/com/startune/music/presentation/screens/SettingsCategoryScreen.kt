@@ -82,6 +82,9 @@ import androidx.compose.material.icons.rounded.BatteryFull
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.CloudDownload
+import androidx.compose.material.icons.rounded.Mic
+import androidx.compose.material.icons.rounded.Groups
+import androidx.compose.material.icons.rounded.Gradient
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DeleteForever
@@ -186,6 +189,7 @@ import com.startune.music.data.preferences.NavBarStyle
 import com.startune.music.data.preferences.ThemePreference
 import com.startune.music.data.model.Song
 import com.startune.music.data.model.LyricsSourcePreference
+import com.startune.music.data.preferences.LyricsWordHighlightStyle
 import com.startune.music.data.preferences.MAX_LYRICS_FONT_SIZE_SP
 import com.startune.music.data.preferences.MIN_LYRICS_FONT_SIZE_SP
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
@@ -668,6 +672,57 @@ fun SettingsCategoryScreen(
                                     leadingIcon = { Icon(painterResource(R.drawable.rounded_lyrics_24), null, tint = MaterialTheme.colorScheme.secondary) },
                                     modifier = Modifier.settingHighlight("item_library_lyrics_source_priority", highlightKey)
                                 )
+                                ThemeSelectorItem(
+                                    label = stringResource(R.string.lyrics_highlight_style_title),
+                                    description = stringResource(R.string.lyrics_highlight_style_subtitle),
+                                    options = mapOf(
+                                        LyricsWordHighlightStyle.WIPE.storageValue to
+                                            stringResource(R.string.lyrics_highlight_style_wipe),
+                                        LyricsWordHighlightStyle.FADE.storageValue to
+                                            stringResource(R.string.lyrics_highlight_style_fade),
+                                        LyricsWordHighlightStyle.CLASSIC.storageValue to
+                                            stringResource(R.string.lyrics_highlight_style_classic)
+                                    ),
+                                    optionDescriptions = mapOf(
+                                        LyricsWordHighlightStyle.WIPE.storageValue to
+                                            stringResource(R.string.lyrics_highlight_style_wipe_desc),
+                                        LyricsWordHighlightStyle.FADE.storageValue to
+                                            stringResource(R.string.lyrics_highlight_style_fade_desc),
+                                        LyricsWordHighlightStyle.CLASSIC.storageValue to
+                                            stringResource(R.string.lyrics_highlight_style_classic_desc)
+                                    ),
+                                    selectedKey = uiState.lyricsWordHighlightStyle.storageValue,
+                                    onSelectionChanged = { key ->
+                                        settingsViewModel.setLyricsWordHighlightStyle(LyricsWordHighlightStyle.fromStorage(key))
+                                    },
+                                    leadingIcon = {
+                                        Icon(Icons.Rounded.Gradient, null, tint = MaterialTheme.colorScheme.secondary)
+                                    },
+                                    modifier = Modifier.settingHighlight("item_lyrics_word_highlight", highlightKey)
+                                )
+
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.lyrics_duet_layout_title),
+                                    subtitle = stringResource(R.string.lyrics_duet_layout_subtitle),
+                                    checked = uiState.lyricsDuetLayoutEnabled,
+                                    onCheckedChange = settingsViewModel::setLyricsDuetLayoutEnabled,
+                                    leadingIcon = {
+                                        Icon(Icons.Rounded.Groups, null, tint = MaterialTheme.colorScheme.secondary)
+                                    },
+                                    modifier = Modifier.settingHighlight("item_lyrics_duet_layout", highlightKey)
+                                )
+
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.lyrics_background_vocals_title),
+                                    subtitle = stringResource(R.string.lyrics_background_vocals_subtitle),
+                                    checked = uiState.showLyricsBackgroundVocals,
+                                    onCheckedChange = settingsViewModel::setShowLyricsBackgroundVocals,
+                                    leadingIcon = {
+                                        Icon(Icons.Rounded.Mic, null, tint = MaterialTheme.colorScheme.secondary)
+                                    },
+                                    modifier = Modifier.settingHighlight("item_lyrics_background_vocals", highlightKey)
+                                )
+
                                 SettingsItem(
                                     title = stringResource(R.string.setcat_reset_imported_lyrics_title),
                                     subtitle = stringResource(R.string.setcat_reset_imported_lyrics_subtitle),
