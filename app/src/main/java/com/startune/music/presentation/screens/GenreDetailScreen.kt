@@ -2,6 +2,7 @@
 
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.components.SongMultiSelectionHost
+import com.startune.music.presentation.components.LibrarySortBottomSheet
 import com.startune.music.presentation.components.subcomps.SelectionActionRow
 import com.startune.music.presentation.components.subcomps.SelectionCountPill
 import com.startune.music.presentation.navigation.navigateSafelyReplacing
@@ -34,6 +35,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.filled.MusicOff
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -65,6 +67,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import com.startune.music.R
 import com.startune.music.data.model.Artist
+import com.startune.music.data.model.SortOption
 import com.startune.music.data.model.Album
 import com.startune.music.data.model.Song
 import com.startune.music.data.preferences.AlbumArtPaletteStyle
@@ -224,6 +227,21 @@ fun GenreDetailScreen(
     val selectedSongIds by multiSelectionState.selectedSongIds.collectAsStateWithLifecycle()
     val haptic = LocalHapticFeedback.current
     var showMultiSelectionSheet by remember { mutableStateOf(false) }
+    var songsSortOption by remember { mutableStateOf<SortOption>(SortOption.SongPlayCount) }
+    var showSongsSortSheet by remember { mutableStateOf(false) }
+    var albumsSortOption by remember { mutableStateOf<SortOption>(SortOption.AlbumReleaseYear) }
+    var showAlbumsSortSheet by remember { mutableStateOf(false) }
+    var artistsSortOption by remember { mutableStateOf<SortOption>(SortOption.ArtistNameAZ) }
+    var showArtistsSortSheet by remember { mutableStateOf(false) }
+    val sortedRankedSongs = remember(uiState.rankedSongs, songsSortOption) {
+        when (songsSortOption) {
+            SortOption.SongPlayCount -> uiState.rankedSongs
+            SortOption.SongPlayCountAsc -> uiState.rankedSongs.reversed()
+            else -> sortArtistSongs(uiState.rankedSongs, songsSortOption)
+        }
+    }
+    val sortedAlbums = remember(uiState.albums, albumsSortOption) { sortGenreAlbums(uiState.albums, albumsSortOption) }
+    val sortedArtists = remember(uiState.artists, artistsSortOption) { sortGenreArtists(uiState.artists, artistsSortOption) }
     var selectedAlbums by remember { mutableStateOf<ImmutableList<AlbumData>>(persistentListOf()) }
     val selectedAlbumNames = remember(selectedAlbums) { selectedAlbums.map { it.name }.toSet() }
     val isAlbumSelectionMode = selectedAlbums.isNotEmpty()
@@ -413,13 +431,14 @@ fun GenreDetailScreen(
                                 } else {
                                     GenreSubViewHeader(
                                         title = stringResource(R.string.top_songs_title),
-                                        onBackClick = { activeView = GenreDetailView.Overview }
+                                        onBackClick = { activeView = GenreDetailView.Overview },
+                                        onSortClick = { showSongsSortSheet = true }
                                     )
                                 }
                             }
                         }
                                                 itemsIndexed(
-                            items = uiState.rankedSongs,
+                            items = sortedRankedSongs,
                             key = { _, song -> "genre_ranked_${song.id}" }
                         ) { index, song ->
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -447,7 +466,7 @@ fun GenreDetailScreen(
                                         if (isSelectionMode) {
                                             multiSelectionState.toggleSelection(song)
                                         } else {
-                                            playerViewModel.showAndPlaySong(song, uiState.rankedSongs, genreDisplayName)
+                                            playerViewModel.showAndPlaySong(song, sortedRankedSongs, genreDisplayName)
                                         }
                                     }
                                 )
@@ -505,13 +524,14 @@ fun GenreDetailScreen(
                                 } else {
                                     GenreSubViewHeader(
                                         title = stringResource(R.string.library_tab_albums),
-                                        onBackClick = { activeView = GenreDetailView.Overview }
+                                        onBackClick = { activeView = GenreDetailView.Overview },
+                                        onSortClick = { showAlbumsSortSheet = true }
                                     )
                                 }
                             }
                         }
                         gridItems(
-                            items = uiState.albums,
+                            items = sortedAlbums,
                             key = { album -> "genre_grid_album_${album.name}" }
                         ) { album ->
                             val albumColorSchemeFlow = remember(album.artUri) {
@@ -595,13 +615,14 @@ fun GenreDetailScreen(
                                 } else {
                                     GenreSubViewHeader(
                                         title = stringResource(R.string.library_tab_artists),
-                                        onBackClick = { activeView = GenreDetailView.Overview }
+                                        onBackClick = { activeView = GenreDetailView.Overview },
+                                        onSortClick = { showArtistsSortSheet = true }
                                     )
                                 }
                             }
                         }
                         gridItems(
-                            items = uiState.artists,
+                            items = sortedArtists,
                             key = { artist -> "genre_grid_artist_${artist.id}_${artist.name}" }
                         ) { artist ->
                             ArtistGridItem(
@@ -798,6 +819,45 @@ fun GenreDetailScreen(
                     )
                 }
 
+                if (showSongsSortSheet) {
+                    LibrarySortBottomSheet(
+                        title = stringResource(R.string.presentation_batch_d_sort_by),
+                        options = SortOption.SONGS.toImmutableList(),
+                        selectedOption = songsSortOption,
+                        onDismiss = { showSongsSortSheet = false },
+                        onOptionSelected = {
+                            songsSortOption = it
+                            showSongsSortSheet = false
+                        }
+                    )
+                }
+
+                if (showAlbumsSortSheet) {
+                    LibrarySortBottomSheet(
+                        title = stringResource(R.string.presentation_batch_d_sort_by),
+                        options = SortOption.ALBUMS.toImmutableList(),
+                        selectedOption = albumsSortOption,
+                        onDismiss = { showAlbumsSortSheet = false },
+                        onOptionSelected = {
+                            albumsSortOption = it
+                            showAlbumsSortSheet = false
+                        }
+                    )
+                }
+
+                if (showArtistsSortSheet) {
+                    LibrarySortBottomSheet(
+                        title = stringResource(R.string.presentation_batch_d_sort_by),
+                        options = SortOption.ARTISTS.toImmutableList(),
+                        selectedOption = artistsSortOption,
+                        onDismiss = { showArtistsSortSheet = false },
+                        onOptionSelected = {
+                            artistsSortOption = it
+                            showArtistsSortSheet = false
+                        }
+                    )
+                }
+
                 if (showPlaylistBottomSheet) {
                     com.startune.music.presentation.components.PlaylistBottomSheet(
                         playlistUiState = playlistUiState,
@@ -989,7 +1049,8 @@ private fun GenreSectionHeader(
 @Composable
 private fun GenreSubViewHeader(
     title: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onSortClick: (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -1022,6 +1083,14 @@ private fun GenreSubViewHeader(
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
             )
+        }
+        if (onSortClick != null) {
+            FilledTonalIconButton(onClick = onSortClick) {
+                Icon(
+                    imageVector = Icons.Filled.Sort,
+                    contentDescription = stringResource(R.string.presentation_batch_d_sort_by)
+                )
+            }
         }
     }
 }
@@ -1197,6 +1266,35 @@ private fun GenreRankBadge(
         }
     }
 }
+
+private fun sortGenreAlbums(
+    albums: List<AlbumData>,
+    sortOption: SortOption
+): List<AlbumData> =
+    when (sortOption) {
+        SortOption.AlbumTitleAZ -> albums.sortedWith(compareBy<AlbumData> { it.name.lowercase() }.thenBy { it.songs.firstOrNull()?.albumId ?: -1L })
+        SortOption.AlbumTitleZA -> albums.sortedWith(compareByDescending<AlbumData> { it.name.lowercase() }.thenBy { it.songs.firstOrNull()?.albumId ?: -1L })
+        SortOption.AlbumArtist -> albums.sortedWith(compareBy<AlbumData> { it.songs.firstOrNull()?.displayArtist?.lowercase() ?: "" }.thenBy { it.name.lowercase() })
+        SortOption.AlbumArtistDesc -> albums.sortedWith(compareByDescending<AlbumData> { it.songs.firstOrNull()?.displayArtist?.lowercase() ?: "" }.thenBy { it.name.lowercase() })
+        SortOption.AlbumReleaseYear -> albums.sortedWith(compareByDescending<AlbumData> { it.songs.maxOfOrNull { song -> song.year } ?: 0 }.thenBy { it.name.lowercase() })
+        SortOption.AlbumReleaseYearAsc -> albums.sortedWith(compareBy<AlbumData> { it.songs.maxOfOrNull { song -> song.year } ?: 0 }.thenBy { it.name.lowercase() })
+        SortOption.AlbumDateAdded -> albums.sortedWith(compareByDescending<AlbumData> { it.songs.maxOfOrNull { song -> song.dateAdded } ?: 0 }.thenBy { it.name.lowercase() })
+        SortOption.AlbumSizeAsc -> albums.sortedWith(compareBy<AlbumData> { it.songs.size }.thenBy { it.name.lowercase() })
+        SortOption.AlbumSizeDesc -> albums.sortedWith(compareByDescending<AlbumData> { it.songs.size }.thenBy { it.name.lowercase() })
+        else -> albums
+    }
+
+private fun sortGenreArtists(
+    artists: List<Artist>,
+    sortOption: SortOption
+): List<Artist> =
+    when (sortOption) {
+        SortOption.ArtistNameAZ -> artists.sortedWith(compareBy<Artist> { it.name.lowercase() }.thenBy { it.id })
+        SortOption.ArtistNameZA -> artists.sortedWith(compareByDescending<Artist> { it.name.lowercase() }.thenBy { it.id })
+        SortOption.ArtistNumSongsDesc -> artists.sortedWith(compareByDescending<Artist> { it.songCount }.thenBy { it.name.lowercase() }.thenBy { it.id })
+        SortOption.ArtistNumSongsAsc -> artists.sortedWith(compareBy<Artist> { it.songCount }.thenBy { it.name.lowercase() }.thenBy { it.id })
+        else -> artists
+    }
 
 private fun albumModelFromAlbumData(album: AlbumData): Album {
     val firstSong = album.songs.firstOrNull()
