@@ -82,7 +82,7 @@ class ColorSchemeViewModel @Inject constructor(
         val selectedId = themePreferencesRepository.selectedColorSchemeIdFlow.first()
         val base = BuiltInColorSchemes.find(selectedId)
             ?: customs.firstOrNull { it.id == selectedId }
-            ?: BuiltInColorSchemes.startune
+            ?: BuiltInColorSchemes.all.first()
         return EditorInitial(id = null, name = "", light = base.light, dark = base.dark)
     }
 
