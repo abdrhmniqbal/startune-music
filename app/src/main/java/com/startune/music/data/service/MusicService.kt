@@ -41,7 +41,6 @@ import com.google.common.util.concurrent.SettableFuture
 import com.startune.music.StartuneApplication
 import com.startune.music.MainActivity
 import com.startune.music.R
-import com.startune.music.data.diagnostics.AdvancedPerformanceDiagnostics
 import com.startune.music.data.model.PlayerInfo
 import com.startune.music.data.model.PlaybackQueueItemSnapshot
 import com.startune.music.data.model.PlaybackQueueSnapshot
@@ -1060,12 +1059,6 @@ class MusicService : MediaSessionService() {
         }
 
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-            AdvancedPerformanceDiagnostics.recordEventIfEnabled(
-                type = AdvancedPerformanceDiagnostics.EventTypes.PLAYBACK,
-                name = "media_item_transition",
-            ) {
-                mapOf("reason" to reason.toString())
-            }
             mediaItem?.let(::grantArtworkUriPermissionsToConnectedControllers)
             syncLocalListeningStatsFromPlayer(mediaSession?.player ?: engine.masterPlayer, forceNewSession = true)
             playbackTimerController.handleMediaItemTransition(mediaItem, reason)
@@ -1104,15 +1097,6 @@ class MusicService : MediaSessionService() {
         override fun onPlayerError(error: PlaybackException) {
             val player = mediaSession?.player ?: engine.masterPlayer
             Timber.tag(TAG).e(error, "Player error on item %s", player.currentMediaItem?.mediaId)
-            AdvancedPerformanceDiagnostics.recordEventIfEnabled(
-                type = AdvancedPerformanceDiagnostics.EventTypes.PLAYBACK,
-                name = "player_error"
-            ) {
-                mapOf(
-                    "code" to error.errorCodeName,
-                    "message" to (error.message ?: error.javaClass.simpleName)
-                )
-            }
             if (player.hasNextMediaItem() && consecutivePlaybackErrors < maxConsecutivePlaybackErrors) {
                 consecutivePlaybackErrors++
                 player.seekToNextMediaItem()

@@ -13,13 +13,14 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import coil.ImageLoader
 import coil.ImageLoaderFactory
-import com.startune.music.data.diagnostics.AdvancedPerformanceDiagnosticsController
+import com.startune.music.data.dictionary.DictionaryManager
 import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.playlist.M3uSyncCoordinator
 import com.startune.music.data.repository.ArtistImageRepository
 import com.startune.music.presentation.viewmodel.LibraryStateHolder
 import com.startune.music.presentation.viewmodel.ThemeStateHolder
 import com.startune.music.utils.AlbumArtCacheManager
+import com.startune.music.utils.MultiLangRomanizer
 import com.startune.music.utils.AlbumArtUtils
 import com.startune.music.utils.AppLocaleManager
 import com.startune.music.utils.CrashHandler
@@ -67,10 +68,10 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
     lateinit var syncNotificationManager: dagger.Lazy<com.startune.music.data.notifications.SyncNotificationManager>
 
     @Inject
-    lateinit var advancedPerformanceDiagnosticsController: dagger.Lazy<AdvancedPerformanceDiagnosticsController>
+    lateinit var m3uSyncCoordinator: dagger.Lazy<M3uSyncCoordinator>
 
     @Inject
-    lateinit var m3uSyncCoordinator: dagger.Lazy<M3uSyncCoordinator>
+    lateinit var dictionaryManager: dagger.Lazy<DictionaryManager>
 
     private val startupScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -82,12 +83,8 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
         override fun onStart(owner: LifecycleOwner) {
             libraryStateHolder.get().restoreAfterTrimIfNeeded()
             m3uSyncCoordinator.get().onAppForeground()
-            advancedPerformanceDiagnosticsController.get().onAppForeground()
         }
 
-        override fun onStop(owner: LifecycleOwner) {
-            advancedPerformanceDiagnosticsController.get().onAppBackground()
-        }
     }
 
     override fun attachBaseContext(base: Context) {
@@ -129,6 +126,13 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
                     NotificationManager.IMPORTANCE_DEFAULT
                 ).apply { description = "App update availability and download progress" }
             )
+            notificationManager.createNotificationChannel(
+                NotificationChannel(
+                    com.startune.music.data.dictionary.DictionaryManager.DICTIONARIES_CHANNEL_ID,
+                    "Dictionary downloads",
+                    NotificationManager.IMPORTANCE_LOW
+                ).apply { description = "Dictionary download progress" }
+            )
         }
 
         ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
@@ -139,7 +143,13 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
 
         m3uSyncCoordinator.get().start()
 
-        advancedPerformanceDiagnosticsController.get().start(startupScope)
+        startupScope.launch {
+            val packDir = dictionaryManager.get()
+                .installedPackDir(DictionaryManager.KUROMOJI_PACK_ID)
+            if (packDir != null) {
+                MultiLangRomanizer.setDictionaryDirectory(packDir)
+            }
+        }
 
         startupScope.launch {
             AlbumArtUtils.migrateLegacyCacheLocation(this@StartuneApplication)

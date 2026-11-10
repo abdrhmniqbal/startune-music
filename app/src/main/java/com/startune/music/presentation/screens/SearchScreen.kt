@@ -122,7 +122,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import com.startune.music.R
-import com.startune.music.data.diagnostics.AdvancedPerformanceDiagnostics
 import com.startune.music.data.repository.MusicRepository
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.PlaylistBottomSheet
@@ -161,7 +160,6 @@ fun SearchScreen(
     navController: NavHostController,
     onSearchBarActiveChange: (Boolean) -> Unit = {}
 ) {
-    val searchScreenEnteredAt = remember { android.os.SystemClock.elapsedRealtime() }
     var searchQuery by rememberSaveable { mutableStateOf(playerViewModel.searchQuery) }
     val statusBarTopInset = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
     val systemNavBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -189,21 +187,7 @@ fun SearchScreen(
     val searchInputFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        AdvancedPerformanceDiagnostics.recordEventIfEnabled(
-            type = AdvancedPerformanceDiagnostics.EventTypes.UI,
-            name = "search_screen_entered",
-        )
         onSearchBarActiveChange(false)
-        withFrameNanos { }
-        AdvancedPerformanceDiagnostics.recordEventIfEnabled(
-            type = AdvancedPerformanceDiagnostics.EventTypes.UI,
-            name = "search_screen_first_frame",
-        ) {
-            mapOf(
-                "durationMs" to
-                    (android.os.SystemClock.elapsedRealtime() - searchScreenEnteredAt).toString(),
-            )
-        }
     }
 
     LaunchedEffect(playerViewModel, keyboardController) {

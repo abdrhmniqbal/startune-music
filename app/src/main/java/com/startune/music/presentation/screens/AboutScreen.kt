@@ -46,6 +46,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.DeveloperBoard
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.rounded.Public
@@ -337,7 +338,7 @@ fun AboutScreen(
             ) { index, link ->
                 AboutLinkCard(
                     link = link,
-                    shape = expressiveListShape(index = index, count = projectLinks.size + 1),
+                    shape = expressiveListShape(index = index, count = projectLinks.size + 2),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
@@ -355,7 +356,7 @@ fun AboutScreen(
                         iconVector = Icons.Rounded.SystemUpdate,
                         url = "",
                     ),
-                    shape = expressiveListShape(index = projectLinks.size, count = projectLinks.size + 1),
+                    shape = expressiveListShape(index = projectLinks.size, count = projectLinks.size + 2),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
@@ -377,6 +378,24 @@ fun AboutScreen(
                             }
                         }
                     },
+                )
+            }
+
+            item(key = "device_capabilities") {
+                AboutLinkCard(
+                    link = ProjectLink(
+                        id = "device_capabilities",
+                        title = stringResource(R.string.settings_category_device_capabilities_title),
+                        subtitle = stringResource(R.string.settings_category_device_capabilities_subtitle),
+                        iconVector = Icons.Rounded.DeveloperBoard,
+                        url = "",
+                    ),
+                    shape = expressiveListShape(index = projectLinks.size + 1, count = projectLinks.size + 2),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 3.dp),
+                    onClick = { navController.navigateSafely(Screen.DeviceCapabilities.route) },
                 )
             }
 

@@ -1,10 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="device_capabilities_advanced_diagnostics_description">Varsayılan olarak kapalıdır. Beta sorun giderme için kısa bir takılma zaman çizelgesi kaydeder.</string>
-    <string name="device_capabilities_advanced_diagnostics_expires">%1$s tarihine kadar aktif</string>
-    <string name="device_capabilities_advanced_diagnostics_mark_lag">Takılmayı şimdi işaretle</string>
-    <string name="device_capabilities_advanced_diagnostics_marked">Takılma anı işaretlendi</string>
-    <string name="device_capabilities_advanced_diagnostics_title">Gelişmiş performans tanılama</string>
     <string name="device_capabilities_buffer_frames">Tampon başına %1$d kare</string>
     <string name="device_capabilities_finding_clear_body">Dizinlenmiş parçalarınız, Android\'in bu cihazda bildirdiği çözücülerle eşleşiyor.</string>
     <string name="device_capabilities_finding_clear_title">Önemli bir uyumsuzluk yok</string>
@@ -44,14 +39,6 @@
     <string name="device_capabilities_playback_path_title">Oynatma Yolu</string>
     <string name="device_capabilities_ready_title">Oynatmaya hazır</string>
     <string name="device_capabilities_renderers_count">%1$s oluşturucu (renderer)</string>
-    <string name="device_capabilities_report_copied">Rapor panoya kopyalandı</string>
-    <string name="device_capabilities_report_copy">Kopyala</string>
-    <string name="device_capabilities_report_description">Oynatma veya tarama gecikmelerini sınıflandırmamıza yardımcı olacak paylaşılabilir bir tanılama raporu oluşturun. Rapor yalnızca cihaz, kitaplık ve zamanlama verilerini içerir; dosya yolları, başlıklar veya sanatçılar yer almaz.</string>
-    <string name="device_capabilities_report_generate">Rapor oluştur</string>
-    <string name="device_capabilities_report_regenerate">Yeniden Oluştur</string>
-    <string name="device_capabilities_report_share">Paylaş</string>
-    <string name="device_capabilities_report_share_title">Startune Music performans raporu</string>
-    <string name="device_capabilities_report_title">Performans raporu</string>
     <string name="device_capabilities_review_title">Oynatmanın gözden geçirilmesi gerekiyor</string>
     <string name="device_capabilities_storage_available">Kullanılabilir</string>
     <string name="device_capabilities_storage_cloud_count">%1$d bulut şarkısı</string>

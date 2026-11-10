@@ -88,6 +88,7 @@ import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.Science
+import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Timer
@@ -188,6 +189,7 @@ import com.startune.music.presentation.settings.search.settingHighlight
 import com.startune.music.presentation.viewmodel.LyricsRefreshProgress
 import com.startune.music.presentation.viewmodel.M3uSyncViewModel
 import com.startune.music.presentation.viewmodel.PlayerViewModel
+import com.startune.music.presentation.viewmodel.DeviceCapabilitiesViewModel
 import com.startune.music.presentation.viewmodel.SettingsViewModel
 import com.startune.music.ui.theme.BuiltInColorSchemes
 import com.startune.music.ui.theme.RoundedSans
@@ -204,6 +206,7 @@ fun SettingsCategoryScreen(
     navController: NavController,
     playerViewModel: PlayerViewModel,
     settingsViewModel: SettingsViewModel = hiltViewModel(),
+    deviceCapabilitiesViewModel: DeviceCapabilitiesViewModel = hiltViewModel(),
     colorSchemeViewModel: com.startune.music.presentation.viewmodel.ColorSchemeViewModel = hiltViewModel(),
     m3uSyncViewModel: M3uSyncViewModel = hiltViewModel(),
     statsViewModel: com.startune.music.presentation.viewmodel.StatsViewModel = hiltViewModel(),
@@ -1368,6 +1371,7 @@ fun SettingsCategoryScreen(
 
                         }
                         SettingsCategory.DATA_STORAGE -> {
+                            val deviceCapabilitiesState by deviceCapabilitiesViewModel.state.collectAsStateWithLifecycle()
                             val dataRoot = AppFolders.resolveRoot(uiState.dataStorageRoot)
 
                             SettingsSubsection(title = stringResource(R.string.data_storage_section_location)) {
@@ -1479,6 +1483,33 @@ fun SettingsCategoryScreen(
                                     modifier = Modifier.settingHighlight("item_cloud_downloads", highlightKey),
                                     onClick = { navController.navigateSafely(Screen.CloudDownloads.route) }
                                 )
+                            }
+
+                            SettingsSubsection(title = stringResource(R.string.data_storage_section_dictionaries)) {
+                                SettingsItem(
+                                    title = stringResource(R.string.dictionaries_title),
+                                    subtitle = stringResource(R.string.dictionaries_subtitle),
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Translate,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary
+                                        )
+                                    },
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Rounded.ChevronRight,
+                                            contentDescription = stringResource(R.string.cd_open),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight("item_dictionaries", highlightKey),
+                                    onClick = { navController.navigateSafely(Screen.Dictionaries.route) }
+                                )
+                            }
+
+                            deviceCapabilitiesState.storageSummary?.let { storage ->
+                                LocalMusicStorageCard(storageSummary = storage)
                             }
                         }
                         SettingsCategory.DEVELOPER -> {
@@ -1621,8 +1652,6 @@ fun SettingsCategoryScreen(
                             }
                         }
                         SettingsCategory.EQUALIZER -> {
-                        }
-                        SettingsCategory.DEVICE_CAPABILITIES -> {
                         }
 
                     }

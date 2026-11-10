@@ -67,6 +67,7 @@ import com.startune.music.presentation.screens.RecentlyPlayedScreen
 import com.startune.music.presentation.screens.AboutScreen
 import com.startune.music.presentation.screens.SearchScreen
 import com.startune.music.presentation.screens.StatsScreen
+import com.startune.music.presentation.screens.DictionariesScreen
 import com.startune.music.presentation.screens.DuplicateSongsScreen
 import com.startune.music.presentation.screens.SettingsScreen
 import com.startune.music.presentation.screens.SettingsCategoryScreen
@@ -714,6 +715,17 @@ fun AppNavigation(
             ) {
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
                     CloudDownloadsScreen(onBack = { navController.popBackStack() })
+                }
+            }
+            composable(
+                Screen.Dictionaries.route,
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { popEnterTransition() },
+                popExitTransition = { popExitTransition() },
+            ) {
+                ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
+                    DictionariesScreen(onBack = { navController.popBackStack() })
                 }
             }
             composable(

@@ -49,6 +49,7 @@ import com.startune.music.data.model.SyncedWord
 import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
 
+import java.io.File
 import java.util.Locale
 import java.util.regex.Pattern
 import kotlin.math.PI
@@ -56,13 +57,41 @@ import kotlin.math.max
 import kotlin.math.sin
 
 object MultiLangRomanizer {
-    private val kuromojiTokenizer: Tokenizer? by lazy {
-        try {
-            Thread.currentThread().contextClassLoader = MultiLangRomanizer::class.java.classLoader
-            Tokenizer()
-        } catch (e: Throwable) {
-            Timber.e(e)
-            null
+    /** Directory holding a downloaded dictionary pack, or null when none is installed. */
+    @Volatile
+    private var dictionaryDirectory: File? = null
+
+    @Volatile
+    private var kuromojiTokenizer: Tokenizer? = null
+
+    @Volatile
+    private var kuromojiTokenizerTried: Boolean = false
+
+    /** Points the romanizer at a downloaded dictionary directory (or unloads it). */
+    fun setDictionaryDirectory(directory: File?) {
+        synchronized(this) {
+            if (dictionaryDirectory == directory) return
+            dictionaryDirectory = directory
+            kuromojiTokenizer = null
+            kuromojiTokenizerTried = false
+        }
+    }
+
+    private fun getKuromojiTokenizer(): Tokenizer? {
+        kuromojiTokenizer?.let { return it }
+        if (kuromojiTokenizerTried) return null
+        val directory = dictionaryDirectory ?: return null
+        synchronized(this) {
+            kuromojiTokenizer?.let { return it }
+            if (kuromojiTokenizerTried) return null
+            kuromojiTokenizerTried = true
+            kuromojiTokenizer = try {
+                FileDictionaryTokenizerBuilder(directory).build()
+            } catch (e: Throwable) {
+                Timber.e(e)
+                null
+            }
+            return kuromojiTokenizer
         }
     }
 
@@ -140,7 +169,7 @@ object MultiLangRomanizer {
     private fun isMacedonian(text: String) = text.any { MACEDONIAN_CYRILLIC_LETTERS.contains(it.toString()) || MACEDONIAN_SPECIFIC_CYRILLIC_LETTERS.contains(it.toString()) } && text.all { MACEDONIAN_CYRILLIC_LETTERS.contains(it.toString()) || MACEDONIAN_SPECIFIC_CYRILLIC_LETTERS.contains(it.toString()) || !it.toString().matches("[\\u0400-\\u04FF]".toRegex()) }
 
     fun romanizeJapanese(japaneseText: String): String? {
-        val tokenizer = kuromojiTokenizer ?: return null
+        val tokenizer = getKuromojiTokenizer() ?: return null
 
         return try {
             val tokens = tokenizer.tokenize(japaneseText)

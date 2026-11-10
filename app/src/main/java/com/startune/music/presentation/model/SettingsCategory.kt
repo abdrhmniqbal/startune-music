@@ -2,7 +2,6 @@
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.DeveloperBoard
 import androidx.compose.material.icons.rounded.DeveloperMode
 import androidx.compose.material.icons.rounded.GraphicEq
 import androidx.compose.material.icons.rounded.Info
@@ -73,12 +72,6 @@ enum class SettingsCategory(
         titleRes = R.string.settings_category_equalizer_title,
         subtitleRes = R.string.settings_category_equalizer_subtitle,
         icon = Icons.Rounded.GraphicEq
-    ),
-    DEVICE_CAPABILITIES(
-        id = "device_capabilities",
-        titleRes = R.string.settings_category_device_capabilities_title,
-        subtitleRes = R.string.settings_category_device_capabilities_subtitle,
-        icon = Icons.Rounded.DeveloperBoard
     ),
     ABOUT(
         id = "about",

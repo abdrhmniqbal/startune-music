@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="device_capabilities_advanced_diagnostics_description">معطلة افتراضياً. تسجل مخططاً زمنياً قصيراً لحالات التقطيع لاستكشاف مشكلات النسخة التجريبية.</string>
-    <string name="device_capabilities_advanced_diagnostics_expires">نشطة حتى %1$s</string>
-    <string name="device_capabilities_advanced_diagnostics_mark_lag">تحديد التقطيع الآن</string>
-    <string name="device_capabilities_advanced_diagnostics_marked">تم تحديد لحظة التقطيع</string>
-    <string name="device_capabilities_advanced_diagnostics_title">تشخيصات الأداء المتقدمة</string>
     <string name="device_capabilities_buffer_frames">%1$d إطار لكل مخزن مؤقت</string>
     <string name="device_capabilities_finding_clear_body">تتطابق مساراتك المفهرسة مع برامج فك الترميز التي يبلغ عنها نظام أندرويد في هذا الجهاز.</string>
     <string name="device_capabilities_finding_clear_title">لا توجد حالات عدم توافق رئيسية</string>
@@ -44,14 +39,6 @@
     <string name="device_capabilities_playback_path_title">مسار التشغيل</string>
     <string name="device_capabilities_ready_title">جاهز للتشغيل</string>
     <string name="device_capabilities_renderers_count">%1$s مصّيرات</string>
-    <string name="device_capabilities_report_copied">تم نسخ التقرير إلى الحافظة</string>
-    <string name="device_capabilities_report_copy">نسخ</string>
-    <string name="device_capabilities_report_description">قم بإنشاء تقرير تشخيصي قابل للمشاركة لمساعدتنا في تصنيف مشكلات بطء التشغيل أو الفحص. يحتوي التقرير فقط على بيانات الجهاز، المكتبة، والتوقيت — لا يتضمن مسارات ملفات أو عناوين أو فنانين.</string>
-    <string name="device_capabilities_report_generate">إنشاء التقرير</string>
-    <string name="device_capabilities_report_regenerate">إعادة إنشاء</string>
-    <string name="device_capabilities_report_share">مشاركة</string>
-    <string name="device_capabilities_report_share_title">تقرير أداء PixelPlay</string>
-    <string name="device_capabilities_report_title">تقرير الأداء</string>
     <string name="device_capabilities_review_title">التشغيل يتطلب مراجعة</string>
     <string name="device_capabilities_storage_available">المتاح</string>
     <string name="device_capabilities_storage_cloud_count">%1$d أغنية سحابية</string>

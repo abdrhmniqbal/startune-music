@@ -12,7 +12,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.media3.common.Player
-import com.startune.music.data.diagnostics.AdvancedPerformanceDiagnostics
 import com.startune.music.data.model.PlaybackQueueSnapshot
 import com.startune.music.data.model.Playlist
 import com.startune.music.data.model.SortOption
@@ -75,15 +74,6 @@ enum class AlbumArtQuality(val maxSize: Int, val label: String) {
     MEDIUM(512, "Medium (512px) - Balanced"),
     HIGH(800, "High (800px) - Best quality"),
     ORIGINAL(0, "Original - Maximum quality")
-}
-
-data class AdvancedPerformanceDiagnosticsSettings(
-    val enabled: Boolean,
-    val sessionStartedEpochMs: Long?,
-    val expiresAtEpochMs: Long?
-) {
-    fun isActive(nowEpochMs: Long = System.currentTimeMillis()): Boolean =
-        enabled && expiresAtEpochMs?.let { nowEpochMs < it } == true
 }
 
 @Singleton
@@ -157,6 +147,7 @@ constructor(
         val AUTO_BACKUP_INTERVAL_HOURS = intPreferencesKey("auto_backup_interval_hours")
         val AUTO_BACKUP_LAST_RUN_MS = longPreferencesKey("auto_backup_last_run_ms")
         val DATA_STORAGE_ROOT = stringPreferencesKey("data_storage_root")
+        val INSTALLED_DICTIONARIES_JSON = stringPreferencesKey("installed_dictionaries_json")
         val RESUME_AFTER_CALL = booleanPreferencesKey("resume_after_call")
         val RESUME_ON_START = booleanPreferencesKey("resume_on_start")
         val RESUME_ON_REOPEN = booleanPreferencesKey("resume_on_reopen")
@@ -249,12 +240,6 @@ constructor(
         val ALBUM_ART_CACHE_LIMIT_MB = intPreferencesKey("album_art_cache_limit_mb")
         val TAP_BACKGROUND_CLOSES_PLAYER = booleanPreferencesKey("tap_background_closes_player")
         val HAPTICS_ENABLED = booleanPreferencesKey("haptics_enabled")
-        val ADVANCED_PERFORMANCE_DIAGNOSTICS_ENABLED =
-            booleanPreferencesKey("advanced_performance_diagnostics_enabled")
-        val ADVANCED_PERFORMANCE_DIAGNOSTICS_STARTED_AT =
-            longPreferencesKey("advanced_performance_diagnostics_started_at_epoch_ms")
-        val ADVANCED_PERFORMANCE_DIAGNOSTICS_EXPIRES_AT =
-            longPreferencesKey("advanced_performance_diagnostics_expires_at_epoch_ms")
         val IMMERSIVE_LYRICS_ENABLED = booleanPreferencesKey("immersive_lyrics_enabled")
         val IMMERSIVE_LYRICS_TIMEOUT = longPreferencesKey("immersive_lyrics_timeout")
         val USE_ANIMATED_LYRICS = booleanPreferencesKey("use_animated_lyrics")
@@ -1650,6 +1635,38 @@ constructor(
         }
     }
 
+    val installedDictionariesFlow: Flow<Map<String, Int>> =
+        dataStore.data.map { preferences ->
+            val raw = preferences[PreferencesKeys.INSTALLED_DICTIONARIES_JSON]
+                ?: return@map emptyMap()
+            runCatching { json.decodeFromString<Map<String, Int>>(raw) }
+                .getOrDefault(emptyMap())
+        }.distinctUntilChanged()
+
+    suspend fun setInstalledDictionaryVersion(packId: String, version: Int) {
+        dataStore.edit { preferences ->
+            val current = readInstalledDictionaries(preferences)
+            preferences[PreferencesKeys.INSTALLED_DICTIONARIES_JSON] =
+                json.encodeToString(current + (packId to version))
+        }
+    }
+
+    suspend fun removeInstalledDictionaryVersion(packId: String) {
+        dataStore.edit { preferences ->
+            val current = readInstalledDictionaries(preferences)
+            preferences[PreferencesKeys.INSTALLED_DICTIONARIES_JSON] =
+                json.encodeToString(current - packId)
+        }
+    }
+
+    private fun readInstalledDictionaries(
+        preferences: Preferences
+    ): Map<String, Int> {
+        val raw = preferences[PreferencesKeys.INSTALLED_DICTIONARIES_JSON] ?: return emptyMap()
+        return runCatching { json.decodeFromString<Map<String, Int>>(raw) }
+            .getOrDefault(emptyMap())
+    }
+
     suspend fun setResumeAfterCall(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.RESUME_AFTER_CALL] = enabled
@@ -2034,45 +2051,6 @@ constructor(
     suspend fun setHapticsEnabled(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.HAPTICS_ENABLED] = enabled
-        }
-    }
-
-    val advancedPerformanceDiagnosticsSettingsFlow: Flow<AdvancedPerformanceDiagnosticsSettings> =
-        dataStore.data.map { preferences ->
-            AdvancedPerformanceDiagnosticsSettings(
-                enabled = preferences[PreferencesKeys.ADVANCED_PERFORMANCE_DIAGNOSTICS_ENABLED] ?: false,
-                sessionStartedEpochMs =
-                    preferences[PreferencesKeys.ADVANCED_PERFORMANCE_DIAGNOSTICS_STARTED_AT],
-                expiresAtEpochMs =
-                    preferences[PreferencesKeys.ADVANCED_PERFORMANCE_DIAGNOSTICS_EXPIRES_AT]
-            )
-        }.distinctUntilChanged()
-
-    suspend fun setAdvancedPerformanceDiagnosticsEnabled(enabled: Boolean) {
-        dataStore.edit { preferences ->
-            if (enabled) {
-                val now = System.currentTimeMillis()
-                preferences[PreferencesKeys.ADVANCED_PERFORMANCE_DIAGNOSTICS_ENABLED] = true
-                preferences[PreferencesKeys.ADVANCED_PERFORMANCE_DIAGNOSTICS_STARTED_AT] = now
-                preferences[PreferencesKeys.ADVANCED_PERFORMANCE_DIAGNOSTICS_EXPIRES_AT] =
-                    now + AdvancedPerformanceDiagnostics.DEFAULT_SESSION_DURATION_MS
-            } else {
-                preferences[PreferencesKeys.ADVANCED_PERFORMANCE_DIAGNOSTICS_ENABLED] = false
-                preferences.remove(PreferencesKeys.ADVANCED_PERFORMANCE_DIAGNOSTICS_STARTED_AT)
-                preferences.remove(PreferencesKeys.ADVANCED_PERFORMANCE_DIAGNOSTICS_EXPIRES_AT)
-            }
-        }
-    }
-
-    suspend fun disableExpiredAdvancedPerformanceDiagnostics(nowEpochMs: Long = System.currentTimeMillis()) {
-        dataStore.edit { preferences ->
-            val enabled = preferences[PreferencesKeys.ADVANCED_PERFORMANCE_DIAGNOSTICS_ENABLED] ?: false
-            val expiresAt = preferences[PreferencesKeys.ADVANCED_PERFORMANCE_DIAGNOSTICS_EXPIRES_AT]
-            if (enabled && (expiresAt == null || nowEpochMs >= expiresAt)) {
-                preferences[PreferencesKeys.ADVANCED_PERFORMANCE_DIAGNOSTICS_ENABLED] = false
-                preferences.remove(PreferencesKeys.ADVANCED_PERFORMANCE_DIAGNOSTICS_STARTED_AT)
-                preferences.remove(PreferencesKeys.ADVANCED_PERFORMANCE_DIAGNOSTICS_EXPIRES_AT)
-            }
         }
     }
 
