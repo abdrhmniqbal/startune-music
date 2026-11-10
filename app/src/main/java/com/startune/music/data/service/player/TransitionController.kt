@@ -21,6 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -123,11 +124,31 @@ class TransitionController @Inject constructor(
         currentObservedPlayer = engine.masterPlayer
         currentObservedPlayer?.addListener(transitionListener!!)
         engine.addPlayerSwapListener(swapListener)
+
+        // A sleep timer that stops at the end of the track must not crossfade into the next
+        // one; once it clears, the current track gets its transition back. A crossfade that
+        // is already running is left alone: the swap reschedules for the incoming track.
+        scope.launch {
+            engine.sleepTimerHold
+                .map { it.suppressCrossfade }
+                .distinctUntilChanged()
+                .drop(1)
+                .collect {
+                    if (engine.isTransitionRunning()) return@collect
+                    engine.masterPlayer.currentMediaItem?.let { scheduleTransitionFor(it) }
+                }
+        }
     }
 
     private fun scheduleTransitionFor(currentMediaItem: MediaItem) {
         transitionSchedulerJob?.cancel()
         engine.setPauseAtEndOfMediaItems(shouldPause = false)
+
+        if (engine.sleepTimerHold.value.suppressCrossfade) {
+            Timber.tag("TransitionDebug").d("Sleep timer holds playback at track end. No transition.")
+            if (!engine.isTransitionRunning()) engine.cancelNext()
+            return
+        }
 
         transitionSchedulerJob = scope.launch {
             if (engine.isTransitionRunning()) {

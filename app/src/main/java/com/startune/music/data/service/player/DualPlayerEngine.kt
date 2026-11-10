@@ -298,6 +298,27 @@ class DualPlayerEngine @Inject constructor(
     val activeDecoderInfo: StateFlow<ActiveDecoderInfo?> = _activeDecoderInfo.asStateFlow()
 
     /**
+     * Sleep-timer hold, owned by SleepTimerController. Survives player swaps because it is
+     * re-applied to whichever player is master: crossfades stay off while it is set, and
+     * [SleepTimerHold.pauseAtEndOfCurrentItem] pauses the master when the current item ends
+     * whatever the repeat or shuffle mode (ExoPlayer pauses before advancing or looping).
+     */
+    data class SleepTimerHold(
+        val suppressCrossfade: Boolean = false,
+        val pauseAtEndOfCurrentItem: Boolean = false,
+        val keepCpuAwake: Boolean = false,
+    )
+
+    private val _sleepTimerHold = MutableStateFlow(SleepTimerHold())
+    val sleepTimerHold: StateFlow<SleepTimerHold> = _sleepTimerHold.asStateFlow()
+
+    /** What TransitionController asked for; the effective flag also honours the sleep-timer hold. */
+    private var transitionPauseAtEnd = false
+    private var lastSleepingForOffload = false
+
+    private val onPausedAtEndOfItemListeners = mutableListOf<() -> Unit>()
+
+    /**
      * Whether ExoPlayer audio offload is currently enabled for this session. Exposed
      * read-only for the diagnostic performance report.
      */
@@ -565,6 +586,14 @@ class DualPlayerEngine @Inject constructor(
                 scheduleAudioOffloadFallbackIfNeeded(playerA)
             } else {
                 cancelAudioOffloadFallback()
+                // A crossfade's outgoing player also pauses at its end, but by then the
+                // incoming one is the track the sleep timer is waiting on.
+                if (reason == Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM &&
+                    _sleepTimerHold.value.pauseAtEndOfCurrentItem &&
+                    !transitionRunning
+                ) {
+                    onPausedAtEndOfItemListeners.toList().forEach { it() }
+                }
             }
         }
 
@@ -590,8 +619,13 @@ class DualPlayerEngine @Inject constructor(
         @Suppress("UnsafeOptInUsageError")
         override fun onSleepingForOffloadChanged(sleepingForOffload: Boolean) {
             if (!::playerA.isInitialized) return
+            lastSleepingForOffload = sleepingForOffload
             val baseMode = wakeModeFor(playerA.currentMediaItem)
-            val desiredMode = if (sleepingForOffload && baseMode == C.WAKE_MODE_LOCAL) {
+            // Not while a duration sleep timer is pending: its countdown runs on a
+            // Handler, whose clock stops while the CPU sleeps.
+            val desiredMode = if (sleepingForOffload && baseMode == C.WAKE_MODE_LOCAL &&
+                !_sleepTimerHold.value.keepCpuAwake
+            ) {
                 C.WAKE_MODE_NONE
             } else {
                 baseMode
@@ -1028,7 +1062,8 @@ class DualPlayerEngine @Inject constructor(
 
         addMasterPlayerListeners(playerA)
         playerA.volume = state.volume
-        playerA.pauseAtEndOfMediaItems = state.pauseAtEndOfMediaItems
+        playerA.pauseAtEndOfMediaItems =
+            state.pauseAtEndOfMediaItems || _sleepTimerHold.value.pauseAtEndOfCurrentItem
         playerA.playbackParameters = state.playbackParameters
 
         if (state.mediaItems.isNotEmpty()) {
@@ -1376,8 +1411,60 @@ class DualPlayerEngine @Inject constructor(
     }
 
     fun setPauseAtEndOfMediaItems(shouldPause: Boolean) {
+        transitionPauseAtEnd = shouldPause
+        applyPauseAtEndOfMediaItems()
+    }
+
+    private fun applyPauseAtEndOfMediaItems() {
         if (::playerA.isInitialized) {
-            playerA.pauseAtEndOfMediaItems = shouldPause
+            playerA.pauseAtEndOfMediaItems =
+                transitionPauseAtEnd || _sleepTimerHold.value.pauseAtEndOfCurrentItem
+        }
+    }
+
+    fun setSleepTimerHold(hold: SleepTimerHold) {
+        val previous = _sleepTimerHold.value
+        if (previous == hold) return
+        _sleepTimerHold.value = hold
+        applyPauseAtEndOfMediaItems()
+        if (previous.keepCpuAwake != hold.keepCpuAwake) applyOffloadAwareWakeMode()
+    }
+
+    /** Fires on the main thread when the master paused because a sleep-timer hold asked it to. */
+    fun addPausedAtEndOfItemListener(listener: () -> Unit) {
+        onPausedAtEndOfItemListeners.add(listener)
+    }
+
+    fun removePausedAtEndOfItemListener(listener: () -> Unit) {
+        onPausedAtEndOfItemListeners.remove(listener)
+    }
+
+    /**
+     * While ExoPlayer reports the audio HAL is playing via offload, the CPU doesn't need a
+     * wake lock to keep playing, so drop to [C.WAKE_MODE_NONE]. Not while a duration sleep
+     * timer is pending, though: its countdown runs on a Handler, whose clock stops while the
+     * CPU sleeps. Only local media is overridden; remote schemes keep [C.WAKE_MODE_NETWORK]
+     * for the wifi lock.
+     */
+    private fun applyOffloadAwareWakeMode() {
+        if (!::playerA.isInitialized) return
+        val baseMode = wakeModeFor(playerA.currentMediaItem)
+        val desiredMode = if (
+            lastSleepingForOffload &&
+            baseMode == C.WAKE_MODE_LOCAL &&
+            !_sleepTimerHold.value.keepCpuAwake
+        ) {
+            C.WAKE_MODE_NONE
+        } else {
+            baseMode
+        }
+        if (currentWakeMode == desiredMode) return
+        try {
+            playerA.setWakeMode(desiredMode)
+            playerB?.setWakeMode(desiredMode)
+            currentWakeMode = desiredMode
+        } catch (e: Exception) {
+            Timber.tag("DualPlayerEngine").w(e, "Failed to apply offload-aware wake mode")
         }
     }
 
