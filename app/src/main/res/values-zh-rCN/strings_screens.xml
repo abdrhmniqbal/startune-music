@@ -174,7 +174,6 @@
 
     <!-- About -->
     <string name="about_no_contributors">当前未找到贡献者。请稍后重试。</string>
-    <string name="about_app_name">Startune Music</string>
     <string name="about_tagline">由社区共同打造的开源音乐播放器。</string>
     <string name="about_version_format">版本 v%1$s</string>
     <string name="about_contributions_format">%1$d 次贡献</string>

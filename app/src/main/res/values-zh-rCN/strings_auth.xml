@@ -22,7 +22,6 @@
     <string name="auth_jellyfin_info_card">连接到 Jellyfin 服务器。对于局域网访问，同时支持 HTTP 和 HTTPS。</string>
     <string name="auth_jellyfin_subtitle">连接到你的 Jellyfin 媒体服务器</string>
     <string name="auth_jellyfin_connection_subtitle">输入你的 Jellyfin 服务器 URL 和账户凭据。</string>
-    <string name="auth_jellyfin_server_placeholder">http://192.168.1.100:8096</string>
     <string name="auth_jellyfin_server_url_hint">你的 Jellyfin 服务器完整 URL，包括端口。</string>
     <string name="auth_jellyfin_username_hint">你的 Jellyfin 账户用户名。</string>
     <string name="auth_jellyfin_password_hint">你的 Jellyfin 账户密码。</string>

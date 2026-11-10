@@ -358,7 +358,6 @@
     <string name="presentation_batch_g_album_sel_queue_hint">加入队列并播放会遵循你的选择顺序。</string>
     <string name="presentation_batch_g_album_sel_limit">限制：每次最多选择 %1$d 张专辑。</string>
     <string name="presentation_batch_g_album_sel_add_queue_play">加入队列并播放</string>
-    <string name="presentation_batch_g_app_name">Startune Music</string>
     <string name="presentation_batch_g_app_tagline">音乐播放器</string>
     <string name="presentation_batch_g_brick_high">最高 %1$d</string>
     <string name="presentation_batch_g_brick_cd_close">关闭</string>

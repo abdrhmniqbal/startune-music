@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Startune Music</string>
     <string name="app_name_change_title">应用已更名</string>
     <string name="app_name_change_message">由于商标相关问题，我们已将应用名称从 Startune Music 更改为 Startune Music。继续畅听！</string>
     <string name="do_not_show_again">不再显示</string>
@@ -19,7 +18,6 @@
     <string name="loading_lyrics">正在加载歌词……</string>
     <string name="cant_find_lyrics">找不到这首歌的歌词。</string>
     <string name="lyrics_provided_by">歌词提供方</string>
-    <string name="lrclib_uri">https://lrclib.net/</string>
     <string name="lyrics_not_found">未找到歌词</string>
     <string name="search_lyrics_online_prompt">要在线搜索歌词吗？</string>
     <string name="lyrics_custom_search_hint">我们无法自动找到歌词。你可以修改标题或艺术家后再手动搜索。</string>
@@ -123,7 +121,6 @@
     <string name="playlist_share_failed">分享失败：%1$s</string>
     <string name="playlist_none_to_export">没有可导出的播放列表</string>
     <string name="playlist_export_failed">导出失败：%1$s</string>
-    <string name="playlist_export_folder_display">Music/Startune Music Exports</string>
     <string name="ai_playlist_gemini_key_required">请在“设置”中配置你的 Gemini API 密钥。</string>
     <string name="error_unknown">未知错误</string>
 
@@ -259,22 +256,22 @@ YT链接</string>
     <string name="cd_player_more_options">更多选项</string>
     <string name="cd_player_theme">更改主题</string>
     <string name="cloud_downloads_title">下载</string>
-    <string name="cloud_downloads_settings_subtitle">管理离线曲目和存储</string>
-    <string name="cloud_downloads_storage_used">使用离线存储</string>
-    <string name="cloud_downloads_storage_summary">%1$d 已完成 · %2$d 总计</string>
-    <string name="cloud_downloads_active_section">排队并下载</string>
+    <string name="cloud_downloads_settings_subtitle">管理离线云端曲目和存储空间</string>
+    <string name="cloud_downloads_storage_used">离线存储已用空间</string>
+    <string name="cloud_downloads_storage_summary">已完成 %1$d 首 · 共 %2$d 首</string>
+    <string name="cloud_downloads_active_section">排队与下载中</string>
     <string name="cloud_downloads_failed_section">失败</string>
     <string name="cloud_downloads_completed_section">已完成</string>
     <string name="cloud_downloads_section_count">%1$s · %2$d</string>
     <string name="cloud_downloads_unknown_track">未知曲目</string>
-    <string name="cloud_downloads_downloaded_size">已下载·%1$s</string>
+    <string name="cloud_downloads_downloaded_size">已下载 · %1$s</string>
     <string name="cloud_downloads_failed_fallback">下载失败</string>
-    <string name="cloud_downloads_empty_title">没有离线下载</string>
-    <string name="cloud_downloads_empty_subtitle">您下载的曲目将显示在此处。</string>
+    <string name="cloud_downloads_empty_title">暂无离线下载</string>
+    <string name="cloud_downloads_empty_subtitle">你下载的云端曲目会显示在这里。</string>
     <string name="cloud_download_retry">重试</string>
-    <string name="cloud_remove_download">删除</string>
-    <string name="cloud_download_queued">排队</string>
-    <string name="cloud_downloading">正在下载...</string>
+    <string name="cloud_remove_download">移除下载</string>
+    <string name="cloud_download_queued">排队中</string>
+    <string name="cloud_downloading">正在下载…</string>
     <string name="cloud_download_progress">%1$d%%</string>
     <string name="cloud_download_select_all">全选</string>
     <string name="cloud_download_deselect_all">取消选择全部</string>
@@ -283,4 +280,20 @@ YT链接</string>
     <string name="cloud_download_play_all">全部播放</string>
     <string name="cloud_download_shuffle_all">全部随机播放</string>
     <string name="in_your_library">在你的图书馆里</string>
+    <string name="cloud_download_action">下载</string>
+    <string name="cloud_album_download">下载专辑</string>
+    <string name="cloud_album_remove_downloads">移除下载</string>
+    <string name="cloud_download_selected">下载所选云端曲目</string>
+    <string name="cloud_download_selected_count">下载 %1$d 首云端曲目</string>
+    <string name="cloud_download_selected_started">正在准备 %1$d 首云端曲目以供离线播放</string>
+    <string name="musicbrainz_lookup">在 MusicBrainz 上查找</string>
+    <string name="musicbrainz_searching">正在搜索匹配的录音…</string>
+    <string name="musicbrainz_lookup_failed">MusicBrainz 查询失败</string>
+    <string name="musicbrainz_search_failed_fallback">MusicBrainz 搜索失败</string>
+    <string name="musicbrainz_save_failed_fallback">无法保存 MusicBrainz 元数据</string>
+    <string name="musicbrainz_choose_match">选择 MusicBrainz 匹配项</string>
+    <string name="musicbrainz_no_results">未找到合适的录音。</string>
+    <string name="musicbrainz_match_score">匹配度：%1$d%%</string>
+    <string name="musicbrainz_applied">已保存 MusicBrainz 标识符，并补全了缺失的年份和占位名称。</string>
+    <string name="cloud_playlist_download">下载歌单</string>
 </resources>

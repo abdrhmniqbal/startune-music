@@ -264,7 +264,6 @@
     <string name="dialog_regenerate_stats_title">重新生成统计？</string>
     <string name="dialog_regenerate_stats_body">这将清除统计缓存，并根据数据库历史强制重新计算。</string>
     <string name="toast_stats_regeneration_started">统计重新生成已开始</string>
-    <string name="backup_file_name_format">Startune Music_Backup_%1$d.starbk</string>
 
     <string name="setcat_regenerate_stats_action">重新生成统计</string>
     <string name="setcat_force_palette_empty">未找到带专辑封面的歌曲。</string>
@@ -406,4 +405,29 @@
     <string name="setcat_playback_client_title">播放客户端</string>
     <string name="setcat_playback_client_android_vr">Android VR（默认）</string>
     <string name="setcat_playback_client_web_remix">Web 客户端</string>
+    <string name="playback_speed_state_description">%1$s 倍</string>
+    <string name="updates_title">更新</string>
+    <string name="updates_settings_subtitle">版本检查与发布渠道</string>
+    <string name="updates_installed_version">已安装：%1$s</string>
+    <string name="updates_status_idle">检查是否有更新的构建。</string>
+    <string name="updates_status_checking">正在检查更新…</string>
+    <string name="updates_status_available">有可用的新版本 %1$s。</string>
+    <string name="updates_status_downloading_progress">正在下载 %1$s… %2$d%%</string>
+    <string name="updates_action_check">检查更新</string>
+    <string name="updates_action_check_again">重新检查</string>
+    <string name="updates_action_install">下载并安装</string>
+    <string name="updates_action_release_notes">版本说明</string>
+    <string name="updates_action_dismiss">关闭</string>
+    <string name="setcat_m3u_sync_section">歌单同步</string>
+    <string name="setcat_m3u_sync_title">自动 M3U 同步</string>
+    <string name="setcat_m3u_sync_disabled_subtitle">选择一个外部文件夹，让本地歌单双向保持同步</string>
+    <string name="setcat_m3u_sync_enabled_subtitle">正在与 %1$s 同步</string>
+    <string name="setcat_m3u_sync_selected_folder">所选文件夹</string>
+    <string name="setcat_m3u_sync_now_title">立即同步歌单</string>
+    <string name="setcat_m3u_sync_now_subtitle">导入并导出更改，不覆盖冲突项</string>
+    <string name="setcat_m3u_sync_result">%1$d 项已更改 · %2$d 项冲突 · %3$d 项未解决</string>
+    <string name="setcat_global_now_playing_theme_title">在整个应用中使用当前播放歌曲的配色</string>
+    <string name="setcat_global_now_playing_theme_subtitle">根据当前歌曲的专辑封面为整个应用配色，仍遵循浅色和深色模式。</string>
+    <string name="setcat_keep_screen_awake_title">播放时保持屏幕常亮</string>
+    <string name="setcat_keep_screen_awake_subtitle">音乐正在播放且应用可见时，防止屏幕休眠。</string>
 </resources>

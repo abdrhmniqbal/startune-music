@@ -2,7 +2,7 @@
 <resources>
     <!-- Navigation / misc -->
     <string name="nav_error_genre_id_missing">Kesalahan: ID Genre hilang</string>
-    <string name="easter_egg_thank_you">Terima kasih telah menggunakan Startune Music!</string>
+    <string name="easter_egg_thank_you">Terima kasih telah menggunakan PixelPlayerOSS!</string>
 
     <!-- Word delimiter config -->
     <string name="word_delimiter_section_title">Pemisah Kata Saat Ini</string>
@@ -94,22 +94,22 @@
     <string name="setup_excluded_folders_description">Pilih folder yang ingin diabaikan saat memindai musik.</string>
     <string name="setup_choose_folders_ignore">Pilih folder untuk diabaikan</string>
     <string name="setup_permission_media_title">Izin Media</string>
-    <string name="setup_permission_media_description">Startune Music memerlukan akses ke file audio Anda untuk membangun pustaka musik Anda.</string>
+    <string name="setup_permission_media_description">PixelPlayerOSS memerlukan akses ke file audio Anda untuk membangun pustaka musik Anda.</string>
     <string name="setup_permission_granted">Izin Diberikan</string>
     <string name="setup_grant_media_permission">Berikan Izin Media</string>
     <string name="setup_permission_notifications_title">Notifikasi</string>
     <string name="setup_permission_notifications_description">Aktifkan notifikasi untuk mengontrol musik Anda dari layar kunci dan panel notifikasi.</string>
     <string name="setup_enable_notifications">Aktifkan Notifikasi</string>
     <string name="setup_permission_alarms_title">Alarm &amp; Pengingat</string>
-    <string name="setup_permission_alarms_description">Memungkinkan Pengatur Waktu Tidur menghentikan musik tepat waktu.</string>
+    <string name="setup_permission_alarms_description">Opsional, tetapi disarankan jika Anda menggunakan Timer Tidur dan ingin PixelPlayerOSS menghentikan pemutaran tepat waktu.</string>
     <string name="setup_grant_permission_generic">Berikan Izin</string>
     <string name="setup_backup_have_title">Apakah Anda memiliki cadangan?</string>
-    <string name="setup_backup_have_description">Pulihkan cadangan Startune Music untuk melewati penyiapan di perangkat ini.</string>
+    <string name="setup_backup_have_description">Jika Anda sudah memiliki cadangan PixelPlayerOSS, pulihkan sekarang dan lewati sebagian besar penyiapan lainnya di perangkat ini.</string>
     <string name="setup_inspecting_backup">Memeriksa cadangan</string>
     <string name="setup_restoring_backup">Memulihkan cadangan</string>
     <string name="setup_import_backup">Impor cadangan</string>
     <string name="setup_theme_dark_title">Gelap</string>
-    <string name="setup_theme_dark_description">Tampilan gelap Material 3 default untuk Startune Music.</string>
+    <string name="setup_theme_dark_description">Tampilan gelap Material 3 bawaan untuk PixelPlayerOSS.</string>
     <string name="setup_theme_light_title">Terang</string>
     <string name="setup_theme_light_description">Tampilan Material 3 yang lebih cerah di seluruh aplikasi.</string>
     <string name="setup_theme_follow_title">Ikuti sistem</string>
@@ -129,7 +129,7 @@
 
     <!-- Home / detail shared -->
     <string name="home_your_mix_title">Your\nMix</string>
-    <string name="home_empty_placeholder_subtitle">Mix Anda akan muncul di sini saat Startune Music menemukan lagu atau menyinkronkan sumber.</string>
+    <string name="home_empty_placeholder_subtitle">Mix Anda akan muncul di sini saat PixelPlayerOSS menemukan lagu atau menyinkronkan sumber.</string>
     <string name="home_empty_placeholder_refresh">Refresh</string>
     <string name="cd_shuffle_play">Putar Acak</string>
     <string name="cd_album_art_for_title">Sampul album untuk %1$s</string>
@@ -151,7 +151,7 @@
     <string name="crash_report_stack_preview_label">Stack trace (pratinjau):</string>
     <string name="crash_report_clipboard_label">Log crash</string>
     <string name="toast_crash_log_copied">Log crash disalin ke papan klip</string>
-    <string name="crash_report_share_subject">Laporan crash Startune Music</string>
+    <string name="crash_report_share_subject">Laporan crash PixelPlayerOSS</string>
     <string name="crash_report_share_chooser">Bagikan laporan crash</string>
     <string name="action_copy">Salin</string>
     <string name="action_share">Bagikan</string>
@@ -445,4 +445,5 @@
     <string name="toast_download_cancelled">Unduhan dibatalkan</string>
     <string name="toast_download_started">Unduhan dimulai</string>
     <string name="toast_removed_dislike">Batal tidak suka</string>
+    <string name="setup_external_services_subtitle">PixelPlayerOSS bekerja secara offline secara default. Aktifkan hanya pencarian yang Anda inginkan.</string>
 </resources>

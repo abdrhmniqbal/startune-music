@@ -354,4 +354,12 @@
     <string name="presentation_batch_g_topbar_build_stable">مستقر</string>
     <string name="presentation_batch_g_topbar_cd_changelog">سجل التغييرات</string>
     <string name="presentation_batch_g_yes">نعم</string>
+    <string name="presentation_batch_g_artist_info_body">يقسّم PixelPlayerOSS وسوم الفنانين باستخدام محددات الأحرف (/، ;، &amp;) ومحددات الكلمات (feat.، ft.، vs.، x). تتم مطابقة محددات الكلمات دون مراعاة حالة الأحرف.
+
+"استخراج الفنانين من العنوان" يكتشف أنماطاً مثل (feat. Artist) في عناوين الأغاني.
+
+    يمكن استخدام الشرطة المائلة العكسية (\) لتعطيل مفعول محددات الأحرف.</string>
+    <string name="presentation_batch_g_beta_sheet_welcome_title">مرحباً بك في PixelPlayerOSS %1$s</string>
+    <string name="presentation_batch_g_beta_sheet_before_2">حدّث إلى أحدث إصدار من PixelPlayerOSS وتأكد من أن المشكلة لا تزال قائمة.</string>
+    <string name="presentation_batch_g_beta_sheet_env_version">إصدار PixelPlayerOSS:</string>
 </resources>
