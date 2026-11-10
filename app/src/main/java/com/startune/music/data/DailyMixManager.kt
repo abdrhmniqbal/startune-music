@@ -478,6 +478,25 @@ class DailyMixManager @Inject constructor(
         return orderedResult.take(limit.coerceAtMost(orderedResult.size))
     }
 
+    /**
+     * Picks one replacement song for a mix entry that was removed, using the
+     * same daily seed and ranking as [generateYourMix] so the backfill fits
+     * the mix. Returns null when every library song is already in the mix.
+     */
+    suspend fun pickBackfillSong(
+        allSongs: List<Song>,
+        favoriteSongIds: Set<String> = emptySet(),
+        excludeIds: Set<String>
+    ): Song? {
+        if (allSongs.isEmpty()) return null
+        val calendar = Calendar.getInstance()
+        val seed = calendar.get(Calendar.YEAR) * 1000 + calendar.get(Calendar.DAY_OF_YEAR) + 17
+        val random = java.util.Random(seed.toLong())
+        val rankedSongs = computeRankedSongs(allSongs, favoriteSongIds, random)
+        rankedSongs.firstOrNull { it.song.id !in excludeIds }?.song?.let { return it }
+        return allSongs.filterNot { it.id in excludeIds }.shuffled(random).firstOrNull()
+    }
+
     private fun pickWithDiversity(
         rankedSongs: List<RankedSong>,
         favoriteSongIds: Set<String>,

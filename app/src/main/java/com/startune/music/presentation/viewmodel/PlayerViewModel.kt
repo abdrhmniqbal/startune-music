@@ -1271,6 +1271,20 @@ class PlayerViewModel @Inject constructor(
         dailyMixStateHolder.removeFromDailyMix(songId)
     }
 
+    val forYouMixSongCount: StateFlow<Int> = userPreferencesRepository.forYouMixSongCountFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 60)
+
+    fun removeFromYourMix(songId: String) {
+        dailyMixStateHolder.removeFromYourMix(songId, favoriteSongIds)
+    }
+
+    fun setForYouMixSongCount(count: Int) {
+        viewModelScope.launch {
+            userPreferencesRepository.setForYouMixSongCount(count)
+            dailyMixStateHolder.updateYourMix(favoriteSongIds, count)
+        }
+    }
+
     /**
      * Observes a song by ID from Room DB, combined with the latest favorite status.
      * Uses direct Room query instead of scanning the full in-memory list.

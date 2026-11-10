@@ -126,6 +126,7 @@ constructor(
         val LAST_DAILY_MIX_UPDATE = longPreferencesKey("last_daily_mix_update")
         val DAILY_MIX_SONG_IDS = stringPreferencesKey("daily_mix_song_ids")
         val YOUR_MIX_SONG_IDS = stringPreferencesKey("your_mix_song_ids")
+        val FOR_YOU_MIX_SONG_COUNT = intPreferencesKey("for_you_mix_song_count")
         val NAV_BAR_CORNER_RADIUS = intPreferencesKey("nav_bar_corner_radius")
         val NAV_BAR_STYLE = stringPreferencesKey("nav_bar_style")
         val NAV_BAR_COMPACT_MODE = booleanPreferencesKey("nav_bar_compact_mode")
@@ -883,6 +884,17 @@ constructor(
     suspend fun saveYourMixSongIds(songIds: List<String>) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.YOUR_MIX_SONG_IDS] = json.encodeToString(songIds)
+        }
+    }
+
+    val forYouMixSongCountFlow: Flow<Int> =
+            dataStore.data.map { preferences ->
+                (preferences[PreferencesKeys.FOR_YOU_MIX_SONG_COUNT] ?: 60).coerceIn(10, 100)
+            }
+
+    suspend fun setForYouMixSongCount(count: Int) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.FOR_YOU_MIX_SONG_COUNT] = count.coerceIn(10, 100)
         }
     }
 

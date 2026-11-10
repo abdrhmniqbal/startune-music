@@ -101,6 +101,7 @@ import com.startune.music.presentation.model.mapRecentlyPlayedSongs
 import com.startune.music.presentation.components.subcomps.PlayingEqIcon
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.components.StreamingProviderSheet
+import com.startune.music.presentation.viewmodel.MixIds
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.SettingsViewModel
 import com.startune.music.presentation.viewmodel.StatsViewModel
@@ -364,13 +365,16 @@ fun HomeScreen(
                         YourMixHeader(
                             song = yourMixSong,
                             isShuffleEnabled = isShuffleEnabled,
+                            onOpenDetails = {
+                                navController.navigateSafely(Screen.MixDetail.createRoute(MixIds.FOR_YOU))
+                            },
                             onPlayShuffled = {
                                 if (usesFallbackHomeMix) {
-                                    playerViewModel.shuffleAllSongs(queueName = "Your Mix")
+                                    playerViewModel.shuffleAllSongs(queueName = "For You Mix")
                                 } else {
                                     playerViewModel.playSongsShuffled(
                                         songsToPlay = yourMixSongs,
-                                        queueName = "Your Mix",
+                                        queueName = "For You Mix",
                                         startAtZero = true,
                                     )
                                 }
@@ -406,9 +410,9 @@ fun HomeScreen(
                             pattern = activePattern,
                             onSongClick = { song ->
                                 if (usesFallbackHomeMix) {
-                                    playerViewModel.showAndPlaySongFromLibrary(song, queueName = "Your Mix")
+                                    playerViewModel.showAndPlaySongFromLibrary(song, queueName = "For You Mix")
                                 } else {
-                                    playerViewModel.showAndPlaySong(song, yourMixSongs, "Your Mix")
+                                    playerViewModel.showAndPlaySong(song, yourMixSongs, "For You Mix")
                                 }
                             }
                         )
@@ -644,6 +648,7 @@ private fun YourMixEmptyPlaceholder(
 fun YourMixHeader(
     song: String,
     isShuffleEnabled: Boolean = false,
+    onOpenDetails: () -> Unit,
     onPlayShuffled: () -> Unit
 ) {
     val buttonCorners = 68.dp
@@ -661,6 +666,7 @@ fun YourMixHeader(
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(top = 48.dp, start = 12.dp)
+                .clickable(onClick = onOpenDetails)
         ) {
             Text(
                 text = stringResource(R.string.home_your_mix_title),
