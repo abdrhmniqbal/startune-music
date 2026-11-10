@@ -172,6 +172,7 @@ constructor(
         val RECAP_HOME_CARD_DISMISSED_YEAR = intPreferencesKey("recap_home_card_dismissed_year")
         val PLAYED_THRESHOLD_PERCENT = intPreferencesKey("played_threshold_percent")
         val PLAYBACK_SPEED = androidx.datastore.preferences.core.floatPreferencesKey("playback_speed")
+        val SHOW_SCROLLBAR = booleanPreferencesKey("show_scrollbar")
         val AUTOPLAY_ON_SKIP = booleanPreferencesKey("autoplay_on_skip")
         val CUSTOM_GENRES = androidx.datastore.preferences.core.stringSetPreferencesKey("custom_genres")
         val CUSTOM_GENRE_ICONS = stringPreferencesKey("custom_genre_icons")
@@ -400,6 +401,17 @@ constructor(
     suspend fun setAutoplayOnSkip(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.AUTOPLAY_ON_SKIP] = enabled
+        }
+    }
+
+    val showScrollbarFlow: Flow<Boolean> =
+        dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.SHOW_SCROLLBAR] ?: true
+        }.distinctUntilChanged()
+
+    suspend fun setShowScrollbar(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_SCROLLBAR] = enabled
         }
     }
 

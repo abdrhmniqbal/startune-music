@@ -61,6 +61,7 @@ data class SettingsUiState(
     val appThemeMode: String = AppThemeMode.FOLLOW_SYSTEM,
     val globalNowPlayingThemeEnabled: Boolean = false,
     val pitchBlackEnabled: Boolean = false,
+    val showScrollbar: Boolean = true,
     val autoplayOnSkip: Boolean = true,
     val playerThemePreference: String = ThemePreference.ALBUM_ART,
     val albumArtPaletteStyle: AlbumArtPaletteStyle = AlbumArtPaletteStyle.default,
@@ -296,6 +297,12 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferencesRepository.autoplayOnSkipFlow.collect { enabled ->
                 _uiState.update { it.copy(autoplayOnSkip = enabled) }
+            }
+        }
+
+        viewModelScope.launch {
+            userPreferencesRepository.showScrollbarFlow.collect { enabled ->
+                _uiState.update { it.copy(showScrollbar = enabled) }
             }
         }
     }
@@ -942,6 +949,12 @@ class SettingsViewModel @Inject constructor(
 
     val playbackSpeed: StateFlow<Float> = userPreferencesRepository.playbackSpeedFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1.0f)
+
+    fun setShowScrollbar(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setShowScrollbar(enabled)
+        }
+    }
 
     fun setAutoplayOnSkip(enabled: Boolean) {
         viewModelScope.launch {

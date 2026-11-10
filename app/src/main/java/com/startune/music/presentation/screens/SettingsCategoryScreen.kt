@@ -96,6 +96,7 @@ import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Timer
+import androidx.compose.material.icons.rounded.UnfoldMore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ButtonDefaults
@@ -740,6 +741,14 @@ fun SettingsCategoryScreen(
                                     onCheckedChange = settingsViewModel::setPitchBlackEnabled,
                                     leadingIcon = { Icon(Icons.Outlined.DarkMode, null, tint = MaterialTheme.colorScheme.secondary) },
                                     modifier = Modifier.settingHighlight("item_appearance_pitch_black", highlightKey)
+                                )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_show_scrollbar_title),
+                                    subtitle = stringResource(R.string.setcat_show_scrollbar_subtitle),
+                                    checked = uiState.showScrollbar,
+                                    onCheckedChange = settingsViewModel::setShowScrollbar,
+                                    leadingIcon = { Icon(Icons.Rounded.UnfoldMore, null, tint = MaterialTheme.colorScheme.secondary) },
+                                    modifier = Modifier.settingHighlight("item_appearance_show_scrollbar", highlightKey)
                                 )
                                 SwitchSettingItem(
                                     title = stringResource(R.string.setcat_global_now_playing_theme_title),
