@@ -8,9 +8,9 @@ import com.startune.music.data.stats.PlaybackStatsRepository
 import com.startune.music.data.stats.PlaybackStatsRepository.PlaybackStatsSummary
 import com.startune.music.data.stats.PlaybackStatsRepository.SongPlaybackSummary
 import com.startune.music.data.stats.StatsTimeRange
+import com.startune.music.di.DispatcherProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +32,8 @@ import kotlinx.collections.immutable.toImmutableMap
 @HiltViewModel
 class StatsViewModel @Inject constructor(
     private val playbackStatsRepository: PlaybackStatsRepository,
-    private val musicRepository: MusicRepository
+    private val musicRepository: MusicRepository,
+    private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
     data class StatsUiState(
@@ -90,7 +91,7 @@ class StatsViewModel @Inject constructor(
     fun refreshWeeklyOverview() {
         viewModelScope.launch {
             runCatching {
-                withContext(Dispatchers.IO) {
+                withContext(dispatchers.io) {
                     val songs = loadSongs()
                     playbackStatsRepository.loadSummary(StatsTimeRange.WEEK, songs)
                 }
@@ -107,7 +108,7 @@ class StatsViewModel @Inject constructor(
         homeOverviewJob?.cancel()
         homeOverviewJob = viewModelScope.launch {
             val (summary, topTracks) = try {
-                withContext(Dispatchers.IO) {
+                withContext(dispatchers.io) {
                     val songs = loadSongs()
                     val topTracks = playbackStatsRepository.loadTopTracks(
                         StatsTimeRange.DAY,
@@ -150,7 +151,7 @@ class StatsViewModel @Inject constructor(
                 _uiState.update { it.copy(isRefreshing = true, selectedRange = range) }
             }
             val loaded = runCatching {
-                withContext(Dispatchers.IO) {
+                withContext(dispatchers.io) {
                     val songs = loadSongs()
                     val summary = playbackStatsRepository.loadSummary(range, songs)
                     val topTracks = playbackStatsRepository.loadTopTracks(range, songs)
