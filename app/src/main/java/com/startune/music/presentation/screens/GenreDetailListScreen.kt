@@ -80,6 +80,8 @@ import com.startune.music.presentation.components.LibrarySortBottomSheet
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.PlaylistBottomSheet
 import com.startune.music.presentation.components.subcomps.SelectionActionRow
+import com.startune.music.presentation.selection.dragToSelect
+import com.startune.music.presentation.selection.rememberDragToSelectState
 import com.startune.music.presentation.components.subcomps.SelectionCountPill
 import com.startune.music.presentation.components.SongInfoBottomSheet
 import com.startune.music.data.offline.CloudOfflineRepository
@@ -124,6 +126,14 @@ fun GenreDetailListScreen(
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
 
     val multiSelectionState = playerViewModel.multiSelectionStateHolder
+    val dragSelectState = rememberDragToSelectState<Song>()
+    // Read the holder directly: the collected selectedSongIds lag a frame behind the long press.
+    val currentSelectedSongIds: () -> Set<String> = remember(multiSelectionState) {
+        { multiSelectionState.selectedSongIds.value }
+    }
+    val onSongDragSelectionChange: (List<Song>, List<Song>) -> Unit = remember(multiSelectionState) {
+        { select, deselect -> multiSelectionState.applyDragSelection(select, deselect) }
+    }
     val selectedSongs by multiSelectionState.selectedSongs.collectAsStateWithLifecycle()
     val isSelectionMode by multiSelectionState.isSelectionMode.collectAsStateWithLifecycle()
     val selectedSongIds by multiSelectionState.selectedSongIds.collectAsStateWithLifecycle()
@@ -322,9 +332,23 @@ fun GenreDetailListScreen(
                 }
 
                 if (view == GenreDetailView.Songs) {
+                    // The selection row, when shown, is the list's first item and is not selectable.
+                    val dragSelectSongAt: (Int) -> Song? = remember(sortedRankedSongs, isSelectionMode) {
+                        { index -> sortedRankedSongs.getOrNull(index - if (isSelectionMode) 1 else 0) }
+                    }
                     LazyColumn(
                         state = songsListState,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .dragToSelect(
+                                state = dragSelectState,
+                                listState = songsListState,
+                                itemAt = dragSelectSongAt,
+                                itemKey = Song::id,
+                                selectedKeys = currentSelectedSongIds,
+                                onSelectionChange = onSongDragSelectionChange,
+                                bottomInset = MiniPlayerHeight + systemNavBarInset
+                            ),
                         contentPadding = PaddingValues(
                             top = currentTopBarHeightDp + 8.dp,
                             start = 16.dp,
@@ -366,6 +390,7 @@ fun GenreDetailListScreen(
                                     onLongPress = {
                                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                         multiSelectionState.toggleSelection(song)
+                                        dragSelectState.onItemLongPressed(song)
                                     },
                                     onMoreOptionsClick = { showSongOptionsSheet = it },
                                     onClick = {

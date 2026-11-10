@@ -62,6 +62,9 @@ import com.startune.music.data.model.SortOption
 import com.startune.music.data.model.StorageFilter
 import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.MiniPlayerHeight
+import com.startune.music.presentation.selection.dragToSelect
+import com.startune.music.presentation.selection.rememberDragToSelectState
+
 import com.startune.music.presentation.components.songFastScrollLabel
 import com.startune.music.presentation.components.subcomps.EnhancedSongListItem
 import com.startune.music.presentation.viewmodel.PlayerViewModel
@@ -85,6 +88,8 @@ fun LibraryFavoritesTab(
     onSongLongPress: (Song) -> Unit = {},
     onSongSelectionToggle: (Song) -> Unit = {},
     getSelectionIndex: (String) -> Int? = { null },
+    currentSelectedSongIds: () -> Set<String> = { emptySet() },
+    onSongDragSelectionChange: (select: List<Song>, deselect: List<Song>) -> Unit = { _, _ -> },
     sortOption: SortOption,
     onLocateCurrentSongVisibilityChanged: (Boolean) -> Unit = {},
     onRegisterLocateCurrentSongAction: ((() -> Unit)?) -> Unit = {},
@@ -95,6 +100,10 @@ fun LibraryFavoritesTab(
     val coroutineScope = rememberCoroutineScope()
     val visibilityCallback by rememberUpdatedState(onLocateCurrentSongVisibilityChanged)
     val registerActionCallback by rememberUpdatedState(onRegisterLocateCurrentSongAction)
+    val dragSelectState = rememberDragToSelectState<Song>()
+    val dragSelectSongAt: (Int) -> Song? = remember(favoriteSongs) {
+        { index -> if (index in 0 until favoriteSongs.itemCount) favoriteSongs.peek(index) else null }
+    }
     val favoriteFastScrollLabelProvider = remember(favoriteSongs, sortOption) {
         { index: Int ->
             songFastScrollLabel(
@@ -225,6 +234,15 @@ fun LibraryFavoritesTab(
                                     bottomStart = PlayerSheetCollapsedCornerRadius,
                                     bottomEnd = PlayerSheetCollapsedCornerRadius
                                 )
+                            )
+                            .dragToSelect(
+                                state = dragSelectState,
+                                listState = listState,
+                                itemAt = dragSelectSongAt,
+                                itemKey = Song::id,
+                                selectedKeys = currentSelectedSongIds,
+                                onSelectionChange = onSongDragSelectionChange,
+                                bottomInset = if (hasCurrentSong) bottomBarHeight + MiniPlayerHeight else bottomBarHeight
                             ),
                         state = listState,
                         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -244,7 +262,10 @@ fun LibraryFavoritesTab(
                                     isSelected = selectedSongIds.contains(song.id),
                                     selectionIndex = if (isSelectionMode) getSelectionIndex(song.id) else null,
                                     isSelectionMode = isSelectionMode,
-                                    onLongPress = { onSongLongPress(song) },
+                                    onLongPress = {
+                                        onSongLongPress(song)
+                                        dragSelectState.onItemLongPressed(song)
+                                    },
                                     onClick = {
                                         if (isSelectionMode) {
                                             onSongSelectionToggle(song)
