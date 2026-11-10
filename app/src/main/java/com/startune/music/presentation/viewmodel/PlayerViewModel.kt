@@ -1253,7 +1253,8 @@ class PlayerViewModel @Inject constructor(
         val fullPlayerLoadingTweaks: FullPlayerLoadingTweaks = FullPlayerLoadingTweaks(),
         val tapBackgroundClosesPlayer: Boolean = false,
         val useSmoothCorners: Boolean = true,
-        val playerThemePreference: String = ThemePreference.ALBUM_ART
+        val playerThemePreference: String = ThemePreference.ALBUM_ART,
+        val miniPlayerSwipeToSkip: Boolean = false
     )
 
     private val playerConfigSlicePart1 = combine(
@@ -1277,8 +1278,9 @@ class PlayerViewModel @Inject constructor(
     val playerConfigSlice: StateFlow<PlayerConfigSlice> = combine(
         playerConfigSlicePart1,
         useSmoothCorners,
-        playerThemePreference
-    ) { p1, smoothCorners, themePref ->
+        playerThemePreference,
+        userPreferencesRepository.miniPlayerSwipeToSkipFlow
+    ) { p1, smoothCorners, themePref, swipeToSkip ->
         PlayerConfigSlice(
             navBarCornerRadius = p1.navBarCornerRadius,
             navBarStyle = p1.navBarStyle,
@@ -1286,7 +1288,8 @@ class PlayerViewModel @Inject constructor(
             fullPlayerLoadingTweaks = p1.fullPlayerLoadingTweaks,
             tapBackgroundClosesPlayer = p1.tapBackgroundClosesPlayer,
             useSmoothCorners = smoothCorners,
-            playerThemePreference = themePref
+            playerThemePreference = themePref,
+            miniPlayerSwipeToSkip = swipeToSkip
         )
     }
         .distinctUntilChanged()
@@ -3984,6 +3987,10 @@ class PlayerViewModel @Inject constructor(
 
     fun previousSong() {
         playbackStateHolder.previousSong()
+    }
+
+    fun forcePreviousSong() {
+        playbackStateHolder.forcePreviousSong()
     }
 
     private fun startProgressUpdates() {

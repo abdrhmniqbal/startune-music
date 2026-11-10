@@ -63,6 +63,7 @@ data class SettingsUiState(
     val pitchBlackEnabled: Boolean = false,
     val showScrollbar: Boolean = true,
     val autoplayOnSkip: Boolean = true,
+    val miniPlayerSwipeToSkip: Boolean = false,
     val playerThemePreference: String = ThemePreference.ALBUM_ART,
     val albumArtPaletteStyle: AlbumArtPaletteStyle = AlbumArtPaletteStyle.default,
     val albumArtColorAccuracy: Int = AlbumArtColorAccuracy.DEFAULT,
@@ -297,6 +298,12 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferencesRepository.autoplayOnSkipFlow.collect { enabled ->
                 _uiState.update { it.copy(autoplayOnSkip = enabled) }
+            }
+        }
+
+        viewModelScope.launch {
+            userPreferencesRepository.miniPlayerSwipeToSkipFlow.collect { enabled ->
+                _uiState.update { it.copy(miniPlayerSwipeToSkip = enabled) }
             }
         }
 
@@ -959,6 +966,12 @@ class SettingsViewModel @Inject constructor(
     fun setAutoplayOnSkip(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setAutoplayOnSkip(enabled)
+        }
+    }
+
+    fun setMiniPlayerSwipeToSkip(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setMiniPlayerSwipeToSkip(enabled)
         }
     }
 

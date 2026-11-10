@@ -1354,6 +1354,14 @@ fun SettingsCategoryScreen(
                                     leadingIcon = { Icon(painterResource(R.drawable.rounded_touch_app_24), null, tint = MaterialTheme.colorScheme.secondary) },
                                     modifier = Modifier.settingHighlight("item_behavior_tap_bg_closes", highlightKey)
                                 )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_mini_player_swipe_to_skip_title),
+                                    subtitle = stringResource(R.string.setcat_mini_player_swipe_to_skip_subtitle),
+                                    checked = uiState.miniPlayerSwipeToSkip,
+                                    onCheckedChange = { settingsViewModel.setMiniPlayerSwipeToSkip(it) },
+                                    leadingIcon = { Icon(painterResource(R.drawable.rounded_skip_next_24), null, tint = MaterialTheme.colorScheme.secondary) },
+                                    modifier = Modifier.settingHighlight("item_behavior_mini_swipe_skip", highlightKey)
+                                )
                             }
                             SettingsSubsection(
                                 title = stringResource(R.string.setcat_playback_behavior)
