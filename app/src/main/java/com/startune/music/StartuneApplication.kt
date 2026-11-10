@@ -15,6 +15,7 @@ import coil.ImageLoader
 import coil.ImageLoaderFactory
 import com.startune.music.data.dictionary.DictionaryManager
 import com.startune.music.data.preferences.UserPreferencesRepository
+import com.startune.music.data.media.SongMetadataEditor
 import com.startune.music.data.playlist.M3uSyncCoordinator
 import com.startune.music.data.repository.ArtistImageRepository
 import com.startune.music.presentation.viewmodel.LibraryStateHolder
@@ -74,6 +75,9 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
     lateinit var m3uSyncCoordinator: dagger.Lazy<M3uSyncCoordinator>
 
     @Inject
+    lateinit var songMetadataEditor: dagger.Lazy<SongMetadataEditor>
+
+    @Inject
     lateinit var dictionaryManager: dagger.Lazy<DictionaryManager>
 
     private val startupScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -86,6 +90,10 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
         override fun onStart(owner: LifecycleOwner) {
             libraryStateHolder.get().restoreAfterTrimIfNeeded()
             m3uSyncCoordinator.get().onAppForeground()
+            // Gives songs cut off by an interrupted tag save (a failed write-back, or the app
+            // being killed mid-write) their edited audio back, and lists the ones the app can no
+            // longer write to so the player can ask the user for access.
+            startupScope.launch { songMetadataEditor.get().resumeInterruptedWriteBacks() }
         }
 
     }

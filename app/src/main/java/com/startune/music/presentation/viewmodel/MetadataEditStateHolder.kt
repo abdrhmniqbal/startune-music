@@ -6,6 +6,7 @@ import com.startune.music.data.media.CoverArtUpdate
 import com.startune.music.data.media.CustomMetadataChanges
 import com.startune.music.data.media.ImageCacheManager
 import com.startune.music.data.media.MetadataEditError
+import com.startune.music.data.media.InterruptedSaveResumeResult
 import com.startune.music.data.media.SongMetadataEditor
 import com.startune.music.data.model.Lyrics
 import com.startune.music.data.model.Song
@@ -14,6 +15,7 @@ import com.startune.music.utils.FileDeletionUtils
 import com.startune.music.utils.LyricsUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -48,6 +50,8 @@ class MetadataEditStateHolder @Inject constructor(
                 MetadataEditError.TIMEOUT -> "The operation took too long and was cancelled."
                 MetadataEditError.FILE_CORRUPTED -> "The file appears to be corrupted or in an unsupported format."
                 MetadataEditError.IO_ERROR -> "An error occurred while accessing the file. Please try again."
+                // SongMetadataEditor always resolves this message from a string resource.
+                MetadataEditError.WRITE_INTERRUPTED -> errorMessage ?: "Saving was interrupted before the song file was fully written."
                 MetadataEditError.UNKNOWN, null -> errorMessage ?: "An unknown error occurred while editing metadata."
             }
         }
@@ -181,6 +185,14 @@ class MetadataEditStateHolder @Inject constructor(
             )
         }
     }
+
+    /** MediaStore URIs of songs left cut off by an interrupted save that need write access to be restored. */
+    val songsAwaitingWriteAccess: Flow<List<Uri>>
+        get() = songMetadataEditor.songsAwaitingWriteAccess
+
+    /** Restores the songs left cut off by interrupted saves that can be written now. */
+    suspend fun resumeInterruptedWriteBacks(): InterruptedSaveResumeResult =
+        songMetadataEditor.resumeInterruptedWriteBacks()
 
     suspend fun deleteSong(song: Song): Boolean = withContext(Dispatchers.IO) {
         val fileInfo = FileDeletionUtils.getFileInfo(song.path)
