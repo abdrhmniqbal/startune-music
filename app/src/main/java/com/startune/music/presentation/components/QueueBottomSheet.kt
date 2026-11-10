@@ -1601,13 +1601,7 @@ fun SaveQueueAsPlaylistSheet(
                             OutlinedTextField(
                                 value = searchQuery,
                                 onValueChange = { searchQuery = it },
-                                placeholder = { Text(stringResource(R.string.presentation_batch_e_search_songs_to_include_placeholder)) },
-                                leadingIcon = {
-                                    Icon(
-                                        Icons.Rounded.Search,
-                                        contentDescription = null
-                                    )
-                                },
+                                label = { Text(stringResource(R.string.presentation_batch_e_search_songs_to_include_placeholder)) },
                                 trailingIcon = {
                                     if (searchQuery.isNotEmpty()) {
                                         IconButton(onClick = { searchQuery = "" }) {
@@ -1627,6 +1621,8 @@ fun SaveQueueAsPlaylistSheet(
                                     disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                                     focusedIndicatorColor = Color.Transparent,
                                     unfocusedIndicatorColor = Color.Transparent,
+                                    unfocusedTrailingIconColor = Color.Transparent,
+                                    focusedSupportingTextColor = Color.Transparent
                                 )
                             )
                         }
