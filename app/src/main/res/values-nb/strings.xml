@@ -116,7 +116,6 @@
     <string name="widget_bar_4x1_desc">Kompakt spillerlinje</string>
     <string name="widget_control_4x2_desc">Full kontroll med blanding og repetisjon</string>
     <string name="widget_grid_2x2_desc">Minimalistisk kvadratisk spiller</string>
-    <string name="service_processing_action">Behandler handling…</string>
 
     <!-- Playlist bulk actions -->
     <string name="playlist_none_to_share">Ingen spillelister å dele</string>

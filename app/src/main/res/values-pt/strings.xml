@@ -110,7 +110,6 @@
     <string name="widget_bar_4x1_desc">Barra compacta do player</string>
     <string name="widget_control_4x2_desc">Controles completos com reprodução aleatória e repetição</string>
     <string name="widget_grid_2x2_desc">Jogador quadrado minimalista</string>
-    <string name="service_processing_action">Processando ação de reprodução…</string>
     <string name="playlist_none_to_share">Não há playlists para compartilhar</string>
     <string name="playlist_share_chooser_title">Compartilhe playlists</string>
     <string name="playlist_share_failed">Falha no compartilhamento: %1$s</string>

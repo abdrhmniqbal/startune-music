@@ -111,7 +111,6 @@
     <string name="widget_bar_4x1_desc">Barra di riproduzione compatta</string>
     <string name="widget_control_4x2_desc">Controlli completi con modalità casuale e ripetizione</string>
     <string name="widget_grid_2x2_desc">Lettore quadrato minimalista</string>
-    <string name="service_processing_action">Elaborazione azione di riproduzione…</string>
 
     <!-- Playlist bulk actions -->
     <string name="playlist_none_to_share">Nessuna playlist da condividere</string>

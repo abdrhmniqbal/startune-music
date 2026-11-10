@@ -117,7 +117,6 @@
     <string name="widget_bar_4x1_desc">Компактная панель плеера</string>
     <string name="widget_control_4x2_desc">Полное управление с перемешиванием и повтором</string>
     <string name="widget_grid_2x2_desc">Минималистичный квадратный плеер</string>
-    <string name="service_processing_action">Обработка действия воспроизведения…</string>
 
     <!-- Playlist bulk actions -->
     <string name="playlist_none_to_share">Нет плейлистов для отправки</string>
