@@ -112,7 +112,7 @@ fun TopTracksScreen(
     val uiState by statsViewModel.uiState.collectAsStateWithLifecycle()
     val topTracks = uiState.topTracks
 
-    var selectedRange by rememberSaveable { mutableStateOf(StatsTimeRange.ALL) }
+    var selectedRange by rememberSaveable { mutableStateOf(StatsTimeRange.DAY) }
     LaunchedEffect(selectedRange) {
         statsViewModel.onRangeSelected(selectedRange)
     }
