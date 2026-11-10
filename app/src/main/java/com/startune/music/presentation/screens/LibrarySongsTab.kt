@@ -47,6 +47,9 @@ import com.startune.music.data.model.Song
 import com.startune.music.data.model.StorageFilter
 import com.startune.music.data.model.SortOption
 import com.startune.music.presentation.components.MiniPlayerHeight
+import com.startune.music.presentation.selection.dragToSelect
+import com.startune.music.presentation.selection.rememberDragToSelectState
+
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.components.subcomps.EnhancedSongListItem
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -77,6 +80,8 @@ fun LibrarySongsTab(
     onSongLongPress: (Song) -> Unit = {},
     onSongSelectionToggle: (Song) -> Unit = {},
     getSelectionIndex: (String) -> Int? = { null },
+    currentSelectedSongIds: () -> Set<String> = { emptySet() },
+    onSongDragSelectionChange: (select: List<Song>, deselect: List<Song>) -> Unit = { _, _ -> },
     onLocateCurrentSongVisibilityChanged: (Boolean) -> Unit = {},
     onRegisterLocateCurrentSongAction: ((() -> Unit)?) -> Unit = {},
     storageFilter: StorageFilter = StorageFilter.ALL,
@@ -88,6 +93,10 @@ fun LibrarySongsTab(
     val coroutineScope = rememberCoroutineScope()
     val visibilityCallback by rememberUpdatedState(onLocateCurrentSongVisibilityChanged)
     val registerActionCallback by rememberUpdatedState(onRegisterLocateCurrentSongAction)
+    val dragSelectState = rememberDragToSelectState<Song>()
+    val dragSelectSongAt: (Int) -> Song? = remember(songs) {
+        { index -> if (index in 0 until songs.itemCount) songs.peek(index) else null }
+    }
     val songFastScrollLabelProvider = remember(songs, sortOption) {
         { index: Int ->
             songFastScrollLabel(
@@ -277,6 +286,15 @@ fun LibrarySongsTab(
                                         bottomStart = PlayerSheetCollapsedCornerRadius,
                                         bottomEnd = PlayerSheetCollapsedCornerRadius
                                     )
+                                )
+                                .dragToSelect(
+                                    state = dragSelectState,
+                                    listState = activeListState,
+                                    itemAt = dragSelectSongAt,
+                                    itemKey = Song::id,
+                                    selectedKeys = currentSelectedSongIds,
+                                    onSelectionChange = onSongDragSelectionChange,
+                                    bottomInset = if (hasCurrentSong) bottomBarHeight + MiniPlayerHeight else bottomBarHeight
                                 ),
                             state = activeListState,
                             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -306,7 +324,10 @@ fun LibrarySongsTab(
                                     }
                                     
                                     val rememberedOnLongPress: () -> Unit = remember(song) {
-                                        { onSongLongPress(song) }
+                                        {
+                                            onSongLongPress(song)
+                                            dragSelectState.onItemLongPressed(song)
+                                        }
                                     }
 
                                     LibraryPlaybackAwareSongItem(

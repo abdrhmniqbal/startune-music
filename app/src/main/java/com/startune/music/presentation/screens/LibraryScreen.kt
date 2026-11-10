@@ -186,6 +186,8 @@ import com.startune.music.presentation.screens.search.components.GenreTypography
 import com.startune.music.presentation.components.SyncProgressBar
 import com.startune.music.presentation.viewmodel.LibraryViewModel
 import com.startune.music.presentation.selection.appendDistinctSelection
+import com.startune.music.presentation.selection.dragToSelect
+import com.startune.music.presentation.selection.rememberDragToSelectState
 import com.startune.music.presentation.selection.selectionIndex
 import com.startune.music.presentation.selection.toggleOrderedSelection
 import com.startune.music.utils.formatSongCount
@@ -440,6 +442,16 @@ fun LibraryScreen(
 
     val onSongSelectionToggle: (Song) -> Unit = remember(multiSelectionState) {
         { song -> multiSelectionState.toggleSelection(song) }
+    }
+
+    // Drag-to-select reads the holder directly: the collected selectedSongIds lag a frame behind
+    // the long press that starts the drag.
+    val currentSelectedSongIds: () -> Set<String> = remember(multiSelectionState) {
+        { multiSelectionState.selectedSongIds.value }
+    }
+
+    val onSongDragSelectionChange: (List<Song>, List<Song>) -> Unit = remember(multiSelectionState) {
+        { select, deselect -> multiSelectionState.applyDragSelection(select, deselect) }
     }
 
     val toggleAlbumSelection: (Album) -> Unit = remember(selectedAlbums, multiSelectionState) {
@@ -1449,6 +1461,8 @@ fun LibraryScreen(
                                             onSongLongPress = onSongLongPress,
                                             onSongSelectionToggle = onSongSelectionToggle,
                                             getSelectionIndex = playerViewModel.multiSelectionStateHolder::getSelectionIndex,
+                                            currentSelectedSongIds = currentSelectedSongIds,
+                                            onSongDragSelectionChange = onSongDragSelectionChange,
                                             onLocateCurrentSongVisibilityChanged = { songsShowLocateButton = it },
                                             onRegisterLocateCurrentSongAction = { songsLocateAction = it },
                                             sortOption = playerUiState.currentSongSortOption,
@@ -1559,6 +1573,8 @@ fun LibraryScreen(
                                             onSongLongPress = onSongLongPress,
                                             onSongSelectionToggle = onSongSelectionToggle,
                                             getSelectionIndex = playerViewModel.multiSelectionStateHolder::getSelectionIndex,
+                                            currentSelectedSongIds = currentSelectedSongIds,
+                                            onSongDragSelectionChange = onSongDragSelectionChange,
                                             sortOption = playerUiState.currentFavoriteSortOption,
                                             onLocateCurrentSongVisibilityChanged = { likedShowLocateButton = it },
                                             onRegisterLocateCurrentSongAction = { likedLocateAction = it },
@@ -1609,6 +1625,8 @@ fun LibraryScreen(
                                             onSongLongPress = onSongLongPress,
                                             onSongSelectionToggle = onSongSelectionToggle,
                                             getSelectionIndex = playerViewModel.multiSelectionStateHolder::getSelectionIndex,
+                                            currentSelectedSongIds = currentSelectedSongIds,
+                                            onSongDragSelectionChange = onSongDragSelectionChange,
                                             onLocateCurrentSongVisibilityChanged = { foldersShowLocateButton = it },
                                             onRegisterLocateCurrentSongAction = { foldersLocateAction = it },
                                             pendingLocatePath = pendingFoldersLocatePath,
@@ -2737,6 +2755,8 @@ fun LibraryFoldersTab(
     onSongLongPress: (Song) -> Unit = {},
     onSongSelectionToggle: (Song) -> Unit = {},
     getSelectionIndex: (String) -> Int? = { null },
+    currentSelectedSongIds: () -> Set<String> = { emptySet() },
+    onSongDragSelectionChange: (select: List<Song>, deselect: List<Song>) -> Unit = { _, _ -> },
     onLocateCurrentSongVisibilityChanged: (Boolean) -> Unit = {},
     onRegisterLocateCurrentSongAction: ((() -> Unit)?) -> Unit = {},
     pendingLocatePath: String? = null,
@@ -2792,6 +2812,11 @@ fun LibraryFoldersTab(
         }.toImmutableList()
         // Uncached folder songs re-sort once their details load; an unscrolled folder stays at its top.
         KeepUnscrolledListAtTop(listState = listState, rows = songsToShow)
+        val dragSelectState = rememberDragToSelectState<Song>()
+        // Folder rows come first in the list and are not selectable.
+        val dragSelectSongAt: (Int) -> Song? = remember(itemsToShow.size, songsToShow) {
+            { index -> songsToShow.getOrNull(index - itemsToShow.size) }
+        }
         val currentSong = stablePlayerState.currentSong
         val currentSongId = currentSong?.id
         val currentSongIndexInSongs = remember(songsToShow, currentSongId) {
@@ -2945,6 +2970,15 @@ fun LibraryFoldersTab(
                                             bottomStart = PlayerSheetCollapsedCornerRadius,
                                             bottomEnd = PlayerSheetCollapsedCornerRadius
                                         )
+                                    )
+                                    .dragToSelect(
+                                        state = dragSelectState,
+                                        listState = listState,
+                                        itemAt = dragSelectSongAt,
+                                        itemKey = Song::id,
+                                        selectedKeys = currentSelectedSongIds,
+                                        onSelectionChange = onSongDragSelectionChange,
+                                        bottomInset = if (stablePlayerState.currentSong != null && stablePlayerState.currentSong != Song.emptySong()) bottomBarHeight + MiniPlayerHeight else bottomBarHeight
                                     ),
                                 state = listState,
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -2977,7 +3011,10 @@ fun LibraryFoldersTab(
                                         isSelected = selectedSongIds.contains(song.id),
                                         selectionIndex = if (isSelectionMode) getSelectionIndex(song.id) else null,
                                         isSelectionMode = isSelectionMode,
-                                        onLongPress = { onSongLongPress(song) },
+                                        onLongPress = {
+                                            onSongLongPress(song)
+                                            dragSelectState.onItemLongPressed(song)
+                                        },
                                         onClick = {
                                             if (isSelectionMode) {
                                                 onSongSelectionToggle(song)
