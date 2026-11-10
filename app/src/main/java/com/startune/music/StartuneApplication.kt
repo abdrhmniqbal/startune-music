@@ -26,6 +26,7 @@ import com.startune.music.utils.AlbumArtUtils
 import com.startune.music.utils.AppLocaleManager
 import com.startune.music.utils.CrashHandler
 import com.startune.music.utils.MediaMetadataRetrieverPool
+import com.startune.music.utils.PhoneOrientationPolicy
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -154,6 +155,8 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
         }
 
         ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
+
+        registerActivityLifecycleCallbacks(PhoneOrientationPolicy)
 
         syncManager.get().start()
 
