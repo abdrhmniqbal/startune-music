@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.QueueMusic
 import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -21,7 +19,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -119,16 +116,3 @@ fun PlaylistCover(
     }
 }
 
-private fun getIconByName(name: String?): ImageVector? {
-    return when (name) {
-        "MusicNote" -> Icons.Rounded.MusicNote
-        "Headphones" -> Icons.Rounded.Headphones
-        "Album" -> Icons.Rounded.Album
-        "Mic" -> Icons.Rounded.MicExternalOn
-        "Speaker" -> Icons.Rounded.Speaker
-        "Favorite" -> Icons.Rounded.Favorite
-        "Piano" -> Icons.Rounded.Piano
-        "Queue" -> Icons.AutoMirrored.Rounded.QueueMusic
-        else -> Icons.Rounded.MusicNote
-    }
-}
