@@ -69,6 +69,11 @@
                 android:resource="@xml/shortcuts" />
         </activity>
 
+        <activity
+            android:name=".presentation.jellyfin.auth.JellyfinLoginActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Startune"
+            android:windowSoftInputMode="adjustResize" />
 
         <service
             android:name=".data.service.MusicService"
