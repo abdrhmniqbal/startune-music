@@ -90,6 +90,7 @@ sealed class Screen(val route: String) {
             if (highlightKey != null) "device_capabilities?highlightKey=$highlightKey" else "device_capabilities"
     }
     object JellyfinDashboard : Screen("jellyfin_dashboard")
+    object Licenses : Screen("licenses")
     object NavidromeDashboard : Screen("navidrome_dashboard")
     object CloudDownloads : Screen("cloud_downloads")
     object Dictionaries : Screen("dictionaries")
