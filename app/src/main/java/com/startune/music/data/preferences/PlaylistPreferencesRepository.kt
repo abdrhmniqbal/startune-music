@@ -183,6 +183,11 @@ class PlaylistPreferencesRepository @Inject constructor(
         userPreferencesRepository.clearLegacyUserPlaylists()
     }
 
+    suspend fun replacePlaylistSongs(playlistId: String, songIds: List<String>): Boolean {
+        ensureMigratedIfNeeded()
+        return localPlaylistDao.replaceSongsOfExistingPlaylist(playlistId, songIds)
+    }
+
     suspend fun removeSongFromAllPlaylists(songId: String) {
         ensureMigratedIfNeeded()
         val playlists = userPlaylistsFlow.first()
