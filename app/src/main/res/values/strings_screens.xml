@@ -517,6 +517,7 @@
     <string name="about_link_source_title">Source code</string>
     <string name="about_project_subtitle">Source, releases, and community entry points.</string>
     <string name="about_project_title">Project</string>
+    <string name="audio_bookmarks_title">Bookmarks</string>
     <string name="audio_bookmarks_back_to_top">Back to top</string>
     <string name="audio_bookmarks_cd_add">Save bookmark</string>
     <string name="audio_bookmarks_cd_open">Audio bookmarks</string>

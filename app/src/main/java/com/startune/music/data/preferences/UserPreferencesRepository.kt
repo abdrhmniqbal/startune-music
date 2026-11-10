@@ -265,6 +265,8 @@ constructor(
         val IS_ARTISTS_LIST_VIEW = booleanPreferencesKey("is_artists_list_view")
         val IS_PLAYLISTS_LIST_VIEW = booleanPreferencesKey("is_playlists_list_view")
 
+        val SIDEBAR_SHORTCUTS = stringSetPreferencesKey("sidebar_shortcuts")
+
         val COLLAGE_PATTERN = stringPreferencesKey("collage_pattern")
         val COLLAGE_AUTO_ROTATE = booleanPreferencesKey("collage_auto_rotate")
 
@@ -417,6 +419,17 @@ constructor(
     suspend fun setShowScrollbar(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_SCROLLBAR] = enabled
+        }
+    }
+
+    val sidebarShortcutsFlow: Flow<Set<String>> =
+        dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.SIDEBAR_SHORTCUTS] ?: SidebarShortcutKeys.DEFAULT
+        }
+
+    suspend fun setSidebarShortcuts(shortcuts: Set<String>) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SIDEBAR_SHORTCUTS] = shortcuts
         }
     }
 
