@@ -1151,7 +1151,6 @@ fun sortArtistSongs(
         else -> songs
     }
 
-@Composable
 fun sortAlbumSections(
     sections: List<ArtistAlbumSection>,
     sortOption: SortOption,
