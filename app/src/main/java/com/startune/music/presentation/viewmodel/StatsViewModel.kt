@@ -66,11 +66,13 @@ class StatsViewModel @Inject constructor(
     private val _homeTopTracks = MutableStateFlow<ImmutableList<SongPlaybackSummary>>(persistentListOf())
     val homeTopTracks: StateFlow<ImmutableList<SongPlaybackSummary>> = _homeTopTracks.asStateFlow()
 
-    @Volatile
-    private var cachedSongs: List<Song>? = null
+    /** The library songs [loadSongs] read for [songIds], the history's played songs at the time. */
+    private class PlayedSongs(val songIds: Set<String>, val songs: List<Song>)
 
-    // init starts two refreshes at once; without the lock both would read the whole library,
-    // which on a large library is enough to run out of memory at startup.
+    @Volatile
+    private var cachedSongs: PlayedSongs? = null
+
+    // init starts two refreshes at once; without the lock both would read the same songs.
     private val loadSongsMutex = Mutex()
 
     init {
@@ -217,12 +219,19 @@ class StatsViewModel @Inject constructor(
         playbackStatsRepository.requestRefresh()
     }
 
+    /**
+     * The library songs that have recorded plays. Summaries only ever look up played songs, and
+     * reading the whole library instead kept a second copy of it for as long as Home lived.
+     * Read again once the history gains a song.
+     */
     private suspend fun loadSongs(): List<Song> = loadSongsMutex.withLock {
-        cachedSongs?.let { existing ->
-            if (existing.isNotEmpty()) return@withLock existing
+        val playedSongIds = playbackStatsRepository.loadPlayedSongIds()
+        if (playedSongIds.isEmpty()) return@withLock emptyList()
+        cachedSongs?.let { cached ->
+            if (cached.songIds == playedSongIds && cached.songs.isNotEmpty()) return@withLock cached.songs
         }
-        val songs = musicRepository.getAllSongsOnce()
-        cachedSongs = songs
+        val songs = musicRepository.getSongsByIdsOnce(playedSongIds)
+        cachedSongs = PlayedSongs(playedSongIds, songs)
         songs
     }
 
