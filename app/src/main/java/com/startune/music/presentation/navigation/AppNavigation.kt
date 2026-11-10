@@ -77,6 +77,7 @@ import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.PlaylistViewModel
 import kotlinx.coroutines.flow.first
 import com.startune.music.presentation.components.ScreenWrapper
+import com.startune.music.presentation.settings.search.ProvideSettingsHighlight
 
 @OptIn(UnstableApi::class)
 @SuppressLint("UnrememberedGetBackStackEntry")
@@ -266,13 +267,15 @@ fun AppNavigation(
                     val categoryId = backStackEntry.arguments?.getString("categoryId")
                     val highlightKey = backStackEntry.arguments?.getString("highlightKey")
                     if (categoryId != null) {
-                        SettingsCategoryScreen(
-                            categoryId = categoryId,
-                            highlightKey = highlightKey,
-                            navController = navController,
-                            playerViewModel = playerViewModel,
-                            onBackClick = { navController.popBackStack() }
-                        )
+                        ProvideSettingsHighlight(highlightKey) {
+                            SettingsCategoryScreen(
+                                categoryId = categoryId,
+                                highlightKey = highlightKey,
+                                navController = navController,
+                                playerViewModel = playerViewModel,
+                                onBackClick = { navController.popBackStack() }
+                            )
+                        }
                     }
                 }
             }
@@ -607,9 +610,15 @@ fun AppNavigation(
                 exitTransition = { exitTransition() },
                 popEnterTransition = { popEnterTransition() },
                 popExitTransition = { popExitTransition() },
-            ) {
+            ) { backStackEntry ->
+                val highlightKey = backStackEntry.arguments?.getString("highlightKey")
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
-                    ArtistSettingsScreen(navController = navController)
+                    ProvideSettingsHighlight(highlightKey) {
+                        ArtistSettingsScreen(
+                            navController = navController,
+                            highlightKey = highlightKey
+                        )
+                    }
                 }
             }
             composable(
