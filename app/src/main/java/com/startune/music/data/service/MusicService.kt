@@ -49,6 +49,7 @@ import com.startune.music.data.preferences.ThemePreferencesRepository
 import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.repository.MusicRepository
 import com.startune.music.data.service.player.DualPlayerEngine
+import com.startune.music.data.preferences.PreviousButtonBehavior
 import com.startune.music.data.service.player.TransitionController
 import com.startune.music.data.service.player.selectCanonicalCloudPlaybackUri
 import com.startune.music.ui.glancewidget.ControlWidget4x2
@@ -219,6 +220,7 @@ class MusicService : MediaSessionService() {
     private var keepPlayingInBackground = true
     private var isManualShuffleEnabled = false
     private var persistentShuffleEnabled = false
+    private var previousButtonBehavior = PreviousButtonBehavior.DEFAULT
     private var previousMainThreadExceptionHandler: Thread.UncaughtExceptionHandler? = null
     private val sleepTimerController by lazy {
         SleepTimerController(
@@ -316,24 +318,36 @@ class MusicService : MediaSessionService() {
         return (this as? com.startune.music.data.service.player.FadingPlayer)?.innerPlayer ?: this
     }
 
-    private fun wrapFadingPlayer(player: Player): Player {
+    private fun Player.unwrapPreviousButtonPlayer(): Player {
+        return (this as? com.startune.music.data.service.player.PreviousButtonPlayer)?.innerPlayer ?: this
+    }
+
+    /** Wraps an engine player for the session; [unwrapSessionPlayer] is its inverse. */
+    private fun wrapSessionPlayer(player: Player): Player {
         val fadingPlayer = com.startune.music.data.service.player.FadingPlayer(
             innerPlayer = player,
             scope = appScope
         )
-        return com.startune.music.data.service.player.MappingPlayer(
+        val mappingPlayer = com.startune.music.data.service.player.MappingPlayer(
             innerPlayer = fadingPlayer,
             context = this
         )
+        return com.startune.music.data.service.player.PreviousButtonPlayer(
+            innerPlayer = mappingPlayer,
+            behaviorProvider = { previousButtonBehavior }
+        )
     }
+
+    private fun Player.unwrapSessionPlayer(): Player =
+        unwrapPreviousButtonPlayer().unwrapMappingPlayer().unwrapFadingPlayer()
 
     private fun publishMediaSessionPlayer(player: Player, logMessage: String) {
         val session = mediaSession ?: return
         val oldPlayer = session.player
-        val unwrappedOld = oldPlayer.unwrapMappingPlayer().unwrapFadingPlayer()
+        val unwrappedOld = oldPlayer.unwrapSessionPlayer()
         if (unwrappedOld !== player) {
             oldPlayer.removeListener(playerListener)
-            val wrappedPlayer = wrapFadingPlayer(player)
+            val wrappedPlayer = wrapSessionPlayer(player)
             session.player = wrappedPlayer
             wrappedPlayer.addListener(playerListener)
         }
@@ -489,6 +503,12 @@ class MusicService : MediaSessionService() {
         serviceScope.launch {
             userPreferencesRepository.persistentShuffleEnabledFlow.collect { enabled ->
                 persistentShuffleEnabled = enabled
+            }
+        }
+
+        serviceScope.launch {
+            userPreferencesRepository.previousButtonBehaviorFlow.collect { behavior ->
+                previousButtonBehavior = behavior
             }
         }
 
@@ -718,7 +738,7 @@ class MusicService : MediaSessionService() {
             }
         }
 
-        mediaSession = MediaSession.Builder(this, wrapFadingPlayer(engine.masterPlayer))
+        mediaSession = MediaSession.Builder(this, wrapSessionPlayer(engine.masterPlayer))
             .setCallback(callback)
             .setSessionActivity(getOpenAppPendingIntent())
             .setBitmapLoader(CoilBitmapLoader(this, serviceScope))

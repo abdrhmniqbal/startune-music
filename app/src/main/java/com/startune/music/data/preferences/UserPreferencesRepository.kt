@@ -254,6 +254,7 @@ constructor(
         val ALBUM_ART_CACHE_LIMIT_MB = intPreferencesKey("album_art_cache_limit_mb")
         val TAP_BACKGROUND_CLOSES_PLAYER = booleanPreferencesKey("tap_background_closes_player")
         val MINI_PLAYER_SWIPE_TO_SKIP = booleanPreferencesKey("mini_player_swipe_to_skip")
+        val PREVIOUS_BUTTON_BEHAVIOR = stringPreferencesKey("previous_button_behavior")
         val HAPTICS_ENABLED = booleanPreferencesKey("haptics_enabled")
         val IMMERSIVE_LYRICS_ENABLED = booleanPreferencesKey("immersive_lyrics_enabled")
         val IMMERSIVE_LYRICS_TIMEOUT = longPreferencesKey("immersive_lyrics_timeout")
@@ -2251,6 +2252,21 @@ constructor(
     suspend fun setMiniPlayerSwipeToSkip(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.MINI_PLAYER_SWIPE_TO_SKIP] = enabled
+        }
+    }
+
+    /**
+     * What previous does partway through a song. Applies to the app's own controls and to the
+     * session (notification, lock screen, headset keys, Android Auto, widget). Restarts by default.
+     */
+    val previousButtonBehaviorFlow: Flow<PreviousButtonBehavior> =
+        dataStore.data.map { preferences ->
+            PreviousButtonBehavior.fromStorageKey(preferences[PreferencesKeys.PREVIOUS_BUTTON_BEHAVIOR])
+        }.distinctUntilChanged()
+
+    suspend fun setPreviousButtonBehavior(behavior: PreviousButtonBehavior) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PREVIOUS_BUTTON_BEHAVIOR] = behavior.storageKey
         }
     }
 
