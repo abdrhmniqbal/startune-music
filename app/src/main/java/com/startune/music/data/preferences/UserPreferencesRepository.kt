@@ -240,6 +240,7 @@ constructor(
 
         val LYRICS_SOURCE_PREFERENCE = stringPreferencesKey("lyrics_source_preference")
         val AUTO_SCAN_LRC_FILES = booleanPreferencesKey("auto_scan_lrc_files")
+        val AUTO_SCAN_ON_LAUNCH = booleanPreferencesKey("auto_scan_on_launch")
         val EXTERNAL_LYRICS_ENABLED = booleanPreferencesKey("external_lyrics_enabled")
         val EXTERNAL_ARTIST_IMAGES_ENABLED = booleanPreferencesKey("external_artist_images_enabled")
 
@@ -786,6 +787,17 @@ constructor(
     suspend fun setAutoScanLrcFiles(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.AUTO_SCAN_LRC_FILES] = enabled
+        }
+    }
+
+    val autoScanOnLaunchFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.AUTO_SCAN_ON_LAUNCH] ?: true
+            }
+
+    suspend fun setAutoScanOnLaunch(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.AUTO_SCAN_ON_LAUNCH] = enabled
         }
     }
 

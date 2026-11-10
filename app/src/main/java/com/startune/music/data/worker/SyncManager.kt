@@ -379,6 +379,10 @@ class SyncManager @Inject constructor(
                 Timber.tag(TAG).d("Skipping foreground catch-up sync: initial setup not finished")
                 return@launch
             }
+            if (!userPreferencesRepository.autoScanOnLaunchFlow.first()) {
+                Timber.tag(TAG).d("Skipping foreground catch-up sync: auto-scan disabled")
+                return@launch
+            }
             lastForegroundSyncTime = now
             Timber.tag(TAG).i("Foreground catch-up - scheduling local incremental sync")
             enqueueSyncWork(

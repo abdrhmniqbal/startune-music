@@ -522,6 +522,14 @@ fun SettingsCategoryScreen(
                                     leadingIcon = { Icon(Icons.Outlined.Folder, null, tint = MaterialTheme.colorScheme.secondary) },
                                     modifier = Modifier.settingHighlight("item_library_auto_scan_lrc", highlightKey)
                                 )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_auto_scan_on_launch_title),
+                                    subtitle = stringResource(R.string.setcat_auto_scan_on_launch_subtitle),
+                                    checked = uiState.autoScanOnLaunch,
+                                    onCheckedChange = { settingsViewModel.setAutoScanOnLaunch(it) },
+                                    leadingIcon = { Icon(Icons.Outlined.Folder, null, tint = MaterialTheme.colorScheme.secondary) },
+                                    modifier = Modifier.settingHighlight("item_library_auto_scan_on_launch", highlightKey)
+                                )
                                 SettingsItem(
                                     title = stringResource(R.string.setcat_find_duplicates_title),
                                     subtitle = stringResource(R.string.setcat_find_duplicates_subtitle),

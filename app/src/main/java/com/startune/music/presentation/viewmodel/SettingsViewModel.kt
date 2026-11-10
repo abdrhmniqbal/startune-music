@@ -100,6 +100,7 @@ data class SettingsUiState(
     val folderBackGestureNavigation: Boolean = true,
     val lyricsSourcePreference: LyricsSourcePreference = LyricsSourcePreference.EMBEDDED_FIRST,
     val autoScanLrcFiles: Boolean = false,
+    val autoScanOnLaunch: Boolean = true,
     val externalLyricsEnabled: Boolean = false,
     val externalArtistImagesEnabled: Boolean = false,
     val blockedDirectories: Set<String> = emptySet(),
@@ -204,7 +205,8 @@ private sealed interface SettingsUiUpdate {
         val autoBackupEnabled: Boolean,
         val autoBackupIntervalHours: Int,
         val autoBackupLastRunMs: Long,
-        val dataStorageRoot: String
+        val dataStorageRoot: String,
+        val autoScanOnLaunch: Boolean
     ) : SettingsUiUpdate
 }
 
@@ -384,7 +386,8 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.autoBackupEnabledFlow,
                 userPreferencesRepository.autoBackupIntervalHoursFlow,
                 userPreferencesRepository.autoBackupLastRunMsFlow,
-                userPreferencesRepository.dataStorageRootFlow
+                userPreferencesRepository.dataStorageRootFlow,
+                userPreferencesRepository.autoScanOnLaunchFlow
             ) { values ->
                 val requestedAudioOutputMode = values[4] as AudioOutputMode
                 SettingsUiUpdate.Group2(
@@ -428,7 +431,8 @@ class SettingsViewModel @Inject constructor(
                     autoBackupEnabled = values[30] as Boolean,
                     autoBackupIntervalHours = values[31] as Int,
                     autoBackupLastRunMs = values[32] as Long,
-                    dataStorageRoot = values[33] as String
+                    dataStorageRoot = values[33] as String,
+                    autoScanOnLaunch = values[34] as Boolean
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -467,6 +471,7 @@ class SettingsViewModel @Inject constructor(
                         autoBackupIntervalHours = update.autoBackupIntervalHours,
                         autoBackupLastRunMs = update.autoBackupLastRunMs,
                         dataStorageRoot = update.dataStorageRoot,
+                        autoScanOnLaunch = update.autoScanOnLaunch,
                     )
                 }
             }
@@ -928,6 +933,12 @@ class SettingsViewModel @Inject constructor(
     fun setAutoScanLrcFiles(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setAutoScanLrcFiles(enabled)
+        }
+    }
+
+    fun setAutoScanOnLaunch(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setAutoScanOnLaunch(enabled)
         }
     }
 
