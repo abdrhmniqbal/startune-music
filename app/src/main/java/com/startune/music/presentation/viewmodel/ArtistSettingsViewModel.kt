@@ -22,6 +22,7 @@ data class ArtistSettingsUiState(
     val unsplitGenres: List<String> = emptyList(),
     val extractArtistsFromTitle: Boolean = true,
     val groupByAlbumArtist: Boolean = false,
+    val caseSensitiveArtists: Boolean = false,
     val rescanRequired: Boolean = false,
     val isResyncing: Boolean = false
 )
@@ -86,6 +87,12 @@ class ArtistSettingsViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            userPreferencesRepository.caseSensitiveArtistsFlow.collect { enabled ->
+                _uiState.update { it.copy(caseSensitiveArtists = enabled) }
+            }
+        }
+
+        viewModelScope.launch {
             userPreferencesRepository.artistSettingsRescanRequiredFlow.collect { required ->
                 _uiState.update { it.copy(rescanRequired = required) }
             }
@@ -101,6 +108,12 @@ class ArtistSettingsViewModel @Inject constructor(
     fun setGroupByAlbumArtist(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setGroupByAlbumArtist(enabled)
+        }
+    }
+
+    fun setCaseSensitiveArtists(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setCaseSensitiveArtists(enabled)
         }
     }
 

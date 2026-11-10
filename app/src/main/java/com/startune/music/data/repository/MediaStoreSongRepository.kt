@@ -81,7 +81,8 @@ class MediaStoreSongRepository @Inject constructor(
             userPreferencesRepository.minSongDurationFlow.distinctUntilChanged(),
             userPreferencesRepository.artistWordDelimitersFlow.distinctUntilChanged(),
             userPreferencesRepository.extractArtistsFromTitleFlow.distinctUntilChanged(),
-            userPreferencesRepository.unsplitArtistsFlow.distinctUntilChanged()
+            userPreferencesRepository.unsplitArtistsFlow.distinctUntilChanged(),
+            userPreferencesRepository.caseSensitiveArtistsFlow.distinctUntilChanged()
         ) { values ->
             val favoriteIds = @Suppress("UNCHECKED_CAST") (values[1] as List<Long>)
             val allowedDirs = @Suppress("UNCHECKED_CAST") (values[2] as Set<String>)
@@ -91,6 +92,7 @@ class MediaStoreSongRepository @Inject constructor(
             val wordDelimiters = @Suppress("UNCHECKED_CAST") (values[6] as List<String>)
             val extractFromTitle = values[7] as Boolean
             val unsplitArtists = @Suppress("UNCHECKED_CAST") (values[8] as List<String>)
+            val caseSensitiveArtists = values[9] as Boolean
             fetchSongsFromMediaStore(
                 favoriteIds = favoriteIds.toSet(),
                 allowedDirs = allowedDirs.toList(),
@@ -99,6 +101,7 @@ class MediaStoreSongRepository @Inject constructor(
                 wordDelimiters = wordDelimiters,
                 unsplitArtists = unsplitArtists,
                 extractFromTitle = extractFromTitle,
+                caseSensitiveArtists = caseSensitiveArtists,
                 minDurationMs = minDuration,
                 extraSelection = extraSelection,
                 extraSelectionArgs = extraSelectionArgs
@@ -116,6 +119,7 @@ class MediaStoreSongRepository @Inject constructor(
         wordDelimiters: List<String> = emptyList(),
         unsplitArtists: List<String> = emptyList(),
         extractFromTitle: Boolean = true,
+        caseSensitiveArtists: Boolean = false,
         minDurationMs: Int = 10000,
         extraSelection: String? = null,
         extraSelectionArgs: Array<String>? = null
@@ -216,7 +220,7 @@ class MediaStoreSongRepository @Inject constructor(
                         val (cleanedTitle, titleArtists) = rawTitle.extractArtistsFromTitle(artistDelimiters, wordDelimiters)
                         displayTitle = cleanedTitle
                         titleArtists.forEach { ta ->
-                            if (allArtistNames.none { it.equals(ta, ignoreCase = true) }) {
+                            if (allArtistNames.none { it.equals(ta, ignoreCase = !caseSensitiveArtists) }) {
                                 allArtistNames.add(ta)
                             }
                         }
@@ -339,6 +343,7 @@ class MediaStoreSongRepository @Inject constructor(
             val unsplit = async { userPreferencesRepository.unsplitArtistsFlow.first() }
             SearchPrefs(fav.await(), allowed.await(), blocked.await(), delims.await(), wordD.await(), extract.await(), minDur.await(), unsplit.await())
         }
+        val caseSensitiveArtists = userPreferencesRepository.caseSensitiveArtistsFlow.first()
         val queryTerm = "%${query.trim()}%"
         return fetchSongsFromMediaStore(
             favoriteIds = favoriteIds,
@@ -348,6 +353,7 @@ class MediaStoreSongRepository @Inject constructor(
             wordDelimiters = wordDelims,
             unsplitArtists = unsplitArtists,
             extractFromTitle = extractFromTitle,
+            caseSensitiveArtists = caseSensitiveArtists,
             minDurationMs = minDuration,
             extraSelection = "${MediaStore.Audio.Media.TITLE} LIKE ? COLLATE NOCASE OR ${MediaStore.Audio.Media.ARTIST} LIKE ? COLLATE NOCASE",
             extraSelectionArgs = arrayOf(queryTerm, queryTerm)

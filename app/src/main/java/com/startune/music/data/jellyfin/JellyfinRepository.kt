@@ -548,6 +548,7 @@ class JellyfinRepository @Inject constructor(
 
         val groupByAlbumArtist = userPreferencesRepository.groupByAlbumArtistFlow.first()
         val unsplitArtists = userPreferencesRepository.unsplitArtistsFlow.first()
+        val caseSensitiveArtists = userPreferencesRepository.caseSensitiveArtistsFlow.first()
 
         val songs = ArrayList<SongEntity>(jellyfinSongs.size)
         val artists = LinkedHashMap<Long, ArtistEntity>()
@@ -558,7 +559,7 @@ class JellyfinRepository @Inject constructor(
             val songId = toUnifiedSongId(jellyfinSong.jellyfinId)
             val artistNames = parseArtistNames(jellyfinSong.artist, unsplitArtists)
             val primaryArtistName = artistNames.firstOrNull() ?: "Unknown Artist"
-            val primaryArtistId = toUnifiedArtistId(primaryArtistName)
+            val primaryArtistId = toUnifiedArtistId(primaryArtistName, caseSensitiveArtists)
 
             val effectiveAlbumArtistName = jellyfinSong.albumArtist
                 ?.trim()
@@ -566,7 +567,7 @@ class JellyfinRepository @Inject constructor(
                 ?.let { parseArtistNames(it, unsplitArtists).firstOrNull() }
                 ?.takeIf { it.isNotBlank() && !it.equals("Unknown Artist", ignoreCase = true) }
                 ?: primaryArtistName
-            val albumArtistId = toUnifiedArtistId(effectiveAlbumArtistName)
+            val albumArtistId = toUnifiedArtistId(effectiveAlbumArtistName, caseSensitiveArtists)
             artists.putIfAbsent(
                 albumArtistId,
                 ArtistEntity(
@@ -580,7 +581,7 @@ class JellyfinRepository @Inject constructor(
             val albumDisplayArtistId = if (groupByAlbumArtist) albumArtistId else primaryArtistId
 
             artistNames.forEachIndexed { index, artistName ->
-                val artistId = toUnifiedArtistId(artistName)
+                val artistId = toUnifiedArtistId(artistName, caseSensitiveArtists)
                 artists.putIfAbsent(
                     artistId,
                     ArtistEntity(
@@ -679,8 +680,9 @@ class JellyfinRepository @Inject constructor(
         return -(JELLYFIN_ALBUM_ID_OFFSET + normalized)
     }
 
-    private fun toUnifiedArtistId(artistName: String): Long {
-        return -(JELLYFIN_ARTIST_ID_OFFSET + artistName.lowercase().hashCode().toLong().absoluteValue)
+    private fun toUnifiedArtistId(artistName: String, caseSensitive: Boolean = false): Long {
+        val key = if (caseSensitive) artistName else artistName.lowercase()
+        return -(JELLYFIN_ARTIST_ID_OFFSET + key.hashCode().toLong().absoluteValue)
     }
 
     private suspend fun updateAppPlaylistForJellyfinPlaylist(
