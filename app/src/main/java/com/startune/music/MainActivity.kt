@@ -674,49 +674,18 @@ class MainActivity : ComponentActivity() {
         val useNavigationRail =
             windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
 
-        val routesWithHiddenNavigationBar = remember {
-            setOf(
-                Screen.Settings.route,
-                Screen.Accounts.route,
-                Screen.PlaylistDetail.route,
-                Screen.MixDetail.route,
-                Screen.RecentlyPlayed.route,
-                Screen.TopTracks.route,
-                Screen.GenreDetail.route,
-                Screen.AlbumDetail.route,
-                Screen.ArtistDetail.route,
-                Screen.DJSpace.route,
-                Screen.NavBarCrRad.route,
-                Screen.About.route,
-                Screen.Stats.route,
-                Screen.EditTransition.route,
-                Screen.Experimental.route,
-                Screen.ArtistSettings.route,
-                Screen.Equalizer.route,
-                Screen.SettingsCategory.route,
-                Screen.DelimiterConfig.route,
-                Screen.PaletteStyle.route,
-                Screen.RecentlyPlayed.route,
-                Screen.DeviceCapabilities.route,
-                Screen.EasterEgg.route,
-                Screen.WordDelimiterConfig.route,
-                Screen.AudioBookmarks.route,
-                Screen.AudioBookmarkFolder.route
-            )
-        }
+        // The bar only exists on the three top-level destinations. Every other
+        // route is a detail or nested page and hides it, so a newly added page
+        // can never leak the bar by forgetting to join a list.
         val shouldHideNavigationBar by remember(currentRoute, isSearchBarActive) {
             derivedStateOf {
                 if (currentRoute == Screen.Search.route && isSearchBarActive) {
                     true
                 } else {
                     currentRoute?.let { route ->
-                        routesWithHiddenNavigationBar.any { hiddenRoute ->
-                            if (hiddenRoute.contains("{")) {
-                                route.startsWith(hiddenRoute.substringBefore("{"))
-                            } else {
-                                route == hiddenRoute
-                            }
-                        }
+                        route != Screen.Home.route &&
+                            route != Screen.Search.route &&
+                            route != Screen.Library.route
                     } ?: false
                 }
             }

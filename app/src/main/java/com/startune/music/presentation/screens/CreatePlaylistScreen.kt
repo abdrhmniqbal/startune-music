@@ -182,7 +182,7 @@ data class Quadruple<A, B, C, D>(val first: A, val second: B, val third: C, val 
 fun CreatePlaylistDialog(
     visible: Boolean,
     onDismiss: () -> Unit,
-    onCreate: (String, String?, Int?, String?, List<String>, Float, Float, Float, String?, Float?, Float?, Float?, Float?, String?) -> Unit
+    onCreate: (String, String?, Int?, String?, List<String>, Float, Float, Float, String?, Float?, Float?, Float?, Float?) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(false) }
     transitionState.targetState = visible

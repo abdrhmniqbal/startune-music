@@ -91,6 +91,7 @@ fun LibraryActionRow(
     showLocateButton: Boolean = false,
     showImportButton: Boolean = true,
     isPlaylistTab: Boolean,
+    isMixesTab: Boolean = false,
     onImportM3uClick: () -> Unit = {},
     isFoldersTab: Boolean,
     modifier: Modifier = Modifier,
@@ -166,14 +167,16 @@ fun LibraryActionRow(
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
                         modifier = Modifier.height(genHeight)
                     ) {
-                        val icon = if (isPlaylistTab) Icons.AutoMirrored.Rounded.PlaylistAdd else Icons.Rounded.Shuffle
-                        val text = if (isPlaylistTab) {
+                        val icon = if (isPlaylistTab || isMixesTab) Icons.AutoMirrored.Rounded.PlaylistAdd else Icons.Rounded.Shuffle
+                        val text = if (isPlaylistTab || isMixesTab) {
                             stringResource(R.string.library_action_new)
                         } else {
                             stringResource(R.string.shortcut_shuffle_short)
                         }
                         val contentDesc = if (isPlaylistTab) {
                             stringResource(R.string.cd_create_new_playlist)
+                        } else if (isMixesTab) {
+                            stringResource(R.string.mix_create_title)
                         } else {
                             stringResource(R.string.cd_shuffle_play)
                         }

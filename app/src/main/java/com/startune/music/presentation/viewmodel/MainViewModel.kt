@@ -21,7 +21,7 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val syncManager: SyncManager,
     musicRepository: MusicRepository,
-    userPreferencesRepository: UserPreferencesRepository
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
     val isSetupComplete: StateFlow<Boolean?> = userPreferencesRepository.initialSetupDoneFlow

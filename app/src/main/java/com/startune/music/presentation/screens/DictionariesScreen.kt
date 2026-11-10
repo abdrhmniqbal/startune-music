@@ -18,6 +18,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material3.Button
@@ -219,10 +221,7 @@ private fun DictionaryPackCard(
                 )
             }
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 when (packState.status) {
                     DictionaryStatus.DOWNLOADING -> {
                         TextButton(onClick = onCancel) {
@@ -231,11 +230,23 @@ private fun DictionaryPackCard(
                     }
                     DictionaryStatus.DOWNLOADED -> {
                         if (packState.hasUpdate) {
-                            Button(onClick = onDownload) {
+                            Button(
+                                onClick = onDownload,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Download,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(Modifier.width(6.dp))
                                 Text(stringResource(R.string.dictionaries_update))
                             }
                         }
-                        OutlinedButton(onClick = onDelete) {
+                        OutlinedButton(
+                            onClick = onDelete,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             Icon(
                                 imageVector = Icons.Rounded.Delete,
                                 contentDescription = null,
@@ -246,12 +257,30 @@ private fun DictionaryPackCard(
                         }
                     }
                     DictionaryStatus.FAILED -> {
-                        Button(onClick = onDownload) {
+                        Button(
+                            onClick = onDownload,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Refresh,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(Modifier.width(6.dp))
                             Text(stringResource(R.string.dictionaries_retry))
                         }
                     }
                     DictionaryStatus.NOT_DOWNLOADED -> {
-                        Button(onClick = onDownload) {
+                        Button(
+                            onClick = onDownload,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Download,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(Modifier.width(6.dp))
                             Text(stringResource(R.string.dictionaries_download))
                         }
                     }

@@ -49,12 +49,6 @@ enum class SettingsCategory(
         subtitleRes = R.string.settings_category_behavior_subtitle,
         iconRes = R.drawable.rounded_touch_app_24
     ),
-    BACKUP_RESTORE(
-        id = "backup_restore",
-        titleRes = R.string.settings_category_backup_title,
-        subtitleRes = R.string.settings_category_backup_subtitle,
-        iconRes = R.drawable.rounded_upload_file_24
-    ),
     DATA_STORAGE(
         id = "data_storage",
         titleRes = R.string.settings_category_data_storage_title,

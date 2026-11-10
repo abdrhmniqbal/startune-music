@@ -491,7 +491,7 @@ fun PlaylistDetailScreen(
                             Text(playlistEmptyTitle, style = MaterialTheme.typography.titleMedium)
                             val emptyMessage = when {
                                 isFolderPlaylist -> playlistEmptyFolder
-                                isMix -> stringResource(R.string.presentation_batch_b_playlist_empty_smart_body)
+                                isMix -> stringResource(R.string.presentation_batch_b_playlist_empty_mix_body)
                                 else -> playlistEmptyAddHint
                             }
                             Text(emptyMessage, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -953,7 +953,11 @@ fun PlaylistDetailScreen(
                 },
                 removeFromListTrigger = {
                     playlistViewModel.removeSongFromPlaylist(playlistId, currentSong.id)
-                }
+                },
+                onRemoveFromList = {
+                    playlistViewModel.removeSongFromPlaylist(playlistId, currentSong.id)
+                },
+                removeFromListLabel = stringResource(R.string.presentation_batch_e_cd_remove_from_playlist)
             )
             if (showPlaylistBottomSheet) {
                 val playlistUiState by playlistViewModel.uiState.collectAsStateWithLifecycle()
@@ -1029,7 +1033,11 @@ fun PlaylistDetailScreen(
         playerViewModel = playerViewModel,
         multiSelectionState = multiSelectionState,
         showSheet = showMultiSelectionSheet,
-        onDismiss = { showMultiSelectionSheet = false }
+        onDismiss = { showMultiSelectionSheet = false },
+        onRemoveFromList = {
+            playlistViewModel.removeSongsFromPlaylist(playlistId, selectedSongIds.toList())
+        },
+        removeFromListLabel = stringResource(R.string.presentation_batch_e_cd_remove_from_playlist)
     )
 }
 

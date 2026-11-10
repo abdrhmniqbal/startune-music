@@ -768,7 +768,7 @@ private fun SharedArtistTopBarProbe(
             ),
             titleScaleRange = 1f to 1f,
             titleFontSizeRange = 30.sp to 18.sp,
-            maxLines = if (collapseFraction < 0.5f) 2 else 1,
+            maxLines = if (collapseFraction < 0.5f) Int.MAX_VALUE else 1,
             collapsedSubtitleMaxLines = 1,
             expandedSubtitleMaxLines = 2,
             contentColor = MaterialTheme.colorScheme.onSurface,
@@ -860,7 +860,7 @@ private fun CustomCollapsingTopBar(
 
     val titleScale = lerp(1f, 0.75f, collapseFraction)
     val titlePaddingStart = lerp(24.dp, 58.dp, collapseFraction)
-    val titleMaxLines = if(collapseFraction < 0.5f) 2 else 1
+    val titleMaxLines = if (collapseFraction < 0.5f) Int.MAX_VALUE else 1
     val titleVerticalBias = lerp(1f, -1f, collapseFraction)
     val animatedTitleAlignment = BiasAlignment(horizontalBias = -1f, verticalBias = titleVerticalBias)
     val titleContainerHeight = lerp(88.dp, 56.dp, collapseFraction)

@@ -29,6 +29,7 @@ import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.automirrored.rounded.QueueMusic
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.RemoveCircleOutline
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Favorite
@@ -108,7 +109,9 @@ fun MultiSelectionBottomSheet(
     onShareAll: () -> Unit,
     onDownloadAll: (() -> Unit)? = null,
     onDeleteAll: (activity: Activity, onResult: (Boolean) -> Unit) -> Unit,
-    onBatchEdit: (() -> Unit)? = null
+    onBatchEdit: (() -> Unit)? = null,
+    onRemoveFromList: (() -> Unit)? = null,
+    removeFromListLabel: String? = null
 ) {
     val context = LocalContext.current
     val sheetState = rememberModalSheetState(skipPartiallyExpanded = true)
@@ -462,6 +465,31 @@ fun MultiSelectionBottomSheet(
                                 )
                                 Spacer(Modifier.width(8.dp))
                                 Text(stringResource(R.string.action_delete_all))
+                            }
+                        }
+                    }
+                    if (onRemoveFromList != null && removeFromListLabel != null) {
+                        item {
+                            FilledTonalButton(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = 66.dp),
+                                colors = ButtonDefaults.filledTonalButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                                ),
+                                shape = CircleShape,
+                                onClick = {
+                                    onRemoveFromList?.invoke()
+                                    onDismiss()
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Rounded.RemoveCircleOutline,
+                                    contentDescription = removeFromListLabel
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(removeFromListLabel)
                             }
                         }
                     }

@@ -81,7 +81,7 @@ val DarkColorScheme = darkColorScheme(
     onSurface = StartuneLightPurple,
     error = Color(0xFFFF5252),
     onError = StartuneWhite
-)
+).withDerivedRoles(dark = true)
 
 val LightColorScheme = lightColorScheme(
     primary = LightPrimary,
@@ -105,7 +105,7 @@ val LightColorScheme = lightColorScheme(
     surfaceTint = LightPrimary,
     error = Color(0xFFD32F2F),
     onError = StartuneWhite
-)
+).withDerivedRoles(dark = false)
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable

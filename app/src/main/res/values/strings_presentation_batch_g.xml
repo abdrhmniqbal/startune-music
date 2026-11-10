@@ -118,6 +118,7 @@
     <string name="device_capabilities_metric_hw_decoders">HW decoders</string>
     <string name="device_capabilities_metric_local_music">Local songs</string>
     <string name="device_capabilities_storage_title">Local Music Storage</string>
+    <string name="device_capabilities_storage_internal">Internal storage</string>
     <string name="device_capabilities_storage_music_size">Music size</string>
     <string name="device_capabilities_storage_music_count">%1$d local songs</string>
     <string name="device_capabilities_storage_available">Available</string>

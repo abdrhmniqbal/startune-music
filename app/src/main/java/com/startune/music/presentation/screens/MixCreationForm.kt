@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -47,9 +48,10 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircleShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -79,9 +81,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextGeometricTransform
+import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -96,6 +99,8 @@ import coil.request.ImageRequest
 import com.startune.music.R
 import com.startune.music.data.model.Artist
 import com.startune.music.data.model.MixRule
+import androidx.compose.ui.layout.ContentScale
+import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.CoverColorPicker
 import com.startune.music.presentation.components.CoverIconPicker
 import com.startune.music.presentation.components.ImageCropView
@@ -138,6 +143,66 @@ private fun mixRuleSubtitle(rule: MixRule): String =
  * as playlists. A mix cover is always shown in the cookie shape; the choice
  * only changes what is inside it.
  */
+
+/**
+ * Initial values for editing a mix. Create mode uses the defaults.
+ * [coverImageUri] is the mix's stored cover path, kept as-is when the user
+ * does not pick a new image.
+ */
+data class MixFormInitial(
+    val name: String = "",
+    val rule: MixRule = MixRule.TOP_PLAYED,
+    val songCount: Int = 60,
+    val artistIds: List<Long> = emptyList(),
+    val coverImageUri: String? = null,
+    val coverColorArgb: Int? = null,
+    val coverIconName: String? = null
+)
+
+/**
+ * Edit-mix form: the same full-screen form as [CreateMixForm], prefilled
+ * from the mix. For the For You Mix only the size is editable (its name,
+ * rule and cover are fixed), so the name, preset and cover sections hide.
+ */
+@Composable
+fun EditMixForm(
+    visible: Boolean,
+    onDismiss: () -> Unit,
+    onSave: (String, MixRule, Int, List<Long>, String?, Int?, String?, Float, Float, Float) -> Unit,
+    playerViewModel: PlayerViewModel,
+    initial: MixFormInitial = MixFormInitial(),
+    isForYouMix: Boolean = false
+) {
+    val transitionState = remember { MutableTransitionState(false) }
+    transitionState.targetState = visible
+
+    if (transitionState.currentState || transitionState.targetState) {
+        Dialog(
+            onDismissRequest = onDismiss,
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false,
+                decorFitsSystemWindows = false
+            )
+        ) {
+            AnimatedVisibility(
+                visibleState = transitionState,
+                enter = slideInVertically(initialOffsetY = { it / 6 }) + fadeIn(animationSpec = tween(220)),
+                exit = slideOutVertically(targetOffsetY = { it / 6 }) + fadeOut(animationSpec = tween(200)),
+                label = "edit_mix_form"
+            ) {
+                CreateMixFormContent(
+                    onDismiss = onDismiss,
+                    onCreate = onSave,
+                    playerViewModel = playerViewModel,
+                    initial = initial,
+                    isEdit = true,
+                    isForYouMix = isForYouMix
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun CreateMixForm(
     visible: Boolean,
@@ -172,31 +237,41 @@ fun CreateMixForm(
     }
 }
 
-@OptIn(UnstableApi::class, ExperimentalMaterial3Api::class)
+@OptIn(UnstableApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CreateMixFormContent(
     onDismiss: () -> Unit,
     onCreate: (String, MixRule, Int, List<Long>, String?, Int?, String?, Float, Float, Float) -> Unit,
-    playerViewModel: PlayerViewModel
+    playerViewModel: PlayerViewModel,
+    initial: MixFormInitial = MixFormInitial(),
+    isEdit: Boolean = false,
+    isForYouMix: Boolean = false
 ) {
     val context = LocalContext.current
     val artists by playerViewModel.artistsFlow.collectAsStateWithLifecycle()
 
-    var mixName by remember { mutableStateOf("") }
-    var selectedRule by remember { mutableStateOf(MixRule.TOP_PLAYED) }
-    var sliderValue by remember { mutableFloatStateOf(60f) }
-    var selectedArtistIds by remember { mutableStateOf<List<Long>>(emptyList()) }
+    var mixName by remember { mutableStateOf(initial.name) }
+    var selectedRule by remember { mutableStateOf(initial.rule) }
+    var sliderValue by remember { mutableFloatStateOf(initial.songCount.toFloat()) }
+    var selectedArtistIds by remember { mutableStateOf<List<Long>>(initial.artistIds) }
     var showArtistPicker by remember { mutableStateOf(false) }
 
-    var selectedTab by remember { mutableStateOf(0) }
+    var selectedTab by remember {
+        mutableStateOf(
+            if (initial.coverImageUri != null) 1
+            else if (initial.coverColorArgb != null) 2
+            else 0
+        )
+    }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var showCropUi by remember { mutableStateOf(false) }
     var imageBitmap by remember(selectedImageUri) { mutableStateOf<ImageBitmap?>(null) }
     var cropScale by remember { mutableFloatStateOf(1f) }
     var cropOffset by remember { mutableStateOf(Offset.Zero) }
     val defaultColor = MaterialTheme.colorScheme.primaryContainer.toArgb()
-    var selectedColor by remember { mutableStateOf<Int?>(defaultColor) }
-    var selectedIconName by remember { mutableStateOf<String?>("MusicNote") }
+    var selectedColor by remember { mutableStateOf<Int?>(initial.coverColorArgb ?: defaultColor) }
+    var selectedIconName by remember { mutableStateOf<String?>(initial.coverIconName ?: "MusicNote") }
+    var existingCoverImageUri by remember { mutableStateOf(initial.coverImageUri) }
 
     LaunchedEffect(selectedImageUri) {
         if (selectedImageUri != null) {
@@ -228,8 +303,8 @@ private fun CreateMixFormContent(
         }
     }
 
-    val canCreate = mixName.isNotBlank() &&
-        (selectedRule != MixRule.ARTISTS || selectedArtistIds.isNotEmpty())
+    val canCreate = isForYouMix || (mixName.isNotBlank() &&
+        (selectedRule != MixRule.ARTISTS || selectedArtistIds.isNotEmpty()))
 
     BackHandler(enabled = showCropUi) {
         showCropUi = false
@@ -240,7 +315,7 @@ private fun CreateMixFormContent(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        stringResource(R.string.mix_create_title),
+                        stringResource(if (isEdit) R.string.mix_edit_title else R.string.mix_create_title),
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontSize = 24.sp,
                             textGeometricTransform = TextGeometricTransform(scaleX = 1.2f),
@@ -274,12 +349,13 @@ private fun CreateMixFormContent(
         floatingActionButton = {
             if (!showCropUi) {
                 MediumExtendedFloatingActionButton(
-                    text = { Text(stringResource(R.string.presentation_batch_f_create)) },
+                    text = { Text(stringResource(if (isEdit) R.string.action_save else R.string.presentation_batch_f_create)) },
                     icon = {
                         Icon(Icons.Rounded.Check, contentDescription = null)
                     },
                     onClick = {
-                        val imageUriString = if (selectedTab == 1) selectedImageUri?.toString() else null
+                        if (!canCreate) return@MediumExtendedFloatingActionButton
+                        val imageUriString = if (selectedTab == 1) selectedImageUri?.toString() ?: existingCoverImageUri else null
                         val color = if (selectedTab == 2) selectedColor else null
                         val icon = if (selectedTab == 2) selectedIconName else null
                         val scale = if (selectedTab == 1) cropScale else 1f
@@ -298,7 +374,8 @@ private fun CreateMixFormContent(
                             panY
                         )
                     },
-                    enabled = canCreate
+                    containerColor = if (canCreate) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
+                    contentColor = if (canCreate) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
                 )
             }
         }
@@ -312,7 +389,8 @@ private fun CreateMixFormContent(
                     .clip(RoundedCornerShape(24.dp))
                     .background(MaterialTheme.colorScheme.surface)
             ) {
-                if (imageBitmap != null) {
+                val cropBitmap = imageBitmap
+                if (cropBitmap != null) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -341,7 +419,7 @@ private fun CreateMixFormContent(
                                 .clip(ShapeCache.expressiveAvatar)
                         ) {
                             ImageCropView(
-                                imageBitmap = imageBitmap,
+                                imageBitmap = cropBitmap,
                                 modifier = Modifier.fillMaxSize(),
                                 scale = cropScale,
                                 pan = cropOffset,
@@ -379,6 +457,7 @@ private fun CreateMixFormContent(
                 .padding(padding)
                 .imePadding()
         ) {
+            if (!isForYouMix) {
             AnimatedContent(
                 targetState = selectedTab,
                 transitionSpec = {
@@ -421,7 +500,8 @@ private fun CreateMixFormContent(
                             }
                         }
                         1 -> {
-                            if (imageBitmap != null) {
+                            val previewBitmap = imageBitmap
+                            if (previewBitmap != null || existingCoverImageUri != null) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Box(
                                         modifier = Modifier
@@ -429,14 +509,23 @@ private fun CreateMixFormContent(
                                             .clip(ShapeCache.expressiveAvatar)
                                             .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                                     ) {
-                                        ImageCropView(
-                                            imageBitmap = imageBitmap,
-                                            modifier = Modifier.fillMaxSize(),
-                                            scale = cropScale,
-                                            pan = cropOffset,
-                                            enabled = false,
-                                            onCrop = { _, _ -> }
-                                        )
+                                        if (previewBitmap != null) {
+                                            ImageCropView(
+                                                imageBitmap = previewBitmap,
+                                                modifier = Modifier.fillMaxSize(),
+                                                scale = cropScale,
+                                                pan = cropOffset,
+                                                enabled = false,
+                                                onCrop = { _, _ -> }
+                                            )
+                                        } else {
+                                            SmartImage(
+                                                model = existingCoverImageUri,
+                                                contentDescription = null,
+                                                contentScale = ContentScale.Crop,
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                        }
                                     }
                                     Spacer(Modifier.height(12.dp))
                                     Row(
@@ -452,13 +541,13 @@ private fun CreateMixFormContent(
                                             Spacer(Modifier.width(8.dp))
                                             Text(stringResource(R.string.presentation_batch_f_change), style = MaterialTheme.typography.labelLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                         }
-                                        Button(
-                                            onClick = { selectedImageUri = null },
+                                        FilledTonalButton(
+                                            onClick = { selectedImageUri = null; existingCoverImageUri = null },
                                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                                             modifier = Modifier.height(40.dp).weight(1f),
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = MaterialTheme.colorScheme.error,
-                                                contentColor = MaterialTheme.colorScheme.onError
+                                            colors = ButtonDefaults.filledTonalButtonColors(
+                                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                                contentColor = MaterialTheme.colorScheme.onErrorContainer
                                             )
                                         ) {
                                             Icon(Icons.Rounded.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -515,6 +604,7 @@ private fun CreateMixFormContent(
                     }
                 }
             }
+            }
 
             Column(
                 modifier = Modifier
@@ -524,6 +614,7 @@ private fun CreateMixFormContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
+                if (!isForYouMix) {
                 OutlinedTextField(
                     value = mixName,
                     onValueChange = { mixName = it },
@@ -544,7 +635,9 @@ private fun CreateMixFormContent(
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
+                }
 
+                if (!isForYouMix) {
                 val tabs = persistentListOf(
                     stringResource(R.string.presentation_batch_f_tab_default),
                     stringResource(R.string.presentation_batch_f_tab_image),
@@ -558,6 +651,8 @@ private fun CreateMixFormContent(
                         .fillMaxWidth()
                         .padding(horizontal = 22.dp)
                 )
+
+                }
 
                 AnimatedVisibility(visible = selectedTab == 2) {
                     Column(
@@ -577,6 +672,7 @@ private fun CreateMixFormContent(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                if (!isForYouMix) {
                 Text(
                     text = stringResource(R.string.mix_preset_label),
                     style = MaterialTheme.typography.titleSmall,
@@ -615,6 +711,8 @@ private fun CreateMixFormContent(
                             }
                         }
                     }
+                }
+
                 }
 
                 AnimatedVisibility(visible = selectedRule == MixRule.ARTISTS) {
@@ -815,7 +913,7 @@ private fun ArtistPickerBottomSheet(
                 }
             }
             Spacer(Modifier.height(12.dp))
-            FilledTonalButton(
+            Button(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth()
             ) {

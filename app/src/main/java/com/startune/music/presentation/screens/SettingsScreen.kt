@@ -45,7 +45,6 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
@@ -286,7 +285,7 @@ fun SettingsScreen(
                         it != SettingsCategory.ABOUT
                     }
 
-                    val totalItems = mainCategories.size + 3
+                    val totalItems = mainCategories.size + 2
                     fun shapeFor(index: Int) =
                         when {
                             totalItems == 1 -> RoundedCornerShape(24.dp)
@@ -317,19 +316,6 @@ fun SettingsScreen(
                         }
                         itemIndex++
                     }
-
-                    ExpressiveNavigationItem(
-                        title = stringResource(R.string.cloud_downloads_title),
-                        subtitle = stringResource(R.string.cloud_downloads_settings_subtitle),
-                        icon = Icons.Rounded.CloudDownload,
-                        colors = getDownloadsColors(isDark),
-                        onClick = { navController.navigateSafely(Screen.CloudDownloads.route) },
-                        shape = shapeFor(itemIndex)
-                    )
-                    if (itemIndex < totalItems - 1) {
-                        Spacer(modifier = Modifier.height(2.dp))
-                    }
-                    itemIndex++
 
                     ExpressiveNavigationItem(
                         title = stringResource(R.string.settings_accounts_row_title),
@@ -374,7 +360,7 @@ fun SettingsScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Surface(
@@ -605,12 +591,6 @@ private fun getAccountsColors(isDark: Boolean): Pair<Color, Color> {
     }
 }
 
-private fun getDownloadsColors(isDark: Boolean): Pair<Color, Color> = if (isDark) {
-    Color(0xFF174A5A) to Color(0xFFB6EAFB)
-} else {
-    Color(0xFFC2E7FF) to Color(0xFF004A77)
-}
-
 @Composable
 fun ExpressiveSettingsGroup(content: @Composable () -> Unit) {
     Column(
@@ -631,7 +611,6 @@ fun getCategoryColors(category: SettingsCategory, isDark: Boolean): Pair<Color, 
             SettingsCategory.PLAYBACK -> Color(0xFF633B48) to Color(0xFFFFD8EC) 
             SettingsCategory.NOTIFICATIONS -> Color(0xFF4F378B) to Color(0xFFEADDFF)
             SettingsCategory.BEHAVIOR -> Color(0xFF3E4C63) to Color(0xFFD7E3FF)
-            SettingsCategory.BACKUP_RESTORE -> Color(0xFF3B4869) to Color(0xFFD9E2FF)
             SettingsCategory.DATA_STORAGE -> Color(0xFF204E45) to Color(0xFFB7E8DB)
             SettingsCategory.DEVELOPER -> Color(0xFF324F34) to Color(0xFFCBEFD0) 
             SettingsCategory.EQUALIZER -> Color(0xFF6E4E13) to Color(0xFFFFDEAC) 
@@ -644,7 +623,6 @@ fun getCategoryColors(category: SettingsCategory, isDark: Boolean): Pair<Color, 
             SettingsCategory.PLAYBACK -> Color(0xFFFFD8EC) to Color(0xFF631B4B)
             SettingsCategory.NOTIFICATIONS -> Color(0xFFEADDFF) to Color(0xFF4F378B)
             SettingsCategory.BEHAVIOR -> Color(0xFFD7E3FF) to Color(0xFF253347)
-            SettingsCategory.BACKUP_RESTORE -> Color(0xFFD9E2FF) to Color(0xFF27304E)
             SettingsCategory.DATA_STORAGE -> Color(0xFFB7E8DB) to Color(0xFF03211C)
             SettingsCategory.DEVELOPER -> Color(0xFFCBEFD0) to Color(0xFF042106)
             SettingsCategory.EQUALIZER -> Color(0xFFFFDEAC) to Color(0xFF281900)

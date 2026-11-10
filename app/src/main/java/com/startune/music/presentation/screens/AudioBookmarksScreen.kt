@@ -390,7 +390,7 @@ fun AudioBookmarkFolderScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .nestedScroll(topBarState.nestedScrollConnection)
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 LazyColumn(
                     state = topBarState.lazyListState,

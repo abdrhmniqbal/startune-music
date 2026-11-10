@@ -1285,6 +1285,14 @@ class PlayerViewModel @Inject constructor(
         dailyMixStateHolder.removeFromDailyMix(songId)
     }
 
+    fun removeSongsFromYourMix(songIds: List<String>) {
+        dailyMixStateHolder.removeSongsFromYourMix(songIds, favoriteSongIds)
+    }
+
+    fun removeSongsFromDailyMix(songIds: List<String>) {
+        dailyMixStateHolder.removeSongsFromDailyMix(songIds)
+    }
+
     val forYouMixSongCount: StateFlow<Int> = userPreferencesRepository.forYouMixSongCountFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 60)
 

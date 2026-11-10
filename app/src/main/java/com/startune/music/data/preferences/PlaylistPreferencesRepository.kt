@@ -142,6 +142,15 @@ class PlaylistPreferencesRepository @Inject constructor(
         updatePlaylist(existing.copy(songIds = existing.songIds.filterNot { it == songIdToRemove }))
     }
 
+    suspend fun getMixRemovedSongIds(playlistId: String): Set<String> =
+        userPreferencesRepository.getMixRemovedSongIds(playlistId)
+
+    suspend fun addMixRemovedSongIds(playlistId: String, songIds: Collection<String>) =
+        userPreferencesRepository.addMixRemovedSongIds(playlistId, songIds)
+
+    suspend fun clearMixRemovedSongIds(playlistId: String) =
+        userPreferencesRepository.clearMixRemovedSongIds(playlistId)
+
     suspend fun reorderSongsInPlaylist(playlistId: String, newSongOrderIds: List<String>) {
         ensureMigratedIfNeeded()
         val existing = userPlaylistsFlow.first().find { it.id == playlistId } ?: return

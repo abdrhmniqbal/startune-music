@@ -159,7 +159,7 @@ fun DelimiterConfigScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.background)
             .nestedScroll(nestedScrollConnection)
     ) {
         val currentTopBarHeightDp = with(density) { topBarHeight.value.toDp() }
