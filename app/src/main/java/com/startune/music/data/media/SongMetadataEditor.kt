@@ -22,6 +22,7 @@ import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.worker.collectArtistNames
 import com.startune.music.utils.AlbumArtUtils
 import com.startune.music.utils.LocalArtworkUri
+import com.startune.music.utils.MediaStorePermissionHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -440,14 +441,18 @@ class SongMetadataEditor(
                 (validatedCustomMetadataChanges.hasChanges &&
                     !useVorbisJavaPrimary &&
                     !useJAudioTaggerPrimary)
+            // Without File API write access (scoped storage after MediaStore write consent),
+            // the tag writers cannot open the original path; edit a copy and stream it back
+            // through the ContentResolver instead.
+            val needsContentResolverWriteBack = fileExists && !File(finalFilePath).canWrite()
             val fileUpdateSuccess = if (!fileExists) {
                 Timber.tag(TAG).e("METADATA_EDIT: File does not exist: $finalFilePath")
                 false
-            } else if (needsTransactionalTempWrite) {
+            } else if (needsTransactionalTempWrite || needsContentResolverWriteBack) {
                 // TagLib and the container-specific rating/custom-field writer are two separate
                 // commits. Run both against a copy so a failure in the second pass cannot leave
                 // only the standard fields changed in the user's original file.
-                writeMetadataViaExtensionSwap(finalFilePath, effectiveExtension, runPipeline)
+                writeMetadataViaExtensionSwap(songId, finalFilePath, effectiveExtension, runPipeline)
             } else {
                 runPipeline(finalFilePath)
             }
@@ -546,6 +551,7 @@ class SongMetadataEditor(
      * MediaStore URIs stay valid; only the file's byte content is replaced.
      */
     private fun writeMetadataViaExtensionSwap(
+        songId: Long,
         originalPath: String,
         correctExtension: String,
         writer: (String) -> Boolean
@@ -567,7 +573,11 @@ class SongMetadataEditor(
                 Timber.tag(TAG).e("METADATA_EDIT: Writer failed on temp file ${tempFile.absolutePath}")
                 return false
             }
-            replaceFileContentSafely(tempFile, originalFile)
+            if (originalFile.canWrite()) {
+                replaceFileContentSafely(tempFile, originalFile)
+            } else if (!writeBackViaContentResolver(songId, tempFile)) {
+                return false
+            }
             Timber.tag(TAG).d(
                 "METADATA_EDIT: Restored ${tempFile.length()} edited bytes back to $originalPath"
             )
@@ -580,6 +590,27 @@ class SongMetadataEditor(
                 Timber.tag(TAG).w("METADATA_EDIT: Could not delete temp file ${tempFile.absolutePath}")
             }
         }
+    }
+
+    private fun writeBackViaContentResolver(songId: Long, source: File): Boolean {
+        val uri = MediaStorePermissionHelper.getMediaStoreUri(context, songId)
+        if (uri == null) {
+            Timber.tag(TAG).e("METADATA_EDIT: Cannot write back: file is not writable and no MediaStore URI resolved")
+            return false
+        }
+        val pfd = context.contentResolver.openFileDescriptor(uri, "rwt")
+        if (pfd == null) {
+            Timber.tag(TAG).e("METADATA_EDIT: ContentResolver returned no descriptor for $uri")
+            return false
+        }
+        pfd.use {
+            FileOutputStream(it.fileDescriptor).use { out ->
+                source.inputStream().use { input -> input.copyTo(out) }
+                out.fd.sync()
+            }
+        }
+        Timber.tag(TAG).d("METADATA_EDIT: Wrote edited bytes back via ContentResolver (rwt)")
+        return true
     }
 
     /**
