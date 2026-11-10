@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package com.startune.music.presentation.screens
 
 import android.content.Context
@@ -16,11 +18,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.SystemUpdate
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -195,7 +198,7 @@ fun UpdatesScreen(
                             }
                             AppUpdateManager.DownloadState.Idle -> {
                                 if (isChecking) {
-                                    CircularProgressIndicator(modifier = Modifier.size(28.dp))
+                                    LoadingIndicator(modifier = Modifier.size(28.dp))
                                 } else if (info != null) {
                                     Button(
                                         onClick = { viewModel.enqueueDownload(info) },

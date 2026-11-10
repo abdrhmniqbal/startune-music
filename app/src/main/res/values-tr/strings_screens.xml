@@ -211,4 +211,6 @@
     <string name="setup_theme_dark_description">PixelPlayerOSS için varsayılan Material 3 koyu görünümü.</string>
     <string name="home_empty_placeholder_subtitle">PixelPlayerOSS şarkı bulduğunda veya bir kaynağı senkronize ettiğinde miksiniz burada görünecek.</string>
     <string name="crash_report_share_subject">PixelPlayerOSS çökme raporu</string>
+    <string name="navigation_rail_expand">Gezinmeyi genişlet</string>
+    <string name="navigation_rail_collapse">Gezinmeyi daralt</string>
 </resources>

@@ -441,4 +441,6 @@
     <string name="toast_download_started">Descarga iniciada</string>
     <string name="toast_removed_dislike">No me gusta eliminado</string>
     <string name="setup_external_services_subtitle">PixelPlayerOSS funciona sin conexión por defecto. Activa solo las búsquedas que quieras.</string>
+    <string name="navigation_rail_expand">Expandir navegación</string>
+    <string name="navigation_rail_collapse">Contraer navegación</string>
 </resources>

@@ -448,4 +448,6 @@
     <string name="toast_download_started">Téléchargement commencé</string>
     <string name="toast_removed_dislike">Je n\'aime pas retiré</string>
     <string name="setup_external_services_subtitle">PixelPlayerOSS fonctionne hors ligne par défaut. Activez uniquement les recherches que vous souhaitez.</string>
+    <string name="navigation_rail_expand">Développer la navigation</string>
+    <string name="navigation_rail_collapse">Réduire la navigation</string>
 </resources>

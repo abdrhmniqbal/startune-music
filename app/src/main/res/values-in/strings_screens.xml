@@ -446,4 +446,6 @@
     <string name="toast_download_started">Unduhan dimulai</string>
     <string name="toast_removed_dislike">Batal tidak suka</string>
     <string name="setup_external_services_subtitle">PixelPlayerOSS bekerja secara offline secara default. Aktifkan hanya pencarian yang Anda inginkan.</string>
+    <string name="navigation_rail_expand">Luaskan navigasi</string>
+    <string name="navigation_rail_collapse">Ciutkan navigasi</string>
 </resources>

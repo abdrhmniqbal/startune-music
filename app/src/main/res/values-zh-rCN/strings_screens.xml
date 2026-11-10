@@ -446,4 +446,6 @@
     <string name="toast_download_cancelled">下载已取消</string>
     <string name="toast_download_started">下载已开始</string>
     <string name="toast_removed_dislike">已取消不喜欢</string>
+    <string name="navigation_rail_expand">展开导航栏</string>
+    <string name="navigation_rail_collapse">收起导航栏</string>
 </resources>

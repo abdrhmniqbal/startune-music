@@ -448,4 +448,6 @@
     <string name="toast_download_started">Download gestartet</string>
     <string name="toast_removed_dislike">Dislike entfernt</string>
     <string name="setup_external_services_subtitle">PixelPlayerOSS funktioniert standardmäßig offline. Aktiviere nur die Abfragen, die du möchtest.</string>
+    <string name="navigation_rail_expand">Navigation ausklappen</string>
+    <string name="navigation_rail_collapse">Navigation einklappen</string>
 </resources>
