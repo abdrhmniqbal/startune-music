@@ -88,6 +88,16 @@
     <string name="presentation_batch_g_stats_unique_tracks">고유 트랙 수</string>
     <string name="presentation_batch_g_stats_top_three_share_label">상위 3개 점유율</string>
     <string name="presentation_batch_g_stats_avatar_placeholder">\?</string>
+    <string name="presentation_batch_g_stats_hero_per_day">하루 %1$s</string>
+    <string name="presentation_batch_g_stats_section_heavy_rotation">자주 들은 음악</string>
+    <string name="presentation_batch_g_stats_heavy_rotation_subtitle">이 기간에 계속 다시 들은 음악이에요.</string>
+    <string name="presentation_batch_g_stats_tab_tracks">트랙</string>
+    <string name="presentation_batch_g_stats_tab_artists">아티스트</string>
+    <string name="presentation_batch_g_stats_tab_albums">앨범</string>
+    <string name="presentation_batch_g_stats_tab_genres">장르</string>
+    <string name="presentation_batch_g_stats_top_pick">최고의 선택</string>
+    <string name="presentation_batch_g_stats_section_listening_variety">감상 다양성</string>
+    <string name="presentation_batch_g_stats_habit_longest_streak">최장 연속 기록</string>
     <string name="presentation_batch_g_device_info_title">기기 정보</string>
     <string name="presentation_batch_g_device_supported_codecs_title">지원되는 오디오 코덱</string>
     <string name="presentation_batch_g_device_section_audio_output">오디오 출력</string>

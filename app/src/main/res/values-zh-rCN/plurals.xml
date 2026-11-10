@@ -36,4 +36,16 @@
         <item quantity="one">%d 次</item>
         <item quantity="other">%d 次</item>
     </plurals>
+    <plurals name="stats_active_days_count">
+        <item quantity="other">%d 个活跃日</item>
+    </plurals>
+    <plurals name="stats_artists_count">
+        <item quantity="other">%d 位艺人</item>
+    </plurals>
+    <plurals name="stats_days_count">
+        <item quantity="other">%d 天</item>
+    </plurals>
+    <plurals name="stats_sessions_count">
+        <item quantity="other">%d 次会话</item>
+    </plurals>
 </resources>

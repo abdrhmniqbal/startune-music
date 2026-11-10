@@ -255,6 +255,16 @@
     <string name="presentation_batch_g_sort_original_order">Orijinal Sıra</string>
     <string name="presentation_batch_g_sort_source">Kaynak</string>
     <string name="presentation_batch_g_stats_avatar_placeholder">\?</string>
+    <string name="presentation_batch_g_stats_hero_per_day">%1$s / gün</string>
+    <string name="presentation_batch_g_stats_section_heavy_rotation">Sürekli çalınanlar</string>
+    <string name="presentation_batch_g_stats_heavy_rotation_subtitle">Bu dönemde tekrar tekrar döndüğün müzikler.</string>
+    <string name="presentation_batch_g_stats_tab_tracks">Parçalar</string>
+    <string name="presentation_batch_g_stats_tab_artists">Sanatçılar</string>
+    <string name="presentation_batch_g_stats_tab_albums">Albümler</string>
+    <string name="presentation_batch_g_stats_tab_genres">Türler</string>
+    <string name="presentation_batch_g_stats_top_pick">Bir numara</string>
+    <string name="presentation_batch_g_stats_section_listening_variety">Dinleme çeşitliliği</string>
+    <string name="presentation_batch_g_stats_habit_longest_streak">En uzun seri</string>
     <string name="presentation_batch_g_stats_avg_plays_per_track">Ort. çalma/parça</string>
     <string name="presentation_batch_g_stats_card_listening_by_album">Albüme göre dinleme</string>
     <string name="presentation_batch_g_stats_card_listening_by_artist">Sanatçıya göre dinleme</string>

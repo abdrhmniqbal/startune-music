@@ -88,6 +88,16 @@
     <string name="presentation_batch_g_stats_unique_tracks">Уникальных треков</string>
     <string name="presentation_batch_g_stats_top_three_share_label">Доля топ-3</string>
     <string name="presentation_batch_g_stats_avatar_placeholder">\?</string>
+    <string name="presentation_batch_g_stats_hero_per_day">%1$s / день</string>
+    <string name="presentation_batch_g_stats_section_heavy_rotation">На повторе</string>
+    <string name="presentation_batch_g_stats_heavy_rotation_subtitle">То, к чему вы возвращались чаще всего за этот период.</string>
+    <string name="presentation_batch_g_stats_tab_tracks">Треки</string>
+    <string name="presentation_batch_g_stats_tab_artists">Исполнители</string>
+    <string name="presentation_batch_g_stats_tab_albums">Альбомы</string>
+    <string name="presentation_batch_g_stats_tab_genres">Жанры</string>
+    <string name="presentation_batch_g_stats_top_pick">Фаворит</string>
+    <string name="presentation_batch_g_stats_section_listening_variety">Разнообразие</string>
+    <string name="presentation_batch_g_stats_habit_longest_streak">Самая длинная серия</string>
     <string name="presentation_batch_g_device_info_title">Инфо об устройстве</string>
     <string name="presentation_batch_g_device_supported_codecs_title">Поддерживаемые кодеки</string>
     <string name="presentation_batch_g_device_section_audio_output">Аудиовыход</string>

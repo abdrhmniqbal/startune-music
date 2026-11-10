@@ -88,6 +88,16 @@
     <string name="presentation_batch_g_stats_unique_tracks">Titres uniques</string>
     <string name="presentation_batch_g_stats_top_three_share_label">Part top 3</string>
     <string name="presentation_batch_g_stats_avatar_placeholder">\?</string>
+    <string name="presentation_batch_g_stats_hero_per_day">%1$s / jour</string>
+    <string name="presentation_batch_g_stats_section_heavy_rotation">En boucle</string>
+    <string name="presentation_batch_g_stats_heavy_rotation_subtitle">Ce que vous avez le plus réécouté sur cette période.</string>
+    <string name="presentation_batch_g_stats_tab_tracks">Titres</string>
+    <string name="presentation_batch_g_stats_tab_artists">Artistes</string>
+    <string name="presentation_batch_g_stats_tab_albums">Albums</string>
+    <string name="presentation_batch_g_stats_tab_genres">Genres</string>
+    <string name="presentation_batch_g_stats_top_pick">Numéro un</string>
+    <string name="presentation_batch_g_stats_section_listening_variety">Variété d\'écoute</string>
+    <string name="presentation_batch_g_stats_habit_longest_streak">Plus longue série</string>
     <string name="presentation_batch_g_device_info_title">Infos appareil</string>
     <string name="presentation_batch_g_device_supported_codecs_title">Codecs audio pris en charge</string>
     <string name="presentation_batch_g_device_section_audio_output">Sortie audio</string>
