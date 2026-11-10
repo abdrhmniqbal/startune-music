@@ -1,5 +1,6 @@
 ﻿package com.startune.music.utils
 
+import android.content.res.Resources
 import com.startune.music.data.model.Song
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -40,6 +41,19 @@ fun formatListeningDurationLong(milliseconds: Long): String {
         hours > 0 -> String.format(Locale.US, "%d h", hours)
         minutes > 0 -> String.format(Locale.US, "%d m", minutes)
         else -> String.format(Locale.US, "%d s", seconds)
+    }
+}
+
+fun formatListeningDurationCompact(resources: Resources, milliseconds: Long): String {
+    val totalMinutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds)
+    val hours = totalMinutes / 60
+    val minutes = totalMinutes % 60
+    val seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds) % 60
+    return when {
+        hours > 0 && minutes > 0 -> resources.getString(R.string.duration_hours_minutes_short, hours, minutes)
+        hours > 0 -> resources.getString(R.string.duration_hours_short, hours)
+        minutes > 0 -> resources.getString(R.string.duration_minutes_short, minutes)
+        else -> resources.getString(R.string.duration_seconds_short, seconds)
     }
 }
 

@@ -497,6 +497,13 @@ class PlaybackStatsRepository @Inject constructor(
         )
     }
 
+    suspend fun loadRecapYearTotals(): List<RecapYearTotal> {
+        val allEvents = withContext(Dispatchers.IO) { readEvents() }
+        return withContext(Dispatchers.Default) {
+            recapYearTotals(allEvents, ZoneId.systemDefault())
+        }
+    }
+
     suspend fun exportEventsForBackup(): List<PlaybackEvent> = withContext(Dispatchers.IO) {
         readEvents().map { event -> sanitizeEvent(event) }
     }
@@ -1142,7 +1149,9 @@ class PlaybackStatsRepository @Inject constructor(
         private const val DEFAULT_PLAYBACK_HISTORY_LIMIT = 500
         private const val MAX_PLAYBACK_HISTORY_LIMIT = 5_000
         private const val MAX_FILE_UPDATE_RETRIES = 3
-        private const val UNKNOWN_ARTIST = "Unknown Artist"
+        internal const val UNKNOWN_ARTIST = "Unknown Artist"
+        internal const val UNKNOWN_ALBUM = "Unknown Album"
+        internal const val UNKNOWN_GENRE = "Unknown Genre"
         private val MAX_HISTORY_AGE_MS = TimeUnit.DAYS.toMillis(730)
         private const val SEGMENT_JOIN_TOLERANCE_MS = 0L
         private const val MAX_SONG_STATS_COUNT = 100
