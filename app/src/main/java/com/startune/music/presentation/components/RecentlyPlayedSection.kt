@@ -1,6 +1,7 @@
 ﻿package com.startune.music.presentation.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -44,6 +45,7 @@ private val HomeRecentlyPlayedDefaultContentPadding = PaddingValues(horizontal =
 fun RecentlyPlayedSection(
     songs: ImmutableList<RecentlyPlayedSongUiModel>,
     onSongClick: (Song) -> Unit,
+    onSongLongClick: (Song) -> Unit = {},
     onOpenAllClick: () -> Unit,
     currentSongId: String? = null,
     isPlaying: Boolean = true,
@@ -99,7 +101,8 @@ fun RecentlyPlayedSection(
                     item = item,
                     isCurrentSong = currentSongId == item.song.id,
                     isPlaying = isPlaying,
-                    onClick = { onSongClick(item.song) }
+                    onClick = { onSongClick(item.song) },
+                    onLongClick = { onSongLongClick(item.song) }
                 )
             }
         }
@@ -111,12 +114,19 @@ private fun RecentlyPlayedGridCard(
     item: RecentlyPlayedSongUiModel,
     isCurrentSong: Boolean,
     isPlaying: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .width(HomeRecentlyPlayedCardWidth)
-            .clickable(onClick = onClick),
+            // Cards have no more-options button, so a long press opens the song options.
+            // combinedClickable performs the long-press haptic itself.
+            .combinedClickable(
+                onLongClickLabel = stringResource(R.string.presentation_batch_b_more_options),
+                onLongClick = onLongClick,
+                onClick = onClick
+            ),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         SmartImage(

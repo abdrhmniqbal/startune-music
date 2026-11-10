@@ -90,6 +90,7 @@ import com.startune.music.presentation.jellyfin.dashboard.JellyfinDashboardViewM
 import com.startune.music.presentation.components.TopTracksSection
 import com.startune.music.presentation.components.HomeGradientTopBar
 import com.startune.music.presentation.components.HomeOptionsBottomSheet
+import com.startune.music.presentation.components.RecentlyPlayedSongOptionsSheet
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.RecentlyPlayedSection
 import com.startune.music.presentation.components.RecentlyPlayedSectionMinSongsToShow
@@ -98,6 +99,8 @@ import com.startune.music.presentation.components.StatsOverviewCard
 import com.startune.music.presentation.components.resolveMainScreenBottomGradientHeight
 import com.startune.music.presentation.model.collectRecentlyPlayedSongIds
 import com.startune.music.presentation.model.mapRecentlyPlayedSongs
+import com.startune.music.presentation.model.withoutSong
+import com.startune.music.presentation.model.withUpdatedSongs
 import com.startune.music.presentation.components.subcomps.PlayingEqIcon
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.components.StreamingProviderSheet
@@ -212,6 +215,9 @@ fun HomeScreen(
         val isHomeVisible = lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
         if (recentlyPlayedSongs.isEmpty() || !isHomeVisible) {
             recentlyPlayedSongs = latestRecentlyPlayedSongs
+        } else {
+            // Keep the pills in place while Home is on screen, but show edits to their songs.
+            recentlyPlayedSongs = recentlyPlayedSongs.withUpdatedSongs(latestRecentlyPlayedSongs)
         }
     }
 
@@ -234,6 +240,8 @@ fun HomeScreen(
     ReportDrawnWhen {
         yourMixSongs.isNotEmpty() || hasHomeLoadingMinimumElapsed || isBenchmarkMode
     }
+
+    var recentSongForOptions by remember { mutableStateOf<Song?>(null) }
 
     val yourMixSubtitle = stringResource(R.string.home_your_mix_subtitle)
     val recentlyPlayedQueueName = stringResource(R.string.presentation_batch_b_queue_recently_played)
@@ -498,6 +506,9 @@ fun HomeScreen(
                                     )
                                 }
                             },
+                            onSongLongClick = { song ->
+                                recentSongForOptions = song
+                            },
                             onOpenAllClick = {
                                 navController.navigateSafely(Screen.RecentlyPlayed.route)
                             },
@@ -539,6 +550,36 @@ fun HomeScreen(
 
         }
     }
+    recentSongForOptions?.let { song ->
+        RecentlyPlayedSongOptionsSheet(
+            song = song,
+            queueSongs = recentlyPlayedQueue,
+            queueName = recentlyPlayedQueueName,
+            playerViewModel = playerViewModel,
+            onDismiss = { recentSongForOptions = null },
+            onSongDeleted = { deletedSong ->
+                recentlyPlayedSongs = recentlyPlayedSongs.withoutSong(deletedSong.id)
+            },
+            onNavigateToAlbum = { selectedSong ->
+                navController.navigateSafelyReplacing(
+                    route = Screen.AlbumDetail.createRoute(selectedSong.albumId),
+                    patternToPop = Screen.AlbumDetail.route
+                )
+            },
+            onNavigateToArtist = { artistId ->
+                navController.navigateSafelyReplacing(
+                    route = Screen.ArtistDetail.createRoute(artistId),
+                    patternToPop = Screen.ArtistDetail.route
+                )
+            },
+            onNavigateToGenre = { selectedSong ->
+                selectedSong.genre?.let {
+                    navController.navigateSafely(Screen.GenreDetail.createRoute(java.net.URLEncoder.encode(it, "UTF-8")))
+                }
+            }
+        )
+    }
+
     if (showOptionsBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = { showOptionsBottomSheet = false },
