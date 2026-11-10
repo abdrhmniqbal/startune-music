@@ -36,6 +36,7 @@ data class Song(
     val bitrate: Int?,
     val sampleRate: Int?,
     val jellyfinId: String? = null,
+    val navidromeId: String? = null,
 ) : Parcelable {
     /**
      * Returns the display string for artists.
@@ -85,7 +86,8 @@ data class Song(
                 mimeType = "-",
                 bitrate = 0,
                 sampleRate = 0,
-                jellyfinId = null
+                jellyfinId = null,
+                navidromeId = null
             )
         }
     }
