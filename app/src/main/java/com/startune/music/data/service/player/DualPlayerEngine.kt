@@ -229,7 +229,7 @@ class DualPlayerEngine @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
     private companion object {
-        private const val AUDIO_OFFLOAD_STALL_FALLBACK_MS = 4_000L
+        private const val AUDIO_OFFLOAD_STALL_FALLBACK_MS = 1_500L
         private const val POST_TRANSITION_OFFLOAD_GUARD_MS = 2_000L
         private const val MAX_AUXILIARY_TIMELINE_ITEMS = 200
         private const val SHORT_FOCUS_LOSS_GRACE_MS = 2_000L

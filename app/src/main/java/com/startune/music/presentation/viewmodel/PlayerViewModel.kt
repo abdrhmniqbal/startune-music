@@ -127,6 +127,7 @@ private const val ENABLE_FOLDERS_SOURCE_SWITCHING = true
 private const val MAX_ALBUM_BATCH_SELECTION = 6
 private const val SONG_ID_QUERY_CHUNK_SIZE = 900
 private const val HOME_MIX_PREVIEW_LIMIT = 48
+private const val SHUFFLE_ALL_SONG_LIMIT = 10_000
 private const val EXTERNAL_SONG_ID_PREFIX = "external:"
 private val LOCAL_PLAYBACK_SCHEMES = setOf("content", "file", "android.resource")
 
@@ -1333,7 +1334,7 @@ class PlayerViewModel @Inject constructor(
         Timber.tag("ShuffleDebug").d("shuffleAllSongs called.")
         
         viewModelScope.launch {
-            val randomSongs = musicRepository.getRandomSongs(limit = 500)
+            val randomSongs = musicRepository.getRandomSongs(limit = SHUFFLE_ALL_SONG_LIMIT)
             if (randomSongs.isNotEmpty()) {
                 playSongsShuffled(randomSongs, queueName, startAtZero = true)
             }
@@ -1353,7 +1354,7 @@ class PlayerViewModel @Inject constructor(
         val action: () -> Unit = {
             Timber.d("[TileDebug] action() invoked")
             viewModelScope.launch {
-                var songs = musicRepository.getRandomSongs(limit = 500)
+                var songs = musicRepository.getRandomSongs(limit = SHUFFLE_ALL_SONG_LIMIT)
                 Timber.d("[TileDebug] Repository returned ${songs.size} random songs immediately")
 
                 if (songs.isEmpty()) {
@@ -1362,7 +1363,7 @@ class PlayerViewModel @Inject constructor(
                     songs = withTimeoutOrNull(30_000L) {
                         var refreshedSongs = emptyList<Song>()
                         while (refreshedSongs.isEmpty()) {
-                            refreshedSongs = musicRepository.getRandomSongs(limit = 500)
+                            refreshedSongs = musicRepository.getRandomSongs(limit = SHUFFLE_ALL_SONG_LIMIT)
                             if (refreshedSongs.isEmpty()) {
                                 delay(500L)
                             }
@@ -1394,7 +1395,7 @@ class PlayerViewModel @Inject constructor(
 
     fun playRandomSong() {
         viewModelScope.launch {
-            val randomSongs = musicRepository.getRandomSongs(limit = 500)
+            val randomSongs = musicRepository.getRandomSongs(limit = SHUFFLE_ALL_SONG_LIMIT)
             if (randomSongs.isNotEmpty()) {
                 playSongsShuffled(randomSongs, "All Songs (Shuffled)", startAtZero = true)
             }
