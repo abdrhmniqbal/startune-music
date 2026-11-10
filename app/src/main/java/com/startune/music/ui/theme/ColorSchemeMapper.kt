@@ -114,6 +114,33 @@ fun ColorScheme.withDerivedRoles(dark: Boolean): ColorScheme {
 }
 
 /**
+ * Pitch-black (AMOLED) variant of a dark scheme. The large background areas
+ * become pure black so OLED pixels turn off, while the elevated surfaces
+ * keep 30% of the scheme's tone so cards and sheets stay distinguishable
+ * and the scheme still reads as itself. Accent and text roles are untouched,
+ * so the scheme's tone is carried by its accents.
+ */
+fun ColorScheme.toPitchBlack(): ColorScheme {
+    fun tonedDown(color: Color): Color =
+        Color(ColorUtils.blendARGB(color.toArgb(), Color.Black.toArgb(), PITCH_BLACK_TONE_DOWN))
+    return copy(
+        background = Color.Black,
+        surface = Color.Black,
+        surfaceDim = Color.Black,
+        surfaceContainerLowest = Color.Black,
+        surfaceContainerLow = tonedDown(surfaceContainerLow),
+        surfaceContainer = tonedDown(surfaceContainer),
+        surfaceContainerHigh = tonedDown(surfaceContainerHigh),
+        surfaceContainerHighest = tonedDown(surfaceContainerHighest),
+        surfaceVariant = tonedDown(surfaceVariant),
+        surfaceBright = tonedDown(surfaceBright)
+    )
+}
+
+/** Fraction of the original color blended toward black for elevated surfaces. */
+private const val PITCH_BLACK_TONE_DOWN = 0.7f
+
+/**
  * Builds a full Material3 scheme from the six editable roles. on-colors are
  * picked by luminance and containers/variants are blended from the roles, so
  * every combination stays readable. Mirrors the role set the hardcoded

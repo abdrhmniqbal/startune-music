@@ -25,6 +25,7 @@ class ThemePreferencesRepository @Inject constructor(
         val GLOBAL_NOW_PLAYING_THEME_ENABLED = booleanPreferencesKey("global_now_playing_theme_enabled_v1")
         val SELECTED_COLOR_SCHEME_ID = stringPreferencesKey("selected_color_scheme_id")
         val CUSTOM_COLOR_SCHEMES = stringPreferencesKey("custom_color_schemes_json")
+        val PITCH_BLACK_ENABLED = booleanPreferencesKey("pitch_black_enabled")
     }
 
     private val schemeJson = Json { ignoreUnknownKeys = true }
@@ -58,6 +59,10 @@ class ThemePreferencesRepository @Inject constructor(
         runCatching { schemeJson.decodeFromString<List<AppColorScheme>>(raw) }.getOrDefault(emptyList())
     }
 
+    val pitchBlackEnabledFlow: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[Keys.PITCH_BLACK_ENABLED] ?: false
+    }
+
     suspend fun setPlayerThemePreference(themeMode: String) =
         dataStore.edit { preferences ->
             preferences[Keys.PLAYER_THEME_PREFERENCE] = themeMode
@@ -81,6 +86,11 @@ class ThemePreferencesRepository @Inject constructor(
     suspend fun setCustomColorSchemes(schemes: List<AppColorScheme>) =
         dataStore.edit { preferences ->
             preferences[Keys.CUSTOM_COLOR_SCHEMES] = schemeJson.encodeToString(schemes)
+        }
+
+    suspend fun setPitchBlackEnabled(enabled: Boolean) =
+        dataStore.edit { preferences ->
+            preferences[Keys.PITCH_BLACK_ENABLED] = enabled
         }
 
     suspend fun initializeAppThemeMode(themeMode: String) =

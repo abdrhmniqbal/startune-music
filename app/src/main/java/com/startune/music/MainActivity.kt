@@ -281,6 +281,9 @@ class MainActivity : ComponentActivity() {
             val globalNowPlayingThemeEnabled by themePreferencesRepository
                 .globalNowPlayingThemeEnabledFlow
                 .collectAsStateWithLifecycle(initialValue = false)
+            val pitchBlackEnabled by themePreferencesRepository
+                .pitchBlackEnabledFlow
+                .collectAsStateWithLifecycle(initialValue = false)
             val selectedColorSchemeId by themePreferencesRepository
                 .selectedColorSchemeIdFlow
                 .collectAsStateWithLifecycle(initialValue = ColorSchemeIds.DYNAMIC)
@@ -372,7 +375,8 @@ class MainActivity : ComponentActivity() {
             StartuneTheme(
                 darkTheme = useDarkTheme,
                 colorSchemePairOverride = appWideNowPlayingScheme,
-                baseColorSchemePair = baseColorSchemePair
+                baseColorSchemePair = baseColorSchemePair,
+                pitchBlack = pitchBlackEnabled
             ) {
                 var contentVisible by remember { mutableStateOf(false) }
                 val contentAlpha by animateFloatAsState(

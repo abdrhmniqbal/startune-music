@@ -66,6 +66,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ClearAll
+import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Language
@@ -705,7 +706,7 @@ fun SettingsCategoryScreen(
                                 )
                                 SettingsItem(
                                     title = stringResource(R.string.setcat_color_scheme_title),
-                                    subtitle = colorSchemeName,
+                                    subtitle = stringResource(R.string.setcat_color_scheme_current_subtitle, colorSchemeName),
                                     leadingIcon = {
                                         Icon(
                                             imageVector = Icons.Outlined.Palette,
@@ -722,6 +723,14 @@ fun SettingsCategoryScreen(
                                     },
                                     modifier = Modifier.settingHighlight("item_appearance_color_scheme", highlightKey),
                                     onClick = { navController.navigateSafely(Screen.ColorScheme.route) }
+                                )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_pitch_black_title),
+                                    subtitle = stringResource(R.string.setcat_pitch_black_subtitle),
+                                    checked = uiState.pitchBlackEnabled,
+                                    onCheckedChange = settingsViewModel::setPitchBlackEnabled,
+                                    leadingIcon = { Icon(Icons.Outlined.DarkMode, null, tint = MaterialTheme.colorScheme.secondary) },
+                                    modifier = Modifier.settingHighlight("item_appearance_pitch_black", highlightKey)
                                 )
                                 SwitchSettingItem(
                                     title = stringResource(R.string.setcat_global_now_playing_theme_title),
