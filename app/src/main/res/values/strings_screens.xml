@@ -340,7 +340,6 @@
     <string name="song_info_available_offline">Available Offline</string>
     <string name="song_info_downloading">Downloading...</string>
     <string name="song_info_download_for_offline">Download for Offline</string>
-    <string name="setup_nav_floating_pill_m3_title">Expressive Pill</string>
     <string name="setup_nav_floating_pill_m3_desc">Floating capsule with detached search button.</string>
     <string name="setup_nav_floating_pill_bar_title">Classic Pill</string>
     <string name="setup_nav_floating_pill_bar_desc">Floating capsule with custom corner radius.</string>

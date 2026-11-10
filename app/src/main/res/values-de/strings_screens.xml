@@ -293,7 +293,6 @@
     <string name="song_info_available_offline">Offline verfügbar</string>
     <string name="song_info_downloading">Wird heruntergeladen...</string>
     <string name="song_info_download_for_offline">Für Offline herunterladen</string>
-    <string name="setup_nav_floating_pill_m3_title">Expressive Pille</string>
     <string name="setup_nav_floating_pill_m3_desc">Schwebende Kapsel mit separater Suchtaste.</string>
     <string name="setup_nav_floating_pill_bar_title">Klassische Pille</string>
     <string name="setup_nav_floating_pill_bar_desc">Schwebende Kapsel mit anpassbarem Eckenradius.</string>

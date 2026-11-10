@@ -286,7 +286,6 @@
     <string name="song_info_available_offline">Disponible sin conexión</string>
     <string name="song_info_downloading">Descargando...</string>
     <string name="song_info_download_for_offline">Descargar para escuchar sin conexión</string>
-    <string name="setup_nav_floating_pill_m3_title">Píldora Expressive</string>
     <string name="setup_nav_floating_pill_m3_desc">Cápsula flotante con botón de búsqueda separado.</string>
     <string name="setup_nav_floating_pill_bar_title">Píldora clásica</string>
     <string name="setup_nav_floating_pill_bar_desc">Cápsula flotante con esquinas personalizables.</string>
