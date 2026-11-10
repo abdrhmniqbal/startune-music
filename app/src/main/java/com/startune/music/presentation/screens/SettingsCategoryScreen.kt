@@ -86,6 +86,7 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material.icons.rounded.Restore
@@ -1467,6 +1468,20 @@ fun SettingsCategoryScreen(
                                     },
                                     modifier = Modifier.settingHighlight("item_backup_auto_last", highlightKey),
                                     onClick = {}
+                                )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.auto_backup_notifications_title),
+                                    subtitle = stringResource(R.string.auto_backup_notifications_subtitle),
+                                    checked = uiState.autoBackupNotificationsEnabled,
+                                    onCheckedChange = { settingsViewModel.setAutoBackupNotificationsEnabled(it) },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Notifications,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight("item_backup_auto_notifications", highlightKey)
                                 )
                             }
 

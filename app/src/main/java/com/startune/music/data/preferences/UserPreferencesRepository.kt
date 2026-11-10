@@ -149,6 +149,7 @@ constructor(
         val AUTO_BACKUP_ENABLED = booleanPreferencesKey("auto_backup_enabled")
         val AUTO_BACKUP_INTERVAL_HOURS = intPreferencesKey("auto_backup_interval_hours")
         val AUTO_BACKUP_LAST_RUN_MS = longPreferencesKey("auto_backup_last_run_ms")
+        val AUTO_BACKUP_NOTIFICATIONS_ENABLED = booleanPreferencesKey("auto_backup_notifications_enabled")
         val DATA_STORAGE_ROOT = stringPreferencesKey("data_storage_root")
         val INSTALLED_DICTIONARIES_JSON = stringPreferencesKey("installed_dictionaries_json")
         val RESUME_AFTER_CALL = booleanPreferencesKey("resume_after_call")
@@ -1080,6 +1081,11 @@ constructor(
                 preferences[PreferencesKeys.AUTO_BACKUP_LAST_RUN_MS] ?: 0L
             }
 
+    val autoBackupNotificationsEnabledFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.AUTO_BACKUP_NOTIFICATIONS_ENABLED] ?: true
+            }
+
     val dataStorageRootFlow: Flow<String> =
             dataStore.data.map { preferences ->
                 preferences[PreferencesKeys.DATA_STORAGE_ROOT] ?: ""
@@ -1703,6 +1709,12 @@ constructor(
     suspend fun setAutoBackupLastRunMs(timestampMs: Long) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.AUTO_BACKUP_LAST_RUN_MS] = timestampMs
+        }
+    }
+
+    suspend fun setAutoBackupNotificationsEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.AUTO_BACKUP_NOTIFICATIONS_ENABLED] = enabled
         }
     }
 

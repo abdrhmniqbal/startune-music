@@ -756,6 +756,16 @@ object SettingsRegistry {
                 keywordsStatic = listOf("backup", "automatic", "auto", "schedule", "interval")
             ),
             SettingSpec(
+                id = "backup_auto_notifications",
+                itemKey = "item_backup_auto_notifications",
+                titleRes = R.string.auto_backup_notifications_title,
+                subtitleRes = R.string.auto_backup_notifications_subtitle,
+                category = SettingsCategory.DATA_STORAGE,
+                subscreenRoute = Screen.SettingsCategory.createRoute("data_storage"),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("backup", "automatic", "auto", "notification", "notify")
+            ),
+            SettingSpec(
                 id = "data_storage_location",
                 itemKey = "item_data_storage_root",
                 titleRes = R.string.data_storage_location_title,

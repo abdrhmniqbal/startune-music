@@ -377,6 +377,10 @@
     <string name="auto_backup_every_week">Every week</string>
     <string name="auto_backup_last_backup">Last backup</string>
     <string name="auto_backup_never_backed_up">Never backed up</string>
+    <string name="auto_backup_notifications_title">Backup notifications</string>
+    <string name="auto_backup_notifications_subtitle">Show a notification while an automatic backup runs.</string>
+    <string name="auto_backup_notification_title">Backing up…</string>
+    <string name="auto_backup_notification_text">Creating an automatic backup.</string>
     <string name="auto_backup_choose_folder">Choose folder</string>
     <string name="auto_backup_folder_unusable">Couldn\'t use that folder.</string>
     <string name="setcat_import_backup_title">Import Backup</string>
