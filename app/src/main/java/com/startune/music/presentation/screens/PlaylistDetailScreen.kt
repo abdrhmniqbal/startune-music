@@ -529,18 +529,20 @@ fun PlaylistDetailScreen(
                             }
                         ) {
                             item(key = "playlist_selection_row") {
-                                AnimatedVisibility(
-                                    visible = isSelectionMode,
-                                    enter = expandVertically() + fadeIn(),
-                                    exit = shrinkVertically() + fadeOut()
-                                ) {
-                                    SelectionActionRow(
-                                        selectedCount = selectedSongs.size,
-                                        onSelectAll = { multiSelectionState.selectAll(localReorderableSongs) },
-                                        onDeselect = { multiSelectionState.clearSelection() },
-                                        onOptionsClick = { showMultiSelectionSheet = true },
-                                        modifier = Modifier.padding(horizontal = 12.dp)
-                                    )
+                                Column {
+                                    AnimatedVisibility(
+                                        visible = isSelectionMode,
+                                        enter = expandVertically() + fadeIn(),
+                                        exit = shrinkVertically() + fadeOut()
+                                    ) {
+                                        SelectionActionRow(
+                                            selectedCount = selectedSongs.size,
+                                            onSelectAll = { multiSelectionState.selectAll(localReorderableSongs) },
+                                            onDeselect = { multiSelectionState.clearSelection() },
+                                            onOptionsClick = { showMultiSelectionSheet = true },
+                                            modifier = Modifier.padding(horizontal = 12.dp)
+                                        )
+                                    }
                                 }
                             }
                             items(
