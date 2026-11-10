@@ -9,4 +9,9 @@ interface AudioBookmarkRepository {
     suspend fun insertBookmark(bookmark: AudioBookmarkEntity)
     suspend fun deleteBookmark(id: Long)
     suspend fun getBookmarkById(id: Long): AudioBookmarkEntity?
+    /**
+     * Re-attaches bookmarks whose song id is no longer in the library, and restored ones whose
+     * song wasn't found yet, to their song's current id.
+     */
+    suspend fun relinkOrphanedBookmarks()
 }
