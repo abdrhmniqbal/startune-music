@@ -87,6 +87,7 @@ import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.MusicNote
+import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.Science
 import androidx.compose.material.icons.rounded.Translate
@@ -1652,6 +1653,14 @@ fun SettingsCategoryScreen(
                                     trailingIcon = { Icon(Icons.Rounded.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                                     modifier = Modifier.settingHighlight("item_about_app", highlightKey),
                                     onClick = { navController.navigateSafely("about") }
+                                )
+                                SettingsItem(
+                                    title = stringResource(R.string.updates_title),
+                                    subtitle = stringResource(R.string.updates_settings_subtitle),
+                                    leadingIcon = { Icon(Icons.Rounded.SystemUpdate, null, tint = MaterialTheme.colorScheme.secondary) },
+                                    trailingIcon = { Icon(Icons.Rounded.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
+                                    modifier = Modifier.settingHighlight("item_updates", highlightKey),
+                                    onClick = { navController.navigateSafely("updates") }
                                 )
                             }
                         }

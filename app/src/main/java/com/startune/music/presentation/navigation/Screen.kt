@@ -94,6 +94,7 @@ sealed class Screen(val route: String) {
     }
     object JellyfinDashboard : Screen("jellyfin_dashboard")
     object Licenses : Screen("licenses")
+    object Updates : Screen("updates")
     object NavidromeDashboard : Screen("navidrome_dashboard")
     object CloudDownloads : Screen("cloud_downloads")
     object Dictionaries : Screen("dictionaries")
