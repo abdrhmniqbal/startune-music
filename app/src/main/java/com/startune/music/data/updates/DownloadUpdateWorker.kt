@@ -8,10 +8,12 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.startune.music.R
+import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.utils.AppFolders
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -30,7 +32,8 @@ import androidx.core.app.NotificationManagerCompat
 class DownloadUpdateWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val okHttpClient: OkHttpClient
+    private val okHttpClient: OkHttpClient,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -43,7 +46,8 @@ class DownloadUpdateWorker @AssistedInject constructor(
         setForeground(createForegroundInfo(0f))
         return withContext(Dispatchers.IO) {
             try {
-                val updatesDir = AppFolders.apkDownloadDir(applicationContext)
+                val dataRoot = userPreferencesRepository.dataStorageRootFlow.first()
+                val updatesDir = AppFolders.apkDownloadDir(applicationContext, dataRoot)
                 val targetFile = File(updatesDir, fileName)
                 val request = Request.Builder().url(url).build()
                 okHttpClient.newCall(request).execute().use { response ->

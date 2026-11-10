@@ -12,7 +12,9 @@ import androidx.work.workDataOf
 import com.startune.music.data.database.OfflineTrackDao
 import com.startune.music.data.database.OfflineTrackEntity
 import com.startune.music.data.model.Song
+import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.worker.CloudTrackDownloadWorker
+import com.startune.music.utils.AppFolders
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.security.MessageDigest
@@ -22,6 +24,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -59,7 +62,8 @@ data class OfflineDownload(
 class CloudOfflineRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val dao: OfflineTrackDao,
-    private val workManager: WorkManager
+    private val workManager: WorkManager,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) {
     private val mutationMutex = Mutex()
 
@@ -88,7 +92,7 @@ class CloudOfflineRepository @Inject constructor(
             }
             existing?.let {
                 it.localPath?.let(::File)?.delete()
-                deleteAttemptFiles(context, it.downloadId, it.attemptId)
+                deleteAttemptFiles(context, it.downloadId, it.attemptId, userPreferencesRepository.dataStorageRootFlow.first())
             }
 
             val attemptId = UUID.randomUUID().toString()
@@ -133,7 +137,7 @@ class CloudOfflineRepository @Inject constructor(
             if (existing.state != OfflineDownloadStatus.FAILED.storageValue) return@withLock
 
             existing.localPath?.let(::File)?.delete()
-            deleteAttemptFiles(context, existing.downloadId, existing.attemptId)
+            deleteAttemptFiles(context, existing.downloadId, existing.attemptId, userPreferencesRepository.dataStorageRootFlow.first())
 
             val attemptId = UUID.randomUUID().toString()
             val request = downloadRequest(
@@ -174,7 +178,7 @@ class CloudOfflineRepository @Inject constructor(
                 workManager.cancelUniqueWork(workName(entity.downloadId)).await()
             } finally {
                 entity.localPath?.let(::File)?.takeIf { it.exists() }?.delete()
-                deleteAttemptFiles(context, entity.downloadId, entity.attemptId)
+                deleteAttemptFiles(context, entity.downloadId, entity.attemptId, userPreferencesRepository.dataStorageRootFlow.first())
             }
         }
     }
@@ -231,16 +235,16 @@ class CloudOfflineRepository @Inject constructor(
         internal fun attemptFileStem(downloadId: String, attemptId: String): String =
             "$downloadId.$attemptId"
 
-        internal fun deleteAttemptFiles(context: Context, downloadId: String, attemptId: String) {
+        internal fun deleteAttemptFiles(context: Context, downloadId: String, attemptId: String, dataRoot: String) {
             val prefix = "${attemptFileStem(downloadId, attemptId)}."
-            downloadDirectory(context).listFiles()
+            downloadDirectory(context, dataRoot).listFiles()
                 ?.asSequence()
                 ?.filter { it.name.startsWith(prefix) }
                 ?.forEach(File::delete)
         }
 
-        fun downloadDirectory(context: Context): File =
-            File(context.filesDir, "cloud_downloads").apply { mkdirs() }
+        fun downloadDirectory(context: Context, dataRoot: String): File =
+            AppFolders.songDownloadsDir(context, dataRoot)
     }
 
     private fun downloadRequest(

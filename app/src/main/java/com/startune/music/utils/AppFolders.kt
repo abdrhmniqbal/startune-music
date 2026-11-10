@@ -8,34 +8,41 @@ import java.io.File
 
 /**
  * The app's own folder on shared storage, so every file the app writes
- * outside its private dirs lives in one place the user can find:
- * Startune/Music/Autobackup for automatic backups,
- * Startune/Music/Downloads for downloads, Startune/Music/Downloads/APKs
- * for update APKs. Writing here needs all-files access; callers fall back
- * to app-private storage when the folder is not writable.
+ * outside its private dirs lives in one place the user can find. The user
+ * picks one Data Storage root in settings (blank means the default
+ * Startune/Music); everything else derives from it: <root>/Autobackup for
+ * automatic backups, <root>/Downloads for downloaded songs,
+ * <root>/Downloads/APKs for update APKs. Writing here needs all-files
+ * access; callers fall back to app-private storage when the folder is not
+ * writable.
  */
 object AppFolders {
-    val root: File
+    val defaultRoot: File
         get() = File(Environment.getExternalStorageDirectory(), "Startune/Music")
 
-    val autoBackupDir: File
-        get() = File(root, "Autobackup")
+    fun resolveRoot(customPath: String): File =
+        if (customPath.isBlank()) defaultRoot else File(customPath)
 
-    val downloadsDir: File
-        get() = File(root, "Downloads")
+    fun autoBackupDir(root: File): File = File(root, "Autobackup")
 
-    val apkDownloadsDir: File
-        get() = File(downloadsDir, "APKs")
+    fun downloadsDir(root: File): File = File(root, "Downloads")
 
-    fun resolveAutoBackupDir(customPath: String): File =
-        if (customPath.isBlank()) autoBackupDir else File(customPath)
+    fun apkDownloadsDir(root: File): File = File(downloadsDir(root), "APKs")
 
-    fun apkDownloadDir(context: Context): File {
-        val preferred = apkDownloadsDir
+    fun apkDownloadDir(context: Context, dataRoot: String): File {
+        val preferred = apkDownloadsDir(resolveRoot(dataRoot))
         if ((preferred.exists() || preferred.mkdirs()) && preferred.canWrite()) {
             return preferred
         }
         return File(context.cacheDir, "updates").apply { mkdirs() }
+    }
+
+    fun songDownloadsDir(context: Context, dataRoot: String): File {
+        val preferred = downloadsDir(resolveRoot(dataRoot))
+        if ((preferred.exists() || preferred.mkdirs()) && preferred.canWrite()) {
+            return preferred
+        }
+        return File(context.filesDir, "cloud_downloads").apply { mkdirs() }
     }
 
     fun pathFromTreeUri(uri: Uri): String? {

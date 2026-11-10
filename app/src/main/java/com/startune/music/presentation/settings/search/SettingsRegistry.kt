@@ -169,7 +169,7 @@ object SettingsRegistry {
                 itemKey = "item_cloud_downloads",
                 titleRes = R.string.cloud_downloads_title,
                 subtitleRes = R.string.cloud_downloads_settings_subtitle,
-                category = SettingsCategory.LIBRARY,
+                category = SettingsCategory.DATA_STORAGE,
                 subscreenRoute = Screen.CloudDownloads.route,
                 type = SettingType.NAVIGABLE_CARD,
                 keywordsStatic = listOf("downloads", "offline", "cloud", "storage", "jellyfin")
@@ -713,20 +713,19 @@ object SettingsRegistry {
                 itemKey = "item_backup_auto_interval",
                 titleRes = R.string.auto_backup_title,
                 subtitleRes = R.string.auto_backup_hint,
-                category = SettingsCategory.BACKUP_RESTORE,
-                subscreenRoute = Screen.SettingsCategory.createRoute("backup_restore"),
+                category = SettingsCategory.DATA_STORAGE,
+                subscreenRoute = Screen.SettingsCategory.createRoute("data_storage"),
                 type = SettingType.NAVIGABLE_CARD,
                 keywordsStatic = listOf("backup", "automatic", "auto", "schedule", "interval")
             ),
             SettingSpec(
-                id = "backup_auto_folder",
-                itemKey = "item_backup_auto_folder",
-                titleRes = R.string.auto_backup_target_folder,
-                subtitleRes = R.string.auto_backup_hint,
-                category = SettingsCategory.BACKUP_RESTORE,
-                subscreenRoute = Screen.SettingsCategory.createRoute("backup_restore"),
+                id = "data_storage_location",
+                itemKey = "item_data_storage_root",
+                titleRes = R.string.data_storage_location_title,
+                category = SettingsCategory.DATA_STORAGE,
+                subscreenRoute = Screen.SettingsCategory.createRoute("data_storage"),
                 type = SettingType.NAVIGABLE_CARD,
-                keywordsStatic = listOf("backup", "automatic", "auto", "folder", "location")
+                keywordsStatic = listOf("storage", "data", "folder", "location", "backup", "downloads")
             ),
             SettingSpec(
                 id = "backup_import",

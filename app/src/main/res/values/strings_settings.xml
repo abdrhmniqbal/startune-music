@@ -38,6 +38,14 @@
     <string name="settings_category_ai_subtitle">AI providers, API keys, and model settings</string>
     <string name="settings_category_backup_title">Backup &amp; Restore</string>
     <string name="settings_category_backup_subtitle">Export and recover your personal app data</string>
+    <string name="settings_category_data_storage_title">Data &amp; Storage</string>
+    <string name="settings_category_data_storage_subtitle">Storage location, backups, and downloads</string>
+    <string name="data_storage_section_location">Storage location</string>
+    <string name="data_storage_location_title">Data Storage</string>
+    <string name="data_storage_backups_title">Backups</string>
+    <string name="data_storage_downloads_title">Downloads</string>
+    <string name="data_storage_section_downloads">Downloads</string>
+    <string name="data_storage_manage_downloads_title">Manage Downloads</string>
     <string name="settings_category_developer_title">Advanced Options</string>
     <string name="settings_category_developer_subtitle">Experimental features and debugging</string>
     <string name="settings_category_equalizer_title">Equalizer</string>
@@ -330,7 +338,6 @@
     <string name="auto_backup_every_week">Every week</string>
     <string name="auto_backup_last_backup">Last backup</string>
     <string name="auto_backup_never_backed_up">Never backed up</string>
-    <string name="auto_backup_target_folder">Backup folder</string>
     <string name="auto_backup_choose_folder">Choose folder</string>
     <string name="auto_backup_folder_unusable">Couldn\'t use that folder.</string>
     <string name="setcat_import_backup_title">Import Backup</string>

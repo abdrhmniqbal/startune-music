@@ -78,6 +78,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.BatteryFull
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DeleteForever
@@ -265,13 +266,13 @@ fun SettingsCategoryScreen(
         if (uri != null) m3uSyncViewModel.selectFolder(uri)
     }
 
-    val backupFolderPicker = rememberLauncherForActivityResult(
+    val dataStorageFolderPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree()
     ) { uri ->
         if (uri != null) {
             val path = AppFolders.pathFromTreeUri(uri)
             if (path != null) {
-                settingsViewModel.setAutoBackupTargetFolder(path)
+                settingsViewModel.setDataStorageRoot(path)
             } else {
                 Toast.makeText(context, context.getString(R.string.auto_backup_folder_unusable), Toast.LENGTH_SHORT).show()
             }
@@ -1326,9 +1327,55 @@ fun SettingsCategoryScreen(
                                 )
                             }
 
+                        }
+                        SettingsCategory.DATA_STORAGE -> {
+                            val dataRoot = AppFolders.resolveRoot(uiState.dataStorageRoot)
+
+                            SettingsSubsection(title = stringResource(R.string.data_storage_section_location)) {
+                                ActionSettingsItem(
+                                    title = stringResource(R.string.data_storage_location_title),
+                                    subtitle = dataRoot.absolutePath,
+                                    icon = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.rounded_folder_24),
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary
+                                        )
+                                    },
+                                    primaryActionLabel = stringResource(R.string.auto_backup_choose_folder),
+                                    onPrimaryAction = { dataStorageFolderPicker.launch(null) },
+                                    modifier = Modifier.settingHighlight("item_data_storage_root", highlightKey)
+                                )
+                                SettingsItem(
+                                    title = stringResource(R.string.data_storage_backups_title),
+                                    subtitle = AppFolders.autoBackupDir(dataRoot).absolutePath,
+                                    leadingIcon = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.rounded_folder_24),
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight("item_data_storage_backups", highlightKey),
+                                    onClick = {}
+                                )
+                                SettingsItem(
+                                    title = stringResource(R.string.data_storage_downloads_title),
+                                    subtitle = AppFolders.downloadsDir(dataRoot).absolutePath,
+                                    leadingIcon = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.rounded_folder_24),
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight("item_data_storage_downloads", highlightKey),
+                                    onClick = {}
+                                )
+                            }
+
                             SettingsSubsection(
-                                title = stringResource(R.string.auto_backup_section),
-                                addBottomSpace = false
+                                title = stringResource(R.string.auto_backup_section)
                             ) {
                                 ThemeSelectorItem(
                                     label = stringResource(R.string.auto_backup_title),
@@ -1353,24 +1400,6 @@ fun SettingsCategoryScreen(
                                     },
                                     modifier = Modifier.settingHighlight("item_backup_auto_interval", highlightKey)
                                 )
-                                ActionSettingsItem(
-                                    title = stringResource(R.string.auto_backup_target_folder),
-                                    subtitle = if (uiState.autoBackupTargetFolder.isBlank()) {
-                                        AppFolders.autoBackupDir.absolutePath
-                                    } else {
-                                        uiState.autoBackupTargetFolder
-                                    },
-                                    icon = {
-                                        Icon(
-                                            painter = painterResource(R.drawable.rounded_folder_24),
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.secondary
-                                        )
-                                    },
-                                    primaryActionLabel = stringResource(R.string.auto_backup_choose_folder),
-                                    onPrimaryAction = { backupFolderPicker.launch(null) },
-                                    modifier = Modifier.settingHighlight("item_backup_auto_folder", highlightKey)
-                                )
                                 SettingsItem(
                                     title = stringResource(R.string.auto_backup_last_backup),
                                     subtitle = if (uiState.autoBackupLastRunMs > 0) {
@@ -1387,6 +1416,29 @@ fun SettingsCategoryScreen(
                                     },
                                     modifier = Modifier.settingHighlight("item_backup_auto_last", highlightKey),
                                     onClick = {}
+                                )
+                            }
+
+                            SettingsSubsection(title = stringResource(R.string.data_storage_section_downloads)) {
+                                SettingsItem(
+                                    title = stringResource(R.string.data_storage_manage_downloads_title),
+                                    subtitle = stringResource(R.string.cloud_downloads_settings_subtitle),
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Rounded.CloudDownload,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary
+                                        )
+                                    },
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Rounded.ChevronRight,
+                                            contentDescription = stringResource(R.string.cd_open),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight("item_cloud_downloads", highlightKey),
+                                    onClick = { navController.navigateSafely(Screen.CloudDownloads.route) }
                                 )
                             }
                         }
