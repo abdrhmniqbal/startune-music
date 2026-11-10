@@ -258,6 +258,7 @@ import androidx.paging.LoadState
 import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.GenreCategoriesGrid
 import com.startune.music.presentation.components.LibrarySortBottomSheet
+import com.startune.music.presentation.library.sortFolderSongs
 import com.startune.music.presentation.components.subcomps.EnhancedSongListItem
 import timber.log.Timber
 import java.io.File
@@ -282,6 +283,8 @@ private const val PULL_REFRESH_MIN_VISIBLE_MS = 900L
 private const val PULL_REFRESH_MAX_VISIBLE_MS = 1_500L
 private const val INLINE_SYNC_MIN_VISIBLE_MS = 600L
 
+private val folderSongSortOptions: ImmutableList<SortOption> = SortOption.FOLDER_SONGS.toImmutableList()
+
 private data class LibraryScreenPlayerProjection(
     val currentFolder: MusicFolder? = null,
     val folderSourceRootPath: String = "",
@@ -293,6 +296,7 @@ private data class LibraryScreenPlayerProjection(
     val currentArtistSortOption: SortOption = SortOption.ArtistNameAZ,
     val currentFavoriteSortOption: SortOption = SortOption.LikedSongDateLiked,
     val currentFolderSortOption: SortOption = SortOption.FolderNameAZ,
+    val currentFolderSongSortOption: SortOption = SortOption.FolderSongTitleAZ,
     val isAlbumsListView: Boolean = false,
     val isArtistsListView: Boolean = true,
     val isPlaylistsListView: Boolean = true,
@@ -316,6 +320,7 @@ private fun PlayerUiState.toLibraryScreenProjection(): LibraryScreenPlayerProjec
         currentArtistSortOption = currentArtistSortOption,
         currentFavoriteSortOption = currentFavoriteSortOption,
         currentFolderSortOption = currentFolderSortOption,
+        currentFolderSongSortOption = currentFolderSongSortOption,
         isAlbumsListView = isAlbumsListView,
         isArtistsListView = isArtistsListView,
         isPlaylistsListView = isPlaylistsListView,
@@ -1206,8 +1211,12 @@ fun LibraryScreen(
                                                     }
                                                 }
                                                 LibraryTabId.FOLDERS -> {
-                                                    val songsToSelect =
-                                                        playerViewModel.playerUiState.value.currentFolder?.songs ?: emptyList()
+                                                    // Selection numbers follow the order the folder shows.
+                                                    val state = playerViewModel.playerUiState.value
+                                                    val songsToSelect = sortFolderSongs(
+                                                        state.currentFolder?.songs ?: emptyList(),
+                                                        state.currentFolderSongSortOption
+                                                    )
                                                     multiSelectionState.selectAll(songsToSelect)
                                                 }
                                                 LibraryTabId.SONGS -> {
@@ -1300,6 +1309,9 @@ fun LibraryScreen(
 
 
                             val isFoldersTab = currentTabId == LibraryTabId.FOLDERS
+                            // Playlist view opens folders as playlists, which sort their own songs.
+                            val showsFolderSongs = isFoldersTab &&
+                                (!playerUiState.isFoldersPlaylistView || playerUiState.currentFolder != null)
 
                             LibrarySortBottomSheet(
                                 title = stringResource(R.string.presentation_batch_d_sort_by),
@@ -1313,6 +1325,18 @@ fun LibraryScreen(
                                 onDirectionToggle = { option ->
                                     onSortOptionChanged(option)
                                 },
+                                secondaryOptions = if (showsFolderSongs) folderSongSortOptions else persistentListOf(),
+                                secondarySelectedOption = playerUiState.currentFolderSongSortOption,
+                                onSecondaryOptionSelected = { option ->
+                                    playerViewModel.sortFolderSongs(option)
+                                    playerViewModel.hideSortingSheet()
+                                },
+                                onSecondaryDirectionToggle = { option ->
+                                    playerViewModel.sortFolderSongs(option)
+                                },
+                                primaryTargetLabel = stringResource(R.string.library_tab_folders),
+                                secondaryTargetLabel = stringResource(R.string.library_tab_songs),
+                                initiallyShowSecondary = playerUiState.currentFolder?.songs?.isNotEmpty() == true,
                                 showViewToggle = isFoldersTab,
                                 viewSectionTitle = stringResource(R.string.presentation_batch_d_view_section_view),
                                 viewToggleLabel = stringResource(R.string.presentation_batch_d_playlist_view),
@@ -1576,6 +1600,7 @@ fun LibraryScreen(
                                             onMoreOptionsClick = stableOnMoreOptionsClick,
                                             isPlaylistView = playerUiState.isFoldersPlaylistView,
                                             currentSortOption = playerUiState.currentFolderSortOption,
+                                            songSortOption = playerUiState.currentFolderSongSortOption,
                                             isRefreshing = isRefreshing,
                                             onRefresh = onRefresh,
                                             isSelectionMode = isSelectionMode,
@@ -2703,6 +2728,7 @@ fun LibraryFoldersTab(
     onMoreOptionsClick: (Song) -> Unit,
     isPlaylistView: Boolean = false,
     currentSortOption: SortOption = SortOption.FolderNameAZ,
+    songSortOption: SortOption = SortOption.FolderSongTitleAZ,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     isSelectionMode: Boolean = false,
@@ -2741,7 +2767,8 @@ fun LibraryFoldersTab(
         val coroutineScope = rememberCoroutineScope()
         val visibilityCallback by rememberUpdatedState(onLocateCurrentSongVisibilityChanged)
         val registerActionCallback by rememberUpdatedState(onRegisterLocateCurrentSongAction)
-        var lastHandledFolderSortKey by remember { mutableStateOf(currentSortOption.storageKey) }
+        val folderSortKey = "${currentSortOption.storageKey}|${songSortOption.storageKey}"
+        var lastHandledFolderSortKey by remember { mutableStateOf(folderSortKey) }
         var pendingFolderSortScrollReset by remember { mutableStateOf(false) }
 
         val flattenedFolders = remember(folders, currentSortOption) {
@@ -2759,8 +2786,8 @@ fun LibraryFoldersTab(
             }
         }.toImmutableList()
 
-        val songsToShow = remember(activeFolder, currentSortOption) {
-            sortSongsForFolderView(activeFolder?.songs ?: emptyList(), currentSortOption)
+        val songsToShow = remember(activeFolder, songSortOption) {
+            sortFolderSongs(activeFolder?.songs ?: emptyList(), songSortOption)
         }.toImmutableList()
         val currentSong = stablePlayerState.currentSong
         val currentSongId = currentSong?.id
@@ -2813,10 +2840,9 @@ fun LibraryFoldersTab(
             registerActionCallback(locateCurrentSongAction)
         }
 
-        LaunchedEffect(currentSortOption) {
-            val currentSortKey = currentSortOption.storageKey
-            if (currentSortKey == lastHandledFolderSortKey) return@LaunchedEffect
-            lastHandledFolderSortKey = currentSortKey
+        LaunchedEffect(folderSortKey) {
+            if (folderSortKey == lastHandledFolderSortKey) return@LaunchedEffect
+            lastHandledFolderSortKey = folderSortKey
             pendingFolderSortScrollReset = true
             listState.scrollToItem(0)
         }
@@ -3088,21 +3114,6 @@ private fun sortMusicFoldersByOption(folders: List<MusicFolder>, sortOption: Sor
         else -> folders.sortedWith(
             compareBy<MusicFolder> { it.name.lowercase() }
                 .thenBy { it.path }
-        )
-    }
-}
-
-private fun sortSongsForFolderView(songs: List<Song>, sortOption: SortOption): List<Song> {
-    return when (sortOption) {
-        SortOption.FolderNameZA -> songs.sortedWith(
-            compareByDescending<Song> { it.title.lowercase() }
-                .thenBy { it.artist.lowercase() }
-                .thenBy { it.id }
-        )
-        else -> songs.sortedWith(
-            compareBy<Song> { it.title.lowercase() }
-                .thenBy { it.artist.lowercase() }
-                .thenBy { it.id }
         )
     }
 }
