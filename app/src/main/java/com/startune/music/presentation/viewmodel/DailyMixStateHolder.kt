@@ -66,7 +66,13 @@ class DailyMixStateHolder @Inject constructor(
     /**
      * Remove a song from the daily mix.
      */
-    fun removeFromDailyMix(songId: String) {    /**
+    fun removeFromDailyMix(songId: String) {
+        _dailyMixSongs.update { currentList ->
+            currentList.filterNot { it.id == songId }.toImmutableList()
+        }
+    }
+
+    /**
      * Removes several songs from the For You Mix and backfills each one, so
      * the mix keeps its size. Removed ids are recorded, so the next
      * regeneration does not bring them back.
@@ -103,12 +109,6 @@ class DailyMixStateHolder @Inject constructor(
         if (songIds.isEmpty()) return
         _dailyMixSongs.update { currentList ->
             currentList.filterNot { it.id in songIds }.toImmutableList()
-        }
-    }
-
-
-        _dailyMixSongs.update { currentList ->
-            currentList.filterNot { it.id == songId }.toImmutableList()
         }
     }
 

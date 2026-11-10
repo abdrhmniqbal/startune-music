@@ -554,7 +554,15 @@ class PlaylistViewModel @Inject constructor(
         }
     }
 
-    fun deletePlaylist(playlistId: String) {    fun removeSongsFromPlaylist(playlistId: String, songIds: List<String>) {
+    fun deletePlaylist(playlistId: String) {
+        if (isFolderPlaylistId(playlistId)) return
+        viewModelScope.launch {
+            playlistPreferencesRepository.clearMixRemovedSongIds(playlistId)
+            playlistPreferencesRepository.deletePlaylist(playlistId)
+        }
+    }
+
+    fun removeSongsFromPlaylist(playlistId: String, songIds: List<String>) {
         if (songIds.isEmpty()) return
         viewModelScope.launch {
             val playlist = playlistPreferencesRepository.getPlaylistsOnce()
@@ -602,14 +610,6 @@ class PlaylistViewModel @Inject constructor(
             if (_uiState.value.currentPlaylistDetails?.id == playlistId) {
                 loadPlaylistDetails(playlistId)
             }
-        }
-    }
-
-
-        if (isFolderPlaylistId(playlistId)) return
-        viewModelScope.launch {
-            playlistPreferencesRepository.clearMixRemovedSongIds(playlistId)
-            playlistPreferencesRepository.deletePlaylist(playlistId)
         }
     }
 
