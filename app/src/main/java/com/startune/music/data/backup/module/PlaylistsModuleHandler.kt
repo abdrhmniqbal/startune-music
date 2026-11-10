@@ -9,6 +9,7 @@ import com.google.gson.reflect.TypeToken
 import com.startune.music.data.model.Playlist
 import com.startune.music.data.model.MixRule
 import com.startune.music.data.model.SortOption
+import com.startune.music.data.model.fromPlaylistSource
 import com.startune.music.data.model.isMixSource
 import com.startune.music.data.backup.model.BackupSection
 import com.startune.music.data.database.MusicDao
