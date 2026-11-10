@@ -135,6 +135,7 @@ constructor(
 
         val GLOBAL_TRANSITION_SETTINGS = stringPreferencesKey("global_transition_settings_json")
         val LIBRARY_TABS_ORDER = stringPreferencesKey("library_tabs_order")
+        val LIBRARY_TABS_HIDDEN = stringPreferencesKey("library_tabs_hidden")
         val FOLDER_FILTER_MODE = stringPreferencesKey("folder_filter_mode")
         val IS_FOLDER_FILTER_ACTIVE = booleanPreferencesKey("is_folder_filter_active")
         val IS_FOLDERS_PLAYLIST_VIEW = booleanPreferencesKey("is_folders_playlist_view")
@@ -1802,8 +1803,20 @@ constructor(
         dataStore.edit { preferences -> preferences[PreferencesKeys.LIBRARY_TABS_ORDER] = order }
     }
 
+    val libraryTabsHiddenFlow: Flow<String?> = dataStore.data
+        .map { preferences ->
+            preferences[PreferencesKeys.LIBRARY_TABS_HIDDEN]
+        }
+
+    suspend fun saveLibraryTabsHidden(hidden: String) {
+        dataStore.edit { preferences -> preferences[PreferencesKeys.LIBRARY_TABS_HIDDEN] = hidden }
+    }
+
     suspend fun resetLibraryTabsOrder() {
-        dataStore.edit { preferences -> preferences.remove(PreferencesKeys.LIBRARY_TABS_ORDER) }
+        dataStore.edit { preferences ->
+            preferences.remove(PreferencesKeys.LIBRARY_TABS_ORDER)
+            preferences.remove(PreferencesKeys.LIBRARY_TABS_HIDDEN)
+        }
     }
 
     suspend fun migrateTabOrder() {

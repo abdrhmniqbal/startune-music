@@ -954,19 +954,42 @@ class PlayerViewModel @Inject constructor(
             initialValue = 0
         )
 
-    val libraryTabsFlow: StateFlow<ImmutableList<String>> = userPreferencesRepository.libraryTabsOrderFlow
-        .map { orderJson ->
-            if (orderJson != null) {
-                try {
-                    Json.decodeFromString<List<String>>(orderJson).toImmutableList()
-                } catch (e: Exception) {
-                    persistentListOf("SONGS", "ALBUMS", "ARTIST", "PLAYLISTS", "FOLDERS", "GENRES", "LIKED")
-                }
-            } else {
-                persistentListOf("SONGS", "ALBUMS", "ARTIST", "PLAYLISTS", "FOLDERS", "GENRES", "LIKED")
-            }
+    private val defaultLibraryTabs = persistentListOf("SONGS", "ALBUMS", "ARTIST", "PLAYLISTS", "FOLDERS", "GENRES", "LIKED")
+
+    private fun decodeStoredTabOrder(orderJson: String?): ImmutableList<String> {
+        if (orderJson == null) return defaultLibraryTabs
+        return try {
+            Json.decodeFromString<List<String>>(orderJson).toImmutableList()
+        } catch (e: Exception) {
+            defaultLibraryTabs
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf("SONGS", "ALBUMS", "ARTIST", "PLAYLISTS", "FOLDERS", "GENRES", "LIKED"))
+    }
+
+    val allLibraryTabsFlow: StateFlow<ImmutableList<String>> = userPreferencesRepository.libraryTabsOrderFlow
+        .map { orderJson -> decodeStoredTabOrder(orderJson) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), defaultLibraryTabs)
+
+    val libraryTabsHiddenFlow: StateFlow<Set<String>> = userPreferencesRepository.libraryTabsHiddenFlow
+        .map { hiddenJson ->
+            val stored = hiddenJson?.let {
+                try {
+                    Json.decodeFromString<Set<String>>(it)
+                } catch (e: Exception) {
+                    emptySet()
+                }
+            } ?: emptySet()
+            val knownKeys = LibraryTabId.entries.map { it.storageKey }.toSet()
+            stored.filter { it in knownKeys }.toSet()
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
+    val libraryTabsFlow: StateFlow<ImmutableList<String>> = combine(
+        allLibraryTabsFlow,
+        libraryTabsHiddenFlow
+    ) { ordered, hidden ->
+        val visible = ordered.filterNot { it in hidden }
+        if (visible.isEmpty()) ordered else visible.toImmutableList()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), defaultLibraryTabs)
 
     private val _loadedTabs = MutableStateFlow(emptySet<String>())
     private var lastBlockedDirectories: Set<String>? = null
@@ -4190,10 +4213,11 @@ class PlayerViewModel @Inject constructor(
         )
     }
 
-    fun saveLibraryTabsOrder(tabs: List<String>) {
+    fun saveLibraryTabsOrderAndVisibility(tabs: List<String>, hiddenTabs: Set<String>) {
         viewModelScope.launch {
             val orderJson = Json.encodeToString(tabs)
             userPreferencesRepository.saveLibraryTabsOrder(orderJson)
+            userPreferencesRepository.saveLibraryTabsHidden(Json.encodeToString(hiddenTabs.sorted()))
         }
     }
 

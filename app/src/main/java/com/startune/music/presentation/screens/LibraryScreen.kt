@@ -348,6 +348,8 @@ fun LibraryScreen(
     var playlistSheetSongs by remember { mutableStateOf<ImmutableList<Song>>(persistentListOf()) }
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
     val tabTitles by playerViewModel.libraryTabsFlow.collectAsStateWithLifecycle()
+    val allLibraryTabs by playerViewModel.allLibraryTabsFlow.collectAsStateWithLifecycle()
+    val hiddenLibraryTabs by playerViewModel.libraryTabsHiddenFlow.collectAsStateWithLifecycle()
     val currentTabId by playerViewModel.currentLibraryTabId.collectAsStateWithLifecycle()
     val libraryNavigationMode by playerViewModel.libraryNavigationMode.collectAsStateWithLifecycle()
     val isCompactNavigation = libraryNavigationMode == LibraryNavigationMode.COMPACT_PILL
@@ -1897,9 +1899,10 @@ fun LibraryScreen(
 
     if (showReorderTabsSheet) {
         ReorderTabsSheet(
-            tabs = tabTitles,
-            onReorder = { newOrder ->
-                playerViewModel.saveLibraryTabsOrder(newOrder)
+            tabs = allLibraryTabs,
+            hiddenTabs = hiddenLibraryTabs,
+            onReorder = { newOrder, newHidden ->
+                playerViewModel.saveLibraryTabsOrderAndVisibility(newOrder, newHidden)
             },
             onReset = {
                 playerViewModel.resetLibraryTabsOrder()

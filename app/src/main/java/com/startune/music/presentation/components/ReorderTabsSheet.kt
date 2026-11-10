@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.DragIndicator
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -70,15 +71,21 @@ import kotlinx.collections.immutable.toImmutableList
 @Composable
 fun ReorderTabsSheet(
     tabs: ImmutableList<String>,
-    onReorder: (List<String>) -> Unit,
+    hiddenTabs: Set<String>,
+    onReorder: (List<String>, Set<String>) -> Unit,
     onReset: () -> Unit,
     onDismiss: () -> Unit
 ) {
     var showResetDialog by remember { mutableStateOf(false) }
     var localTabs by remember { mutableStateOf(tabs) }
+    var localHiddenTabs by remember { mutableStateOf(hiddenTabs) }
 
     LaunchedEffect(tabs) {
         localTabs = tabs
+    }
+
+    LaunchedEffect(hiddenTabs) {
+        localHiddenTabs = hiddenTabs
     }
 
     if (showResetDialog) {
@@ -91,6 +98,7 @@ fun ReorderTabsSheet(
                     onClick = {
                         onReset()
                         localTabs = tabs
+                        localHiddenTabs = emptySet()
                         showResetDialog = false
                     }
                 ) {
@@ -158,7 +166,7 @@ fun ReorderTabsSheet(
                         scope.launch {
                             isLoading = true
                             delay(700)
-                            onReorder(localTabs)
+                            onReorder(localTabs, localHiddenTabs)
                             isLoading = false
                             onDismiss()
                         }
@@ -198,6 +206,9 @@ fun ReorderTabsSheet(
                                     }
                                 }
 
+                                val isVisible = tab !in localHiddenTabs
+                                val visibleCount = localTabs.size - localHiddenTabs.size
+
                                 Surface(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -219,7 +230,27 @@ fun ReorderTabsSheet(
                                             text = LibraryTabId.fromStableKey(tab)
                                                 ?.let { stringResource(it.labelRes) }
                                                 ?: tab,
-                                            style = MaterialTheme.typography.bodyLarge
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = if (isVisible) {
+                                                MaterialTheme.colorScheme.onSurface
+                                            } else {
+                                                MaterialTheme.colorScheme.onSurfaceVariant
+                                            },
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                        Checkbox(
+                                            checked = isVisible,
+                                            onCheckedChange = { checked ->
+                                                localHiddenTabs = if (checked) {
+                                                    localHiddenTabs - tab
+                                                } else {
+                                                    localHiddenTabs + tab
+                                                }
+                                            },
+                                            enabled = isVisible || visibleCount > 1,
+                                            modifier = Modifier.padding(start = 8.dp)
                                         )
                                     }
                                 }
