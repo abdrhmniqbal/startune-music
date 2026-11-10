@@ -278,13 +278,29 @@ fun PlaylistDetailScreen(
     val reorderableState = rememberReorderableLazyListState(
         lazyListState = listState,
         onMove = { from, to ->
+            // The lazy list has a selection-row header item at index 0, so the
+            // library's absolute lazy indices are NOT song positions: dragging
+            // the last song reported index == size and crashed in removeAt.
+            // Resolve by the entry key instead, like QueueBottomSheet does.
+            fun resolveKeyToIndex(key: Any?): Int? {
+                if (key !is Int) return null
+                val index = localReorderableEntries.indexOfFirst { it.index == key }
+                return index.takeIf { it >= 0 }
+            }
+            val fromLocalIndex = resolveKeyToIndex(from.key)
+                ?: return@rememberReorderableLazyListState
+            // Dropping above the first song targets the header row: that means top.
+            val toLocalIndex = resolveKeyToIndex(to.key)
+                ?: if (to.key == "playlist_selection_row") 0
+                else return@rememberReorderableLazyListState
+            if (fromLocalIndex == toLocalIndex) return@rememberReorderableLazyListState
             localReorderableEntries = localReorderableEntries.toMutableList().apply {
-                add(to.index, removeAt(from.index))
+                add(toLocalIndex, removeAt(fromLocalIndex))
             }
             if (lastMovedFrom == null) {
-                lastMovedFrom = from.index
+                lastMovedFrom = fromLocalIndex
             }
-            lastMovedTo = to.index
+            lastMovedTo = toLocalIndex
         }
     )
 
@@ -606,8 +622,13 @@ fun PlaylistDetailScreen(
                                         selectionIndex = if (isSelectionMode) multiSelectionState.getSelectionIndex(song.id) else null,
                                         isSelectionMode = isSelectionMode,
                                         onLongPress = {
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                            multiSelectionState.toggleSelection(song)
+                                            // In reorder mode a long-press must not
+                                            // switch the row into multi-select and hide
+                                            // the drag handle; dragging uses the handle.
+                                            if (!isReorderModeEnabled) {
+                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                multiSelectionState.toggleSelection(song)
+                                            }
                                         },
                                         onSelectionToggle = { multiSelectionState.toggleSelection(song) },
                                         onRemoveClick = {
@@ -628,6 +649,9 @@ fun PlaylistDetailScreen(
                                                 modifier = Modifier
                                                     .draggableHandle(
                                                         onDragStarted = {
+                                                            // Belt and braces: a drag never
+                                                            // starts with a selection active.
+                                                            multiSelectionState.clearSelection()
                                                             performAppCompatHapticFeedback(
                                                                 view,
                                                                 appHapticsConfig,
@@ -761,6 +785,11 @@ fun PlaylistDetailScreen(
                         shape = getSegmentedItemShape(2, optionCount),
                         onClick = {
                             showPlaylistOptionsSheet = false
+                            // Reorder never multi-selects: clear any selection
+                            // before the drag handles appear.
+                            if (!isReorderModeEnabled) {
+                                multiSelectionState.clearSelection()
+                            }
                             isReorderModeEnabled = !isReorderModeEnabled
                         }
                     )
