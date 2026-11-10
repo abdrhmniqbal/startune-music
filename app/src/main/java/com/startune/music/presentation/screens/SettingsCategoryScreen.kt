@@ -1341,6 +1341,10 @@ fun SettingsCategoryScreen(
                                 )
                             }
 
+                            deviceCapabilitiesState.storageSummary?.let { storage ->
+                                LocalMusicStorageCard(storageSummary = storage)
+                            }
+
                             if (!uiState.backupInfoDismissed) {
                                 BackupInfoNoticeCard(
                                     onDismiss = { settingsViewModel.setBackupInfoDismissed(true) }
@@ -1481,9 +1485,6 @@ fun SettingsCategoryScreen(
                                 )
                             }
 
-                            deviceCapabilitiesState.storageSummary?.let { storage ->
-                                LocalMusicStorageCard(storageSummary = storage)
-                            }
                         }
                         SettingsCategory.DEVELOPER -> {
                             SettingsSubsection(title = stringResource(R.string.setcat_experiments)) {
