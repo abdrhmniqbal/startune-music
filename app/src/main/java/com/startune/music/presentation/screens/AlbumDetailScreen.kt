@@ -38,6 +38,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.CloudDone
@@ -46,6 +47,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LargeExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
@@ -101,9 +103,11 @@ import coil.compose.AsyncImagePainter
 import coil.size.Size
 import com.startune.music.R
 import com.startune.music.data.model.Album
+import com.startune.music.data.model.SortOption
 import com.startune.music.data.offline.CloudOfflineRepository
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.ExpressiveScrollBar
+import com.startune.music.presentation.components.LibrarySortBottomSheet
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.PlaylistBottomSheet
 import com.startune.music.presentation.components.SmartImage
@@ -124,6 +128,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.ui.res.stringResource
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 
 private const val UseSharedCollapsibleTopBarProbe = true
 
@@ -236,6 +241,15 @@ fun AlbumDetailScreen(
                 }
                 val songsByDisc = remember(songs) {
                     songs.groupBy { it.discNumber ?: 1 }
+                }
+                var sortOption by remember { mutableStateOf<SortOption>(SortOption.SongDefaultOrder) }
+                var showSortSheet by remember { mutableStateOf(false) }
+                val isDefaultOrder = sortOption == SortOption.SongDefaultOrder
+                val displaySongs = remember(songs, sortOption) {
+                    when (sortOption) {
+                        SortOption.SongDefaultOrder -> songs
+                        else -> sortArtistSongs(songs, sortOption)
+                    }
                 }
                 val lazyListState = rememberLazyListState()
 
@@ -365,69 +379,115 @@ fun AlbumDetailScreen(
                             ) {
                                 SelectionActionRow(
                                     selectedCount = selectedSongs.size,
-                                    onSelectAll = { multiSelectionState.selectAll(songs) },
+                                    onSelectAll = { multiSelectionState.selectAll(displaySongs) },
                                     onDeselect = { multiSelectionState.clearSelection() },
                                     onOptionsClick = { showMultiSelectionSheet = true }
                                 )
                             }
                         }
+                    if (isDefaultOrder) {
                         songsByDisc.forEach { (discNumber, discSongs) ->
-                            if (songsByDisc.size > 1) {
-                                item(key = "disc_header_$discNumber") {
-                                    Text(
-                                        text = stringResource(R.string.disc_number_header, discNumber),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier
-                                            .padding(top = 16.dp, bottom = 8.dp, start = 8.dp)
-                                    )
+                                if (songsByDisc.size > 1) {
+                                    item(key = "disc_header_$discNumber") {
+                                        Text(
+                                            text = stringResource(R.string.disc_number_header, discNumber),
+                                            style = MaterialTheme.typography.labelLarge,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier
+                                                .padding(top = 16.dp, bottom = 8.dp, start = 8.dp)
+                                        )
+                                    }
                                 }
-                            }
-                            itemsIndexed(
-                                items = discSongs,
-                                key = { _, song -> "album_song_${song.id}" },
-                                contentType = { _, _ -> "album_song" }
-                            ) { index, song ->
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = (if (song.trackNumber > 0) song.trackNumber else index + 1).toString(),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.width(28.dp)
-                                    )
-                                    LibraryPlaybackAwareSongItem(
-                                        modifier = Modifier.weight(1f),
-                                        song = song,
-                                        playerViewModel = playerViewModel,
-                                        showAlbumArt = false,
-                                        isSelected = selectedSongIds.contains(song.id),
-                                        selectionIndex = if (isSelectionMode) multiSelectionState.getSelectionIndex(song.id) else null,
-                                        isSelectionMode = isSelectionMode,
-                                        onLongPress = {
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                            multiSelectionState.toggleSelection(song)
-                                        },
-                                        onMoreOptionsClick = {
-                                            playerViewModel.selectSongForInfo(song)
-                                            showSongInfoBottomSheet = true
-                                        },
-                                        onClick = {
-                                            if (isSelectionMode) {
+                                itemsIndexed(
+                                    items = discSongs,
+                                    key = { _, song -> "album_song_${song.id}" },
+                                    contentType = { _, _ -> "album_song" }
+                                ) { index, song ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = (if (song.trackNumber > 0) song.trackNumber else index + 1).toString(),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier.width(28.dp)
+                                        )
+                                        LibraryPlaybackAwareSongItem(
+                                            modifier = Modifier.weight(1f),
+                                            song = song,
+                                            playerViewModel = playerViewModel,
+                                            showAlbumArt = false,
+                                            isSelected = selectedSongIds.contains(song.id),
+                                            selectionIndex = if (isSelectionMode) multiSelectionState.getSelectionIndex(song.id) else null,
+                                            isSelectionMode = isSelectionMode,
+                                            onLongPress = {
+                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                                 multiSelectionState.toggleSelection(song)
-                                            } else {
-                                                playerViewModel.showAndPlaySong(song, songs)
+                                            },
+                                            onMoreOptionsClick = {
+                                                playerViewModel.selectSongForInfo(song)
+                                                showSongInfoBottomSheet = true
+                                            },
+                                            onClick = {
+                                                if (isSelectionMode) {
+                                                    multiSelectionState.toggleSelection(song)
+                                                } else {
+                                                    playerViewModel.showAndPlaySong(song, displaySongs)
+                                                }
                                             }
-                                        }
-                                    )
+                                        )
+                                    }
                                 }
+                        }
+                    } else {
+                        itemsIndexed(
+                            items = displaySongs,
+                            key = { _, song -> "album_song_${song.id}" },
+                            contentType = { _, _ -> "album_song" }
+                        ) { index, song ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = (index + 1).toString(),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.width(28.dp)
+                                )
+                                LibraryPlaybackAwareSongItem(
+                                    modifier = Modifier.weight(1f),
+                                    song = song,
+                                    playerViewModel = playerViewModel,
+                                    showAlbumArt = false,
+                                    isSelected = selectedSongIds.contains(song.id),
+                                    selectionIndex = if (isSelectionMode) multiSelectionState.getSelectionIndex(song.id) else null,
+                                    isSelectionMode = isSelectionMode,
+                                    onLongPress = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        multiSelectionState.toggleSelection(song)
+                                    },
+                                    onMoreOptionsClick = {
+                                        playerViewModel.selectSongForInfo(song)
+                                        showSongInfoBottomSheet = true
+                                    },
+                                    onClick = {
+                                        if (isSelectionMode) {
+                                            multiSelectionState.toggleSelection(song)
+                                        } else {
+                                            playerViewModel.showAndPlaySong(song, displaySongs)
+                                        }
+                                    }
+                                )
                             }
                         }
+                    }
                     }
 
                     SelectionCountPill(
@@ -447,6 +507,19 @@ fun AlbumDetailScreen(
                                     top = minTopBarHeight + 12.dp,
                                     bottom = fabBottomPadding + 80.dp
                                 )
+                        )
+                    }
+
+                    if (showSortSheet) {
+                        LibrarySortBottomSheet(
+                            title = stringResource(R.string.presentation_batch_d_sort_by),
+                            options = SortOption.SONGS.filter { it != SortOption.SongPlayCount && it != SortOption.SongPlayCountAsc }.toImmutableList(),
+                            selectedOption = sortOption,
+                            onDismiss = { showSortSheet = false },
+                            onOptionSelected = {
+                                sortOption = it
+                                showSortSheet = false
+                            }
                         )
                     }
 
@@ -470,11 +543,12 @@ fun AlbumDetailScreen(
                                 else viewModel.downloadAlbum(cloudSongs)
                             },
                             onPlayClick = {
-                                if (songs.isNotEmpty()) {
-                                    val randomSong = songs.random()
-                                    playerViewModel.showAndPlaySong(randomSong, songs)
+                                if (displaySongs.isNotEmpty()) {
+                                    val randomSong = displaySongs.random()
+                                    playerViewModel.showAndPlaySong(randomSong, displaySongs)
                                 }
-                            }
+                            },
+                            onSortClick = { showSortSheet = true }
                         )
                     } else {
                         CollapsingAlbumTopBar(
@@ -496,9 +570,9 @@ fun AlbumDetailScreen(
                                 else viewModel.downloadAlbum(cloudSongs)
                             },
                             onPlayClick = {
-                                if (songs.isNotEmpty()) {
-                                    val randomSong = songs.random()
-                                    playerViewModel.showAndPlaySong(randomSong, songs)
+                                if (displaySongs.isNotEmpty()) {
+                                    val randomSong = displaySongs.random()
+                                    playerViewModel.showAndPlaySong(randomSong, displaySongs)
                                 }
                             }
                         )
@@ -626,7 +700,8 @@ private fun SharedAlbumTopBarProbe(
     showDownloadAction: Boolean,
     allDownloaded: Boolean,
     onDownloadClick: () -> Unit,
-    onPlayClick: () -> Unit
+    onPlayClick: () -> Unit,
+    onSortClick: () -> Unit
 ) {
     val surfaceColor = MaterialTheme.colorScheme.surface
     val statusBarColor =
@@ -735,23 +810,34 @@ private fun SharedAlbumTopBarProbe(
             Icon(Icons.Rounded.Shuffle, contentDescription = stringResource(R.string.cd_shuffle_play_album))
         }
 
-        if (showDownloadAction) {
-            FilledIconButton(
-                onClick = onDownloadClick,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .statusBarsPadding()
-                    .padding(end = 12.dp, top = 4.dp),
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                )
-            ) {
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .statusBarsPadding()
+                .padding(end = 12.dp, top = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onSortClick) {
                 Icon(
-                    imageVector = if (allDownloaded) Icons.Rounded.CloudDone else Icons.Rounded.CloudDownload,
-                    contentDescription = stringResource(
-                        if (allDownloaded) R.string.cloud_album_remove_downloads else R.string.cloud_album_download
-                    )
+                    imageVector = Icons.AutoMirrored.Rounded.Sort,
+                    contentDescription = stringResource(R.string.presentation_batch_d_sort_by)
                 )
+            }
+            if (showDownloadAction) {
+                FilledIconButton(
+                    onClick = onDownloadClick,
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                    )
+                ) {
+                    Icon(
+                        imageVector = if (allDownloaded) Icons.Rounded.CloudDone else Icons.Rounded.CloudDownload,
+                        contentDescription = stringResource(
+                            if (allDownloaded) R.string.cloud_album_remove_downloads else R.string.cloud_album_download
+                        )
+                    )
+                }
             }
         }
     }
