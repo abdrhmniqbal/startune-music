@@ -409,6 +409,20 @@ fun ArtistSettingsScreen(
                                 )
                             }
                         )
+
+                        SwitchSettingItem(
+                            title = stringResource(R.string.presentation_batch_g_artist_case_sensitive),
+                            subtitle = stringResource(R.string.presentation_batch_g_artist_case_sensitive_sub),
+                            checked = uiState.caseSensitiveArtists,
+                            onCheckedChange = { viewModel.setCaseSensitiveArtists(it) },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Person,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        )
                     }
                 }
             }

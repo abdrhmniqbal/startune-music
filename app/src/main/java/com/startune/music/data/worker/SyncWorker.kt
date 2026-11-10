@@ -168,6 +168,7 @@ constructor(
                     val artistWordDelimiters = userPreferencesRepository.artistWordDelimitersFlow.first()
                     val unsplitArtists = userPreferencesRepository.unsplitArtistsFlow.first()
                     val extractArtistsFromTitle = userPreferencesRepository.extractArtistsFromTitleFlow.first()
+                    val caseSensitiveArtists = userPreferencesRepository.caseSensitiveArtistsFlow.first()
                     val groupByAlbumArtist =
                             userPreferencesRepository.groupByAlbumArtistFlow.first()
                     val albumArtistSplitFixApplied =
@@ -293,6 +294,7 @@ constructor(
                                         wordDelimiters = artistWordDelimiters,
                                         unsplitArtists = unsplitArtists,
                                         extractFromTitle = extractArtistsFromTitle,
+                                        caseSensitiveArtists = caseSensitiveArtists,
                                         groupByAlbumArtist = groupByAlbumArtist,
                                         existingArtistMetadata = existingArtistMetadata,
                                         existingAlbums = allExistingAlbums,
@@ -513,6 +515,7 @@ constructor(
             wordDelimiters: List<String> = emptyList(),
             unsplitArtists: List<String> = emptyList(),
             extractFromTitle: Boolean = true,
+            caseSensitiveArtists: Boolean = false,
             groupByAlbumArtist: Boolean,
             existingArtistMetadata: Map<Long, Pair<String?, String?>>,
             existingAlbums: List<AlbumEntity>,
@@ -552,7 +555,8 @@ constructor(
                             artistDelimiters = artistDelimiters,
                             wordDelimiters = wordDelimiters,
                             unsplitArtists = unsplitArtists,
-                            extractFromTitle = extractFromTitle
+                            extractFromTitle = extractFromTitle,
+                            caseSensitive = caseSensitiveArtists
                         )
                     }
 

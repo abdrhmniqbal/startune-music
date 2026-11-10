@@ -96,25 +96,30 @@ class ArtistImageRepository @Inject constructor(
         if (artistName.isBlank()) return null
         if (!userPreferencesRepository.externalArtistImagesEnabledFlow.first()) return null
 
-        val normalizedName = artistName.trim().lowercase()
+        val caseSensitiveArtists = userPreferencesRepository.caseSensitiveArtistsFlow.first()
+        val cacheKey = artistCacheKey(artistName, caseSensitiveArtists)
 
-        memoryCache.get(normalizedName)?.let { cachedUrl ->
+        memoryCache.get(cacheKey)?.let { cachedUrl ->
             return cachedUrl
         }
         
-        if (failedFetches.contains(normalizedName)) {
+        if (failedFetches.contains(cacheKey)) {
             return null
         }
 
         val (resolvedArtistId, dbCachedUrl) = withContext(Dispatchers.IO) {
-            val canonicalArtistId = musicDao.getArtistIdByNormalizedName(artistName) ?: artistId
+            val canonicalArtistId = if (caseSensitiveArtists) {
+                musicDao.getArtistIdByName(artistName.trim()) ?: artistId
+            } else {
+                musicDao.getArtistIdByNormalizedName(artistName) ?: artistId
+            }
             val cachedUrl = musicDao.getArtistImageUrl(canonicalArtistId)
-                ?: musicDao.getArtistImageUrlByNormalizedName(artistName)
+                ?: if (caseSensitiveArtists) null else musicDao.getArtistImageUrlByNormalizedName(artistName)
             canonicalArtistId to cachedUrl
         }
         if (!dbCachedUrl.isNullOrEmpty()) {
             val upgradedDbUrl = upgradeToHighResDeezerUrl(dbCachedUrl)
-            memoryCache.put(normalizedName, upgradedDbUrl)
+            memoryCache.put(cacheKey, upgradedDbUrl)
             if (upgradedDbUrl != dbCachedUrl) {
                 withContext(Dispatchers.IO) {
                     musicDao.updateArtistImageUrl(resolvedArtistId, upgradedDbUrl)
@@ -123,7 +128,12 @@ class ArtistImageRepository @Inject constructor(
             return upgradedDbUrl
         }
 
-        return fetchAndCacheArtistImage(artistName, resolvedArtistId, normalizedName)
+        return fetchAndCacheArtistImage(artistName, resolvedArtistId, cacheKey)
+    }
+
+    private fun artistCacheKey(artistName: String, caseSensitive: Boolean): String {
+        val trimmed = artistName.trim()
+        return if (caseSensitive) trimmed else trimmed.lowercase()
     }
 
     /**
@@ -133,12 +143,13 @@ class ArtistImageRepository @Inject constructor(
     suspend fun prefetchArtistImages(artists: List<Pair<Long, String>>) = withContext(Dispatchers.IO) {
         if (!userPreferencesRepository.externalArtistImagesEnabledFlow.first()) return@withContext
 
+        val caseSensitiveArtists = userPreferencesRepository.caseSensitiveArtistsFlow.first()
         artists.chunked(PREFETCH_CONCURRENCY * 4).forEach { chunk ->
             chunk.map { (artistId, artistName) ->
                 async {
                     try {
-                        val normalizedName = artistName.trim().lowercase()
-                        if (memoryCache.get(normalizedName) == null && !failedFetches.contains(normalizedName)) {
+                        val cacheKey = artistCacheKey(artistName, caseSensitiveArtists)
+                        if (memoryCache.get(cacheKey) == null && !failedFetches.contains(cacheKey)) {
                             prefetchSemaphore.withPermit {
                                 getArtistImageUrl(artistName, artistId)
                             }

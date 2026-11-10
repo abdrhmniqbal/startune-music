@@ -9,7 +9,8 @@ internal fun collectArtistNames(
     artistDelimiters: List<String>,
     wordDelimiters: List<String> = emptyList(),
     unsplitArtists: List<String> = emptyList(),
-    extractFromTitle: Boolean = true
+    extractFromTitle: Boolean = true,
+    caseSensitive: Boolean = false
 ): List<String> {
     return collectArtistNames(
         rawArtistNames = listOf(rawArtistName),
@@ -17,12 +18,15 @@ internal fun collectArtistNames(
         artistDelimiters = artistDelimiters,
         wordDelimiters = wordDelimiters,
         unsplitArtists = unsplitArtists,
-        extractFromTitle = extractFromTitle
+        extractFromTitle = extractFromTitle,
+        caseSensitive = caseSensitive
     )
 }
 
 /**
- * Splits every ARTIST field before case-insensitively de-duplicating the result.
+ * Splits every ARTIST field before de-duplicating the result. The de-duplication is
+ * case-insensitive unless [caseSensitive] is true, in which case names that differ only
+ * by letter case (for example LiSA and Lisa) stay separate.
  * The physical tag order is retained, so the first value remains the primary artist.
  */
 internal fun collectArtistNames(
@@ -31,14 +35,15 @@ internal fun collectArtistNames(
     artistDelimiters: List<String>,
     wordDelimiters: List<String> = emptyList(),
     unsplitArtists: List<String> = emptyList(),
-    extractFromTitle: Boolean = true
+    extractFromTitle: Boolean = true,
+    caseSensitive: Boolean = false
 ): List<String> {
     val splitFromArtist = mutableListOf<String>()
     rawArtistNames.forEach { rawArtistName ->
         rawArtistName
             .splitArtistsByDelimiters(artistDelimiters, wordDelimiters, unsplitArtists)
             .forEach { artistName ->
-                if (splitFromArtist.none { it.equals(artistName, ignoreCase = true) }) {
+                if (splitFromArtist.none { it.equals(artistName, ignoreCase = !caseSensitive) }) {
                     splitFromArtist += artistName
                 }
             }
@@ -54,7 +59,7 @@ internal fun collectArtistNames(
 
     val combined = splitFromArtist.toMutableList()
     titleArtists.forEach { titleArtist ->
-        if (combined.none { it.equals(titleArtist, ignoreCase = true) }) {
+        if (combined.none { it.equals(titleArtist, ignoreCase = !caseSensitive) }) {
             combined.add(titleArtist)
         }
     }
