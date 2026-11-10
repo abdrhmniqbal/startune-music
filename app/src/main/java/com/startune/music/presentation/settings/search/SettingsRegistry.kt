@@ -215,6 +215,40 @@ object SettingsRegistry {
                 keywordsStatic = listOf("lyrics source", "embedded", "online", "priority", "lrc")
             ),
             SettingSpec(
+                id = "lyrics_word_highlight",
+                itemKey = "item_lyrics_word_highlight",
+                titleRes = R.string.lyrics_highlight_style_title,
+                subtitleRes = R.string.lyrics_highlight_style_subtitle,
+                category = SettingsCategory.LIBRARY,
+                subscreenRoute = Screen.SettingsCategory.createRoute("library"),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("karaoke", "word highlight", "gradient", "sweep", "fade", "word by word")
+            ),
+            SettingSpec(
+                id = "lyrics_duet_layout",
+                itemKey = "item_lyrics_duet_layout",
+                titleRes = R.string.lyrics_duet_layout_title,
+                subtitleRes = R.string.lyrics_duet_layout_subtitle,
+                category = SettingsCategory.LIBRARY,
+                subscreenRoute = Screen.SettingsCategory.createRoute("library"),
+                type = SettingType.SWITCH,
+                keywordsStatic = listOf("duet", "singer", "voices", "v1", "v2", "alignment"),
+                getValue = { it.lyricsDuetLayoutEnabled },
+                onToggle = { viewModel, checked -> viewModel.setLyricsDuetLayoutEnabled(checked) }
+            ),
+            SettingSpec(
+                id = "lyrics_background_vocals",
+                itemKey = "item_lyrics_background_vocals",
+                titleRes = R.string.lyrics_background_vocals_title,
+                subtitleRes = R.string.lyrics_background_vocals_subtitle,
+                category = SettingsCategory.LIBRARY,
+                subscreenRoute = Screen.SettingsCategory.createRoute("library"),
+                type = SettingType.SWITCH,
+                keywordsStatic = listOf("background vocals", "backing vocals", "bg", "adlib", "harmony"),
+                getValue = { it.showLyricsBackgroundVocals },
+                onToggle = { viewModel, checked -> viewModel.setShowLyricsBackgroundVocals(checked) }
+            ),
+            SettingSpec(
                 id = "library_reset_imported_lyrics",
                 itemKey = "item_library_reset_imported_lyrics",
                 titleRes = R.string.setcat_reset_imported_lyrics_title,
