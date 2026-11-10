@@ -173,6 +173,8 @@ class MusicService : MediaSessionService() {
     @Inject
     lateinit var listeningStatsTracker: ListeningStatsTracker
     @Inject
+    lateinit var sleepTimerSession: SleepTimerSession
+    @Inject
     @AppScope
     lateinit var appScope: CoroutineScope
 
@@ -197,10 +199,13 @@ class MusicService : MediaSessionService() {
     private var isManualShuffleEnabled = false
     private var persistentShuffleEnabled = false
     private var previousMainThreadExceptionHandler: Thread.UncaughtExceptionHandler? = null
-    private val playbackTimerController by lazy {
-        PlaybackTimerController(
-            playerProvider = { mediaSession?.player ?: engine.masterPlayer },
+    private val sleepTimerController by lazy {
+        SleepTimerController(
+            engine = engine,
+            session = sleepTimerSession,
+            scope = serviceScope,
             alarmScheduler = AlarmManagerSleepTimerScheduler(this),
+            sessionPlayer = { mediaSession?.player ?: engine.masterPlayer },
         )
     }
     private var playbackSnapshotPersistJob: Job? = null
@@ -401,6 +406,7 @@ class MusicService : MediaSessionService() {
         engine.addTransitionFinishedListener(transitionFinishedListener)
 
         controller.initialize()
+        sleepTimerController.attach()
         registerHeadsetReconnectMonitor()
 
         serviceScope.launch {
@@ -566,27 +572,27 @@ class MusicService : MediaSessionService() {
                     }
                     MusicNotificationProvider.CUSTOM_COMMAND_COUNTED_PLAY -> {
                         val count = args.getInt("count", 1)
-                        playbackTimerController.startCountedPlay(count)
+                        sleepTimerController.startCountedPlay(count)
                     }
                     MusicNotificationProvider.CUSTOM_COMMAND_CANCEL_COUNTED_PLAY -> {
-                        playbackTimerController.stopCountedPlay()
+                        sleepTimerController.stopCountedPlay()
                     }
                     MusicNotificationProvider.CUSTOM_COMMAND_SET_SLEEP_TIMER_DURATION -> {
                         val minutes = args.getInt(
                             MusicNotificationProvider.EXTRA_SLEEP_TIMER_MINUTES,
                             0
                         )
-                        playbackTimerController.setDurationSleepTimer(minutes)
+                        sleepTimerController.setDurationTimer(minutes)
                     }
                     MusicNotificationProvider.CUSTOM_COMMAND_SET_SLEEP_TIMER_END_OF_TRACK -> {
                         val enabled = args.getBoolean(
                             MusicNotificationProvider.EXTRA_END_OF_TRACK_ENABLED,
                             true
                         )
-                        playbackTimerController.setEndOfTrackSleepTimer(enabled)
+                        sleepTimerController.setEndOfTrackTimer(enabled)
                     }
                     MusicNotificationProvider.CUSTOM_COMMAND_CANCEL_SLEEP_TIMER -> {
-                        playbackTimerController.cancelSleepTimers()
+                        sleepTimerController.cancelTimer()
                     }
                     MusicNotificationProvider.CUSTOM_COMMAND_TOGGLE_SHUFFLE -> {
                         val enabled = !isManualShuffleEnabled
@@ -891,7 +897,7 @@ class MusicService : MediaSessionService() {
                 }
                 ACTION_SLEEP_TIMER_EXPIRED -> {
                     Timber.tag(TAG).d("Sleep timer expired action received. Pausing player.")
-                    playbackTimerController.onDurationSleepTimerExpired()
+                    sleepTimerController.onDurationExpired()
                 }
             }
         }
@@ -1015,7 +1021,7 @@ class MusicService : MediaSessionService() {
             if (playbackState == Player.STATE_ENDED) {
                 listeningStatsTracker.finalizeCurrentSession()
                 val mediaItem = (mediaSession?.player ?: engine.masterPlayer).currentMediaItem
-                playbackTimerController.clearEndOfTrackTimer()
+                sleepTimerController.onPlaybackEnded()
             } else {
                 syncLocalListeningStatsFromPlayer(mediaSession?.player ?: engine.masterPlayer)
             }
@@ -1061,7 +1067,7 @@ class MusicService : MediaSessionService() {
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
             mediaItem?.let(::grantArtworkUriPermissionsToConnectedControllers)
             syncLocalListeningStatsFromPlayer(mediaSession?.player ?: engine.masterPlayer, forceNewSession = true)
-            playbackTimerController.handleMediaItemTransition(mediaItem, reason)
+            sleepTimerController.onMediaItemTransition(mediaItem, reason)
             replayGainProcessor.apply(mediaSession?.player?.currentMediaItem)
             val player = engine.masterPlayer
             val nextIndex = player.nextMediaItemIndex
@@ -1089,6 +1095,7 @@ class MusicService : MediaSessionService() {
         }
 
         override fun onRepeatModeChanged(repeatMode: Int) {
+            sleepTimerController.onRepeatModeChanged(repeatMode)
             requestWidgetFullUpdate(force = true)
             mediaSession?.let { refreshMediaSessionUi(it) }
             schedulePlaybackSnapshotPersist()
@@ -2025,7 +2032,7 @@ class MusicService : MediaSessionService() {
         val player = sessionToRelease?.player ?: engine.masterPlayer
 
         clearHeadsetReconnectResume()
-        playbackTimerController.release()
+        sleepTimerController.release()
 
         if (preservePlaybackSnapshot) {
             persistPlaybackSnapshotOnUnload()
