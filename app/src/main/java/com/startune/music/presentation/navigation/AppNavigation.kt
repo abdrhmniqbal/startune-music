@@ -43,6 +43,8 @@ import com.startune.music.presentation.screens.AudioBookmarksScreen
 import com.startune.music.presentation.screens.CloudDownloadsScreen
 import com.startune.music.presentation.screens.AccountsScreen
 import com.startune.music.presentation.screens.ArtistDetailScreen
+import com.startune.music.presentation.screens.ArtistDetailListScreen
+import com.startune.music.presentation.screens.ArtistDetailView
 import com.startune.music.presentation.screens.ArtistSettingsScreen
 import com.startune.music.presentation.screens.DailyMixScreen
 import com.startune.music.presentation.screens.TopTracksScreen
@@ -457,6 +459,33 @@ fun AppNavigation(
                     ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
                         ArtistDetailScreen(
                             artistId = artistId,
+                            navController = navController,
+                            playerViewModel = playerViewModel
+                        )
+                    }
+                }
+            }
+            composable(
+                route = Screen.ArtistDetailList.route,
+                arguments = listOf(
+                    navArgument("artistId") { type = NavType.StringType },
+                    navArgument("view") { type = NavType.StringType }
+                ),
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { popEnterTransition() },
+                popExitTransition = { popExitTransition() },
+            ) { backStackEntry ->
+                val artistId = backStackEntry.arguments?.getString("artistId")
+                val viewName = backStackEntry.arguments?.getString("view")
+                val view = viewName?.let {
+                    runCatching { ArtistDetailView.valueOf(it) }.getOrDefault(ArtistDetailView.Tracks)
+                } ?: ArtistDetailView.Tracks
+                if (artistId != null) {
+                    ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
+                        ArtistDetailListScreen(
+                            artistId = artistId,
+                            view = view,
                             navController = navController,
                             playerViewModel = playerViewModel
                         )
