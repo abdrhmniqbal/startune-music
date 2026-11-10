@@ -58,6 +58,7 @@ import com.startune.music.data.preferences.NavBarStyle
 import com.startune.music.data.preferences.FullPlayerLoadingTweaks
 import com.startune.music.data.preferences.AlbumArtPaletteStyle
 import com.startune.music.data.preferences.ThemePreferencesRepository
+import com.startune.music.data.preferences.restartsAtPosition
 import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.preferences.AlbumArtQuality
 import com.startune.music.data.preferences.ThemePreference
@@ -4108,6 +4109,13 @@ class PlayerViewModel @Inject constructor(
     fun previousSong() {
         playbackStateHolder.previousSong()
     }
+
+    /**
+     * Whether [previousSong] at [positionMs] restarts the current track under the "Previous
+     * button" preference, ignoring queue bounds. Read at event time, so it adds no UI state.
+     */
+    fun previousButtonRestartsAt(positionMs: Long): Boolean =
+        playbackStateHolder.currentPreviousButtonBehavior().restartsAtPosition(positionMs)
 
     fun forcePreviousSong() {
         playbackStateHolder.forcePreviousSong()

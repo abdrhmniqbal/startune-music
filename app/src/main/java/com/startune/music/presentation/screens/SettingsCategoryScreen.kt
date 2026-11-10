@@ -179,6 +179,7 @@ import com.startune.music.data.preferences.AppThemeMode
 import com.startune.music.data.preferences.ColorSchemeIds
 import com.startune.music.data.preferences.CollagePattern
 import com.startune.music.data.preferences.CarouselStyle
+import com.startune.music.data.preferences.PreviousButtonBehavior
 import com.startune.music.data.preferences.LaunchTab
 import com.startune.music.data.preferences.LibraryNavigationMode
 import com.startune.music.data.preferences.NavBarStyle
@@ -1373,6 +1374,30 @@ fun SettingsCategoryScreen(
                                     onCheckedChange = { settingsViewModel.setAutoplayOnSkip(it) },
                                     leadingIcon = { Icon(painterResource(R.drawable.rounded_play_arrow_24), null, tint = MaterialTheme.colorScheme.secondary) },
                                     modifier = Modifier.settingHighlight("item_behavior_autoplay_skip", highlightKey)
+                                )
+                                ThemeSelectorItem(
+                                    label = stringResource(R.string.setcat_previous_button_title),
+                                    description = stringResource(R.string.setcat_previous_button_description),
+                                    options = linkedMapOf(
+                                        PreviousButtonBehavior.RESTART_TRACK.storageKey to
+                                            stringResource(R.string.setcat_previous_button_restart_track),
+                                        PreviousButtonBehavior.PREVIOUS_TRACK.storageKey to
+                                            stringResource(R.string.setcat_previous_button_previous_track)
+                                    ),
+                                    optionDescriptions = mapOf(
+                                        PreviousButtonBehavior.RESTART_TRACK.storageKey to
+                                            stringResource(R.string.setcat_previous_button_restart_track_description),
+                                        PreviousButtonBehavior.PREVIOUS_TRACK.storageKey to
+                                            stringResource(R.string.setcat_previous_button_previous_track_description)
+                                    ),
+                                    selectedKey = uiState.previousButtonBehavior.storageKey,
+                                    onSelectionChanged = { key ->
+                                        settingsViewModel.setPreviousButtonBehavior(
+                                            PreviousButtonBehavior.fromStorageKey(key)
+                                        )
+                                    },
+                                    leadingIcon = { Icon(painterResource(R.drawable.rounded_skip_previous_24), null, tint = MaterialTheme.colorScheme.secondary) },
+                                    modifier = Modifier.settingHighlight("item_behavior_previous_button", highlightKey)
                                 )
                             }
                             SettingsSubsection(

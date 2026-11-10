@@ -18,6 +18,7 @@ import com.startune.music.data.backup.model.RestoreResult
 import com.startune.music.data.backup.model.ValidationError
 import com.startune.music.data.model.AudioOutputMode
 import com.startune.music.data.preferences.AppLanguage
+import com.startune.music.data.preferences.PreviousButtonBehavior
 import com.startune.music.data.preferences.AppThemeMode
 import com.startune.music.data.preferences.CarouselStyle
 import com.startune.music.data.preferences.LibraryNavigationMode
@@ -64,6 +65,7 @@ data class SettingsUiState(
     val showScrollbar: Boolean = true,
     val autoplayOnSkip: Boolean = true,
     val miniPlayerSwipeToSkip: Boolean = false,
+    val previousButtonBehavior: PreviousButtonBehavior = PreviousButtonBehavior.DEFAULT,
     val playerThemePreference: String = ThemePreference.ALBUM_ART,
     val albumArtPaletteStyle: AlbumArtPaletteStyle = AlbumArtPaletteStyle.default,
     val albumArtColorAccuracy: Int = AlbumArtColorAccuracy.DEFAULT,
@@ -304,6 +306,12 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferencesRepository.miniPlayerSwipeToSkipFlow.collect { enabled ->
                 _uiState.update { it.copy(miniPlayerSwipeToSkip = enabled) }
+            }
+        }
+
+        viewModelScope.launch {
+            userPreferencesRepository.previousButtonBehaviorFlow.collect { behavior ->
+                _uiState.update { it.copy(previousButtonBehavior = behavior) }
             }
         }
 
@@ -972,6 +980,12 @@ class SettingsViewModel @Inject constructor(
     fun setMiniPlayerSwipeToSkip(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setMiniPlayerSwipeToSkip(enabled)
+        }
+    }
+
+    fun setPreviousButtonBehavior(behavior: PreviousButtonBehavior) {
+        viewModelScope.launch {
+            userPreferencesRepository.setPreviousButtonBehavior(behavior)
         }
     }
 

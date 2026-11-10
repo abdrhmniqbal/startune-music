@@ -9,6 +9,8 @@ import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import com.startune.music.data.service.player.DualPlayerEngine
 import com.startune.music.data.preferences.UserPreferencesRepository
+import com.startune.music.data.preferences.PreviousButtonBehavior
+import com.startune.music.data.preferences.shouldRestartCurrentTrack
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -133,6 +135,11 @@ class PlaybackStateHolder @Inject constructor(
         scope?.launch {
             userPreferencesRepository.autoplayOnSkipFlow.collect { enabled ->
                 autoplayOnSkip = enabled
+            }
+        }
+        scope?.launch {
+            userPreferencesRepository.previousButtonBehaviorFlow.collect { behavior ->
+                previousButtonBehavior = behavior
             }
         }
         scope?.launch {
@@ -371,9 +378,20 @@ class PlaybackStateHolder @Inject constructor(
     @Volatile
     private var autoplayOnSkip: Boolean = true
 
+    /** Mirrors the "Previous button" preference. */
+    @Volatile
+    private var previousButtonBehavior: PreviousButtonBehavior = PreviousButtonBehavior.DEFAULT
+
+    /** The "Previous button" preference as last read, for event-time decisions in the UI. */
+    fun currentPreviousButtonBehavior(): PreviousButtonBehavior = previousButtonBehavior
+
     fun previousSong() {
         val controller = activeLocalPlayer()
-        if (controller.currentPosition > 10000) {
+        val behavior = previousButtonBehavior
+        val positionMs = controller.currentPosition
+        val hasPrevious = controller.hasPreviousMediaItem()
+        if (behavior.shouldRestartCurrentTrack(positionMs, hasPrevious)) {
+            Timber.tag(TAG).d("Previous restarts the track (behavior=%s, position=%d ms)", behavior, positionMs)
             // Route the restart through seekTo() so the position override, the engine seek hint and
             // the UI position are updated together; a bare controller.seekTo(0) left a stale
             // override behind and the displayed position could lag the restart.

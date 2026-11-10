@@ -847,6 +847,19 @@ object SettingsRegistry {
                 onToggle = { viewModel, checked -> viewModel.setMiniPlayerSwipeToSkip(checked) }
             ),
             SettingSpec(
+                id = "behavior_previous_button",
+                itemKey = "item_behavior_previous_button",
+                titleRes = R.string.setcat_previous_button_title,
+                subtitleRes = R.string.setcat_previous_button_description,
+                category = SettingsCategory.BEHAVIOR,
+                subscreenRoute = Screen.SettingsCategory.createRoute("behavior"),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf(
+                    "previous", "previous song", "previous track", "rewind", "back", "skip back",
+                    "restart", "replay", "button"
+                )
+            ),
+            SettingSpec(
                 id = "behavior_autoplay_skip",
                 itemKey = "item_behavior_autoplay_skip",
                 titleRes = R.string.setcat_autoplay_on_skip_title,
