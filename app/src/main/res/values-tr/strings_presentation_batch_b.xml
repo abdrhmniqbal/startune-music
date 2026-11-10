@@ -34,7 +34,7 @@
     <string name="presentation_batch_b_play_latest">En sonuncuyu oynat</string>
     <string name="presentation_batch_b_playlist_empty_add_hint">Başlamak için \'Şarkı Ekle\' seçeneğine dokunun.</string>
     <string name="presentation_batch_b_playlist_empty_folder_body">Bu klasör şarkı içermiyor.</string>
-    <string name="presentation_batch_b_playlist_empty_smart_body">Bu akıllı kurala uyan şarkı henüz yok.</string>
+    <string name="presentation_batch_b_playlist_empty_mix_body">Bu akıllı kurala uyan şarkı henüz yok.</string>
     <string name="presentation_batch_b_playlist_empty_title">Bu çalma listesi boş.</string>
     <string name="presentation_batch_b_playlist_options_title">Çalma listesi seçenekleri</string>
     <string name="presentation_batch_b_queue_recently_played">Son Oynatılanlar</string>

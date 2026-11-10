@@ -122,7 +122,6 @@ import coil.request.ImageRequest
 import com.startune.music.data.model.Song
 import com.startune.music.presentation.components.ImageCropView
 import com.startune.music.data.model.PlaylistShapeType
-import com.startune.music.data.model.SmartPlaylistRule
 import com.startune.music.presentation.components.SongPickerSelectionPane
 import com.startune.music.ui.theme.RoundedSans
 import androidx.compose.material3.Slider
@@ -174,33 +173,6 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
 data class Quadruple<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
-
-@Composable
-private fun smartPlaylistRuleTitle(rule: SmartPlaylistRule): String =
-    stringResource(
-        when (rule) {
-            SmartPlaylistRule.TOP_PLAYED -> R.string.presentation_batch_f_smart_rule_top_played_title
-            SmartPlaylistRule.RECENTLY_PLAYED -> R.string.presentation_batch_f_smart_rule_recently_played_title
-            SmartPlaylistRule.FORGOTTEN_FAVORITES -> R.string.presentation_batch_f_smart_rule_forgotten_favorites_title
-            SmartPlaylistRule.NEW_GEMS -> R.string.presentation_batch_f_smart_rule_new_gems_title
-        }
-    )
-
-@Composable
-private fun smartPlaylistRuleSubtitle(rule: SmartPlaylistRule): String =
-    stringResource(
-        when (rule) {
-            SmartPlaylistRule.TOP_PLAYED -> R.string.presentation_batch_f_smart_rule_top_played_subtitle
-            SmartPlaylistRule.RECENTLY_PLAYED -> R.string.presentation_batch_f_smart_rule_recently_played_subtitle
-            SmartPlaylistRule.FORGOTTEN_FAVORITES -> R.string.presentation_batch_f_smart_rule_forgotten_favorites_subtitle
-            SmartPlaylistRule.NEW_GEMS -> R.string.presentation_batch_f_smart_rule_new_gems_subtitle
-        }
-    )
-
-private enum class PlaylistCreationMode {
-    MANUAL,
-    SMART
-}
 
 @Composable
 fun CreatePlaylistDialog(
@@ -288,7 +260,7 @@ fun EditPlaylistDialog(
 @Composable
 private fun CreatePlaylistContent(
     onDismiss: () -> Unit,
-    onCreate: (String, String?, Int?, String?, List<String>, Float, Float, Float, String?, Float?, Float?, Float?, Float?, String?) -> Unit,
+    onCreate: (String, String?, Int?, String?, List<String>, Float, Float, Float, String?, Float?, Float?, Float?, Float?) -> Unit,
     playerViewModel: PlayerViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -297,8 +269,6 @@ private fun CreatePlaylistContent(
     
     var currentStep by remember { mutableStateOf(0) }
     var selectedTab by remember { mutableStateOf(0) }
-    var creationMode by remember { mutableStateOf(PlaylistCreationMode.MANUAL) }
-    var selectedSmartRule by remember { mutableStateOf(SmartPlaylistRule.TOP_PLAYED) }
     
     val selectedSongIds = remember { mutableStateMapOf<String, Boolean>() }
     
@@ -354,7 +324,7 @@ private fun CreatePlaylistContent(
         }
     }
     
-    BackHandler(enabled = showCropUi || (currentStep == 1 && creationMode == PlaylistCreationMode.MANUAL)) {
+    BackHandler(enabled = showCropUi || currentStep == 1) {
         when {
             showCropUi -> showCropUi = false
             currentStep == 1 -> currentStep = 0
@@ -370,11 +340,7 @@ private fun CreatePlaylistContent(
                             when (displayStep) {
                                 2 -> stringResource(R.string.presentation_batch_f_edit_cover_title)
                                 0 -> {
-                                    if (creationMode == PlaylistCreationMode.SMART) {
-                                        stringResource(R.string.presentation_batch_f_new_smart_playlist)
-                                    } else {
-                                        stringResource(R.string.presentation_batch_f_new_playlist)
-                                    }
+                                    stringResource(R.string.presentation_batch_f_new_playlist)
                                 }
                                 else -> stringResource(R.string.presentation_batch_f_add_songs)
                             },
@@ -397,13 +363,13 @@ private fun CreatePlaylistContent(
                         onClick = {
                             when {
                                 showCropUi -> showCropUi = false
-                                currentStep == 1 && creationMode == PlaylistCreationMode.MANUAL -> currentStep = 0
+                                currentStep == 1 -> currentStep = 0
                                 else -> onDismiss()
                             }
                         }
                     ) {
                         Icon(
-                            if (showCropUi || (currentStep == 1 && creationMode == PlaylistCreationMode.MANUAL)) {
+                            if (showCropUi || currentStep == 1) {
                                 Icons.AutoMirrored.Rounded.ArrowBack
                             } else {
                                 Icons.Rounded.Close
@@ -418,11 +384,11 @@ private fun CreatePlaylistContent(
             )
         },
         floatingActionButton = {
-            if (!showCropUi && !(currentStep == 1 && creationMode == PlaylistCreationMode.MANUAL)) {
+            if (!showCropUi && currentStep != 1) {
                 MediumExtendedFloatingActionButton(
                     text = {
                         Text(
-                            if (currentStep == 0 && creationMode == PlaylistCreationMode.MANUAL) {
+                            if (currentStep == 0) {
                                 stringResource(R.string.presentation_batch_f_next)
                             } else {
                                 stringResource(R.string.presentation_batch_f_create)
@@ -431,7 +397,7 @@ private fun CreatePlaylistContent(
                     },
                     icon = { 
                         Icon(
-                            if (currentStep == 0 && creationMode == PlaylistCreationMode.MANUAL) {
+                            if (currentStep == 0) {
                                 Icons.AutoMirrored.Rounded.ArrowForward
                             } else {
                                 Icons.Rounded.Check
@@ -442,40 +408,7 @@ private fun CreatePlaylistContent(
                     onClick = {
                         if (currentStep == 0) {
                             if (playlistName.isNotBlank()) {
-                                if (creationMode == PlaylistCreationMode.MANUAL) {
-                                    currentStep = 1
-                                } else {
-                                    val imageUriString = if(selectedTab == 1) selectedImageUri?.toString() else null
-                                    val color = if(selectedTab == 2) selectedColor else null
-                                    val icon = if(selectedTab == 2) selectedIconName else null
-
-                                    val scale = if(selectedTab == 1) cropScale else 1f
-                                    val panX = if(selectedTab == 1) cropOffset.x else 0f
-                                    val panY = if(selectedTab == 1) cropOffset.y else 0f
-
-                                    val shapeTypeForSave = if (selectedTab == 2) selectedShapeType.name else null
-                                    val (d1, d2, d3, d4) = if (selectedTab == 2) {
-                                        when (selectedShapeType) {
-                                            PlaylistShapeType.SmoothRect -> Quadruple(smoothRectCornerRadius, smoothRectSmoothness, 0f, 0f)
-                                            PlaylistShapeType.Star -> Quadruple(starCurve.toFloat(), starRotation, starScale, starSides.toFloat())
-                                            else -> Quadruple(0f, 0f, 0f, 0f)
-                                        }
-                                    } else Quadruple(null, null, null, null)
-
-                                    onCreate(
-                                        playlistName,
-                                        imageUriString,
-                                        color,
-                                        icon,
-                                        emptyList(),
-                                        scale,
-                                        panX,
-                                        panY,
-                                        shapeTypeForSave,
-                                        d1, d2, d3, d4,
-                                        selectedSmartRule.storageKey
-                                    )
-                                }
+                                currentStep = 1
                             }
                         } else {
                             val imageUriString = if(selectedTab == 1) selectedImageUri?.toString() else null
@@ -505,8 +438,7 @@ private fun CreatePlaylistContent(
                                 panX,
                                 panY,
                                 shapeTypeForSave,
-                                d1, d2, d3, d4,
-                                null
+                                d1, d2, d3, d4
                             )
                         }
                     },
@@ -521,7 +453,7 @@ private fun CreatePlaylistContent(
             }
         },
         bottomBar = {
-            if (currentStep == 1 && creationMode == PlaylistCreationMode.MANUAL) {
+            if (currentStep == 1) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -614,8 +546,7 @@ private fun CreatePlaylistContent(
                                 panX,
                                 panY,
                                 shapeTypeForSave,
-                                d1, d2, d3, d4,
-                                null
+                                d1, d2, d3, d4
                             )
                         },
                         modifier = Modifier.size(56.dp),
@@ -683,10 +614,6 @@ private fun CreatePlaylistContent(
                      onStarRotationChange = { starRotation = it },
                      starScale = starScale,
                      onStarScaleChange = { starScale = it },
-                     creationMode = creationMode,
-                     onCreationModeChange = { creationMode = it },
-                     selectedSmartRule = selectedSmartRule,
-                     onSmartRuleChange = { selectedSmartRule = it },
                      onImageUriChange = { selectedImageUri = it }
                  )
             } else {
@@ -905,11 +832,6 @@ fun EditPlaylistContent(
              onStarRotationChange = { starRotation = it },
              starScale = starScale,
              onStarScaleChange = { starScale = it },
-             showCreationModeSelector = false,
-             creationMode = PlaylistCreationMode.MANUAL,
-             onCreationModeChange = { },
-             selectedSmartRule = SmartPlaylistRule.TOP_PLAYED,
-             onSmartRuleChange = { },
              onImageUriChange = { selectedImageUri = it }
          )
     }
@@ -951,11 +873,6 @@ private fun PlaylistFormContent(
     onStarRotationChange: (Float) -> Unit,
     starScale: Float,
     onStarScaleChange: (Float) -> Unit,
-    showCreationModeSelector: Boolean = true,
-    creationMode: PlaylistCreationMode,
-    onCreationModeChange: (PlaylistCreationMode) -> Unit,
-    selectedSmartRule: SmartPlaylistRule,
-    onSmartRuleChange: (SmartPlaylistRule) -> Unit,
     onImageUriChange: (Uri?) -> Unit
 ) {
     if (showCropUi) {
@@ -1240,64 +1157,6 @@ private fun PlaylistFormContent(
             )
             
             Spacer(modifier = Modifier.height(8.dp))
-
-            if (showCreationModeSelector) {
-                SingleChoiceSegmentedButtonRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 22.dp)
-                ) {
-                    SegmentedButton(
-                        selected = creationMode == PlaylistCreationMode.MANUAL,
-                        onClick = { onCreationModeChange(PlaylistCreationMode.MANUAL) },
-                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
-                    ) {
-                        Text(stringResource(R.string.presentation_batch_f_creation_mode_manual))
-                    }
-                    SegmentedButton(
-                        selected = creationMode == PlaylistCreationMode.SMART,
-                        onClick = { onCreationModeChange(PlaylistCreationMode.SMART) },
-                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
-                    ) {
-                        Text(stringResource(R.string.presentation_batch_f_creation_mode_smart))
-                    }
-                }
-            }
-
-            AnimatedVisibility(visible = creationMode == PlaylistCreationMode.SMART) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 22.dp, vertical = 6.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.presentation_batch_f_smart_rule),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        SmartPlaylistRule.entries.forEach { rule ->
-                            FilterChip(
-                                selected = selectedSmartRule == rule,
-                                onClick = { onSmartRuleChange(rule) },
-                                label = { Text(smartPlaylistRuleTitle(rule)) },
-                                shape = CircleShape
-                            )
-                        }
-                    }
-
-                    Text(
-                        text = smartPlaylistRuleSubtitle(selectedSmartRule),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
 
             val tabs = persistentListOf(
                 stringResource(R.string.presentation_batch_f_tab_default),

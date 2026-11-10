@@ -31,11 +31,6 @@
     <string name="presentation_batch_e_new_playlist_hint">Toque no botão \'Nova Playlist\' para iniciar.</string>
     <string name="presentation_batch_e_create_playlist_title">Criar lista de reprodução</string>
     <string name="presentation_batch_e_create_playlist_subtitle">Escolha o fluxo de criação.</string>
-    <string name="presentation_batch_e_creation_mode_manual">Manual</string>
-    <string name="presentation_batch_e_creation_mode_manual_subtitle">Crie arte, ícone, dê forma e escolha músicas você mesmo.</string>
-    <string name="presentation_batch_e_creation_mode_ai">Com IA</string>
-    <string name="presentation_batch_e_creation_mode_ai_subtitle_enabled">Gere uma lista de reprodução selecionada com controles avançados.</string>
-    <string name="presentation_batch_e_creation_mode_ai_subtitle_disabled">Requer uma chave API Gemini configurada nas configurações.</string>
     <string name="presentation_batch_e_setup_api_key">Configurar chave API</string>
     <string name="presentation_batch_e_ai_playlist_lab_title">Laboratório de lista de reprodução de IA</string>
     <string name="presentation_batch_e_ai_reset">Redefinir</string>

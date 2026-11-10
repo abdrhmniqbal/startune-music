@@ -4,7 +4,7 @@ import com.startune.music.data.database.LocalPlaylistDao
 import com.startune.music.data.model.Playlist
 import com.startune.music.data.database.toEntity
 import com.startune.music.data.database.toPlaylist
-import com.startune.music.data.model.isSmartPlaylist
+import com.startune.music.data.model.isMix
 import com.startune.music.data.model.SortOption
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -52,7 +52,8 @@ class PlaylistPreferencesRepository @Inject constructor(
         coverShapeDetail3: Float? = null,
         coverShapeDetail4: Float? = null,
         customId: String? = null,
-        source: String = "LOCAL"
+        source: String = "LOCAL",
+        mixSongCount: Int? = null
     ): Playlist {
         ensureMigratedIfNeeded()
         val now = System.currentTimeMillis()
@@ -72,6 +73,7 @@ class PlaylistPreferencesRepository @Inject constructor(
             coverShapeDetail3 = coverShapeDetail3,
             coverShapeDetail4 = coverShapeDetail4,
             source = source,
+            mixSongCount = mixSongCount,
         )
         localPlaylistDao.upsertPlaylist(newPlaylist.toEntity())
         localPlaylistDao.replacePlaylistSongs(newPlaylist.id, newPlaylist.songIds)
@@ -104,7 +106,7 @@ class PlaylistPreferencesRepository @Inject constructor(
     suspend fun addSongsToPlaylist(playlistId: String, songIdsToAdd: List<String>) {
         ensureMigratedIfNeeded()
         val existing = userPlaylistsFlow.first().find { it.id == playlistId } ?: return
-        if (existing.isSmartPlaylist) return
+        if (existing.isMix) return
         val merged = (existing.songIds + songIdsToAdd).distinct()
         updatePlaylist(existing.copy(songIds = merged))
     }
@@ -115,7 +117,7 @@ class PlaylistPreferencesRepository @Inject constructor(
         val removedPlaylistIds = mutableListOf<String>()
 
         currentPlaylists.forEach { playlist ->
-            if (playlist.isSmartPlaylist) return@forEach
+            if (playlist.isMix) return@forEach
             val shouldContain = playlist.id in playlistIds
             val hasSong = songId in playlist.songIds
             when {
@@ -134,14 +136,14 @@ class PlaylistPreferencesRepository @Inject constructor(
     suspend fun removeSongFromPlaylist(playlistId: String, songIdToRemove: String) {
         ensureMigratedIfNeeded()
         val existing = userPlaylistsFlow.first().find { it.id == playlistId } ?: return
-        if (existing.isSmartPlaylist) return
+        if (existing.isMix) return
         updatePlaylist(existing.copy(songIds = existing.songIds.filterNot { it == songIdToRemove }))
     }
 
     suspend fun reorderSongsInPlaylist(playlistId: String, newSongOrderIds: List<String>) {
         ensureMigratedIfNeeded()
         val existing = userPlaylistsFlow.first().find { it.id == playlistId } ?: return
-        if (existing.isSmartPlaylist) return
+        if (existing.isMix) return
         updatePlaylist(existing.copy(songIds = newSongOrderIds))
     }
 

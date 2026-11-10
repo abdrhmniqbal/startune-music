@@ -3,7 +3,7 @@
 import androidx.compose.runtime.Immutable
 
 @Immutable
-enum class SmartPlaylistRule(
+enum class MixRule(
     val storageKey: String,
     val title: String,
     val subtitle: String
@@ -30,25 +30,31 @@ enum class SmartPlaylistRule(
     );
 
     companion object {
-        fun fromStorageKey(key: String?): SmartPlaylistRule? {
+        fun fromStorageKey(key: String?): MixRule? {
             if (key.isNullOrBlank()) return null
             return entries.firstOrNull { it.storageKey == key }
         }
     }
 }
 
-const val SMART_PLAYLIST_SOURCE_LEGACY = "SMART"
-const val SMART_PLAYLIST_SOURCE_PREFIX = "$SMART_PLAYLIST_SOURCE_LEGACY:"
+/**
+ * Source prefix written for mixes created after the Smart Playlist rename.
+ * Rows with the legacy "SMART" source are rewritten to this prefix by
+ * MIGRATION_9_10; a bare "SMART" source (no rule key) stays recognized by
+ * [isMixSource] but has no rule to refresh from.
+ */
+const val MIX_PLAYLIST_SOURCE_LEGACY = "SMART"
+const val MIX_PLAYLIST_SOURCE_PREFIX = "MIX:"
 
-fun SmartPlaylistRule.toPlaylistSource(): String = "$SMART_PLAYLIST_SOURCE_PREFIX$storageKey"
+fun MixRule.toMixSource(): String = "$MIX_PLAYLIST_SOURCE_PREFIX$storageKey"
 
-fun SmartPlaylistRule.Companion.fromPlaylistSource(source: String): SmartPlaylistRule? {
-    if (!source.startsWith(SMART_PLAYLIST_SOURCE_PREFIX)) return null
-    return fromStorageKey(source.removePrefix(SMART_PLAYLIST_SOURCE_PREFIX))
+fun MixRule.Companion.fromPlaylistSource(source: String): MixRule? {
+    if (!source.startsWith(MIX_PLAYLIST_SOURCE_PREFIX)) return null
+    return fromStorageKey(source.removePrefix(MIX_PLAYLIST_SOURCE_PREFIX))
 }
 
-fun isSmartPlaylistSource(source: String): Boolean =
-    source == SMART_PLAYLIST_SOURCE_LEGACY || source.startsWith(SMART_PLAYLIST_SOURCE_PREFIX)
+fun isMixSource(source: String): Boolean =
+    source == MIX_PLAYLIST_SOURCE_LEGACY || source.startsWith(MIX_PLAYLIST_SOURCE_PREFIX)
 
-val Playlist.isSmartPlaylist: Boolean
-    get() = isSmartPlaylistSource(source)
+val Playlist.isMix: Boolean
+    get() = isMixSource(source)

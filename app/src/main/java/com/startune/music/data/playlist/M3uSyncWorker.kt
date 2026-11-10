@@ -10,7 +10,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.startune.music.data.model.isSmartPlaylist
+import com.startune.music.data.model.isMix
 import com.startune.music.data.preferences.M3uSyncPreferences
 import com.startune.music.data.preferences.PlaylistPreferencesRepository
 import com.startune.music.di.AppScope
@@ -90,7 +90,7 @@ class M3uSyncCoordinator @Inject constructor(
                 playlistRepository.userPlaylistsFlow.map { playlists ->
                     playlists
                         .filter {
-                            !it.isQueueGenerated && !it.isSmartPlaylist && it.source == "LOCAL"
+                            !it.isQueueGenerated && !it.isMix && it.source == "LOCAL"
                         }
                         .map { playlist -> playlist.id to playlist.lastModified }
                 },

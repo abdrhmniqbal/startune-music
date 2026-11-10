@@ -816,3 +816,30 @@ fun LibraryPlaylistsTab(
         onPlaylistSelectionToggle = onPlaylistSelectionToggle
     )
 }
+
+/** Mixes tab: grid only, no selection mode, covers use the cookie collage. */
+@Composable
+fun LibraryMixesTab(
+    playlistUiState: PlaylistUiState,
+    filteredMixes: ImmutableList<com.startune.music.data.model.Playlist>,
+    navController: NavController,
+    playerViewModel: PlayerViewModel,
+    bottomBarHeight: Dp,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit
+) {
+    PlaylistContainer(
+        isListView = false,
+        playlistUiState = playlistUiState,
+        filteredPlaylists = filteredMixes,
+        currentSortOption = playlistUiState.currentPlaylistSortOption,
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        bottomBarHeight = bottomBarHeight,
+        navController = navController,
+        playerViewModel = playerViewModel,
+        useMixCover = true,
+        emptyTitleRes = R.string.mix_empty_title,
+        emptyHintRes = R.string.mix_empty_hint
+    )
+}

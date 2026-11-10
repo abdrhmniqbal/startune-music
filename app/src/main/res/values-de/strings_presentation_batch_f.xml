@@ -40,7 +40,6 @@
     <string name="presentation_batch_f_ai_preset_energy_catalyst_prompt">Du bist ein hochenergetischer Rhythmus-Generator. Deine Philosophie: treibende Basslines, perkussive Intensität und ansteckende Grooves. Priorisiere hohe BPM-Kompatibilität, synkopierte Energie und kontinuierliche rhythmische Spannung.</string>
 
     <!-- Create playlist -->
-    <string name="presentation_batch_f_new_smart_playlist">Neue Smart-Playlist</string>
     <string name="presentation_batch_f_new_playlist">Neue Playlist</string>
     <string name="presentation_batch_f_add_songs">Songs hinzufügen</string>
     <string name="presentation_batch_f_cd_back_or_cancel">Zurück oder Abbrechen</string>
@@ -54,10 +53,7 @@
     <string name="presentation_batch_f_pick_image">Bild auswählen</string>
     <string name="presentation_batch_f_playlist_name_label">Playlist-Name</string>
     <string name="presentation_batch_f_playlist_name_placeholder">Mein toller Mix</string>
-    <string name="presentation_batch_f_creation_mode_manual">Manuell</string>
-    <string name="presentation_batch_f_creation_mode_smart">Smart</string>
     <string name="presentation_batch_f_generate_with_ai">Mit KI generieren</string>
-    <string name="presentation_batch_f_smart_rule">Smart-Regel</string>
     <string name="presentation_batch_f_tab_default">Standard</string>
     <string name="presentation_batch_f_tab_image">Bild</string>
     <string name="presentation_batch_f_tab_icon">Icon</string>
@@ -71,15 +67,14 @@
     <string name="presentation_batch_f_curve">Kurve</string>
     <string name="presentation_batch_f_rotation">Rotation</string>
     <string name="presentation_batch_f_scale">Skalierung</string>
-    <string name="presentation_batch_f_smart_rule_top_played_title">Meistgespielt</string>
-    <string name="presentation_batch_f_smart_rule_top_played_subtitle">Deine am häufigsten gespielten Titel.</string>
-    <string name="presentation_batch_f_smart_rule_recently_played_title">Zuletzt gespielt</string>
-    <string name="presentation_batch_f_smart_rule_recently_played_subtitle">Songs, die du zuletzt gehört hast.</string>
-    <string name="presentation_batch_f_smart_rule_forgotten_favorites_title">Vergessene Favoriten</string>
-    <string name="presentation_batch_f_smart_rule_forgotten_favorites_subtitle">Lieblingstitel, die du schon länger nicht mehr gespielt hast.</string>
-    <string name="presentation_batch_f_smart_rule_new_gems_title">Neue Perlen</string>
-    <string name="presentation_batch_f_smart_rule_new_gems_subtitle">Kürzlich hinzugefügte Titel mit wenig Wiedergaben.</string>
-
+    <string name="mix_rule_top_played_title">Meistgespielt</string>
+    <string name="mix_rule_top_played_subtitle">Deine am häufigsten gespielten Titel.</string>
+    <string name="mix_rule_recently_played_title">Zuletzt gespielt</string>
+    <string name="mix_rule_recently_played_subtitle">Songs, die du zuletzt gehört hast.</string>
+    <string name="mix_rule_forgotten_favorites_title">Vergessene Favoriten</string>
+    <string name="mix_rule_forgotten_favorites_subtitle">Lieblingstitel, die du schon länger nicht mehr gespielt hast.</string>
+    <string name="mix_rule_new_gems_title">Neue Perlen</string>
+    <string name="mix_rule_new_gems_subtitle">Kürzlich hinzugefügte Titel mit wenig Wiedergaben.</string>
     <!-- Palette style -->
     <string name="presentation_batch_f_palette_style_heading">Palette-Stil</string>
     <string name="presentation_batch_f_palette_style_subtitle">Farben aus dem Cover für den Player wählen.</string>

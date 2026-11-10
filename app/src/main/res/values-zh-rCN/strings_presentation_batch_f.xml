@@ -40,7 +40,6 @@
     <string name="presentation_batch_f_ai_preset_energy_catalyst_prompt">你是一台高动能节奏生成器。你的理念围绕推动感强的低音线、强烈的打击乐张力和极具感染力的律动。优先考虑高 BPM 的俱乐部适配性、切分节奏能量和持续不断的节奏张力，让听众的心率和动力始终保持在高点。</string>
 
     <!-- Create playlist -->
-    <string name="presentation_batch_f_new_smart_playlist">新建智能播放列表</string>
     <string name="presentation_batch_f_new_playlist">新建播放列表</string>
     <string name="presentation_batch_f_add_songs">添加歌曲</string>
     <string name="presentation_batch_f_cd_back_or_cancel">返回或取消</string>
@@ -54,10 +53,7 @@
     <string name="presentation_batch_f_pick_image">选择图片</string>
     <string name="presentation_batch_f_playlist_name_label">播放列表名称</string>
     <string name="presentation_batch_f_playlist_name_placeholder">我的超棒合辑</string>
-    <string name="presentation_batch_f_creation_mode_manual">手动</string>
-    <string name="presentation_batch_f_creation_mode_smart">智能</string>
     <string name="presentation_batch_f_generate_with_ai">用 AI 生成</string>
-    <string name="presentation_batch_f_smart_rule">智能规则</string>
     <string name="presentation_batch_f_tab_default">默认</string>
     <string name="presentation_batch_f_tab_image">图片</string>
     <string name="presentation_batch_f_tab_icon">图标</string>
@@ -71,15 +67,14 @@
     <string name="presentation_batch_f_curve">曲线</string>
     <string name="presentation_batch_f_rotation">旋转</string>
     <string name="presentation_batch_f_scale">缩放</string>
-    <string name="presentation_batch_f_smart_rule_top_played_title">最多播放</string>
-    <string name="presentation_batch_f_smart_rule_top_played_subtitle">你播放次数最多的曲目。</string>
-    <string name="presentation_batch_f_smart_rule_recently_played_title">最近播放</string>
-    <string name="presentation_batch_f_smart_rule_recently_played_subtitle">你最近听过的歌曲。</string>
-    <string name="presentation_batch_f_smart_rule_forgotten_favorites_title">被遗忘的最爱</string>
-    <string name="presentation_batch_f_smart_rule_forgotten_favorites_subtitle">你有一段时间没播放过的最爱曲目。</string>
-    <string name="presentation_batch_f_smart_rule_new_gems_title">新发现</string>
-    <string name="presentation_batch_f_smart_rule_new_gems_subtitle">最近添加且播放次数较少的曲目。</string>
-
+    <string name="mix_rule_top_played_title">最多播放</string>
+    <string name="mix_rule_top_played_subtitle">你播放次数最多的曲目。</string>
+    <string name="mix_rule_recently_played_title">最近播放</string>
+    <string name="mix_rule_recently_played_subtitle">你最近听过的歌曲。</string>
+    <string name="mix_rule_forgotten_favorites_title">被遗忘的最爱</string>
+    <string name="mix_rule_forgotten_favorites_subtitle">你有一段时间没播放过的最爱曲目。</string>
+    <string name="mix_rule_new_gems_title">新发现</string>
+    <string name="mix_rule_new_gems_subtitle">最近添加且播放次数较少的曲目。</string>
     <!-- Palette style -->
     <string name="presentation_batch_f_palette_style_heading">配色风格</string>
     <string name="presentation_batch_f_palette_style_subtitle">为播放器界面选择专辑配色。</string>

@@ -43,7 +43,7 @@ import com.startune.music.R
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import com.startune.music.data.model.Song
-import com.startune.music.data.model.isSmartPlaylist
+import com.startune.music.data.model.isMix
 import com.startune.music.presentation.components.subcomps.LibraryActionRow
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.PlaylistUiState
@@ -73,7 +73,7 @@ fun PlaylistBottomSheet(
 
     var searchQuery by remember { mutableStateOf("") }
     val editablePlaylists = remember(playlistUiState.playlists) {
-        playlistUiState.playlists.filterNot { it.isSmartPlaylist }.toImmutableList()
+        playlistUiState.playlists.filterNot { it.isMix }.toImmutableList()
     }
     val filteredPlaylists = remember(searchQuery, editablePlaylists) {
         if (searchQuery.isBlank()) editablePlaylists

@@ -134,7 +134,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 import com.startune.music.presentation.components.LibrarySortBottomSheet
 import com.startune.music.data.model.SortOption
 import com.startune.music.data.model.PlaylistShapeType
-import com.startune.music.data.model.isSmartPlaylist
+import com.startune.music.data.model.isMix
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -203,8 +203,8 @@ fun PlaylistDetailScreen(
     val toastPlayingNext = stringResource(R.string.toast_playing_next)
     val currentPlaylist = uiState.currentPlaylistDetails
     val isFolderPlaylist = currentPlaylist?.id?.startsWith(FOLDER_PLAYLIST_PREFIX) == true
-    val isSmartPlaylist = currentPlaylist?.isSmartPlaylist == true
-    val isEditablePlaylist = !isFolderPlaylist && !isSmartPlaylist
+    val isMix = currentPlaylist?.isMix == true
+    val isEditablePlaylist = !isFolderPlaylist && !isMix
     val songsInPlaylist = uiState.currentPlaylistSongs
     val cloudSongsInPlaylist = remember(songsInPlaylist) {
         CloudOfflineRepository.downloadCandidates(songsInPlaylist)
@@ -491,7 +491,7 @@ fun PlaylistDetailScreen(
                             Text(playlistEmptyTitle, style = MaterialTheme.typography.titleMedium)
                             val emptyMessage = when {
                                 isFolderPlaylist -> playlistEmptyFolder
-                                isSmartPlaylist -> stringResource(R.string.presentation_batch_b_playlist_empty_smart_body)
+                                isMix -> stringResource(R.string.presentation_batch_b_playlist_empty_smart_body)
                                 else -> playlistEmptyAddHint
                             }
                             Text(emptyMessage, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)

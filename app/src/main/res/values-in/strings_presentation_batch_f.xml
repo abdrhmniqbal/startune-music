@@ -39,7 +39,6 @@
     <string name="presentation_batch_f_ai_preset_energy_catalyst_prompt">Anda adalah penghasil ritme bermomentum tinggi. Filosofi Anda berpusat pada bassline yang kuat, intensitas perkusi, dan alunan yang menular. Prioritaskan lagu yang cocok untuk klub dengan BPM tinggi, energi sinkopasi, dan ketegangan ritme yang berkelanjutan untuk menjaga detak jantung dan motivasi pendengar tetap di tingkat puncak.</string>
 
     <!-- Create playlist -->
-    <string name="presentation_batch_f_new_smart_playlist">Playlist pintar baru</string>
     <string name="presentation_batch_f_new_playlist">Playlist baru</string>
     <string name="presentation_batch_f_add_songs">Tambah Lagu</string>
     <string name="presentation_batch_f_cd_back_or_cancel">Kembali atau Batal</string>
@@ -53,10 +52,7 @@
     <string name="presentation_batch_f_pick_image">Pilih Gambar</string>
     <string name="presentation_batch_f_playlist_name_label">Nama Playlist</string>
     <string name="presentation_batch_f_playlist_name_placeholder">Campuran luar biasa saya</string>
-    <string name="presentation_batch_f_creation_mode_manual">Manual</string>
-    <string name="presentation_batch_f_creation_mode_smart">Pintar</string>
     <string name="presentation_batch_f_generate_with_ai">Hasilkan dengan AI</string>
-    <string name="presentation_batch_f_smart_rule">Aturan Pintar</string>
     <string name="presentation_batch_f_tab_default">Default</string>
     <string name="presentation_batch_f_tab_image">Gambar</string>
     <string name="presentation_batch_f_tab_icon">Ikon</string>
@@ -70,15 +66,14 @@
     <string name="presentation_batch_f_curve">Lengkungan</string>
     <string name="presentation_batch_f_rotation">Rotasi</string>
     <string name="presentation_batch_f_scale">Skala</string>
-    <string name="presentation_batch_f_smart_rule_top_played_title">Paling Sering Diputar</string>
-    <string name="presentation_batch_f_smart_rule_top_played_subtitle">Trek yang paling sering Anda putar.</string>
-    <string name="presentation_batch_f_smart_rule_recently_played_title">Baru-baru ini Diputar</string>
-    <string name="presentation_batch_f_smart_rule_recently_played_subtitle">Lagu yang terakhir Anda dengarkan.</string>
-    <string name="presentation_batch_f_smart_rule_forgotten_favorites_title">Favorit yang Terlupakan</string>
-    <string name="presentation_batch_f_smart_rule_forgotten_favorites_subtitle">Trek favorit yang sudah lama tidak Anda putar.</string>
-    <string name="presentation_batch_f_smart_rule_new_gems_title">Temuan Baru</string>
-    <string name="presentation_batch_f_smart_rule_new_gems_subtitle">Trek yang baru saja ditambahkan dengan jumlah putaran rendah.</string>
-
+    <string name="mix_rule_top_played_title">Paling Sering Diputar</string>
+    <string name="mix_rule_top_played_subtitle">Trek yang paling sering Anda putar.</string>
+    <string name="mix_rule_recently_played_title">Baru-baru ini Diputar</string>
+    <string name="mix_rule_recently_played_subtitle">Lagu yang terakhir Anda dengarkan.</string>
+    <string name="mix_rule_forgotten_favorites_title">Favorit yang Terlupakan</string>
+    <string name="mix_rule_forgotten_favorites_subtitle">Trek favorit yang sudah lama tidak Anda putar.</string>
+    <string name="mix_rule_new_gems_title">Temuan Baru</string>
+    <string name="mix_rule_new_gems_subtitle">Trek yang baru saja ditambahkan dengan jumlah putaran rendah.</string>
     <!-- Palette style -->
     <string name="presentation_batch_f_palette_style_heading">Gaya palet</string>
     <string name="presentation_batch_f_palette_style_subtitle">Pilih warna album untuk UI pemutar.</string>

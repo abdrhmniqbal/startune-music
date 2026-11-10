@@ -954,7 +954,7 @@ class PlayerViewModel @Inject constructor(
             initialValue = 0
         )
 
-    private val defaultLibraryTabs = persistentListOf("SONGS", "ALBUMS", "ARTIST", "PLAYLISTS", "FOLDERS", "GENRES", "LIKED")
+    private val defaultLibraryTabs = persistentListOf("SONGS", "ALBUMS", "ARTIST", "PLAYLISTS", "MIXES", "FOLDERS", "GENRES", "LIKED")
 
     private fun decodeStoredTabOrder(orderJson: String?): ImmutableList<String> {
         if (orderJson == null) return defaultLibraryTabs
@@ -1009,6 +1009,7 @@ class PlayerViewModel @Inject constructor(
                     LibraryTabId.ALBUMS -> SortOption.ALBUMS
                     LibraryTabId.ARTISTS -> SortOption.ARTISTS
                     LibraryTabId.PLAYLISTS -> SortOption.PLAYLISTS
+                    LibraryTabId.MIXES -> SortOption.PLAYLISTS
                     LibraryTabId.FOLDERS -> SortOption.FOLDERS
                     LibraryTabId.LIKED -> SortOption.LIKED
                     LibraryTabId.GENRES -> SortOption.GENRES

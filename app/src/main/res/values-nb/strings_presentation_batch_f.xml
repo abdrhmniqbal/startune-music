@@ -40,7 +40,6 @@
     <string name="presentation_batch_f_ai_preset_energy_catalyst_prompt">Du er en rytmegenerator med høyt momentum. Din filosofi sentrerer seg om drivende basslinjer, perkusiv intensitet og smittende groover. Prioriter høy BPM-klubbkompatibilitet, synkopert energi og kontinuerlig rytmisk spenning for å holde lytterens hjertefrekvens og motivasjon på toppnivå.</string>
 
     <!-- Create playlist -->
-    <string name="presentation_batch_f_new_smart_playlist">Ny smart spilleliste</string>
     <string name="presentation_batch_f_new_playlist">Ny spilleliste</string>
     <string name="presentation_batch_f_add_songs">Legg til sanger</string>
     <string name="presentation_batch_f_cd_back_or_cancel">Tilbake eller Avbryt</string>
@@ -54,10 +53,7 @@
     <string name="presentation_batch_f_pick_image">Velg bilde</string>
     <string name="presentation_batch_f_playlist_name_label">Navn på spilleliste</string>
     <string name="presentation_batch_f_playlist_name_placeholder">Min kule miks</string>
-    <string name="presentation_batch_f_creation_mode_manual">Manuell</string>
-    <string name="presentation_batch_f_creation_mode_smart">Smart</string>
     <string name="presentation_batch_f_generate_with_ai">Generer med AI</string>
-    <string name="presentation_batch_f_smart_rule">Smart regel</string>
     <string name="presentation_batch_f_tab_default">Standard</string>
     <string name="presentation_batch_f_tab_image">Bilde</string>
     <string name="presentation_batch_f_tab_icon">Ikon</string>
@@ -71,15 +67,14 @@
     <string name="presentation_batch_f_curve">Kurve</string>
     <string name="presentation_batch_f_rotation">Rotasjon</string>
     <string name="presentation_batch_f_scale">Skala</string>
-    <string name="presentation_batch_f_smart_rule_top_played_title">Mest spilt</string>
-    <string name="presentation_batch_f_smart_rule_top_played_subtitle">Dine mest spilte spor.</string>
-    <string name="presentation_batch_f_smart_rule_recently_played_title">Nylig spilt</string>
-    <string name="presentation_batch_f_smart_rule_recently_played_subtitle">Sanger du har lyttet til nylig.</string>
-    <string name="presentation_batch_f_smart_rule_forgotten_favorites_title">Glemte favoritter</string>
-    <string name="presentation_batch_f_smart_rule_forgotten_favorites_subtitle">Favorittspor du ikke har spilt på en stund.</string>
-    <string name="presentation_batch_f_smart_rule_new_gems_title">Nye perler</string>
-    <string name="presentation_batch_f_smart_rule_new_gems_subtitle">Nylig tillagte spor med få avspillinger.</string>
-
+    <string name="mix_rule_top_played_title">Mest spilt</string>
+    <string name="mix_rule_top_played_subtitle">Dine mest spilte spor.</string>
+    <string name="mix_rule_recently_played_title">Nylig spilt</string>
+    <string name="mix_rule_recently_played_subtitle">Sanger du har lyttet til nylig.</string>
+    <string name="mix_rule_forgotten_favorites_title">Glemte favoritter</string>
+    <string name="mix_rule_forgotten_favorites_subtitle">Favorittspor du ikke har spilt på en stund.</string>
+    <string name="mix_rule_new_gems_title">Nye perler</string>
+    <string name="mix_rule_new_gems_subtitle">Nylig tillagte spor med få avspillinger.</string>
     <!-- Palette style -->
     <string name="presentation_batch_f_palette_style_heading">Palettstil</string>
     <string name="presentation_batch_f_palette_style_subtitle">Velg albumfarger for spiller-UI.</string>

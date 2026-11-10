@@ -64,6 +64,16 @@ enum class LibraryTabId(
             SortOption.PlaylistDateCreatedAsc
         )
     ),
+    Mixes(
+        stableKey = "MIXES",
+        labelRes = R.string.library_tab_mixes,
+        sortOptions = listOf(
+            SortOption.PlaylistNameAZ,
+            SortOption.PlaylistNameZA,
+            SortOption.PlaylistDateCreated,
+            SortOption.PlaylistDateCreatedAsc
+        )
+    ),
     Folders(
         stableKey = "FOLDERS",
         labelRes = R.string.library_tab_folders,
