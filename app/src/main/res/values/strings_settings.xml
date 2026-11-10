@@ -330,6 +330,8 @@
     <string name="setcat_player_gestures">Player Gestures</string>
     <string name="setcat_tap_bg_closes_title">Tap background closes player</string>
     <string name="setcat_tap_bg_closes_subtitle">Tap the blurred background to close the player sheet.</string>
+    <string name="setcat_mini_player_swipe_to_skip_title">Swipe to change song</string>
+    <string name="setcat_mini_player_swipe_to_skip_subtitle">Swipe the mini player left for the next song and right for the previous one. Dismiss it by swiping down instead.</string>
     <string name="setcat_haptics">Haptics</string>
     <string name="setcat_haptic_feedback_title">Haptic feedback</string>
     <string name="setcat_haptic_feedback_subtitle">Enable vibration feedback across the app.</string>

@@ -772,6 +772,21 @@ object SettingsRegistry {
                 onToggle = { viewModel, checked -> viewModel.setTapBackgroundClosesPlayer(checked) }
             ),
             SettingSpec(
+                id = "behavior_mini_swipe_skip",
+                itemKey = "item_behavior_mini_swipe_skip",
+                titleRes = R.string.setcat_mini_player_swipe_to_skip_title,
+                subtitleRes = R.string.setcat_mini_player_swipe_to_skip_subtitle,
+                category = SettingsCategory.BEHAVIOR,
+                subscreenRoute = Screen.SettingsCategory.createRoute("behavior"),
+                type = SettingType.SWITCH,
+                keywordsStatic = listOf(
+                    "mini player", "miniplayer", "swipe", "skip", "next song", "previous song",
+                    "swipe down", "dismiss", "gesture"
+                ),
+                getValue = { it.miniPlayerSwipeToSkip },
+                onToggle = { viewModel, checked -> viewModel.setMiniPlayerSwipeToSkip(checked) }
+            ),
+            SettingSpec(
                 id = "behavior_autoplay_skip",
                 itemKey = "item_behavior_autoplay_skip",
                 titleRes = R.string.setcat_autoplay_on_skip_title,

@@ -389,6 +389,14 @@ class PlaybackStateHolder @Inject constructor(
         }
     }
 
+    fun forcePreviousSong() {
+        val player = activeLocalPlayer()
+        val wasPaused = !player.playWhenReady
+        val hadPrevious = player.hasPreviousMediaItem()
+        player.seekToPreviousMediaItem()
+        if (hadPrevious) resumeAfterSkip(player, wasPaused)
+    }
+
     fun nextSong() {
         val player = activeLocalPlayer()
         val wasPaused = !player.playWhenReady
