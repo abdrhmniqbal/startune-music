@@ -403,6 +403,10 @@ fun LyricsSheet(
     val showLyricsBackgroundVocals by showLyricsBackgroundVocalsFlow.collectAsStateWithLifecycle(
         initialValue = DEFAULT_SHOW_LYRICS_BACKGROUND_VOCALS
     )
+    // Copying follows what the synced view shows, backing vocals included only while they're shown.
+    val canCopyLyrics = remember(lyrics, showLyricsBackgroundVocals) {
+        LyricsClipboardText.hasCopyableText(lyrics, includeBackground = showLyricsBackgroundVocals)
+    }
 
     val keepScreenOnFlow = remember(context) {
         context.dataStore.data.map { it[booleanPreferencesKey("keep_screen_on_lyrics")] ?: false }
@@ -436,8 +440,6 @@ fun LyricsSheet(
             }
         }
     }
-
-    val canCopyLyrics = remember(lyrics) { LyricsClipboardText.hasCopyableText(lyrics) }
 
     val view = LocalView.current
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
@@ -832,7 +834,10 @@ fun LyricsSheet(
                                 onLineLongClick = { syncedLine ->
                                     resetImmersiveTimer()
                                     copyLyricsToClipboard(
-                                        LyricsClipboardText.syncedLine(syncedLine),
+                                        LyricsClipboardText.syncedLine(
+                                            syncedLine,
+                                            includeBackground = showLyricsBackgroundVocals
+                                        ),
                                         lineCopiedMessage
                                     )
                                 },
@@ -1063,7 +1068,10 @@ fun LyricsSheet(
                     canCopyLyrics = canCopyLyrics,
                     onCopyLyrics = {
                         copyLyricsToClipboard(
-                            LyricsClipboardText.fullLyrics(lyrics),
+                            LyricsClipboardText.fullLyrics(
+                                lyrics,
+                                includeBackground = showLyricsBackgroundVocals
+                            ),
                             lyricsCopiedMessage
                         )
                     },
