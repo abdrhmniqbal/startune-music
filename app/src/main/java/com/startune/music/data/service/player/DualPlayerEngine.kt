@@ -1384,6 +1384,9 @@ class DualPlayerEngine @Inject constructor(
                 .build()
             setHandleAudioBecomingNoisy(true)
             setWakeMode(C.WAKE_MODE_LOCAL)
+            // Rebuilt players (offload fallback, output-mode change, crossfade auxiliary)
+            // keep the user's chosen output.
+            setPreferredAudioDevice(preferredAudioDevice)
             playWhenReady = false
         }
     }
@@ -1409,6 +1412,19 @@ class DualPlayerEngine @Inject constructor(
             playerB = player
         }
     }
+
+    /**
+     * Routes this app's playback to [device] (null = follow the system route). Applied to
+     * both crossfade players so a transition never jumps back to the default output.
+     */
+    fun setPreferredAudioDevice(device: android.media.AudioDeviceInfo?) {
+        preferredAudioDevice = device
+        if (::playerA.isInitialized) playerA.setPreferredAudioDevice(device)
+        playerB?.setPreferredAudioDevice(device)
+    }
+
+    @Volatile
+    private var preferredAudioDevice: android.media.AudioDeviceInfo? = null
 
     fun setPauseAtEndOfMediaItems(shouldPause: Boolean) {
         transitionPauseAtEnd = shouldPause

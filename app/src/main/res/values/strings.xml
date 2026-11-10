@@ -178,6 +178,12 @@
     <string name="player_playback_stopped_eot">Playback stopped: %1$s finished (End of Track).</string>
     <string name="player_default_track_title">Track</string>
     <string name="player_no_songs_to_shuffle">No songs to shuffle.</string>
+    <string name="player_audio_output_title">Play on</string>
+    <string name="player_audio_output_this_phone">This phone</string>
+    <string name="player_audio_output_wired">Wired headphones</string>
+    <string name="player_audio_output_unknown_device">Audio device</string>
+    <string name="player_audio_output_more_devices">More devices</string>
+    <string name="player_audio_output_more_devices_subtitle">Connect or switch using the system output picker</string>
     <string name="player_queue_name_selected_albums">Selected Albums</string>
     <string name="player_no_playable_songs_in_albums">No playable songs found in selected albums</string>
     <string name="player_only_first_n_albums_queued">Only the first %1$d albums were queued</string>
