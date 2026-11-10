@@ -65,6 +65,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import com.startune.music.R
 import com.startune.music.data.model.Artist
+import com.startune.music.data.model.Album
 import com.startune.music.data.model.Song
 import com.startune.music.data.preferences.AlbumArtPaletteStyle
 import com.startune.music.presentation.components.ExpressiveTopBarContent
@@ -348,6 +349,7 @@ fun GenreDetailScreen(
                                     GenreAlbumsSection(
                                         albums = uiState.randomAlbums,
                                         onViewMoreClick = { activeView = GenreDetailView.Albums },
+                                        playerViewModel = playerViewModel,
                                         onAlbumClick = { album ->
                                             navController.navigateSafely(
                                                 com.startune.music.presentation.navigation.Screen.AlbumDetail.createRoute(
@@ -363,6 +365,7 @@ fun GenreDetailScreen(
                                     GenreArtistsSection(
                                         artists = uiState.randomArtists,
                                         onViewMoreClick = { activeView = GenreDetailView.Artists },
+                                        playerViewModel = playerViewModel,
                                         onArtistClick = { artist ->
                                             navController.navigateSafely(
                                                 com.startune.music.presentation.navigation.Screen.ArtistDetail.createRoute(artist.id)
@@ -511,10 +514,12 @@ fun GenreDetailScreen(
                             items = uiState.albums,
                             key = { album -> "genre_grid_album_${album.name}" }
                         ) { album ->
-                            GenreMediaCard(
-                                imageUri = album.artUri,
-                                title = album.name,
-                                subtitle = album.songs.firstOrNull()?.displayArtist ?: "",
+                            val albumColorSchemeFlow = remember(album.artUri) {
+                                playerViewModel.themeStateHolder.getAlbumColorSchemeFlow(album.artUri ?: "")
+                            }
+                            AlbumGridItemRedesigned(
+                                album = albumModelFromAlbumData(album),
+                                albumColorSchemePairFlow = albumColorSchemeFlow,
                                 onClick = {
                                     navController.navigateSafely(
                                         com.startune.music.presentation.navigation.Screen.AlbumDetail.createRoute(
@@ -522,13 +527,11 @@ fun GenreDetailScreen(
                                         )
                                     )
                                 },
-                                modifier = Modifier.fillMaxWidth(),
-                                imageAspectRatio = 3f / 2f,
+                                isSelectionMode = isAlbumSelectionMode,
                                 isSelected = selectedAlbumNames.contains(album.name),
                                 selectionIndex = if (isAlbumSelectionMode) {
                                     selectedAlbums.indexOfFirst { it.name == album.name }.takeIf { it >= 0 }?.plus(1)
                                 } else null,
-                                isSelectionMode = isAlbumSelectionMode,
                                 onLongPress = {
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     toggleAlbumSelection(album)
@@ -601,23 +604,18 @@ fun GenreDetailScreen(
                             items = uiState.artists,
                             key = { artist -> "genre_grid_artist_${artist.id}_${artist.name}" }
                         ) { artist ->
-                            GenreMediaCard(
-                                imageUri = artist.imageUrl,
-                                title = artist.name,
-                                subtitle = formatSongCount(artist.songCount),
+                            ArtistGridItem(
+                                artist = artist,
                                 onClick = {
                                     navController.navigateSafely(
                                         com.startune.music.presentation.navigation.Screen.ArtistDetail.createRoute(artist.id)
                                     )
                                 },
-                                modifier = Modifier.fillMaxWidth(),
-                                imageAspectRatio = 1f,
-                                imageShape = CircleShape,
+                                isSelectionMode = isArtistSelectionMode,
                                 isSelected = selectedArtistIds.contains(artist.id),
                                 selectionIndex = if (isArtistSelectionMode) {
                                     selectedArtists.indexOfFirst { it.id == artist.id }.takeIf { it >= 0 }?.plus(1)
                                 } else null,
-                                isSelectionMode = isArtistSelectionMode,
                                 onLongPress = {
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     toggleArtistSelection(artist)
@@ -1200,11 +1198,26 @@ private fun GenreRankBadge(
     }
 }
 
+private fun albumModelFromAlbumData(album: AlbumData): Album {
+    val firstSong = album.songs.firstOrNull()
+    return Album(
+        id = firstSong?.albumId ?: -1L,
+        title = album.name,
+        artist = firstSong?.displayArtist ?: "",
+        year = firstSong?.year ?: 0,
+        dateAdded = album.songs.maxOfOrNull { it.dateAdded } ?: 0,
+        albumArtUriString = album.artUri,
+        songCount = album.songs.size,
+        albumArtist = album.songs.firstNotNullOfOrNull { it.albumArtist }
+    )
+}
+
 @Composable
 private fun GenreAlbumsSection(
     albums: List<AlbumData>,
     onViewMoreClick: () -> Unit,
-    onAlbumClick: (AlbumData) -> Unit
+    onAlbumClick: (AlbumData) -> Unit,
+    playerViewModel: PlayerViewModel
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -1217,14 +1230,16 @@ private fun GenreAlbumsSection(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(albums, key = { album -> "genre_album_${album.name}" }) { album ->
-                GenreMediaCard(
-                    imageUri = album.artUri,
-                    title = album.name,
-                    subtitle = album.songs.firstOrNull()?.displayArtist ?: "",
-                    onClick = { onAlbumClick(album) },
-                    modifier = Modifier.width(GenreGridCardWidth),
-                    imageAspectRatio = 3f / 2f
-                )
+                val albumColorSchemeFlow = remember(album.artUri) {
+                    playerViewModel.themeStateHolder.getAlbumColorSchemeFlow(album.artUri ?: "")
+                }
+                Box(modifier = Modifier.width(GenreGridCardWidth)) {
+                    AlbumGridItemRedesigned(
+                        album = albumModelFromAlbumData(album),
+                        albumColorSchemePairFlow = albumColorSchemeFlow,
+                        onClick = { onAlbumClick(album) }
+                    )
+                }
             }
         }
     }
@@ -1234,7 +1249,8 @@ private fun GenreAlbumsSection(
 private fun GenreArtistsSection(
     artists: List<Artist>,
     onViewMoreClick: () -> Unit,
-    onArtistClick: (Artist) -> Unit
+    onArtistClick: (Artist) -> Unit,
+    playerViewModel: PlayerViewModel
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -1247,100 +1263,13 @@ private fun GenreArtistsSection(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(artists, key = { artist -> "genre_artist_${artist.id}_${artist.name}" }) { artist ->
-                GenreMediaCard(
-                    imageUri = artist.imageUrl,
-                    title = artist.name,
-                    subtitle = formatSongCount(artist.songCount),
-                    onClick = { onArtistClick(artist) },
-                    modifier = Modifier.width(GenreGridCardWidth),
-                    imageAspectRatio = 1f,
-                    imageShape = CircleShape
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun GenreMediaCard(
-    imageUri: String?,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    imageAspectRatio: Float = 1f,
-    imageShape: Shape = RoundedCornerShape(12.dp),
-    isSelected: Boolean = false,
-    selectionIndex: Int? = null,
-    isSelectionMode: Boolean = false,
-    onLongPress: () -> Unit = {},
-    onSelectionToggle: () -> Unit = {}
-) {
-    Column(
-        modifier = modifier.combinedClickable(
-            onClick = { if (isSelectionMode) onSelectionToggle() else onClick() },
-            onLongClick = onLongPress
-        ),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            SmartImage(
-                model = imageUri,
-                contentDescription = null,
-                shape = imageShape,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(imageAspectRatio)
-            )
-            if (isSelectionMode) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(8.dp)
-                        .size(28.dp)
-                        .background(
-                            if (isSelected) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
-                            CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (isSelected && selectionIndex != null) {
-                        Text(
-                            text = selectionIndex.toString(),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    } else if (isSelected) {
-                        Icon(
-                            imageVector = Icons.Rounded.Check,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
+                Box(modifier = Modifier.width(GenreGridCardWidth)) {
+                    ArtistGridItem(
+                        artist = artist,
+                        onClick = { onArtistClick(artist) }
+                    )
                 }
             }
-        }
-        Column(
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
