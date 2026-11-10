@@ -235,7 +235,8 @@ fun HomeScreen(
         yourMixSongs.isNotEmpty() || hasHomeLoadingMinimumElapsed || isBenchmarkMode
     }
 
-    val yourMixSong: String = "Today's Mix for you"
+    val yourMixSubtitle = stringResource(R.string.home_your_mix_subtitle)
+    val recentlyPlayedQueueName = stringResource(R.string.presentation_batch_b_queue_recently_played)
 
     // Seed with the live value: starting from null made the bottom padding grow one frame
     // after returning to Home, once the scroll position was already restored, which left the
@@ -400,7 +401,7 @@ fun HomeScreen(
                         contentType = "your_mix_header"
                     ) {
                         YourMixHeader(
-                            song = yourMixSong,
+                            song = yourMixSubtitle,
                             isShuffleEnabled = isShuffleEnabled,
                             onOpenDetails = {
                                 navController.navigateSafely(Screen.MixDetail.createRoute(MixIds.FOR_YOU))
@@ -493,7 +494,7 @@ fun HomeScreen(
                                     playerViewModel.playSongs(
                                         songsToPlay = recentlyPlayedQueue,
                                         startSong = song,
-                                        queueName = "Recently Played"
+                                        queueName = recentlyPlayedQueueName
                                     )
                                 }
                             },

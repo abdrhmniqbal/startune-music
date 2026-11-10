@@ -17,8 +17,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.size.Size
+import com.startune.music.R
 import com.startune.music.data.model.Song
 import kotlinx.collections.immutable.ImmutableList
 
@@ -47,7 +49,7 @@ fun PlaylistArtCollage(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.QueueMusic,
-                contentDescription = "Playlist",
+                contentDescription = stringResource(R.string.cd_playlist_artwork),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(12.dp),
