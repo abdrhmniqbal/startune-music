@@ -202,6 +202,8 @@ fun PlaylistBottomSheet(
                             playlistViewModel.createPlaylist(name, songIds = songs.map { it.id })
                             showCreatePlaylistDialog = false
                             onDismiss()
+                            // Match the save FAB: leave selection mode once the songs are placed.
+                            playerViewModel.multiSelectionStateHolder.clearSelection()
                             playerViewModel.sendToast(playlistCreatedToast)
                         }
                     )

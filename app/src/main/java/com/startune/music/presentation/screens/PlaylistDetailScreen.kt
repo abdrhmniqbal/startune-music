@@ -33,6 +33,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -84,6 +86,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -124,6 +127,7 @@ import com.startune.music.presentation.viewmodel.CloudDownloadsViewModel
 import com.startune.music.data.offline.CloudOfflineRepository
 import com.startune.music.presentation.viewmodel.PlaylistViewModel.Companion.FOLDER_PLAYLIST_PREFIX
 import com.startune.music.presentation.utils.LocalAppHapticsConfig
+import com.startune.music.presentation.utils.getSegmentedItemShape
 import com.startune.music.presentation.utils.performAppCompatHapticFeedback
 import com.startune.music.presentation.viewmodel.PlaylistSongsOrderMode
 import com.startune.music.utils.formatSongCount
@@ -697,6 +701,8 @@ fun PlaylistDetailScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    // Scrolls so Export stays reachable in landscape and at large font scales.
+                    .verticalScroll(rememberScrollState())
                     .padding(vertical = 12.dp)
             ) {
                 Column(
@@ -718,10 +724,22 @@ fun PlaylistDetailScreen(
                         )
                     }
                 }
+                // One segmented group: 4dp apart, only the group's outer corners round.
+                // Our sheet adds Add / Remove / Reorder above upstream's actions.
+                val editableCount = if (isEditablePlaylist) 3 else 0
+                val optionCount = editableCount + 3 +
+                    (if (cloudSongsInPlaylist.isNotEmpty()) 1 else 0) + 1
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
                 if (isEditablePlaylist) {
                     PlaylistActionItem(
                         icon = rememberVectorPainter(Icons.Rounded.Add),
                         label = addSongsCd,
+                        shape = getSegmentedItemShape(0, optionCount),
                         onClick = {
                             showPlaylistOptionsSheet = false
                             showAddSongsSheet = true
@@ -730,6 +748,7 @@ fun PlaylistDetailScreen(
                     PlaylistActionItem(
                         icon = rememberVectorPainter(Icons.Filled.RemoveCircleOutline),
                         label = removeSongsCd,
+                        shape = getSegmentedItemShape(1, optionCount),
                         selected = isRemoveModeEnabled,
                         onClick = {
                             showPlaylistOptionsSheet = false
@@ -739,6 +758,7 @@ fun PlaylistDetailScreen(
                     PlaylistActionItem(
                         icon = painterResource(R.drawable.drag_order_icon),
                         label = reorderSongsCd,
+                        shape = getSegmentedItemShape(2, optionCount),
                         onClick = {
                             showPlaylistOptionsSheet = false
                             isReorderModeEnabled = !isReorderModeEnabled
@@ -748,6 +768,7 @@ fun PlaylistDetailScreen(
                 PlaylistActionItem(
                     icon = painterResource(R.drawable.rounded_edit_24),
                     label = editPlaylistLabel,
+                    shape = getSegmentedItemShape(editableCount, optionCount),
                     onClick = {
                         showPlaylistOptionsSheet = false
                         showEditPlaylistDialog = true
@@ -756,6 +777,7 @@ fun PlaylistDetailScreen(
                 PlaylistActionItem(
                     icon = painterResource(R.drawable.rounded_delete_24),
                     label = deletePlaylistLabel,
+                    shape = getSegmentedItemShape(editableCount + 1, optionCount),
                     onClick = {
                         showPlaylistOptionsSheet = false
                         showDeleteConfirmation = true
@@ -764,6 +786,7 @@ fun PlaylistDetailScreen(
                 PlaylistActionItem(
                     icon = painterResource(R.drawable.outline_graph_1_24),
                     label = setDefaultTransitionLabel,
+                    shape = getSegmentedItemShape(editableCount + 2, optionCount),
                     onClick = {
                         showPlaylistOptionsSheet = false
                         navController.navigateSafely(Screen.EditTransition.createRoute(playlistId))
@@ -773,6 +796,7 @@ fun PlaylistDetailScreen(
                     PlaylistActionItem(
                         icon = rememberVectorPainter(Icons.Rounded.CloudDownload),
                         label = downloadPlaylistLabel,
+                    shape = getSegmentedItemShape(editableCount + 3, optionCount),
                         onClick = {
                             showPlaylistOptionsSheet = false
                             cloudDownloadsViewModel.downloadSelected(cloudSongsInPlaylist)
@@ -790,6 +814,7 @@ fun PlaylistDetailScreen(
                 PlaylistActionItem(
                     icon = painterResource(R.drawable.rounded_attach_file_24),
                     label = exportPlaylistLabel,
+                    shape = getSegmentedItemShape(optionCount - 1, optionCount),
                     onClick = {
                         showPlaylistOptionsSheet = false
                         val sanitizedName = PlaylistViewModel.sanitizeFileName(
@@ -798,6 +823,7 @@ fun PlaylistDetailScreen(
                         m3uExportLauncher.launch("$sanitizedName.m3u")
                     }
                 )
+                }
             }
         }
     }
@@ -1046,6 +1072,7 @@ fun PlaylistDetailScreen(
 
 @Composable
 private fun PlaylistActionItem(
+    shape: Shape,
     icon: Painter,
     label: String,
     onClick: () -> Unit,
@@ -1054,8 +1081,7 @@ private fun PlaylistActionItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
-            .clip(RoundedCornerShape(18.dp))
+            .clip(shape)
             .background(MaterialTheme.colorScheme.surfaceContainerHigh)
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 14.dp),
