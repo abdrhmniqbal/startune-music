@@ -86,6 +86,9 @@ constructor(
 ) {
 
     private val backupExcludedKeyNames = setOf(
+        // Describes which text repair this install's library database went through, not a user
+        // choice — restoring another device's value could skip or repeat the repair here.
+        PreferencesKeys.METADATA_CHARSET_REPAIR_VERSION.name,
         PreferencesKeys.INITIAL_SETUP_DONE.name,
         "listenbrainz_token",
         "lastfm_session_key"
@@ -235,6 +238,7 @@ constructor(
         val DIRECTORY_RULES_VERSION = intPreferencesKey("directory_rules_version")
         val LAST_APPLIED_DIRECTORY_RULES_VERSION =
             intPreferencesKey("last_applied_directory_rules_version")
+        val METADATA_CHARSET_REPAIR_VERSION = intPreferencesKey("metadata_charset_repair_version")
 
         val LYRICS_SYNC_OFFSETS = stringPreferencesKey("lyrics_sync_offsets_json")
 
@@ -723,6 +727,18 @@ constructor(
 
     suspend fun getLastAppliedDirectoryRulesVersion(): Int {
         return lastAppliedDirectoryRulesVersionFlow.first()
+    }
+
+    /**
+     * Version of the metadata text repair the stored library was synced with. Bumping
+     * `SyncWorker.CURRENT_METADATA_CHARSET_REPAIR_VERSION` makes the next sync re-check every
+     * song once.
+     */
+    suspend fun getMetadataCharsetRepairVersion(): Int =
+        dataStore.data.first()[PreferencesKeys.METADATA_CHARSET_REPAIR_VERSION] ?: 0
+
+    suspend fun setMetadataCharsetRepairVersion(version: Int) {
+        dataStore.edit { it[PreferencesKeys.METADATA_CHARSET_REPAIR_VERSION] = version }
     }
 
     suspend fun setLastSyncTimestamp(timestamp: Long) {
