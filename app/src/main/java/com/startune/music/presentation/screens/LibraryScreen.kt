@@ -8,7 +8,6 @@ import com.startune.music.presentation.navigation.navigateSafelyReplacing
 import android.os.Trace
 import com.startune.music.utils.traceSection
 import android.text.format.Formatter
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -160,6 +159,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.ui.res.stringResource
 import com.startune.music.presentation.components.PlaylistArtCollage
+import com.startune.music.presentation.components.PlayerSheetAwareBackHandler
 import com.startune.music.presentation.components.ReorderTabsSheet
 import com.startune.music.presentation.components.EditMultipleSongsSheet
 import com.startune.music.presentation.components.SongInfoBottomSheet
@@ -701,7 +701,12 @@ fun LibraryScreen(
         }
     }
 
-    BackHandler(enabled = hasSelectionInCurrentTab || canHandleFolderBack) {
+    // The coordinator restores this callback as soon as the sheet stops handling back, even if
+    // LibraryScreen has not recomposed yet. It also preserves player priority after late registration.
+    PlayerSheetAwareBackHandler(
+        coordinator = playerViewModel.playerSheetBackCoordinator,
+        enabled = hasSelectionInCurrentTab || canHandleFolderBack
+    ) {
         when {
             hasSelectionInCurrentTab -> {
                 when (currentTabId) {

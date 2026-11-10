@@ -25,6 +25,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -481,6 +482,17 @@ fun UnifiedPlayerSheetV2(
         onSwipeEdgeChanged = { playerViewModel.updatePredictiveBackSwipeEdge(it) },
         registrationKey = currentBackStackEntry?.id
     )
+
+    // Update underlying callbacks in the same composition commit as the sheet handlers. A Flow
+    // handoff would leave folder back disabled until LibraryScreen's next recomposition.
+    SideEffect {
+        playerViewModel.playerSheetBackCoordinator.updatePlayerSheetHandlingBack(canHandlePlayerBack)
+    }
+    DisposableEffect(playerViewModel) {
+        onDispose {
+            playerViewModel.playerSheetBackCoordinator.updatePlayerSheetHandlingBack(false)
+        }
+    }
 
     val sheetOverlayState = rememberSheetOverlayState(
         density = density,

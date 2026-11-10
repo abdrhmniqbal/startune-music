@@ -77,6 +77,7 @@ import com.startune.music.utils.StorageType
 import com.startune.music.utils.StorageUtils
 import com.startune.music.utils.traceSection
 import com.startune.music.utils.ZipShareHelper
+import com.startune.music.presentation.navigation.PlayerSheetBackCoordinator
 import com.startune.music.presentation.selection.flattenDistinctGroups
 import com.startune.music.presentation.selection.effectiveLibraryStorageFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -284,6 +285,8 @@ class PlayerViewModel @Inject constructor(
     private val sessionToken: SessionToken,
     private val mediaControllerFactory: com.startune.music.data.media.MediaControllerFactory
 ) : ViewModel() {
+
+    internal val playerSheetBackCoordinator = PlayerSheetBackCoordinator()
 
     private val _playerUiState = MutableStateFlow(PlayerUiState())
     val playerUiState: StateFlow<PlayerUiState> = _playerUiState.asStateFlow()
