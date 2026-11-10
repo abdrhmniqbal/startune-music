@@ -58,7 +58,7 @@ class BackupManager @Inject constructor(
         get() = File(context.cacheDir, "backup_dec").apply { mkdirs() }
 
     /**
-     * Exports selected modules to a .pxpl file at the given URI. With a
+     * Exports selected modules to a .starbk file at the given URI. With a
      * [passphrase], the archive body is AES-256-GCM encrypted (see BackupCrypto).
      */
     suspend fun export(
@@ -106,7 +106,7 @@ class BackupManager @Inject constructor(
             )
 
             reportProgress(onProgress, BackupOperationType.EXPORT, ++step, totalSteps,
-                "Packaging backup", "Creating .pxpl archive.")
+                "Packaging backup", "Creating .starbk archive.")
 
             backupWriter.write(uri, manifest, modulePayloads, passphrase = passphrase).getOrThrow()
 
@@ -115,7 +115,7 @@ class BackupManager @Inject constructor(
         }
     }
 
-    /** True when the file at [uri] is an encrypted .pxpl archive. */
+    /** True when the file at [uri] is an encrypted .starbk archive. */
     suspend fun isBackupEncrypted(uri: Uri): Boolean =
         backupReader.detectFormat(uri).getOrNull() == BackupFormatDetector.Format.PXPL_V4_ENCRYPTED
 
@@ -227,7 +227,7 @@ class BackupManager @Inject constructor(
                 backupHistoryRepository.addEntry(
                     BackupHistoryEntry(
                         uri = uri.toString(),
-                        displayName = docFile?.name ?: "backup.pxpl",
+                        displayName = docFile?.name ?: "backup.starbk",
                         createdAt = plan.manifest.createdAt,
                         schemaVersion = plan.manifest.schemaVersion,
                         modules = plan.manifest.modules.keys,
@@ -274,7 +274,7 @@ class BackupManager @Inject constructor(
             ?.let { return Uri.fromFile(it) }
         if (passphrase == null) throw BackupEncryptedException()
 
-        val temp = File(decryptedDir, "decrypted_${System.currentTimeMillis()}.pxpl")
+        val temp = File(decryptedDir, "decrypted_${System.currentTimeMillis()}.starbk")
         try {
             context.contentResolver.openInputStream(uri)?.use { raw ->
                 skipFully(raw, BackupFormatDetector.PXPL_MAGIC_SIZE)

@@ -360,7 +360,7 @@
     <!-- Backup / developer / dialogs -->
     <string name="setcat_create_backup">Create Backup</string>
     <string name="setcat_export_backup_title">Export Backup</string>
-    <string name="setcat_export_backup_subtitle">%1$s Creates a .pxpl backup file.</string>
+    <string name="setcat_export_backup_subtitle">%1$s Creates a .starbk backup file.</string>
     <string name="setcat_restore_backup_section">Restore Backup</string>
     <string name="auto_backup_section">Automatic backup</string>
     <string name="auto_backup_title">Automatic backups</string>
@@ -396,9 +396,9 @@
     <string name="backup_summary_all">All sections selected.</string>
     <string name="backup_summary_partial">Selected %1$d of %2$d sections.</string>
     <string name="backup_how_title">How backup works</string>
-    <string name="backup_how_body">Choose sections, export a .pxpl file, and import it later. Restore only replaces the sections you select.</string>
+    <string name="backup_how_body">Choose sections, export a .starbk file, and import it later. Restore only replaces the sections you select.</string>
     <string name="backup_dialog_supporting_export">Choose exactly what you want to include in the backup package.</string>
-    <string name="backup_confirm_export_pxpl">Export .pxpl</string>
+    <string name="backup_confirm_export_pxpl">Export .starbk</string>
     <string name="backup_sections_selected_format">%1$d of %2$d sections selected</string>
     <string name="backup_transfer_in_progress">Transfer in progress…</string>
     <string name="backup_exporting">Exporting</string>
@@ -431,7 +431,7 @@
     <string name="dialog_regenerate_stats_title">Regenerate Stats?</string>
     <string name="dialog_regenerate_stats_body">This will clear the statistics cache and force a recalculation from the database history.</string>
     <string name="toast_stats_regeneration_started">Stats regeneration started</string>
-    <string name="backup_file_name_format">Startune Music_Backup_%1$d.pxpl</string>
+    <string name="backup_file_name_format">Startune Music_Backup_%1$d.starbk</string>
 
     <string name="setcat_regenerate_stats_action">Regenerate Stats</string>
     <string name="setcat_force_palette_empty">No songs with album art were found.</string>
@@ -451,7 +451,7 @@
     <string name="import_backup_toolbar_title">Import Backup</string>
     <string name="import_inspecting">Inspecting…</string>
     <string name="import_browse_file">Browse for file</string>
-    <string name="import_backup_hint">Select a .pxpl backup file to inspect. You\'ll choose which sections to restore in the next step.</string>
+    <string name="import_backup_hint">Select a .starbk backup file to inspect. You\'ll choose which sections to restore in the next step.</string>
     <string name="import_recent_backups">Recent Backups</string>
     <string name="import_no_recent_title">No recent backups</string>
     <string name="import_no_recent_subtitle">Previously imported backups will appear here.</string>

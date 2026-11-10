@@ -206,7 +206,7 @@
     <!-- Backup / developer / dialogs -->
     <string name="setcat_create_backup">Buat Cadangan</string>
     <string name="setcat_export_backup_title">Ekspor Cadangan</string>
-    <string name="setcat_export_backup_subtitle">%1$s Membuat file cadangan .pxpl.</string>
+    <string name="setcat_export_backup_subtitle">%1$s Membuat file cadangan .starbk.</string>
     <string name="setcat_restore_backup_section">Pulihkan Cadangan</string>
     <string name="setcat_import_backup_title">Impor Cadangan</string>
     <string name="setcat_import_backup_subtitle">Telusuri atau pilih dari cadangan terbaru. Data yang dipilih akan menggantikan data saat ini.</string>
@@ -230,9 +230,9 @@
     <string name="backup_summary_all">Semua bagian dipilih.</string>
     <string name="backup_summary_partial">Terpilih %1$d dari %2$d bagian.</string>
     <string name="backup_how_title">Cara kerja pencadangan</string>
-    <string name="backup_how_body">Pilih bagian, ekspor file .pxpl, dan impor nanti. Pemulihan hanya menggantikan bagian yang Anda pilih.</string>
+    <string name="backup_how_body">Pilih bagian, ekspor file .starbk, dan impor nanti. Pemulihan hanya menggantikan bagian yang Anda pilih.</string>
     <string name="backup_dialog_supporting_export">Pilih dengan tepat apa yang ingin Anda sertakan dalam paket cadangan.</string>
-    <string name="backup_confirm_export_pxpl">Ekspor .pxpl</string>
+    <string name="backup_confirm_export_pxpl">Ekspor .starbk</string>
     <string name="backup_sections_selected_format">%1$d dari %2$d bagian terpilih</string>
     <string name="backup_transfer_in_progress">Transfer sedang berlangsung…</string>
     <string name="backup_exporting">Mengekspor</string>
@@ -265,7 +265,7 @@
     <string name="dialog_regenerate_stats_title">Regenerasi Statistik?</string>
     <string name="dialog_regenerate_stats_body">Ini akan menghapus cache statistik dan memaksa perhitungan ulang dari riwayat database.</string>
     <string name="toast_stats_regeneration_started">Regenerasi statistik dimulai</string>
-    <string name="backup_file_name_format">Startune Music_Cadangan_%1$d.pxpl</string>
+    <string name="backup_file_name_format">Startune Music_Cadangan_%1$d.starbk</string>
 
     <string name="setcat_regenerate_stats_action">Regenerasi Statistik</string>
     <string name="setcat_force_palette_empty">Tidak ditemukan lagu dengan sampul album.</string>
@@ -285,7 +285,7 @@
     <string name="import_backup_toolbar_title">Impor Cadangan</string>
     <string name="import_inspecting">Memeriksa…</string>
     <string name="import_browse_file">Telusuri file</string>
-    <string name="import_backup_hint">Pilih file cadangan .pxpl untuk diperiksa. Anda akan memilih bagian mana yang ingin dipulihkan pada langkah berikutnya.</string>
+    <string name="import_backup_hint">Pilih file cadangan .starbk untuk diperiksa. Anda akan memilih bagian mana yang ingin dipulihkan pada langkah berikutnya.</string>
     <string name="import_recent_backups">Cadangan Terbaru</string>
     <string name="import_no_recent_title">Tidak ada cadangan terbaru</string>
     <string name="import_no_recent_subtitle">Cadangan yang diimpor sebelumnya akan muncul di sini.</string>

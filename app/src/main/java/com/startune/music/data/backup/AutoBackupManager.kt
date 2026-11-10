@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 /**
  * Automatic backups, mirroring the old app: at most once per configured
- * interval, checked at app startup, writing a .pxpl export of all backup
+ * interval, checked at app startup, writing a .starbk export of all backup
  * sections into the backup folder (Startune/Music/Autobackup by default).
  * Failures are logged, never surfaced: a missed backup must not interrupt
  * opening the app.
@@ -36,7 +36,7 @@ class AutoBackupManager @Inject constructor(
             Timber.e("Auto-backup failed: cannot create ${targetDir.absolutePath}")
             return false
         }
-        val file = File(targetDir, "autobackup-$now.pxpl")
+        val file = File(targetDir, "autobackup-$now.starbk")
         return try {
             backupManager.export(
                 uri = Uri.fromFile(file),

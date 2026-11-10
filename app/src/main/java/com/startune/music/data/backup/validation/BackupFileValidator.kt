@@ -56,9 +56,10 @@ class BackupFileValidator @Inject constructor(
             return BackupValidationResult.Invalid(errors)
         }
 
-        if (fileName != null && !fileName.endsWith(".pxpl", ignoreCase = true) &&
+        if (fileName != null && !fileName.endsWith(".starbk", ignoreCase = true) &&
+            !fileName.endsWith(".pxpl", ignoreCase = true) &&
             !fileName.endsWith(".gz", ignoreCase = true)) {
-            errors.add(ValidationError("FILE_EXTENSION", "File extension is not .pxpl. The file may not be a valid backup.", severity = Severity.WARNING))
+            errors.add(ValidationError("FILE_EXTENSION", "File extension is not .starbk. The file may not be a valid backup.", severity = Severity.WARNING))
         }
 
         if (format == BackupFormatDetector.Format.UNKNOWN) {

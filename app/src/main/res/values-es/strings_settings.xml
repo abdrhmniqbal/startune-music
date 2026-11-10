@@ -206,7 +206,7 @@
     <!-- Backup / developer / dialogs -->
     <string name="setcat_create_backup">Crear copia</string>
     <string name="setcat_export_backup_title">Exportar copia</string>
-    <string name="setcat_export_backup_subtitle">%1$s Crea un archivo .pxpl.</string>
+    <string name="setcat_export_backup_subtitle">%1$s Crea un archivo .starbk.</string>
     <string name="setcat_restore_backup_section">Restaurar copia</string>
     <string name="setcat_import_backup_title">Importar copia</string>
     <string name="setcat_import_backup_subtitle">Explorar o elegir copias recientes. Los datos seleccionados sustituirán los actuales.</string>
@@ -230,9 +230,9 @@
     <string name="backup_summary_all">Todas las secciones seleccionadas.</string>
     <string name="backup_summary_partial">Seleccionadas %1$d de %2$d secciones.</string>
     <string name="backup_how_title">Cómo funciona la copia</string>
-    <string name="backup_how_body">Elige secciones, exporta un .pxpl e impórtalo después. La restauración solo sustituye lo que selecciones.</string>
+    <string name="backup_how_body">Elige secciones, exporta un .starbk e impórtalo después. La restauración solo sustituye lo que selecciones.</string>
     <string name="backup_dialog_supporting_export">Elige exactamente qué incluir en el paquete.</string>
-    <string name="backup_confirm_export_pxpl">Exportar .pxpl</string>
+    <string name="backup_confirm_export_pxpl">Exportar .starbk</string>
     <string name="backup_sections_selected_format">%1$d de %2$d secciones seleccionadas</string>
     <string name="backup_transfer_in_progress">Transferencia en curso…</string>
     <string name="backup_exporting">Exportando</string>
@@ -265,7 +265,7 @@
     <string name="dialog_regenerate_stats_title">¿Regenerar estadísticas?</string>
     <string name="dialog_regenerate_stats_body">Se borrará la caché de estadísticas y se forzará un recálculo desde el historial.</string>
     <string name="toast_stats_regeneration_started">Regeneración de estadísticas iniciada</string>
-    <string name="backup_file_name_format">Startune Music_Copia_%1$d.pxpl</string>
+    <string name="backup_file_name_format">Startune Music_Copia_%1$d.starbk</string>
 
     <string name="setcat_regenerate_stats_action">Regenerar estadísticas</string>
     <string name="setcat_force_palette_empty">No se encontraron canciones con carátula.</string>
@@ -285,7 +285,7 @@
     <string name="import_backup_toolbar_title">Importar copia</string>
     <string name="import_inspecting">Inspeccionando…</string>
     <string name="import_browse_file">Buscar archivo</string>
-    <string name="import_backup_hint">Selecciona un archivo .pxpl para inspeccionar. En el siguiente paso elegirás qué secciones restaurar.</string>
+    <string name="import_backup_hint">Selecciona un archivo .starbk para inspeccionar. En el siguiente paso elegirás qué secciones restaurar.</string>
     <string name="import_recent_backups">Copias recientes</string>
     <string name="import_no_recent_title">No hay copias recientes</string>
     <string name="import_no_recent_subtitle">Las copias importadas antes aparecerán aquí.</string>

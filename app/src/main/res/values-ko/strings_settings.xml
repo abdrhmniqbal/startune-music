@@ -206,7 +206,7 @@
     <!-- Backup / developer / dialogs -->
     <string name="setcat_create_backup">백업 생성</string>
     <string name="setcat_export_backup_title">백업 내보내기</string>
-    <string name="setcat_export_backup_subtitle">%1$s .pxpl 백업 파일을 생성합니다.</string>
+    <string name="setcat_export_backup_subtitle">%1$s .starbk 백업 파일을 생성합니다.</string>
     <string name="setcat_restore_backup_section">백업 복구</string>
     <string name="setcat_import_backup_title">백업 가져오기</string>
     <string name="setcat_import_backup_subtitle">최근 백업에서 찾아보거나 선택하세요. 선택한 데이터가 현재 데이터를 대체합니다.</string>
@@ -230,9 +230,9 @@
     <string name="backup_summary_all">모든 섹션이 선택되었습니다.</string>
     <string name="backup_summary_partial">%2$개 중 %1$개 섹션이 선택되었습니다.</string>
     <string name="backup_how_title">백업 작동 방식</string>
-    <string name="backup_how_body">섹션을 선택하고 .pxpl 파일을 내보낸 후 나중에 가져오세요. 복구는 선택한 섹션만 대체합니다.</string>
+    <string name="backup_how_body">섹션을 선택하고 .starbk 파일을 내보낸 후 나중에 가져오세요. 복구는 선택한 섹션만 대체합니다.</string>
     <string name="backup_dialog_supporting_export">백업 패키지에 포함할 항목을 정확히 선택하세요.</string>
-    <string name="backup_confirm_export_pxpl">.pxpl 내보내기</string>
+    <string name="backup_confirm_export_pxpl">.starbk 내보내기</string>
     <string name="backup_sections_selected_format">%2$개 중 %1$개 섹션 선택됨</string>
     <string name="backup_transfer_in_progress">전송 중…</string>
     <string name="backup_exporting">내보내는 중</string>
@@ -265,7 +265,7 @@
     <string name="dialog_regenerate_stats_title">통계를 재생성하시겠습니까?</string>
     <string name="dialog_regenerate_stats_body">통계 캐시를 지우고 데이터베이스 기록에서 다시 계산하도록 합니다.</string>
     <string name="toast_stats_regeneration_started">통계 재생성 시작됨</string>
-    <string name="backup_file_name_format">Startune Music_Backup_%1$d.pxpl</string>
+    <string name="backup_file_name_format">Startune Music_Backup_%1$d.starbk</string>
 
     <string name="setcat_regenerate_stats_action">통계 재생성</string>
     <string name="setcat_force_palette_empty">앨범 아트가 있는 노래를 찾을 수 없습니다.</string>
@@ -285,7 +285,7 @@
     <string name="import_backup_toolbar_title">백업 가져오기</string>
     <string name="import_inspecting">검사 중…</string>
     <string name="import_browse_file">파일 찾아보기</string>
-    <string name="import_backup_hint">검사할 .pxpl 백업 파일을 선택하세요. 다음 단계에서 복구할 섹션을 선택하게 됩니다.</string>
+    <string name="import_backup_hint">검사할 .starbk 백업 파일을 선택하세요. 다음 단계에서 복구할 섹션을 선택하게 됩니다.</string>
     <string name="import_recent_backups">최근 백업</string>
     <string name="import_no_recent_title">최근 백업 없음</string>
     <string name="import_no_recent_subtitle">이전에 가져온 백업이 여기에 표시됩니다.</string>

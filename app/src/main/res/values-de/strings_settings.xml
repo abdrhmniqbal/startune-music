@@ -206,7 +206,7 @@
     <!-- Backup / developer / dialogs -->
     <string name="setcat_create_backup">Backup erstellen</string>
     <string name="setcat_export_backup_title">Backup exportieren</string>
-    <string name="setcat_export_backup_subtitle">%1$s Speichert alles in einer .pxpl-Datei.</string>
+    <string name="setcat_export_backup_subtitle">%1$s Speichert alles in einer .starbk-Datei.</string>
     <string name="setcat_restore_backup_section">Backup wiederherstellen</string>
     <string name="setcat_import_backup_title">Backup importieren</string>
     <string name="setcat_import_backup_subtitle">Datei auswählen – die importierten Daten ersetzen die aktuellen.</string>
@@ -230,9 +230,9 @@
     <string name="backup_summary_all">Alle Bereiche ausgewählt.</string>
     <string name="backup_summary_partial">%1$d von %2$d Bereichen ausgewählt.</string>
     <string name="backup_how_title">So funktioniert Backup</string>
-    <string name="backup_how_body">Bereiche auswählen, als .pxpl exportieren und später importieren. Nur die gewählten Bereiche werden überschrieben.</string>
+    <string name="backup_how_body">Bereiche auswählen, als .starbk exportieren und später importieren. Nur die gewählten Bereiche werden überschrieben.</string>
     <string name="backup_dialog_supporting_export">Auswählen, was ins Backup soll.</string>
-    <string name="backup_confirm_export_pxpl">.pxpl exportieren</string>
+    <string name="backup_confirm_export_pxpl">.starbk exportieren</string>
     <string name="backup_sections_selected_format">%1$d von %2$d Bereichen ausgewählt</string>
     <string name="backup_transfer_in_progress">Übertragung läuft…</string>
     <string name="backup_exporting">Wird exportiert</string>
@@ -329,7 +329,7 @@
     <string name="dialog_regenerate_stats_title">Statistiken neu generieren?</string>
     <string name="dialog_regenerate_stats_body">Dadurch wird der Statistik-Cache geleert und eine Neuberechnung aus dem Datenbankverlauf erzwungen.</string>
     <string name="toast_stats_regeneration_started">Statistikregeneration gestartet</string>
-    <string name="backup_file_name_format">Startune Music_Backup_%1$d.pxpl</string>
+    <string name="backup_file_name_format">Startune Music_Backup_%1$d.starbk</string>
     <string name="setcat_regenerate_stats_action">Statistiken neu generieren</string>
     <string name="setcat_force_palette_empty">Es wurden keine Songs mit Albumcover gefunden.</string>
     <string name="setcat_force_palette_subtitle">Erstellen Sie alle zwischengespeicherten Palettenvarianten für jedes Albumcover neu oder wählen Sie eine einzelne zum Aktualisieren aus.</string>
@@ -345,7 +345,7 @@
     <string name="import_backup_toolbar_title">auswählen und wiederherstellen Sicherung importieren</string>
     <string name="import_inspecting">Inspizieren…</string>
     <string name="import_browse_file">Suchen Sie nach der Datei</string>
-    <string name="import_backup_hint">Wählen Sie eine .pxpl-Sicherungsdatei zur Überprüfung aus. Im nächsten Schritt wählen Sie aus, welche Abschnitte wiederhergestellt werden sollen.</string>
+    <string name="import_backup_hint">Wählen Sie eine .starbk-Sicherungsdatei zur Überprüfung aus. Im nächsten Schritt wählen Sie aus, welche Abschnitte wiederhergestellt werden sollen.</string>
     <string name="import_recent_backups">Aktuelle Backups</string>
     <string name="import_no_recent_title">Keine aktuellen Backups</string>
     <string name="import_no_recent_subtitle">Zuvor importierte Backups werden hier angezeigt.</string>
