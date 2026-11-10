@@ -5,6 +5,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -57,6 +58,7 @@ import com.startune.music.data.model.Song
 import com.startune.music.presentation.components.AutoScrollingText
 import com.startune.music.presentation.components.ShimmerBox
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import com.startune.music.R
 import com.startune.music.presentation.components.SmartImage
 
@@ -104,7 +106,9 @@ fun EnhancedSongListItem(
     showMoreOptionsButton: Boolean = true,
     onLongPress: () -> Unit = {},
     onMoreOptionsClick: (Song) -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onRemoveClick: (() -> Unit)? = null,
+    isRemoveButtonVisible: Boolean = false
 ) {
     val albumArtTargetSizePx = with(LocalDensity.current) { albumArtSize.roundToPx() }
     val isHighlighted = isCurrentSong && !isLoading
@@ -400,6 +404,26 @@ fun EnhancedSongListItem(
                             imageVector = Icons.Rounded.MoreVert,
                             contentDescription = stringResource(R.string.presentation_batch_g_list_cd_more_for_title, song.title),
                             modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
+                AnimatedVisibility(visible = isRemoveButtonVisible && !isSelectionMode) {
+                    FilledIconButton(
+                        onClick = { onRemoveClick?.invoke() },
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = colors.surfaceContainer,
+                            contentColor = colors.onSurface
+                        ),
+                        modifier = Modifier
+                            .width(40.dp)
+                            .height(40.dp)
+                            .padding(start = 4.dp, end = 8.dp)
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(18.dp),
+                            painter = painterResource(R.drawable.rounded_close_24),
+                            contentDescription = stringResource(R.string.presentation_batch_e_cd_remove_from_playlist),
                         )
                     }
                 }
