@@ -40,8 +40,6 @@
     <string name="dialog_rebuild_database_message">سيؤدي هذا إلى إعادة بناء مكتبة الموسيقى الخاصة بك بالكامل من الصفر. ستفقد جميع كلمات الأغاني المستوردة، والمفضلة، والبيانات الوصفية المخصصة. لا يمكن التراجع عن هذا الإجراء.</string>
     <string name="dialog_rebuild_database_title">إعادة بناء قاعدة البيانات؟</string>
     <string name="dialog_regenerate">إعادة التوليد</string>
-    <string name="dialog_regenerate_daily_mix_body">سيؤدي هذا إلى تجاهل المزيج الحالي وإنشاء مزيج جديد بناءً على عادات الاستماع الأخيرة.</string>
-    <string name="dialog_regenerate_daily_mix_title">إعادة توليد المزيج اليومي؟</string>
     <string name="dialog_regenerate_palettes_confirm_body">سيؤدي هذا إلى مسح بيانات السمات المخزنة مؤقتاً وإعادة بناء جميع أنماط لوحات الألوان لـ %1$d من أغلفة الألبومات الفريدة.</string>
     <string name="dialog_regenerate_palettes_progress_body">إعادة بناء متغيرات الألوان المخزنة مؤقتاً لـ %1$d من أغلفة الألبومات الفريدة. قد يستغرق هذا الإجراء بعض الوقت في المكتبات الكبيرة.</string>
     <string name="dialog_regenerate_palettes_title">إعادة توليد جميع لوحات ألوان الألبومات؟</string>
@@ -116,8 +114,6 @@
     <string name="setcat_folder_back_gesture_subtitle">في تبويب المجلدات، يؤدي الرجوع للتنقل عبر تسلسل المجلدات أولاً قبل الخروج من المكتبة.</string>
     <string name="setcat_folder_back_gesture_title">إيماءة الرجوع تتحكم بالمجلدات</string>
     <string name="setcat_folders">المجلدات</string>
-    <string name="setcat_force_daily_mix_subtitle">إعادة إنشاء قائمة تشغيل المزيج اليومي فوراً.</string>
-    <string name="setcat_force_daily_mix_title">فرض إعادة توليد المزيج اليومي</string>
     <string name="setcat_force_palette_empty">لم يتم العثور على أي أغانٍ تحتوي على غلاف ألبوم.</string>
     <string name="setcat_force_palette_subtitle">إعادة بناء جميع متغيرات لوحة الألوان المخزنة مؤقتاً لكل غلاف ألبوم، أو اختر أغنية واحدة لتحديثها.</string>
     <string name="setcat_force_palette_title">فرض إعادة توليد لوحة ألوان الألبوم</string>
@@ -188,7 +184,6 @@
     <string name="setcat_player_theme_label">مظهر المشغل</string>
     <string name="setcat_queue_transitions">قائمة الانتظار والانتقالات</string>
     <string name="setcat_regenerate_all">إعادة توليد الكل</string>
-    <string name="setcat_regenerate_daily_mix_action">إعادة توليد المزيج اليومي</string>
     <string name="setcat_regenerate_stats_action">إعادة توليد الإحصائيات</string>
     <string name="setcat_regenerating">جاري إعادة التوليد…</string>
     <string name="setcat_replaygain_enable_subtitle">تثبيت وموازنة مستويات الصوت تلقائياً باستخدام بيانات ReplayGain الوصفية المرفقة بالملفات.</string>
@@ -245,7 +240,6 @@
     <string name="settings_top_bar_title">الإعدادات</string>
     <string name="sync_indicator_rebuilding">جاري إعادة بناء قاعدة البيانات</string>
     <string name="tab_home">الرئيسية</string>
-    <string name="toast_daily_mix_regeneration_started">بدأت عملية إعادة توليد المزيج اليومي</string>
     <string name="toast_full_rescan_started">بدأ الفحص الكامل من جديد…</string>
     <string name="toast_library_sync_finished">انتهت مزامنة المكتبة</string>
     <string name="toast_rebuilding_database">جاري إعادة بناء قاعدة البيانات…</string>

@@ -216,8 +216,6 @@
     <string name="setcat_test_setup_title">测试设置流程</string>
     <string name="setcat_test_setup_subtitle">启动新手引导设置界面以供测试。</string>
     <string name="setcat_maintenance">维护</string>
-    <string name="setcat_force_daily_mix_title">强制重新生成每日合辑</string>
-    <string name="setcat_force_daily_mix_subtitle">立即重新创建每日合辑播放列表。</string>
     <string name="setcat_force_stats_title">强制重新生成统计</string>
     <string name="setcat_force_stats_subtitle">清除缓存并重新计算播放统计。</string>
     <string name="setcat_force_palette_title">强制重新生成专辑配色</string>
@@ -264,15 +262,11 @@
     <string name="rebuild">重建</string>
     <string name="sync_indicator_rebuilding">正在重建数据库</string>
     <string name="toast_rebuilding_database">正在重建数据库……</string>
-    <string name="dialog_regenerate_daily_mix_title">重新生成每日合辑？</string>
-    <string name="dialog_regenerate_daily_mix_body">这将丢弃当前合辑，并基于最近的收听习惯生成新的合辑。</string>
-    <string name="toast_daily_mix_regeneration_started">每日合辑重新生成已开始</string>
     <string name="dialog_regenerate_stats_title">重新生成统计？</string>
     <string name="dialog_regenerate_stats_body">这将清除统计缓存，并根据数据库历史强制重新计算。</string>
     <string name="toast_stats_regeneration_started">统计重新生成已开始</string>
     <string name="backup_file_name_format">Startune Music_Backup_%1$d.pxpl</string>
 
-    <string name="setcat_regenerate_daily_mix_action">重新生成每日合辑</string>
     <string name="setcat_regenerate_stats_action">重新生成统计</string>
     <string name="setcat_force_palette_empty">未找到带专辑封面的歌曲。</string>
     <string name="setcat_force_palette_subtitle">可为所有专辑封面重建缓存的配色变体，或选择单个封面进行刷新。</string>

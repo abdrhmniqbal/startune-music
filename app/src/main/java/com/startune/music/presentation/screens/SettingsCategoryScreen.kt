@@ -225,7 +225,6 @@ fun SettingsCategoryScreen(
     var syncIndicatorLabel by remember { mutableStateOf<String?>(null) }
     var showClearLyricsDialog by remember { mutableStateOf(false) }
     var showRebuildDatabaseWarning by remember { mutableStateOf(false) }
-    var showRegenerateDailyMixDialog by remember { mutableStateOf(false) }
     var showRegenerateStatsDialog by remember { mutableStateOf(false) }
     var showClearListeningHistoryDialog by remember { mutableStateOf(false) }
     var showClearSearchHistoryDialog by remember { mutableStateOf(false) }
@@ -1512,14 +1511,6 @@ fun SettingsCategoryScreen(
 
                             SettingsSubsection(title = stringResource(R.string.setcat_maintenance)) {
                                 ActionSettingsItem(
-                                    title = stringResource(R.string.setcat_force_daily_mix_title),
-                                    subtitle = stringResource(R.string.setcat_force_daily_mix_subtitle),
-                                    icon = { Icon(painterResource(R.drawable.rounded_instant_mix_24), null, tint = MaterialTheme.colorScheme.secondary) },
-                                    primaryActionLabel = stringResource(R.string.setcat_regenerate_daily_mix_action),
-                                    onPrimaryAction = { showRegenerateDailyMixDialog = true },
-                                    modifier = Modifier.settingHighlight("item_developer_daily_mix", highlightKey)
-                                )
-                                ActionSettingsItem(
                                     title = stringResource(R.string.setcat_force_stats_title),
                                     subtitle = stringResource(R.string.setcat_force_stats_subtitle),
                                     icon = { Icon(painterResource(R.drawable.rounded_monitoring_24), null, tint = MaterialTheme.colorScheme.secondary) },
@@ -1870,27 +1861,6 @@ fun SettingsCategoryScreen(
                 } 
             },
             dismissButton = { TextButton(onClick = { showRebuildDatabaseWarning = false }) { Text(stringResource(R.string.cancel), maxLines = 1, overflow = TextOverflow.Ellipsis) } }
-        )
-    }
-
-    if (showRegenerateDailyMixDialog) {
-        AlertDialog(
-            icon = { Icon(painterResource(R.drawable.rounded_instant_mix_24), null, tint = MaterialTheme.colorScheme.primary) },
-            title = { Text(stringResource(R.string.dialog_regenerate_daily_mix_title)) },
-            text = { Text(stringResource(R.string.dialog_regenerate_daily_mix_body)) },
-            onDismissRequest = { showRegenerateDailyMixDialog = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showRegenerateDailyMixDialog = false
-                        playerViewModel.forceUpdateDailyMix()
-                        Toast.makeText(context, context.getString(R.string.toast_daily_mix_regeneration_started), Toast.LENGTH_SHORT).show()
-                    }
-                ) {
-                    Text(stringResource(R.string.dialog_regenerate), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
-            },
-            dismissButton = { TextButton(onClick = { showRegenerateDailyMixDialog = false }) { Text(stringResource(R.string.cancel), maxLines = 1, overflow = TextOverflow.Ellipsis) } }
         )
     }
 
