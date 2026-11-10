@@ -3,6 +3,26 @@
 import com.startune.music.presentation.navigation.navigateSafely
 
 import androidx.compose.foundation.background
+import com.startune.music.presentation.components.subcomps.SelectionActionRow
+import com.startune.music.presentation.components.subcomps.SelectionCountPill
+import androidx.compose.ui.zIndex
+import com.startune.music.presentation.components.rememberModalSheetState
+import com.startune.music.presentation.components.SongMultiSelectionHost
+import com.startune.music.data.model.MixRule
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.foundation.layout.width
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.AnimatedVisibility
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,20 +46,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.MusicNote
-import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LargeExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -48,7 +63,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -106,7 +120,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
 @androidx.annotation.OptIn(UnstableApi::class)
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MixDetailScreen(
     mixId: String,
@@ -129,11 +143,21 @@ fun MixDetailScreen(
         isUserMix -> playlistUiState.currentPlaylistSongs.toImmutableList()
         else -> playerViewModel.dailyMixSongs.collectAsStateWithLifecycle().value
     }
-    val playItLabel = stringResource(R.string.presentation_batch_b_play_it)
     val shuffleLabel = stringResource(R.string.shortcut_shuffle_short)
     val forYouMixSongCount by playerViewModel.forYouMixSongCount.collectAsStateWithLifecycle()
-    val mixSizeCount = if (isForYouMix) forYouMixSongCount else (userMix?.mixSongCount ?: 60)
-    var showMixSizeDialog by remember { mutableStateOf(false) }
+
+    val multiSelectionState = playerViewModel.multiSelectionStateHolder
+    val selectedSongs by multiSelectionState.selectedSongs.collectAsStateWithLifecycle()
+    val isSelectionMode by multiSelectionState.isSelectionMode.collectAsStateWithLifecycle()
+    val selectedSongIds by multiSelectionState.selectedSongIds.collectAsStateWithLifecycle()
+    val haptic = LocalHapticFeedback.current
+    var showMultiSelectionSheet by remember { mutableStateOf(false) }
+    var showMixOptionsSheet by remember { mutableStateOf(false) }
+    var showEditMixForm by remember { mutableStateOf(false) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = isSelectionMode) { multiSelectionState.clearSelection() }
+    DisposableEffect(Unit) { onDispose { multiSelectionState.clearSelection() } }
 
     LaunchedEffect(mixId) {
         if (isUserMix) playlistViewModel.loadPlaylistDetails(mixId)
@@ -233,7 +257,15 @@ fun MixDetailScreen(
                     customMetadataChanges
                 )
             },
-            removeFromListTrigger = removeFromListTrigger
+            removeFromListTrigger = removeFromListTrigger,
+            onRemoveFromList = {
+                when {
+                    isForYouMix -> playerViewModel.removeFromYourMix(song.id)
+                    isUserMix -> playlistViewModel.removeSongFromMix(mixId, song.id)
+                    else -> playerViewModel.removeFromDailyMix(song.id)
+                }
+            },
+            removeFromListLabel = stringResource(R.string.mix_remove_from_mix)
         )
 
         if (showPlaylistBottomSheet) {
@@ -280,38 +312,14 @@ fun MixDetailScreen(
                     )
                 }
 
-                item(key = "play_shuffle_buttons") {
+                item(key = "shuffle_button") {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(76.dp)
                             .padding(horizontal = 20.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Button(
-                            onClick = {
-                                if (mixSongs.isNotEmpty()) {
-                                    playerViewModel.playSongs(mixSongs, mixSongs.first(), mixTitle)
-                                    if (isShuffleEnabled) playerViewModel.toggleShuffle()
-                                }
-                            },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(76.dp),
-                            enabled = mixSongs.isNotEmpty(),
-                            shape = RoundedCornerShape(
-                                topStart = 60.dp,
-                                topEnd = 14.dp,
-                                bottomStart = 60.dp,
-                                bottomEnd = 14.dp
-                            )
-                        ) {
-                            Icon(Icons.Rounded.PlayArrow, contentDescription = stringResource(R.string.cd_play), modifier = Modifier.size(
-                                ButtonDefaults.IconSize))
-                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                            Text(playItLabel)
-                        }
-                        FilledTonalButton(
+                        LargeExtendedFloatingActionButton(
                             onClick = {
                                 if (mixSongs.isNotEmpty()) {
                                     playerViewModel.playSongsShuffled(
@@ -321,60 +329,29 @@ fun MixDetailScreen(
                                     )
                                 }
                             },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(76.dp),
-                            enabled = mixSongs.isNotEmpty(),
-                            shape = RoundedCornerShape(
-                                topStart = 14.dp,
-                                topEnd = 60.dp,
-                                bottomStart = 14.dp,
-                                bottomEnd = 60.dp
-                            )
+                            shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f)
                         ) {
-                            Icon(Icons.Rounded.Shuffle, contentDescription = shuffleLabel, modifier = Modifier.size(
-                                ButtonDefaults.IconSize))
-                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                            Icon(Icons.Rounded.Shuffle, contentDescription = shuffleLabel)
+                            Spacer(Modifier.width(8.dp))
                             Text(shuffleLabel)
                         }
                     }
                 }
 
-                if (isForYouMix || isUserMix) {
-                    item(key = "mix_size") {
-                        Surface(
-                            color = MaterialTheme.colorScheme.surfaceContainer,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .clickable { showMixSizeDialog = true }
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(16.dp).fillMaxWidth()
-                            ) {
-                                Column(
-                                    modifier = Modifier.weight(1f),
-                                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.mix_detail_size_title),
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.mix_detail_size_songs, mixSizeCount),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                                Icon(
-                                    imageVector = Icons.Rounded.ChevronRight,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
+
+                item(key = "mix_selection_row") {
+                    AnimatedVisibility(
+                        visible = isSelectionMode,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
+                        SelectionActionRow(
+                            selectedCount = selectedSongs.size,
+                            onSelectAll = { multiSelectionState.selectAll(mixSongs) },
+                            onDeselect = { multiSelectionState.clearSelection() },
+                            onOptionsClick = { showMultiSelectionSheet = true },
+                            modifier = Modifier.padding(horizontal = 12.dp)
+                        )
                     }
                 }
 
@@ -385,7 +362,21 @@ fun MixDetailScreen(
                         song = song,
                         isCurrentSong = currentSongId == song.id,
                         isPlaying = currentSongId == song.id && isPlaying,
-                        onClick = { playerViewModel.showAndPlaySong(song, mixSongs, mixTitle, isVoluntaryPlay = false) },
+                        isSelected = selectedSongIds.contains(song.id),
+                        selectionIndex = if (isSelectionMode) multiSelectionState.getSelectionIndex(song.id) else null,
+                        isSelectionMode = isSelectionMode,
+                        onLongPress = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            multiSelectionState.toggleSelection(song)
+                        },
+                        onSelectionToggle = { multiSelectionState.toggleSelection(song) },
+                        onClick = {
+                            if (isSelectionMode) {
+                                multiSelectionState.toggleSelection(song)
+                            } else {
+                                playerViewModel.showAndPlaySong(song, mixSongs, mixTitle, isVoluntaryPlay = false)
+                            }
+                        },
                         onMoreOptionsClick = {
                             playerViewModel.selectSongForInfo(song)
                             showSongInfoSheet = true
@@ -411,6 +402,33 @@ fun MixDetailScreen(
                 contentDescription = stringResource(R.string.auth_cd_back)
             )
         }
+
+        if (isForYouMix || isUserMix) {
+            FilledIconButton(
+                onClick = { showMixOptionsSheet = true },
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .statusBarsPadding()
+                    .padding(end = 10.dp, top = 8.dp)
+                    .clip(CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = stringResource(R.string.presentation_batch_b_more_options)
+                )
+            }
+        }
+
+        SelectionCountPill(
+            selectedCount = selectedSongs.size,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .zIndex(1f)
+        )
 
         Box(
             modifier = Modifier
@@ -448,17 +466,136 @@ fun MixDetailScreen(
         }
     }
 
-    if (showMixSizeDialog) {
-        MixSizeDialog(
-            currentCount = mixSizeCount,
-            onDismiss = { showMixSizeDialog = false },
-            onConfirm = { count ->
-                showMixSizeDialog = false
-                if (isForYouMix) playerViewModel.setForYouMixSongCount(count)
-                else playlistViewModel.setMixSongCount(mixId, count)
+    if (showMixOptionsSheet && (isForYouMix || isUserMix)) {
+        val sheetState = rememberModalSheetState(skipPartiallyExpanded = true)
+
+        ModalBottomSheet(
+            onDismissRequest = { showMixOptionsSheet = false },
+            sheetState = sheetState,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            tonalElevation = 4.dp,
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp)
+            ) {
+                Text(
+                    text = mixTitle,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 8.dp)
+                )
+                MixOptionsItem(
+                    icon = painterResource(R.drawable.rounded_edit_24),
+                    label = stringResource(R.string.mix_edit_title),
+                    onClick = {
+                        showMixOptionsSheet = false
+                        showEditMixForm = true
+                    }
+                )
+                if (isUserMix) {
+                    MixOptionsItem(
+                        icon = painterResource(R.drawable.rounded_delete_24),
+                        label = stringResource(R.string.mix_delete_title),
+                        onClick = {
+                            showMixOptionsSheet = false
+                            showDeleteConfirmation = true
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    if (showEditMixForm && isUserMix && userMix != null) {
+        EditMixForm(
+            visible = true,
+            initial = MixFormInitial(
+                name = userMix.name,
+                rule = MixRule.fromPlaylistSource(userMix.source) ?: MixRule.TOP_PLAYED,
+                songCount = userMix.mixSongCount ?: 60,
+                artistIds = userMix.mixArtistIds ?: emptyList(),
+                coverImageUri = userMix.coverImageUri,
+                coverColorArgb = userMix.coverColorArgb,
+                coverIconName = userMix.coverIconName
+            ),
+            onDismiss = { showEditMixForm = false },
+            onSave = { name, rule, count, artistIds, imageUri, color, icon, scale, panX, panY ->
+                playlistViewModel.updateMix(
+                    playlistId = mixId,
+                    name = name,
+                    rule = rule,
+                    songCount = count,
+                    artistIds = artistIds,
+                    coverImageUri = imageUri,
+                    coverColor = color,
+                    coverIcon = icon,
+                    cropScale = scale,
+                    cropPanX = panX,
+                    cropPanY = panY
+                )
+                showEditMixForm = false
+            },
+            playerViewModel = playerViewModel
+        )
+    }
+
+    if (showEditMixForm && isForYouMix) {
+        EditMixForm(
+            visible = true,
+            isForYouMix = true,
+            initial = MixFormInitial(songCount = forYouMixSongCount),
+            onDismiss = { showEditMixForm = false },
+            onSave = { _, _, count, _, _, _, _, _, _, _ ->
+                playerViewModel.setForYouMixSongCount(count)
+                showEditMixForm = false
+            },
+            playerViewModel = playerViewModel
+        )
+    }
+
+    if (showDeleteConfirmation && isUserMix && userMix != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmation = false },
+            title = { Text(stringResource(R.string.mix_delete_confirm_title)) },
+            text = { Text(stringResource(R.string.mix_delete_confirm_body)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        playlistViewModel.deletePlaylist(mixId)
+                        navController.popBackStack()
+                        showDeleteConfirmation = false
+                    }
+                ) {
+                    Text(stringResource(R.string.delete_action), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmation = false }) {
+                    Text(stringResource(R.string.cancel), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
             }
         )
     }
+
+    SongMultiSelectionHost(
+        playerViewModel = playerViewModel,
+        multiSelectionState = multiSelectionState,
+        showSheet = showMultiSelectionSheet,
+        onDismiss = { showMultiSelectionSheet = false },
+        onRemoveFromList = {
+            val ids = selectedSongs.map { it.id }
+            when {
+                isForYouMix -> playerViewModel.removeSongsFromYourMix(ids)
+                isUserMix -> playlistViewModel.removeSongsFromMix(mixId, ids)
+                else -> playerViewModel.removeSongsFromDailyMix(ids)
+            }
+        },
+        removeFromListLabel = stringResource(R.string.mix_remove_from_mix)
+    )
 }
 
 
@@ -494,7 +631,10 @@ private fun ExpressiveMixDetailHeader(
                 alpha = headerAlpha
             }
     ) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.fillMaxSize().padding(top = 80.dp),
+            contentAlignment = Alignment.Center
+        ) {
             if (coverImageUri == null && coverColorArgb == null) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy((-80).dp),
@@ -628,7 +768,8 @@ private fun ExpressiveMixDetailHeader(
                     text = title,
                     style = titleStyle,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = Int.MAX_VALUE
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
@@ -671,40 +812,41 @@ private fun rememberMixDetailTitleStyle(): TextStyle {
     }
 }
 
-
 @Composable
-private fun MixSizeDialog(
-    currentCount: Int,
-    onDismiss: () -> Unit,
-    onConfirm: (Int) -> Unit
+private fun MixOptionsItem(
+    icon: androidx.compose.ui.graphics.painter.Painter,
+    label: String,
+    onClick: () -> Unit
 ) {
-    var sliderValue by remember(currentCount) { mutableFloatStateOf(currentCount.toFloat()) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.mix_detail_size_title)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = stringResource(R.string.mix_detail_size_songs, sliderValue.toInt()),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Slider(
-                    value = sliderValue,
-                    onValueChange = { sliderValue = it },
-                    valueRange = 10f..100f,
-                    steps = 17
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(sliderValue.toInt()) }) {
-                Text(stringResource(R.string.action_save))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(android.R.string.cancel))
-            }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .clip(RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = icon,
+                contentDescription = label,
+                tint = MaterialTheme.colorScheme.primary
+            )
         }
-    )
+        Spacer(Modifier.width(14.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+    }
 }

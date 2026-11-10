@@ -720,13 +720,12 @@ object SettingsRegistry {
                 onToggle = { viewModel, checked -> viewModel.setHapticsEnabled(checked) }
             ),
 
-            // --- BACKUP & RESTORE CATEGORY ---
             SettingSpec(
                 id = "backup_export",
                 itemKey = "item_backup_export",
                 titleRes = R.string.setcat_export_backup_title,
-                category = SettingsCategory.BACKUP_RESTORE,
-                subscreenRoute = Screen.SettingsCategory.createRoute("backup_restore"),
+                category = SettingsCategory.DATA_STORAGE,
+                subscreenRoute = Screen.SettingsCategory.createRoute("data_storage"),
                 type = SettingType.NAVIGABLE_CARD,
                 keywordsStatic = listOf("backup", "export", "save", "pxpl", "transfer")
             ),
@@ -764,8 +763,8 @@ object SettingsRegistry {
                 itemKey = "item_backup_import",
                 titleRes = R.string.setcat_import_backup_title,
                 subtitleRes = R.string.setcat_import_backup_subtitle,
-                category = SettingsCategory.BACKUP_RESTORE,
-                subscreenRoute = Screen.SettingsCategory.createRoute("backup_restore"),
+                category = SettingsCategory.DATA_STORAGE,
+                subscreenRoute = Screen.SettingsCategory.createRoute("data_storage"),
                 type = SettingType.NAVIGABLE_CARD,
                 keywordsStatic = listOf("restore", "import", "backup", "recover")
             ),

@@ -25,13 +25,11 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -58,9 +56,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.startune.music.R
 import com.startune.music.data.model.Song
-import com.startune.music.data.model.SortOption
 import com.startune.music.data.stats.StatsTimeRange
-import com.startune.music.presentation.components.LibrarySortBottomSheet
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.PlaylistBottomSheet
 import com.startune.music.presentation.components.RecentlyPlayedRangeSelector
@@ -133,8 +129,6 @@ fun TopTracksScreen(
 
     var showSongInfoBottomSheet by remember { mutableStateOf(false) }
     var showPlaylistBottomSheet by remember { mutableStateOf(false) }
-    var sortOption by remember { mutableStateOf<SortOption>(SortOption.SongPlayCount) }
-    var showSortSheet by remember { mutableStateOf(false) }
 
     val multiSelectionState = playerViewModel.multiSelectionStateHolder
     val selectedSongs by multiSelectionState.selectedSongs.collectAsStateWithLifecycle()
@@ -219,19 +213,12 @@ fun TopTracksScreen(
         val byId = topTrackSourceSongs.orEmpty().associateBy { it.id }
         topTracks.mapNotNull { byId[it.songId] }.toImmutableList()
     }
-    val isRankedOrder = sortOption == SortOption.SongPlayCount || sortOption == SortOption.SongPlayCountAsc
-    val displaySongs = remember(queueSongs, sortOption) {
-        when (sortOption) {
-            SortOption.SongPlayCount -> queueSongs
-            SortOption.SongPlayCountAsc -> queueSongs.reversed().toImmutableList()
-            else -> sortArtistSongs(queueSongs, sortOption).toImmutableList()
-        }
-    }
+    val displaySongs = queueSongs
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.background)
             .nestedScroll(nestedScrollConnection)
     ) {
         if (topTrackSourceSongs == null) {
@@ -294,16 +281,14 @@ fun TopTracksScreen(
                                 .padding(horizontal = 16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (isRankedOrder) {
-                                Text(
-                                    text = (index + 1).toString(),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.width(28.dp)
-                                )
-                            }
+                            Text(
+                                text = (index + 1).toString(),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.width(28.dp)
+                            )
                             EnhancedSongListItem(
                                 modifier = Modifier.weight(1f),
                                 song = song,
@@ -350,19 +335,6 @@ fun TopTracksScreen(
                 headerHeight = currentTopBarHeightDp,
                 onBackClick = { navController.popBackStack() },
                 expandedTitleEndPadding = 136.dp,
-                actions = {
-                    Row(
-                        modifier = Modifier.padding(end = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { showSortSheet = true }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.Sort,
-                                contentDescription = stringResource(R.string.presentation_batch_d_sort_by)
-                            )
-                        }
-                    }
-                }
             )
             if (displaySongs.isNotEmpty()) {
                 LargeExtendedFloatingActionButton(
@@ -486,19 +458,6 @@ fun TopTracksScreen(
                 .padding(top = currentTopBarHeightDp)
                 .zIndex(1f)
         )
-
-        if (showSortSheet) {
-            LibrarySortBottomSheet(
-                title = stringResource(R.string.presentation_batch_d_sort_by),
-                options = SortOption.SONGS.toImmutableList(),
-                selectedOption = sortOption,
-                onDismiss = { showSortSheet = false },
-                onOptionSelected = {
-                    sortOption = it
-                    showSortSheet = false
-                }
-            )
-        }
     }
 }
 

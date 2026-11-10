@@ -560,7 +560,7 @@ fun GenreCollapsibleTopBar(
                 modifier = Modifier.fillMaxSize(),
                 collapsedTitleStartPadding = 68.dp,
                 expandedTitleStartPadding = 20.dp,
-                maxLines = 1,
+                maxLines = if (collapseFraction < 0.5f) Int.MAX_VALUE else 1,
                 contentColor = animatedContentColor
             )
         }
@@ -575,7 +575,7 @@ enum class GenreDetailView {
 
 private const val GENRE_TOP_SONGS_PREVIEW = 25
 private const val GENRE_TOP_SONGS_PAGE_SIZE = 5
-private val GenreGridCardWidth = 144.dp
+private val GenreGridCardWidth = 180.dp
 
 @Composable
 private fun GenreEmptyState() {

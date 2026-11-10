@@ -66,7 +66,47 @@ class DailyMixStateHolder @Inject constructor(
     /**
      * Remove a song from the daily mix.
      */
-    fun removeFromDailyMix(songId: String) {
+    fun removeFromDailyMix(songId: String) {    /**
+     * Removes several songs from the For You Mix and backfills each one, so
+     * the mix keeps its size. Removed ids are recorded, so the next
+     * regeneration does not bring them back.
+     */
+    fun removeSongsFromYourMix(
+        songIds: List<String>,
+        favoriteSongIdsFlow: kotlinx.coroutines.flow.Flow<Set<String>>
+    ) {
+        if (songIds.isEmpty()) return
+        scope?.launch(Dispatchers.IO) {
+            val current = _yourMixSongs.value
+            val toRemove = songIds.filter { id -> current.any { it.id == id } }
+            if (toRemove.isEmpty()) return@launch
+            val remaining = current.filterNot { it.id in toRemove }
+            val allSongs = musicRepository.getAllSongsOnce()
+            val favoriteIds = favoriteSongIdsFlow.first()
+            val picked = (remaining.map { it.id } + toRemove).toMutableSet()
+            val replacements = mutableListOf<Song>()
+            repeat(toRemove.size) {
+                val replacement = dailyMixManager.pickBackfillSong(allSongs, favoriteIds, picked)
+                    ?: return@repeat
+                replacements.add(replacement)
+                picked.add(replacement.id)
+            }
+            val updated = (remaining + replacements).toImmutableList()
+            _yourMixSongs.value = updated
+            userPreferencesRepository.addMixRemovedSongIds(MixIds.FOR_YOU, toRemove)
+            userPreferencesRepository.saveYourMixSongIds(updated.map { it.id })
+        }
+    }
+
+    /** Removes several songs from today's Daily Mix (in-memory only; tomorrow is a new mix). */
+    fun removeSongsFromDailyMix(songIds: List<String>) {
+        if (songIds.isEmpty()) return
+        _dailyMixSongs.update { currentList ->
+            currentList.filterNot { it.id in songIds }.toImmutableList()
+        }
+    }
+
+
         _dailyMixSongs.update { currentList ->
             currentList.filterNot { it.id == songId }.toImmutableList()
         }
@@ -93,13 +133,32 @@ class DailyMixStateHolder @Inject constructor(
             val replacement = dailyMixManager.pickBackfillSong(allSongs, favoriteIds, excludeIds)
             val updated = (remaining + listOfNotNull(replacement)).toImmutableList()
             _yourMixSongs.value = updated
+            userPreferencesRepository.addMixRemovedSongIds(MixIds.FOR_YOU, listOf(songId))
             userPreferencesRepository.saveYourMixSongIds(updated.map { it.id })
         }
     }
 
     /**
      * Regenerates only the For You Mix, with the given song count.
+     */    /**
+     * Builds the For You Mix at [limit], skipping songs the user removed
+     * from it, so a removal survives the next regeneration.
      */
+    private suspend fun generateYourMixExcludingRemoved(
+        allSongs: List<Song>,
+        favoriteIds: Set<String>,
+        limit: Int
+    ): List<Song> {
+        val removed = userPreferencesRepository.getMixRemovedSongIds(MixIds.FOR_YOU)
+        if (removed.isEmpty()) {
+            return dailyMixManager.generateYourMix(allSongs, favoriteIds, limit)
+        }
+        return dailyMixManager.generateYourMix(allSongs, favoriteIds, limit + removed.size)
+            .filterNot { it.id in removed }
+            .take(limit)
+    }
+
+
     fun updateYourMix(
         favoriteSongIdsFlow: kotlinx.coroutines.flow.Flow<Set<String>>,
         limit: Int
@@ -109,7 +168,7 @@ class DailyMixStateHolder @Inject constructor(
             val allSongs = musicRepository.getAllSongsOnce()
             if (allSongs.isNotEmpty()) {
                 val favoriteIds = favoriteSongIdsFlow.first()
-                val yourMix = dailyMixManager.generateYourMix(allSongs, favoriteIds, limit)
+                val yourMix = generateYourMixExcludingRemoved(allSongs, favoriteIds, limit)
                 _yourMixSongs.value = yourMix.toImmutableList()
                 userPreferencesRepository.saveYourMixSongIds(yourMix.map { it.id })
             }
@@ -132,7 +191,7 @@ class DailyMixStateHolder @Inject constructor(
                 userPreferencesRepository.saveDailyMixSongIds(mix.map { it.id })
 
                 val yourMixLimit = userPreferencesRepository.forYouMixSongCountFlow.first()
-                val yourMix = dailyMixManager.generateYourMix(allSongs, favoriteIds, yourMixLimit)
+                val yourMix = generateYourMixExcludingRemoved(allSongs, favoriteIds, yourMixLimit)
                 _yourMixSongs.value = yourMix.toImmutableList()
                 userPreferencesRepository.saveYourMixSongIds(yourMix.map { it.id })
             } else {

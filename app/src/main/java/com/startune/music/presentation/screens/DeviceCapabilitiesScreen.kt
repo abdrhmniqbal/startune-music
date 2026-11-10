@@ -94,6 +94,7 @@ import com.startune.music.presentation.viewmodel.DeviceCapabilitiesViewModel
 import com.startune.music.presentation.viewmodel.ExoPlayerInfo
 import com.startune.music.presentation.viewmodel.FormatSupportInfo
 import com.startune.music.presentation.viewmodel.LocalMusicStorageSummary
+import com.startune.music.presentation.viewmodel.VolumeStorageSummary
 import com.startune.music.presentation.viewmodel.MemorySummary
 import com.startune.music.presentation.viewmodel.PlaybackCompatibilitySummary
 import com.startune.music.presentation.viewmodel.PlayerViewModel
@@ -226,7 +227,6 @@ private fun DeviceCapabilitiesContent(
             PlaybackReadinessCard(
                 deviceInfo = state.deviceInfo,
                 audioCapabilities = state.audioCapabilities,
-                storageSummary = state.storageSummary,
                 playbackCompatibility = state.playbackCompatibility
             )
         }
@@ -267,7 +267,6 @@ private fun DeviceCapabilitiesContent(
 private fun PlaybackReadinessCard(
     deviceInfo: Map<String, String>,
     audioCapabilities: AudioCapabilities?,
-    storageSummary: LocalMusicStorageSummary?,
     playbackCompatibility: PlaybackCompatibilitySummary?,
     modifier: Modifier = Modifier
 ) {
@@ -343,14 +342,6 @@ private fun PlaybackReadinessCard(
                     containerColor = contentColor.copy(alpha = 0.10f),
                     contentColor = contentColor
                 )
-                HeroMetricTile(
-                    label = stringResource(R.string.device_capabilities_metric_local_music),
-                    value = storageSummary?.localSongCount?.toString()
-                        ?: stringResource(R.string.device_capabilities_unknown_short),
-                    modifier = Modifier.weight(1f),
-                    containerColor = contentColor.copy(alpha = 0.10f),
-                    contentColor = contentColor
-                )
             }
         }
     }
@@ -361,59 +352,17 @@ fun LocalMusicStorageCard(
     storageSummary: LocalMusicStorageSummary,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val musicSize = remember(storageSummary.localMusicBytes) {
-        Formatter.formatShortFileSize(context, storageSummary.localMusicBytes)
-    }
-    val availableSize = remember(storageSummary.deviceAvailableBytes) {
-        Formatter.formatShortFileSize(context, storageSummary.deviceAvailableBytes)
-    }
-    val totalSize = remember(storageSummary.deviceTotalBytes) {
-        Formatter.formatShortFileSize(context, storageSummary.deviceTotalBytes)
-    }
-    val musicPercent = storagePercentLabel(storageSummary.localMusicStorageFraction)
-    val usedPercent = storagePercentLabel(storageSummary.deviceUsedFraction)
+    val showVolumeHeaders = storageSummary.volumes.size > 1
 
     CapabilityCard(
         title = stringResource(R.string.device_capabilities_storage_title),
         icon = Icons.Rounded.Storage,
         modifier = modifier
     ) {
-        Row(
-            modifier = Modifier.height(IntrinsicSize.Min),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            InfoTile(
-                label = stringResource(R.string.device_capabilities_storage_music_size),
-                value = musicSize,
-                supporting = stringResource(
-                    R.string.device_capabilities_storage_music_count,
-                    storageSummary.localSongCount
-                ),
-                modifier = Modifier.weight(1f)
-            )
-            InfoTile(
-                label = stringResource(R.string.device_capabilities_storage_available),
-                value = availableSize,
-                supporting = stringResource(R.string.device_capabilities_storage_total, totalSize),
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Column(
-            modifier = Modifier.padding(start = 6.dp, end = 6.dp, bottom = 6.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            ProgressReadout(
-                label = stringResource(R.string.device_capabilities_storage_music_footprint),
-                value = musicPercent,
-                progress = storageSummary.localMusicStorageFraction
-            )
-            ProgressReadout(
-                label = stringResource(R.string.device_capabilities_storage_device_used),
-                value = usedPercent,
-                progress = storageSummary.deviceUsedFraction,
-                color = MaterialTheme.colorScheme.secondary
+        storageSummary.volumes.forEach { volume ->
+            VolumeStorageSection(
+                volume = volume,
+                showHeader = showVolumeHeaders
             )
         }
 
@@ -438,6 +387,77 @@ fun LocalMusicStorageCard(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun VolumeStorageSection(
+    volume: VolumeStorageSummary,
+    showHeader: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val musicSize = remember(volume.musicBytes) {
+        Formatter.formatShortFileSize(context, volume.musicBytes)
+    }
+    val availableSize = remember(volume.availableBytes) {
+        Formatter.formatShortFileSize(context, volume.availableBytes)
+    }
+    val totalSize = remember(volume.totalBytes) {
+        Formatter.formatShortFileSize(context, volume.totalBytes)
+    }
+    val musicPercent = storagePercentLabel(volume.musicFraction)
+    val usedPercent = storagePercentLabel(volume.usedFraction)
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        if (showHeader) {
+            Text(
+                text = volume.label,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Row(
+            modifier = Modifier.height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            InfoTile(
+                label = stringResource(R.string.device_capabilities_storage_music_size),
+                value = musicSize,
+                supporting = stringResource(
+                    R.string.device_capabilities_storage_music_count,
+                    volume.songCount
+                ),
+                modifier = Modifier.weight(1f)
+            )
+            InfoTile(
+                label = stringResource(R.string.device_capabilities_storage_available),
+                value = availableSize,
+                supporting = stringResource(R.string.device_capabilities_storage_total, totalSize),
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Column(
+            modifier = Modifier.padding(start = 6.dp, end = 6.dp, bottom = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            ProgressReadout(
+                label = stringResource(R.string.device_capabilities_storage_music_footprint),
+                value = musicPercent,
+                progress = volume.musicFraction
+            )
+            ProgressReadout(
+                label = stringResource(R.string.device_capabilities_storage_device_used),
+                value = usedPercent,
+                progress = volume.usedFraction,
+                color = MaterialTheme.colorScheme.secondary
+            )
         }
     }
 }

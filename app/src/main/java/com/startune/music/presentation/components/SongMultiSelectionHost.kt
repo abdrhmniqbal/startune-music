@@ -36,7 +36,9 @@ fun SongMultiSelectionHost(
     onDismiss: () -> Unit,
     bottomBarHeight: Dp = MiniPlayerHeight,
     playlistViewModel: PlaylistViewModel = hiltViewModel(),
-    onActionTaken: () -> Unit = {}
+    onActionTaken: () -> Unit = {},
+    onRemoveFromList: (() -> Unit)? = null,
+    removeFromListLabel: String? = null
 ) {
     val selectedSongs by multiSelectionState.selectedSongs.collectAsStateWithLifecycle()
     val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
@@ -91,7 +93,15 @@ fun SongMultiSelectionHost(
                     onActionTaken()
                     onComplete(true)
                 }
-            }
+            },
+            onRemoveFromList = onRemoveFromList?.let { remove ->
+                {
+                    remove()
+                    multiSelectionState.clearSelection()
+                    onActionTaken()
+                }
+            },
+            removeFromListLabel = removeFromListLabel
         )
     }
 

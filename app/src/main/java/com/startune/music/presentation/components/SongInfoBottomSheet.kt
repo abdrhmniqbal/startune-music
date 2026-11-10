@@ -36,6 +36,7 @@ import androidx.compose.material.icons.rounded.AudioFile
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.CloudDone
+import androidx.compose.material.icons.rounded.RemoveCircleOutline
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.MusicNote
@@ -127,6 +128,8 @@ fun SongInfoBottomSheet(
         customMetadataChanges: CustomMetadataChanges
     ) -> Unit,
     removeFromListTrigger: () -> Unit,
+    onRemoveFromList: (() -> Unit)? = null,
+    removeFromListLabel: String? = null,
     songInfoViewModel: SongInfoBottomSheetViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -651,6 +654,32 @@ fun SongInfoBottomSheet(
                                                         maxLines = 1,
                                                         overflow = TextOverflow.Ellipsis
                                                     )
+                                                }
+                                            }
+                                        }
+
+                                        if (onRemoveFromList != null && removeFromListLabel != null) {
+                                            item {
+                                                FilledTonalButton(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .heightIn(min = 66.dp),
+                                                    colors = ButtonDefaults.filledTonalButtonColors(
+                                                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                                                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                                                    ),
+                                                    shape = CircleShape,
+                                                    onClick = {
+                                                        onRemoveFromList?.invoke()
+                                                        onDismiss()
+                                                    }
+                                                ) {
+                                                    Icon(
+                                                        Icons.Rounded.RemoveCircleOutline,
+                                                        contentDescription = removeFromListLabel
+                                                    )
+                                                    Spacer(Modifier.width(8.dp))
+                                                    Text(removeFromListLabel)
                                                 }
                                             }
                                         }

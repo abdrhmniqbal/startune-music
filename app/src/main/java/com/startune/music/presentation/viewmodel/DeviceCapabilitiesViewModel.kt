@@ -10,11 +10,13 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
+import android.os.storage.StorageManager
 import android.provider.OpenableColumns
 import androidx.annotation.OptIn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
+import com.startune.music.R
 import com.startune.music.data.database.DeviceCapabilitySongRow
 import com.startune.music.data.database.MusicDao
 import com.startune.music.data.database.SourceType
@@ -76,32 +78,37 @@ data class FormatSupportInfo(
     val librarySongCount: Int
 )
 
-data class LocalMusicStorageSummary(
-    val localSongCount: Int,
-    val cloudSongCount: Int,
-    val knownLocalFileCount: Int,
-    val unavailableLocalFileCount: Int,
-    val localMusicBytes: Long,
-    val deviceAvailableBytes: Long,
-    val deviceTotalBytes: Long
+data class VolumeStorageSummary(
+    val label: String,
+    val isRemovable: Boolean,
+    val musicBytes: Long,
+    val songCount: Int,
+    val availableBytes: Long,
+    val totalBytes: Long
 ) {
-    val deviceUsedBytes: Long
-        get() = (deviceTotalBytes - deviceAvailableBytes).coerceAtLeast(0L)
+    val usedBytes: Long
+        get() = (totalBytes - availableBytes).coerceAtLeast(0L)
 
-    val localMusicStorageFraction: Float
-        get() = if (deviceTotalBytes <= 0L) {
+    val musicFraction: Float
+        get() = if (totalBytes <= 0L) {
             0f
         } else {
-            (localMusicBytes.toDouble() / deviceTotalBytes.toDouble()).coerceIn(0.0, 1.0).toFloat()
+            (musicBytes.toDouble() / totalBytes.toDouble()).coerceIn(0.0, 1.0).toFloat()
         }
 
-    val deviceUsedFraction: Float
-        get() = if (deviceTotalBytes <= 0L) {
+    val usedFraction: Float
+        get() = if (totalBytes <= 0L) {
             0f
         } else {
-            (deviceUsedBytes.toDouble() / deviceTotalBytes.toDouble()).coerceIn(0.0, 1.0).toFloat()
+            (usedBytes.toDouble() / totalBytes.toDouble()).coerceIn(0.0, 1.0).toFloat()
         }
 }
+
+data class LocalMusicStorageSummary(
+    val cloudSongCount: Int,
+    val unavailableLocalFileCount: Int,
+    val volumes: List<VolumeStorageSummary>
+)
 
 data class PlaybackCompatibilitySummary(
     val supportedLibrarySongCount: Int,
@@ -266,31 +273,95 @@ class DeviceCapabilitiesViewModel @Inject constructor(
     private fun getLocalMusicStorageSummary(rows: List<DeviceCapabilitySongRow>): LocalMusicStorageSummary {
         val localRows = rows.filter { it.sourceType == SourceType.LOCAL }
         val cloudCount = rows.count { it.sourceType != SourceType.LOCAL }
-        var totalBytes = 0L
-        var knownFiles = 0
+        val volumes = getMountedStorageVolumes()
+        val musicBytesByVolume = LongArray(volumes.size)
+        val songCountByVolume = IntArray(volumes.size)
         var unavailableFiles = 0
 
         localRows.forEach { row ->
             val bytes = resolveLocalFileSize(row)
-            if (bytes > 0L) {
-                totalBytes += bytes
-                knownFiles += 1
-            } else {
+            if (bytes <= 0L) {
                 unavailableFiles += 1
+                return@forEach
             }
+            // A row whose volume cannot be determined falls back to the primary
+            // volume, the same accounting the old single-volume code did.
+            val index = findVolumeIndex(row, volumes).takeIf { it >= 0 } ?: 0
+            musicBytesByVolume[index] += bytes
+            songCountByVolume[index] += 1
         }
 
-        val storageStats = getDeviceStorageStats()
-
         return LocalMusicStorageSummary(
-            localSongCount = localRows.size,
             cloudSongCount = cloudCount,
-            knownLocalFileCount = knownFiles,
             unavailableLocalFileCount = unavailableFiles,
-            localMusicBytes = totalBytes,
-            deviceAvailableBytes = storageStats.first,
-            deviceTotalBytes = storageStats.second
+            volumes = volumes.mapIndexed { index, volume ->
+                val stats = runCatching { StatFs(volume.directory.path) }.getOrNull()
+                VolumeStorageSummary(
+                    label = volume.label,
+                    isRemovable = volume.isRemovable,
+                    musicBytes = musicBytesByVolume[index],
+                    songCount = songCountByVolume[index],
+                    availableBytes = stats?.availableBytes ?: 0L,
+                    totalBytes = stats?.totalBytes ?: 0L
+                )
+            }
         )
+    }
+
+    private data class MountedVolume(
+        val label: String,
+        val isRemovable: Boolean,
+        val directory: File
+    )
+
+    private fun getMountedStorageVolumes(): List<MountedVolume> {
+        val storageManager = context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
+        val mounted = runCatching {
+            storageManager.storageVolumes
+                .filter { it.state == Environment.MEDIA_MOUNTED }
+                .mapNotNull { volume ->
+                    val directory = volume.directory ?: return@mapNotNull null
+                    MountedVolume(
+                        label = volume.getDescription(context),
+                        isRemovable = volume.isRemovable,
+                        directory = directory
+                    )
+                }
+        }.getOrDefault(emptyList())
+        if (mounted.isNotEmpty()) return mounted
+        // Fallback so the card never renders empty: the primary external storage.
+        return listOf(
+            MountedVolume(
+                label = context.getString(R.string.device_capabilities_storage_internal),
+                isRemovable = false,
+                directory = Environment.getExternalStorageDirectory()
+            )
+        )
+    }
+
+    private fun findVolumeIndex(row: DeviceCapabilitySongRow, volumes: List<MountedVolume>): Int {
+        val path = row.filePath.takeIf { it.isNotBlank() }
+        if (path != null) {
+            val normalized = if (path.startsWith("/sdcard/")) {
+                volumes.firstOrNull { !it.isRemovable }?.directory?.path?.let { primary ->
+                    primary + path.removePrefix("/sdcard")
+                } ?: path
+            } else {
+                path
+            }
+            // Longest matching volume directory wins.
+            return volumes.indices
+                .filter { normalized.startsWith(volumes[it].directory.path + "/") }
+                .maxByOrNull { volumes[it].directory.path.length }
+                ?: -1
+        }
+        val volumeName = row.contentUriString.takeIf { it.isNotBlank() }?.let {
+            runCatching { Uri.parse(it).pathSegments.firstOrNull() }.getOrNull()
+        } ?: return -1
+        if (volumeName == "external_primary") {
+            return volumes.indexOfFirst { !it.isRemovable }
+        }
+        return volumes.indexOfFirst { it.directory.name == volumeName }
     }
 
     private fun getPlaybackCompatibilitySummary(
@@ -411,13 +482,6 @@ class DeviceCapabilitiesViewModel @Inject constructor(
 
                 if (isSupported) candidate.label else null
             }
-    }
-
-    private fun getDeviceStorageStats(): Pair<Long, Long> {
-        return runCatching {
-            val statFs = StatFs(Environment.getExternalStorageDirectory().path)
-            statFs.availableBytes to statFs.totalBytes
-        }.getOrElse { 0L to 0L }
     }
 
     private fun resolveLocalFileSize(row: DeviceCapabilitySongRow): Long {

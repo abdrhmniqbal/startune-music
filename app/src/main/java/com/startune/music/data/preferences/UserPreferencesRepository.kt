@@ -101,6 +101,7 @@ constructor(
         val FAVORITE_SONG_IDS = stringSetPreferencesKey("favorite_song_ids")
         val USER_PLAYLISTS = stringPreferencesKey("user_playlists_json_v1")
         val PLAYLIST_SONG_ORDER_MODES = stringPreferencesKey("playlist_song_order_modes")
+        val MIX_REMOVED_SONG_IDS = stringPreferencesKey("mix_removed_song_ids")
 
         val SONGS_SORT_OPTION = stringPreferencesKey("songs_sort_option")
         val SONGS_SORT_OPTION_MIGRATED = booleanPreferencesKey("songs_sort_option_migrated_v2")
@@ -1235,6 +1236,55 @@ constructor(
             updated.remove(playlistId)
 
             preferences[PreferencesKeys.PLAYLIST_SONG_ORDER_MODES] = json.encodeToString(updated)
+        }
+    }
+
+    /**
+     * Song ids the user removed from a mix, keyed by mix id. A mix is rebuilt
+     * from its rule on every open, so removals must be remembered here or the
+     * removed songs come back.
+     */
+    val mixRemovedSongIdsFlow: Flow<Map<String, List<String>>> =
+            dataStore.data.map { preferences ->
+                val serialized = preferences[PreferencesKeys.MIX_REMOVED_SONG_IDS]
+                if (serialized.isNullOrBlank()) {
+                    emptyMap()
+                } else {
+                    runCatching { json.decodeFromString<Map<String, List<String>>>(serialized) }
+                            .getOrDefault(emptyMap())
+                }
+            }
+
+    suspend fun getMixRemovedSongIds(playlistId: String): Set<String> {
+        val serialized = dataStore.data.first()[PreferencesKeys.MIX_REMOVED_SONG_IDS]
+            ?: return emptySet()
+        return runCatching { json.decodeFromString<Map<String, List<String>>>(serialized)[playlistId] }
+                .getOrNull()?.toSet() ?: emptySet()
+    }
+
+    suspend fun addMixRemovedSongIds(playlistId: String, songIds: Collection<String>) {
+        if (songIds.isEmpty()) return
+        dataStore.edit { preferences ->
+            val existing = preferences[PreferencesKeys.MIX_REMOVED_SONG_IDS]?.let { raw ->
+                runCatching { json.decodeFromString<Map<String, List<String>>>(raw) }
+                        .getOrDefault(emptyMap())
+            } ?: emptyMap()
+            val updated = existing.toMutableMap()
+            updated[playlistId] = ((existing[playlistId] ?: emptyList()) + songIds).distinct()
+            preferences[PreferencesKeys.MIX_REMOVED_SONG_IDS] = json.encodeToString(updated)
+        }
+    }
+
+    suspend fun clearMixRemovedSongIds(playlistId: String) {
+        dataStore.edit { preferences ->
+            val existing = preferences[PreferencesKeys.MIX_REMOVED_SONG_IDS]?.let { raw ->
+                runCatching { json.decodeFromString<Map<String, List<String>>>(raw) }
+                        .getOrDefault(emptyMap())
+            } ?: return@edit
+            if (!existing.containsKey(playlistId)) return@edit
+            val updated = existing.toMutableMap()
+            updated.remove(playlistId)
+            preferences[PreferencesKeys.MIX_REMOVED_SONG_IDS] = json.encodeToString(updated)
         }
     }
 

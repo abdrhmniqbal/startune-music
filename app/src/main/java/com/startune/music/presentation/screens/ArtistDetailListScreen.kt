@@ -200,7 +200,7 @@ fun ArtistDetailListScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.background)
             .nestedScroll(nestedScrollConnection)
     ) {
         when {

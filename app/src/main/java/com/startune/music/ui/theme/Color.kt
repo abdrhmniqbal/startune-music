@@ -2,17 +2,17 @@
 
 import androidx.compose.ui.graphics.Color
 
-val StartunePurpleDark = Color(0xFF1E1234)
+val StartunePurpleDark = Color(0xFF180E2C)
 val StartunePurplePrimary = Color(0xFFAB47BC)
 val StartunePink = Color(0xFFF06292)
 val StartuneOrange = Color(0xFFFF8A65)
 val StartuneLightPurple = Color(0xFFE1BEE7)
 val StartuneWhite = Color(0xFFFFFFFF)
 val StartuneBlack = Color(0xFF000000)
-val StartuneSurface = Color(0xFF2A1F40)
+val StartuneSurface = Color(0xFF33265C)
 
 val LightBackground = Color(0xFFF7F2FF)
-val LightSurface = Color(0xFFFBF8FF)
+val LightSurface = Color(0xFFDBD1FF)
 val LightSurfaceVariant = Color(0xFFE8DEF9)
 val LightOnSurface = Color(0xFF1E1237)
 val LightOnSurfaceVariant = Color(0xFF4D4165)

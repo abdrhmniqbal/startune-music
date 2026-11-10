@@ -347,7 +347,53 @@ class PlaylistViewModel @Inject constructor(
         }
     }
 
-    /** Changes a mix's song count and rebuilds it from its rule at the new size. */
+    /** Changes a mix's song count and rebuilds it from its rule at the new size. */    fun updateMix(
+        playlistId: String,
+        name: String,
+        rule: MixRule,
+        songCount: Int,
+        artistIds: List<Long> = emptyList(),
+        coverImageUri: String? = null,
+        coverColor: Int? = null,
+        coverIcon: String? = null,
+        cropScale: Float = 1f,
+        cropPanX: Float = 0f,
+        cropPanY: Float = 0f
+    ) {
+        viewModelScope.launch {
+            val playlist = playlistPreferencesRepository.getPlaylistsOnce()
+                .firstOrNull { it.id == playlistId } ?: return@launch
+            if (!playlist.isMix) return@launch
+            var savedCoverPath: String? = null
+            if (coverImageUri != null && coverImageUri != playlist.coverImageUri) {
+                val imageId = UUID.randomUUID().toString()
+                savedCoverPath = saveCoverImageToInternalStorage(
+                    Uri.parse(coverImageUri),
+                    imageId,
+                    cropScale,
+                    cropPanX,
+                    cropPanY
+                )
+            } else if (coverImageUri != null) {
+                savedCoverPath = playlist.coverImageUri
+            }
+            playlistPreferencesRepository.updatePlaylist(
+                playlist.copy(
+                    name = name,
+                    coverImageUri = savedCoverPath,
+                    coverColorArgb = coverColor,
+                    coverIconName = coverIcon,
+                    source = rule.toMixSource(),
+                    mixSongCount = songCount,
+                    mixArtistIds = artistIds.ifEmpty { null },
+                    lastModified = System.currentTimeMillis()
+                )
+            )
+            loadPlaylistDetails(playlistId)
+        }
+    }
+
+
     fun setMixSongCount(playlistId: String, count: Int) {
         viewModelScope.launch {
             val playlist = playlistPreferencesRepository.getPlaylistsOnce()
@@ -378,6 +424,7 @@ class PlaylistViewModel @Inject constructor(
                 artistIds = playlist.mixArtistIds ?: emptyList()
             )
             val backfill = candidates.firstOrNull { it !in remaining && it != songId }
+            playlistPreferencesRepository.addMixRemovedSongIds(playlistId, listOf(songId))
             playlistPreferencesRepository.updatePlaylist(
                 playlist.copy(
                     songIds = remaining + listOfNotNull(backfill),
@@ -411,11 +458,13 @@ class PlaylistViewModel @Inject constructor(
 
     private suspend fun refreshMixIfNeeded(playlist: Playlist): Playlist {
         val mixRule = MixRule.fromPlaylistSource(playlist.source) ?: return playlist
+        val excludedIds = playlistPreferencesRepository.getMixRemovedSongIds(playlist.id)
+        val limit = (playlist.mixSongCount ?: 60) + excludedIds.size
         val refreshedSongIds = buildMixSongIds(
             rule = mixRule,
-            limit = playlist.mixSongCount ?: 60,
+            limit = limit,
             artistIds = playlist.mixArtistIds ?: emptyList()
-        )
+        ).filterNot { it in excludedIds }.take(limit - excludedIds.size)
 
         if (refreshedSongIds == playlist.songIds) return playlist
 
@@ -505,9 +554,61 @@ class PlaylistViewModel @Inject constructor(
         }
     }
 
-    fun deletePlaylist(playlistId: String) {
+    fun deletePlaylist(playlistId: String) {    fun removeSongsFromPlaylist(playlistId: String, songIds: List<String>) {
+        if (songIds.isEmpty()) return
+        viewModelScope.launch {
+            val playlist = playlistPreferencesRepository.getPlaylistsOnce()
+                .firstOrNull { it.id == playlistId } ?: return@launch
+            if (isFolderPlaylistId(playlistId) || playlist.isMix) return@launch
+            val remaining = playlist.songIds - songIds.toSet()
+            if (remaining.size == playlist.songIds.size) return@launch
+            playlistPreferencesRepository.updatePlaylist(
+                playlist.copy(
+                    songIds = remaining,
+                    lastModified = System.currentTimeMillis()
+                )
+            )
+            if (_uiState.value.currentPlaylistDetails?.id == playlistId) {
+                loadPlaylistDetails(playlistId)
+            }
+        }
+    }
+
+    fun removeSongsFromMix(playlistId: String, songIds: List<String>) {
+        if (songIds.isEmpty()) return
+        viewModelScope.launch {
+            val playlist = playlistPreferencesRepository.getPlaylistsOnce()
+                .firstOrNull { it.id == playlistId } ?: return@launch
+            if (!playlist.isMix) return@launch
+            val remaining = playlist.songIds - songIds.toSet()
+            val removedCount = playlist.songIds.size - remaining.size
+            if (removedCount == 0) return@launch
+            val rule = MixRule.fromPlaylistSource(playlist.source) ?: return@launch
+            val candidates = buildMixSongIds(
+                    rule = rule,
+                    limit = (playlist.mixSongCount ?: 60) + removedCount,
+                    artistIds = playlist.mixArtistIds ?: emptyList()
+                )
+            val backfills = candidates.filterNot {
+                it in remaining || it in songIds
+            }.take(removedCount)
+            playlistPreferencesRepository.addMixRemovedSongIds(playlistId, songIds)
+            playlistPreferencesRepository.updatePlaylist(
+                playlist.copy(
+                    songIds = remaining + backfills,
+                    lastModified = System.currentTimeMillis()
+                )
+            )
+            if (_uiState.value.currentPlaylistDetails?.id == playlistId) {
+                loadPlaylistDetails(playlistId)
+            }
+        }
+    }
+
+
         if (isFolderPlaylistId(playlistId)) return
         viewModelScope.launch {
+            playlistPreferencesRepository.clearMixRemovedSongIds(playlistId)
             playlistPreferencesRepository.deletePlaylist(playlistId)
         }
     }

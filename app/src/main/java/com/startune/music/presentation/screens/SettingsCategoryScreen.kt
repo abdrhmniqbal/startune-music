@@ -1320,7 +1320,27 @@ fun SettingsCategoryScreen(
                                 )
                             }
                         }
-                        SettingsCategory.BACKUP_RESTORE -> {
+                        SettingsCategory.DATA_STORAGE -> {
+                            val deviceCapabilitiesState by deviceCapabilitiesViewModel.state.collectAsStateWithLifecycle()
+                            val dataRoot = AppFolders.resolveRoot(uiState.dataStorageRoot)
+
+                            SettingsSubsection(title = stringResource(R.string.data_storage_section_location)) {
+                                ActionSettingsItem(
+                                    title = stringResource(R.string.data_storage_location_title),
+                                    subtitle = dataRoot.absolutePath,
+                                    icon = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.rounded_folder_24),
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary
+                                        )
+                                    },
+                                    primaryActionLabel = stringResource(R.string.auto_backup_choose_folder),
+                                    onPrimaryAction = { dataStorageFolderPicker.launch(null) },
+                                    modifier = Modifier.settingHighlight("item_data_storage_root", highlightKey)
+                                )
+                            }
+
                             if (!uiState.backupInfoDismissed) {
                                 BackupInfoNoticeCard(
                                     onDismiss = { settingsViewModel.setBackupInfoDismissed(true) }
@@ -1369,53 +1389,6 @@ fun SettingsCategoryScreen(
                                 )
                             }
 
-                        }
-                        SettingsCategory.DATA_STORAGE -> {
-                            val deviceCapabilitiesState by deviceCapabilitiesViewModel.state.collectAsStateWithLifecycle()
-                            val dataRoot = AppFolders.resolveRoot(uiState.dataStorageRoot)
-
-                            SettingsSubsection(title = stringResource(R.string.data_storage_section_location)) {
-                                ActionSettingsItem(
-                                    title = stringResource(R.string.data_storage_location_title),
-                                    subtitle = dataRoot.absolutePath,
-                                    icon = {
-                                        Icon(
-                                            painter = painterResource(R.drawable.rounded_folder_24),
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.secondary
-                                        )
-                                    },
-                                    primaryActionLabel = stringResource(R.string.auto_backup_choose_folder),
-                                    onPrimaryAction = { dataStorageFolderPicker.launch(null) },
-                                    modifier = Modifier.settingHighlight("item_data_storage_root", highlightKey)
-                                )
-                                SettingsItem(
-                                    title = stringResource(R.string.data_storage_backups_title),
-                                    subtitle = AppFolders.autoBackupDir(dataRoot).absolutePath,
-                                    leadingIcon = {
-                                        Icon(
-                                            painter = painterResource(R.drawable.rounded_folder_24),
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.secondary
-                                        )
-                                    },
-                                    modifier = Modifier.settingHighlight("item_data_storage_backups", highlightKey),
-                                    onClick = {}
-                                )
-                                SettingsItem(
-                                    title = stringResource(R.string.data_storage_downloads_title),
-                                    subtitle = AppFolders.downloadsDir(dataRoot).absolutePath,
-                                    leadingIcon = {
-                                        Icon(
-                                            painter = painterResource(R.drawable.rounded_folder_24),
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.secondary
-                                        )
-                                    },
-                                    modifier = Modifier.settingHighlight("item_data_storage_downloads", highlightKey),
-                                    onClick = {}
-                                )
-                            }
 
                             SettingsSubsection(
                                 title = stringResource(R.string.auto_backup_section)

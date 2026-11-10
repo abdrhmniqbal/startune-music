@@ -31,7 +31,7 @@ import androidx.compose.material.icons.rounded.Upload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -178,6 +178,15 @@ fun ColorSchemeScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
+                Button(
+                    onClick = { onEditTheme("new") },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Rounded.Add, contentDescription = null)
+                    Text(text = stringResource(R.string.color_scheme_create))
+                }
+            }
+            item {
                 Text(
                     text = stringResource(R.string.color_scheme_builtin),
                     style = MaterialTheme.typography.titleSmall,
@@ -227,15 +236,6 @@ fun ColorSchemeScreen(
                     },
                     onDelete = { deleteScheme = scheme }
                 )
-            }
-            item {
-                FilledTonalButton(
-                    onClick = { onEditTheme("new") },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(Icons.Rounded.Add, contentDescription = null)
-                    Text(text = stringResource(R.string.color_scheme_create))
-                }
             }
         }
     }

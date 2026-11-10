@@ -27,6 +27,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -132,6 +133,19 @@ fun ExpressiveTopBarContent(
             )
         )
 
+        // The title block is top-anchored at the position a single-line
+        // title would sit, so a wrapping title grows downward instead of
+        // eating the space above it.
+        val titleLineHeight = titleFontSize * 1.1f
+        val subtitleLineHeight = if (!subtitle.isNullOrEmpty()) {
+            MaterialTheme.typography.labelLarge.lineHeight
+        } else {
+            0.sp
+        }
+        val titleTopPadding = with(density) {
+            ((titleContainerHeight - (titleLineHeight + subtitleLineHeight).toDp()) / 2)
+                .coerceAtLeast(0.dp)
+        }
         Box(
             modifier = Modifier
                 .align(animatedTitleAlignment)
@@ -140,7 +154,9 @@ fun ExpressiveTopBarContent(
                 .padding(start = titlePaddingStart, end = titlePaddingEnd)
         ) {
             Column(
-                modifier = Modifier.align(Alignment.CenterStart)
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(top = titleTopPadding)
             ) {
                 Text(
                     text = title,
