@@ -26,6 +26,7 @@ import com.startune.music.presentation.viewmodel.ColorSchemePair
 import androidx.core.graphics.ColorUtils
 
 val LocalStartuneDarkTheme = staticCompositionLocalOf { false }
+val LocalShowScrollbar = staticCompositionLocalOf { true }
 
 private tailrec fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this

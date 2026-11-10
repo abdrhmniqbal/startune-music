@@ -399,6 +399,18 @@ object SettingsRegistry {
                 keywordsStatic = listOf("auto hide", "delay", "timeout", "lyrics", "controls")
             ),
             SettingSpec(
+                id = "appearance_show_scrollbar",
+                itemKey = "item_appearance_show_scrollbar",
+                titleRes = R.string.setcat_show_scrollbar_title,
+                subtitleRes = R.string.setcat_show_scrollbar_subtitle,
+                category = SettingsCategory.APPEARANCE,
+                subscreenRoute = Screen.SettingsCategory.createRoute("appearance"),
+                type = SettingType.SWITCH,
+                keywordsStatic = listOf("scrollbar", "scroll", "fast scroll", "indicator"),
+                getValue = { it.showScrollbar },
+                onToggle = { viewModel, checked -> viewModel.setShowScrollbar(checked) }
+            ),
+            SettingSpec(
                 id = "appearance_default_tab",
                 itemKey = "item_appearance_default_tab",
                 titleRes = R.string.setcat_default_tab_label,

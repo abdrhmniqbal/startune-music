@@ -149,6 +149,7 @@ import com.startune.music.presentation.viewmodel.MainViewModel
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.data.preferences.ColorSchemeIds
 import com.startune.music.ui.theme.StartuneTheme
+import com.startune.music.ui.theme.LocalShowScrollbar
 import com.startune.music.ui.theme.resolveAppWideNowPlayingColorSchemePair
 import com.startune.music.ui.theme.resolveSelectedSchemePair
 import com.startune.music.utils.AppLocaleManager
@@ -781,9 +782,11 @@ class MainActivity : ComponentActivity() {
             userPreferencesRepository.clearDeprecatedPlayerSheetPreference()
         }
 
+        val showScrollbar by userPreferencesRepository.showScrollbarFlow.collectAsStateWithLifecycle(initialValue = true)
         CompositionLocalProvider(
             LocalAppHapticsConfig provides appHapticsConfig,
-            LocalHapticFeedback provides scopedHapticFeedback
+            LocalHapticFeedback provides scopedHapticFeedback,
+            LocalShowScrollbar provides showScrollbar
         ) {
             AppSidebarDrawer(
                 drawerState = drawerState,
