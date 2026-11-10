@@ -70,6 +70,7 @@ import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.LightMode
+import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Style
@@ -169,6 +170,7 @@ import com.startune.music.data.backup.model.RestorePlan
 import com.startune.music.data.model.AudioOutputMode
 import com.startune.music.data.preferences.AppLanguage
 import com.startune.music.data.preferences.AppThemeMode
+import com.startune.music.data.preferences.ColorSchemeIds
 import com.startune.music.data.preferences.CollagePattern
 import com.startune.music.data.preferences.CarouselStyle
 import com.startune.music.data.preferences.LaunchTab
@@ -187,6 +189,7 @@ import com.startune.music.presentation.viewmodel.LyricsRefreshProgress
 import com.startune.music.presentation.viewmodel.M3uSyncViewModel
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.SettingsViewModel
+import com.startune.music.ui.theme.BuiltInColorSchemes
 import com.startune.music.ui.theme.RoundedSans
 import com.startune.music.presentation.components.rememberModalSheetState
 import kotlinx.collections.immutable.ImmutableList
@@ -201,6 +204,7 @@ fun SettingsCategoryScreen(
     navController: NavController,
     playerViewModel: PlayerViewModel,
     settingsViewModel: SettingsViewModel = hiltViewModel(),
+    colorSchemeViewModel: com.startune.music.presentation.viewmodel.ColorSchemeViewModel = hiltViewModel(),
     m3uSyncViewModel: M3uSyncViewModel = hiltViewModel(),
     statsViewModel: com.startune.music.presentation.viewmodel.StatsViewModel = hiltViewModel(),
     onBackClick: () -> Unit
@@ -662,6 +666,14 @@ fun SettingsCategoryScreen(
                         }
                         SettingsCategory.APPEARANCE -> {
                             val useSmoothCorners by settingsViewModel.useSmoothCorners.collectAsStateWithLifecycle()
+                            val selectedColorSchemeId by colorSchemeViewModel.selectedSchemeId.collectAsStateWithLifecycle()
+                            val customColorSchemes by colorSchemeViewModel.customSchemes.collectAsStateWithLifecycle()
+                            val colorSchemeName = when (selectedColorSchemeId) {
+                                ColorSchemeIds.DYNAMIC -> stringResource(R.string.color_scheme_dynamic_name)
+                                else -> BuiltInColorSchemes.find(selectedColorSchemeId)?.name
+                                    ?: customColorSchemes.firstOrNull { it.id == selectedColorSchemeId }?.name
+                                    ?: stringResource(R.string.color_scheme_dynamic_name)
+                            }
 
                             SettingsSubsection(title = stringResource(R.string.setcat_global_theme)) {
                                 ThemeSelectorItem(
@@ -688,6 +700,26 @@ fun SettingsCategoryScreen(
                                     onSelectionChanged = { settingsViewModel.setAppThemeMode(it) },
                                     leadingIcon = { Icon(Icons.Outlined.LightMode, null, tint = MaterialTheme.colorScheme.secondary) },
                                     modifier = Modifier.settingHighlight("item_appearance_app_theme", highlightKey)
+                                )
+                                SettingsItem(
+                                    title = stringResource(R.string.setcat_color_scheme_title),
+                                    subtitle = colorSchemeName,
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Palette,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary
+                                        )
+                                    },
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Rounded.ChevronRight,
+                                            contentDescription = stringResource(R.string.cd_open),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight("item_appearance_color_scheme", highlightKey),
+                                    onClick = { navController.navigateSafely(Screen.ColorScheme.route) }
                                 )
                                 SwitchSettingItem(
                                     title = stringResource(R.string.setcat_global_now_playing_theme_title),

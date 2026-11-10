@@ -8,6 +8,8 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -21,7 +23,11 @@ class ThemePreferencesRepository @Inject constructor(
         val ALBUM_ART_COLOR_ACCURACY = intPreferencesKey("album_art_color_accuracy_v1")
         val APP_THEME_MODE = stringPreferencesKey("app_theme_mode")
         val GLOBAL_NOW_PLAYING_THEME_ENABLED = booleanPreferencesKey("global_now_playing_theme_enabled_v1")
+        val SELECTED_COLOR_SCHEME_ID = stringPreferencesKey("selected_color_scheme_id")
+        val CUSTOM_COLOR_SCHEMES = stringPreferencesKey("custom_color_schemes_json")
     }
+
+    private val schemeJson = Json { ignoreUnknownKeys = true }
 
     val appThemeModeFlow: Flow<String> = dataStore.data.map { preferences ->
         preferences[Keys.APP_THEME_MODE] ?: AppThemeMode.FOLLOW_SYSTEM
@@ -43,6 +49,15 @@ class ThemePreferencesRepository @Inject constructor(
         AlbumArtColorAccuracy.clamp(preferences[Keys.ALBUM_ART_COLOR_ACCURACY] ?: AlbumArtColorAccuracy.DEFAULT)
     }
 
+    val selectedColorSchemeIdFlow: Flow<String> = dataStore.data.map { preferences ->
+        preferences[Keys.SELECTED_COLOR_SCHEME_ID] ?: ColorSchemeIds.DYNAMIC
+    }
+
+    val customColorSchemesFlow: Flow<List<AppColorScheme>> = dataStore.data.map { preferences ->
+        val raw = preferences[Keys.CUSTOM_COLOR_SCHEMES] ?: return@map emptyList()
+        runCatching { schemeJson.decodeFromString<List<AppColorScheme>>(raw) }.getOrDefault(emptyList())
+    }
+
     suspend fun setPlayerThemePreference(themeMode: String) =
         dataStore.edit { preferences ->
             preferences[Keys.PLAYER_THEME_PREFERENCE] = themeMode
@@ -56,6 +71,16 @@ class ThemePreferencesRepository @Inject constructor(
     suspend fun setGlobalNowPlayingThemeEnabled(enabled: Boolean) =
         dataStore.edit { preferences ->
             preferences[Keys.GLOBAL_NOW_PLAYING_THEME_ENABLED] = enabled
+        }
+
+    suspend fun setSelectedColorSchemeId(id: String) =
+        dataStore.edit { preferences ->
+            preferences[Keys.SELECTED_COLOR_SCHEME_ID] = id
+        }
+
+    suspend fun setCustomColorSchemes(schemes: List<AppColorScheme>) =
+        dataStore.edit { preferences ->
+            preferences[Keys.CUSTOM_COLOR_SCHEMES] = schemeJson.encodeToString(schemes)
         }
 
     suspend fun initializeAppThemeMode(themeMode: String) =

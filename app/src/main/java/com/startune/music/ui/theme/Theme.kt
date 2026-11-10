@@ -112,19 +112,23 @@ val LightColorScheme = lightColorScheme(
 fun StartuneTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     colorSchemePairOverride: ColorSchemePair? = null,
+    baseColorSchemePair: ColorSchemePair? = null,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
     val finalColorScheme = when {
-        colorSchemePairOverride == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        colorSchemePairOverride != null -> {
+            if (darkTheme) colorSchemePairOverride.dark else colorSchemePairOverride.light
+        }
+        baseColorSchemePair != null -> {
+            if (darkTheme) baseColorSchemePair.dark else baseColorSchemePair.light
+        }
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             try {
                 if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
             } catch (e: Exception) {
                 if (darkTheme) DarkColorScheme else LightColorScheme
             }
-        }
-        colorSchemePairOverride != null -> {
-            if (darkTheme) colorSchemePairOverride.dark else colorSchemePairOverride.light
         }
         darkTheme -> DarkColorScheme
         else -> LightColorScheme

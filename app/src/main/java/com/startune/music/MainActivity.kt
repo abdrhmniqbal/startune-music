@@ -146,8 +146,10 @@ import com.startune.music.presentation.viewmodel.AutoBackupViewModel
 import com.startune.music.presentation.viewmodel.MainViewModel
 
 import com.startune.music.presentation.viewmodel.PlayerViewModel
+import com.startune.music.data.preferences.ColorSchemeIds
 import com.startune.music.ui.theme.StartuneTheme
 import com.startune.music.ui.theme.resolveAppWideNowPlayingColorSchemePair
+import com.startune.music.ui.theme.resolveSelectedSchemePair
 import com.startune.music.utils.AppLocaleManager
 import com.startune.music.utils.CrashHandler
 import com.startune.music.utils.LogUtils
@@ -279,6 +281,15 @@ class MainActivity : ComponentActivity() {
             val globalNowPlayingThemeEnabled by themePreferencesRepository
                 .globalNowPlayingThemeEnabledFlow
                 .collectAsStateWithLifecycle(initialValue = false)
+            val selectedColorSchemeId by themePreferencesRepository
+                .selectedColorSchemeIdFlow
+                .collectAsStateWithLifecycle(initialValue = ColorSchemeIds.DYNAMIC)
+            val customColorSchemes by themePreferencesRepository
+                .customColorSchemesFlow
+                .collectAsStateWithLifecycle(initialValue = emptyList())
+            val baseColorSchemePair = remember(selectedColorSchemeId, customColorSchemes) {
+                resolveSelectedSchemePair(selectedColorSchemeId, customColorSchemes)
+            }
             val activePlayerColorSchemePair by playerViewModel
                 .activePlayerColorSchemePair
                 .collectAsStateWithLifecycle()
@@ -360,7 +371,8 @@ class MainActivity : ComponentActivity() {
 
             StartuneTheme(
                 darkTheme = useDarkTheme,
-                colorSchemePairOverride = appWideNowPlayingScheme
+                colorSchemePairOverride = appWideNowPlayingScheme,
+                baseColorSchemePair = baseColorSchemePair
             ) {
                 var contentVisible by remember { mutableStateOf(false) }
                 val contentAlpha by animateFloatAsState(
