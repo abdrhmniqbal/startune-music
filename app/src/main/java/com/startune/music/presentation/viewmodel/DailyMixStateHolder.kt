@@ -64,6 +64,19 @@ class DailyMixStateHolder @Inject constructor(
     }
 
     /**
+     * Replace the daily mix with the given songs (Smart Mix's
+     * "Use for today"). The replacement is persisted, so it survives a
+     * restart, and is replaced again by the next daily regeneration.
+     */
+    fun setDailyMixSongs(songs: List<Song>) {
+        updateJob?.cancel()
+        _dailyMixSongs.value = songs.toImmutableList()
+        scope?.launch {
+            userPreferencesRepository.saveDailyMixSongIds(songs.map { it.id })
+        }
+    }
+
+    /**
      * Remove a song from the daily mix.
      */
     fun removeFromDailyMix(songId: String) {
