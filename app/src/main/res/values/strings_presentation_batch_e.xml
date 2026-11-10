@@ -18,6 +18,7 @@
     <string name="presentation_batch_e_cd_toggle_shuffle">Toggle shuffle</string>
     <string name="presentation_batch_e_cd_toggle_repeat">Toggle repeat</string>
     <string name="presentation_batch_e_cd_sleep_timer">Sleep timer</string>
+    <string name="presentation_batch_e_cd_speed">Playback speed</string>
     <string name="presentation_batch_e_save_as_playlist_sheet_title">Save as playlist</string>
     <string name="presentation_batch_e_deselect_all">Deselect all</string>
     <string name="presentation_batch_e_playlist_name_label">Playlist name</string>
