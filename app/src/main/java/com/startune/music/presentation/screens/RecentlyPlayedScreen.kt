@@ -87,6 +87,12 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.material3.LargeExtendedFloatingActionButton
@@ -264,22 +270,29 @@ fun RecentlyPlayedScreen(
             ) {
 
                 item(key = "recently_played_range_selector") {
-                    RecentlyPlayedRangeSelector(
-                        selected = selectedRange,
-                        onRangeSelected = { selectedRange = it },
-                        modifier = Modifier.padding(horizontal = 0.dp)
-                    )
-                }
-
-                if (isSelectionMode) {
-                    item(key = "recently_played_selection_row") {
-                        SelectionActionRow(
-                            selectedCount = selectedSongs.size,
-                            onSelectAll = { multiSelectionState.selectAll(queueSongs) },
-                            onDeselect = { multiSelectionState.clearSelection() },
-                            onOptionsClick = { showMultiSelectionSheet = true },
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
+                    AnimatedContent(
+                        targetState = isSelectionMode,
+                        label = "ActionRowModeSwitch",
+                        transitionSpec = {
+                            (slideInHorizontally { -it } + fadeIn()) togetherWith
+                                (slideOutHorizontally { it } + fadeOut())
+                        }
+                    ) { inSelectionMode ->
+                        if (inSelectionMode) {
+                            SelectionActionRow(
+                                selectedCount = selectedSongs.size,
+                                onSelectAll = { multiSelectionState.selectAll(queueSongs) },
+                                onDeselect = { multiSelectionState.clearSelection() },
+                                onOptionsClick = { showMultiSelectionSheet = true },
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                        } else {
+                            RecentlyPlayedRangeSelector(
+                                selected = selectedRange,
+                                onRangeSelected = { selectedRange = it },
+                                modifier = Modifier.padding(horizontal = 0.dp)
+                            )
+                        }
                     }
                 }
 
