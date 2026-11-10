@@ -2,6 +2,7 @@
 package com.startune.music.presentation.screens
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -71,6 +72,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DarkMode
@@ -118,6 +120,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -140,6 +145,7 @@ import com.startune.music.data.backup.model.BackupSection
 import com.startune.music.data.backup.model.BackupTransferProgressUpdate
 import com.startune.music.data.backup.model.RestorePlan
 import com.startune.music.data.preferences.AppThemeMode
+import com.startune.music.data.preferences.AppLanguage
 import com.startune.music.presentation.components.PermissionIconCollage
 import com.startune.music.presentation.components.BackupModuleSelectionDialog
 import com.startune.music.presentation.components.subcomps.MaterialYouVectorDrawable
@@ -153,6 +159,7 @@ import com.startune.music.presentation.viewmodel.SetupViewModel
 import com.startune.music.ui.theme.ExpTitleTypography
 import com.startune.music.ui.theme.RoundedSans
 import com.startune.music.utils.BatteryOptimization
+import com.startune.music.utils.AppLocaleManager
 import com.startune.music.utils.StorageInfo
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -704,29 +711,35 @@ fun WelcomePage() {
             )
         }
         Spacer(modifier = Modifier.height(10.dp))
-        Surface(
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            tonalElevation = 2.dp,
-            shadowElevation = 0.dp
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                tonalElevation = 2.dp,
+                shadowElevation = 0.dp
             ) {
-                Text(
-                    text = stringResource(R.string.setup_beta_symbol),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Black
-                )
-                Text(
-                    text = stringResource(R.string.setup_beta_label),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.setup_beta_symbol),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Black
+                    )
+                    Text(
+                        text = stringResource(R.string.setup_beta_label),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             }
+            LanguageChip()
         }
         Spacer(modifier = Modifier.height(16.dp))
         Box(
@@ -783,6 +796,68 @@ fun WelcomePage() {
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = stringResource(R.string.setup_intro_body), style = MaterialTheme.typography.bodyLarge)
+    }
+}
+
+@Composable
+private fun LanguageChip() {
+    val context = LocalContext.current
+    var showLanguageSheet by remember { mutableStateOf(false) }
+    // recreate() rebuilds this composition after a change, so reading the tag once is enough.
+    val currentLanguageTag = remember(context) { AppLocaleManager.currentLanguageTag(context) }
+    val currentLanguage = remember(currentLanguageTag) {
+        AppLanguage.entries.firstOrNull { it.tag == currentLanguageTag } ?: AppLanguage.SYSTEM
+    }
+    val languageLabel = stringResource(R.string.setcat_app_language_label)
+    val currentLanguageName = stringResource(currentLanguage.labelRes)
+
+    Surface(
+        onClick = { showLanguageSheet = true },
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        tonalElevation = 2.dp,
+        shadowElevation = 0.dp,
+        modifier = Modifier.semantics {
+            contentDescription = languageLabel
+            stateDescription = currentLanguageName
+        }
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Language,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Text(
+                text = currentLanguageName,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+
+    if (showLanguageSheet) {
+        val languageOptions = remember(context) { AppLanguage.getLanguageOptions(context) }
+        OptionSelectionSheet(
+            title = languageLabel,
+            options = languageOptions,
+            selectedKey = currentLanguageTag,
+            onSelect = { tag ->
+                showLanguageSheet = false
+                if (tag != currentLanguageTag) {
+                    AppLocaleManager.applyLanguage(context, tag)
+                    (context as? Activity)?.recreate()
+                }
+            },
+            onDismiss = { showLanguageSheet = false }
+        )
     }
 }
 

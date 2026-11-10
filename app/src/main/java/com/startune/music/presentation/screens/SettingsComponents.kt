@@ -750,3 +750,105 @@ fun ActionSettingsItem(
         }
     }
 }
+
+/**
+ * Bottom sheet listing [options] as radio rows. Used by the setup welcome page
+ * for the language shortcut (and anywhere an option list needs a sheet).
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun OptionSelectionSheet(
+    title: String,
+    options: Map<String, String>,
+    selectedKey: String,
+    onSelect: (String) -> Unit,
+    onDismiss: () -> Unit,
+    optionDescriptions: Map<String, String> = emptyMap(),
+    disabledOptionKeys: Set<String> = emptySet()
+) {
+    androidx.compose.material3.ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface
+    ) {
+        Column(modifier = Modifier.padding(bottom = 24.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                fontWeight = FontWeight.Bold
+            )
+
+            LazyColumn(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .heightIn(max = 400.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(options.entries.toList()) { (key, optionLabel) ->
+                    val isSelected = key == selectedKey
+                    val isEnabled = key !in disabledOptionKeys
+                    val optionDescription = optionDescriptions[key]
+                    val containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
+                    val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                    val resolvedContentColor = if (isEnabled) {
+                        contentColor
+                    } else {
+                        contentColor.copy(alpha = 0.38f)
+                    }
+                    val resolvedDescriptionColor = contentColor.copy(
+                        alpha = if (isEnabled) 0.75f else 0.38f
+                    )
+
+                    Surface(
+                        onClick = { onSelect(key) },
+                        enabled = isEnabled,
+                        shape = RoundedCornerShape(24.dp),
+                        color = containerColor,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 72.dp)
+                            .semantics(mergeDescendants = true) {
+                                role = Role.RadioButton
+                                selected = isSelected
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 24.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(
+                                modifier = Modifier.weight(1f).padding(vertical = 16.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = optionLabel,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    color = resolvedContentColor
+                                )
+                                if (optionDescription != null) {
+                                    Text(
+                                        text = optionDescription,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = resolvedDescriptionColor
+                                    )
+                                }
+                            }
+
+                            if (isSelected) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Check,
+                                    contentDescription = null,
+                                    tint = resolvedContentColor
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
