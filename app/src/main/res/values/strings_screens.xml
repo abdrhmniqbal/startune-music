@@ -546,4 +546,22 @@
     <string name="setup_external_services_footer">You can change these later in Settings &gt; Music Management &gt; Optional online services.</string>
     <string name="setup_external_services_subtitle">Startune Music works offline by default. Enable only the lookups you want.</string>
     <string name="setup_external_services_title">Optional Online Services</string>
+    <string name="about_licenses_title">Licenses &amp; attribution</string>
+    <string name="about_licenses_subtitle">Open-source libraries, fonts and bundled data</string>
+    <string name="about_licenses_sheet_subtitle">Third-party software, fonts and data bundled with this app.</string>
+    <string name="licenses_tab_all">All</string>
+    <string name="licenses_tab_libraries">Libraries</string>
+    <string name="licenses_tab_fonts">Fonts</string>
+    <string name="licenses_tab_contributors">Contributors</string>
+    <string name="licenses_tab_data">Data</string>
+    <string name="licenses_tab_raw_notice">Raw notice</string>
+    <string name="licenses_search_placeholder">Search libraries or licenses…</string>
+    <string name="licenses_cd_clear_search">Clear search</string>
+    <string name="licenses_empty_results">No licenses match \"%1$s\"</string>
+    <string name="licenses_detail_section">Section</string>
+    <string name="licenses_detail_source">Source</string>
+    <string name="licenses_detail_license">License</string>
+    <string name="licenses_toast_copied">License text copied to clipboard</string>
+    <string name="licenses_cd_close">Close</string>
+    <string name="licenses_cd_copy">Copy license text</string>
 </resources>

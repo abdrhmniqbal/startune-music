@@ -46,6 +46,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Balance
 import androidx.compose.material.icons.rounded.DeveloperBoard
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.outlined.Language
@@ -338,7 +339,7 @@ fun AboutScreen(
             ) { index, link ->
                 AboutLinkCard(
                     link = link,
-                    shape = expressiveListShape(index = index, count = projectLinks.size + 2),
+                    shape = expressiveListShape(index = index, count = projectLinks.size + 3),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
@@ -356,7 +357,7 @@ fun AboutScreen(
                         iconVector = Icons.Rounded.SystemUpdate,
                         url = "",
                     ),
-                    shape = expressiveListShape(index = projectLinks.size, count = projectLinks.size + 2),
+                    shape = expressiveListShape(index = projectLinks.size, count = projectLinks.size + 3),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
@@ -390,12 +391,30 @@ fun AboutScreen(
                         iconVector = Icons.Rounded.DeveloperBoard,
                         url = "",
                     ),
-                    shape = expressiveListShape(index = projectLinks.size + 1, count = projectLinks.size + 2),
+                    shape = expressiveListShape(index = projectLinks.size + 1, count = projectLinks.size + 3),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .padding(top = 3.dp),
                     onClick = { navController.navigateSafely(Screen.DeviceCapabilities.route) },
+                )
+            }
+
+            item(key = "licenses") {
+                AboutLinkCard(
+                    link = ProjectLink(
+                        id = "licenses",
+                        title = stringResource(R.string.about_licenses_title),
+                        subtitle = stringResource(R.string.about_licenses_subtitle),
+                        iconVector = Icons.Rounded.Balance,
+                        url = "",
+                    ),
+                    shape = expressiveListShape(index = projectLinks.size + 2, count = projectLinks.size + 3),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 3.dp),
+                    onClick = { navController.navigateSafely(Screen.Licenses.route) },
                 )
             }
 
