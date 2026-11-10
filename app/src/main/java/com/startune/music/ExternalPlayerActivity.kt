@@ -12,10 +12,13 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import dagger.hilt.android.AndroidEntryPoint
+import com.startune.music.data.preferences.ColorSchemeIds
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.components.external.ExternalPlayerOverlay
 import com.startune.music.ui.theme.StartuneTheme
+import com.startune.music.ui.theme.resolveSelectedSchemePair
 import android.content.Intent.EXTRA_STREAM
 import androidx.media3.common.util.UnstableApi
 import com.startune.music.data.preferences.AppThemeMode
@@ -55,7 +58,12 @@ class ExternalPlayerActivity : ComponentActivity() {
                 AppThemeMode.LIGHT -> false
                 else -> systemDarkTheme
             }
-            StartuneTheme(darkTheme = useDarkTheme) {
+            val selectedColorSchemeId by themePreferencesRepository.selectedColorSchemeIdFlow.collectAsStateWithLifecycle(initialValue = ColorSchemeIds.DYNAMIC)
+            val customColorSchemes by themePreferencesRepository.customColorSchemesFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+            val baseColorSchemePair = remember(selectedColorSchemeId, customColorSchemes) {
+                resolveSelectedSchemePair(selectedColorSchemeId, customColorSchemes)
+            }
+            StartuneTheme(darkTheme = useDarkTheme, baseColorSchemePair = baseColorSchemePair) {
                 ExternalPlayerOverlay(
                     playerViewModel = playerViewModel,
                     onDismiss = { finish() },

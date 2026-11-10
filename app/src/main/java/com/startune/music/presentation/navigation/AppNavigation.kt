@@ -41,6 +41,8 @@ import com.startune.music.presentation.screens.AlbumDetailScreen
 import com.startune.music.presentation.screens.AudioBookmarkFolderScreen
 import com.startune.music.presentation.screens.AudioBookmarksScreen
 import com.startune.music.presentation.screens.CloudDownloadsScreen
+import com.startune.music.presentation.screens.ColorSchemeEditorScreen
+import com.startune.music.presentation.screens.ColorSchemeScreen
 import com.startune.music.presentation.screens.AccountsScreen
 import com.startune.music.presentation.screens.ArtistDetailScreen
 import com.startune.music.presentation.screens.ArtistDetailListScreen
@@ -709,6 +711,37 @@ fun AppNavigation(
             ) {
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
                     CloudDownloadsScreen(onBack = { navController.popBackStack() })
+                }
+            }
+            composable(
+                Screen.ColorScheme.route,
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { popEnterTransition() },
+                popExitTransition = { popExitTransition() },
+            ) {
+                ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
+                    ColorSchemeScreen(
+                        onBack = { navController.popBackStack() },
+                        onEditTheme = { themeId ->
+                            navController.navigateSafely(Screen.ColorSchemeEditor.createRoute(themeId))
+                        }
+                    )
+                }
+            }
+            composable(
+                route = Screen.ColorSchemeEditor.route,
+                arguments = listOf(navArgument("themeId") { type = NavType.StringType }),
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { popEnterTransition() },
+                popExitTransition = { popExitTransition() },
+            ) { backStackEntry ->
+                ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
+                    ColorSchemeEditorScreen(
+                        themeId = backStackEntry.arguments?.getString("themeId") ?: "new",
+                        onBack = { navController.popBackStack() }
+                    )
                 }
             }
             composable(

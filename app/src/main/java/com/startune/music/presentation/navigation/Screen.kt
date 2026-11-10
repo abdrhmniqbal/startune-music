@@ -89,6 +89,10 @@ sealed class Screen(val route: String) {
     }
     object JellyfinDashboard : Screen("jellyfin_dashboard")
     object CloudDownloads : Screen("cloud_downloads")
+    object ColorScheme : Screen("color_scheme_settings")
+    object ColorSchemeEditor : Screen("color_scheme_editor/{themeId}") {
+        fun createRoute(themeId: String) = "color_scheme_editor/$themeId"
+    }
 
     object AudioBookmarks : Screen("audio_bookmarks")
     object AudioBookmarkFolder : Screen("audio_bookmarks/{songId}") {

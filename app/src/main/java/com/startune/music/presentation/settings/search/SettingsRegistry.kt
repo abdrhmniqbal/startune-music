@@ -229,6 +229,16 @@ object SettingsRegistry {
                 keywordsStatic = listOf("dark mode", "light mode", "theme", "system", "night")
             ),
             SettingSpec(
+                id = "appearance_color_scheme",
+                itemKey = "item_appearance_color_scheme",
+                titleRes = R.string.setcat_color_scheme_title,
+                subtitleRes = R.string.setcat_color_scheme_subtitle,
+                category = SettingsCategory.APPEARANCE,
+                subscreenRoute = Screen.ColorScheme.route,
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("color", "scheme", "theme", "nord", "dracula", "catppuccin", "gruvbox", "tokyo", "solarized", "everforest", "ayu", "dynamic", "custom")
+            ),
+            SettingSpec(
                 id = "appearance_global_now_playing_theme",
                 itemKey = "item_appearance_global_now_playing_theme",
                 titleRes = R.string.setcat_global_now_playing_theme_title,
