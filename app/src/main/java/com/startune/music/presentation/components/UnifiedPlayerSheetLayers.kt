@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -34,7 +35,10 @@ import com.startune.music.data.model.Song
 import com.startune.music.data.preferences.FullPlayerLoadingTweaks
 import com.startune.music.presentation.components.player.FullPlayerContent
 import com.startune.music.presentation.components.scoped.FullPlayerVisualState
+import com.startune.music.presentation.components.scoped.miniPlayerLayerOffsetXPx
+import com.startune.music.presentation.components.scoped.miniPlayerLayerWidthPx
 import com.startune.music.presentation.components.scoped.rememberFullPlayerRuntimePolicy
+import com.startune.music.presentation.components.scoped.sheetHorizontalPaddingPx
 import com.startune.music.presentation.viewmodel.PlayerSheetState
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.StablePlayerState
@@ -50,7 +54,8 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
     isPreparingPlayback: Boolean,
     playerContentExpansionFraction: Animatable<Float, AnimationVector1D>,
     albumColorScheme: ColorScheme,
-    bottomSheetOpenFraction: Float,
+    bottomSheetOpenFractionProvider: () -> Float,
+    isQueueOccludingPlayer: Boolean,
     fullPlayerVisualState: FullPlayerVisualState,
     containerHeight: Dp,
     currentQueueSourceName: String,
@@ -62,6 +67,8 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
     currentPositionProvider: () -> Long,
     isFavorite: Boolean,
     shouldRenderFullPlayer: Boolean = true,
+    currentHorizontalPaddingStartPxProvider: () -> Float,
+    currentHorizontalPaddingEndPxProvider: () -> Float,
     onShowQueueClicked: () -> Unit,
     onQueueDragStart: () -> Unit,
     onQueueDrag: (Float) -> Unit,
@@ -85,6 +92,30 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
                         .graphicsLayer {
                             alpha = (1f - playerContentExpansionFraction.value * 2f)
                                 .coerceIn(0f, 1f)
+                        }
+                        // The layers are measured at full sheet width while the player expands;
+                        // inset the mini player back to the card so it stays aligned with it.
+                        .layout { measurable, constraints ->
+                            val fraction = playerContentExpansionFraction.value
+                            val startPaddingPx =
+                                sheetHorizontalPaddingPx(currentHorizontalPaddingStartPxProvider())
+                            val endPaddingPx =
+                                sheetHorizontalPaddingPx(currentHorizontalPaddingEndPxProvider())
+                            val miniWidthPx = miniPlayerLayerWidthPx(
+                                playerContentWidthPx = constraints.maxWidth,
+                                startPaddingPx = startPaddingPx,
+                                endPaddingPx = endPaddingPx,
+                                expansionFraction = fraction
+                            )
+                            val placeable = measurable.measure(
+                                constraints.copy(minWidth = miniWidthPx, maxWidth = miniWidthPx)
+                            )
+                            layout(constraints.maxWidth, constraints.maxHeight) {
+                                placeable.placeRelative(
+                                    miniPlayerLayerOffsetXPx(startPaddingPx, fraction),
+                                    0
+                                )
+                            }
                         }
                         .zIndex(miniPlayerZIndex)
                 ) {
@@ -110,8 +141,9 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
             CompositionLocalProvider(
                 LocalMaterialTheme provides albumColorScheme
             ) {
-                val fullPlayerScale by remember(bottomSheetOpenFraction) {
-                    derivedStateOf { lerp(1f, 0.972f, bottomSheetOpenFraction) }
+                // Only read inside graphicsLayer: the queue's open fraction changes every frame.
+                val fullPlayerScale by remember(bottomSheetOpenFractionProvider) {
+                    derivedStateOf { lerp(1f, 0.972f, bottomSheetOpenFractionProvider()) }
                 }
 
                 val fullPlayerZIndex by remember {
@@ -128,7 +160,7 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
                 val fullPlayerRuntimePolicy = rememberFullPlayerRuntimePolicy(
                     currentSheetState = currentSheetContentState,
                     expansionFraction = playerContentExpansionFraction,
-                    bottomSheetOpenFraction = bottomSheetOpenFraction
+                    isQueueOccludingPlayer = isQueueOccludingPlayer
                 )
 
                 val currentPlaybackQueue by playerViewModel.queueFlow

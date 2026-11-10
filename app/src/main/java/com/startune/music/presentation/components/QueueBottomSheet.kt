@@ -3,6 +3,7 @@
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.tween
@@ -116,6 +117,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -138,6 +140,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.common.Player
@@ -154,6 +157,7 @@ import com.startune.music.presentation.viewmodel.PlayerUiState
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.PlaylistViewModel
 import com.startune.music.presentation.viewmodel.SettingsViewModel
+import com.startune.music.presentation.viewmodel.sharedPlayerViewModel
 import com.startune.music.presentation.utils.LocalAppHapticsConfig
 import com.startune.music.presentation.utils.performAppCompatHapticFeedback
 import com.startune.music.ui.theme.RoundedSans
@@ -213,9 +217,17 @@ private fun PlayerUiState.toQueueUndoBarProjection(): QueueUndoBarProjection =
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
     ExperimentalMaterial3ExpressiveApi::class
 )
+
+/**
+ * While the sheet is being dragged from its list, upward movement keeps pulling the sheet back
+ * up; the gesture returns to the list only once the sheet is fully open again, like a regular
+ * bottom sheet.
+ */
+internal fun shouldReturnListDragToList(availableY: Float, queueSheetOffsetPx: Float): Boolean =
+    availableY < 0f && queueSheetOffsetPx <= 0.5f
 @Composable
 fun QueueBottomSheet(
-    viewModel: PlayerViewModel = hiltViewModel(),
+    viewModel: PlayerViewModel = sharedPlayerViewModel(),
     playlistViewModel: PlaylistViewModel = hiltViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel(),
     queue: ImmutableList<Song>,
@@ -252,6 +264,8 @@ fun QueueBottomSheet(
     onQueueDragStart: () -> Unit,
     onQueueDrag: (Float) -> Unit,
     onQueueRelease: (Float, Float) -> Unit,
+    queueSheetOffset: Animatable<Float, AnimationVector1D>,
+    predictiveBackProgress: Animatable<Float, AnimationVector1D> = remember { Animatable(0f) },
     modifier: Modifier = Modifier,
     tonalElevation: Dp = 10.dp,
     shape: RoundedCornerShape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
@@ -505,6 +519,7 @@ fun QueueBottomSheet(
     val updatedOnQueueDragStart by rememberUpdatedState(onQueueDragStart)
     val updatedOnQueueDrag by rememberUpdatedState(onQueueDrag)
     val updatedOnQueueRelease by rememberUpdatedState(onQueueRelease)
+    val updatedQueueSheetOffset by rememberUpdatedState(queueSheetOffset)
 
     val isAnyItemDragging = reorderableState.isAnyItemDragging
     var wasDragging by remember { mutableStateOf(false) }
@@ -593,12 +608,11 @@ fun QueueBottomSheet(
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 if (updatedIsReordering || updatedReorderHandleInUse) return Offset.Zero
 
-                if (draggingSheetFromList && available.y < 0f) {
-                    finalizeListDrag()
-                    return Offset.Zero
-                }
-
                 if (draggingSheetFromList) {
+                    if (shouldReturnListDragToList(available.y, updatedQueueSheetOffset.value)) {
+                        finalizeListDrag()
+                        return Offset.Zero
+                    }
                     listDragAccumulated += available.y
                     updatedOnQueueDrag(available.y)
                     return available
@@ -692,7 +706,21 @@ fun QueueBottomSheet(
         }
 
     Surface(
-        modifier = modifier,
+        modifier = modifier.graphicsLayer {
+            // Predictive back: shrink towards the bottom edge, slide down and round the top
+            // corners as the gesture progresses. Read here only, so it never recomposes.
+            val backProgress = predictiveBackProgress.value
+            if (backProgress > 0f) {
+                val scale = 1f - backProgress * 0.1f
+                scaleX = scale
+                scaleY = scale
+                translationY = backProgress * 80.dp.toPx()
+                transformOrigin = TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 1f)
+                val cornerRadius = lerp(28.dp, 48.dp, backProgress)
+                clip = true
+                this.shape = RoundedCornerShape(topStart = cornerRadius, topEnd = cornerRadius)
+            }
+        },
         shape = shape,
         tonalElevation = tonalElevation,
         color = colors.surfaceContainer,
