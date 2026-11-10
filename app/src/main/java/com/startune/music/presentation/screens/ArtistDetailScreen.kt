@@ -313,6 +313,8 @@ fun ArtistDetailScreen(
                     }
                     var trackSortOption by remember { mutableStateOf<SortOption>(SortOption.SongTitleAZ) }
                     var showSortSheet by remember { mutableStateOf(false) }
+                    var albumSortOption by remember { mutableStateOf<SortOption>(SortOption.AlbumReleaseYear) }
+                    var showAlbumSortSheet by remember { mutableStateOf(false) }
                     val sortedTracks = remember(songs, trackSortOption, uiState.playCounts) { sortArtistSongs(songs, trackSortOption, uiState.playCounts) }
                     val tracksListState = rememberLazyListState()
                     val albumsGridState = rememberLazyGridState()
@@ -599,7 +601,9 @@ fun ArtistDetailScreen(
                             }
                         }
                         ArtistDetailView.Albums, ArtistDetailView.FeaturedOn -> {
-                            val gridSections = if (view == ArtistDetailView.FeaturedOn) featuredOnSections else albumSections
+                            val sortedAlbumSections = remember(albumSections, albumSortOption) { sortAlbumSections(albumSections, albumSortOption, artist.name) }
+                            val sortedFeaturedOnSections = remember(featuredOnSections, albumSortOption) { sortAlbumSections(featuredOnSections, albumSortOption, artist.name) }
+                            val gridSections = if (view == ArtistDetailView.FeaturedOn) sortedFeaturedOnSections else sortedAlbumSections
                             val gridTitle = if (view == ArtistDetailView.FeaturedOn) {
                                 stringResource(R.string.artist_featured_on_title)
                             } else {
@@ -655,7 +659,8 @@ fun ArtistDetailScreen(
                                         } else {
                                             ArtistSubViewHeader(
                                                 title = gridTitle,
-                                                onBackClick = { activeView = ArtistDetailView.Overview }
+                                                onBackClick = { activeView = ArtistDetailView.Overview },
+                                                onSortClick = { showAlbumSortSheet = true }
                                             )
                                         }
                                     }
@@ -712,6 +717,19 @@ fun ArtistDetailScreen(
                             onOptionSelected = {
                                 trackSortOption = it
                                 showSortSheet = false
+                            }
+                        )
+                    }
+
+                    if (showAlbumSortSheet) {
+                        LibrarySortBottomSheet(
+                            title = stringResource(R.string.presentation_batch_d_sort_by),
+                            options = SortOption.ALBUMS.toImmutableList(),
+                            selectedOption = albumSortOption,
+                            onDismiss = { showAlbumSortSheet = false },
+                            onOptionSelected = {
+                                albumSortOption = it
+                                showAlbumSortSheet = false
                             }
                         )
                     }
@@ -1374,7 +1392,25 @@ private enum class ArtistDetailView {
     Overview, Tracks, Albums, FeaturedOn
 }
 
-private fun sortArtistSongs(
+private fun sortAlbumSections(
+    sections: List<ArtistAlbumSection>,
+    sortOption: SortOption,
+    artistName: String
+): List<ArtistAlbumSection> =
+    when (sortOption) {
+        SortOption.AlbumTitleAZ -> sections.sortedWith(compareBy<ArtistAlbumSection> { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumTitleZA -> sections.sortedWith(compareByDescending<ArtistAlbumSection> { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumArtist -> sections.sortedWith(compareBy<ArtistAlbumSection> { artistName.lowercase() }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumArtistDesc -> sections.sortedWith(compareByDescending<ArtistAlbumSection> { artistName.lowercase() }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumReleaseYear -> sections.sortedWith(compareByDescending<ArtistAlbumSection> { it.year ?: 0 }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumReleaseYearAsc -> sections.sortedWith(compareBy<ArtistAlbumSection> { it.year ?: 0 }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumDateAdded -> sections.sortedWith(compareByDescending<ArtistAlbumSection> { it.songs.maxOfOrNull { song -> song.dateAdded } ?: 0 }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumSizeAsc -> sections.sortedWith(compareBy<ArtistAlbumSection> { it.songs.size }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
+        SortOption.AlbumSizeDesc -> sections.sortedWith(compareByDescending<ArtistAlbumSection> { it.songs.size }.thenBy { it.title.lowercase() }.thenBy { it.albumId })
+        else -> sections
+    }
+
+fun sortArtistSongs(
     songs: List<Song>,
     sortOption: SortOption,
     playCounts: Map<String, Int> = emptyMap()
