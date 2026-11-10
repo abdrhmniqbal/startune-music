@@ -143,7 +143,7 @@ fun ExpressiveTopBarContent(
             0.sp
         }
         val titleTopPadding = with(density) {
-            ((titleContainerHeight - (titleLineHeight + subtitleLineHeight).toDp()) / 2)
+            ((titleContainerHeight - (titleLineHeight.toDp() + subtitleLineHeight.toDp())) / 2)
                 .coerceAtLeast(0.dp)
         }
         Box(

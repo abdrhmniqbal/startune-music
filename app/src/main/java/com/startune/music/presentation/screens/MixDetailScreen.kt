@@ -9,6 +9,7 @@ import androidx.compose.ui.zIndex
 import com.startune.music.presentation.components.rememberModalSheetState
 import com.startune.music.presentation.components.SongMultiSelectionHost
 import com.startune.music.data.model.MixRule
+import com.startune.music.data.model.fromPlaylistSource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -369,7 +370,6 @@ fun MixDetailScreen(
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             multiSelectionState.toggleSelection(song)
                         },
-                        onSelectionToggle = { multiSelectionState.toggleSelection(song) },
                         onClick = {
                             if (isSelectionMode) {
                                 multiSelectionState.toggleSelection(song)
