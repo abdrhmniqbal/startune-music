@@ -111,6 +111,7 @@ import com.startune.music.data.stats.StatsTimeRange
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.ExpressiveTopBarContent
 import com.startune.music.presentation.components.MiniPlayerHeight
+import coil.compose.AsyncImagePainter
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.screens.TabAnimation
 import com.startune.music.presentation.viewmodel.StatsViewModel
@@ -321,6 +322,7 @@ fun StatsScreen(
                     item {
                         TopArtistsCard(
                             summary = summary,
+                            artistImageUrls = uiState.topArtistImageUrls,
                             modifier = Modifier.padding(horizontal = 20.dp)
                         )
                     }
@@ -1871,6 +1873,7 @@ private fun categoryPaletteFor(dimension: CategoryDimension): CategoryChartPalet
 @Composable
 private fun TopArtistsCard(
     summary: PlaybackStatsRepository.PlaybackStatsSummary?,
+    artistImageUrls: Map<String, String> = emptyMap(),
     modifier: Modifier = Modifier
 ) {
     val containerColor = MaterialTheme.colorScheme.secondaryContainer
@@ -1909,7 +1912,8 @@ private fun TopArtistsCard(
                                 ArtistAvatar(
                                     name = artistSummary.artist,
                                     containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f),
-                                    contentColor = MaterialTheme.colorScheme.secondary
+                                    contentColor = MaterialTheme.colorScheme.secondary,
+                                    imageUrl = artistImageUrls[artistSummary.artist]
                                 )
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
@@ -1959,29 +1963,42 @@ private fun TopArtistsCard(
 private fun ArtistAvatar(
     name: String,
     containerColor: Color,
-    contentColor: Color
+    contentColor: Color,
+    imageUrl: String? = null
 ) {
-    val placeholder = stringResource(R.string.presentation_batch_g_stats_avatar_placeholder)
-    val initials = remember(name, placeholder) {
-        name.split(" ")
-            .filter { it.isNotBlank() }
-            .take(2)
-            .joinToString(separator = "") { it.first().uppercaseChar().toString() }
-            .ifBlank { placeholder }
-    }
-    Box(
-        modifier = Modifier
-            .size(48.dp)
-            .clip(CircleShape)
-            .background(containerColor),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = initials,
-            style = MaterialTheme.typography.titleMedium,
-            color = contentColor,
-            fontWeight = FontWeight.Bold
+    val imageModel = imageUrl?.takeIf { it.isNotBlank() }
+    var imageFailed by remember(imageModel) { mutableStateOf(false) }
+    if (imageModel != null && !imageFailed) {
+        SmartImage(
+            model = imageModel,
+            contentDescription = name,
+            modifier = Modifier.size(48.dp),
+            shape = CircleShape,
+            onState = { state -> if (state is AsyncImagePainter.State.Error) imageFailed = true }
         )
+    } else {
+        val placeholder = stringResource(R.string.presentation_batch_g_stats_avatar_placeholder)
+        val initials = remember(name, placeholder) {
+            name.split(" ")
+                .filter { it.isNotBlank() }
+                .take(2)
+                .joinToString(separator = "") { it.first().uppercaseChar().toString() }
+                .ifBlank { placeholder }
+        }
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(containerColor),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = initials,
+                style = MaterialTheme.typography.titleMedium,
+                color = contentColor,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 

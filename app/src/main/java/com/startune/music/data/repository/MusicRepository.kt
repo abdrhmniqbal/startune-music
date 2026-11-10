@@ -286,6 +286,13 @@ interface MusicRepository {
     /** Persists a Last.fm bio (+ artwork when the artist has none) for the cached artist. */
     suspend fun updateArtistBio(artistId: Long, bio: String?, imageUrl: String?)
     suspend fun getArtistIdByName(name: String): Long?
+
+    /**
+     * DB-only lookup of an artist's effective image (custom image first, else the
+     * cached Deezer URL), matched by normalized name. Never hits the network.
+     * Returns null when the artist has no image.
+     */
+    suspend fun getEffectiveArtistImageUrlByName(name: String): String?
     fun getArtistsForSong(songId: Long): Flow<List<Artist>>
 
     /**

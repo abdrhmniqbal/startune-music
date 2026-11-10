@@ -22,8 +22,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 
 @HiltViewModel
 class StatsViewModel @Inject constructor(
@@ -37,6 +40,7 @@ class StatsViewModel @Inject constructor(
         val isRefreshing: Boolean = false,
         val summary: PlaybackStatsSummary? = null,
         val topTracks: ImmutableList<SongPlaybackSummary> = persistentListOf(),
+        val topArtistImageUrls: ImmutableMap<String, String> = persistentMapOf(),
         val availableRanges: ImmutableList<StatsTimeRange> = StatsTimeRange.entries.toImmutableList()
     )
 
@@ -137,10 +141,15 @@ class StatsViewModel @Inject constructor(
                     val songs = loadSongs()
                     val summary = playbackStatsRepository.loadSummary(range, songs)
                     val topTracks = playbackStatsRepository.loadTopTracks(range, songs)
-                    summary to topTracks
+                    val artistImageUrls = summary.topArtists.mapNotNull { artistSummary ->
+                        val url = musicRepository.getEffectiveArtistImageUrlByName(artistSummary.artist)
+                            ?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                        artistSummary.artist to url
+                    }.toMap().toImmutableMap()
+                    Triple(summary, topTracks, artistImageUrls)
                 }
             }
-            loaded.getOrNull()?.let { (summary, _) ->
+            loaded.getOrNull()?.let { (summary, _, _) ->
                 if (updateWeeklyOverview) {
                     _weeklyOverview.value = summary
                 }
@@ -152,6 +161,7 @@ class StatsViewModel @Inject constructor(
                     isRefreshing = false,
                     summary = result?.first,
                     topTracks = result?.second?.toImmutableList() ?: persistentListOf(),
+                    topArtistImageUrls = result?.third ?: persistentMapOf(),
                     selectedRange = range
                 )
             }
