@@ -43,7 +43,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
@@ -74,7 +73,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -297,63 +295,32 @@ fun SettingsScreen(
             }
 
             item {
-                val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+                val colorScheme = MaterialTheme.colorScheme
                 ExpressiveSettingsGroup {
-                    val mainCategories = SettingsCategory.entries.filter {
-                        it != SettingsCategory.ABOUT
-                    }
+                    mainSettingsEntries.forEachIndexed { index, entry ->
+                        val shape = settingsGroupItemShape(index, mainSettingsEntries.size)
+                        val colors = colorScheme.settingsIconColors(entry.iconTone)
 
-                    val totalItems = mainCategories.size + 2
-                    fun shapeFor(index: Int) =
-                        when {
-                            totalItems == 1 -> RoundedCornerShape(24.dp)
-                            index == 0 -> RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 4.dp, bottomEnd = 4.dp)
-                            index == totalItems - 1 -> RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 24.dp, bottomEnd = 24.dp)
-                            else -> RoundedCornerShape(4.dp)
+                        when (entry) {
+                            is MainSettingsEntry.Category -> ExpressiveCategoryItem(
+                                category = entry.category,
+                                customColors = colors,
+                                onClick = { navController.navigateSafely(entry.route) },
+                                shape = shape
+                            )
+                            is MainSettingsEntry.Destination -> ExpressiveNavigationItem(
+                                title = stringResource(entry.titleRes),
+                                subtitle = stringResource(entry.subtitleRes),
+                                icon = entry.icon,
+                                colors = colors,
+                                onClick = { navController.navigateSafely(entry.route) },
+                                shape = shape
+                            )
                         }
-
-                    var itemIndex = 0
-
-                    mainCategories.forEach { category ->
-                        val colors = getCategoryColors(category, isDark)
-
-                        ExpressiveCategoryItem(
-                            category = category,
-                            customColors = colors,
-                            onClick = {
-                                if (category == SettingsCategory.EQUALIZER) {
-                                    navController.navigateSafely(Screen.Equalizer.createRoute())
-                                } else {
-                                    navController.navigateSafely(Screen.SettingsCategory.createRoute(category.id))
-                                }
-                            },
-                            shape = shapeFor(itemIndex)
-                        )
-                        if (itemIndex < totalItems - 1) {
+                        if (index < mainSettingsEntries.lastIndex) {
                             Spacer(modifier = Modifier.height(2.dp))
                         }
-                        itemIndex++
                     }
-
-                    ExpressiveNavigationItem(
-                        title = stringResource(R.string.settings_accounts_row_title),
-                        subtitle = stringResource(R.string.settings_accounts_row_subtitle),
-                        icon = Icons.Rounded.AccountCircle,
-                        colors = getAccountsColors(isDark),
-                        onClick = { navController.navigateSafely(Screen.Accounts.createRoute()) },
-                        shape = shapeFor(itemIndex)
-                    )
-                    if (itemIndex < totalItems - 1) {
-                        Spacer(modifier = Modifier.height(2.dp))
-                    }
-                    itemIndex++
-
-                    ExpressiveCategoryItem(
-                        category = SettingsCategory.ABOUT,
-                        customColors = getCategoryColors(SettingsCategory.ABOUT, isDark),
-                        onClick = { navController.navigateSafely("about") },
-                        shape = shapeFor(itemIndex)
-                    )
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -601,14 +568,6 @@ fun ExpressiveCategoryItem(
     }
 }
 
-private fun getAccountsColors(isDark: Boolean): Pair<Color, Color> {
-    return if (isDark) {
-        Color(0xFF37474F) to Color(0xFFBBD9E8)
-    } else {
-        Color(0xFFD6EAF5) to Color(0xFF103548)
-    }
-}
-
 @Composable
 fun ExpressiveSettingsGroup(content: @Composable () -> Unit) {
     Column(
@@ -618,33 +577,5 @@ fun ExpressiveSettingsGroup(content: @Composable () -> Unit) {
             .background(Color.Transparent)
     ) {
         content()
-    }
-}
-
-fun getCategoryColors(category: SettingsCategory, isDark: Boolean): Pair<Color, Color> {
-    return if (isDark) {
-        when (category) {
-            SettingsCategory.LIBRARY -> Color(0xFF004A77) to Color(0xFFC2E7FF) 
-            SettingsCategory.APPEARANCE -> Color(0xFF7D5260) to Color(0xFFFFD8E4) 
-            SettingsCategory.PLAYBACK -> Color(0xFF633B48) to Color(0xFFFFD8EC) 
-            SettingsCategory.NOTIFICATIONS -> Color(0xFF4F378B) to Color(0xFFEADDFF)
-            SettingsCategory.BEHAVIOR -> Color(0xFF3E4C63) to Color(0xFFD7E3FF)
-            SettingsCategory.DATA_STORAGE -> Color(0xFF204E45) to Color(0xFFB7E8DB)
-            SettingsCategory.DEVELOPER -> Color(0xFF324F34) to Color(0xFFCBEFD0) 
-            SettingsCategory.EQUALIZER -> Color(0xFF6E4E13) to Color(0xFFFFDEAC) 
-            SettingsCategory.ABOUT -> Color(0xFF3F474D) to Color(0xFFDEE3EB) 
-        }
-    } else {
-        when (category) {
-            SettingsCategory.LIBRARY -> Color(0xFFD7E3FF) to Color(0xFF005AC1)
-            SettingsCategory.APPEARANCE -> Color(0xFFFFD8E4) to Color(0xFF631835)
-            SettingsCategory.PLAYBACK -> Color(0xFFFFD8EC) to Color(0xFF631B4B)
-            SettingsCategory.NOTIFICATIONS -> Color(0xFFEADDFF) to Color(0xFF4F378B)
-            SettingsCategory.BEHAVIOR -> Color(0xFFD7E3FF) to Color(0xFF253347)
-            SettingsCategory.DATA_STORAGE -> Color(0xFFB7E8DB) to Color(0xFF03211C)
-            SettingsCategory.DEVELOPER -> Color(0xFFCBEFD0) to Color(0xFF042106)
-            SettingsCategory.EQUALIZER -> Color(0xFFFFDEAC) to Color(0xFF281900)
-            SettingsCategory.ABOUT -> Color(0xFFEFF1F7) to Color(0xFF44474F)
-        }
     }
 }
