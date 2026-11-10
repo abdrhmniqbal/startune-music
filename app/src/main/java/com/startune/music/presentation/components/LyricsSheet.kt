@@ -127,7 +127,10 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.startune.music.data.preferences.DEFAULT_LYRICS_FONT_SIZE_SP
+import com.startune.music.data.preferences.LYRICS_FONT_SIZE_SP_KEY
 import com.startune.music.data.preferences.dataStore
+import com.startune.music.data.preferences.sanitizeLyricsFontSize
 
 import kotlin.math.abs
 import kotlin.math.pow
@@ -334,6 +337,16 @@ fun LyricsSheet(
     }
     val useAnimatedLyrics by useAnimatedLyricsFlow.collectAsStateWithLifecycle(initialValue = false)
 
+    val lyricsFontSizeFlow = remember(context) {
+        context.dataStore.data.map {
+            sanitizeLyricsFontSize(it[LYRICS_FONT_SIZE_SP_KEY] ?: DEFAULT_LYRICS_FONT_SIZE_SP)
+        }
+    }
+    val lyricsFontSizeSp by lyricsFontSizeFlow.collectAsStateWithLifecycle(initialValue = DEFAULT_LYRICS_FONT_SIZE_SP)
+    val sizedLyricsTextStyle = remember(lyricsTextStyle, lyricsFontSizeSp) {
+        lyricsTextStyle.withLyricsFontSize(lyricsFontSizeSp)
+    }
+
     val playbackSpeedFlow = remember(context) {
         context.dataStore.data.map { it[floatPreferencesKey("playback_speed")] ?: 1f }
     }
@@ -483,9 +496,9 @@ fun LyricsSheet(
         label = "fontScale"
     )
     
-    val scaledTextStyle = lyricsTextStyle.copy(
-        fontSize = lyricsTextStyle.fontSize * fontScale,
-        lineHeight = lyricsTextStyle.lineHeight * fontScale
+    val scaledTextStyle = sizedLyricsTextStyle.copy(
+        fontSize = sizedLyricsTextStyle.fontSize * fontScale,
+        lineHeight = sizedLyricsTextStyle.lineHeight * fontScale
     )
 
     fun resetImmersiveTimer() {
@@ -809,7 +822,7 @@ fun LyricsSheet(
                                 ) { _, line ->
                                     PlainLyricsLine(
                                         line = line,
-                                        style = lyricsTextStyle,
+                                        style = sizedLyricsTextStyle,
                                         lyricsAlignment = lyricsAlignment,
                                         showTranslation = if (hasTranslatedLyrics) showLyricsTranslation else true,
                                         showRomanization = if (hasRomanizedLyrics) showLyricsRomanization else true,
@@ -2074,4 +2087,18 @@ private fun LyricsTrackInfo(
             isPlaying = isPlaying
         )
     }
+}
+
+private const val DEFAULT_LYRICS_LINE_HEIGHT_RATIO = 1.18f
+
+private fun TextStyle.withLyricsFontSize(fontSizeSp: Float): TextStyle {
+    val lineHeightRatio = if (fontSize.isSp && lineHeight.isSp && fontSize.value > 0f) {
+        lineHeight.value / fontSize.value
+    } else {
+        DEFAULT_LYRICS_LINE_HEIGHT_RATIO
+    }
+    return copy(
+        fontSize = fontSizeSp.sp,
+        lineHeight = (fontSizeSp * lineHeightRatio).sp
+    )
 }

@@ -32,6 +32,7 @@ import com.startune.music.data.preferences.ThemePreferencesRepository
 import com.startune.music.data.repository.LyricsRepository
 import com.startune.music.data.repository.MusicRepository
 import com.startune.music.data.model.LyricsSourcePreference
+import com.startune.music.data.preferences.DEFAULT_LYRICS_FONT_SIZE_SP
 import com.startune.music.data.worker.SyncManager
 import com.startune.music.data.worker.SyncProgress
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -114,6 +115,7 @@ data class SettingsUiState(
     val hapticsEnabled: Boolean = true,
     val immersiveLyricsEnabled: Boolean = false,
     val immersiveLyricsTimeout: Long = 4000L,
+    val lyricsFontSizeSp: Float = DEFAULT_LYRICS_FONT_SIZE_SP,
     val useAnimatedLyrics: Boolean = false,
     val animatedLyricsBlurEnabled: Boolean = true,
     val animatedLyricsBlurStrength: Float = 2.5f,
@@ -208,7 +210,8 @@ private sealed interface SettingsUiUpdate {
         val autoBackupIntervalHours: Int,
         val autoBackupLastRunMs: Long,
         val dataStorageRoot: String,
-        val autoScanOnLaunch: Boolean
+        val autoScanOnLaunch: Boolean,
+        val lyricsFontSizeSp: Float
     ) : SettingsUiUpdate
 }
 
@@ -392,7 +395,8 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.autoBackupIntervalHoursFlow,
                 userPreferencesRepository.autoBackupLastRunMsFlow,
                 userPreferencesRepository.dataStorageRootFlow,
-                userPreferencesRepository.autoScanOnLaunchFlow
+                userPreferencesRepository.autoScanOnLaunchFlow,
+                userPreferencesRepository.lyricsFontSizeFlow
             ) { values ->
                 val requestedAudioOutputMode = values[4] as AudioOutputMode
                 SettingsUiUpdate.Group2(
@@ -437,7 +441,8 @@ class SettingsViewModel @Inject constructor(
                     autoBackupIntervalHours = values[31] as Int,
                     autoBackupLastRunMs = values[32] as Long,
                     dataStorageRoot = values[33] as String,
-                    autoScanOnLaunch = values[34] as Boolean
+                    autoScanOnLaunch = values[34] as Boolean,
+                    lyricsFontSizeSp = values[35] as Float
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -456,6 +461,7 @@ class SettingsViewModel @Inject constructor(
                         hapticsEnabled = update.hapticsEnabled,
                         immersiveLyricsEnabled = update.immersiveLyricsEnabled,
                         immersiveLyricsTimeout = update.immersiveLyricsTimeout,
+                        lyricsFontSizeSp = update.lyricsFontSizeSp,
                         animatedLyricsBlurEnabled = update.animatedLyricsBlurEnabled,
                         animatedLyricsBlurStrength = update.animatedLyricsBlurStrength,
                         playedThresholdPercent = update.playedThresholdPercent,
@@ -1102,6 +1108,12 @@ class SettingsViewModel @Inject constructor(
     fun setImmersiveLyricsEnabled(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setImmersiveLyricsEnabled(enabled)
+        }
+    }
+
+    fun setLyricsFontSize(fontSizeSp: Float) {
+        viewModelScope.launch {
+            userPreferencesRepository.setLyricsFontSize(fontSizeSp)
         }
     }
 
