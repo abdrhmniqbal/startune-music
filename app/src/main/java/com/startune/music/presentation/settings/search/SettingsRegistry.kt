@@ -873,8 +873,6 @@ object SettingsRegistry {
                 type = SettingType.NAVIGABLE_CARD,
                 keywordsStatic = listOf("device", "audio output", "capabilities", "formats", "hardware")
             ),
-            SettingSpec(
-            ),
 
             // --- ABOUT ---
             SettingSpec(

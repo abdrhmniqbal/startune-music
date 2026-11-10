@@ -127,7 +127,7 @@ fun MixDetailScreen(
     val mixSongs: ImmutableList<Song> = when {
         isForYouMix -> playerViewModel.yourMixSongs.collectAsStateWithLifecycle().value
         isUserMix -> playlistUiState.currentPlaylistSongs.toImmutableList()
-        else -> playerViewModel.mixSongs.collectAsStateWithLifecycle().value
+        else -> playerViewModel.dailyMixSongs.collectAsStateWithLifecycle().value
     }
     val playItLabel = stringResource(R.string.presentation_batch_b_play_it)
     val shuffleLabel = stringResource(R.string.shortcut_shuffle_short)

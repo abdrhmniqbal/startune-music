@@ -491,7 +491,7 @@ fun PlaylistDetailScreen(
                             Text(playlistEmptyTitle, style = MaterialTheme.typography.titleMedium)
                             val emptyMessage = when {
                                 isFolderPlaylist -> playlistEmptyFolder
-                                isMix -> stringResource(R.string.presentation_batch_b_playlist_empty_smart_body)
+                                isMix -> stringResource(R.string.presentation_batch_b_playlist_empty_mix_body)
                                 else -> playlistEmptyAddHint
                             }
                             Text(emptyMessage, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)

@@ -66,7 +66,7 @@ import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.viewmodel.ColorSchemeImportResult
 import com.startune.music.presentation.viewmodel.ColorSchemeViewModel
 import com.startune.music.ui.theme.BuiltInColorSchemes
-import com.startune.music.ui.theme.ColorSchemeIds
+import com.startune.music.data.preferences.ColorSchemeIds
 import com.startune.music.ui.theme.LocalStartuneDarkTheme
 import com.startune.music.ui.theme.hexToColor
 import kotlinx.coroutines.launch

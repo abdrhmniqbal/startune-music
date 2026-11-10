@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -47,9 +48,10 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircleShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -79,9 +81,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextGeometricTransform
+import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -172,7 +175,7 @@ fun CreateMixForm(
     }
 }
 
-@OptIn(UnstableApi::class, ExperimentalMaterial3Api::class)
+@OptIn(UnstableApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CreateMixFormContent(
     onDismiss: () -> Unit,
@@ -279,6 +282,7 @@ private fun CreateMixFormContent(
                         Icon(Icons.Rounded.Check, contentDescription = null)
                     },
                     onClick = {
+                        if (!canCreate) return@MediumExtendedFloatingActionButton
                         val imageUriString = if (selectedTab == 1) selectedImageUri?.toString() else null
                         val color = if (selectedTab == 2) selectedColor else null
                         val icon = if (selectedTab == 2) selectedIconName else null
@@ -298,7 +302,8 @@ private fun CreateMixFormContent(
                             panY
                         )
                     },
-                    enabled = canCreate
+                    containerColor = if (canCreate) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
+                    contentColor = if (canCreate) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
                 )
             }
         }
@@ -312,7 +317,8 @@ private fun CreateMixFormContent(
                     .clip(RoundedCornerShape(24.dp))
                     .background(MaterialTheme.colorScheme.surface)
             ) {
-                if (imageBitmap != null) {
+                val cropBitmap = imageBitmap
+                if (cropBitmap != null) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -341,7 +347,7 @@ private fun CreateMixFormContent(
                                 .clip(ShapeCache.expressiveAvatar)
                         ) {
                             ImageCropView(
-                                imageBitmap = imageBitmap,
+                                imageBitmap = cropBitmap,
                                 modifier = Modifier.fillMaxSize(),
                                 scale = cropScale,
                                 pan = cropOffset,
@@ -421,7 +427,8 @@ private fun CreateMixFormContent(
                             }
                         }
                         1 -> {
-                            if (imageBitmap != null) {
+                            val previewBitmap = imageBitmap
+                            if (previewBitmap != null) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Box(
                                         modifier = Modifier
@@ -430,7 +437,7 @@ private fun CreateMixFormContent(
                                             .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                                     ) {
                                         ImageCropView(
-                                            imageBitmap = imageBitmap,
+                                            imageBitmap = previewBitmap,
                                             modifier = Modifier.fillMaxSize(),
                                             scale = cropScale,
                                             pan = cropOffset,

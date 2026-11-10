@@ -264,8 +264,6 @@ private fun DeviceCapabilitiesContent(
 }
 
 @Composable
-@Composable
-@Composable
 private fun PlaybackReadinessCard(
     deviceInfo: Map<String, String>,
     audioCapabilities: AudioCapabilities?,
