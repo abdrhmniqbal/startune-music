@@ -707,6 +707,19 @@ fun AppNavigation(
                 }
             }
             composable(
+                route = Screen.Updates.route,
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { popEnterTransition() },
+                popExitTransition = { popExitTransition() },
+            ) {
+                ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
+                    com.startune.music.presentation.screens.UpdatesScreen(
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+            }
+            composable(
                 route = Screen.DeviceCapabilities.route,
                 arguments = listOf(navArgument("highlightKey") { type = NavType.StringType; nullable = true; defaultValue = null }),
                 enterTransition = { enterTransition() },
