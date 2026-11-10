@@ -12,6 +12,7 @@ import com.startune.music.data.model.TransitionResolution
 import com.startune.music.data.model.TransitionSource
 import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.repository.TransitionRepository
+import com.startune.music.utils.MediaItemBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -175,7 +176,7 @@ class TransitionController @Inject constructor(
 
             val nextMediaItem = transitionTarget.mediaItem
 
-            val playlistId = currentMediaItem.mediaMetadata.extras?.getString("playlistId")
+            val playlistId = MediaItemBuilder.playlistIdOf(currentMediaItem)
             val fromTrackId = currentMediaItem.mediaId
             val toTrackId = nextMediaItem.mediaId
 

@@ -2897,7 +2897,8 @@ class PlayerViewModel @Inject constructor(
             val validStartSong =
                 validSongs.firstOrNull { it.id == startSong.id } ?: validSongs.first()
 
-            queueStateHolder.setOriginalQueueOrder(validSongs)
+            // Every entry is queued from playlistId, so shuffle off can put each tag back in place.
+            queueStateHolder.setOriginalQueueOrder(validSongs, List(validSongs.size) { playlistId })
 
             val isPersistent = userPreferencesRepository.persistentShuffleEnabledFlow.first()
             throwIfDirectPlaybackRequestIsStale(requestToken)
@@ -2935,7 +2936,11 @@ class PlayerViewModel @Inject constructor(
         cancelPendingFullQueuePlayback()
         val requestToken = beginDirectPlaybackRequest()
         directPlaybackJob = viewModelScope.launch {
-            val result = queueStateHolder.prepareShuffledQueueSuspending(songsToPlay, startAtZero)
+            val result = queueStateHolder.prepareShuffledQueueSuspending(
+                songsToPlay,
+                startAtZero,
+                playlistId
+            )
             throwIfDirectPlaybackRequestIsStale(requestToken)
             if (result == null) {
                 sendToast(context.getString(R.string.player_no_songs_to_shuffle))
@@ -3374,7 +3379,7 @@ class PlayerViewModel @Inject constructor(
 
         val mergedExtras = Bundle(baseItem.mediaMetadata.extras ?: Bundle()).apply {
             if (playlistId != null) {
-                putString("playlistId", playlistId)
+                putString(MediaItemBuilder.EXTRA_PLAYLIST_ID, playlistId)
             }
             if (queuedNext) {
                 putBoolean(QUEUED_NEXT_EXTRA_KEY, true)

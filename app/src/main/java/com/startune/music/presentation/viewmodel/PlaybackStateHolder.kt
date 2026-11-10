@@ -579,7 +579,17 @@ class PlaybackStateHolder @Inject constructor(
         val afterCurrent: List<MediaItem>
     )
 
-    private fun reorderQueueInPlace(player: Player, desiredQueue: List<Song>): Boolean {
+    /**
+     * Moves the player's entries into the order of [desiredQueue]. With [desiredTags], the
+     * playlist of each [desiredQueue] entry by position, a song queued twice with different
+     * tags has each copy moved back to the place of its own tag rather than the first place
+     * the song holds.
+     */
+    private fun reorderQueueInPlace(
+        player: Player,
+        desiredQueue: List<Song>,
+        desiredTags: List<String?>? = null,
+    ): Boolean {
         if (desiredQueue.isEmpty()) return false
 
         val currentCount = player.mediaItemCount
@@ -596,6 +606,12 @@ class PlaybackStateHolder @Inject constructor(
             player.getMediaItemAt(index).mediaId
         }
         val desiredIds = desiredQueue.map { it.id }
+        val tagsToMatch = desiredTags?.takeIf { it.size == desiredIds.size }
+        val currentTags = tagsToMatch?.let {
+            MutableList(currentCount) { index ->
+                MediaItemBuilder.playlistIdOf(player.getMediaItemAt(index))
+            }
+        }
 
         val currentCounts = currentIds.groupingBy { it }.eachCount()
         val desiredCounts = desiredIds.groupingBy { it }.eachCount()
@@ -606,17 +622,22 @@ class PlaybackStateHolder @Inject constructor(
 
         for (targetIndex in desiredIds.indices) {
             val desiredId = desiredIds[targetIndex]
-            if (currentIds[targetIndex] == desiredId) continue
+            val desiredTag = tagsToMatch?.get(targetIndex)
+            val holdsDesiredEntry = { index: Int ->
+                currentIds[index] == desiredId &&
+                    (currentTags == null || currentTags[index] == desiredTag)
+            }
+            if (holdsDesiredEntry(targetIndex)) continue
 
-            var fromIndex = -1
-            for (searchIndex in targetIndex + 1 until currentIds.size) {
-                if (currentIds[searchIndex] == desiredId) {
-                    fromIndex = searchIndex
-                    break
-                }
+            var fromIndex = (targetIndex + 1 until currentIds.size).firstOrNull(holdsDesiredEntry)
+            if (fromIndex == null) {
+                // No copy with this tag is left, so any copy of the song takes the place.
+                if (currentIds[targetIndex] == desiredId) continue
+                fromIndex = (targetIndex + 1 until currentIds.size)
+                    .firstOrNull { currentIds[it] == desiredId }
             }
 
-            if (fromIndex == -1) {
+            if (fromIndex == null) {
                 Timber.tag(TAG).w(
                     "Cannot reorder queue in place: target mediaId '%s' not found",
                     desiredId
@@ -627,9 +648,55 @@ class PlaybackStateHolder @Inject constructor(
             player.moveMediaItem(fromIndex, targetIndex)
             val movedId = currentIds.removeAt(fromIndex)
             currentIds.add(targetIndex, movedId)
+            currentTags?.let { tags -> tags.add(targetIndex, tags.removeAt(fromIndex)) }
         }
 
         return true
+    }
+
+    /**
+     * Which playlist each queue entry came from, as (media id, playlist id) in player order.
+     * Songs the user added from elsewhere have no tag and must not gain one on a rebuild, or a
+     * custom transition would apply to a pair the user put together by hand. This is kept per
+     * entry because the same song can be queued from the playlist and again by hand.
+     */
+    private fun playlistTagsOf(player: Player): List<Pair<String, String?>> =
+        List(player.mediaItemCount) { index ->
+            val item = player.getMediaItemAt(index)
+            item.mediaId to MediaItemBuilder.playlistIdOf(item)
+        }
+
+    /**
+     * The playlist ids of [playlistTags] by position, when the player holds exactly [queue] in
+     * that order; otherwise null.
+     */
+    private fun playlistIdsLinedUpWith(
+        queue: List<Song>,
+        playlistTags: List<Pair<String, String?>>,
+    ): List<String?>? {
+        if (playlistTags.size != queue.size) return null
+        if (queue.indices.any { index -> playlistTags[index].first != queue[index].id }) return null
+        return playlistTags.map { (_, playlistId) -> playlistId }
+    }
+
+    /**
+     * Picks the playlist tag of each rebuilt entry of [newQueue], by index. [newQueueTags], the
+     * tags of [newQueue]'s own entries by position, are used as they are when they line up with
+     * it, as for the original order that turning shuffle off goes back to. Otherwise the tags of
+     * the player's entries in [playlistTags] are handed out from a [PlaylistTagPool], after
+     * setting aside the tag of [keptItem], which stays in place with its own. The pool hands
+     * tags out in call order, so the result has to be called in index order.
+     */
+    private fun playlistTagSource(
+        newQueue: List<Song>,
+        newQueueTags: List<String?>?,
+        playlistTags: List<Pair<String, String?>>,
+        keptItem: MediaItem?,
+    ): (Int) -> String? {
+        if (newQueueTags != null && newQueueTags.size == newQueue.size) return newQueueTags::get
+        val tagPool = PlaylistTagPool(playlistTags)
+        keptItem?.let { tagPool.consume(it.mediaId, MediaItemBuilder.playlistIdOf(it)) }
+        return { index -> tagPool.take(newQueue[index].id) }
     }
 
     /**
@@ -640,13 +707,19 @@ class PlaybackStateHolder @Inject constructor(
     private suspend fun buildQueueReplacement(
         newQueue: List<Song>,
         targetIndex: Int,
-        currentMediaItem: MediaItem?
+        currentMediaItem: MediaItem?,
+        playlistTags: List<Pair<String, String?>>,
+        newQueueTags: List<String?>? = null,
     ): PreparedQueueReplacement = withContext(Dispatchers.Default) {
         val safeTargetIndex = targetIndex.coerceIn(0, (newQueue.size - 1).coerceAtLeast(0))
+        val keptCurrentItem = currentMediaItem
+            ?.takeIf { it.mediaId == newQueue.getOrNull(safeTargetIndex)?.id }
+        // A reshuffle keeps the same songs, so each keeps its own playlist context too;
+        // dropping it would switch off the playlist's transitions.
+        val tagFor = playlistTagSource(newQueue, newQueueTags, playlistTags, keptCurrentItem)
         val mediaItems = List(newQueue.size) { index ->
-            currentMediaItem
-                ?.takeIf { index == safeTargetIndex && it.mediaId == newQueue[safeTargetIndex].id }
-                ?: MediaItemBuilder.build(newQueue[index])
+            keptCurrentItem?.takeIf { index == safeTargetIndex }
+                ?: rebuildQueueItem(newQueue[index], tagFor(index))
         }
 
         PreparedQueueReplacement(
@@ -655,23 +728,31 @@ class PlaybackStateHolder @Inject constructor(
         )
     }
 
+    private fun rebuildQueueItem(song: Song, playlistId: String?): MediaItem =
+        MediaItemBuilder.withPlaylistId(MediaItemBuilder.build(song), playlistId)
+
     private suspend fun buildQueueSegments(
         newQueue: List<Song>,
         currentIndex: Int,
-        currentMediaItem: MediaItem?
+        currentMediaItem: MediaItem?,
+        playlistTags: List<Pair<String, String?>>,
+        newQueueTags: List<String?>? = null,
     ): PreparedQueueSegments? = withContext(Dispatchers.Default) {
         val safeCurrentIndex = currentIndex.coerceIn(0, (newQueue.size - 1).coerceAtLeast(0))
         val currentQueueSong = newQueue.getOrNull(safeCurrentIndex) ?: return@withContext null
-        if (currentMediaItem?.mediaId != currentQueueSong.id) {
+        if (currentMediaItem == null || currentMediaItem.mediaId != currentQueueSong.id) {
             return@withContext null
         }
 
+        // The current entry stays in place with its own tag.
+        val tagFor = playlistTagSource(newQueue, newQueueTags, playlistTags, currentMediaItem)
         val beforeCurrent = List(safeCurrentIndex) { index ->
-            MediaItemBuilder.build(newQueue[index])
+            rebuildQueueItem(newQueue[index], tagFor(index))
         }
         val afterStartIndex = safeCurrentIndex + 1
         val afterCurrent = List((newQueue.size - afterStartIndex).coerceAtLeast(0)) { offset ->
-            MediaItemBuilder.build(newQueue[afterStartIndex + offset])
+            val index = afterStartIndex + offset
+            rebuildQueueItem(newQueue[index], tagFor(index))
         }
 
         PreparedQueueSegments(
@@ -729,6 +810,32 @@ class PlaybackStateHolder @Inject constructor(
         }
     }
 
+    /**
+     * Where the playing entry goes back to in [originalQueue]. When [originalTags] are known, a
+     * song the original order holds more than once goes back to the copy with the playing
+     * entry's own playlist tag, so it does not take the place of a copy queued from elsewhere.
+     */
+    private fun originalIndexOf(
+        originalQueue: List<Song>,
+        originalTags: List<String?>?,
+        currentSongId: String?,
+        currentMediaItem: MediaItem?,
+    ): Int? {
+        if (
+            originalTags != null &&
+            currentMediaItem != null &&
+            currentMediaItem.mediaId == currentSongId
+        ) {
+            val currentTag = MediaItemBuilder.playlistIdOf(currentMediaItem)
+            originalQueue.indices
+                .firstOrNull { index ->
+                    originalQueue[index].id == currentSongId && originalTags[index] == currentTag
+                }
+                ?.let { return it }
+        }
+        return originalQueue.indexOfFirst { it.id == currentSongId }.takeIf { it >= 0 }
+    }
+
     fun toggleShuffle(
         currentSongs: List<Song>,
         currentSong: Song?,
@@ -748,8 +855,15 @@ class PlaybackStateHolder @Inject constructor(
                     val isCurrentlyShuffled = _stablePlayerState.value.isShuffleEnabled
 
                     if (!isCurrentlyShuffled) {
+                        val playlistTags = playlistTagsOf(player)
                         if (!queueStateHolder.hasOriginalQueue()) {
-                            queueStateHolder.setOriginalQueueOrder(currentSongs)
+                            // With no original order, for example after a cold start restored
+                            // the queue, only the player knows which playlist each entry came
+                            // from. The order keeps that so shuffle off can put each tag back.
+                            queueStateHolder.setOriginalQueueOrder(
+                                currentSongs,
+                                playlistIdsLinedUpWith(currentSongs, playlistTags)
+                            )
                         }
 
                         val currentMediaId = player.currentMediaItem?.mediaId ?: currentSong?.id
@@ -775,7 +889,8 @@ class PlaybackStateHolder @Inject constructor(
                             val preservedReplacement = buildQueueSegments(
                                 newQueue = shuffledQueue,
                                 currentIndex = currentIndex,
-                                currentMediaItem = currentMediaItem
+                                currentMediaItem = currentMediaItem,
+                                playlistTags = playlistTags,
                             )
                             val replacedInPlace = preservedReplacement?.let { preparedSegments ->
                                 replacePlayerQueuePreservingCurrent(player, currentIndex, preparedSegments)
@@ -785,7 +900,8 @@ class PlaybackStateHolder @Inject constructor(
                                 val preparedQueue = buildQueueReplacement(
                                     newQueue = shuffledQueue,
                                     targetIndex = currentIndex,
-                                    currentMediaItem = currentMediaItem
+                                    currentMediaItem = currentMediaItem,
+                                    playlistTags = playlistTags,
                                 )
                                 replacePlayerQueue(player, preparedQueue, currentPosition)
                             }
@@ -795,7 +911,8 @@ class PlaybackStateHolder @Inject constructor(
                                 val preservedReplacement = buildQueueSegments(
                                     newQueue = shuffledQueue,
                                     currentIndex = currentIndex,
-                                    currentMediaItem = currentMediaItem
+                                    currentMediaItem = currentMediaItem,
+                                    playlistTags = playlistTags,
                                 )
                                 val replacedInPlace = preservedReplacement?.let { preparedSegments ->
                                     replacePlayerQueuePreservingCurrent(player, currentIndex, preparedSegments)
@@ -805,7 +922,8 @@ class PlaybackStateHolder @Inject constructor(
                                     val preparedQueue = buildQueueReplacement(
                                         newQueue = shuffledQueue,
                                         targetIndex = currentIndex,
-                                        currentMediaItem = currentMediaItem
+                                        currentMediaItem = currentMediaItem,
+                                        playlistTags = playlistTags,
                                     )
                                     replacePlayerQueue(player, preparedQueue, currentPosition)
                                 }
@@ -836,11 +954,21 @@ class PlaybackStateHolder @Inject constructor(
                         }
 
                         val originalQueue = queueStateHolder.originalQueueOrder
+                        // Each original entry's own tag, so a song queued twice with different
+                        // tags gets each back at its own place instead of a guess by song id.
+                        val originalTags = queueStateHolder.originalQueuePlaylistIds
+                            ?.takeIf { it.size == originalQueue.size }
                         val wasPlaying = player.isPlaying
                         val currentPosition = player.currentPosition
                         val currentSongId = currentSong?.id ?: player.currentMediaItem?.mediaId
                         val currentMediaItem = player.currentMediaItem
-                        val originalIndex = originalQueue.indexOfFirst { it.id == currentSongId }.takeIf { it >= 0 }
+                        val playlistTags = playlistTagsOf(player)
+                        val originalIndex = originalIndexOf(
+                            originalQueue,
+                            originalTags,
+                            currentSongId,
+                            currentMediaItem
+                        )
 
                         if (originalIndex == null) {
                             _stablePlayerState.update { it.copy(isShuffleEnabled = false) }
@@ -851,7 +979,9 @@ class PlaybackStateHolder @Inject constructor(
                             val preservedReplacement = buildQueueSegments(
                                 newQueue = originalQueue,
                                 currentIndex = originalIndex,
-                                currentMediaItem = currentMediaItem
+                                currentMediaItem = currentMediaItem,
+                                playlistTags = playlistTags,
+                                newQueueTags = originalTags,
                             )
                             val replacedInPlace = preservedReplacement?.let { preparedSegments ->
                                 replacePlayerQueuePreservingCurrent(player, originalIndex, preparedSegments)
@@ -861,17 +991,21 @@ class PlaybackStateHolder @Inject constructor(
                                 val preparedQueue = buildQueueReplacement(
                                     newQueue = originalQueue,
                                     targetIndex = originalIndex,
-                                    currentMediaItem = currentMediaItem
+                                    currentMediaItem = currentMediaItem,
+                                    playlistTags = playlistTags,
+                                    newQueueTags = originalTags,
                                 )
                                 replacePlayerQueue(player, preparedQueue, currentPosition)
                             }
                         } else {
-                            val reordered = reorderQueueInPlace(player, originalQueue)
+                            val reordered = reorderQueueInPlace(player, originalQueue, originalTags)
                             if (!reordered) {
                                 val preservedReplacement = buildQueueSegments(
                                     newQueue = originalQueue,
                                     currentIndex = originalIndex,
-                                    currentMediaItem = currentMediaItem
+                                    currentMediaItem = currentMediaItem,
+                                    playlistTags = playlistTags,
+                                    newQueueTags = originalTags,
                                 )
                                 val replacedInPlace = preservedReplacement?.let { preparedSegments ->
                                     replacePlayerQueuePreservingCurrent(player, originalIndex, preparedSegments)
@@ -881,7 +1015,9 @@ class PlaybackStateHolder @Inject constructor(
                                     val preparedQueue = buildQueueReplacement(
                                         newQueue = originalQueue,
                                         targetIndex = originalIndex,
-                                        currentMediaItem = currentMediaItem
+                                        currentMediaItem = currentMediaItem,
+                                        playlistTags = playlistTags,
+                                        newQueueTags = originalTags,
                                     )
                                     replacePlayerQueue(player, preparedQueue, currentPosition)
                                 }
