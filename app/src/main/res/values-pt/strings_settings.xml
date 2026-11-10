@@ -262,8 +262,6 @@ Prompt: %2$s | Saída: %3$s | Pensei: %4$s</string>
     <string name="setcat_test_setup_title">Fluxo de configuração de teste</string>
     <string name="setcat_test_setup_subtitle">Inicie a tela de configuração de integração para teste.</string>
     <string name="setcat_maintenance">Manutenção</string>
-    <string name="setcat_force_daily_mix_title">Forçar a regeneração diária da mistura</string>
-    <string name="setcat_force_daily_mix_subtitle">Recria a lista de reprodução mix diária imediatamente.</string>
     <string name="setcat_force_stats_title">Forçar regeneração de estatísticas</string>
     <string name="setcat_force_stats_subtitle">Limpa o cache e recalcula as estatísticas de reprodução.</string>
     <string name="setcat_force_palette_title">Forçar regeneração da paleta do álbum</string>
@@ -307,14 +305,10 @@ Prompt: %2$s | Saída: %3$s | Pensei: %4$s</string>
     <string name="rebuild">Reconstruir</string>
     <string name="sync_indicator_rebuilding">Reconstruindo banco de dados</string>
     <string name="toast_rebuilding_database">Reconstruindo banco de dados…</string>
-    <string name="dialog_regenerate_daily_mix_title">Regenerar Mix Diário?</string>
-    <string name="dialog_regenerate_daily_mix_body">Isto descartará a mixagem atual e gerará uma nova com base nos hábitos de audição recentes.</string>
-    <string name="toast_daily_mix_regeneration_started">Regeneração diária do mix iniciada</string>
     <string name="dialog_regenerate_stats_title">Regenerar estatísticas?</string>
     <string name="dialog_regenerate_stats_body">Isto limpará o cache de estatísticas e forçará um recálculo do histórico do banco de dados.</string>
     <string name="toast_stats_regeneration_started">Regeneração de estatísticas iniciada</string>
     <string name="backup_file_name_format">Startune Music_Backup_%1$d.pxpl</string>
-    <string name="setcat_regenerate_daily_mix_action">Regenerar Mix Diário</string>
     <string name="setcat_regenerate_stats_action">Regenerar estatísticas</string>
     <string name="setcat_force_palette_empty">Nenhuma música com a capa do álbum foi encontrada.</string>
     <string name="setcat_force_palette_subtitle">Recrie todas as variantes de paleta em cache para cada capa de álbum ou escolha uma única para atualizar.</string>

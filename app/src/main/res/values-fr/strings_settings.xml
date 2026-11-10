@@ -213,8 +213,6 @@
     <string name="setcat_test_setup_title">Tester le flux de configuration</string>
     <string name="setcat_test_setup_subtitle">Lancer l\'écran de configuration initiale pour test.</string>
     <string name="setcat_maintenance">Maintenance</string>
-    <string name="setcat_force_daily_mix_title">Forcer la régénération du Daily Mix</string>
-    <string name="setcat_force_daily_mix_subtitle">Recrée immédiatement la liste de lecture Daily Mix.</string>
     <string name="setcat_force_stats_title">Forcer la régénération des stats</string>
     <string name="setcat_force_stats_subtitle">Efface le cache et recalcule les statistiques de lecture.</string>
     <string name="setcat_force_palette_title">Régénérer les palettes d\'albums</string>
@@ -261,15 +259,11 @@
     <string name="rebuild">Reconstruire</string>
     <string name="sync_indicator_rebuilding">Reconstruction de la base de données</string>
     <string name="toast_rebuilding_database">Reconstruction de la base de données…</string>
-    <string name="dialog_regenerate_daily_mix_title">Régénérer le Daily Mix ?</string>
-    <string name="dialog_regenerate_daily_mix_body">Cela supprimera le mix actuel et en générera un nouveau basé sur vos habitudes d\'écoute récentes.</string>
-    <string name="toast_daily_mix_regeneration_started">Régénération du Daily Mix démarrée</string>
     <string name="dialog_regenerate_stats_title">Régénérer les statistiques ?</string>
     <string name="dialog_regenerate_stats_body">Cela effacera le cache des statistiques et forcera un recalcul à partir de l\'historique de la base de données.</string>
     <string name="toast_stats_regeneration_started">Régénération des statistiques démarrée</string>
     <string name="backup_file_name_format">Startune Music_Backup_%1$d.pxpl</string>
 
-    <string name="setcat_regenerate_daily_mix_action">Régénérer le Daily Mix</string>
     <string name="setcat_regenerate_stats_action">Régénérer les statistiques</string>
     <string name="setcat_force_palette_empty">Aucune chanson avec pochette n\'a été trouvée.</string>
     <string name="setcat_force_palette_subtitle">Reconstruire toutes les variantes de palettes pour chaque pochette, ou en choisir une seule à actualiser.</string>

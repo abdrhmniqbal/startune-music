@@ -216,8 +216,6 @@
     <string name="setcat_test_setup_title">Uji Alur Penyiapan</string>
     <string name="setcat_test_setup_subtitle">Luncurkan layar penyiapan orientasi untuk pengujian.</string>
     <string name="setcat_maintenance">Pemeliharaan</string>
-    <string name="setcat_force_daily_mix_title">Paksa Regenerasi Daily Mix</string>
-    <string name="setcat_force_daily_mix_subtitle">Membuat ulang daftar putar daily mix segera.</string>
     <string name="setcat_force_stats_title">Paksa Regenerasi Statistik</string>
     <string name="setcat_force_stats_subtitle">Bersihkan cache dan hitung ulang statistik pemutaran.</string>
     <string name="setcat_force_palette_title">Paksa Regenerasi Palet Album</string>
@@ -264,15 +262,11 @@
     <string name="rebuild">Bangun Ulang</string>
     <string name="sync_indicator_rebuilding">Membangun kembali database</string>
     <string name="toast_rebuilding_database">Membangun kembali database…</string>
-    <string name="dialog_regenerate_daily_mix_title">Regenerasi Daily Mix?</string>
-    <string name="dialog_regenerate_daily_mix_body">Ini akan membuang mix saat ini dan menghasilkan yang baru berdasarkan kebiasaan mendengarkan baru-baru ini.</string>
-    <string name="toast_daily_mix_regeneration_started">Regenerasi Daily Mix dimulai</string>
     <string name="dialog_regenerate_stats_title">Regenerasi Statistik?</string>
     <string name="dialog_regenerate_stats_body">Ini akan menghapus cache statistik dan memaksa perhitungan ulang dari riwayat database.</string>
     <string name="toast_stats_regeneration_started">Regenerasi statistik dimulai</string>
     <string name="backup_file_name_format">Startune Music_Cadangan_%1$d.pxpl</string>
 
-    <string name="setcat_regenerate_daily_mix_action">Regenerasi Daily Mix</string>
     <string name="setcat_regenerate_stats_action">Regenerasi Statistik</string>
     <string name="setcat_force_palette_empty">Tidak ditemukan lagu dengan sampul album.</string>
     <string name="setcat_force_palette_subtitle">Bangun kembali semua varian palet yang dicache untuk setiap sampul album, atau pilih satu saja untuk disegarkan.</string>

@@ -216,8 +216,6 @@
     <string name="setcat_test_setup_title">Flusso setup di test</string>
     <string name="setcat_test_setup_subtitle">Avvia la schermata di onboarding per i test.</string>
     <string name="setcat_maintenance">Manutenzione</string>
-    <string name="setcat_force_daily_mix_title">Forza rigenerazione Daily Mix</string>
-    <string name="setcat_force_daily_mix_subtitle">Ricrea immediatamente la playlist daily mix.</string>
     <string name="setcat_force_stats_title">Forza rigenerazione statistiche</string>
     <string name="setcat_force_stats_subtitle">Cancella cache e ricalcola le statistiche di riproduzione.</string>
     <string name="setcat_force_palette_title">Forza rigenerazione palette album</string>
@@ -264,15 +262,11 @@
     <string name="rebuild">Ricostruisci</string>
     <string name="sync_indicator_rebuilding">Ricostruzione database</string>
     <string name="toast_rebuilding_database">Ricostruzione database…</string>
-    <string name="dialog_regenerate_daily_mix_title">Rigenerare Daily Mix?</string>
-    <string name="dialog_regenerate_daily_mix_body">Questo scarterà il mix attuale e ne genererà uno nuovo basato sulle abitudini di ascolto recenti.</string>
-    <string name="toast_daily_mix_regeneration_started">Rigenerazione Daily Mix avviata</string>
     <string name="dialog_regenerate_stats_title">Rigenerare statistiche?</string>
     <string name="dialog_regenerate_stats_body">Questo cancellerà la cache statistiche e forzerà un ricalcolo dalla cronologia del database.</string>
     <string name="toast_stats_regeneration_started">Rigenerazione statistiche avviata</string>
     <string name="backup_file_name_format">Startune Music_Backup_%1$d.pxpl</string>
 
-    <string name="setcat_regenerate_daily_mix_action">Rigenera Daily Mix</string>
     <string name="setcat_regenerate_stats_action">Rigenera statistiche</string>
     <string name="setcat_force_palette_empty">Nessun brano con copertina album trovato.</string>
     <string name="setcat_force_palette_subtitle">Ricostruisci tutte le varianti palette in cache per ogni copertina album, oppure scegliene una da aggiornare.</string>

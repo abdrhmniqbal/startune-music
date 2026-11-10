@@ -772,16 +772,6 @@ object SettingsRegistry {
                 keywordsStatic = listOf("experimental", "labs", "tweaks", "beta")
             ),
             SettingSpec(
-                id = "developer_daily_mix",
-                itemKey = "item_developer_daily_mix",
-                titleRes = R.string.setcat_force_daily_mix_title,
-                subtitleRes = R.string.setcat_force_daily_mix_subtitle,
-                category = SettingsCategory.DEVELOPER,
-                subscreenRoute = Screen.SettingsCategory.createRoute("developer"),
-                type = SettingType.NAVIGABLE_CARD,
-                keywordsStatic = listOf("daily mix", "regenerate", "playlist")
-            ),
-            SettingSpec(
                 id = "developer_stats_regen",
                 itemKey = "item_developer_stats_regen",
                 titleRes = R.string.setcat_force_stats_title,

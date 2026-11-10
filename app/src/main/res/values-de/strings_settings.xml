@@ -216,8 +216,6 @@
     <string name="setcat_test_setup_title">Setup testen</string>
     <string name="setcat_test_setup_subtitle">Onboarding-Flow zum Ausprobieren öffnen.</string>
     <string name="setcat_maintenance">Wartung</string>
-    <string name="setcat_force_daily_mix_title">Daily Mix neu erstellen</string>
-    <string name="setcat_force_daily_mix_subtitle">Den aktuellen Mix sofort neu generieren.</string>
     <string name="setcat_force_stats_title">Statistiken neu berechnen</string>
     <string name="setcat_force_stats_subtitle">Cache leeren und Wiedergabe-Statistiken neu aufbauen.</string>
     <string name="setcat_force_palette_title">Album-Palette neu generieren</string>
@@ -328,14 +326,10 @@
     <string name="rebuild">Neu erstellen</string>
     <string name="sync_indicator_rebuilding">Datenbank neu erstellen</string>
     <string name="toast_rebuilding_database">Datenbank neu erstellen…</string>
-    <string name="dialog_regenerate_daily_mix_title">Tagesmischung regenerieren?</string>
-    <string name="dialog_regenerate_daily_mix_body">Dadurch wird der aktuelle Mix verworfen und ein neuer Mix basierend auf den aktuellen Hörgewohnheiten erstellt.</string>
-    <string name="toast_daily_mix_regeneration_started">Die tägliche Regeneration der Mischung wurde gestartet</string>
     <string name="dialog_regenerate_stats_title">Statistiken neu generieren?</string>
     <string name="dialog_regenerate_stats_body">Dadurch wird der Statistik-Cache geleert und eine Neuberechnung aus dem Datenbankverlauf erzwungen.</string>
     <string name="toast_stats_regeneration_started">Statistikregeneration gestartet</string>
     <string name="backup_file_name_format">Startune Music_Backup_%1$d.pxpl</string>
-    <string name="setcat_regenerate_daily_mix_action">Tägliche Mischung regenerieren</string>
     <string name="setcat_regenerate_stats_action">Statistiken neu generieren</string>
     <string name="setcat_force_palette_empty">Es wurden keine Songs mit Albumcover gefunden.</string>
     <string name="setcat_force_palette_subtitle">Erstellen Sie alle zwischengespeicherten Palettenvarianten für jedes Albumcover neu oder wählen Sie eine einzelne zum Aktualisieren aus.</string>
