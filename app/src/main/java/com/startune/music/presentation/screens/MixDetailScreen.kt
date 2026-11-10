@@ -48,6 +48,8 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Shuffle
+import androidx.compose.material.icons.filled.LibraryAdd
+import androidx.compose.material.icons.rounded.RemoveCircleOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -72,6 +74,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -99,6 +102,8 @@ import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.PlaylistBottomSheet
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SongInfoBottomSheet
+import com.startune.music.presentation.components.ExpressiveScrollBar
+import com.startune.music.presentation.components.SaveQueueAsPlaylistSheet
 import com.startune.music.presentation.components.getIconByName
 import com.startune.music.presentation.components.getThemeContentColor
 import com.startune.music.presentation.components.threeShapeSwitch
@@ -144,6 +149,7 @@ fun MixDetailScreen(
         else -> playerViewModel.dailyMixSongs.collectAsStateWithLifecycle().value
     }
     val shuffleLabel = stringResource(R.string.shortcut_shuffle_short)
+    val playlistCreatedToast = stringResource(R.string.playlist_created_songs_added_toast)
     val forYouMixSongCount by playerViewModel.forYouMixSongCount.collectAsStateWithLifecycle()
 
     val multiSelectionState = playerViewModel.multiSelectionStateHolder
@@ -155,6 +161,7 @@ fun MixDetailScreen(
     var showMixOptionsSheet by remember { mutableStateOf(false) }
     var showEditMixForm by remember { mutableStateOf(false) }
     var showDeleteConfirmation by remember { mutableStateOf(false) }
+    var showSaveAsPlaylistSheet by remember { mutableStateOf(false) }
 
     BackHandler(enabled = isSelectionMode) { multiSelectionState.clearSelection() }
     DisposableEffect(Unit) { onDispose { multiSelectionState.clearSelection() } }
@@ -446,6 +453,17 @@ fun MixDetailScreen(
         ) {
 
         }
+
+        ExpressiveScrollBar(
+            listState = lazyListState,
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(
+                    top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 56.dp,
+                    bottom = if (currentSongId != null) MiniPlayerHeight + systemNavBarInset + 20.dp else systemNavBarInset + 16.dp,
+                    end = 14.dp
+                )
+        )
     }
 
     if (showMixOptionsSheet && (isForYouMix || isUserMix)) {
@@ -478,6 +496,30 @@ fun MixDetailScreen(
                         showEditMixForm = true
                     }
                 )
+                MixOptionsItem(
+                    icon = rememberVectorPainter(Icons.Rounded.RemoveCircleOutline),
+                    label = stringResource(R.string.mix_remove_songs_title),
+                    onClick = {
+                        showMixOptionsSheet = false
+                        multiSelectionState.enterSelectionMode()
+                    }
+                )
+                MixOptionsItem(
+                    icon = painterResource(R.drawable.outline_graph_1_24),
+                    label = stringResource(R.string.presentation_batch_b_set_default_transition),
+                    onClick = {
+                        showMixOptionsSheet = false
+                        navController.navigateSafely(Screen.EditTransition.createRoute(mixId))
+                    }
+                )
+                MixOptionsItem(
+                    icon = rememberVectorPainter(Icons.Filled.LibraryAdd),
+                    label = stringResource(R.string.presentation_batch_e_action_save_as_playlist),
+                    onClick = {
+                        showMixOptionsSheet = false
+                        showSaveAsPlaylistSheet = true
+                    }
+                )
                 if (isUserMix) {
                     MixOptionsItem(
                         icon = painterResource(R.drawable.rounded_delete_24),
@@ -490,6 +532,27 @@ fun MixDetailScreen(
                 }
             }
         }
+    }
+
+    if (showSaveAsPlaylistSheet) {
+        SaveQueueAsPlaylistSheet(
+            songs = mixSongs,
+            defaultName = mixTitle,
+            onDismiss = { showSaveAsPlaylistSheet = false },
+            onConfirm = { name, selectedIds ->
+                val orderedSelection = mixSongs
+                    .filter { selectedIds.contains(it.id) }
+                    .map { it.id }
+                if (orderedSelection.isNotEmpty()) {
+                    playlistViewModel.createPlaylist(
+                        name = name,
+                        songIds = orderedSelection
+                    )
+                    playerViewModel.sendToast(playlistCreatedToast)
+                }
+                showSaveAsPlaylistSheet = false
+            }
+        )
     }
 
     if (showEditMixForm && isUserMix && userMix != null) {

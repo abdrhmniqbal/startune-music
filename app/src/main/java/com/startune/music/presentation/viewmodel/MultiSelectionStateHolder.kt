@@ -108,6 +108,14 @@ class MultiSelectionStateHolder @Inject constructor() {
     }
 
     /**
+     * Enters selection mode without selecting any song, so the user can pick
+     * songs to act on (e.g. remove songs from a mix).
+     */
+    fun enterSelectionMode() {
+        _isSelectionMode.value = true
+    }
+
+    /**
      * Checks if a song is currently selected.
      *
      * @param songId The ID of the song to check

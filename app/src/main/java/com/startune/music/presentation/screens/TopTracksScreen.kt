@@ -58,6 +58,7 @@ import com.startune.music.R
 import com.startune.music.data.model.Song
 import com.startune.music.data.stats.StatsTimeRange
 import com.startune.music.presentation.components.MiniPlayerHeight
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.PlaylistBottomSheet
 import com.startune.music.presentation.components.RecentlyPlayedRangeSelector
 import com.startune.music.presentation.components.SongInfoBottomSheet
@@ -322,6 +323,17 @@ fun TopTracksScreen(
                 }
             }
         }
+
+        ExpressiveScrollBar(
+            listState = lazyListState,
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(
+                    top = minTopBarHeight + 12.dp,
+                    bottom = if (currentSongId != null) MiniPlayerHeight + bottomBarHeightDp + 20.dp else bottomBarHeightDp + 16.dp,
+                    end = 14.dp
+                )
+        )
 
         Box(
             modifier = Modifier
