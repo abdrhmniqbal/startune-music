@@ -104,8 +104,10 @@ import com.startune.music.presentation.model.withUpdatedSongs
 import com.startune.music.presentation.components.subcomps.PlayingEqIcon
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.components.StreamingProviderSheet
+import com.startune.music.presentation.recap.RecapHomeCard
 import com.startune.music.presentation.viewmodel.MixIds
 import com.startune.music.presentation.viewmodel.PlayerViewModel
+import com.startune.music.presentation.viewmodel.RecapEntryViewModel
 import com.startune.music.presentation.viewmodel.sharedPlayerViewModel
 import com.startune.music.presentation.viewmodel.SettingsViewModel
 import com.startune.music.presentation.viewmodel.StatsViewModel
@@ -143,6 +145,7 @@ fun HomeScreen(
         (context as? android.app.Activity)?.intent?.getBooleanExtra("is_benchmark", false) ?: false
     }
     val statsViewModel: StatsViewModel = hiltViewModel()
+    val recapEntryViewModel: RecapEntryViewModel = hiltViewModel()
     val settingsUiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
     val dailyMixSongs by playerViewModel.dailyMixSongs.collectAsStateWithLifecycle()
     val curatedYourMixSongs by playerViewModel.yourMixSongs.collectAsStateWithLifecycle()
@@ -283,6 +286,7 @@ fun HomeScreen(
     LocalContext.current
 
     val homeStatsOverviewState by statsViewModel.homeOverviewState.collectAsStateWithLifecycle()
+    val recapHomeCard by recapEntryViewModel.homeCard.collectAsStateWithLifecycle()
 
     val listState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
     val density = LocalDensity.current
@@ -324,6 +328,7 @@ fun HomeScreen(
         dailyMixSongs.isNotEmpty(),
         recentlyPlayedSongs.size,
         homeStatsOverviewState,
+        recapHomeCard,
         bottomPadding
     ) {
         if (!needsScrollRestore || !isHomeResumed) return@LaunchedEffect
@@ -386,6 +391,21 @@ fun HomeScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
+                // Seasonal: December to mid-January, until dismissed for that year.
+                recapHomeCard?.let { entry ->
+                    item(
+                        key = "recap_home_card",
+                        contentType = "recap_home_card"
+                    ) {
+                        RecapHomeCard(
+                            entry = entry,
+                            onOpen = { navController.navigateSafely(Screen.Recap.createRoute(entry.year)) },
+                            onDismiss = { recapEntryViewModel.dismissHomeCard(entry.year) },
+                            modifier = Modifier.animateItem()
+                        )
+                    }
+                }
+
                 if (yourMixSongs.isEmpty()) {
                     item(
                         key = "your_mix_placeholder",
