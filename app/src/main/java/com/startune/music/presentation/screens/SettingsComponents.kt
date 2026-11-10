@@ -32,6 +32,7 @@ import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.Slider
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -43,7 +44,6 @@ import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -74,6 +74,7 @@ import com.startune.music.presentation.viewmodel.LyricsRefreshProgress
 import com.startune.music.ui.theme.RoundedSans
 import androidx.compose.ui.res.vectorResource
 import androidx.core.view.HapticFeedbackConstantsCompat
+import com.startune.music.presentation.components.rememberSyncedSliderState
 import com.startune.music.presentation.utils.LocalAppHapticsConfig
 import com.startune.music.presentation.utils.performAppCompatHapticFeedback
 
@@ -441,12 +442,13 @@ fun SliderSettingsItem(
                 )
             }
             Slider(
-                value = value,
+                state = rememberSyncedSliderState(
+                    value = value,
+                    steps = steps,
+                    valueRange = valueRange
+                ),
                 onValueChange = onValueChange,
-                onValueChangeFinished = onValueChangeFinished,
-                valueRange = valueRange,
-                steps = steps
-            )
+                onValueChangeFinished = onValueChangeFinished,)
         }
     }
 }

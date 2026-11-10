@@ -84,9 +84,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Button
@@ -129,6 +126,8 @@ import com.startune.music.presentation.components.getIconByName
 import com.startune.music.presentation.components.getThemeContentColor
 import com.startune.music.ui.theme.RoundedSans
 import androidx.compose.material3.Slider
+import com.startune.music.presentation.components.ConnectedToggleButtonRow
+import com.startune.music.presentation.components.rememberSyncedSliderState
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import com.startune.music.utils.shapes.RoundedStarShape
@@ -159,6 +158,7 @@ import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.sharedPlayerViewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.compose.material3.MediumExtendedFloatingActionButton
+import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 
 
@@ -172,6 +172,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.startune.music.R
+import com.startune.music.presentation.components.rememberSyncedSliderState
 import com.startune.music.presentation.screens.TabAnimation
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -1167,10 +1168,10 @@ private fun PlaylistFormContent(
                 stringResource(R.string.presentation_batch_f_tab_image),
                 stringResource(R.string.presentation_batch_f_tab_icon)
             )
-            ExpressiveButtonGroup(
-                items = tabs,
+            ConnectedToggleButtonRow(
+                labels = tabs,
                 selectedIndex = selectedTab,
-                onItemClick = onTabChange,
+                onSelect = onTabChange,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 22.dp)
@@ -1285,6 +1286,8 @@ private fun PlaylistFormContent(
 
 
 
+
+
 @Composable
 fun ExpressiveButtonGroup(
     items: ImmutableList<String>,
@@ -1339,6 +1342,7 @@ fun ExpressiveButtonGroup(
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1397,10 +1401,8 @@ fun ThickSlider(
     steps: Int = 0
 ) {
     Slider(
-        value = value,
+        state = rememberSyncedSliderState(value = value, steps = steps, valueRange = valueRange),
         onValueChange = onValueChange,
-        valueRange = valueRange,
-        steps = steps,
         colors = SliderDefaults.colors(
              thumbColor = MaterialTheme.colorScheme.primary,
              activeTrackColor = MaterialTheme.colorScheme.primary,
