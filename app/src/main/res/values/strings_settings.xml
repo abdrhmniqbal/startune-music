@@ -536,6 +536,7 @@
     <string name="backup_unlock">Unlock</string>
     <string name="backup_wrong_password">Incorrect password. Try again.</string>
     <string name="language_zh_rCN" translatable="false">简体中文</string>
+    <string name="setcat_language_vietnamese" translatable="false">Tiếng Việt</string>
     <string name="setcat_about_startune_subtitle">App version, credits, and more.</string>
     <string name="setcat_about_startune_title">About Startune Music</string>
     <string name="setcat_app_language_desc">Choose the language used across the app interface.</string>
