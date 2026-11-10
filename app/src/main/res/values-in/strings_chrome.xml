@@ -5,4 +5,8 @@
     <string name="song_info_label_path">Jalur</string>
     <string name="cd_playlist_artwork">Daftar Putar</string>
     <string name="home_your_mix_subtitle">Mix hari ini untuk Anda</string>
+    <string name="queue_name_liked_songs">Lagu yang Disukai</string>
+    <string name="queue_name_all_songs_shuffled">Semua Lagu (Acak)</string>
+    <string name="queue_name_liked_songs_shuffled">Lagu yang Disukai (Acak)</string>
+    <string name="queue_name_selected_songs">Lagu Terpilih</string>
 </resources>
