@@ -45,6 +45,9 @@ sealed class Screen(val route: String) {
     object GenreDetail : Screen("genre_detail/{genreId}") {
         fun createRoute(genreId: String) = "genre_detail/$genreId"
     }
+    object GenreDetailList : Screen("genre_detail_list/{genreId}/{view}") {
+        fun createRoute(genreId: String, view: String) = "genre_detail_list/$genreId/$view"
+    }
     object DJSpace : Screen("dj_space")
     object AlbumDetail : Screen("album_detail/{albumId}") {
         fun createRoute(albumId: Long) = "album_detail/$albumId"
