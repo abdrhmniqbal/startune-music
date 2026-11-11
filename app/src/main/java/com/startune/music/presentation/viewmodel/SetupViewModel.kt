@@ -131,6 +131,38 @@ class SetupViewModel @Inject constructor(
     }
     
 
+    fun checkPermissions(context: Context) {
+        val mediaPermissionGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED
+        } else {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        }
+
+        val notificationsPermissionGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true
+        }
+
+        val alarmsPermissionGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
+            alarmManager.canScheduleExactAlarms()
+        } else {
+            true
+        }
+
+        val batteryOptimizationDisabled = BatteryOptimization.isIgnoringBatteryOptimizations(context)
+
+        _uiState.update {
+            it.copy(
+                mediaPermissionGranted = mediaPermissionGranted,
+                notificationsPermissionGranted = notificationsPermissionGranted,
+                alarmsPermissionGranted = alarmsPermissionGranted,
+                batteryOptimizationDisabled = batteryOptimizationDisabled
+            )
+        }
+    }
+
     fun loadMusicDirectories() {
         viewModelScope.launch {
             if (!userPreferencesRepository.initialSetupDoneFlow.first()) {

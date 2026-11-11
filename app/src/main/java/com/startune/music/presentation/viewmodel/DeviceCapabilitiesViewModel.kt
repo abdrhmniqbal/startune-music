@@ -578,6 +578,44 @@ class DeviceCapabilitiesViewModel @Inject constructor(
             decoderCounters = "N/A"
         )
     }
+
+    private fun getCacheStorageSummary(): CacheStorageSummary {
+        val streamStats = streamPlaybackCache.stats()
+        return CacheStorageSummary(
+            streamBytes = streamStats.totalBytes,
+            streamExpiredBytes = streamStats.expiredBytes,
+            expiredTrackCount = streamStats.expiredTrackCount,
+            artworkBytes = imageCacheManager.artworkCacheSizeBytes()
+        )
+    }
+
+    fun clearStreamPlaybackCache() {
+        viewModelScope.launch(Dispatchers.IO) {
+            streamPlaybackCache.clear()
+            refreshCacheSummary()
+        }
+    }
+
+    fun clearArtworkCache() {
+        viewModelScope.launch(Dispatchers.IO) {
+            imageCacheManager.clearAllCoverArtCaches()
+            imageCacheManager.clearRemoteArtworkCache()
+            refreshCacheSummary()
+        }
+    }
+
+    fun clearAllCaches() {
+        viewModelScope.launch(Dispatchers.IO) {
+            streamPlaybackCache.clear()
+            imageCacheManager.clearAllCoverArtCaches()
+            imageCacheManager.clearRemoteArtworkCache()
+            refreshCacheSummary()
+        }
+    }
+
+    private fun refreshCacheSummary() {
+        _state.value = _state.value.copy(cacheSummary = getCacheStorageSummary())
+    }
 }
 
 private fun Int.toAudioOutputCategory(): AudioOutputCategory {
@@ -627,45 +665,6 @@ private fun audioFormatCandidates(): List<AudioFormatCandidate> {
         add(AudioFormatCandidate("QCELP", "audio/qcelp", null))
         add(AudioFormatCandidate("IMA-ADPCM", "audio/x-ima-adpcm", null))
     }
-
-    private fun getCacheStorageSummary(): CacheStorageSummary {
-        val streamStats = streamPlaybackCache.stats()
-        return CacheStorageSummary(
-            streamBytes = streamStats.totalBytes,
-            streamExpiredBytes = streamStats.expiredBytes,
-            expiredTrackCount = streamStats.expiredTrackCount,
-            artworkBytes = imageCacheManager.artworkCacheSizeBytes()
-        )
-    }
-
-    fun clearStreamPlaybackCache() {
-        viewModelScope.launch(Dispatchers.IO) {
-            streamPlaybackCache.clear()
-            refreshCacheSummary()
-        }
-    }
-
-    fun clearArtworkCache() {
-        viewModelScope.launch(Dispatchers.IO) {
-            imageCacheManager.clearAllCoverArtCaches()
-            imageCacheManager.clearRemoteArtworkCache()
-            refreshCacheSummary()
-        }
-    }
-
-    fun clearAllCaches() {
-        viewModelScope.launch(Dispatchers.IO) {
-            streamPlaybackCache.clear()
-            imageCacheManager.clearAllCoverArtCaches()
-            imageCacheManager.clearRemoteArtworkCache()
-            refreshCacheSummary()
-        }
-    }
-
-    private fun refreshCacheSummary() {
-        _state.value = _state.value.copy(cacheSummary = getCacheStorageSummary())
-    }
-
 }
 
 private fun normalizeMimeType(mimeType: String): String {
