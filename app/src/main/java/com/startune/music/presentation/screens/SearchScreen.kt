@@ -49,7 +49,6 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -91,9 +90,11 @@ import com.startune.music.data.model.SearchResultItem
 import com.startune.music.data.model.Song
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SmartImageListTargetSize
+import com.startune.music.presentation.components.RecentlyPlayedSection
 import com.startune.music.presentation.components.SongInfoBottomSheet
 import com.startune.music.presentation.components.PlaylistMultiSelectionBottomSheet
 import com.startune.music.presentation.components.SongMultiSelectionHost
+import com.startune.music.presentation.model.RecentlyPlayedSongUiModel
 import com.startune.music.presentation.selection.dragToSelect
 import com.startune.music.presentation.selection.rememberDragToSelectState
 
@@ -195,6 +196,9 @@ fun SearchScreen(
     val queueRecentlyAdded = stringResource(R.string.presentation_batch_b_queue_recently_added)
     val recentlyAddedSongs = remember(allSongs) {
         allSongs.sortedByDescending { it.dateAdded }.take(SearchRecentlyAddedPreviewLimit).toImmutableList()
+    }
+    val recentlyAddedUiModels = remember(recentlyAddedSongs) {
+        recentlyAddedSongs.map { RecentlyPlayedSongUiModel(it, it.dateAdded) }.toImmutableList()
     }
     val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
@@ -394,78 +398,21 @@ fun SearchScreen(
                 if (isBrowseMode) {
                     Column(modifier = Modifier.fillMaxSize()) {
                         if (recentlyAddedSongs.isNotEmpty()) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 14.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    modifier = Modifier.padding(start = 6.dp),
-                                    text = stringResource(R.string.recently_added_title),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                FilledIconButton(
-                                    modifier = Modifier
-                                        .height(40.dp)
-                                        .width(64.dp),
-                                    colors = IconButtonDefaults.filledIconButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                        contentColor = MaterialTheme.colorScheme.secondary
-                                    ),
-                                    onClick = { navController.navigateSafely(Screen.RecentlyAdded.route) }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
+                            RecentlyPlayedSection(
+                                songs = recentlyAddedUiModels,
+                                onSongClick = { song ->
+                                    playerViewModel.playSongs(
+                                        songsToPlay = recentlyAddedSongs,
+                                        startSong = song,
+                                        queueName = queueRecentlyAdded
                                     )
-                                }
-                            }
-                            LazyColumn(
-                                modifier = Modifier.fillMaxSize(),
-                                contentPadding = PaddingValues(
-                                    top = 4.dp,
-                                    bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
-                                ),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                items(recentlyAddedSongs, key = { song -> song.id }, contentType = { "recently_added_song" }) { song ->
-                                    EnhancedSongListItem(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = 16.dp),
-                                        song = song,
-                                        isPlaying = stablePlayerState.isPlaying,
-                                        isCurrentSong = stablePlayerState.currentSong?.id == song.id,
-                                        onLongPress = {
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                            handleSongMoreOptionsClick(song)
-                                        },
-                                        onMoreOptionsClick = handleSongMoreOptionsClick,
-                                        onClick = {
-                                            playerViewModel.playSongs(
-                                                songsToPlay = recentlyAddedSongs,
-                                                startSong = song,
-                                                queueName = queueRecentlyAdded
-                                            )
-                                        }
-                                    )
-                                }
-                            }
-                        } else {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.recently_added_empty_title),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                                },
+                                onSongLongClick = handleSongMoreOptionsClick,
+                                onOpenAllClick = { navController.navigateSafely(Screen.RecentlyAdded.route) },
+                                currentSongId = stablePlayerState.currentSong?.id,
+                                isPlaying = stablePlayerState.isPlaying,
+                                title = stringResource(R.string.recently_added_title)
+                            )
                         }
                     }
                 } else {
