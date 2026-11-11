@@ -59,6 +59,7 @@ import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.rounded.Bookmark
+import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.MoreHoriz
@@ -898,8 +899,8 @@ fun LibraryScreen(
                     actions = {
                         FilledIconButton(
                             colors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             ),
                             onClick = {
                                 navController.navigateSafely(Screen.AudioBookmarks.route)
@@ -908,6 +909,20 @@ fun LibraryScreen(
                             Icon(
                                 imageVector = Icons.Rounded.Bookmark,
                                 contentDescription = stringResource(R.string.audio_bookmarks_cd_open)
+                            )
+                        }
+                        FilledIconButton(
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            ),
+                            onClick = {
+                                navController.navigateSafely(Screen.CloudDownloads.route)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.CloudDownload,
+                                contentDescription = stringResource(R.string.library_downloads_cd_open)
                             )
                         }
                         FilledIconButton(
