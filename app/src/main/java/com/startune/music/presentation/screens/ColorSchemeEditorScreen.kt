@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,13 +20,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -41,6 +43,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,11 +54,14 @@ import com.startune.music.R
 import com.startune.music.data.preferences.AppColorScheme
 import com.startune.music.data.preferences.SchemeRoles
 import com.startune.music.presentation.components.MiniPlayerHeight
+import com.startune.music.presentation.utils.getSegmentedItemShape
 import com.startune.music.presentation.viewmodel.ColorSchemeViewModel
 import com.startune.music.presentation.viewmodel.EditorInitial
+import com.startune.music.ui.theme.LocalStartuneDarkTheme
 import com.startune.music.ui.theme.hexToColor
 import com.startune.music.ui.theme.isValidHex
 import com.startune.music.ui.theme.normalizeHex
+import com.startune.music.ui.theme.toColorScheme
 
 private enum class ColorRole(val labelRes: Int) {
     PRIMARY(R.string.color_scheme_role_primary),
@@ -169,7 +176,12 @@ fun ColorSchemeEditorScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = ::save) {
+                    FilledTonalIconButton(
+                        onClick = ::save,
+                        colors = IconButtonDefaults.filledTonalIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                        )
+                    ) {
                         Icon(
                             Icons.Rounded.Check,
                             contentDescription = stringResource(R.string.color_scheme_save)
@@ -199,9 +211,76 @@ fun ColorSchemeEditorScreen(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text(stringResource(R.string.color_scheme_name_label)) },
+                    placeholder = { Text(stringResource(R.string.color_scheme_name_placeholder)) },
+                    shape = RoundedCornerShape(16.dp),
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent
+                    )
                 )
+            }
+            item {
+                Text(
+                    text = stringResource(R.string.color_scheme_preview),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 12.dp)
+                )
+            }
+            item {
+                val isDark = LocalStartuneDarkTheme.current
+                val draftRoles = if (isDark) dark else light
+                MaterialTheme(colorScheme = draftRoles.toColorScheme(dark = isDark)) {
+                    Surface(
+                        shape = RoundedCornerShape(28.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(16.dp).fillMaxWidth()
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primary),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Rounded.PlayArrow,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                            }
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(start = 16.dp)
+                            ) {
+                                Text(
+                                    text = name.ifBlank { stringResource(R.string.color_scheme_name_placeholder) },
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = stringResource(
+                                        if (isDark) R.string.color_scheme_dark
+                                        else R.string.color_scheme_light
+                                    ),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
             }
             item {
                 Text(
@@ -211,13 +290,17 @@ fun ColorSchemeEditorScreen(
                     modifier = Modifier.padding(top = 12.dp)
                 )
             }
-            items(ColorRole.entries.size) { index ->
-                val role = ColorRole.entries[index]
-                ColorRoleRow(
-                    label = stringResource(role.labelRes),
-                    hex = light.roleHex(role),
-                    onClick = { pickerTarget = PickerTarget(isDark = false, role = role, hex = light.roleHex(role)) }
-                )
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    ColorRole.entries.forEachIndexed { index, role ->
+                        ColorRoleRow(
+                            label = stringResource(role.labelRes),
+                            hex = light.roleHex(role),
+                            shape = getSegmentedItemShape(index, ColorRole.entries.size),
+                            onClick = { pickerTarget = PickerTarget(isDark = false, role = role, hex = light.roleHex(role)) }
+                        )
+                    }
+                }
             }
             item {
                 Text(
@@ -227,13 +310,17 @@ fun ColorSchemeEditorScreen(
                     modifier = Modifier.padding(top = 12.dp)
                 )
             }
-            items(ColorRole.entries.size) { index ->
-                val role = ColorRole.entries[index]
-                ColorRoleRow(
-                    label = stringResource(role.labelRes),
-                    hex = dark.roleHex(role),
-                    onClick = { pickerTarget = PickerTarget(isDark = true, role = role, hex = dark.roleHex(role)) }
-                )
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    ColorRole.entries.forEachIndexed { index, role ->
+                        ColorRoleRow(
+                            label = stringResource(role.labelRes),
+                            hex = dark.roleHex(role),
+                            shape = getSegmentedItemShape(index, ColorRole.entries.size),
+                            onClick = { pickerTarget = PickerTarget(isDark = true, role = role, hex = dark.roleHex(role)) }
+                        )
+                    }
+                }
             }
         }
     }
@@ -259,13 +346,15 @@ fun ColorSchemeEditorScreen(
 private fun ColorRoleRow(
     label: String,
     hex: String,
+    shape: Shape,
     onClick: () -> Unit
 ) {
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainer,
+        shape = shape,
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
+            .defaultMinSize(minHeight = 72.dp)
             .clickable(onClick = onClick)
     ) {
         Row(
@@ -274,7 +363,7 @@ private fun ColorRoleRow(
         ) {
             Box(
                 modifier = Modifier
-                    .size(36.dp)
+                    .size(40.dp)
                     .clip(CircleShape)
                     .background(hexToColor(hex))
                     .border(
@@ -334,8 +423,16 @@ private fun ColorPickerDialog(
                         onValueChange = { hex = it },
                         label = { Text(stringResource(R.string.color_scheme_hex_label)) },
                         singleLine = true,
+                        shape = RoundedCornerShape(16.dp),
                         isError = hex.isNotBlank() && !valid,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedBorderColor = Color.Transparent
+                        )
                     )
                 }
                 if (hex.isNotBlank() && !valid) {
