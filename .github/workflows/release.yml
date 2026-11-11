@@ -41,11 +41,15 @@ jobs:
             exit 1
           fi
 
-      - name: Download latest translations and commit them
+      # Sync is bidirectional: upload sources, then seed Crowdin with the
+      # repo's existing translations (values-*/), so downloads are real
+      # translations instead of English fallback. The l10n branch only ever
+      # holds the download; it is never auto-merged to main.
+      - name: Sync Crowdin sources and translations
         uses: crowdin/github-action@v3
         with:
           upload_sources: true
-          upload_translations: false
+          upload_translations: true
           download_translations: true
           create_pull_request: false
           commit_message: "chore(l10n): sync Crowdin translations for ${{ inputs.version }}"
