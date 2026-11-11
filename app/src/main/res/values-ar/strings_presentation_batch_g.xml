@@ -360,8 +360,6 @@
     <string name="presentation_batch_g_streaming_subtitle">بث الموسيقى مباشرة من حساباتك السحابية</string>
     <string name="presentation_batch_g_streaming_title">البث السحابي</string>
     <string name="presentation_batch_g_sync_percent">%1$d%%</string>
-    <string name="presentation_batch_g_topbar_build_debug">تصحيح</string>
-    <string name="presentation_batch_g_topbar_build_stable">مستقر</string>
     <string name="presentation_batch_g_topbar_cd_changelog">سجل التغييرات</string>
     <string name="presentation_batch_g_yes">نعم</string>
     <string name="presentation_batch_g_artist_info_body">يقسّم PixelPlayerOSS وسوم الفنانين باستخدام محددات الأحرف (/، ;، &amp;) ومحددات الكلمات (feat.، ft.، vs.، x). تتم مطابقة محددات الكلمات دون مراعاة حالة الأحرف.

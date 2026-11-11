@@ -185,8 +185,6 @@ Dấu gạch chéo ngược (\) có thể dùng để thoát ký tự phân tác
     <string name="presentation_batch_g_artist_rescan_banner_body">Cài đặt nghệ sĩ đã thay đổi. Quét lại thư viện để áp dụng.</string>
     <string name="presentation_batch_g_artist_rescan_scanning">Đang quét…</string>
     <string name="presentation_batch_g_artist_rescan">Quét lại</string>
-    <string name="presentation_batch_g_topbar_build_stable">Bản ổn định</string>
-    <string name="presentation_batch_g_topbar_build_debug">Bản gỡ lỗi (Debug)</string>
     <string name="presentation_batch_g_topbar_cd_changelog">Nhật ký thay đổi</string>
     <string name="presentation_batch_g_lyrics_mode_synced">Đã đồng bộ</string>
     <string name="presentation_batch_g_lyrics_mode_static">Tĩnh</string>

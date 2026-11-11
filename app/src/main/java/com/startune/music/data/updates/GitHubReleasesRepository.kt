@@ -2,6 +2,7 @@
 
 import android.os.Build
 import com.google.gson.Gson
+import com.startune.music.BuildConfig
 import com.google.gson.reflect.TypeToken
 import com.startune.music.utils.VersionCompare
 import kotlinx.coroutines.Dispatchers
@@ -41,10 +42,16 @@ data class AppUpdateInfo(
 )
 
 /**
- * Reads release history from the GitHub releases API for our own repo.
- * The changelog starts at v2.0.0: older releases (the old Expo app) are
- * excluded, and so are pre-releases: a stable release's changelog never
- * lists beta notes. Update checks pick the newest release newer than the
+ * Reads release history for our own repo. The changelog reads CHANGELOG.md
+ * (raw file, not the releases API): the API allows only 60 unauthenticated
+ * requests per hour per IP, and on a shared mobile IP that fails with a
+ * dead error screen, while the raw file is served from a CDN with no such
+ * limit. The changelog starts at v2.0.0: older releases (the old Expo app)
+ * are excluded, and so are pre-releases, except the installed version's
+ * own notes: a beta user must see their own version's changelog, otherwise
+ * the list is empty until the first stable release. Update checks still
+ * use the API: they need release metadata and APK asset URLs, which only
+ * the API provides. Update checks pick the newest release newer than the
  * installed version, with the APK asset matching this device's ABI.
  */
 @Singleton
@@ -71,16 +78,15 @@ class GitHubReleasesRepository @Inject constructor(
 
     suspend fun getReleaseNotes(): List<GitHubRelease> {
         return try {
-            fetchReleases()
-                .filter { it.draft != true && !it.tag_name.isNullOrBlank() }
-                // Stable releases only: a pre-release's notes never appear in
-                // the changelog, even if its GitHub release was not flagged
-                // as a pre-release (the tag itself carries -beta/-rc/...).
-                .filter {
-                    it.prerelease != true &&
-                        !VersionCompare.isPreviewReleaseVersion(it.tag_name!!)
-                }
+            parseChangelog(fetchChangelogMarkdown())
                 .filter { VersionCompare.compareVersions(it.tag_name!!, CHANGELOG_MIN_VERSION) >= 0 }
+                // Stable releases only, except the installed version's own
+                // notes: a pre-release's notes never appear in the changelog
+                // for other versions (the tag itself carries -beta/-rc/...).
+                .filter {
+                    !VersionCompare.isPreviewReleaseVersion(it.tag_name!!) ||
+                        it.tag_name == "v${BuildConfig.VERSION_NAME}"
+                }
                 .sortedWith { left, right ->
                     val byVersion = VersionCompare.compareVersions(
                         right.tag_name ?: "",
@@ -92,6 +98,20 @@ class GitHubReleasesRepository @Inject constructor(
         } catch (e: Exception) {
             Timber.e(e, "Failed to load release notes")
             throw e
+        }
+    }
+
+    private suspend fun fetchChangelogMarkdown(): String = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url(CHANGELOG_RAW_URL)
+            .header("Accept", "text/plain")
+            .build()
+        okHttpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw IOException("Changelog request failed: ${response.code}")
+            }
+            response.body?.string()?.takeIf { it.isNotBlank() }
+                ?: throw IOException("Empty changelog response")
         }
     }
 
@@ -146,6 +166,54 @@ class GitHubReleasesRepository @Inject constructor(
     companion object {
         const val RELEASES_URL =
             "https://api.github.com/repos/abdrhmniqbal/startune-music/releases"
+        const val CHANGELOG_RAW_URL =
+            "https://raw.githubusercontent.com/abdrhmniqbal/startune-music/main/CHANGELOG.md"
         const val CHANGELOG_MIN_VERSION = "2.0.0-beta"
+
+        private val CHANGELOG_SECTION =
+            Regex("^## \\[([^]]+)](?:\\s*-\\s*(\\d{4}-\\d{2}-\\d{2}))?")
+
+        /**
+         * Parses CHANGELOG.md (Keep a Changelog format) into release entries
+         * the changelog UI already renders. Pure function, unit tested in
+         * ChangelogParserTest.
+         */
+        internal fun parseChangelog(markdown: String): List<GitHubRelease> {
+            val entries = mutableListOf<GitHubRelease>()
+            var version: String? = null
+            var date = ""
+            val body = StringBuilder()
+            fun flush() {
+                val current = version ?: return
+                if (current.equals("Unreleased", ignoreCase = true)) return
+                val text = body.toString().trim()
+                if (text.isEmpty()) return
+                entries.add(
+                    GitHubRelease(
+                        tag_name = "v$current",
+                        name = current,
+                        body = text,
+                        html_url = "https://github.com/abdrhmniqbal/startune-music/releases/tag/v$current",
+                        draft = false,
+                        prerelease = VersionCompare.isPreviewReleaseVersion(current),
+                        published_at = date.takeIf { it.isNotBlank() }?.let { "${it}T00:00:00Z" },
+                        assets = emptyList()
+                    )
+                )
+            }
+            for (line in markdown.lineSequence()) {
+                val header = CHANGELOG_SECTION.matchEntire(line)
+                if (header != null) {
+                    flush()
+                    version = header.groupValues[1]
+                    date = header.groupValues[2]
+                    body.clear()
+                } else if (version != null) {
+                    body.appendLine(line)
+                }
+            }
+            flush()
+            return entries
+        }
     }
 }

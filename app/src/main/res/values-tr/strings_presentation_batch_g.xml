@@ -360,8 +360,6 @@
     <string name="presentation_batch_g_streaming_subtitle">Bulut hesaplarınızdan müzik akışı yapın</string>
     <string name="presentation_batch_g_streaming_title">Bulut Akışı</string>
     <string name="presentation_batch_g_sync_percent">%1$d%%</string>
-    <string name="presentation_batch_g_topbar_build_debug">Hata Ayıklama</string>
-    <string name="presentation_batch_g_topbar_build_stable">Kararlı</string>
     <string name="presentation_batch_g_topbar_cd_changelog">Değişiklik Günlüğü</string>
     <string name="presentation_batch_g_yes">Evet</string>
     <string name="presentation_batch_g_artist_info_body">PixelPlayerOSS, sanatçı etiketlerini karakter sınırlayıcılar (/, ;, &amp;) ve kelime sınırlayıcılar (feat., ft., vs., x) kullanarak böler. Kelime sınırlayıcılar büyük/küçük harf duyarsız olarak eşleştirilir.

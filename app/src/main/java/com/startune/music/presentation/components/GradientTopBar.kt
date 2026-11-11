@@ -37,7 +37,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.startune.music.BuildConfig
 import com.startune.music.R
 import com.startune.music.ui.theme.RoundedSans
 import com.startune.music.ui.theme.StartuneStatusBarStyle
@@ -135,11 +134,7 @@ fun HomeGradientTopBar(
                     onClick = onBetaClick
                 ) {
                     Text(
-                        text = when (BuildConfig.BUILD_TYPE) {
-                            "release" -> stringResource(R.string.presentation_batch_g_topbar_build_stable)
-                            "debug" -> stringResource(R.string.presentation_batch_g_topbar_build_debug)
-                            else -> BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }
-                        },
+                        text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold
                     )
