@@ -93,7 +93,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -109,7 +108,6 @@ import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.SaveQueueAsPlaylistSheet
 import com.startune.music.presentation.components.getIconByName
 import com.startune.music.presentation.components.getThemeContentColor
-import com.startune.music.presentation.components.threeShapeSwitch
 import com.startune.music.presentation.components.resolveNavBarOccupiedHeight
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.viewmodel.MainViewModel
@@ -124,6 +122,7 @@ import kotlinx.coroutines.flow.map
 import com.startune.music.presentation.components.subcomps.EnhancedSongListItem
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import com.startune.music.presentation.components.MixThumbnailCluster
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
@@ -736,67 +735,13 @@ private fun ExpressiveMixDetailHeader(
             contentAlignment = Alignment.Center
         ) {
             if (coverImageUri == null && coverColorArgb == null) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy((-80).dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                albumArts.forEachIndexed { index, artUrl ->
-                    val size = when (index) {
-                        0 -> 180.dp
-                        1 -> 220.dp
-                        2 -> 180.dp
-                        else -> 150.dp
-                    }
-                    val rotation = when (index) {
-                        0 -> -15f
-                        1 -> 0f
-                        2 -> 15f
-                        else -> 0f
-                    }
-                    val shape = threeShapeSwitch(index, thirdShapeCornerRadius = 30.dp)
-
-                    if (index == 2) {
-                        Box(
-                            modifier = Modifier.layout { measurable, constraints ->
-                                val placeable = measurable.measure(
-                                    Constraints.fixed(width = size.roundToPx(), height = size.roundToPx())
-                                )
-                                layout(constraints.maxWidth, placeable.height) {
-                                    val xOffset = (constraints.maxWidth - placeable.width) / 2
-                                    placeable.placeRelative(xOffset, 0)
-                                }
-                            }
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .graphicsLayer { rotationZ = rotation }
-                                    .clip(shape)
-                            ) {
-                                SmartImage(
-                                    model = artUrl ?: R.drawable.rounded_album_24,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }
-                        }
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .size(size)
-                                .graphicsLayer { rotationZ = rotation }
-                                .clip(shape)
-                        ) {
-                            SmartImage(
-                                model = artUrl ?: R.drawable.rounded_album_24,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                    }
-                }
-            }
+            MixThumbnailCluster(
+                artUrls = albumArts,
+                centerSize = 220.dp,
+                overlap = 80.dp,
+                thirdShapeCornerRadius = 30.dp,
+                centerThird = true
+            )
             } else {
                 when {
                     coverImageUri != null -> {

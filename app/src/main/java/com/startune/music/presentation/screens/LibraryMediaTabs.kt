@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
@@ -74,6 +75,9 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import androidx.compose.ui.text.style.TextOverflow
+import com.startune.music.presentation.components.LibraryMixCard
+import com.startune.music.presentation.navigation.Screen
+import com.startune.music.presentation.navigation.navigateSafely
 import kotlinx.collections.immutable.ImmutableList
 
 private val EmptyColorSchemePairFlow: StateFlow<ColorSchemePair?> = MutableStateFlow(null)
@@ -778,7 +782,7 @@ fun LibraryPlaylistsTab(
     )
 }
 
-/** Mixes tab: grid only, no selection mode, covers use the cookie collage. */
+/** Mixes tab: expandable mix cards with a 3-song preview; no selection mode. */
 @Composable
 fun LibraryMixesTab(
     playlistUiState: PlaylistUiState,
@@ -787,21 +791,64 @@ fun LibraryMixesTab(
     playerViewModel: PlayerViewModel,
     bottomBarHeight: Dp,
     isRefreshing: Boolean,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    storageFilter: StorageFilter,
+    onMoreOptionsClick: (Song) -> Unit
 ) {
-    PlaylistContainer(
-        isListView = false,
-        playlistUiState = playlistUiState,
-        filteredPlaylists = filteredMixes,
-        currentSortOption = playlistUiState.currentPlaylistSortOption,
-        isRefreshing = isRefreshing,
-        onRefresh = onRefresh,
-        bottomBarHeight = bottomBarHeight,
-        navController = navController,
-        playerViewModel = playerViewModel,
-        useMixCover = true,
-        navigateToMixDetail = true,
-        emptyTitleRes = R.string.mix_empty_title,
-        emptyHintRes = R.string.mix_empty_hint
-    )
+    Column(modifier = Modifier.fillMaxSize()) {
+        if (playlistUiState.isLoading && filteredMixes.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) { ContainedLoadingIndicator() }
+        } else if (filteredMixes.isEmpty()) {
+            LibraryExpressiveEmptyState(
+                tabId = LibraryTabId.MIXES,
+                storageFilter = storageFilter,
+                bottomBarHeight = bottomBarHeight
+            )
+        } else {
+            val mixesPullToRefreshState = rememberPullToRefreshState()
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+                state = mixesPullToRefreshState,
+                modifier = Modifier.fillMaxSize(),
+                indicator = {
+                    PullToRefreshDefaults.LoadingIndicator(
+                        state = mixesPullToRefreshState,
+                        isRefreshing = isRefreshing,
+                        modifier = Modifier.align(Alignment.TopCenter)
+                    )
+                }
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(start = 12.dp, end = 12.dp, bottom = 6.dp)
+                        .fillMaxSize()
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 12.dp,
+                                topEnd = 12.dp,
+                                bottomStart = PlayerSheetCollapsedCornerRadius,
+                                bottomEnd = PlayerSheetCollapsedCornerRadius
+                            )
+                        ),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + 30.dp)
+                ) {
+                    items(filteredMixes, key = { it.id }) { mix ->
+                        LibraryMixCard(
+                            playlist = mix,
+                            playerViewModel = playerViewModel,
+                            onSeeAllClick = {
+                                navController.navigateSafely(Screen.MixDetail.createRoute(mix.id))
+                            },
+                            onMoreOptionsClick = onMoreOptionsClick
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
