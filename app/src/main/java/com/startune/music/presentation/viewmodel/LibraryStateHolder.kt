@@ -213,7 +213,6 @@ class LibraryStateHolder @Inject constructor(
             val likedSortKey = userPreferencesRepository.likedSongsSortOptionFlow.first()
             _currentFavoriteSortOption.value = SortOption.LIKED.find { it.storageKey == likedSortKey } ?: SortOption.LikedSongDateLiked
 
-            _currentStorageFilter.value = userPreferencesRepository.lastStorageFilterFlow.first()
         }
     }
 
