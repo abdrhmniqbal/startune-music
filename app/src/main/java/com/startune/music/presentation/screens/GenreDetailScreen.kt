@@ -317,6 +317,7 @@ fun GenreDetailScreen(
                                 selectedSongIds = selectedSongIds,
                                 isSelectionMode = isSelectionMode,
                                 onSongLongPress = onSongLongPress,
+                                onSongMoreClick = { song -> showSongOptionsSheet = song },
                                 selectionIndexFor = { song -> multiSelectionState.getSelectionIndex(song.id) },
                                 onSongClick = { song ->
                                     if (isSelectionMode) {
@@ -791,6 +792,7 @@ private fun GenreTopSongsCarousel(
     selectedSongIds: Set<String> = emptySet(),
     isSelectionMode: Boolean = false,
     onSongLongPress: ((Song) -> Unit)? = null,
+    onSongMoreClick: (Song) -> Unit,
     selectionIndexFor: ((Song) -> Int?)? = null
 ) {
     if (songs.isEmpty()) return
@@ -838,21 +840,21 @@ private fun GenreTopSongsCarousel(
         ) { page ->
             val pageOffset = abs(page - pagerState.currentPage - pagerState.currentPageOffsetFraction)
             Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 pages[page].forEachIndexed { index, song ->
                     key(song.id) {
                         RankedSongRow(
                             rank = page * GENRE_TOP_SONGS_PAGE_SIZE + index + 1,
-                            title = song.title,
-                            artist = song.displayArtist,
-                            artUri = song.albumArtUriString,
+                            song = song,
                             isCurrentSong = currentSongId == song.id,
                             isPlaying = isPlaying,
                             isSelected = selectedSongIds.contains(song.id),
                             selectionIndex = if (isSelectionMode) selectionIndexFor?.invoke(song) else null,
+                            isSelectionMode = isSelectionMode,
                             onClick = { onSongClick(song) },
                             onLongClick = onSongLongPress?.let { longPress -> { longPress(song) } },
+                            onMoreOptionsClick = onSongMoreClick,
                             entranceProgress = (1f - pageOffset * (1f + index * 0.15f)).coerceIn(0f, 1f)
                         )
                     }

@@ -57,7 +57,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LargeExtendedFloatingActionButton
+import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -832,18 +832,15 @@ private fun ExpressiveMixDetailHeader(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 )
             }
-            LargeExtendedFloatingActionButton(
+            LargeFloatingActionButton(
                 onClick = onShuffleClick,
                 modifier = Modifier.padding(start = 12.dp),
                 // Cookie shape (Cookie9Sided), the same shape the mix cover
-                // tiles use. The old RoundedStarShape clipped this wide
-                // icon+text button (dbe137f); a RoundedPolygonShape scales
-                // to the full bounds, so icon + label render fully.
+                // tiles use. Icon only: the label stretched the blob wide
+                // and flat.
                 shape = ShapeCache.expressiveAvatar
             ) {
                 Icon(Icons.Rounded.Shuffle, contentDescription = shuffleLabel)
-                Spacer(Modifier.width(8.dp))
-                Text(shuffleLabel)
             }
         }
     }

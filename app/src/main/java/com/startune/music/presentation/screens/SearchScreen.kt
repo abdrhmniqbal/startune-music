@@ -434,7 +434,7 @@ fun SearchScreen(
             ) { isBrowseMode ->
                 if (isBrowseMode) {
                     Column(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().padding(top = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
                         if (recentlyAddedSongs.isNotEmpty()) {

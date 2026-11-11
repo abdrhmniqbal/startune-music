@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -27,13 +28,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.BarChart
+import androidx.compose.material.icons.rounded.Category
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -70,6 +78,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -85,6 +94,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import com.startune.music.R
 import com.startune.music.data.model.Artist
+import com.startune.music.presentation.components.SmartImage
+import com.startune.music.presentation.components.SmartImageListTargetSize
+import com.startune.music.utils.formatSongCount
 import com.startune.music.data.model.MixRule
 import com.startune.music.data.model.Genre
 import com.startune.music.data.playlist.nlp.GenreTaxonomy
@@ -119,8 +131,6 @@ private val generationModeOrder = listOf(
     MixRule.GENRES
 )
 
-/** Selected artist/genre badge blue, measured from the mix reference screenshot. */
-private val MixBadgeBlue = Color(0xFF004A87)
 
 @Composable
 private fun mixRuleSubtitle(rule: MixRule): String =
@@ -134,6 +144,17 @@ private fun mixRuleSubtitle(rule: MixRule): String =
             MixRule.GENRES -> R.string.mix_rule_genres_subtitle
         }
     )
+
+/** Leading icon for a generation mode in the dropdown. */
+private fun mixRuleIcon(rule: MixRule): ImageVector =
+    when (rule) {
+        MixRule.TOP_PLAYED -> Icons.Rounded.BarChart
+        MixRule.RECENTLY_PLAYED -> Icons.Rounded.History
+        MixRule.FORGOTTEN_FAVORITES -> Icons.Rounded.Favorite
+        MixRule.NEW_GEMS -> Icons.Rounded.AutoAwesome
+        MixRule.ARTISTS -> Icons.Rounded.Person
+        MixRule.GENRES -> Icons.Rounded.Category
+    }
 
 /**
  * Create-mix form, full screen like the playlist form: a name (required,
@@ -367,7 +388,8 @@ private fun CreateMixFormContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState())
+                    .padding(top = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -440,12 +462,17 @@ private fun CreateMixFormContent(
                             steps = 17,
                             modifier = Modifier.fillMaxWidth()
                         )
+                        // Presets are milestones of 20: the highest preset the
+                        // slider has reached lights up (25 -> 20, 65 -> 60,
+                        // 100 -> 100); below 20 none lights.
+                        val sizePresets = listOf(20, 40, 60, 80, 100)
+                        val litPreset = sizePresets.lastOrNull { it <= sliderValue.toInt() }
                         Row(
                             Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            listOf(10, 20, 30, 40, 50).forEach { count ->
-                                if (sliderValue.toInt() == count) {
+                            sizePresets.forEach { count ->
+                                if (count == litPreset) {
                                     Button(
                                         onClick = { sliderValue = count.toFloat() },
                                         modifier = Modifier.weight(1f).height(40.dp),
@@ -495,7 +522,8 @@ private fun CreateMixFormContent(
                     )
                     ExposedDropdownMenu(
                         expanded = modeExpanded,
-                        onDismissRequest = { modeExpanded = false }
+                        onDismissRequest = { modeExpanded = false },
+                        shape = RoundedCornerShape(28.dp)
                     ) {
                         generationModeOrder.forEach { rule ->
                             DropdownMenuItem(
@@ -509,6 +537,7 @@ private fun CreateMixFormContent(
                                         )
                                     }
                                 },
+                                leadingIcon = { Icon(mixRuleIcon(rule), contentDescription = null) },
                                 onClick = { selectedRule = rule; modeExpanded = false },
                                 trailingIcon = {
                                     if (selectedRule == rule) {
@@ -654,38 +683,42 @@ private fun ArtistPickerBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.85f)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 24.dp)
                 .padding(bottom = 32.dp)
         ) {
-            Text(
-                text = stringResource(R.string.mix_artists_label),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
-                placeholder = { Text(stringResource(R.string.mix_artists_search_placeholder)) },
+                placeholder = {
+                    Text(
+                        stringResource(R.string.mix_artists_search_placeholder),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                },
                 leadingIcon = {
-                    Icon(Icons.Rounded.Search, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Rounded.Search,
+                        contentDescription = stringResource(R.string.cd_search_icon),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 },
                 trailingIcon = {
                     if (query.isNotEmpty()) {
-                        Icon(
-                            Icons.Rounded.Close,
-                            contentDescription = null,
-                            modifier = Modifier.clickable { query = "" }
-                        )
+                        IconButton(onClick = { query = "" }) {
+                            Icon(
+                                Icons.Rounded.Close,
+                                contentDescription = stringResource(R.string.cd_clear_search)
+                            )
+                        }
                     }
                 },
                 singleLine = true,
-                shape = RoundedCornerShape(50),
+                shape = CircleShape,
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                     focusedBorderColor = Color.Transparent,
                     unfocusedBorderColor = Color.Transparent
                 )
@@ -725,13 +758,10 @@ private fun ArtistPickerBottomSheet(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(filteredArtists, key = { it.id }) { artist ->
-                        ArtistListItem(
+                        MixArtistPickerRow(
                             artist = artist,
-                            onClick = {},
-                            isSelectionMode = true,
                             isSelected = selectedArtistIds.contains(artist.id),
-                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            onSelectionToggle = { onToggleArtist(artist.id) }
+                            onToggle = { onToggleArtist(artist.id) }
                         )
                     }
                 }
@@ -748,14 +778,84 @@ private fun ArtistPickerBottomSheet(
 }
 
 /**
- * A selected artist/genre badge: the blue chip from the mix reference, white
- * text, and a dismiss X.
+ * Artist row in the picker: the artwork picker's row (Surface, 24.dp
+ * corners, surfaceContainer / primaryContainer, 72.dp circular art),
+ * with the song count as the subtitle instead of the Deezer fan count.
+ */
+@Composable
+private fun MixArtistPickerRow(
+    artist: Artist,
+    isSelected: Boolean,
+    onToggle: () -> Unit
+) {
+    val containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+        else MaterialTheme.colorScheme.surfaceContainer
+    val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+        else MaterialTheme.colorScheme.onSurface
+    val subtitleColor = if (isSelected) contentColor.copy(alpha = 0.75f)
+        else MaterialTheme.colorScheme.onSurfaceVariant
+    Surface(
+        onClick = onToggle,
+        shape = RoundedCornerShape(24.dp),
+        color = containerColor,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 72.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 24.dp, top = 12.dp, bottom = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SmartImage(
+                model = artist.effectiveImageUrl,
+                contentDescription = artist.name,
+                shape = CircleShape,
+                targetSize = SmartImageListTargetSize,
+                modifier = Modifier.size(72.dp)
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 14.dp)
+            ) {
+                Text(
+                    text = artist.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                    color = contentColor,
+                    maxLines = 1
+                )
+                Text(
+                    text = formatSongCount(artist.songCount),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = subtitleColor,
+                    maxLines = 1
+                )
+            }
+            if (isSelected) {
+                Icon(
+                    imageVector = Icons.Rounded.Check,
+                    contentDescription = null,
+                    tint = contentColor,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+        }
+    }
+}
+
+/**
+ * A selected artist/genre badge: the theme primary chip, onPrimary
+ * text, and a dismiss X. It follows the active color scheme -- the mix
+ * artwork colors when the form is opened from a mix detail page.
  */
 @Composable
 private fun MixBadgeChip(text: String, onRemove: () -> Unit) {
     Surface(
-        color = MixBadgeBlue,
-        contentColor = Color.White,
+        color = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
         shape = RoundedCornerShape(50)
     ) {
         Row(

@@ -7,12 +7,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import kotlin.math.abs
 
-// Edge scale for horizontal carousels: an item sits at full size at
-// the viewport center and slightly smaller at the edge (visibly, not
-// tiny), growing as it scrolls toward the center. Scroll-driven, so
-// no separate animation is needed.
+// Edge scale for horizontal carousels: a fully visible item sits at full
+// size, and an item peeking in from the edge shrinks toward 0.9 in
+// proportion to how much of it is hidden. The first items are therefore
+// full size at rest and only the trailing peek reads smaller.
+// Scroll-driven, so no separate animation is needed.
 private const val CarouselEdgeScale = 0.9f
 
 @Composable
@@ -22,13 +22,15 @@ fun Modifier.carouselItemScale(listState: LazyListState, index: Int): Modifier {
             val info = listState.layoutInfo
             val item = info.visibleItemsInfo.firstOrNull { it.index == index }
                 ?: return@derivedStateOf 1f
-            val viewportCenter = (info.viewportStartOffset + info.viewportEndOffset) / 2f
-            val itemCenter = item.offset + item.size / 2f
-            val distance = abs(viewportCenter - itemCenter)
-            val maxDistance = (info.viewportEndOffset - info.viewportStartOffset) / 2f
-            if (maxDistance <= 0f) 1f
-            else (1f - (distance / maxDistance) * (1f - CarouselEdgeScale))
-                .coerceIn(CarouselEdgeScale, 1f)
+            val viewportStart = info.viewportStartOffset.toFloat()
+            val viewportEnd = info.viewportEndOffset.toFloat()
+            val itemStart = item.offset.toFloat()
+            val itemEnd = itemStart + item.size
+            val visibleWidth = (minOf(itemEnd, viewportEnd) - maxOf(itemStart, viewportStart))
+                .coerceAtLeast(0f)
+            val visibleFraction = if (item.size <= 0) 1f
+            else (visibleWidth / item.size).coerceIn(0f, 1f)
+            CarouselEdgeScale + (1f - CarouselEdgeScale) * visibleFraction
         }
     }
     return graphicsLayer {

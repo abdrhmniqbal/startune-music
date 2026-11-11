@@ -336,10 +336,9 @@ private fun LibraryActionRowContent(
                                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                                 ),
-                                elevation = ButtonDefaults.buttonElevation(
-                                    defaultElevation = 4.dp,
-                                    pressedElevation = 6.dp
-                                ),
+                                // No elevation: secondaryContainer is translucent
+                                // (secondary at 15% alpha), so a shadow would show
+                                // through the edges as a second container.
                                 contentPadding = PaddingValues(
                                     horizontal = 14.dp,
                                     vertical = 10.dp

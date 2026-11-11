@@ -80,7 +80,7 @@ fun LibraryMixCard(
         allSongs.mapNotNull { it.albumArtUriString }.distinct().take(3)
     }
     val stablePlayerState by playerViewModel.stablePlayerState.collectAsStateWithLifecycle()
-    var expanded by rememberSaveable(playlist.id) { mutableStateOf(false) }
+    var expanded by rememberSaveable(playlist.id) { mutableStateOf(true) }
     val chevronRotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         animationSpec = tween(durationMillis = 300),

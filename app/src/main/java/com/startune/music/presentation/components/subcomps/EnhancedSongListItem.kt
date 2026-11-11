@@ -67,6 +67,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.painterResource
 import com.startune.music.R
 import com.startune.music.presentation.components.SmartImage
+import com.startune.music.presentation.utils.HighlightMorphShape
 
 @Immutable
 private data class EnhancedSongAnimationTarget(
@@ -76,32 +77,6 @@ private data class EnhancedSongAnimationTarget(
 
 private fun lerpFloat(start: Float, stop: Float, fraction: Float): Float {
     return start + (stop - start) * fraction
-}
-
-/**
- * Morphs the corners of a segmented [base] shape into a fully rounded container as
- * [progress] goes from 0 to 1. Corner sizes are resolved per-measure, so percent-based
- * corners and any item height morph correctly.
- */
-private class HighlightMorphShape(
-    private val base: CornerBasedShape,
-    private val progress: Float,
-) : Shape {
-    override fun createOutline(
-        size: androidx.compose.ui.geometry.Size,
-        layoutDirection: LayoutDirection,
-        density: Density
-    ): Outline {
-        val full = size.minDimension / 2f
-        fun corner(cornerSize: CornerSize): CornerSize =
-            CornerSize(lerpFloat(cornerSize.toPx(size, density), full, progress))
-        return base.copy(
-            topStart = corner(base.topStart),
-            topEnd = corner(base.topEnd),
-            bottomEnd = corner(base.bottomEnd),
-            bottomStart = corner(base.bottomStart),
-        ).createOutline(size, layoutDirection, density)
-    }
 }
 
 /**

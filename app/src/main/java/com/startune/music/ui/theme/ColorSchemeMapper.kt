@@ -81,14 +81,19 @@ fun ColorScheme.withDerivedRoles(dark: Boolean): ColorScheme {
     val surfaceLightness = lightnessOf(surface) * 100f
     val (lowestTarget, lowTarget, containerTarget, highTarget, highestTarget) = if (dark) {
         val lowest = bgLightness - 12f
-        val low = maxOf(bgLightness + 7f, surfaceLightness + 2f)
+        // The surface anchor must meet the same 7-point separation the
+        // background anchor promises: with only +2, a custom scheme whose
+        // surface sits near its background (and whose light primary lifts
+        // the gradient background) derives a surfaceContainerLow that
+        // lands on -- or below -- the page behind the card.
+        val low = maxOf(bgLightness + 7f, surfaceLightness + 7f)
         val container = maxOf(bgLightness + 11f, low + 3f)
         val high = maxOf(bgLightness + 16f, container + 3f)
         val highest = maxOf(bgLightness + 22f, high + 3f)
         listOf(lowest, low, container, high, highest)
     } else {
         val lowest = bgLightness + 5f
-        val low = minOf(bgLightness - 5f, surfaceLightness - 2f)
+        val low = minOf(bgLightness - 5f, surfaceLightness - 5f)
         val container = minOf(bgLightness - 9f, low - 3f)
         val high = minOf(bgLightness - 14f, container - 3f)
         val highest = minOf(bgLightness - 20f, high - 3f)
@@ -188,6 +193,25 @@ fun SchemeRoles.toColorScheme(dark: Boolean): ColorScheme {
         onPrimaryContainer = onPrimaryContainer,
         secondaryContainer = secondary.copy(alpha = 0.15f),
         onSecondaryContainer = secondary.copy(alpha = 0.85f),
+        // The *Fixed roles were never assigned here, so they fell through
+        // from the M3 baseline scheme and every player button using them
+        // (bottom toggle row, play button) stayed baseline purple/pink
+        // whatever scheme was picked. Derive them from the scheme's own
+        // hues: light tints for the pill (tone 90 / 80), dark tints for
+        // the text on it (tone 10 / 30). Identical in light and dark,
+        // as M3 defines Fixed roles.
+        primaryFixed = withLightness(primary, 0.90f),
+        primaryFixedDim = withLightness(primary, 0.80f),
+        onPrimaryFixed = withLightness(primary, 0.10f),
+        onPrimaryFixedVariant = withLightness(primary, 0.30f),
+        secondaryFixed = withLightness(secondary, 0.90f),
+        secondaryFixedDim = withLightness(secondary, 0.80f),
+        onSecondaryFixed = withLightness(secondary, 0.10f),
+        onSecondaryFixedVariant = withLightness(secondary, 0.30f),
+        tertiaryFixed = withLightness(tertiary, 0.90f),
+        tertiaryFixedDim = withLightness(tertiary, 0.80f),
+        onTertiaryFixed = withLightness(tertiary, 0.10f),
+        onTertiaryFixedVariant = withLightness(tertiary, 0.30f),
         error = error,
         onError = onColorFor(error)
     ).withDerivedRoles(dark)

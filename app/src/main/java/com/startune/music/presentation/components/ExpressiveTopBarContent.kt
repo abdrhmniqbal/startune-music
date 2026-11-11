@@ -52,6 +52,7 @@ fun ExpressiveTopBarContent(
     expandedTitleStartPadding: Dp = 16.dp,
     collapsedTitleEndPadding: Dp = 24.dp,
     expandedTitleEndPadding: Dp = 24.dp,
+    centerExpandedTitle: Boolean = false,
     containerHeightRange: Pair<Dp, Dp> = 88.dp to 56.dp,
     collapsedTitleVerticalBias: Float = -1f,
     titleStyle: TextStyle = MaterialTheme.typography.headlineMedium,
@@ -76,6 +77,10 @@ fun ExpressiveTopBarContent(
     val titlePaddingEnd = lerp(expandedTitleEndPadding, collapsedTitleEndPadding, clampedFraction)
     val titleVerticalBias = lerp(1f, collapsedTitleVerticalBias, clampedFraction)
     val animatedTitleAlignment = BiasAlignment(horizontalBias = -1f, verticalBias = titleVerticalBias)
+    // Centered expanded title: the title block slides from screen center
+    // when expanded to the back-button row when collapsed. Off keeps -1f,
+    // the current left-aligned behavior.
+    val titleHorizontalBias = if (centerExpandedTitle) lerp(0f, -1f, clampedFraction) else -1f
     val titleContainerHeight = lerp(containerHeightRange.first, containerHeightRange.second, clampedFraction)
     val subtitleAlpha = if (fadeSubtitleOnCollapse) 1f - clampedFraction else 1f
     val subtitleMaxLines = if (clampedFraction < 0.5f) expandedSubtitleMaxLines else collapsedSubtitleMaxLines
@@ -156,8 +161,9 @@ fun ExpressiveTopBarContent(
         ) {
             Column(
                 modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(top = titleTopPadding)
+                    .align(BiasAlignment(horizontalBias = titleHorizontalBias, verticalBias = -1f))
+                    .padding(top = titleTopPadding),
+                horizontalAlignment = if (centerExpandedTitle) Alignment.CenterHorizontally else Alignment.Start
             ) {
                 if (titleContent != null) {
                     titleContent(resolvedTitleStyle)
