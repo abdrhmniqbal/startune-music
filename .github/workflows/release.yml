@@ -1,7 +1,7 @@
 name: Release
 
 # Manual release: Crowdin sync first, then checks, then release.
-# Run from the Actions tab on the v2.0.0-kotlin branch with the version
+# Run from the Actions tab on the main branch with the version
 # from gradle.properties (for example 2.0.0-beta). The workflow creates
 # the v<version> tag and the GitHub release itself.
 on:
@@ -29,7 +29,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          ref: v2.0.0-kotlin
+          ref: main
 
       - name: Check Crowdin secrets are set
         env:
@@ -70,7 +70,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          ref: v2.0.0-kotlin
+          ref: main
           fetch-depth: 0
 
       - name: Verify version matches gradle.properties
@@ -170,7 +170,7 @@ jobs:
         with:
           name: v${{ inputs.version }}
           tag_name: v${{ inputs.version }}
-          target_commitish: v2.0.0-kotlin
+          target_commitish: main
           files: release-apks/*.apk
           fail_on_unmatched_files: true
           prerelease: ${{ contains(inputs.version, '-') }}
