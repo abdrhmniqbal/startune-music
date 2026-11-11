@@ -43,8 +43,9 @@ data class AppUpdateInfo(
 /**
  * Reads release history from the GitHub releases API for our own repo.
  * The changelog starts at v2.0.0: older releases (the old Expo app) are
- * excluded. Update checks pick the newest release newer than the installed
- * version, with the APK asset matching this device's ABI.
+ * excluded, and so are pre-releases: a stable release's changelog never
+ * lists beta notes. Update checks pick the newest release newer than the
+ * installed version, with the APK asset matching this device's ABI.
  */
 @Singleton
 class GitHubReleasesRepository @Inject constructor(
@@ -72,6 +73,13 @@ class GitHubReleasesRepository @Inject constructor(
         return try {
             fetchReleases()
                 .filter { it.draft != true && !it.tag_name.isNullOrBlank() }
+                // Stable releases only: a pre-release's notes never appear in
+                // the changelog, even if its GitHub release was not flagged
+                // as a pre-release (the tag itself carries -beta/-rc/...).
+                .filter {
+                    it.prerelease != true &&
+                        !VersionCompare.isPreviewReleaseVersion(it.tag_name!!)
+                }
                 .filter { VersionCompare.compareVersions(it.tag_name!!, CHANGELOG_MIN_VERSION) >= 0 }
                 .sortedWith { left, right ->
                     val byVersion = VersionCompare.compareVersions(
