@@ -87,6 +87,7 @@ import com.startune.music.presentation.selection.rememberDragToSelectState
 import com.startune.music.presentation.components.subcomps.SelectionCountPill
 import com.startune.music.presentation.components.SongInfoBottomSheet
 import com.startune.music.data.offline.CloudOfflineRepository
+import com.startune.music.data.preferences.AlbumArtPaletteStyle
 import com.startune.music.presentation.components.EditMultipleSongsSheet
 import com.startune.music.presentation.components.PlayerSheetAwareBackHandler
 import com.startune.music.presentation.components.SongMultiSelectionHost
@@ -98,6 +99,7 @@ import com.startune.music.presentation.viewmodel.GenreDetailViewModel
 import com.startune.music.presentation.viewmodel.CloudDownloadsViewModel
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.PlaylistViewModel
+import com.startune.music.ui.theme.LocalStartuneDarkTheme
 import com.startune.music.utils.shapes.RoundedStarShape
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -172,19 +174,10 @@ fun GenreDetailListScreen(
         }
     }
 
-    var songsSortOption by remember { mutableStateOf<SortOption>(SortOption.SongPlayCount) }
-    var showSongsSortSheet by remember { mutableStateOf(false) }
     var albumsSortOption by remember { mutableStateOf<SortOption>(SortOption.AlbumReleaseYear) }
     var showAlbumsSortSheet by remember { mutableStateOf(false) }
     var artistsSortOption by remember { mutableStateOf<SortOption>(SortOption.ArtistNameAZ) }
     var showArtistsSortSheet by remember { mutableStateOf(false) }
-    val sortedRankedSongs = remember(uiState.rankedSongs, songsSortOption) {
-        when (songsSortOption) {
-            SortOption.SongPlayCount -> uiState.rankedSongs
-            SortOption.SongPlayCountAsc -> uiState.rankedSongs.reversed()
-            else -> sortArtistSongs(uiState.rankedSongs, songsSortOption)
-        }
-    }
     val sortedAlbums = remember(uiState.albums, albumsSortOption) { sortGenreAlbums(uiState.albums, albumsSortOption) }
     val sortedArtists = remember(uiState.artists, artistsSortOption) { sortGenreArtists(uiState.artists, artistsSortOption) }
 
@@ -295,520 +288,525 @@ fun GenreDetailListScreen(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .nestedScroll(nestedScrollConnection)
-    ) {
-        when {
-            (uiState.isLoadingSongs || uiState.isLoadingGenreName) && uiState.genre == null -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    ContainedLoadingIndicator()
-                }
-            }
-            uiState.error != null && uiState.genre == null -> {
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Text(
-                            text = uiState.error!!,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        FilledTonalButton(onClick = { viewModel.retry() }) {
-                            Text(stringResource(R.string.library_retry))
-                        }
-                    }
-                }
-            }
-            uiState.genre != null -> {
-                val title = when (view) {
-                    GenreDetailView.Songs -> stringResource(R.string.top_songs_title)
-                    GenreDetailView.Albums -> stringResource(R.string.library_tab_albums)
-                    else -> stringResource(R.string.library_tab_artists)
-                }
+    val darkMode = LocalStartuneDarkTheme.current
+    val baseColorScheme = MaterialTheme.colorScheme
+    val genrePaletteStyle by playerViewModel.albumArtPaletteStyle.collectAsStateWithLifecycle(
+        initialValue = AlbumArtPaletteStyle.default
+    )
+    val genreColorScheme = remember(uiState.genre, genreId, darkMode, genrePaletteStyle, useArtworkColorForDetails) {
+        if (!useArtworkColorForDetails) baseColorScheme
+        else com.startune.music.ui.theme.GenreThemeUtils.getGenreDetailColorScheme(
+            genre = uiState.genre,
+            fallbackGenreId = java.net.URLDecoder.decode(genreId, "UTF-8"),
+            isDark = darkMode,
+            paletteStyle = genrePaletteStyle
+        )
+    }
 
-                if (view == GenreDetailView.Songs) {
-                    // The selection row, when shown, is the list's first item and is not selectable.
-                    val dragSelectSongAt: (Int) -> Song? = remember(sortedRankedSongs, isSelectionMode) {
-                        { index -> sortedRankedSongs.getOrNull(index - if (isSelectionMode) 1 else 0) }
+    MaterialTheme(colorScheme = genreColorScheme) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .nestedScroll(nestedScrollConnection)
+        ) {
+            when {
+                (uiState.isLoadingSongs || uiState.isLoadingGenreName) && uiState.genre == null -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        ContainedLoadingIndicator()
                     }
-                    LazyColumn(
-                        state = songsListState,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .dragToSelect(
-                                state = dragSelectState,
-                                listState = songsListState,
-                                itemAt = dragSelectSongAt,
-                                itemKey = Song::id,
-                                selectedKeys = currentSelectedSongIds,
-                                onSelectionChange = onSongDragSelectionChange,
-                                bottomInset = MiniPlayerHeight + systemNavBarInset
-                            ),
-                        contentPadding = PaddingValues(
-                            top = currentTopBarHeightDp + 8.dp,
-                            start = 16.dp,
-                            end = 16.dp,
-                            bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
-                        ),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                }
+                uiState.error != null && uiState.genre == null -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize().padding(16.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        if (isSelectionMode) {
-                            item(key = "genre_list_selection_row") {
-                                SelectionActionRow(
-                                    selectedCount = selectedSongs.size,
-                                    onSelectAll = { multiSelectionState.selectAll(uiState.rankedSongs) },
-                                    onDeselect = { multiSelectionState.clearSelection() },
-                                    onOptionsClick = { showMultiSelectionSheet = true }
-                                )
-                            }
-                        }
-                        itemsIndexed(
-                            items = sortedRankedSongs,
-                            key = { _, song -> "genre_ranked_${song.id}" }
-                        ) { index, song ->
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = (index + 1).toString(),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.width(28.dp)
-                                )
-                                LibraryPlaybackAwareSongItem(
-                                    modifier = Modifier.weight(1f),
-                                    song = song,
-                                    playerViewModel = playerViewModel,
-                                    isSelected = selectedSongIds.contains(song.id),
-                                    selectionIndex = if (isSelectionMode) multiSelectionState.getSelectionIndex(song.id) else null,
-                                    isSelectionMode = isSelectionMode,
-                                    onLongPress = {
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        multiSelectionState.toggleSelection(song)
-                                        dragSelectState.onItemLongPressed(song)
-                                    },
-                                    onMoreOptionsClick = { showSongOptionsSheet = it },
-                                    onClick = {
-                                        if (isSelectionMode) {
-                                            multiSelectionState.toggleSelection(song)
-                                        } else {
-                                            playerViewModel.showAndPlaySong(song, sortedRankedSongs, genreDisplayName)
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                    }
-                } else if (view == GenreDetailView.Albums) {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        state = albumsGridState,
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(
-                            top = currentTopBarHeightDp + 8.dp,
-                            start = 16.dp,
-                            end = 16.dp,
-                            bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
-                        ),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        if (isAlbumSelectionMode) {
-                            item(span = { GridItemSpan(2) }) {
-                                SelectionActionRow(
-                                    selectedCount = selectedAlbums.size,
-                                    onSelectAll = {
-                                        multiSelectionState.clearSelection()
-                                        selectedAlbums = (selectedAlbums + uiState.albums.filterNot { selectedAlbumNames.contains(it.name) }).toImmutableList()
-                                    },
-                                    onDeselect = {
-                                        selectedAlbums = persistentListOf()
-                                        multiSelectionState.clearSelection()
-                                    },
-                                    onOptionsClick = {
-                                        val songs = selectedAlbums.flatMap { it.songs }.distinctBy { it.id }
-                                        if (songs.isNotEmpty()) {
-                                            multiSelectionState.replaceSelection(songs)
-                                            showMultiSelectionSheet = true
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        items(
-                            items = sortedAlbums,
-                            key = { album -> "genre_grid_album_${album.name}" }
-                        ) { album ->
-                            val albumColorSchemeFlow = remember(album.artUri, useArtworkColorForDetails) {
-                                if (useArtworkColorForDetails) playerViewModel.themeStateHolder.getAlbumColorSchemeFlow(album.artUri ?: "")
-                                else MutableStateFlow<ColorSchemePair?>(null)
-                            }
-                            AlbumGridItemRedesigned(
-                                album = albumModelFromAlbumData(album),
-                                albumColorSchemePairFlow = albumColorSchemeFlow,
-                                onClick = {
-                                    navController.navigateSafely(
-                                        Screen.AlbumDetail.createRoute(
-                                            album.songs.firstOrNull()?.albumId ?: -1L
-                                        )
-                                    )
-                                },
-                                isSelectionMode = isAlbumSelectionMode,
-                                isSelected = selectedAlbumNames.contains(album.name),
-                                selectionIndex = if (isAlbumSelectionMode) {
-                                    selectedAlbums.indexOfFirst { it.name == album.name }.takeIf { it >= 0 }?.plus(1)
-                                } else null,
-                                onLongPress = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    toggleAlbumSelection(album)
-                                },
-                                onSelectionToggle = { toggleAlbumSelection(album) }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                text = uiState.error!!,
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodyLarge
                             )
+                            FilledTonalButton(onClick = { viewModel.retry() }) {
+                                Text(stringResource(R.string.library_retry))
+                            }
                         }
                     }
-                } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        state = artistsGridState,
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(
-                            top = currentTopBarHeightDp + 8.dp,
-                            start = 16.dp,
-                            end = 16.dp,
-                            bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
-                        ),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        if (isArtistSelectionMode) {
-                            item(span = { GridItemSpan(2) }) {
-                                SelectionActionRow(
-                                    selectedCount = selectedArtists.size,
-                                    onSelectAll = {
-                                        multiSelectionState.clearSelection()
-                                        selectedArtists = (selectedArtists + uiState.artists.filterNot { selectedArtistIds.contains(it.id) }).toImmutableList()
-                                    },
-                                    onDeselect = {
-                                        selectedArtists = persistentListOf()
-                                        multiSelectionState.clearSelection()
-                                    },
-                                    onOptionsClick = {
-                                        val snapshot = selectedArtists.toList()
-                                        val snapshotIds = snapshot.map { it.id }
-                                        coroutineScope.launch {
-                                            val songs = playerViewModel.resolveArtistSongsForBatchActions(snapshot)
-                                            if (songs.isNotEmpty() && selectedArtists.map { it.id } == snapshotIds) {
+                }
+                uiState.genre != null -> {
+                    val title = when (view) {
+                        GenreDetailView.Songs -> stringResource(R.string.top_songs_title)
+                        GenreDetailView.Albums -> stringResource(R.string.library_tab_albums)
+                        else -> stringResource(R.string.library_tab_artists)
+                    }
+
+                    if (view == GenreDetailView.Songs) {
+                        // The selection row, when shown, is the list's first item and is not selectable.
+                        val dragSelectSongAt: (Int) -> Song? = remember(uiState.rankedSongs, isSelectionMode) {
+                            { index -> uiState.rankedSongs.getOrNull(index - if (isSelectionMode) 1 else 0) }
+                        }
+                        LazyColumn(
+                            state = songsListState,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .dragToSelect(
+                                    state = dragSelectState,
+                                    listState = songsListState,
+                                    itemAt = dragSelectSongAt,
+                                    itemKey = Song::id,
+                                    selectedKeys = currentSelectedSongIds,
+                                    onSelectionChange = onSongDragSelectionChange,
+                                    bottomInset = MiniPlayerHeight + systemNavBarInset
+                                ),
+                            contentPadding = PaddingValues(
+                                top = currentTopBarHeightDp + 8.dp,
+                                start = 16.dp,
+                                end = 16.dp,
+                                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            if (isSelectionMode) {
+                                item(key = "genre_list_selection_row") {
+                                    SelectionActionRow(
+                                        selectedCount = selectedSongs.size,
+                                        onSelectAll = { multiSelectionState.selectAll(uiState.rankedSongs) },
+                                        onDeselect = { multiSelectionState.clearSelection() },
+                                        onOptionsClick = { showMultiSelectionSheet = true }
+                                    )
+                                }
+                            }
+                            itemsIndexed(
+                                items = uiState.rankedSongs,
+                                key = { _, song -> "genre_ranked_${song.id}" }
+                            ) { index, song ->
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = (index + 1).toString(),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.width(28.dp)
+                                    )
+                                    LibraryPlaybackAwareSongItem(
+                                        modifier = Modifier.weight(1f),
+                                        song = song,
+                                        playerViewModel = playerViewModel,
+                                        isSelected = selectedSongIds.contains(song.id),
+                                        selectionIndex = if (isSelectionMode) multiSelectionState.getSelectionIndex(song.id) else null,
+                                        isSelectionMode = isSelectionMode,
+                                        onLongPress = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            multiSelectionState.toggleSelection(song)
+                                            dragSelectState.onItemLongPressed(song)
+                                        },
+                                        onMoreOptionsClick = { showSongOptionsSheet = it },
+                                        onClick = {
+                                            if (isSelectionMode) {
+                                                multiSelectionState.toggleSelection(song)
+                                            } else {
+                                                playerViewModel.showAndPlaySong(song, uiState.rankedSongs, genreDisplayName)
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    } else if (view == GenreDetailView.Albums) {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            state = albumsGridState,
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(
+                                top = currentTopBarHeightDp + 8.dp,
+                                start = 16.dp,
+                                end = 16.dp,
+                                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
+                            ),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            if (isAlbumSelectionMode) {
+                                item(span = { GridItemSpan(2) }) {
+                                    SelectionActionRow(
+                                        selectedCount = selectedAlbums.size,
+                                        onSelectAll = {
+                                            multiSelectionState.clearSelection()
+                                            selectedAlbums = (selectedAlbums + uiState.albums.filterNot { selectedAlbumNames.contains(it.name) }).toImmutableList()
+                                        },
+                                        onDeselect = {
+                                            selectedAlbums = persistentListOf()
+                                            multiSelectionState.clearSelection()
+                                        },
+                                        onOptionsClick = {
+                                            val songs = selectedAlbums.flatMap { it.songs }.distinctBy { it.id }
+                                            if (songs.isNotEmpty()) {
                                                 multiSelectionState.replaceSelection(songs)
                                                 showMultiSelectionSheet = true
                                             }
                                         }
-                                    }
+                                    )
+                                }
+                            }
+                            items(
+                                items = sortedAlbums,
+                                key = { album -> "genre_grid_album_${album.name}" }
+                            ) { album ->
+                                val albumColorSchemeFlow = remember(album.artUri, useArtworkColorForDetails) {
+                                    if (useArtworkColorForDetails) playerViewModel.themeStateHolder.getAlbumColorSchemeFlow(album.artUri ?: "")
+                                    else MutableStateFlow<ColorSchemePair?>(null)
+                                }
+                                AlbumGridItemRedesigned(
+                                    album = albumModelFromAlbumData(album),
+                                    albumColorSchemePairFlow = albumColorSchemeFlow,
+                                    onClick = {
+                                        navController.navigateSafely(
+                                            Screen.AlbumDetail.createRoute(
+                                                album.songs.firstOrNull()?.albumId ?: -1L
+                                            )
+                                        )
+                                    },
+                                    isSelectionMode = isAlbumSelectionMode,
+                                    isSelected = selectedAlbumNames.contains(album.name),
+                                    selectionIndex = if (isAlbumSelectionMode) {
+                                        selectedAlbums.indexOfFirst { it.name == album.name }.takeIf { it >= 0 }?.plus(1)
+                                    } else null,
+                                    onLongPress = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        toggleAlbumSelection(album)
+                                    },
+                                    onSelectionToggle = { toggleAlbumSelection(album) }
                                 )
                             }
                         }
-                        items(
-                            items = sortedArtists,
-                            key = { artist -> "genre_grid_artist_${artist.id}_${artist.name}" }
-                        ) { artist ->
-                            ArtistGridItem(
-                                artist = artist,
-                                onClick = {
-                                    navController.navigateSafely(
-                                        Screen.ArtistDetail.createRoute(artist.id)
-                                    )
-                                },
-                                isSelectionMode = isArtistSelectionMode,
-                                isSelected = selectedArtistIds.contains(artist.id),
-                                selectionIndex = if (isArtistSelectionMode) {
-                                    selectedArtists.indexOfFirst { it.id == artist.id }.takeIf { it >= 0 }?.plus(1)
-                                } else null,
-                                onLongPress = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    toggleArtistSelection(artist)
-                                },
-                                onSelectionToggle = { toggleArtistSelection(artist) }
-                            )
-                        }
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(currentTopBarHeightDp)
-                        .clipToBounds()
-                ) {
-                    CollapsibleCommonTopBar(
-                        title = title,
-                        collapseFraction = collapseFraction,
-                        headerHeight = currentTopBarHeightDp,
-                        onBackClick = { navController.popBackStack() },
-                        expandedTitleEndPadding = 136.dp,
-                        collapsedTitleEndPadding = 136.dp,
-                        actions = {
-                            Row(
-                                modifier = Modifier.padding(end = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        when (view) {
-                                            GenreDetailView.Songs -> showSongsSortSheet = true
-                                            GenreDetailView.Albums -> showAlbumsSortSheet = true
-                                            else -> showArtistsSortSheet = true
+                    } else {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            state = artistsGridState,
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(
+                                top = currentTopBarHeightDp + 8.dp,
+                                start = 16.dp,
+                                end = 16.dp,
+                                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
+                            ),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            if (isArtistSelectionMode) {
+                                item(span = { GridItemSpan(2) }) {
+                                    SelectionActionRow(
+                                        selectedCount = selectedArtists.size,
+                                        onSelectAll = {
+                                            multiSelectionState.clearSelection()
+                                            selectedArtists = (selectedArtists + uiState.artists.filterNot { selectedArtistIds.contains(it.id) }).toImmutableList()
+                                        },
+                                        onDeselect = {
+                                            selectedArtists = persistentListOf()
+                                            multiSelectionState.clearSelection()
+                                        },
+                                        onOptionsClick = {
+                                            val snapshot = selectedArtists.toList()
+                                            val snapshotIds = snapshot.map { it.id }
+                                            coroutineScope.launch {
+                                                val songs = playerViewModel.resolveArtistSongsForBatchActions(snapshot)
+                                                if (songs.isNotEmpty() && selectedArtists.map { it.id } == snapshotIds) {
+                                                    multiSelectionState.replaceSelection(songs)
+                                                    showMultiSelectionSheet = true
+                                                }
+                                            }
                                         }
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Rounded.Sort,
-                                        contentDescription = stringResource(R.string.presentation_batch_d_sort_by)
                                     )
                                 }
                             }
-                        }
-                    )
-                    if (view == GenreDetailView.Songs && uiState.rankedSongs.isNotEmpty()) {
-                        LargeExtendedFloatingActionButton(
-                            onClick = {
-                                playerViewModel.playSongsShuffled(sortedRankedSongs, genreDisplayName, startAtZero = true)
-                            },
-                            shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f),
-                            modifier = Modifier
-                                .align(shuffleAlignment)
-                                .statusBarsPadding()
-                                .padding(end = 16.dp)
-                                .graphicsLayer {
-                                    alpha = expandedContentAlpha
-                                    scaleX = expandedContentAlpha
-                                    scaleY = expandedContentAlpha
-                                }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Shuffle,
-                                contentDescription = stringResource(R.string.shortcut_shuffle_short)
-                            )
+                            items(
+                                items = sortedArtists,
+                                key = { artist -> "genre_grid_artist_${artist.id}_${artist.name}" }
+                            ) { artist ->
+                                ArtistGridItem(
+                                    artist = artist,
+                                    onClick = {
+                                        navController.navigateSafely(
+                                            Screen.ArtistDetail.createRoute(artist.id)
+                                        )
+                                    },
+                                    isSelectionMode = isArtistSelectionMode,
+                                    isSelected = selectedArtistIds.contains(artist.id),
+                                    selectionIndex = if (isArtistSelectionMode) {
+                                        selectedArtists.indexOfFirst { it.id == artist.id }.takeIf { it >= 0 }?.plus(1)
+                                    } else null,
+                                    onLongPress = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        toggleArtistSelection(artist)
+                                    },
+                                    onSelectionToggle = { toggleArtistSelection(artist) }
+                                )
+                            }
                         }
                     }
-                }
 
-                if (collapseFraction > 0.95f) {
-                    ExpressiveScrollBar(
-                        listState = if (view == GenreDetailView.Songs) songsListState else null,
-                        gridState = when (view) {
-                            GenreDetailView.Albums -> albumsGridState
-                            GenreDetailView.Artists -> artistsGridState
-                            else -> null
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(currentTopBarHeightDp)
+                            .clipToBounds()
+                    ) {
+                        CollapsibleCommonTopBar(
+                            title = title,
+                            collapseFraction = collapseFraction,
+                            headerHeight = currentTopBarHeightDp,
+                            onBackClick = { navController.popBackStack() },
+                            expandedTitleEndPadding = 136.dp,
+                            collapsedTitleEndPadding = 136.dp,
+                            actions = {
+                                if (view != GenreDetailView.Songs) {
+                                    Row(
+                                        modifier = Modifier.padding(end = 12.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        IconButton(
+                                            onClick = {
+                                                when (view) {
+                                                    GenreDetailView.Albums -> showAlbumsSortSheet = true
+                                                    else -> showArtistsSortSheet = true
+                                                }
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Rounded.Sort,
+                                                contentDescription = stringResource(R.string.presentation_batch_d_sort_by)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        )
+                        if (view == GenreDetailView.Songs && uiState.rankedSongs.isNotEmpty()) {
+                            LargeExtendedFloatingActionButton(
+                                onClick = {
+                                    playerViewModel.playSongsShuffled(uiState.rankedSongs, genreDisplayName, startAtZero = true)
+                                },
+                                shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f),
+                                modifier = Modifier
+                                    .align(shuffleAlignment)
+                                    .statusBarsPadding()
+                                    .padding(end = 16.dp)
+                                    .graphicsLayer {
+                                        alpha = expandedContentAlpha
+                                        scaleX = expandedContentAlpha
+                                        scaleY = expandedContentAlpha
+                                    }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Shuffle,
+                                    contentDescription = stringResource(R.string.shortcut_shuffle_short)
+                                )
+                            }
+                        }
+                    }
+
+                    if (collapseFraction > 0.95f) {
+                        ExpressiveScrollBar(
+                            listState = if (view == GenreDetailView.Songs) songsListState else null,
+                            gridState = when (view) {
+                                GenreDetailView.Albums -> albumsGridState
+                                GenreDetailView.Artists -> artistsGridState
+                                else -> null
+                            },
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .padding(
+                                    top = minTopBarHeight + 12.dp,
+                                    bottom = MiniPlayerHeight + systemNavBarInset + 8.dp
+                                )
+                        )
+                    }
+
+                    SelectionCountPill(
+                        selectedCount = when (view) {
+                            GenreDetailView.Songs -> selectedSongs.size
+                            GenreDetailView.Albums -> selectedAlbums.size
+                            GenreDetailView.Artists -> selectedArtists.size
+                            GenreDetailView.Overview -> 0
                         },
                         modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(
-                                top = minTopBarHeight + 12.dp,
-                                bottom = MiniPlayerHeight + systemNavBarInset + 8.dp
-                            )
+                            .align(Alignment.TopCenter)
+                            .padding(top = currentTopBarHeightDp)
+                            .zIndex(1f)
                     )
                 }
-
-                SelectionCountPill(
-                    selectedCount = when (view) {
-                        GenreDetailView.Songs -> selectedSongs.size
-                        GenreDetailView.Albums -> selectedAlbums.size
-                        GenreDetailView.Artists -> selectedArtists.size
-                        GenreDetailView.Overview -> 0
-                    },
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = currentTopBarHeightDp)
-                        .zIndex(1f)
-                )
+            }
+            if (uiState.isLoadingSongs) {
+                ContainedLoadingIndicator(modifier = Modifier.align(Alignment.Center))
             }
         }
-        if (uiState.isLoadingSongs) {
-            ContainedLoadingIndicator(modifier = Modifier.align(Alignment.Center))
+
+        if (showAlbumsSortSheet) {
+            LibrarySortBottomSheet(
+                title = stringResource(R.string.presentation_batch_d_sort_by),
+                options = SortOption.ALBUMS.toImmutableList(),
+                selectedOption = albumsSortOption,
+                onDismiss = { showAlbumsSortSheet = false },
+                onOptionSelected = {
+                    albumsSortOption = it
+                    showAlbumsSortSheet = false
+                }
+            )
         }
-    }
 
-    if (showSongsSortSheet) {
-        LibrarySortBottomSheet(
-            title = stringResource(R.string.presentation_batch_d_sort_by),
-            options = SortOption.SONGS.toImmutableList(),
-            selectedOption = songsSortOption,
-            onDismiss = { showSongsSortSheet = false },
-            onOptionSelected = {
-                songsSortOption = it
-                showSongsSortSheet = false
-            }
-        )
-    }
+        if (showArtistsSortSheet) {
+            LibrarySortBottomSheet(
+                title = stringResource(R.string.presentation_batch_d_sort_by),
+                options = SortOption.ARTISTS.toImmutableList(),
+                selectedOption = artistsSortOption,
+                onDismiss = { showArtistsSortSheet = false },
+                onOptionSelected = {
+                    artistsSortOption = it
+                    showArtistsSortSheet = false
+                }
+            )
+        }
 
-    if (showAlbumsSortSheet) {
-        LibrarySortBottomSheet(
-            title = stringResource(R.string.presentation_batch_d_sort_by),
-            options = SortOption.ALBUMS.toImmutableList(),
-            selectedOption = albumsSortOption,
-            onDismiss = { showAlbumsSortSheet = false },
-            onOptionSelected = {
-                albumsSortOption = it
-                showAlbumsSortSheet = false
-            }
-        )
-    }
-
-    if (showArtistsSortSheet) {
-        LibrarySortBottomSheet(
-            title = stringResource(R.string.presentation_batch_d_sort_by),
-            options = SortOption.ARTISTS.toImmutableList(),
-            selectedOption = artistsSortOption,
-            onDismiss = { showArtistsSortSheet = false },
-            onOptionSelected = {
-                artistsSortOption = it
-                showArtistsSortSheet = false
-            }
-        )
-    }
-
-    showSongOptionsSheet?.let { song ->
-        val isFavorite = favoriteSongIds.contains(song.id)
-        SongInfoBottomSheet(
-            song = song,
-            isFavorite = isFavorite,
-            onToggleFavorite = {
-                playerViewModel.toggleFavoriteSpecificSong(song)
-            },
-            onDismiss = { showSongOptionsSheet = null },
-            onPlaySong = {
-                playerViewModel.showAndPlaySong(song, sortedRankedSongs, genreDisplayName)
-                showSongOptionsSheet = null
-            },
-            onAddToQueue = {
-                playerViewModel.addSongToQueue(song)
-                showSongOptionsSheet = null
-                playerViewModel.sendToast(toastAddedToQueue)
-            },
-            onAddNextToQueue = {
-                playerViewModel.addSongNextToQueue(song)
-                showSongOptionsSheet = null
-                playerViewModel.sendToast(toastPlayingNext)
-            },
-            onAddToPlayList = {
-                showPlaylistBottomSheet = true
-            },
-            onDeleteFromDevice = playerViewModel::deleteFromDevice,
-            onNavigateToAlbum = {
-                navController.navigateSafelyReplacing(
-                    route = Screen.AlbumDetail.createRoute(song.albumId),
-                    patternToPop = Screen.AlbumDetail.route
-                )
-                showSongOptionsSheet = null
-            },
-            onNavigateToArtist = {
-                navController.navigateSafelyReplacing(
-                    route = Screen.ArtistDetail.createRoute(song.artistId),
-                    patternToPop = Screen.ArtistDetail.route
-                )
-                showSongOptionsSheet = null
-            },
-            onNavigateToArtistById = { artistId ->
-                navController.navigateSafelyReplacing(
-                    route = Screen.ArtistDetail.createRoute(artistId),
-                    patternToPop = Screen.ArtistDetail.route
-                )
-                showSongOptionsSheet = null
-            },
-            onNavigateToGenre = {
-                song.genre?.let {
+        showSongOptionsSheet?.let { song ->
+            val isFavorite = favoriteSongIds.contains(song.id)
+            SongInfoBottomSheet(
+                song = song,
+                isFavorite = isFavorite,
+                onToggleFavorite = {
+                    playerViewModel.toggleFavoriteSpecificSong(song)
+                },
+                onDismiss = { showSongOptionsSheet = null },
+                onPlaySong = {
+                    playerViewModel.showAndPlaySong(song, uiState.rankedSongs, genreDisplayName)
+                    showSongOptionsSheet = null
+                },
+                onAddToQueue = {
+                    playerViewModel.addSongToQueue(song)
+                    showSongOptionsSheet = null
+                    playerViewModel.sendToast(toastAddedToQueue)
+                },
+                onAddNextToQueue = {
+                    playerViewModel.addSongNextToQueue(song)
+                    showSongOptionsSheet = null
+                    playerViewModel.sendToast(toastPlayingNext)
+                },
+                onAddToPlayList = {
+                    showPlaylistBottomSheet = true
+                },
+                onDeleteFromDevice = playerViewModel::deleteFromDevice,
+                onNavigateToAlbum = {
                     navController.navigateSafelyReplacing(
-                        route = Screen.GenreDetail.createRoute(java.net.URLEncoder.encode(it, "UTF-8")),
-                        patternToPop = Screen.GenreDetail.route
+                        route = Screen.AlbumDetail.createRoute(song.albumId),
+                        patternToPop = Screen.AlbumDetail.route
                     )
-                }
-                showSongOptionsSheet = null
+                    showSongOptionsSheet = null
+                },
+                onNavigateToArtist = {
+                    navController.navigateSafelyReplacing(
+                        route = Screen.ArtistDetail.createRoute(song.artistId),
+                        patternToPop = Screen.ArtistDetail.route
+                    )
+                    showSongOptionsSheet = null
+                },
+                onNavigateToArtistById = { artistId ->
+                    navController.navigateSafelyReplacing(
+                        route = Screen.ArtistDetail.createRoute(artistId),
+                        patternToPop = Screen.ArtistDetail.route
+                    )
+                    showSongOptionsSheet = null
+                },
+                onNavigateToGenre = {
+                    song.genre?.let {
+                        navController.navigateSafelyReplacing(
+                            route = Screen.GenreDetail.createRoute(java.net.URLEncoder.encode(it, "UTF-8")),
+                            patternToPop = Screen.GenreDetail.route
+                        )
+                    }
+                    showSongOptionsSheet = null
+                },
+                onEditSong = { newTitle, newArtist, newAlbum, newAlbumArtist, newComposer, newGenre, newLyrics, newTrackNumber, newDiscNumber, replayGainTrackGainDb, replayGainAlbumGainDb, coverArtUpdate, customMetadataChanges ->
+                    playerViewModel.editSongMetadata(
+                        song,
+                        newTitle,
+                        newArtist,
+                        newAlbum,
+                        newAlbumArtist,
+                        newComposer,
+                        newGenre,
+                        newLyrics,
+                        newTrackNumber,
+                        newDiscNumber,
+                        replayGainTrackGainDb,
+                        replayGainAlbumGainDb,
+                        coverArtUpdate,
+                        customMetadataChanges
+                    )
+                },
+                removeFromListTrigger = {}
+            )
+            if (showPlaylistBottomSheet) {
+                PlaylistBottomSheet(
+                    playlistUiState = playlistUiState,
+                    songs = persistentListOf(song),
+                    onDismiss = { showPlaylistBottomSheet = false },
+                    bottomBarHeight = 0.dp,
+                    playerViewModel = playerViewModel
+                )
+            }
+        }
+
+        SongMultiSelectionHost(
+            playerViewModel = playerViewModel,
+            multiSelectionState = multiSelectionState,
+            showSheet = showMultiSelectionSheet,
+            onDismiss = { showMultiSelectionSheet = false },
+            onActionTaken = {
+                selectedAlbums = persistentListOf()
+                selectedArtists = persistentListOf()
             },
-            onEditSong = { newTitle, newArtist, newAlbum, newAlbumArtist, newComposer, newGenre, newLyrics, newTrackNumber, newDiscNumber, replayGainTrackGainDb, replayGainAlbumGainDb, coverArtUpdate, customMetadataChanges ->
-                playerViewModel.editSongMetadata(
-                    song,
-                    newTitle,
-                    newArtist,
-                    newAlbum,
-                    newAlbumArtist,
-                    newComposer,
-                    newGenre,
-                    newLyrics,
-                    newTrackNumber,
-                    newDiscNumber,
+            onBatchEdit = { showBatchEditSheet = true },
+            onDownloadAll = {
+                val cloudSongCount = CloudOfflineRepository.downloadCandidates(selectedSongs).size
+                cloudDownloadsViewModel.downloadSelected(selectedSongs)
+                multiSelectionState.clearSelection()
+                playerViewModel.sendToast(
+                    context.resources.getQuantityString(
+                        R.plurals.cloud_download_selected_started,
+                        cloudSongCount,
+                        cloudSongCount
+                    )
+                )
+                showMultiSelectionSheet = false
+            },
+        )
+
+        EditMultipleSongsSheet(
+            visible = showBatchEditSheet,
+            songs = selectedSongs.toImmutableList(),
+            onDismiss = { showBatchEditSheet = false },
+            onSave = { songs, title, artist, album, albumArtist, composer, genre, lyrics, trackNumber, discNumber, replayGainTrackGainDb, replayGainAlbumGainDb, coverArtUpdate ->
+                playerViewModel.saveBatchMetadata(
+                    songs,
+                    title,
+                    artist,
+                    album,
+                    albumArtist,
+                    composer,
+                    genre,
+                    lyrics,
+                    trackNumber,
+                    discNumber,
                     replayGainTrackGainDb,
                     replayGainAlbumGainDb,
-                    coverArtUpdate,
-                    customMetadataChanges
+                    coverArtUpdate
                 )
-            },
-            removeFromListTrigger = {}
+                showBatchEditSheet = false
+            }
         )
-        if (showPlaylistBottomSheet) {
-            PlaylistBottomSheet(
-                playlistUiState = playlistUiState,
-                songs = persistentListOf(song),
-                onDismiss = { showPlaylistBottomSheet = false },
-                bottomBarHeight = 0.dp,
-                playerViewModel = playerViewModel
-            )
-        }
     }
-
-    SongMultiSelectionHost(
-        playerViewModel = playerViewModel,
-        multiSelectionState = multiSelectionState,
-        showSheet = showMultiSelectionSheet,
-        onDismiss = { showMultiSelectionSheet = false },
-        onActionTaken = {
-            selectedAlbums = persistentListOf()
-            selectedArtists = persistentListOf()
-        },
-        onBatchEdit = { showBatchEditSheet = true },
-        onDownloadAll = {
-            val cloudSongCount = CloudOfflineRepository.downloadCandidates(selectedSongs).size
-            cloudDownloadsViewModel.downloadSelected(selectedSongs)
-            multiSelectionState.clearSelection()
-            playerViewModel.sendToast(
-                context.resources.getQuantityString(
-                    R.plurals.cloud_download_selected_started,
-                    cloudSongCount,
-                    cloudSongCount
-                )
-            )
-            showMultiSelectionSheet = false
-        },
-    )
-
-    EditMultipleSongsSheet(
-        visible = showBatchEditSheet,
-        songs = selectedSongs.toImmutableList(),
-        onDismiss = { showBatchEditSheet = false },
-        onSave = { songs, title, artist, album, albumArtist, composer, genre, lyrics, trackNumber, discNumber, replayGainTrackGainDb, replayGainAlbumGainDb, coverArtUpdate ->
-            playerViewModel.saveBatchMetadata(
-                songs,
-                title,
-                artist,
-                album,
-                albumArtist,
-                composer,
-                genre,
-                lyrics,
-                trackNumber,
-                discNumber,
-                replayGainTrackGainDb,
-                replayGainAlbumGainDb,
-                coverArtUpdate
-            )
-            showBatchEditSheet = false
-        }
-    )
 }
