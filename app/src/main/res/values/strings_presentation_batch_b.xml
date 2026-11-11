@@ -78,6 +78,7 @@
     <string name="presentation_batch_b_queue_recently_played">Recently Played</string>
     <string name="presentation_batch_b_queue_recently_added">Recently Added</string>
     <string name="presentation_batch_b_queue_favorites_to_revisit">Favorites to Revisit</string>
+    <string name="presentation_batch_b_queue_fresh_finds">Fresh finds</string>
     <string name="presentation_batch_b_date_today">Today</string>
     <string name="presentation_batch_b_date_yesterday">Yesterday</string>
 

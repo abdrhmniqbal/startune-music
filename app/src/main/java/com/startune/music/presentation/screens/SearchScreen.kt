@@ -91,6 +91,7 @@ import com.startune.music.data.model.Song
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SmartImageListTargetSize
 import com.startune.music.presentation.components.FavoritesToRevisitSection
+import com.startune.music.presentation.components.FreshFindsSection
 import com.startune.music.presentation.components.RecentlyPlayedSection
 import com.startune.music.presentation.components.SongInfoBottomSheet
 import com.startune.music.presentation.components.PlaylistMultiSelectionBottomSheet
@@ -162,6 +163,7 @@ private data class SearchUiSlice(
 @Composable
 private const val SearchRecentlyAddedPreviewLimit = 8
 private const val SearchFavoritesToRevisitPoolLimit = 20
+private const val SearchFreshFindsPoolLimit = 20
 
 fun SearchScreen(
     paddingValues: PaddingValues,
@@ -220,6 +222,22 @@ fun SearchScreen(
     }
     val favoritesToRevisitQueue = remember(favoritesToRevisitSongs) {
         favoritesToRevisitSongs.map { it.song }.toImmutableList()
+    }
+    val queueFreshFinds = stringResource(R.string.presentation_batch_b_queue_fresh_finds)
+    val freshFindsSongs = remember(allSongs, playbackHistory) {
+        val playCounts = playbackHistory.groupingBy { it.songId }.eachCount()
+        val lastPlayed = playbackHistory.groupBy { it.songId }
+            .mapValues { (_, entries) -> entries.maxOf { it.timestamp } }
+        allSongs.map { song -> song to (playCounts[song.id] ?: 0) }
+            .filter { (_, playCount) -> playCount > 0 }
+            .sortedBy { (_, playCount) -> playCount }
+            .take(SearchFreshFindsPoolLimit)
+            .sortedBy { (song, _) -> lastPlayed[song.id] ?: 0L }
+            .map { (song, _) -> RecentlyPlayedSongUiModel(song, lastPlayed[song.id] ?: 0L) }
+            .toImmutableList()
+    }
+    val freshFindsQueue = remember(freshFindsSongs) {
+        freshFindsSongs.map { it.song }.toImmutableList()
     }
     val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
@@ -468,6 +486,32 @@ fun SearchScreen(
                                             songsToPlay = favoritesToRevisitQueue,
                                             startSong = favoritesToRevisitQueue.first(),
                                             queueName = queueFavoritesToRevisit
+                                        )
+                                    }
+                                },
+                                currentSongId = stablePlayerState.currentSong?.id,
+                                isPlaying = stablePlayerState.isPlaying
+                            )
+                        }
+                        if (freshFindsSongs.isNotEmpty()) {
+                            FreshFindsSection(
+                                songs = freshFindsSongs,
+                                onSongClick = { song ->
+                                    if (freshFindsQueue.isNotEmpty()) {
+                                        playerViewModel.playSongs(
+                                            songsToPlay = freshFindsQueue,
+                                            startSong = song,
+                                            queueName = queueFreshFinds
+                                        )
+                                    }
+                                },
+                                onSongLongClick = handleSongMoreOptionsClick,
+                                onPlayAllClick = {
+                                    if (freshFindsQueue.isNotEmpty()) {
+                                        playerViewModel.playSongs(
+                                            songsToPlay = freshFindsQueue,
+                                            startSong = freshFindsQueue.first(),
+                                            queueName = queueFreshFinds
                                         )
                                     }
                                 },
