@@ -111,6 +111,7 @@ data class SettingsUiState(
     val folderBackGestureNavigation: Boolean = true,
     val lyricsSourcePreference: LyricsSourcePreference = LyricsSourcePreference.EMBEDDED_FIRST,
     val autoScanLrcFiles: Boolean = false,
+    val useFolderAlbumArt: Boolean = false,
     val autoScanOnLaunch: Boolean = true,
     val externalLyricsEnabled: Boolean = false,
     val lyricsWordHighlightStyle: LyricsWordHighlightStyle = LyricsWordHighlightStyle.DEFAULT,
@@ -224,7 +225,8 @@ private sealed interface SettingsUiUpdate {
         val dataStorageRoot: String,
         val autoScanOnLaunch: Boolean,
         val lyricsFontSizeSp: Float,
-        val autoBackupNotificationsEnabled: Boolean
+        val autoBackupNotificationsEnabled: Boolean,
+        val useFolderAlbumArt: Boolean
     ) : SettingsUiUpdate
 }
 
@@ -242,6 +244,7 @@ class SettingsViewModel @Inject constructor(
     private val searchStateHolder: SearchStateHolder,
     private val playbackStatsRepository: PlaybackStatsRepository,
     private val musicDao: MusicDao,
+    private val folderArtworkSettingsCoordinator: com.startune.music.utils.FolderArtworkSettingsCoordinator,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -435,7 +438,8 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.dataStorageRootFlow,
                 userPreferencesRepository.autoScanOnLaunchFlow,
                 userPreferencesRepository.lyricsFontSizeFlow,
-                userPreferencesRepository.autoBackupNotificationsEnabledFlow
+                userPreferencesRepository.autoBackupNotificationsEnabledFlow,
+                userPreferencesRepository.useFolderAlbumArtFlow
             ) { values ->
                 val requestedAudioOutputMode = values[4] as AudioOutputMode
                 SettingsUiUpdate.Group2(
@@ -482,7 +486,8 @@ class SettingsViewModel @Inject constructor(
                     dataStorageRoot = values[33] as String,
                     autoScanOnLaunch = values[34] as Boolean,
                     lyricsFontSizeSp = values[35] as Float,
-                    autoBackupNotificationsEnabled = values[36] as Boolean
+                    autoBackupNotificationsEnabled = values[36] as Boolean,
+                    useFolderAlbumArt = values[37] as Boolean
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -522,6 +527,7 @@ class SettingsViewModel @Inject constructor(
                         autoBackupIntervalHours = update.autoBackupIntervalHours,
                         autoBackupLastRunMs = update.autoBackupLastRunMs,
                         autoBackupNotificationsEnabled = update.autoBackupNotificationsEnabled,
+                        useFolderAlbumArt = update.useFolderAlbumArt,
                         dataStorageRoot = update.dataStorageRoot,
                         autoScanOnLaunch = update.autoScanOnLaunch,
                     )
@@ -1040,6 +1046,17 @@ class SettingsViewModel @Inject constructor(
     fun setAutoScanLrcFiles(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setAutoScanLrcFiles(enabled)
+        }
+    }
+
+    /**
+     * Folder covers take precedence over embedded artwork once enabled, so switching
+     * it on or off invalidates the caches and resyncs. The rescan then rebuilds each
+     * song's stored artwork URI.
+     */
+    fun setUseFolderAlbumArt(enabled: Boolean) {
+        viewModelScope.launch {
+            folderArtworkSettingsCoordinator.setEnabled(enabled)
         }
     }
 

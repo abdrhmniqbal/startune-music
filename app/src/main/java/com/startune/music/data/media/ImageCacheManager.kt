@@ -12,6 +12,12 @@ import javax.inject.Singleton
 class ImageCacheManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+    fun clearAllCoverArtCaches() {
+        val imageLoader = context.imageLoader
+        imageLoader.memoryCache?.clear()
+        imageLoader.diskCache?.clear()
+    }
+
     @OptIn(ExperimentalCoilApi::class)
     fun invalidateCoverArtCaches(vararg uriStrings: String?) {
         val imageLoader = context.imageLoader

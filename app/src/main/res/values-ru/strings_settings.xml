@@ -432,4 +432,8 @@
     <string name="setcat_global_now_playing_theme_subtitle">Окрашивает всё приложение по обложке текущего трека. Светлая и тёмная темы по-прежнему учитываются.</string>
     <string name="setcat_keep_screen_awake_title">Не выключать экран во время воспроизведения</string>
     <string name="setcat_keep_screen_awake_subtitle">Не даёт экрану гаснуть, пока играет музыка и приложение открыто.</string>
+    <string name="setcat_folder_album_art_title">Использовать обложки из папки</string>
+    <string name="setcat_folder_album_art_subtitle">Использовать cover.jpg, folder.jpg или похожее изображение из папки трека в качестве обложки вместо встроенной. Общие папки вроде Music, Downloads, DCIM и Pictures игнорируются. В папках исполнителей также ищутся artist.jpg, band.jpg и варианты PNG. Фотографии, выбранные вручную, имеют приоритет.</string>
+    <string name="setcat_folder_album_art_permission_required">Для чтения изображений альбомов и исполнителей из музыкальных папок нужен полный доступ к фото.</string>
+    <string name="setcat_folder_album_art_refreshing">Обновление изображений…</string>
 </resources>

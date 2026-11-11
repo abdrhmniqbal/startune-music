@@ -26,6 +26,7 @@ import com.startune.music.data.media.AudioMetadataReader
 import com.startune.music.data.media.normalizeArtistMetadataValues
 import com.startune.music.data.model.Song
 import com.startune.music.data.preferences.UserPreferencesRepository
+import com.startune.music.data.repository.ArtistImageRepository
 import com.startune.music.data.repository.LyricsRepository
 import com.startune.music.data.service.PlaybackActivityTracker
 import com.startune.music.utils.AlbumArtCacheManager
@@ -104,6 +105,7 @@ constructor(
         private val userPreferencesRepository: UserPreferencesRepository,
         private val lyricsRepository: LyricsRepository,
         private val cloudSyncCoordinator: CloudSyncCoordinator,
+        private val artistImageRepository: ArtistImageRepository,
         private val localLibraryChangeTracker: LocalLibraryChangeTracker
 ) : CoroutineWorker(appContext, workerParams) {
 
@@ -405,6 +407,7 @@ constructor(
                         .i("Synchronization finished successfully in ${endTime - startTime}ms.")
 
                     val totalSongs = musicDao.getSongCount().first()
+                    artistImageRepository.clearCache()
                     if (!syncPlan.runMaintenance) {
                         Timber.tag(TAG).d("Skipping library maintenance phases for local-only sync.")
                         return@withContext Result.success(
@@ -490,6 +493,7 @@ constructor(
 
                     val finalTotalSongs = musicDao.getSongCount().first()
 
+                    artistImageRepository.clearCache()
                     Result.success(workDataOf(OUTPUT_TOTAL_SONGS to finalTotalSongs))
                 } catch (e: Exception) {
                     Timber.tag(TAG).e(e, "Error during MediaStore synchronization")

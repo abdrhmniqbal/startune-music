@@ -431,4 +431,8 @@
     <string name="setcat_global_now_playing_theme_subtitle">Farger hele appen etter albumbildet til gjeldende sang. Lyst og mørkt tema respekteres fortsatt.</string>
     <string name="setcat_keep_screen_awake_title">Hold skjermen våken under avspilling</string>
     <string name="setcat_keep_screen_awake_subtitle">Hindrer at skjermen går i dvale mens musikk spilles aktivt og appen er synlig.</string>
+    <string name="setcat_folder_album_art_title">Bruk omslagsbilder fra mappen</string>
+    <string name="setcat_folder_album_art_subtitle">Bruk cover.jpg, folder.jpg eller et lignende bilde fra sangens egen mappe som albumbilde, foran innebygd omslag. Delte mapper som Music, Downloads, DCIM og Pictures ignoreres. Artistmapper sjekkes også for artist.jpg, band.jpg og PNG-varianter. Manuelt valgte artistbilder prioriteres.</string>
+    <string name="setcat_folder_album_art_permission_required">Full tilgang til bilder kreves for å lese album- og artistbilder fra musikkmappene dine.</string>
+    <string name="setcat_folder_album_art_refreshing">Oppdaterer bilder…</string>
 </resources>
