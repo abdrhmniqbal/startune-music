@@ -325,6 +325,17 @@ class PlayerViewModel @Inject constructor(
             initialValue = AlbumArtPaletteStyle.default
         )
     /**
+     * Detail pages (album, artist, genre) use artwork-derived colors
+     * when true and the default app colors when false.
+     */
+    val useArtworkColorForDetails: StateFlow<Boolean> = userPreferencesRepository
+        .useArtworkColorForDetailsFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = true
+        )
+    /**
      * High-frequency playback position should not force global UI recomposition.
      * Keep a dedicated position flow for real-time UI elements (seek bars, lyrics timing).
      */

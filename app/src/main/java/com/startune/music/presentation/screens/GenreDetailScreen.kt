@@ -9,6 +9,8 @@ import com.startune.music.presentation.components.subcomps.SelectionActionRow
 import com.startune.music.presentation.components.subcomps.SelectionCountPill
 import com.startune.music.presentation.navigation.navigateSafelyReplacing
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.MutableStateFlow
+import com.startune.music.presentation.viewmodel.ColorSchemePair
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -255,8 +257,10 @@ fun GenreDetailScreen(
 
     val baseColorScheme = MaterialTheme.colorScheme
 
-    val genreColorScheme = remember(themeGenre, decodedGenreId, darkMode, genrePaletteStyle) {
-        com.startune.music.ui.theme.GenreThemeUtils.getGenreDetailColorScheme(
+    val useArtworkColorForDetails by playerViewModel.useArtworkColorForDetails.collectAsStateWithLifecycle()
+    val genreColorScheme = remember(themeGenre, decodedGenreId, darkMode, genrePaletteStyle, useArtworkColorForDetails) {
+        if (!useArtworkColorForDetails) baseColorScheme
+        else com.startune.music.ui.theme.GenreThemeUtils.getGenreDetailColorScheme(
             genre = themeGenre,
             fallbackGenreId = decodedGenreId,
             isDark = darkMode,
@@ -1019,8 +1023,9 @@ private fun GenreAlbumsSection(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(albums, key = { album -> "genre_album_${album.name}" }) { album ->
-                val albumColorSchemeFlow = remember(album.artUri) {
-                    playerViewModel.themeStateHolder.getAlbumColorSchemeFlow(album.artUri ?: "")
+                val albumColorSchemeFlow = remember(album.artUri, useArtworkColorForDetails) {
+                    if (useArtworkColorForDetails) playerViewModel.themeStateHolder.getAlbumColorSchemeFlow(album.artUri ?: "")
+                    else MutableStateFlow<ColorSchemePair?>(null)
                 }
                 Box(modifier = Modifier.width(GenreGridCardWidth)) {
                     AlbumGridItemRedesigned(

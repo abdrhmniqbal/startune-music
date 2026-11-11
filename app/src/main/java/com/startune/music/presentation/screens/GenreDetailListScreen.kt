@@ -68,6 +68,8 @@ import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.MutableStateFlow
+import com.startune.music.presentation.viewmodel.ColorSchemePair
 import androidx.navigation.NavHostController
 import com.startune.music.R
 import com.startune.music.presentation.viewmodel.AlbumData
@@ -116,6 +118,7 @@ fun GenreDetailListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
+    val useArtworkColorForDetails by playerViewModel.useArtworkColorForDetails.collectAsStateWithLifecycle()
     val playlistUiState by playlistViewModel.uiState.collectAsStateWithLifecycle()
     val navBarCompactMode by playerViewModel.navBarCompactMode.collectAsStateWithLifecycle()
     val systemNavBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -444,8 +447,9 @@ fun GenreDetailListScreen(
                             items = sortedAlbums,
                             key = { album -> "genre_grid_album_${album.name}" }
                         ) { album ->
-                            val albumColorSchemeFlow = remember(album.artUri) {
-                                playerViewModel.themeStateHolder.getAlbumColorSchemeFlow(album.artUri ?: "")
+                            val albumColorSchemeFlow = remember(album.artUri, useArtworkColorForDetails) {
+                                if (useArtworkColorForDetails) playerViewModel.themeStateHolder.getAlbumColorSchemeFlow(album.artUri ?: "")
+                                else MutableStateFlow<ColorSchemePair?>(null)
                             }
                             AlbumGridItemRedesigned(
                                 album = albumModelFromAlbumData(album),

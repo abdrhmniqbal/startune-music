@@ -348,6 +348,16 @@ object SettingsRegistry {
                 keywordsStatic = listOf("color", "scheme", "theme", "nord", "dracula", "catppuccin", "gruvbox", "tokyo", "solarized", "everforest", "ayu", "dynamic", "custom")
             ),
             SettingSpec(
+                id = "appearance_artwork_color_details",
+                itemKey = "item_appearance_artwork_color_details",
+                titleRes = R.string.setcat_artwork_color_details_title,
+                subtitleRes = R.string.setcat_artwork_color_details_subtitle,
+                category = SettingsCategory.APPEARANCE,
+                subscreenRoute = Screen.SettingsCategory.createRoute("appearance"),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("artwork", "color", "detail", "album", "artist", "genre")
+            ),
+            SettingSpec(
                 id = "appearance_pitch_black",
                 itemKey = "item_appearance_pitch_black",
                 titleRes = R.string.setcat_pitch_black_title,
