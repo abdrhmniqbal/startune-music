@@ -138,6 +138,6 @@ class GitHubReleasesRepository @Inject constructor(
     companion object {
         const val RELEASES_URL =
             "https://api.github.com/repos/abdrhmniqbal/startune-music/releases"
-        const val CHANGELOG_MIN_VERSION = "2.0.0"
+        const val CHANGELOG_MIN_VERSION = "2.0.0-beta"
     }
 }
