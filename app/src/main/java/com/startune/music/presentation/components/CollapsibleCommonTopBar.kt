@@ -57,6 +57,7 @@ fun CollapsibleCommonTopBar(
     titleMinWidthAxis: Float = 78f,
     syncStatusBarWithContainer: Boolean = true,
     supportingContent: (@Composable () -> Unit)? = null,
+    titleContent: (@Composable (TextStyle) -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     val solidAlpha = (collapseFraction * 2f).coerceIn(0f, 1f)
@@ -129,7 +130,8 @@ fun CollapsibleCommonTopBar(
                 enableExpandedTitleWidthCompression = enableExpandedTitleWidthCompression,
                 titleWidthCompressionThreshold = titleWidthCompressionThreshold,
                 titleMinWidthAxis = titleMinWidthAxis,
-                supportingContent = supportingContent
+                supportingContent = supportingContent,
+                titleContent = titleContent
             )
         }
     }
