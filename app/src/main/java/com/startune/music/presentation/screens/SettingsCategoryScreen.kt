@@ -1429,6 +1429,20 @@ fun SettingsCategoryScreen(
                                     onCheckedChange = { settingsViewModel.setIndexerNotificationsEnabled(it) },
                                     modifier = Modifier.settingHighlight("item_notifications_indexer", highlightKey)
                                 )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.auto_backup_notifications_title),
+                                    subtitle = stringResource(R.string.auto_backup_notifications_subtitle),
+                                    checked = uiState.autoBackupNotificationsEnabled,
+                                    onCheckedChange = { settingsViewModel.setAutoBackupNotificationsEnabled(it) },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Notifications,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary
+                                        )
+                                    },
+                                    modifier = Modifier.settingHighlight("item_backup_auto_notifications", highlightKey)
+                                )
                             }
                         }
                         SettingsCategory.BEHAVIOR -> {
@@ -1636,20 +1650,6 @@ fun SettingsCategoryScreen(
                                     },
                                     modifier = Modifier.settingHighlight("item_backup_auto_last", highlightKey),
                                     onClick = {}
-                                )
-                                SwitchSettingItem(
-                                    title = stringResource(R.string.auto_backup_notifications_title),
-                                    subtitle = stringResource(R.string.auto_backup_notifications_subtitle),
-                                    checked = uiState.autoBackupNotificationsEnabled,
-                                    onCheckedChange = { settingsViewModel.setAutoBackupNotificationsEnabled(it) },
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Rounded.Notifications,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.secondary
-                                        )
-                                    },
-                                    modifier = Modifier.settingHighlight("item_backup_auto_notifications", highlightKey)
                                 )
                             }
 

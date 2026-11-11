@@ -959,8 +959,8 @@ object SettingsRegistry {
                 itemKey = "item_backup_auto_notifications",
                 titleRes = R.string.auto_backup_notifications_title,
                 subtitleRes = R.string.auto_backup_notifications_subtitle,
-                category = SettingsCategory.DATA_STORAGE,
-                subscreenRoute = Screen.SettingsCategory.createRoute("data_storage"),
+                category = SettingsCategory.NOTIFICATIONS,
+                subscreenRoute = Screen.SettingsCategory.createRoute("notifications"),
                 type = SettingType.NAVIGABLE_CARD,
                 keywordsStatic = listOf("backup", "automatic", "auto", "notification", "notify")
             ),
