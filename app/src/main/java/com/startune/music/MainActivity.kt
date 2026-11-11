@@ -98,6 +98,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectTapGestures
+import com.startune.music.presentation.splash.StartuneSplash
 import com.startune.music.presentation.viewmodel.PlayerSheetState
 
 import androidx.compose.ui.unit.Dp
@@ -200,6 +201,8 @@ private data class DismissUndoBarSlice(
     val durationMillis: Long = 4000L
 )
 
+private const val SYSTEM_SPLASH_HANDOFF_MS = 150L
+
 @androidx.annotation.OptIn(UnstableApi::class)
 @AndroidEntryPoint
 @OptIn(ExperimentalMaterial3Api::class)
@@ -217,6 +220,7 @@ class MainActivity : ComponentActivity() {
     lateinit var syncManager: SyncManager
     private val _pendingPlaylistNavigation = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
     private val _pendingShuffleAll = kotlinx.coroutines.flow.MutableStateFlow(false)
+    private val systemSplashGone = mutableStateOf(false)
 
     private val requestAllFilesAccessLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
     }
@@ -282,6 +286,26 @@ class MainActivity : ComponentActivity() {
                 syncManager.rebuildDatabase()
                 delay(1_500L)
                 playerViewModel.prepareBenchmarkPlayerFromLibrary()
+            }
+        }
+
+        val playAnimatedSplash =
+            savedInstanceState == null && !isBenchmarkMode &&
+                Settings.Global.getFloat(
+                    contentResolver,
+                    Settings.Global.ANIMATOR_DURATION_SCALE,
+                    1f
+                ) > 0f
+        if (playAnimatedSplash) {
+            splashScreen.setOnExitAnimationListener { provider ->
+                provider.view.animate()
+                    .alpha(0f)
+                    .setDuration(SYSTEM_SPLASH_HANDOFF_MS)
+                    .withEndAction {
+                        provider.remove()
+                        systemSplashGone.value = true
+                    }
+                    .start()
             }
         }
 
@@ -405,58 +429,68 @@ class MainActivity : ComponentActivity() {
                     contentVisible = true
                 }
 
-                Surface(
-                    modifier = Modifier.fillMaxSize().graphicsLayer { alpha = contentAlpha }, 
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    if (showSetupScreen == null) {
-                        SetupGateLoadingScreen()
-                    } else {
-                        AnimatedContent(
-                            targetState = showSetupScreen,
-                            transitionSpec = {
-                                if (targetState) {
-                                    fadeIn(animationSpec = tween(400)) togetherWith fadeOut(animationSpec = tween(400))
+                var showAnimatedSplash by remember { mutableStateOf(playAnimatedSplash) }
+
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Surface(
+                        modifier = Modifier.fillMaxSize().graphicsLayer { alpha = contentAlpha }, 
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        if (showSetupScreen == null) {
+                            SetupGateLoadingScreen()
+                        } else {
+                            AnimatedContent(
+                                targetState = showSetupScreen,
+                                transitionSpec = {
+                                    if (targetState) {
+                                        fadeIn(animationSpec = tween(400)) togetherWith fadeOut(animationSpec = tween(400))
+                                    } else {
+                                        scaleIn(initialScale = 0.95f, animationSpec = tween(450)) + fadeIn(animationSpec = tween(450)) togetherWith
+                                                slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(450)) + fadeOut(animationSpec = tween(450))
+                                    }
+                                },
+                                label = "SetupTransition"
+                            ) { shouldShowSetup ->
+                                if (shouldShowSetup) {
+                                    SetupScreen(onSetupComplete = {
+                                    })
                                 } else {
-                                    scaleIn(initialScale = 0.95f, animationSpec = tween(450)) + fadeIn(animationSpec = tween(450)) togetherWith
-                                            slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(450)) + fadeOut(animationSpec = tween(450))
+                                    MainAppContent(playerViewModel, mainViewModel)
                                 }
-                            },
-                            label = "SetupTransition"
-                        ) { shouldShowSetup ->
-                            if (shouldShowSetup) {
-                                SetupScreen(onSetupComplete = {
-                                })
-                            } else {
-                                MainAppContent(playerViewModel, mainViewModel)
                             }
                         }
-                    }
 
-                    if (showCrashReportDialog && crashLogData != null) {
-                        CrashReportDialog(
-                            crashLog = crashLogData!!,
-                            onDismiss = {
-                                CrashHandler.clearCrashLog()
-                                crashLogData = null
-                                showCrashReportDialog = false
-                            }
-                        )
-                    }
-
-                    if (pendingUpdate != null) {
-                        ModalBottomSheet(
-                            onDismissRequest = { appUpdateViewModel.dismissPendingUpdate(false) },
-                            sheetState = updateSheetState
-                        ) {
-                            AppUpdateSheet(
-                                update = pendingUpdate!!,
-                                onDismiss = { appUpdateViewModel.dismissPendingUpdate(false) },
-                                onDontRemind = { appUpdateViewModel.dismissPendingUpdate(true) }
+                        if (showCrashReportDialog && crashLogData != null) {
+                            CrashReportDialog(
+                                crashLog = crashLogData!!,
+                                onDismiss = {
+                                    CrashHandler.clearCrashLog()
+                                    crashLogData = null
+                                    showCrashReportDialog = false
+                                }
                             )
                         }
-                    }
 
+                        if (pendingUpdate != null) {
+                            ModalBottomSheet(
+                                onDismissRequest = { appUpdateViewModel.dismissPendingUpdate(false) },
+                                sheetState = updateSheetState
+                            ) {
+                                AppUpdateSheet(
+                                    update = pendingUpdate!!,
+                                    onDismiss = { appUpdateViewModel.dismissPendingUpdate(false) },
+                                    onDontRemind = { appUpdateViewModel.dismissPendingUpdate(true) }
+                                )
+                            }
+                        }
+
+                    }
+                    if (showAnimatedSplash) {
+                        StartuneSplash(
+                            systemSplashGone = systemSplashGone.value,
+                            onFinished = { showAnimatedSplash = false }
+                        )
+                    }
                 }
             }
         }
