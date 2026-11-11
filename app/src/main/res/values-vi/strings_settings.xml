@@ -57,7 +57,6 @@
     <string name="setcat_auto_scan_lrc_title">Tự động quét tệp .lrc</string>
     <string name="setcat_auto_scan_lrc_subtitle">Tự động tìm tệp lời bài hát cục bộ cùng thư mục với bài hát</string>
     <string name="setcat_folder_album_art_title">Tải ảnh bìa từ thư mục</string>
-    <string name="setcat_folder_album_art_subtitle">Sử dụng tệp cover.jpg hoặc folder.jpg trong thư mục</string>
     <string name="setcat_folder_album_art_permission_required">Cần quyền truy cập tất cả ảnh để đọc ảnh album và nghệ sĩ từ các thư mục nhạc của bạn.</string>
     <string name="setcat_folder_album_art_refreshing">Đang làm mới ảnh bìa thư mục…</string>
     <string name="setcat_online_services">Dịch vụ trực tuyến</string>
