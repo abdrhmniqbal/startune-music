@@ -431,4 +431,8 @@
     <string name="setcat_global_now_playing_theme_subtitle">Mewarnai seluruh aplikasi dari sampul album lagu saat ini. Mode terang dan gelap tetap berlaku.</string>
     <string name="setcat_keep_screen_awake_title">Biarkan layar tetap menyala saat memutar</string>
     <string name="setcat_keep_screen_awake_subtitle">Mencegah layar tidur saat musik sedang diputar dan aplikasi terlihat.</string>
+    <string name="setcat_folder_album_art_title">Gunakan gambar sampul dari folder</string>
+    <string name="setcat_folder_album_art_subtitle">Gunakan cover.jpg, folder.jpg, atau gambar serupa dari folder lagu sebagai sampul album, didahulukan daripada sampul yang tertanam. Folder bersama seperti Music, Downloads, DCIM, dan Pictures diabaikan. Folder artis juga diperiksa untuk artist.jpg, band.jpg, dan varian PNG. Foto artis yang dipilih secara manual diutamakan.</string>
+    <string name="setcat_folder_album_art_permission_required">Akses foto penuh diperlukan untuk membaca gambar album dan artis dari folder musik Anda.</string>
+    <string name="setcat_folder_album_art_refreshing">Memperbarui gambar…</string>
 </resources>

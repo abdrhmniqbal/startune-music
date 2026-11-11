@@ -151,6 +151,17 @@ class MusicRepositoryImpl @Inject constructor(
         }
         .stateIn(repositoryScope, SharingStarted.Eagerly, CachedDirFilter())
 
+    private suspend fun Artist.withFolderArtwork(): Artist {
+        if (!customImageUri.isNullOrBlank()) return this
+        val folderImage = artistImageRepository.getFolderArtistImageUrl(id, name) ?: return this
+        return copy(imageUrl = folderImage)
+    }
+
+    private fun Flow<List<Artist>>.withFolderArtwork(): Flow<List<Artist>> =
+        combine(this, artistImageRepository.folderArtworkRevision) { artists, _ ->
+            artists.map { it.withFolderArtwork() }
+        }
+
     private fun List<Artist>.missingImageCandidates(): List<Pair<Long, String>> =
         asSequence()
             .filter { it.effectiveImageUrl.isNullOrBlank() && it.name.isNotBlank() }
@@ -260,7 +271,7 @@ class MusicRepositoryImpl @Inject constructor(
                 )
             }.flatMapLatest { it }
         }.map { pagingData ->
-            pagingData.map { entity -> entity.toArtist() }
+            pagingData.map { entity -> entity.toArtist().withFolderArtwork() }
         }.flowOn(Dispatchers.IO)
     }
 
@@ -357,7 +368,7 @@ class MusicRepositoryImpl @Inject constructor(
             filterMode = storageFilter.toFilterMode(),
             limit = limit,
             offset = offset
-        ).map { it.toArtist() }
+        ).map { it.toArtist().withFolderArtwork() }
     }
 
     override suspend fun getFirstPlayableSong(): Song? = withContext(Dispatchers.IO) {
@@ -438,7 +449,7 @@ class MusicRepositoryImpl @Inject constructor(
                     }
                     artists
                 }
-        }.conflate().flowOn(Dispatchers.IO)
+        }.withFolderArtwork().conflate().flowOn(Dispatchers.IO)
     }
 
     override fun getSongsForAlbum(albumId: Long): Flow<List<Song>> {
@@ -450,7 +461,10 @@ class MusicRepositoryImpl @Inject constructor(
     }
 
     override fun getArtistById(artistId: Long): Flow<Artist?> {
-        return musicDao.getArtistById(artistId).map { it?.toArtist() }
+        return combine(
+            musicDao.getArtistById(artistId),
+            artistImageRepository.folderArtworkRevision
+        ) { entity, _ -> entity?.toArtist()?.withFolderArtwork() }.flowOn(Dispatchers.IO)
     }
 
     override suspend fun updateArtistBio(artistId: Long, bio: String?, imageUrl: String?) {
@@ -483,6 +497,7 @@ class MusicRepositoryImpl @Inject constructor(
     override fun getArtistsForSong(songId: Long): Flow<List<Artist>> {
         return musicDao.getArtistsForSong(songId)
             .map { entities -> entities.map { it.toArtist() } }
+            .withFolderArtwork()
             .distinctUntilChanged()
             .onEach { artists ->
                 val missingImages = artists.missingImageCandidates()
@@ -579,7 +594,7 @@ class MusicRepositoryImpl @Inject constructor(
         if (query.isBlank()) return flowOf(emptyList())
         return musicDao.searchArtists(query, emptyList(), false).map { entities ->
             entities.map { it.toArtist() }
-        }.flowOn(Dispatchers.IO)
+        }.withFolderArtwork().flowOn(Dispatchers.IO)
     }
 
     override suspend fun searchPlaylists(query: String): List<Playlist> {
@@ -818,7 +833,7 @@ class MusicRepositoryImpl @Inject constructor(
             allowedParentDirs = filter.allowedParentDirs,
             applyDirectoryFilter = filter.applyFilter,
             filterMode = StorageFilter.ALL.toFilterMode()
-        ).first().map { it.toArtist() }
+        ).first().map { it.toArtist().withFolderArtwork() }
     }
 
     override suspend fun setFavoriteStatus(songId: String, isFavorite: Boolean) = withContext(Dispatchers.IO) {

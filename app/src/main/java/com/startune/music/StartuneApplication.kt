@@ -67,6 +67,9 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
     lateinit var userPreferencesRepository: dagger.Lazy<UserPreferencesRepository>
 
     @Inject
+    lateinit var folderArtworkSettingsCoordinator: dagger.Lazy<com.startune.music.utils.FolderArtworkSettingsCoordinator>
+
+    @Inject
     lateinit var syncManager: dagger.Lazy<com.startune.music.data.worker.SyncManager>
 
     @Inject
@@ -95,6 +98,11 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
             // being killed mid-write) their edited audio back, and lists the ones the app can no
             // longer write to so the player can ask the user for access.
             startupScope.launch { songMetadataEditor.get().resumeInterruptedWriteBacks() }
+        }
+
+        override fun onResume(owner: LifecycleOwner) {
+            // Image access can change while system settings is open, without restarting us.
+            startupScope.launch { folderArtworkSettingsCoordinator.get().reconcile() }
         }
 
     }
@@ -159,6 +167,20 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
         registerActivityLifecycleCallbacks(PhoneOrientationPolicy)
 
         syncManager.get().start()
+
+        // Collected rather than read once: the preference can also change underneath us, most
+        // notably when a backup restore writes it straight into DataStore, and the data
+        // storage root or allowed folders can move too. A stale mirror would leave the
+        // toggle reporting one thing while artwork resolution did another.
+        startupScope.launch {
+            kotlinx.coroutines.flow.combine(
+                userPreferencesRepository.get().useFolderAlbumArtFlow,
+                userPreferencesRepository.get().dataStorageRootFlow,
+                userPreferencesRepository.get().allowedDirectoriesFlow
+            ) { _, _, _ -> Unit }.collect {
+                folderArtworkSettingsCoordinator.get().reconcile()
+            }
+        }
 
         syncNotificationManager.get().start()
 

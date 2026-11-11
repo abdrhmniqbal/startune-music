@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -251,6 +252,8 @@ constructor(
         val AUTO_SCAN_ON_LAUNCH = booleanPreferencesKey("auto_scan_on_launch")
         val EXTERNAL_LYRICS_ENABLED = booleanPreferencesKey("external_lyrics_enabled")
         val EXTERNAL_ARTIST_IMAGES_ENABLED = booleanPreferencesKey("external_artist_images_enabled")
+        val USE_FOLDER_ALBUM_ART = booleanPreferencesKey("use_folder_album_art")
+        val FOLDER_ALBUM_ART_CACHE_STATE = booleanPreferencesKey("folder_album_art_cache_state")
 
         val ALBUM_ART_QUALITY = stringPreferencesKey("album_art_quality")
         val ALBUM_ART_CACHE_LIMIT_MB = intPreferencesKey("album_art_cache_limit_mb")
@@ -885,6 +888,39 @@ constructor(
     suspend fun setExternalArtistImagesEnabled(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.EXTERNAL_ARTIST_IMAGES_ENABLED] = enabled
+        }
+    }
+
+    /**
+     * Whether folder cover images (cover.jpg/folder.jpg beside a song) and artist
+     * portraits (artist.jpg/band.jpg beside an album) may be used. Default is false:
+     * folder images can be unrelated personal files, so the user opts in explicitly.
+     */
+    val useFolderAlbumArtFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.USE_FOLDER_ALBUM_ART] ?: false
+            }.distinctUntilChanged()
+
+    suspend fun setUseFolderAlbumArt(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.USE_FOLDER_ALBUM_ART] = enabled
+        }
+    }
+
+    /**
+     * Effective folder-art state the caches were last built with. A mismatch (or a
+     * missing marker after a restore) means the caches are stale and must be rebuilt;
+     * permission silently changes what gets cached just as much as switching the
+     * setting off.
+     */
+    val folderAlbumArtCacheStateFlow: Flow<Boolean?> =
+        dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.FOLDER_ALBUM_ART_CACHE_STATE]
+        }
+
+    suspend fun setFolderAlbumArtCacheState(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.FOLDER_ALBUM_ART_CACHE_STATE] = enabled
         }
     }
 
@@ -1763,6 +1799,21 @@ constructor(
         /** Default delimiters for splitting multi-genre tags */
         val DEFAULT_GENRE_DELIMITERS = listOf(";", "/", ",")
         const val DEFAULT_ALBUM_ART_CACHE_LIMIT_MB = 200
+
+        fun readUseFolderAlbumArtBlocking(context: Context): Boolean = runBlocking {
+            runCatching {
+                context.applicationContext.dataStore.data.first()[PreferencesKeys.USE_FOLDER_ALBUM_ART]
+            }.getOrNull() ?: false
+        }
+
+        /** Data storage root + allowed folders, for the folder-art roots fallback. */
+        fun readFolderArtStorageBlocking(context: Context): Pair<String, Set<String>> = runBlocking {
+            runCatching {
+                val preferences = context.applicationContext.dataStore.data.first()
+                (preferences[PreferencesKeys.DATA_STORAGE_ROOT] ?: "") to
+                    (preferences[PreferencesKeys.ALLOWED_DIRECTORIES] ?: emptySet())
+            }.getOrNull() ?: ("" to emptySet())
+        }
     }
 
     val navBarCornerRadiusFlow: Flow<Int> =

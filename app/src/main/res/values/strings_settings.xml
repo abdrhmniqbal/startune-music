@@ -592,4 +592,8 @@
     <string name="playback_speed_custom_supporting">From %1$s× to %2$s×, up to two decimals</string>
     <string name="playback_speed_custom_error">Enter a speed from %1$s× to %2$s×</string>
     <string name="playback_speed_multiplier_suffix">×</string>
+    <string name="setcat_folder_album_art_title">Use folder cover images</string>
+    <string name="setcat_folder_album_art_subtitle">Use cover.jpg, folder.jpg or a similar image from a song\'s own folder as its album art, in preference to embedded artwork. Shared folders such as Music, Downloads, DCIM and Pictures are ignored. Artist folders are also checked for artist.jpg, band.jpg and PNG variants. Manually chosen artist photos take priority.</string>
+    <string name="setcat_folder_album_art_permission_required">Full photo access is required to read album and artist images from your music folders.</string>
+    <string name="setcat_folder_album_art_refreshing">Refreshing artwork…</string>
 </resources>

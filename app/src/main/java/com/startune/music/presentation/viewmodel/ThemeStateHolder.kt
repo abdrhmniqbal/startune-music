@@ -1,6 +1,11 @@
 ﻿package com.startune.music.presentation.viewmodel
 
 import android.net.Uri
+import com.startune.music.utils.AlbumArtUtils
+import com.startune.music.utils.LocalArtworkUri
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.collectLatest
+
 import android.content.ComponentCallbacks2
 import androidx.compose.ui.graphics.Color
 import com.startune.music.data.preferences.AlbumArtColorAccuracy
@@ -53,6 +58,15 @@ class ThemeStateHolder @Inject constructor(
     fun initialize(scope: CoroutineScope) {
         owners.push(scope)
         this.scope = scope
+        var observedArtworkVersion = AlbumArtUtils.artworkCacheVersion.value
+
+        scope.launch {
+            AlbumArtUtils.artworkCacheVersion.collectLatest { version ->
+                if (version == observedArtworkVersion) return@collectLatest
+                observedArtworkVersion = version
+                refreshObservedLocalArtworkSchemes()
+            }
+        }
 
         scope.launch {
             combine(
@@ -102,6 +116,27 @@ class ThemeStateHolder @Inject constructor(
         }
     }
 
+    private suspend fun refreshObservedLocalArtworkSchemes() {
+        val localFlows = individualAlbumColorSchemes.entries
+            .filter { LocalArtworkUri.isLocalArtworkUri(it.key) }
+            .map { it.key to it.value }
+        localFlows.forEach { (_, flow) -> flow.value = null }
+        localFlows.filter { (_, flow) -> flow.subscriptionCount.value > 0 }
+            .forEach { (uri, flow) -> requestAlbumColorSchemeGeneration(uri, flow) }
+
+        val currentUri = _currentAlbumArtUri.value?.takeIf(LocalArtworkUri::isLocalArtworkUri) ?: return
+        _currentAlbumArtColorSchemePair.value = null
+        val scheme = colorSchemeProcessor.getOrGenerateColorScheme(
+            albumArtUri = currentUri,
+            paletteStyle = currentPaletteStyle,
+            colorAccuracyLevel = currentPaletteAccuracy
+        )
+        if (_currentAlbumArtUri.value == currentUri) {
+            _currentAlbumArtColorSchemePair.value = scheme
+            individualAlbumColorSchemes[currentUri]?.value = scheme
+        }
+    }
+
     suspend fun extractAndGenerateColorScheme(
         albumArtUriAsUri: Uri?,
         currentSongUriString: String?,
@@ -127,6 +162,8 @@ class ThemeStateHolder @Inject constructor(
                 _currentAlbumArtColorSchemePair.value = schemePair
                 _currentAlbumArtUri.value = uriString
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             if (!isPreload && albumArtUriAsUri != null && currentSongUriString == albumArtUriAsUri.toString()) {
                 _currentAlbumArtColorSchemePair.value = null
