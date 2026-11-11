@@ -38,7 +38,7 @@ class MusicBrainzApiService @Inject constructor(
                     .header(
                         "User-Agent",
                         "Startune Music/${BuildConfig.VERSION_NAME} " +
-                            "(https://github.com/PixelPlayerHQ/PixelMusic)"
+                            "(https://github.com/abdrhmniqbal/startune-music)"
                     )
                     .header("Accept", "application/json")
                     .build()

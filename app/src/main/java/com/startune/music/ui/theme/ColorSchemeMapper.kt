@@ -132,7 +132,7 @@ fun ColorScheme.withDerivedRoles(dark: Boolean): ColorScheme {
 
 /**
  * Pitch-black (AMOLED) variant of a dark scheme. The surface hierarchy is
- * replaced by the fixed neutral ramp from the upstream PixelPlayerOSS AMOLED
+ * replaced by the fixed neutral ramp from the upstream AMOLED
  * preset (background/surface/dim/lowest pure black; the elevated surfaces
  * step through 0x080808, 0x101010, 0x181818, 0x242424), so cards and sheets
  * stay distinguishable on a pure-black background. Accent and text roles

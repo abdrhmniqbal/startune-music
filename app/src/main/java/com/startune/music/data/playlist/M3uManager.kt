@@ -68,7 +68,10 @@ class M3uManager @Inject constructor(
     }
 
     companion object {
-        private const val PLAYLIST_ID_MARKER = "#PIXELPLAYER-PLAYLIST-ID:"
+        private const val PLAYLIST_ID_MARKER = "#STARTUNE-PLAYLIST-ID:"
+
+        // Files exported by older builds carry the upstream marker; keep reading them.
+        private const val LEGACY_PLAYLIST_ID_MARKER = "#PIXELPLAYER-PLAYLIST-ID:"
 
         fun parseContent(content: String, songs: List<Song>): M3uParseResult {
             val exactMatches = songs
@@ -96,8 +99,13 @@ class M3uManager @Inject constructor(
             content.lineSequence().forEach { rawLine ->
                 val line = rawLine.removePrefix("\uFEFF").trim()
                 if (line.isBlank()) return@forEach
-                if (line.startsWith(PLAYLIST_ID_MARKER)) {
-                    playlistId = line.removePrefix(PLAYLIST_ID_MARKER)
+                val idMarker = when {
+                    line.startsWith(PLAYLIST_ID_MARKER) -> PLAYLIST_ID_MARKER
+                    line.startsWith(LEGACY_PLAYLIST_ID_MARKER) -> LEGACY_PLAYLIST_ID_MARKER
+                    else -> null
+                }
+                if (idMarker != null) {
+                    playlistId = line.removePrefix(idMarker)
                         .trim()
                         .takeIf { it.isNotBlank() && it.length <= 200 }
                     return@forEach
