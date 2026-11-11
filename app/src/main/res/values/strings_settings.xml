@@ -176,6 +176,7 @@
     <string name="color_scheme_import">Import theme</string>
     <string name="color_scheme_export">Export</string>
     <string name="color_scheme_edit">Edit</string>
+    <string name="color_scheme_copy">Copy</string>
     <string name="color_scheme_delete">Delete</string>
     <string name="color_scheme_delete_title">Delete theme?</string>
     <string name="color_scheme_delete_message">Delete %1$s? You can import it again from an exported file.</string>
