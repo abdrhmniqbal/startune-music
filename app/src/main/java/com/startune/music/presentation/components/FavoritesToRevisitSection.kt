@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -97,12 +99,16 @@ fun FavoritesToRevisitSection(
             }
         }
 
+        val listState = rememberLazyListState()
+
         LazyRow(
+            state = listState,
             contentPadding = PaddingValues(horizontal = 20.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(visibleSongs, key = { it.song.id }) { item ->
+            itemsIndexed(visibleSongs, key = { _, item -> item.song.id }) { index, item ->
                 RecentlyPlayedGridCard(
+                    modifier = Modifier.carouselItemScale(listState, index),
                     item = item,
                     isCurrentSong = currentSongId == item.song.id,
                     isPlaying = isPlaying,

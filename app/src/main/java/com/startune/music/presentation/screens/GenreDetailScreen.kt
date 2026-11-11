@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -64,6 +65,7 @@ import com.startune.music.data.model.Album
 import com.startune.music.data.model.Song
 import com.startune.music.data.preferences.AlbumArtPaletteStyle
 import com.startune.music.presentation.components.ExpressiveTopBarContent
+import com.startune.music.presentation.components.carouselItemScale
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.subcomps.PlayingEqIcon
@@ -1019,15 +1021,17 @@ private fun GenreAlbumsSection(
             title = stringResource(R.string.library_tab_albums),
             onViewMoreClick = onViewMoreClick
         )
+        val listState = rememberLazyListState()
         LazyRow(
+            state = listState,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(albums, key = { album -> "genre_album_${album.name}" }) { album ->
+            itemsIndexed(albums, key = { _, album -> "genre_album_${album.name}" }) { index, album ->
                 val albumColorSchemeFlow = remember(album.artUri, useArtworkColorForDetails) {
                     if (useArtworkColorForDetails) playerViewModel.themeStateHolder.getAlbumColorSchemeFlow(album.artUri ?: "")
                     else MutableStateFlow<ColorSchemePair?>(null)
                 }
-                Box(modifier = Modifier.width(GenreGridCardWidth)) {
+                Box(modifier = Modifier.width(GenreGridCardWidth).carouselItemScale(listState, index)) {
                     AlbumGridItemRedesigned(
                         album = albumModelFromAlbumData(album),
                         albumColorSchemePairFlow = albumColorSchemeFlow,
@@ -1053,11 +1057,13 @@ private fun GenreArtistsSection(
             title = stringResource(R.string.library_tab_artists),
             onViewMoreClick = onViewMoreClick
         )
+        val listState = rememberLazyListState()
         LazyRow(
+            state = listState,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(artists, key = { artist -> "genre_artist_${artist.id}_${artist.name}" }) { artist ->
-                Box(modifier = Modifier.width(GenreGridCardWidth)) {
+            itemsIndexed(artists, key = { _, artist -> "genre_artist_${artist.id}_${artist.name}" }) { index, artist ->
+                Box(modifier = Modifier.width(GenreGridCardWidth).carouselItemScale(listState, index)) {
                     ArtistGridItem(
                         artist = artist,
                         onClick = { onArtistClick(artist) }
