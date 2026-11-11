@@ -2,168 +2,62 @@
 
 package com.startune.music.presentation.components
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.History
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.startune.music.data.stats.StatsTimeRange
-import androidx.compose.foundation.lazy.items
+import com.startune.music.presentation.screens.TabAnimation
+import com.startune.music.presentation.stats.displayNameRes
 
-private val RecentlyPlayedRangeChipHeight = 44.dp
-private val RecentlyPlayedRangeChipHorizontalPadding = 16.dp
-private val RecentlyPlayedRangeChipIconSpacing = 8.dp
-private val RecentlyPlayedRangeChipBorderWidth = 2.dp
-
+/**
+ * Range tabs for the Recently Played and Top Songs screens. This is the same
+ * tab row as Listening Stats (RangeTabsHeader in StatsScreen): a scrollable
+ * primary tab row of TabAnimation pills, no icons, no indicator, no divider.
+ * It used to be a LazyRow of outlined chips with an icon on the
+ * selected chip; that variant is gone.
+ */
 @Composable
 fun RecentlyPlayedRangeSelector(
     selected: StatsTimeRange,
     onRangeSelected: (StatsTimeRange) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val motionScheme = MaterialTheme.motionScheme
-
-    LazyRow(
+    val ranges = StatsTimeRange.entries
+    val selectedIndex = remember(ranges, selected) { ranges.indexOf(selected).coerceAtLeast(0) }
+    PrimaryScrollableTabRow(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp)
+        selectedTabIndex = selectedIndex,
+        edgePadding = 12.dp,
+        divider = {},
+        containerColor = Color.Transparent,
+        indicator = {}
     ) {
-        items(StatsTimeRange.entries, key = { it.name }) { range ->
-            RecentlyPlayedRangeChip(
-                label = range.displayName,
-                selected = selected == range,
+        ranges.forEachIndexed { index, range ->
+            TabAnimation(
+                index = index,
+                selectedIndex = selectedIndex,
                 onClick = { onRangeSelected(range) },
-                modifier = Modifier.animateItem(
-                    fadeInSpec = null,
-                    fadeOutSpec = null,
-                    placementSpec = motionScheme.fastSpatialSpec()
-                )
-            )
-        }
-    }
-}
-
-@Composable
-private fun RecentlyPlayedRangeChip(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val colors = MaterialTheme.colorScheme
-    val motionScheme = MaterialTheme.motionScheme
-
-    val containerColor by animateColorAsState(
-        targetValue = if (selected) colors.primary else Color.Transparent,
-        animationSpec = motionScheme.defaultEffectsSpec(),
-        label = "RecentlyPlayedRangeChipContainerColor"
-    )
-    val contentColor by animateColorAsState(
-        targetValue = if (selected) colors.onPrimary else colors.primary,
-        animationSpec = motionScheme.fastEffectsSpec(),
-        label = "RecentlyPlayedRangeChipContentColor"
-    )
-    val iconSlotWidth by animateDpAsState(
-        targetValue = if (selected) {
-            FilterChipDefaults.IconSize + RecentlyPlayedRangeChipIconSpacing
-        } else {
-            0.dp
-        },
-        animationSpec = motionScheme.defaultSpatialSpec(),
-        label = "RecentlyPlayedRangeChipIconSlotWidth"
-    )
-    val iconAlpha by animateFloatAsState(
-        targetValue = if (selected) 1f else 0f,
-        animationSpec = motionScheme.fastEffectsSpec(),
-        label = "RecentlyPlayedRangeChipIconAlpha"
-    )
-    val iconScale by animateFloatAsState(
-        targetValue = if (selected) 1f else 0.82f,
-        animationSpec = motionScheme.defaultSpatialSpec(),
-        label = "RecentlyPlayedRangeChipIconScale"
-    )
-
-    Surface(
-        selected = selected,
-        onClick = onClick,
-        modifier = modifier
-            .semantics { role = Role.Tab },
-        shape = CircleShape,
-        color = containerColor,
-        contentColor = contentColor,
-        border = BorderStroke(
-            width = RecentlyPlayedRangeChipBorderWidth,
-            color = colors.primary
-        ),
-        tonalElevation = 0.dp,
-        shadowElevation = 0.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .defaultMinSize(minHeight = RecentlyPlayedRangeChipHeight)
-                .height(RecentlyPlayedRangeChipHeight)
-                .padding(
-                    start = RecentlyPlayedRangeChipHorizontalPadding,
-                    end = RecentlyPlayedRangeChipHorizontalPadding
-                ),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(iconSlotWidth)
-                    .clipToBounds(),
-                contentAlignment = Alignment.CenterStart
+                selectedColor = MaterialTheme.colorScheme.primary,
+                onSelectedColor = MaterialTheme.colorScheme.onPrimary,
+                unselectedColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                onUnselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                title = stringResource(range.displayNameRes())
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.History,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(FilterChipDefaults.IconSize)
-                        .graphicsLayer {
-                            alpha = iconAlpha
-                            scaleX = iconScale
-                            scaleY = iconScale
-                        }
+                Text(
+                    text = stringResource(range.displayNameRes()),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = if (index == selectedIndex) FontWeight.Bold else FontWeight.Medium
                 )
             }
-
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Clip
-            )
         }
     }
 }
