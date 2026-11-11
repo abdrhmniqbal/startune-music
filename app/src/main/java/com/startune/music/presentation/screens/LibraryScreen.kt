@@ -59,6 +59,7 @@ import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.rounded.Bookmark
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.icons.rounded.SelectAll
@@ -3518,7 +3519,6 @@ fun ArtistGridItem(
     onLongPress: () -> Unit = {},
     onSelectionToggle: () -> Unit = {}
 ) {
-    val cardShape = RoundedCornerShape(20.dp)
     val selectionScale by animateFloatAsState(
         targetValue = if (isSelected) 0.985f else 1f,
         animationSpec = tween(durationMillis = 220),
@@ -3531,58 +3531,40 @@ fun ArtistGridItem(
     )
 
     if (isLoading) {
-        Card(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            shape = cardShape,
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Column {
+            ShimmerBox(
+                modifier = Modifier
+                    .aspectRatio(1f)
+                    .fillMaxSize()
+                    .clip(CircleShape)
+            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 ShimmerBox(
                     modifier = Modifier
-                        .aspectRatio(1f)
-                        .fillMaxSize()
-                        .clip(CircleShape)
+                        .fillMaxWidth(0.8f)
+                        .height(20.dp)
+                        .clip(RoundedCornerShape(4.dp))
                 )
-                Column(
+                ShimmerBox(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(84.dp)
-                        .padding(12.dp),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    ShimmerBox(
-                        modifier = Modifier
-                            .fillMaxWidth(0.8f)
-                            .height(20.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    ShimmerBox(
-                        modifier = Modifier
-                            .fillMaxWidth(0.6f)
-                            .height(16.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                    )
-                }
+                        .fillMaxWidth(0.6f)
+                        .height(16.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                )
             }
         }
     } else {
-        Card(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .seamlessSelectionScale(selectionScale)
-                .then(
-                    if (isSelected) {
-                        Modifier.border(
-                            width = selectionBorderWidth,
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = cardShape
-                        )
-                    } else {
-                        Modifier
-                    }
-                )
-                .clip(cardShape)
                 .combinedClickable(
                     onClick = {
                         if (isSelectionMode) {
@@ -3593,50 +3575,41 @@ fun ArtistGridItem(
                     },
                     onLongClick = onLongPress
                 ),
-            shape = cardShape,
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Box {
-                Column {
-                    SmartImage(
-                        model = artist.effectiveImageUrl,
-                        contentDescription = artist.name,
-                        contentScale = ContentScale.Crop,
-                        targetSize = Size(256, 256),
-                        shape = CircleShape,
-                        modifier = Modifier
-                            .aspectRatio(1f)
-                            .fillMaxSize()
-                    )
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(84.dp)
-                            .padding(12.dp),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            artist.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            formatSongCount(artist.songCount),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .then(
+                        if (isSelected) {
+                            Modifier.border(
+                                width = selectionBorderWidth,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = CircleShape
+                            )
+                        } else {
+                            Modifier
+                        }
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                SmartImage(
+                    model = artist.effectiveImageUrl,
+                    contentDescription = artist.name,
+                    contentScale = ContentScale.Crop,
+                    targetSize = Size(256, 256),
+                    shape = CircleShape,
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .fillMaxSize()
+                )
                 if (isSelectionMode && isSelected) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(10.dp)
+                            .padding(6.dp)
                             .size(28.dp)
                             .background(
                                 color = MaterialTheme.colorScheme.primary,
@@ -3644,14 +3617,44 @@ fun ArtistGridItem(
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = selectionIndex?.toString() ?: "✓",
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold
-                        )
+                        if (selectionIndex != null && selectionIndex >= 0) {
+                            Text(
+                                text = selectionIndex.toString(),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Rounded.CheckCircle,
+                                contentDescription = stringResource(R.string.presentation_batch_g_list_cd_selected),
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    artist.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    formatSongCount(artist.songCount),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
     }
