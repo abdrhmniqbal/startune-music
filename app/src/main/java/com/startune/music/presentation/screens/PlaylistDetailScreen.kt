@@ -330,7 +330,15 @@ fun PlaylistDetailScreen(
     // 108.dp above the header bottom: 160.dp title container minus ~52.dp
     // top padding); the cover's bottom edge sits 120.dp above the bottom.
     val minTopBarHeight = 62.dp + statusBarHeight
-    val maxTopBarHeight = if (hasRoomForCover) 328.dp else 200.dp
+    // Expanded header must clear the nav row above the cover: upstream's
+    // TwoRowsTopAppBar puts its first row (nav + actions) above the title
+    // column, so the cover starts below it. The fork's cover is positioned
+    // from the bottom (120.dp padding + 168.dp cover above the ~108.dp title
+    // block), so at 328.dp its top landed 40.dp from the screen top, next
+    // to the back button. 350.dp + status bar = nav row (62.dp + status bar)
+    // + cover + 12.dp gap + title block, so the cover top sits exactly
+    // below the nav row, like upstream.
+    val maxTopBarHeight = if (hasRoomForCover) 350.dp + statusBarHeight else 200.dp
     // The same first songs the library thumbnail uses, so the collage matches it.
     val coverSongs = remember(currentPlaylist?.songIds, songsInPlaylist) {
         currentPlaylist?.songIds.orEmpty().take(4)
