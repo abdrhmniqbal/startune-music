@@ -67,6 +67,8 @@ import com.startune.music.data.preferences.AlbumArtPaletteStyle
 import com.startune.music.presentation.components.ExpressiveTopBarContent
 import com.startune.music.presentation.components.carouselItemScale
 import com.startune.music.presentation.components.MiniPlayerHeight
+import com.startune.music.presentation.components.RankedSongRow
+import kotlin.math.abs
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.subcomps.PlayingEqIcon
 import com.startune.music.presentation.components.SongInfoBottomSheet
@@ -681,7 +683,7 @@ enum class GenreDetailView {
     Overview, Songs, Albums, Artists
 }
 
-private const val GENRE_TOP_SONGS_PREVIEW = 25
+private const val GENRE_TOP_SONGS_PREVIEW = 15
 private const val GENRE_TOP_SONGS_PAGE_SIZE = 5
 private val GenreGridCardWidth = 180.dp
 
@@ -803,20 +805,24 @@ private fun GenreTopSongsCarousel(
             pageSpacing = 24.dp,
             verticalAlignment = Alignment.Top
         ) { page ->
+            val pageOffset = abs(page - pagerState.currentPage - pagerState.currentPageOffsetFraction)
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 pages[page].forEachIndexed { index, song ->
                     key(song.id) {
-                        GenreTopSongRow(
+                        RankedSongRow(
                             rank = page * GENRE_TOP_SONGS_PAGE_SIZE + index + 1,
-                            song = song,
+                            title = song.title,
+                            artist = song.displayArtist,
+                            artUri = song.albumArtUriString,
                             isCurrentSong = currentSongId == song.id,
                             isPlaying = isPlaying,
                             isSelected = selectedSongIds.contains(song.id),
                             selectionIndex = if (isSelectionMode) selectionIndexFor?.invoke(song) else null,
                             onClick = { onSongClick(song) },
-                            onLongPress = onSongLongPress?.let { longPress -> { longPress(song) } }
+                            onLongClick = onSongLongPress?.let { longPress -> { longPress(song) } },
+                            entranceProgress = (1f - pageOffset * (1f + index * 0.15f)).coerceIn(0f, 1f)
                         )
                     }
                 }
@@ -826,143 +832,6 @@ private fun GenreTopSongsCarousel(
     }
 }
 
-@Composable
-private fun GenreTopSongRow(
-    rank: Int,
-    song: Song,
-    isCurrentSong: Boolean,
-    isPlaying: Boolean,
-    onClick: () -> Unit,
-    isSelected: Boolean = false,
-    selectionIndex: Int? = null,
-    onLongPress: (() -> Unit)? = null
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongPress
-            )
-            .padding(vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        GenreRankBadge(
-            rank = rank,
-            accentColor = MaterialTheme.colorScheme.primary,
-            accentOnColor = MaterialTheme.colorScheme.onPrimary,
-            highlighted = rank == 1
-        )
-        Box(
-            modifier = Modifier.size(52.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            SmartImage(
-                model = song.albumArtUriString,
-                contentDescription = song.title,
-                modifier = Modifier
-                    .size(52.dp)
-                    .clip(RoundedCornerShape(14.dp)),
-                shape = RoundedCornerShape(14.dp)
-            )
-            if (isSelected) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-                            shape = RoundedCornerShape(14.dp)
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (selectionIndex != null && selectionIndex >= 0) {
-                        Text(
-                            text = selectionIndex.toString(),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Rounded.CheckCircle,
-                            contentDescription = stringResource(R.string.presentation_batch_g_list_cd_selected),
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-                }
-            }
-        }
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = song.title,
-                style = MaterialTheme.typography.titleSmall,
-                color = if (isCurrentSong) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = song.displayArtist,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        if (isCurrentSong) {
-            PlayingEqIcon(
-                modifier = Modifier.size(width = 18.dp, height = 16.dp),
-                color = MaterialTheme.colorScheme.primary,
-                isPlaying = isPlaying
-            )
-        }
-    }
-}
-
-@Composable
-private fun GenreRankBadge(
-    rank: Int,
-    accentColor: Color,
-    accentOnColor: Color,
-    highlighted: Boolean
-) {
-    val containerColor = if (highlighted) {
-        accentColor
-    } else {
-        accentColor.copy(alpha = 0.24f)
-    }
-    val contentColor = if (highlighted) {
-        accentOnColor
-    } else {
-        accentColor
-    }
-    Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = containerColor,
-        contentColor = contentColor
-    ) {
-        Box(
-            modifier = Modifier
-                .defaultMinSize(minWidth = 34.dp, minHeight = 34.dp)
-                .padding(horizontal = 10.dp, vertical = 6.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = rank.toString(),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
 
 fun sortGenreAlbums(
     albums: List<AlbumData>,
