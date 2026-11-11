@@ -3,24 +3,32 @@ api_token_env: CROWDIN_PERSONAL_TOKEN
 base_path: .
 preserve_hierarchy: false
 
-# %language% gives the short Crowdin code (fr, de, id, pt-BR, zh-CN, ...).
-# It has no collisions, unlike %two_letters_code% which merged pt-BR/pt
-# and zh-CN/zh-TW into one dir each (the "Wrong export pattern" warning).
-# The mapping renames the four codes whose Android qualifier differs from
-# the Crowdin code, so downloads land in the same values-*/ dirs the repo
-# already has (values-in, values-pt, values-zh-rCN, values-zh-rTW),
-# instead of new values-*-rXX dirs (%android_code% gave values-fr-rFR,
-# values-in-rID, ... which matched nothing in the repo).
-languages_mapping:
-  id: in
-  pt-BR: pt
-  zh-CN: zh-rCN
-  zh-TW: zh-rTW
-
 files:
   # All translatable string files. colors.xml, splash_colors.xml and
   # themes.xml hold no strings and are deliberately not listed.
+  #
+  # %two_letters_code% is the short code (fr, de, id, ...). %language% is
+  # the language NAME (French, ...) and %android_code% is region-suffixed
+  # (fr-rFR, in-rID, ...); neither matches the repo's values-*/ dirs.
+  # The per-file languages_mapping renames the four codes whose Android
+  # qualifier differs from the two-letter code, so downloads land in the
+  # same values-*/ dirs the repo already has and uploads find them.
+  # NOTE: the mapping must sit under each file entry, keyed by placeholder
+  # name; a top-level flat mapping is silently ignored by the CLI (that is
+  # why the old config's mapping never took effect).
   - source: /app/src/main/res/values/strings*.xml
-    translation: /app/src/main/res/values-%language%/%original_file_name%
+    translation: /app/src/main/res/values-%two_letters_code%/%original_file_name%
+    languages_mapping:
+      two_letters_code:
+        id: in
+        pt-BR: pt
+        zh-CN: zh-rCN
+        zh-TW: zh-rTW
   - source: /app/src/main/res/values/plurals.xml
-    translation: /app/src/main/res/values-%language%/plurals.xml
+    translation: /app/src/main/res/values-%two_letters_code%/plurals.xml
+    languages_mapping:
+      two_letters_code:
+        id: in
+        pt-BR: pt
+        zh-CN: zh-rCN
+        zh-TW: zh-rTW
