@@ -327,19 +327,19 @@ fun PlaylistDetailScreen(
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     // The cover would leave no room for the songs on short (landscape phone) windows.
     val hasRoomForCover = LocalWindowInfo.current.containerDpSize.height >= 560.dp
-    // Tall enough for the 168.dp cover above the title text (title text sits
-    // 108.dp above the header bottom: 160.dp title container minus ~52.dp
-    // top padding); the cover's bottom edge sits 120.dp above the bottom.
+    // Header is exactly nav + cover + title block, no slack: the 92.dp
+    // title container centers the ~60.dp title block, so ~16.dp sits
+    // below the subtitle (the buttons start right under the header);
+    // the cover's bottom edge sits 88.dp above the bottom.
     val minTopBarHeight = 62.dp + statusBarHeight
     // Expanded header must clear the nav row above the cover: upstream's
     // TwoRowsTopAppBar puts its first row (nav + actions) above the title
     // column, so the cover starts below it. The fork's cover is positioned
-    // from the bottom (120.dp padding + 168.dp cover above the ~108.dp title
-    // block), so at 328.dp its top landed 40.dp from the screen top, next
-    // to the back button. 350.dp + status bar = nav row (62.dp + status bar)
-    // + cover + 12.dp gap + title block, so the cover top sits exactly
-    // below the nav row, like upstream.
-    val maxTopBarHeight = if (hasRoomForCover) 350.dp + statusBarHeight else 200.dp
+    // from the bottom (88.dp padding + 168.dp cover above the ~76.dp title
+    // block), so its top sits exactly below the nav row, like upstream.
+    // 318.dp + status bar = nav row (62.dp + status bar) + cover + 12.dp
+    // gap + title block + 16.dp below the subtitle.
+    val maxTopBarHeight = if (hasRoomForCover) 318.dp + statusBarHeight else 200.dp
     // The same first songs the library thumbnail uses, so the collage matches it.
     val coverSongs = remember(currentPlaylist?.songIds, songsInPlaylist) {
         currentPlaylist?.songIds.orEmpty().take(4)
@@ -455,10 +455,11 @@ fun PlaylistDetailScreen(
                         collapseFraction = collapseFraction,
                         headerHeight = currentTopBarHeightDp,
                         onBackClick = onBackClick,
-                        expandedTitleStartPadding = 8.dp,
+                        expandedTitleStartPadding = 24.dp,
+                        centerExpandedTitle = true,
                         titleFontSizeRange = 30.sp to 28.sp,
                         maxLines = if (collapseFraction < 0.5f) Int.MAX_VALUE else 1,
-                        containerHeightRange = 160.dp to 56.dp,
+                        containerHeightRange = 92.dp to 56.dp,
                         actions = {
                             Row(
                                 modifier = Modifier.padding(end = 12.dp),
@@ -510,7 +511,7 @@ fun PlaylistDetailScreen(
                             playlistSongs = coverSongs,
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
-                                .padding(bottom = 120.dp)
+                                .padding(bottom = 88.dp)
                                 .graphicsLayer { alpha = expandedContentAlpha },
                             size = 168.dp
                         )
@@ -542,13 +543,15 @@ fun PlaylistDetailScreen(
                         .fillMaxSize()
                         .padding(top = innerPadding.calculateTopPadding())
                 ) {
-                    val playbackControlBottomPadding = if (isFolderPlaylist) 8.dp else 6.dp
+                    // Air between the buttons and the list block (was 6.dp /
+                    // 8.dp: the buttons looked glued to the list).
+                    val playbackControlBottomPadding = 16.dp
                     // Upstream Play + Shuffle row (upstream has no floating FAB in
                     // the header; the title needs the full width the FAB blocked).
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(62.dp)
+                            .height(72.dp)
                             .padding(horizontal = 20.dp)
                             .padding(bottom = playbackControlBottomPadding),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)

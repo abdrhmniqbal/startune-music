@@ -82,7 +82,7 @@ fun RecentlyPlayedSection(
                     .width(64.dp),
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    contentColor = MaterialTheme.colorScheme.secondary
+                    contentColor = MaterialTheme.colorScheme.primary
                 ),
                 onClick = onOpenAllClick,
                 enabled = visibleSongs.size >= RecentlyPlayedSectionMinSongsToShow

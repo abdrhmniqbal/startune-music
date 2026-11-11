@@ -77,6 +77,7 @@ import com.startune.music.data.model.Artist
 import com.startune.music.data.model.Song
 import com.startune.music.data.model.SortOption
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.LibrarySortBottomSheet
 import com.startune.music.presentation.components.MiniPlayerHeight
@@ -379,6 +380,16 @@ fun GenreDetailListScreen(
                                     )
                                 }
                             }
+                            if (uiState.rankedSongs.isEmpty()) {
+                                item(key = "genre_list_empty") {
+                                    ExpressiveEmptyState(
+                                        iconRes = R.drawable.rounded_music_off_24,
+                                        titleRes = R.string.genre_empty_title,
+                                        subtitleRes = R.string.genre_empty_subtitle,
+                                        modifier = Modifier.padding(top = 48.dp)
+                                    )
+                                }
+                            }
                             itemsIndexed(
                                 items = uiState.rankedSongs,
                                 key = { _, song -> "genre_ranked_${song.id}" }
@@ -452,6 +463,16 @@ fun GenreDetailListScreen(
                                     )
                                 }
                             }
+                            if (sortedAlbums.isEmpty()) {
+                                item(span = { GridItemSpan(2) }) {
+                                    ExpressiveEmptyState(
+                                        iconRes = R.drawable.rounded_album_24,
+                                        titleRes = R.string.genre_albums_empty_title,
+                                        subtitleRes = R.string.genre_albums_empty_subtitle,
+                                        modifier = Modifier.padding(top = 48.dp)
+                                    )
+                                }
+                            }
                             items(
                                 items = sortedAlbums,
                                 key = { album -> "genre_grid_album_${album.name}" }
@@ -520,6 +541,16 @@ fun GenreDetailListScreen(
                                                 }
                                             }
                                         }
+                                    )
+                                }
+                            }
+                            if (sortedArtists.isEmpty()) {
+                                item(span = { GridItemSpan(2) }) {
+                                    ExpressiveEmptyState(
+                                        iconRes = R.drawable.rounded_artist_24,
+                                        titleRes = R.string.genre_artists_empty_title,
+                                        subtitleRes = R.string.genre_artists_empty_subtitle,
+                                        modifier = Modifier.padding(top = 48.dp)
                                     )
                                 }
                             }

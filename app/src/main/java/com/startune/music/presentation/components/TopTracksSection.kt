@@ -27,7 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.startune.music.R
-import com.startune.music.data.stats.PlaybackStatsRepository
+import com.startune.music.data.model.Song
 import kotlin.math.abs
 import kotlinx.collections.immutable.ImmutableList
 
@@ -35,22 +35,23 @@ private const val TOP_TRACKS_PAGE_SIZE = 5
 private const val TOP_TRACKS_HOME_LIMIT = 15
 
 /**
- * Home Top Tracks: plain list (title + ranked rows) with the slideable
- * pager, 15 tracks in pages of 5. The playing track shows the same
- * equalizer indicator as song lists elsewhere.
+ * Home Top Tracks: ranked rows with the slideable pager, 15 tracks in
+ * pages of 5. Rows use the Top Songs detail design (rank text outside,
+ * EnhancedSongListItem); only the pager differs from the detail list.
  */
 @Composable
 fun TopTracksSection(
-    tracks: ImmutableList<PlaybackStatsRepository.SongPlaybackSummary>,
+    songs: ImmutableList<Song>,
     currentSongId: String?,
     isPlaying: Boolean,
-    onTrackClick: (PlaybackStatsRepository.SongPlaybackSummary) -> Unit,
+    onTrackClick: (Song) -> Unit,
+    onMoreOptionsClick: (Song) -> Unit,
     onOpenAllClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val topTracks = remember(tracks) { tracks.take(TOP_TRACKS_HOME_LIMIT) }
-    if (topTracks.isEmpty()) return
-    val pages = remember(topTracks) { topTracks.chunked(TOP_TRACKS_PAGE_SIZE) }
+    val topSongs = remember(songs) { songs.take(TOP_TRACKS_HOME_LIMIT) }
+    if (topSongs.isEmpty()) return
+    val pages = remember(topSongs) { topSongs.chunked(TOP_TRACKS_PAGE_SIZE) }
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val contentColor = MaterialTheme.colorScheme.onSurface
     Column(
@@ -74,7 +75,7 @@ fun TopTracksSection(
                         .width(64.dp),
                     colors = IconButtonDefaults.filledIconButtonColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                        contentColor = MaterialTheme.colorScheme.secondary
+                        contentColor = MaterialTheme.colorScheme.primary
                     ),
                     onClick = onOpenAllClick
                 ) {
@@ -95,18 +96,17 @@ fun TopTracksSection(
             ) { page ->
                 val pageOffset = abs(page - pagerState.currentPage - pagerState.currentPageOffsetFraction)
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    pages[page].forEachIndexed { index, track ->
-                        key(track.songId) {
+                    pages[page].forEachIndexed { index, song ->
+                        key(song.id) {
                             RankedSongRow(
                                 rank = page * TOP_TRACKS_PAGE_SIZE + index + 1,
-                                title = track.title,
-                                artist = track.artist,
-                                artUri = track.albumArtUri,
-                                isCurrentSong = currentSongId == track.songId,
+                                song = song,
+                                isCurrentSong = currentSongId == song.id,
                                 isPlaying = isPlaying,
-                                onClick = { onTrackClick(track) },
+                                onClick = { onTrackClick(song) },
+                                onMoreOptionsClick = onMoreOptionsClick,
                                 entranceProgress = (1f - pageOffset * (1f + index * 0.15f)).coerceIn(0f, 1f)
                             )
                         }

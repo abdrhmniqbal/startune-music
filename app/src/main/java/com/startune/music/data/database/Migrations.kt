@@ -272,7 +272,7 @@ val MIGRATION_10_11 = object : Migration(10, 11) {
 /**
  * v11 -> v12: restore the Navidrome/Subsonic cloud cache tables.
  * MIGRATION_6_7 (Startune v2.0.0) dropped them when the integration was
- * removed; the v2.0.0 alignment with upstream PixelPlayerOSS brings it
+ * removed; the v2.0.0 alignment with upstream brings it
  * back. CREATE TABLE is verbatim from upstream's Room schema v6.
  */
 val MIGRATION_11_12 = object : Migration(11, 12) {

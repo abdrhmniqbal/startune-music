@@ -67,6 +67,7 @@ import com.startune.music.R
 import com.startune.music.presentation.viewmodel.ArtistAlbumSection
 import com.startune.music.data.model.SortOption
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.LibrarySortBottomSheet
 import com.startune.music.presentation.components.MiniPlayerHeight
@@ -282,6 +283,16 @@ fun ArtistDetailListScreen(
                                     )
                                 }
                             }
+                            if (sortedTracks.isEmpty()) {
+                                item(key = "artist_list_empty") {
+                                    ExpressiveEmptyState(
+                                        iconRes = R.drawable.rounded_music_off_24,
+                                        titleRes = R.string.artist_detail_empty_title,
+                                        subtitleRes = R.string.artist_detail_empty_subtitle,
+                                        modifier = Modifier.padding(top = 48.dp)
+                                    )
+                                }
+                            }
                             itemsIndexed(
                                 items = sortedTracks,
                                 key = { _, song -> "artist_track_${song.id}" },
@@ -359,6 +370,16 @@ fun ArtistDetailListScreen(
                                                 showMultiSelectionSheet = true
                                             }
                                         }
+                                    )
+                                }
+                            }
+                            if (gridSections.isEmpty()) {
+                                item(span = { GridItemSpan(2) }) {
+                                    ExpressiveEmptyState(
+                                        iconRes = R.drawable.rounded_album_24,
+                                        titleRes = if (view == ArtistDetailView.FeaturedOn) R.string.artist_featured_empty_title else R.string.artist_albums_empty_title,
+                                        subtitleRes = if (view == ArtistDetailView.FeaturedOn) R.string.artist_featured_empty_subtitle else R.string.artist_albums_empty_subtitle,
+                                        modifier = Modifier.padding(top = 48.dp)
                                     )
                                 }
                             }

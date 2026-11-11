@@ -492,18 +492,17 @@ fun HomeScreen(
                         contentType = "top_tracks_section"
                     ) {
                         TopTracksSection(
-                            tracks = homeTopTracks,
+                            songs = topTrackSongs,
                             currentSongId = currentSong?.id,
                             isPlaying = isPlaying,
-                            onTrackClick = { track ->
-                                topTrackSongs.find { it.id == track.songId }?.let { song ->
-                                    playerViewModel.playSongs(
-                                        songsToPlay = topTrackSongs,
-                                        startSong = song,
-                                        queueName = topTracksQueueName
-                                    )
-                                }
+                            onTrackClick = { song ->
+                                playerViewModel.playSongs(
+                                    songsToPlay = topTrackSongs,
+                                    startSong = song,
+                                    queueName = topTracksQueueName
+                                )
                             },
+                            onMoreOptionsClick = { song -> recentSongForOptions = song },
                             onOpenAllClick = {
                                 navController.navigateSafely(Screen.TopTracks.route)
                             }

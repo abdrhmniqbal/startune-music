@@ -591,7 +591,8 @@ fun FullPlayerContent(
             placeholderColor = placeholderColor,
             placeholderOnColor = placeholderOnColor,
             isLandscape = false,
-            onLyricsClick = onLyricsClick,
+            isFavoriteProvider = isFavoriteProvider,
+            onFavoriteToggle = onFavoriteToggle,
             playerOnBaseColor = playerOnBaseColor,
             playerViewModel = playerViewModel,
             gradientEdgeColor = LocalMaterialTheme.current.primaryContainer,
@@ -614,7 +615,8 @@ fun FullPlayerContent(
             placeholderColor = placeholderColor,
             placeholderOnColor = placeholderOnColor,
             isLandscape = true,
-            onLyricsClick = onLyricsClick,
+            isFavoriteProvider = isFavoriteProvider,
+            onFavoriteToggle = onFavoriteToggle,
             playerOnBaseColor = playerOnBaseColor,
             playerViewModel = playerViewModel,
             gradientEdgeColor = LocalMaterialTheme.current.primaryContainer,
@@ -898,23 +900,35 @@ fun FullPlayerContent(
 
     val artistPickerSheetState = rememberModalSheetState(skipPartiallyExpanded = true)
     if (showArtistPicker && currentSongArtists.isNotEmpty()) {
-        PlayerArtistPickerBottomSheet(
-            song = song,
-            artists = currentSongArtists,
-            sheetState = artistPickerSheetState,
-            onDismiss = { showArtistPicker = false },
-            onArtistClick = { artist ->
-                playerViewModel.triggerArtistNavigationFromPlayer(artist.id)
-                showArtistPicker = false
-            }
-        )
+        MaterialTheme(
+            colorScheme = LocalMaterialTheme.current,
+            typography = MaterialTheme.typography,
+            shapes = MaterialTheme.shapes
+        ) {
+            PlayerArtistPickerBottomSheet(
+                song = song,
+                artists = currentSongArtists,
+                sheetState = artistPickerSheetState,
+                onDismiss = { showArtistPicker = false },
+                onArtistClick = { artist ->
+                    playerViewModel.triggerArtistNavigationFromPlayer(artist.id)
+                    showArtistPicker = false
+                }
+            )
+        }
     }
 
     if (showAudioOutputSheet) {
-        AudioOutputBottomSheet(
-            sheetState = rememberModalSheetState(skipPartiallyExpanded = true),
-            onDismiss = { showAudioOutputSheet = false }
-        )
+        MaterialTheme(
+            colorScheme = LocalMaterialTheme.current,
+            typography = MaterialTheme.typography,
+            shapes = MaterialTheme.shapes
+        ) {
+            AudioOutputBottomSheet(
+                sheetState = rememberModalSheetState(skipPartiallyExpanded = true),
+                onDismiss = { showAudioOutputSheet = false }
+            )
+        }
     }
 }
 
@@ -1102,10 +1116,9 @@ private fun FullPlayerControlsSection(
                 isShuffleEnabled = isShuffleEnabledProvider(),
                 isShuffleTransitionInProgress = shuffleTransitionInProgress,
                 repeatMode = repeatModeProvider(),
-                isFavoriteProvider = isFavoriteProvider,
                 onShuffleToggle = onShuffleToggle,
                 onRepeatToggle = onRepeatToggle,
-                onFavoriteToggle = onFavoriteToggle
+                onLyricsClick = onLyricsClick
             )
         }
     }
@@ -1229,7 +1242,8 @@ private fun FullPlayerSongMetadataSection(
     placeholderColor: Color,
     placeholderOnColor: Color,
     isLandscape: Boolean,
-    onLyricsClick: () -> Unit,
+    isFavoriteProvider: () -> Boolean,
+    onFavoriteToggle: () -> Unit,
     playerOnBaseColor: Color,
     playerViewModel: PlayerViewModel,
     gradientEdgeColor: Color,
@@ -1269,7 +1283,8 @@ private fun FullPlayerSongMetadataSection(
         SongMetadataDisplaySection(
             modifier = Modifier
                 .padding(start = 0.dp),
-            onClickLyrics = onLyricsClick,
+            isFavoriteProvider = isFavoriteProvider,
+            onFavoriteToggle = onFavoriteToggle,
             song = song,
             currentSongArtists = currentSongArtists,
             expansionFractionProvider = expansionFractionProvider,
@@ -1377,13 +1392,15 @@ private fun SongMetadataDisplaySection(
     playerViewModel: PlayerViewModel,
     chipColor: Color,
     chipContentColor: Color,
-    onClickLyrics: () -> Unit,
+    isFavoriteProvider: () -> Boolean,
+    onFavoriteToggle: () -> Unit,
     showQueueButton: Boolean,
     onClickQueue: () -> Unit,
     onClickArtist: () -> Unit,
     modifier: Modifier = Modifier,
     isPlayingProvider: () -> Boolean = { true }
 ) {
+    val isFavorite = isFavoriteProvider()
     Row(
         modifier
             .fillMaxWidth()
@@ -1475,12 +1492,12 @@ private fun SongMetadataDisplaySection(
                             )
                         )
                         .background(chipColor)
-                        .clickable { onClickLyrics() },
+                        .clickable { onFavoriteToggle() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.rounded_lyrics_24),
-                        contentDescription = stringResource(R.string.presentation_batch_g_player_cd_lyrics),
+                        painter = painterResource(if (isFavorite) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24),
+                        contentDescription = stringResource(R.string.cd_favorite),
                         tint = chipContentColor
                     )
                 }
@@ -1514,11 +1531,11 @@ private fun SongMetadataDisplaySection(
                     containerColor = chipColor,
                     contentColor = chipContentColor
                 ),
-                onClick = onClickLyrics,
+                onClick = onFavoriteToggle,
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.rounded_lyrics_24),
-                    contentDescription = stringResource(R.string.presentation_batch_g_player_cd_lyrics)
+                    painter = painterResource(if (isFavorite) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24),
+                    contentDescription = stringResource(R.string.cd_favorite)
                 )
             }
         }
@@ -2429,12 +2446,10 @@ private fun BottomToggleRow(
     isShuffleEnabled: Boolean,
     isShuffleTransitionInProgress: Boolean,
     repeatMode: Int,
-    isFavoriteProvider: () -> Boolean,
     onShuffleToggle: () -> Unit,
     onRepeatToggle: () -> Unit,
-    onFavoriteToggle: () -> Unit
+    onLyricsClick: () -> Unit
 ) {
-    val isFavorite = isFavoriteProvider()
     val rowCorners = 60.dp
     val inactiveBg = LocalMaterialTheme.current.onSurface.copy(alpha = 0.07f)
     // onSurface renders as the light variant's dark tone inside the player
@@ -2493,6 +2508,20 @@ private fun BottomToggleRow(
                 iconId = R.drawable.rounded_shuffle_24,
                 contentDesc = stringResource(R.string.cd_shuffle)
             )
+            // Lyrics is an action, not a toggle: it never takes the active
+            // style, it just opens the lyrics sheet.
+            ToggleSegmentButton(
+                modifier = commonModifier,
+                active = false,
+                activeColor = LocalMaterialTheme.current.tertiaryFixed,
+                activeCornerRadius = rowCorners,
+                activeContentColor = LocalMaterialTheme.current.onTertiaryFixed,
+                inactiveColor = inactiveBg,
+                inactiveContentColor = inactiveContentColor,
+                onClick = onLyricsClick,
+                iconId = R.drawable.rounded_lyrics_24,
+                contentDesc = stringResource(R.string.presentation_batch_g_player_cd_lyrics)
+            )
             val repeatActive = repeatMode != Player.REPEAT_MODE_OFF
             val repeatIcon = when (repeatMode) {
                 Player.REPEAT_MODE_ONE -> R.drawable.rounded_repeat_one_24
@@ -2510,18 +2539,6 @@ private fun BottomToggleRow(
                 onClick = onRepeatToggle,
                 iconId = repeatIcon,
                 contentDesc = stringResource(R.string.cd_repeat)
-            )
-            ToggleSegmentButton(
-                modifier = commonModifier,
-                active = isFavorite,
-                activeColor = LocalMaterialTheme.current.tertiaryFixed,
-                activeCornerRadius = rowCorners,
-                activeContentColor = LocalMaterialTheme.current.onTertiaryFixed,
-                inactiveColor = inactiveBg,
-                inactiveContentColor = inactiveContentColor,
-                onClick = onFavoriteToggle,
-                iconId = if (isFavorite) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24,
-                contentDesc = stringResource(R.string.cd_favorite)
             )
         }
     }

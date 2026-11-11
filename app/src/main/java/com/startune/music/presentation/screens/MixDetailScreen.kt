@@ -4,6 +4,7 @@ import com.startune.music.presentation.navigation.navigateSafely
 
 import androidx.compose.foundation.background
 import com.startune.music.presentation.components.subcomps.SelectionActionRow
+import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.subcomps.SelectionCountPill
 import androidx.compose.ui.zIndex
 import com.startune.music.presentation.components.rememberModalSheetState
@@ -57,7 +58,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LargeExtendedFloatingActionButton
+import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -374,6 +375,16 @@ fun MixDetailScreen(
                         }
                     }
 
+                    if (mixSongs.isEmpty()) {
+                        item(key = "mix_empty") {
+                            ExpressiveEmptyState(
+                                iconRes = R.drawable.rounded_instant_mix_24,
+                                titleRes = R.string.mix_detail_empty_title,
+                                subtitleRes = R.string.mix_detail_empty_subtitle,
+                                modifier = Modifier.padding(top = 48.dp)
+                            )
+                        }
+                    }
                     items(mixSongs, key = { it.id }) { song ->
                         EnhancedSongListItem(
                             modifier = Modifier
@@ -832,18 +843,15 @@ private fun ExpressiveMixDetailHeader(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 )
             }
-            LargeExtendedFloatingActionButton(
+            LargeFloatingActionButton(
                 onClick = onShuffleClick,
                 modifier = Modifier.padding(start = 12.dp),
                 // Cookie shape (Cookie9Sided), the same shape the mix cover
-                // tiles use. The old RoundedStarShape clipped this wide
-                // icon+text button (dbe137f); a RoundedPolygonShape scales
-                // to the full bounds, so icon + label render fully.
+                // tiles use. Icon only: the label stretched the blob wide
+                // and flat.
                 shape = ShapeCache.expressiveAvatar
             ) {
                 Icon(Icons.Rounded.Shuffle, contentDescription = shuffleLabel)
-                Spacer(Modifier.width(8.dp))
-                Text(shuffleLabel)
             }
         }
     }

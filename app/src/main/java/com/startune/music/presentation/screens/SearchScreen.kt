@@ -89,6 +89,7 @@ import com.startune.music.data.model.SearchHistoryItem
 import com.startune.music.data.model.SearchResultItem
 import com.startune.music.data.model.Song
 import com.startune.music.presentation.components.SmartImage
+import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.SmartImageListTargetSize
 import com.startune.music.presentation.components.FavoritesToRevisitSection
 import com.startune.music.presentation.components.FreshFindsSection
@@ -238,7 +239,6 @@ fun SearchScreen(
     val freshFindsQueue = remember(freshFindsSongs) {
         freshFindsSongs.map { it.song }.toImmutableList()
     }
-    val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
     var showSongInfoBottomSheet by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -435,7 +435,7 @@ fun SearchScreen(
             ) { isBrowseMode ->
                 if (isBrowseMode) {
                     Column(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().padding(top = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
                         if (recentlyAddedSongs.isNotEmpty()) {
@@ -459,10 +459,10 @@ fun SearchScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    text = stringResource(R.string.recently_added_empty_title),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                ExpressiveEmptyState(
+                                    iconRes = R.drawable.rounded_music_off_24,
+                                    titleRes = R.string.recently_added_empty_title,
+                                    subtitleRes = R.string.recently_added_empty_subtitle
                                 )
                             }
                         }
