@@ -1,0 +1,7 @@
+First beta of the Kotlin rewrite.
+
+- Local playback with Top Songs, mixes and statistics
+- Navidrome and Jellyfin libraries with offline downloads
+- Synced lyrics, translation and romanization
+- Backup and restore (.starbk)
+- Redesigned color schemes and Material 3 Expressive interface
