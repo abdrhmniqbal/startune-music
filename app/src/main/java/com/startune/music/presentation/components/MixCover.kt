@@ -19,9 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.size.Size
 import com.startune.music.data.model.Song
+import com.startune.music.R
 import com.startune.music.ui.theme.ShapeCache
 import kotlinx.collections.immutable.ImmutableList
 import kotlin.math.floor
@@ -54,7 +56,7 @@ fun MixCover(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.QueueMusic,
-                contentDescription = "Mix",
+                contentDescription = stringResource(R.string.mix_cover_cd),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(12.dp),

@@ -1502,7 +1502,7 @@ class SettingsViewModel @Inject constructor(
                     syncManager.sync()
                 }
                 is RestoreResult.PartialFailure -> {
-                    val failedNames = result.failed.entries.joinToString { "${it.key.label}: ${it.value}" }
+                    val failedNames = result.failed.entries.joinToString { "${context.getString(it.key.labelRes)}: ${it.value}" }
                     _dataTransferEvents.send(
                         context.getString(R.string.restore_partial_unresolved_format, failedNames),
                     )

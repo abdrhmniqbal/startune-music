@@ -49,11 +49,11 @@ object StorageUtils {
 
             val storageType = determineStorageType(volume)
             val displayName = when (storageType) {
-                StorageType.INTERNAL -> "Internal Storage"
-                StorageType.SD_CARD -> "SD Card"
+                StorageType.INTERNAL -> context.getString(R.string.storage_internal)
+                StorageType.SD_CARD -> context.getString(R.string.storage_sd_card)
                 StorageType.USB -> {
                     usbCounter++
-                    if (usbCounter > 1) "USB Storage $usbCounter" else "USB Storage"
+                    if (usbCounter > 1) context.getString(R.string.storage_usb_numbered, usbCounter) else context.getString(R.string.storage_usb)
                 }
             }
 
@@ -120,17 +120,5 @@ object StorageUtils {
      */
     fun hasExternalStorage(context: Context): Boolean {
         return getAvailableStorages(context).any { it.storageType != StorageType.INTERNAL }
-    }
-
-    /**
-     * Get internal storage only
-     */
-    fun getInternalStorage(): StorageInfo {
-        return StorageInfo(
-            path = Environment.getExternalStorageDirectory(),
-            displayName = "Internal Storage",
-            storageType = StorageType.INTERNAL,
-            isRemovable = false
-        )
     }
 }

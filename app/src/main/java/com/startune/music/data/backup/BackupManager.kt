@@ -1,6 +1,7 @@
 ﻿package com.startune.music.data.backup
 
 import android.content.Context
+import com.startune.music.R
 import android.net.Uri
 import android.os.Build
 import com.startune.music.data.backup.format.BackupCrypto
@@ -73,12 +74,12 @@ class BackupManager @Inject constructor(
             var step = 0
 
             reportProgress(onProgress, BackupOperationType.EXPORT, ++step, totalSteps,
-                "Preparing backup", "Building your selected backup sections.")
+                context.getString(R.string.backup_preparing_title), context.getString(R.string.backup_preparing_detail))
 
             val modulePayloads = mutableMapOf<String, String>()
             selectedSections.forEach { section ->
                 reportProgress(onProgress, BackupOperationType.EXPORT, ++step, totalSteps,
-                    "Collecting ${section.label}", section.description, section)
+                    context.getString(R.string.backup_collecting_title, context.getString(section.labelRes)), context.getString(section.descriptionRes), section)
                 val handler = handlers[section]
                     ?: throw IllegalStateException("No handler for module ${section.key}")
                 modulePayloads[section.key] = handler.export()
@@ -106,12 +107,12 @@ class BackupManager @Inject constructor(
             )
 
             reportProgress(onProgress, BackupOperationType.EXPORT, ++step, totalSteps,
-                "Packaging backup", "Creating .starbk archive.")
+                context.getString(R.string.backup_packaging_title), context.getString(R.string.backup_packaging_detail))
 
             backupWriter.write(uri, manifest, modulePayloads, passphrase = passphrase).getOrThrow()
 
             reportProgress(onProgress, BackupOperationType.EXPORT, ++step, totalSteps,
-                "Backup complete", "Your Startune Music backup was created successfully.")
+                context.getString(R.string.backup_complete_title), context.getString(R.string.backup_complete_detail))
         }
     }
 
@@ -157,7 +158,7 @@ class BackupManager @Inject constructor(
                 val moduleInfo = plan.manifest.modules[section.key]
                 if (moduleInfo != null && moduleInfo.sizeBytes > BackupReader.MAX_MODULE_PAYLOAD_BYTES) {
                     warnings.add(
-                        "${section.label}: payload is ${moduleInfo.sizeBytes / (1024 * 1024)}MB, " +
+                        "${section.key}: payload is ${moduleInfo.sizeBytes / (1024 * 1024)}MB, " +
                             "so preview validation was skipped to avoid running out of memory."
                     )
                     return@forEach
@@ -173,12 +174,12 @@ class BackupManager @Inject constructor(
                 if (moduleValidation is BackupValidationResult.Invalid) {
                     if (moduleValidation.fatalErrors.isNotEmpty()) {
                         throw IllegalArgumentException(
-                            "${section.label}: ${moduleValidation.fatalErrors.first().message}"
+                            "${section.key}: ${moduleValidation.fatalErrors.first().message}"
                         )
                     }
                     warnings.addAll(
                         moduleValidation.warnings.map { warning ->
-                            "${section.label}: ${warning.message}"
+                            "${section.key}: ${warning.message}"
                         }
                     )
                 }
@@ -203,7 +204,7 @@ class BackupManager @Inject constructor(
             resolveReadableUri(uri, passphrase = null)
         } catch (e: BackupEncryptedException) {
             return@withContext RestoreResult.TotalFailure(
-                "This backup is encrypted. Inspect it with its password before restoring."
+                context.getString(R.string.backup_encrypted_message)
             )
         }
 
@@ -211,7 +212,7 @@ class BackupManager @Inject constructor(
         if (fileValidation is BackupValidationResult.Invalid && fileValidation.fatalErrors.isNotEmpty()) {
             discardDecryptedBackup(uri)
             return@withContext RestoreResult.TotalFailure(
-                "Backup file failed validation: ${fileValidation.fatalErrors.first().message}"
+                context.getString(R.string.backup_validation_failed_format, fileValidation.fatalErrors.first().message)
             )
         }
 

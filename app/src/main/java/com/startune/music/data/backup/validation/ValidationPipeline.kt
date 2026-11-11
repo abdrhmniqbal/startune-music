@@ -1,6 +1,9 @@
 ﻿package com.startune.music.data.backup.validation
 
 import android.net.Uri
+import android.content.Context
+import com.startune.music.R
+import dagger.hilt.android.qualifiers.ApplicationContext
 import com.startune.music.data.backup.model.BackupManifest
 import com.startune.music.data.backup.model.BackupSection
 import com.startune.music.data.backup.model.BackupValidationResult
@@ -11,6 +14,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ValidationPipeline @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val fileValidator: BackupFileValidator,
     private val manifestValidator: ManifestValidator,
     private val moduleSchemaValidator: ModuleSchemaValidator
@@ -36,7 +40,7 @@ class ValidationPipeline @Inject constructor(
         if (manifest != null && !manifestValidator.verifyChecksum(section.key, payload, manifest)) {
             errors.add(ValidationError(
                 "CHECKSUM_MISMATCH",
-                "Checksum mismatch for module '${section.label}'. The backup may be corrupted.",
+                context.getString(R.string.backup_checksum_mismatch_format, context.getString(section.labelRes)),
                 module = section.key
             ))
             return BackupValidationResult.Invalid(errors)

@@ -1,6 +1,7 @@
 ﻿package com.startune.music.data.backup.validation
 
 import android.content.Context
+import com.startune.music.R
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import com.startune.music.data.backup.format.BackupReader
@@ -36,34 +37,34 @@ class BackupFileValidator @Inject constructor(
             context.contentResolver.openInputStream(uri)?.use { input ->
                 val header = formatDetector.readHeader(input)
                 if (header.isEmpty()) {
-                    errors.add(ValidationError("FILE_EMPTY", "Backup file is empty or inaccessible."))
+                    errors.add(ValidationError("FILE_EMPTY", context.getString(R.string.backup_file_empty)))
                     return BackupValidationResult.Invalid(errors)
                 }
                 formatDetector.detect(header)
             }
         } catch (e: Exception) {
-            errors.add(ValidationError("FILE_ACCESS", "Cannot open backup file: ${e.message}"))
+            errors.add(ValidationError("FILE_ACCESS", context.getString(R.string.backup_file_access_format, e.message)))
             return BackupValidationResult.Invalid(errors)
         }
 
         if (format == null) {
-            errors.add(ValidationError("FILE_EMPTY", "Backup file is empty or inaccessible."))
+            errors.add(ValidationError("FILE_EMPTY", context.getString(R.string.backup_file_empty)))
             return BackupValidationResult.Invalid(errors)
         }
 
         if (fileSize != null && fileSize > MAX_BACKUP_SIZE_BYTES) {
-            errors.add(ValidationError("FILE_TOO_LARGE", "Backup file exceeds the ${MAX_BACKUP_SIZE_BYTES / (1024 * 1024)}MB limit."))
+            errors.add(ValidationError("FILE_TOO_LARGE", context.getString(R.string.backup_file_too_large_format, MAX_BACKUP_SIZE_BYTES / (1024 * 1024))))
             return BackupValidationResult.Invalid(errors)
         }
 
         if (fileName != null && !fileName.endsWith(".starbk", ignoreCase = true) &&
             !fileName.endsWith(".pxpl", ignoreCase = true) &&
             !fileName.endsWith(".gz", ignoreCase = true)) {
-            errors.add(ValidationError("FILE_EXTENSION", "File extension is not .starbk. The file may not be a valid backup.", severity = Severity.WARNING))
+            errors.add(ValidationError("FILE_EXTENSION", context.getString(R.string.backup_file_extension), severity = Severity.WARNING))
         }
 
         if (format == BackupFormatDetector.Format.UNKNOWN) {
-            errors.add(ValidationError("FORMAT_UNKNOWN", "File is not a recognized Startune Music backup format."))
+            errors.add(ValidationError("FORMAT_UNKNOWN", context.getString(R.string.backup_format_unknown)))
             return BackupValidationResult.Invalid(errors)
         }
 
@@ -99,12 +100,12 @@ class BackupFileValidator @Inject constructor(
                         val name = entry.name
 
                         if (name.contains("..") || name.startsWith("/") || name.startsWith("\\")) {
-                            errors.add(ValidationError("ZIP_PATH_TRAVERSAL", "Suspicious zip entry path: $name"))
+                            errors.add(ValidationError("ZIP_PATH_TRAVERSAL", context.getString(R.string.backup_zip_path_traversal_format, name)))
                             return
                         }
 
                         if (!name.endsWith(".json")) {
-                            errors.add(ValidationError("ZIP_UNEXPECTED_ENTRY", "Unexpected file in backup: $name", severity = Severity.WARNING))
+                            errors.add(ValidationError("ZIP_UNEXPECTED_ENTRY", context.getString(R.string.backup_zip_unexpected_entry_format, name), severity = Severity.WARNING))
                         }
 
                         val perEntryLimit = if (name == BackupManifest.MANIFEST_FILENAME) {
@@ -125,7 +126,7 @@ class BackupFileValidator @Inject constructor(
                                 errors.add(
                                     ValidationError(
                                         "ZIP_ENTRY_TOO_LARGE",
-                                        "Backup entry '$name' exceeds the ${perEntryLimit / (1024 * 1024)}MB in-memory safety limit."
+                                        context.getString(R.string.backup_zip_entry_too_large_format, name, perEntryLimit / (1024 * 1024))
                                     )
                                 )
                                 return
@@ -135,7 +136,7 @@ class BackupFileValidator @Inject constructor(
                                 errors.add(
                                     ValidationError(
                                         "ZIP_TOO_LARGE",
-                                        "Backup file expands beyond the ${MAX_TOTAL_DECOMPRESSED_BYTES / (1024 * 1024)}MB safety limit."
+                                        context.getString(R.string.backup_zip_too_large_format, MAX_TOTAL_DECOMPRESSED_BYTES / (1024 * 1024))
                                     )
                                 )
                                 return
@@ -145,7 +146,7 @@ class BackupFileValidator @Inject constructor(
                                 compressedZipBytes > 0 &&
                                 totalDecompressed > compressedZipBytes * MAX_ZIP_RATIO
                             ) {
-                                errors.add(ValidationError("ZIP_BOMB", "Backup file has suspicious compression ratio."))
+                                errors.add(ValidationError("ZIP_BOMB", context.getString(R.string.backup_zip_bomb)))
                                 return
                             }
                         }
@@ -154,9 +155,9 @@ class BackupFileValidator @Inject constructor(
                         entry = zip.nextEntry
                     }
                 }
-            } ?: errors.add(ValidationError("FILE_ACCESS", "Cannot open backup file."))
+            } ?: errors.add(ValidationError("FILE_ACCESS", context.getString(R.string.backup_file_access_plain)))
         } catch (e: Exception) {
-            errors.add(ValidationError("ZIP_CORRUPT", "Backup ZIP archive is corrupted: ${e.message}"))
+            errors.add(ValidationError("ZIP_CORRUPT", context.getString(R.string.backup_zip_corrupt_format, e.message)))
         }
     }
 

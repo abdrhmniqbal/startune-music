@@ -4,40 +4,14 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 enum class MixRule(
-    val storageKey: String,
-    val title: String,
-    val subtitle: String
+    val storageKey: String
 ) {
-    TOP_PLAYED(
-        storageKey = "top_played",
-        title = "Top Played",
-        subtitle = "Your most played tracks."
-    ),
-    RECENTLY_PLAYED(
-        storageKey = "recently_played",
-        title = "Recently Played",
-        subtitle = "Songs you listened to most recently."
-    ),
-    FORGOTTEN_FAVORITES(
-        storageKey = "forgotten_favorites",
-        title = "Forgotten Favorites",
-        subtitle = "Favorite tracks you haven't played in a while."
-    ),
-    NEW_GEMS(
-        storageKey = "new_gems",
-        title = "New Gems",
-        subtitle = "Recently added tracks with low play counts."
-    ),
-    ARTISTS(
-        storageKey = "artists",
-        title = "Artists",
-        subtitle = "Songs from artists you pick."
-    ),
-    GENRES(
-        storageKey = "genres",
-        title = "By Genres",
-        subtitle = "Songs from genres you pick."
-    );
+    TOP_PLAYED(storageKey = "top_played"),
+    RECENTLY_PLAYED(storageKey = "recently_played"),
+    FORGOTTEN_FAVORITES(storageKey = "forgotten_favorites"),
+    NEW_GEMS(storageKey = "new_gems"),
+    ARTISTS(storageKey = "artists"),
+    GENRES(storageKey = "genres");
 
     companion object {
         fun fromStorageKey(key: String?): MixRule? {

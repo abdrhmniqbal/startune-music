@@ -85,6 +85,7 @@ import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults
 import androidx.compose.material3.animateFloatingActionButton
 import androidx.compose.runtime.Composable
+import androidx.annotation.StringRes
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -136,6 +137,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import com.startune.music.R
 import com.startune.music.data.database.AudioBookmarkEntity
 import com.startune.music.data.database.backupSongIdOfRestoredBookmark
@@ -249,11 +251,11 @@ fun AudioBookmarksScreen(
                 if (folders.isEmpty()) {
                     item {
                         BookmarksEmptyState(
-                            title = if (query.isBlank()) "No bookmarked audio yet" else "No bookmark folders found",
+                            title = if (query.isBlank()) stringResource(R.string.bookmark_empty_no_audio_title) else stringResource(R.string.bookmark_empty_no_folders_title),
                             subtitle = if (query.isBlank()) {
-                                "Saved moments will appear here grouped by track."
+                                stringResource(R.string.bookmark_empty_no_audio_subtitle)
                             } else {
-                                "Try searching by song, artist, album, cue, or bookmark tag."
+                                stringResource(R.string.bookmark_empty_no_folders_subtitle)
                             }
                         )
                     }
@@ -417,8 +419,8 @@ fun AudioBookmarkFolderScreen(
                     if (songBookmarks.isEmpty()) {
                         item(key = "empty_bookmark_folder") {
                             BookmarksEmptyState(
-                                title = "No moments in this folder",
-                                subtitle = "Bookmarks for this track may have been deleted."
+                                title = stringResource(R.string.bookmark_empty_folder_title),
+                                subtitle = stringResource(R.string.bookmark_empty_folder_subtitle),
                             )
                         }
                     } else {
@@ -444,7 +446,7 @@ fun AudioBookmarkFolderScreen(
                                     ) {
                                         playerViewModel.playSongAtPosition(song, bookmark.timestampMs)
                                     } else {
-                                        Toast.makeText(context, "Audio file not found", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, context.getString(R.string.bookmark_toast_audio_not_found), Toast.LENGTH_SHORT).show()
                                     }
                                 },
                                 onMoreClick = { actionsBookmark = bookmark },
@@ -478,7 +480,7 @@ fun AudioBookmarkFolderScreen(
                             clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Bookmark cue", cueText)))
                         }
                         actionsBookmark = null
-                        Toast.makeText(context, "Cue copied", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.bookmark_toast_cue_copied), Toast.LENGTH_SHORT).show()
                     },
                     onDelete = {
                         actionsBookmark = null
@@ -626,7 +628,7 @@ private fun BookmarkFolderSectionHeader(
             modifier = Modifier.padding(start = 4.dp)
         ) {
             Text(
-                text = "Saved moments",
+                text = stringResource(R.string.bookmark_saved_moments_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -652,27 +654,24 @@ private fun BookmarkFolderSectionHeader(
     }
 }
 
+@Composable
 private fun formatBookmarkMomentCount(count: Int): String =
-    if (count == 1) "1 moment" else "$count moments"
+    pluralStringResource(R.plurals.bookmark_moment_count, count, count)
 
 private enum class BookmarkFolderSortMode(
-    val label: String,
-    val contentDescription: String,
+    @StringRes val labelRes: Int,
     val icon: ImageVector
 ) {
     MostMoments(
-        label = "Most moments",
-        contentDescription = "Sort bookmarks by most moments",
+        labelRes = R.string.bookmark_sort_most_moments_label,
         icon = Icons.Rounded.Bookmark
     ),
     Recent(
-        label = "Recent",
-        contentDescription = "Sort bookmarks by recent moments",
+        labelRes = R.string.bookmark_sort_recent_label,
         icon = Icons.Rounded.AccessTime
     ),
     Title(
-        label = "A-Z",
-        contentDescription = "Sort bookmarks alphabetically",
+        labelRes = R.string.bookmark_sort_title_label,
         icon = Icons.Rounded.SortByAlpha
     );
 
@@ -1007,7 +1006,7 @@ private fun BookmarkKeepSearchTopBar(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                    contentDescription = "Back"
+                    contentDescription = stringResource(R.string.auth_cd_back),
                 )
             }
 
@@ -1057,7 +1056,7 @@ private fun BookmarkKeepSearchTopBar(
                         ) {
                             if (query.isBlank()) {
                                 Text(
-                                    text = "Search bookmarks",
+                                    text = stringResource(R.string.bookmark_search_placeholder),
                                     style = MaterialTheme.typography.bodyLarge.copy(
                                         fontFamily = RoundedSans,
                                         lineHeight = 20.sp,
@@ -1104,7 +1103,7 @@ private fun BookmarkKeepSearchTopBar(
                 ) {
                     Icon(
                         imageVector = if (query.isNotBlank()) Icons.Rounded.Close else Icons.Rounded.Bookmark,
-                        contentDescription = if (query.isNotBlank()) "Clear bookmark search" else "Bookmarks",
+                        contentDescription = if (query.isNotBlank()) stringResource(R.string.bookmark_search_clear_cd) else stringResource(R.string.bookmark_search_cd),
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -1151,7 +1150,7 @@ private fun BookmarkActionFabMenu(
             ) {
                 Icon(
                     imageVector = if (expanded) Icons.Rounded.Close else Icons.Rounded.Sort,
-                    contentDescription = if (expanded) "Close bookmark actions" else "Open bookmark actions",
+                    contentDescription = if (expanded) stringResource(R.string.bookmark_actions_close_cd) else stringResource(R.string.bookmark_actions_open_cd),
                     tint = lerpColor(fabClosedContent, fabOpenContent, checkedProgress)
                 )
             }
@@ -1169,7 +1168,7 @@ private fun BookmarkActionFabMenu(
                     contentDescription = null
                 )
             },
-            text = { Text(BookmarkFolderSortMode.MostMoments.label) },
+            text = { Text(stringResource(BookmarkFolderSortMode.MostMoments.labelRes)) },
             containerColor = if (sortMode == BookmarkFolderSortMode.MostMoments) {
                 MaterialTheme.colorScheme.primaryContainer
             } else {
@@ -1193,7 +1192,7 @@ private fun BookmarkActionFabMenu(
                     contentDescription = null
                 )
             },
-            text = { Text(BookmarkFolderSortMode.Recent.label) },
+            text = { Text(stringResource(BookmarkFolderSortMode.Recent.labelRes)) },
             containerColor = if (sortMode == BookmarkFolderSortMode.Recent) {
                 MaterialTheme.colorScheme.primaryContainer
             } else {
@@ -1217,7 +1216,7 @@ private fun BookmarkActionFabMenu(
                     contentDescription = null
                 )
             },
-            text = { Text(BookmarkFolderSortMode.Title.label) },
+            text = { Text(stringResource(BookmarkFolderSortMode.Title.labelRes)) },
             containerColor = if (sortMode == BookmarkFolderSortMode.Title) {
                 MaterialTheme.colorScheme.primaryContainer
             } else {
@@ -1606,7 +1605,7 @@ private fun BookmarkMomentCard(
                 IconButton(onClick = onMoreClick) {
                     Icon(
                         imageVector = Icons.Rounded.MoreVert,
-                        contentDescription = "Bookmark actions"
+                        contentDescription = stringResource(R.string.bookmark_actions_cd),
                     )
                 }
             }
@@ -1684,7 +1683,7 @@ private fun BookmarkMomentActionsBottomSheet(
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            text = "Cue $formattedTime",
+                            text = stringResource(R.string.bookmark_cue_label, formattedTime),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
@@ -1861,11 +1860,11 @@ private fun BookmarkMomentDeleteAction(
     ) {
         Icon(
             imageVector = Icons.Rounded.Delete,
-            contentDescription = "Delete bookmark"
+            contentDescription = stringResource(R.string.bookmark_delete_cd),
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = "Delete",
+            text = stringResource(R.string.action_delete),
             style = MaterialTheme.typography.titleMedium,
             fontFamily = RoundedSans,
             fontWeight = FontWeight.Bold,
@@ -1933,7 +1932,7 @@ private fun RenameBookmarkDialog(
         shape = RoundedCornerShape(28.dp),
         title = {
             Text(
-                text = "Rename bookmark",
+                text = stringResource(R.string.bookmark_rename_title),
                 fontFamily = RoundedSans,
                 fontWeight = FontWeight.Bold
             )
@@ -1941,7 +1940,7 @@ private fun RenameBookmarkDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    text = "Update the label for this saved cue.",
+                    text = stringResource(R.string.bookmark_rename_body),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

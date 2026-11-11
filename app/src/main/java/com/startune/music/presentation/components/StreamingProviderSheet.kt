@@ -94,7 +94,7 @@ fun StreamingProviderSheet(
                         iconPainter = painterResource(R.drawable.ic_jellyfin),
                         iconTint = Color(0xFF00A4DC),
                         title = "Jellyfin",
-                        subtitle = if (isJellyfinLoggedIn) "Connected" else "Connect your Jellyfin server",
+                        subtitle = if (isJellyfinLoggedIn) stringResource(R.string.provider_connected) else stringResource(R.string.provider_connect_jellyfin),
                         shape = providerSegmentItemShape,
                         isConnected = isJellyfinLoggedIn,
                         onClick = {
@@ -110,7 +110,7 @@ fun StreamingProviderSheet(
                         iconPainter = painterResource(R.drawable.ic_navidrome_md3),
                         iconTint = Color(0xFF1A9E75),
                         title = "Navidrome",
-                        subtitle = if (isNavidromeLoggedIn) "Connected · Navidrome/Airsonic" else "Connect Navidrome & others",
+                        subtitle = if (isNavidromeLoggedIn) stringResource(R.string.provider_connected_navidrome) else stringResource(R.string.provider_connect_navidrome),
                         shape = providerSegmentItemShape,
                         isConnected = isNavidromeLoggedIn,
                         onClick = {
