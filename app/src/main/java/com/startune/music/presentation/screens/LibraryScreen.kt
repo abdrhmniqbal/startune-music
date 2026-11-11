@@ -2,6 +2,10 @@
 
 package com.startune.music.presentation.screens
 
+import com.startune.music.presentation.utils.seamlessSelectionScale
+import com.startune.music.presentation.utils.getSegmentedItemShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.foundation.lazy.itemsIndexed
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.navigation.navigateSafelyReplacing
 
@@ -2987,24 +2991,27 @@ fun LibraryFoldersTab(
                                     top = 0.dp                            )
                             ) {
                                 if (showPlaylistCards) {
-                                    items(itemsToShow, key = { it.path }, contentType = { "folder_card" }) { folder ->
+                                    itemsIndexed(itemsToShow, key = { _, folder -> folder.path }, contentType = { _, _ -> "folder_card" }) { index, folder ->
                                         FolderPlaylistItem(
                                             folder = folder,
-                                            onClick = { onFolderAsPlaylistClick(folder) }
+                                            onClick = { onFolderAsPlaylistClick(folder) },
+                                            customShape = getSegmentedItemShape(index, itemsToShow.size)
                                         )
                                     }
                                 } else {
-                                    items(itemsToShow, key = { it.path }, contentType = { "folder_list" }) { folder ->
+                                    itemsIndexed(itemsToShow, key = { _, folder -> folder.path }, contentType = { _, _ -> "folder_list" }) { index, folder ->
                                         FolderListItem(
                                             folder = folder,
-                                            onClick = { onFolderClick(folder.path) }
+                                            onClick = { onFolderClick(folder.path) },
+                                            customShape = getSegmentedItemShape(index, itemsToShow.size)
                                         )
                                     }
                                 }
 
-                                items(songsToShow, key = { it.id }, contentType = { "song" }) { song ->
+                                itemsIndexed(songsToShow, key = { _, song -> song.id }, contentType = { _, _ -> "song" }) { index, song ->
                                     EnhancedSongListItem(
                                         song = song,
+                                        customShape = getSegmentedItemShape(index, songsToShow.size),
                                         isPlaying = stablePlayerState.currentSong?.id == song.id && stablePlayerState.isPlaying,
                                         isCurrentSong = stablePlayerState.currentSong?.id == song.id,
                                         onMoreOptionsClick = { onMoreOptionsClick(song) },
@@ -3047,12 +3054,13 @@ fun LibraryFoldersTab(
 }
 
 @Composable
-fun FolderPlaylistItem(folder: MusicFolder, onClick: () -> Unit) {
+fun FolderPlaylistItem(folder: MusicFolder, onClick: () -> Unit, customShape: Shape? = null) {
     val previewSongs = remember(folder) { folder.collectAllSongs().take(9).toImmutableList() }
 
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
+        shape = customShape ?: CardDefaults.shape,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         )
@@ -3087,10 +3095,11 @@ fun FolderPlaylistItem(folder: MusicFolder, onClick: () -> Unit) {
 }
 
 @Composable
-fun FolderListItem(folder: MusicFolder, onClick: () -> Unit) {
+fun FolderListItem(folder: MusicFolder, onClick: () -> Unit, customShape: Shape? = null) {
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
+        shape = customShape ?: CardDefaults.shape,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         )
@@ -3252,7 +3261,7 @@ fun AlbumGridItemRedesigned(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .scale(selectionScale)
+                .seamlessSelectionScale(selectionScale)
                 .then(
                     if (isSelected) {
                         Modifier.border(
@@ -3374,10 +3383,11 @@ fun ArtistListItem(
     isSelectionMode: Boolean = false,
     isSelected: Boolean = false,
     selectionIndex: Int? = null,
+    customShape: Shape? = null,
     onLongPress: () -> Unit = {},
     onSelectionToggle: () -> Unit = {}
 ) {
-    val cardShape = RoundedCornerShape(18.dp)
+    val cardShape = customShape ?: RoundedCornerShape(18.dp)
     val selectionScale by animateFloatAsState(
         targetValue = if (isSelected) 0.99f else 1f,
         animationSpec = tween(durationMillis = 200),
@@ -3392,7 +3402,7 @@ fun ArtistListItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .scale(selectionScale)
+            .seamlessSelectionScale(selectionScale)
             .then(
                 if (isSelected) {
                     Modifier.border(
@@ -3571,7 +3581,7 @@ fun ArtistGridItem(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .scale(selectionScale)
+                .seamlessSelectionScale(selectionScale)
                 .then(
                     if (isSelected) {
                         Modifier.border(
@@ -3668,6 +3678,7 @@ fun AlbumListItem(
     isSelectionMode: Boolean = false,
     isSelected: Boolean = false,
     selectionIndex: Int? = null,
+    customShape: Shape? = null,
     onLongPress: () -> Unit = {},
     onSelectionToggle: () -> Unit = {}
 ) {
@@ -3684,7 +3695,7 @@ fun AlbumListItem(
     val gradientBaseColor = itemDesignColorScheme.primaryContainer
     val onGradientColor = itemDesignColorScheme.onPrimaryContainer
     val cardCornerRadius = 16.dp
-    val cardShape = RoundedCornerShape(cardCornerRadius)
+    val cardShape = customShape ?: RoundedCornerShape(cardCornerRadius)
     val selectionScale by animateFloatAsState(
         targetValue = if (isSelected) 0.99f else 1f,
         animationSpec = tween(durationMillis = 200),
@@ -3737,7 +3748,7 @@ fun AlbumListItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(88.dp)
-                .scale(selectionScale)
+                .seamlessSelectionScale(selectionScale)
                 .then(
                     if (isSelected) {
                         Modifier.border(

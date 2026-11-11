@@ -1,5 +1,6 @@
 ﻿package com.startune.music.presentation.screens
 
+import com.startune.music.presentation.utils.getSegmentedItemShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -240,12 +241,13 @@ fun LibrarySongsTab(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap)
             ) {
-                items(12, key = { "skeleton_song_$it" }) {
+                items(12, key = { "skeleton_song_$it" }) { index ->
                     EnhancedSongListItem(
                         song = Song.emptySong(),
                         isPlaying = false,
                         isLoading = true,
                         isCurrentSong = false,
+                        customShape = getSegmentedItemShape(index, 12),
                         onMoreOptionsClick = {},
                         onClick = {}
                     )
@@ -333,6 +335,7 @@ fun LibrarySongsTab(
                                     LibraryPlaybackAwareSongItem(
                                         song = song,
                                         playerViewModel = playerViewModel,
+                                        customShape = getSegmentedItemShape(index, songs.itemCount),
                                         isSelected = isSelected,
                                         isSelectionMode = isSelectionMode,
                                         selectionIndex = if (isSelectionMode) getSelectionIndex(song.id) else null,
@@ -346,6 +349,7 @@ fun LibrarySongsTab(
                                         isPlaying = false,
                                         isLoading = true,
                                         isCurrentSong = false,
+                                        customShape = getSegmentedItemShape(index, songs.itemCount),
                                         onMoreOptionsClick = {},
                                         onClick = {}
                                      )

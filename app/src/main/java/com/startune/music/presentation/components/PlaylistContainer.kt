@@ -1,5 +1,9 @@
 ﻿package com.startune.music.presentation.components
 
+import com.startune.music.presentation.utils.seamlessSelectionScale
+import com.startune.music.presentation.utils.getSegmentedItemShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.foundation.lazy.itemsIndexed
 import com.startune.music.presentation.navigation.navigateSafely
 
 import androidx.compose.animation.animateColorAsState
@@ -318,7 +322,7 @@ fun PlaylistItems(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + 30.dp)
         ) {
-            items(filteredPlaylists, key = { it.id }) { playlist ->
+            itemsIndexed(filteredPlaylists, key = { _, playlist -> playlist.id }) { index, playlist ->
                 val rememberedOnClick = remember(playlist.id) {
                     {
                         if (isAddingToPlaylist && currentSong != null && selectedPlaylists != null) {
@@ -351,6 +355,7 @@ fun PlaylistItems(
                     isSelectionMode = isSelectionMode,
                     isSelected = selectedPlaylistIds.contains(playlist.id),
                     selectionIndex = selectionIndex,
+                    customShape = getSegmentedItemShape(index, filteredPlaylists.size),
                     onLongPress = { onPlaylistLongPress(playlist) },
                     onPlaylistSelectionToggle = { onPlaylistSelectionToggle(playlist) }
                 )
@@ -441,6 +446,7 @@ fun PlaylistItem(
     isSelectionMode: Boolean = false,
     isSelected: Boolean = false,
     selectionIndex: Int = -1,
+    customShape: Shape? = null,
     onLongPress: () -> Unit = {},
     onPlaylistSelectionToggle: () -> Unit = {}
 ) {
@@ -470,6 +476,8 @@ fun PlaylistItem(
         label = "playlistSelectionBorderAnimation"
     )
 
+    val cardShape = remember(customShape) { customShape ?: RoundedCornerShape(12.dp) }
+
     val containerColor by animateColorAsState(
         targetValue = when {
             isAddingToPlaylist -> MaterialTheme.colorScheme.surfaceContainerHigh
@@ -489,13 +497,13 @@ fun PlaylistItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .scale(selectionScale)
+            .seamlessSelectionScale(selectionScale)
             .then(
                 if (isSelected && !isAddingToPlaylist) {
                     Modifier.border(
                         width = selectionBorderWidth,
                         color = selectionBorderColor,
-                        shape = RoundedCornerShape(12.dp)
+                        shape = cardShape
                     )
                 } else {
                     Modifier
@@ -513,6 +521,7 @@ fun PlaylistItem(
                     onLongPress()
                 }
             ),
+        shape = cardShape,
         colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
         Row(
@@ -642,7 +651,7 @@ fun PlaylistGridItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .scale(selectionScale)
+            .seamlessSelectionScale(selectionScale)
             .then(
                 if (isSelected) {
                     Modifier.border(

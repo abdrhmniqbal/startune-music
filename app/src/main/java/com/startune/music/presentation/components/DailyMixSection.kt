@@ -1,5 +1,6 @@
 ﻿package com.startune.music.presentation.components
 
+import com.startune.music.presentation.utils.getSegmentedItemShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -344,14 +345,14 @@ private fun DailyMixSongList(
             .clip(RoundedCornerShape(24.dp)),
         verticalArrangement = Arrangement.spacedBy(3.dp)
     ) {
-        songs.forEach { song ->
+        songs.forEachIndexed { index, song ->
             EnhancedSongListItem(
                 song = song,
                 isCurrentSong = stablePlayerState.currentSong?.id == song.id,
                 isPlaying = stablePlayerState.isPlaying && stablePlayerState.currentSong?.id == song.id,
                 containerColorOverride = itemContainerColor,
                 onMoreOptionsClick = onMoreOptionsClick,
-                customShape = RoundedCornerShape(10.dp),
+                customShape = getSegmentedItemShape(index, songs.size),
                 showAlbumArt = false,
                 onClick = {
                     playerViewModel.showAndPlaySong(

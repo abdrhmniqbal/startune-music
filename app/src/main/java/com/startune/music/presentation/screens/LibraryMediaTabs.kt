@@ -6,6 +6,7 @@
 
 package com.startune.music.presentation.screens
 
+import com.startune.music.presentation.utils.getSegmentedItemShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -234,12 +235,13 @@ fun LibraryAlbumsTab(
                     contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap + 4.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(8, key = { "skeleton_album_list_$it" }) {
+                    items(8, key = { "skeleton_album_list_$it" }) { index ->
                         AlbumListItem(
                             album = Album.empty(),
                             albumColorSchemePairFlow = EmptyColorSchemePairFlow,
                             onClick = {},
-                            isLoading = true
+                            isLoading = true,
+                            customShape = getSegmentedItemShape(index, 8)
                         )
                     }
                 }
@@ -340,6 +342,7 @@ fun LibraryAlbumsTab(
                                             isSelectionMode = isSelectionMode,
                                             isSelected = selectedAlbumIds.contains(album.id),
                                             selectionIndex = getSelectionIndex(album.id),
+                                            customShape = getSegmentedItemShape(index, albums.itemCount),
                                             onLongPress = rememberedOnLongPress,
                                             onSelectionToggle = rememberedOnSelectionToggle
                                         )
@@ -348,7 +351,8 @@ fun LibraryAlbumsTab(
                                             album = Album.empty(),
                                             albumColorSchemePairFlow = EmptyColorSchemePairFlow,
                                             onClick = {},
-                                            isLoading = true
+                                            isLoading = true,
+                                            customShape = getSegmentedItemShape(index, albums.itemCount)
                                         )
                                     }
                                 }
@@ -545,11 +549,12 @@ fun LibraryArtistsTab(
                     contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap)
                 ) {
                     item(key = "skeleton_top_spacer") { Spacer(Modifier.height(4.dp)) }
-                    items(10, key = { "skeleton_artist_$it" }) {
+                    items(10, key = { "skeleton_artist_$it" }) { index ->
                         ArtistListItem(
                             artist = Artist.empty(),
                             onClick = {},
-                            isLoading = true
+                            isLoading = true,
+                            customShape = getSegmentedItemShape(index, 10)
                         )
                     }
                 }
@@ -647,6 +652,7 @@ fun LibraryArtistsTab(
                                         isSelectionMode = isSelectionMode,
                                         isSelected = selectedArtistIds.contains(artist.id),
                                         selectionIndex = getSelectionIndex(artist.id),
+                                        customShape = getSegmentedItemShape(index, artists.itemCount),
                                         onLongPress = rememberedOnLongPress,
                                         onSelectionToggle = rememberedOnSelectionToggle
                                     )
@@ -654,7 +660,8 @@ fun LibraryArtistsTab(
                                     ArtistListItem(
                                         artist = Artist.empty(),
                                         onClick = {},
-                                        isLoading = true
+                                        isLoading = true,
+                                        customShape = getSegmentedItemShape(index, artists.itemCount)
                                     )
                                 }
                             }
