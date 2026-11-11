@@ -123,6 +123,7 @@
     <string name="presentation_batch_d_cd_collapse_title">%1$s einklappen</string>
     <string name="presentation_batch_d_cd_expand_title">%1$s aufklappen</string>
     <string name="presentation_batch_d_edit_artist_image_cd">Künstlerbild bearbeiten</string>
+    <string name="presentation_batch_d_change_photo">Foto ändern</string>
     <string name="presentation_batch_d_reset_to_default">Auf Standard zurücksetzen</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">Künstler mischen</string>
     <string name="presentation_batch_d_cd_artist">Künstler</string>

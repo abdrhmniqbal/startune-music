@@ -138,6 +138,18 @@
     <string name="cd_shuffle_play_album">Bland album</string>
     <string name="album_cover_for">Cover for %1$s</string>
     <string name="album_detail_meta_line">%1$s • %2$s</string>
+    <string name="detail_hero_shuffle">Bland</string>
+    <string name="detail_hero_play">Spill av</string>
+    <string name="detail_hero_pause">Pause</string>
+    <string name="detail_hero_resume">Fortsett</string>
+    <string name="detail_hero_more_actions">Flere handlinger</string>
+    <string name="detail_hero_add_to_playlist">Legg til i spilleliste</string>
+    <string name="detail_hero_play_next">Spill neste</string>
+    <string name="detail_hero_add_to_queue">Legg til i kø</string>
+    <string name="detail_hero_album_count_many">%1$d album</string>
+    <string name="detail_hero_album_count_one">1 album</string>
+    <string name="detail_hero_duration_minutes">%1$d min</string>
+    <string name="detail_hero_duration_hours">%1$d t %2$d min</string>
     <string name="mashup_cd_play_pause">Spill/Pause</string>
     <string name="cd_song_cover">Sangcover</string>
 

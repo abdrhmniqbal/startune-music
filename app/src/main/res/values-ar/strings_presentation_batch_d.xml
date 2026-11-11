@@ -59,6 +59,7 @@
     <string name="presentation_batch_d_playlist_view">عرض قوائم التشغيل</string>
     <string name="presentation_batch_d_reorder_tabs_cd">إعادة ترتيب علامات التبويب</string>
     <string name="presentation_batch_d_reorder_tabs_label">إعادة ترتيب علامات التبويب</string>
+    <string name="presentation_batch_d_change_photo">تغيير الصورة</string>
     <string name="presentation_batch_d_reset_to_default">إعادة تعيين للوضع الافتراضي</string>
     <string name="presentation_batch_d_sd_card_unavailable">بطاقة SD غير متاحة حالياً.</string>
     <string name="presentation_batch_d_sort_by">فرز حسب</string>

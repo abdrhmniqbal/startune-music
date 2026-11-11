@@ -123,6 +123,7 @@
     <string name="presentation_batch_d_cd_collapse_title">Ciutkan %1$s</string>
     <string name="presentation_batch_d_cd_expand_title">Perluas %1$s</string>
     <string name="presentation_batch_d_edit_artist_image_cd">Edit gambar artis</string>
+    <string name="presentation_batch_d_change_photo">Ubah foto</string>
     <string name="presentation_batch_d_reset_to_default">Reset ke default</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">Putar acak artis</string>
     <string name="presentation_batch_d_cd_artist">Artis</string>

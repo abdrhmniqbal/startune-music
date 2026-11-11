@@ -123,6 +123,7 @@
     <string name="presentation_batch_d_cd_collapse_title">Collapse %1$s</string>
     <string name="presentation_batch_d_cd_expand_title">Expand %1$s</string>
     <string name="presentation_batch_d_edit_artist_image_cd">Edit artist image</string>
+    <string name="presentation_batch_d_change_photo">Change photo</string>
     <string name="presentation_batch_d_reset_to_default">Reset to default</string>
     <string name="presentation_batch_d_select_artwork">Select artwork</string>
     <string name="presentation_batch_d_search_deezer_hint">Search artist on Deezer...</string>
