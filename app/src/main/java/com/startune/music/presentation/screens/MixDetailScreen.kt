@@ -65,6 +65,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.startune.music.ui.theme.LocalStartuneDarkTheme
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -150,6 +151,27 @@ fun MixDetailScreen(
         isUserMix -> playlistUiState.currentPlaylistSongs.toImmutableList()
         else -> playerViewModel.dailyMixSongs.collectAsStateWithLifecycle().value
     }
+
+    // Page colors come from the mix artwork: the custom cover image
+    // when set, otherwise the first song art of the header collage.
+    // A solid custom cover color has no image, so the page keeps
+    // the default colors.
+    val isDarkTheme = LocalStartuneDarkTheme.current
+    val baseColorScheme = MaterialTheme.colorScheme
+    val useArtworkColorForDetails by playerViewModel.useArtworkColorForDetails.collectAsStateWithLifecycle()
+    val mixArtUri = remember(userMix, mixSongs) {
+        userMix?.coverImageUri?.takeIf { it.isNotBlank() }
+            ?: mixSongs.firstNotNullOfOrNull { it.albumArtUriString?.takeIf { uri -> uri.isNotBlank() } }
+    }
+    val mixColorSchemeFlow = remember(mixArtUri) {
+        mixArtUri?.let { playerViewModel.themeStateHolder.getAlbumColorSchemeFlow(it) }
+    }
+    val mixColorSchemePair = mixColorSchemeFlow?.collectAsStateWithLifecycle()?.value
+    val mixColorScheme = remember(mixColorSchemePair, isDarkTheme, baseColorScheme, useArtworkColorForDetails) {
+        if (!useArtworkColorForDetails) baseColorScheme
+        else mixColorSchemePair?.let { pair -> if (isDarkTheme) pair.dark else pair.light }
+            ?: baseColorScheme
+    }
     val shuffleLabel = stringResource(R.string.shortcut_shuffle_short)
     val playlistCreatedToast = stringResource(R.string.playlist_created_songs_added_toast)
     val forYouMixSongCount by playerViewModel.forYouMixSongCount.collectAsStateWithLifecycle()
@@ -186,486 +208,492 @@ fun MixDetailScreen(
 
     var showSongInfoSheet by remember { mutableStateOf(false) }
 
-    val surfaceContainer = MaterialTheme.colorScheme.surface
-    val headerColor = MaterialTheme.colorScheme.primary
-    val backgroundBrush = remember(surfaceContainer, headerColor) {
-        Brush.verticalGradient(
-            colors = listOf(
-                headerColor.copy(alpha = 0.25f),
-                surfaceContainer.copy(alpha = 0.5f),
-                surfaceContainer
-            ),
-            endY = 1200f
-        )
-    }
-
-    if (showSongInfoSheet && selectedSongForInfo != null) {
-        val song = selectedSongForInfo!!
-        val removeFromListTrigger = remember(mixSongs) {
-            {
-                when {
-                    isForYouMix -> playerViewModel.removeFromYourMix(song.id)
-                    isUserMix -> playlistViewModel.removeSongFromMix(mixId, song.id)
-                    else -> playerViewModel.removeFromDailyMix(song.id)
-                }
-            }
-        }
-        SongInfoBottomSheet(
-            song = song,
-            isFavorite = favoriteSongIds.contains(song.id),
-            onToggleFavorite = { playerViewModel.toggleFavoriteSpecificSong(song) },
-            onDismiss = { showSongInfoSheet = false },
-            onPlaySong = {
-                playerViewModel.showAndPlaySong(song, mixSongs, mixTitle, isVoluntaryPlay = false)
-                showSongInfoSheet = false
-            },
-            onAddToQueue = {
-                playerViewModel.addSongToQueue(song)
-                showSongInfoSheet = false
-            },
-            onAddNextToQueue = {
-                playerViewModel.addSongNextToQueue(song)
-                showSongInfoSheet = false
-            },
-            onAddToPlayList = {
-                showPlaylistBottomSheet = true;
-            },
-            onDeleteFromDevice = playerViewModel::deleteFromDevice,
-            onNavigateToAlbum = {
-                navController.navigateSafely(Screen.AlbumDetail.createRoute(song.albumId))
-                showSongInfoSheet = false
-            },
-            onNavigateToArtist = {
-                navController.navigateSafely(Screen.ArtistDetail.createRoute(song.artistId))
-                showSongInfoSheet = false
-            },
-            onNavigateToArtistById = { artistId ->
-                navController.navigateSafely(Screen.ArtistDetail.createRoute(artistId))
-                showSongInfoSheet = false
-            },
-            onNavigateToGenre = {
-                song.genre?.let {
-                    navController.navigateSafely(Screen.GenreDetail.createRoute(java.net.URLEncoder.encode(it, "UTF-8")))
-                }
-                showSongInfoSheet = false
-            },
-            onEditSong = { newTitle, newArtist, newAlbum, newAlbumArtist, newComposer, newGenre, newLyrics, newTrackNumber, newDiscNumber, replayGainTrackGainDb, replayGainAlbumGainDb, coverArtUpdate, customMetadataChanges ->
-                playerViewModel.editSongMetadata(
-                    song,
-                    newTitle,
-                    newArtist,
-                    newAlbum,
-                    newAlbumArtist,
-                    newComposer,
-                    newGenre,
-                    newLyrics,
-                    newTrackNumber,
-                    newDiscNumber,
-                    replayGainTrackGainDb,
-                    replayGainAlbumGainDb,
-                    coverArtUpdate,
-                    customMetadataChanges
-                )
-            },
-            removeFromListTrigger = removeFromListTrigger,
-            onRemoveFromList = {
-                when {
-                    isForYouMix -> playerViewModel.removeFromYourMix(song.id)
-                    isUserMix -> playlistViewModel.removeSongFromMix(mixId, song.id)
-                    else -> playerViewModel.removeFromDailyMix(song.id)
-                }
-            },
-            removeFromListLabel = stringResource(R.string.mix_remove_from_mix)
-        )
-
-        if (showPlaylistBottomSheet) {
-            val playlistUiState by playlistViewModel.uiState.collectAsStateWithLifecycle()
-
-            PlaylistBottomSheet(
-                playlistUiState = playlistUiState,
-                songs = persistentListOf(song),
-                onDismiss = { showPlaylistBottomSheet = false },
-                bottomBarHeight = bottomBarHeightDp,
-                playerViewModel = playerViewModel,
+    MaterialTheme(
+        colorScheme = mixColorScheme,
+        typography = MaterialTheme.typography,
+        shapes = MaterialTheme.shapes
+    ) {
+        val surfaceContainer = MaterialTheme.colorScheme.surface
+        val headerColor = MaterialTheme.colorScheme.primary
+        val backgroundBrush = remember(surfaceContainer, headerColor) {
+            Brush.verticalGradient(
+                colors = listOf(
+                    headerColor.copy(alpha = 0.25f),
+                    surfaceContainer.copy(alpha = 0.5f),
+                    surfaceContainer
+                ),
+                endY = 1200f
             )
         }
-    }
 
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundBrush)
-    ) {
-        if (mixSongs.isEmpty() && (!isUserMix || playlistUiState.isLoading)) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                ContainedLoadingIndicator()
-            }
-        } else {
-            LazyColumn(
-                state = lazyListState,
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                item(key = "mix_header") {
-                    ExpressiveMixDetailHeader(
-                        title = mixTitle,
-                        songs = mixSongs,
-                        scrollState = lazyListState,
-                        coverImageUri = userMix?.coverImageUri,
-                        coverColorArgb = userMix?.coverColorArgb,
-                        coverIconName = userMix?.coverIconName,
-                        shuffleLabel = shuffleLabel,
-                        onShuffleClick = {
-                            if (mixSongs.isNotEmpty()) {
-                                playerViewModel.playSongsShuffled(
-                                    songsToPlay = mixSongs,
-                                    queueName = mixTitle,
-                                    startAtZero = true,
-                                )
-                            }
-                        }
-                    )
+        if (showSongInfoSheet && selectedSongForInfo != null) {
+            val song = selectedSongForInfo!!
+            val removeFromListTrigger = remember(mixSongs) {
+                {
+                    when {
+                        isForYouMix -> playerViewModel.removeFromYourMix(song.id)
+                        isUserMix -> playlistViewModel.removeSongFromMix(mixId, song.id)
+                        else -> playerViewModel.removeFromDailyMix(song.id)
+                    }
                 }
+            }
+            SongInfoBottomSheet(
+                song = song,
+                isFavorite = favoriteSongIds.contains(song.id),
+                onToggleFavorite = { playerViewModel.toggleFavoriteSpecificSong(song) },
+                onDismiss = { showSongInfoSheet = false },
+                onPlaySong = {
+                    playerViewModel.showAndPlaySong(song, mixSongs, mixTitle, isVoluntaryPlay = false)
+                    showSongInfoSheet = false
+                },
+                onAddToQueue = {
+                    playerViewModel.addSongToQueue(song)
+                    showSongInfoSheet = false
+                },
+                onAddNextToQueue = {
+                    playerViewModel.addSongNextToQueue(song)
+                    showSongInfoSheet = false
+                },
+                onAddToPlayList = {
+                    showPlaylistBottomSheet = true;
+                },
+                onDeleteFromDevice = playerViewModel::deleteFromDevice,
+                onNavigateToAlbum = {
+                    navController.navigateSafely(Screen.AlbumDetail.createRoute(song.albumId))
+                    showSongInfoSheet = false
+                },
+                onNavigateToArtist = {
+                    navController.navigateSafely(Screen.ArtistDetail.createRoute(song.artistId))
+                    showSongInfoSheet = false
+                },
+                onNavigateToArtistById = { artistId ->
+                    navController.navigateSafely(Screen.ArtistDetail.createRoute(artistId))
+                    showSongInfoSheet = false
+                },
+                onNavigateToGenre = {
+                    song.genre?.let {
+                        navController.navigateSafely(Screen.GenreDetail.createRoute(java.net.URLEncoder.encode(it, "UTF-8")))
+                    }
+                    showSongInfoSheet = false
+                },
+                onEditSong = { newTitle, newArtist, newAlbum, newAlbumArtist, newComposer, newGenre, newLyrics, newTrackNumber, newDiscNumber, replayGainTrackGainDb, replayGainAlbumGainDb, coverArtUpdate, customMetadataChanges ->
+                    playerViewModel.editSongMetadata(
+                        song,
+                        newTitle,
+                        newArtist,
+                        newAlbum,
+                        newAlbumArtist,
+                        newComposer,
+                        newGenre,
+                        newLyrics,
+                        newTrackNumber,
+                        newDiscNumber,
+                        replayGainTrackGainDb,
+                        replayGainAlbumGainDb,
+                        coverArtUpdate,
+                        customMetadataChanges
+                    )
+                },
+                removeFromListTrigger = removeFromListTrigger,
+                onRemoveFromList = {
+                    when {
+                        isForYouMix -> playerViewModel.removeFromYourMix(song.id)
+                        isUserMix -> playlistViewModel.removeSongFromMix(mixId, song.id)
+                        else -> playerViewModel.removeFromDailyMix(song.id)
+                    }
+                },
+                removeFromListLabel = stringResource(R.string.mix_remove_from_mix)
+            )
 
-                item(key = "mix_selection_row") {
-                    AnimatedVisibility(
-                        visible = isSelectionMode,
-                        enter = expandVertically() + fadeIn(),
-                        exit = shrinkVertically() + fadeOut()
-                    ) {
-                        SelectionActionRow(
-                            selectedCount = selectedSongs.size,
-                            onSelectAll = { multiSelectionState.selectAll(mixSongs) },
-                            onDeselect = { multiSelectionState.clearSelection() },
-                            onOptionsClick = { showMultiSelectionSheet = true },
-                            modifier = Modifier.padding(horizontal = 12.dp)
+            if (showPlaylistBottomSheet) {
+                val playlistUiState by playlistViewModel.uiState.collectAsStateWithLifecycle()
+
+                PlaylistBottomSheet(
+                    playlistUiState = playlistUiState,
+                    songs = persistentListOf(song),
+                    onDismiss = { showPlaylistBottomSheet = false },
+                    bottomBarHeight = bottomBarHeightDp,
+                    playerViewModel = playerViewModel,
+                )
+            }
+        }
+
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundBrush)
+        ) {
+            if (mixSongs.isEmpty() && (!isUserMix || playlistUiState.isLoading)) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ContainedLoadingIndicator()
+                }
+            } else {
+                LazyColumn(
+                    state = lazyListState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    item(key = "mix_header") {
+                        ExpressiveMixDetailHeader(
+                            title = mixTitle,
+                            songs = mixSongs,
+                            scrollState = lazyListState,
+                            coverImageUri = userMix?.coverImageUri,
+                            coverColorArgb = userMix?.coverColorArgb,
+                            coverIconName = userMix?.coverIconName,
+                            shuffleLabel = shuffleLabel,
+                            onShuffleClick = {
+                                if (mixSongs.isNotEmpty()) {
+                                    playerViewModel.playSongsShuffled(
+                                        songsToPlay = mixSongs,
+                                        queueName = mixTitle,
+                                        startAtZero = true,
+                                    )
+                                }
+                            }
+                        )
+                    }
+
+                    item(key = "mix_selection_row") {
+                        AnimatedVisibility(
+                            visible = isSelectionMode,
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut()
+                        ) {
+                            SelectionActionRow(
+                                selectedCount = selectedSongs.size,
+                                onSelectAll = { multiSelectionState.selectAll(mixSongs) },
+                                onDeselect = { multiSelectionState.clearSelection() },
+                                onOptionsClick = { showMultiSelectionSheet = true },
+                                modifier = Modifier.padding(horizontal = 12.dp)
+                            )
+                        }
+                    }
+
+                    items(mixSongs, key = { it.id }) { song ->
+                        EnhancedSongListItem(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp),
+                            song = song,
+                            isCurrentSong = currentSongId == song.id,
+                            isPlaying = currentSongId == song.id && isPlaying,
+                            isSelected = selectedSongIds.contains(song.id),
+                            selectionIndex = if (isSelectionMode) multiSelectionState.getSelectionIndex(song.id) else null,
+                            isSelectionMode = isSelectionMode,
+                            onLongPress = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                multiSelectionState.toggleSelection(song)
+                            },
+                            onClick = {
+                                if (isSelectionMode) {
+                                    multiSelectionState.toggleSelection(song)
+                                } else {
+                                    playerViewModel.showAndPlaySong(song, mixSongs, mixTitle, isVoluntaryPlay = false)
+                                }
+                            },
+                            onMoreOptionsClick = {
+                                playerViewModel.selectSongForInfo(song)
+                                showSongInfoSheet = true
+                            },
+                            onRemoveClick = {
+                                when {
+                                    isForYouMix -> playerViewModel.removeFromYourMix(song.id)
+                                    isUserMix -> playlistViewModel.removeSongFromMix(mixId, song.id)
+                                    else -> playerViewModel.removeFromDailyMix(song.id)
+                                }
+                            },
+                            isRemoveButtonVisible = isRemoveModeEnabled && !isSelectionMode
                         )
                     }
                 }
-
-                items(mixSongs, key = { it.id }) { song ->
-                    EnhancedSongListItem(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp),
-                        song = song,
-                        isCurrentSong = currentSongId == song.id,
-                        isPlaying = currentSongId == song.id && isPlaying,
-                        isSelected = selectedSongIds.contains(song.id),
-                        selectionIndex = if (isSelectionMode) multiSelectionState.getSelectionIndex(song.id) else null,
-                        isSelectionMode = isSelectionMode,
-                        onLongPress = {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            multiSelectionState.toggleSelection(song)
-                        },
-                        onClick = {
-                            if (isSelectionMode) {
-                                multiSelectionState.toggleSelection(song)
-                            } else {
-                                playerViewModel.showAndPlaySong(song, mixSongs, mixTitle, isVoluntaryPlay = false)
-                            }
-                        },
-                        onMoreOptionsClick = {
-                            playerViewModel.selectSongForInfo(song)
-                            showSongInfoSheet = true
-                        },
-                        onRemoveClick = {
-                            when {
-                                isForYouMix -> playerViewModel.removeFromYourMix(song.id)
-                                isUserMix -> playlistViewModel.removeSongFromMix(mixId, song.id)
-                                else -> playerViewModel.removeFromDailyMix(song.id)
-                            }
-                        },
-                        isRemoveButtonVisible = isRemoveModeEnabled && !isSelectionMode
-                    )
-                }
             }
-        }
 
-        FilledIconButton(
-            onClick = { navController.popBackStack() },
-            colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ),
-            modifier = Modifier
-                .statusBarsPadding()
-                .padding(start = 10.dp, top = 8.dp)
-                .clip(CircleShape)
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                contentDescription = stringResource(R.string.auth_cd_back)
-            )
-        }
-
-        if (isForYouMix || isUserMix) {
             FilledIconButton(
-                onClick = {
-                    if (isRemoveModeEnabled) {
-                        isRemoveModeEnabled = false
-                    } else {
-                        showMixOptionsSheet = true
-                    }
-                },
+                onClick = { navController.popBackStack() },
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     contentColor = MaterialTheme.colorScheme.onSurface
                 ),
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
                     .statusBarsPadding()
-                    .padding(end = 10.dp, top = 8.dp)
+                    .padding(start = 10.dp, top = 8.dp)
                     .clip(CircleShape)
             ) {
-                if (isRemoveModeEnabled) {
-                    Icon(
-                        imageVector = Icons.Rounded.Check,
-                        contentDescription = stringResource(R.string.confirm)
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Filled.MoreVert,
-                        contentDescription = stringResource(R.string.presentation_batch_b_more_options)
-                    )
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                    contentDescription = stringResource(R.string.auth_cd_back)
+                )
+            }
+
+            if (isForYouMix || isUserMix) {
+                FilledIconButton(
+                    onClick = {
+                        if (isRemoveModeEnabled) {
+                            isRemoveModeEnabled = false
+                        } else {
+                            showMixOptionsSheet = true
+                        }
+                    },
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .statusBarsPadding()
+                        .padding(end = 10.dp, top = 8.dp)
+                        .clip(CircleShape)
+                ) {
+                    if (isRemoveModeEnabled) {
+                        Icon(
+                            imageVector = Icons.Rounded.Check,
+                            contentDescription = stringResource(R.string.confirm)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = stringResource(R.string.presentation_batch_b_more_options)
+                        )
+                    }
                 }
             }
-        }
 
-        SelectionCountPill(
-            selectedCount = selectedSongs.size,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .zIndex(1f)
-        )
+            SelectionCountPill(
+                selectedCount = selectedSongs.size,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .zIndex(1f)
+            )
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .height(80.dp)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            MaterialTheme.colorScheme.surfaceContainerLowest.copy(0.5f),
-                            MaterialTheme.colorScheme.surfaceContainerLowest
-                        )
-                    )
-                )
-        ) {
-
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.TopCenter)
-                .height(50.dp)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.surfaceContainerLowest.copy(0.5f),
-                            Color.Transparent,
-                        )
-                    )
-                )
-        ) {
-
-        }
-
-        ExpressiveScrollBar(
-            listState = lazyListState,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(
-                    top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 56.dp,
-                    bottom = if (currentSongId != null) MiniPlayerHeight + systemNavBarInset + 20.dp else systemNavBarInset + 16.dp,
-                    end = 14.dp
-                )
-        )
-    }
-
-    if (showMixOptionsSheet && (isForYouMix || isUserMix)) {
-        val sheetState = rememberModalSheetState(skipPartiallyExpanded = true)
-
-        ModalBottomSheet(
-            onDismissRequest = { showMixOptionsSheet = false },
-            sheetState = sheetState,
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-            tonalElevation = 4.dp,
-        ) {
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 12.dp)
+                    .align(Alignment.BottomCenter)
+                    .height(80.dp)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                MaterialTheme.colorScheme.surfaceContainerLowest.copy(0.5f),
+                                MaterialTheme.colorScheme.surfaceContainerLowest
+                            )
+                        )
+                    )
             ) {
-                Text(
-                    text = mixTitle,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
+
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)
+                    .height(50.dp)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.surfaceContainerLowest.copy(0.5f),
+                                Color.Transparent,
+                            )
+                        )
+                    )
+            ) {
+
+            }
+
+            ExpressiveScrollBar(
+                listState = lazyListState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 56.dp,
+                        bottom = if (currentSongId != null) MiniPlayerHeight + systemNavBarInset + 20.dp else systemNavBarInset + 16.dp,
+                        end = 14.dp
+                    )
+            )
+        }
+
+        if (showMixOptionsSheet && (isForYouMix || isUserMix)) {
+            val sheetState = rememberModalSheetState(skipPartiallyExpanded = true)
+
+            ModalBottomSheet(
+                onDismissRequest = { showMixOptionsSheet = false },
+                sheetState = sheetState,
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                tonalElevation = 4.dp,
+            ) {
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 8.dp)
-                )
-                MixOptionsItem(
-                    icon = painterResource(R.drawable.rounded_edit_24),
-                    label = stringResource(R.string.mix_edit_title),
-                    onClick = {
-                        showMixOptionsSheet = false
-                        showEditMixForm = true
-                    }
-                )
-                MixOptionsItem(
-                    icon = rememberVectorPainter(Icons.Filled.RemoveCircleOutline),
-                    label = stringResource(R.string.presentation_batch_b_remove_songs),
-                    selected = isRemoveModeEnabled,
-                    onClick = {
-                        showMixOptionsSheet = false
-                        isRemoveModeEnabled = !isRemoveModeEnabled
-                    }
-                )
-                MixOptionsItem(
-                    icon = painterResource(R.drawable.outline_graph_1_24),
-                    label = stringResource(R.string.presentation_batch_b_set_default_transition),
-                    onClick = {
-                        showMixOptionsSheet = false
-                        navController.navigateSafely(Screen.EditTransition.createRoute(mixId))
-                    }
-                )
-                MixOptionsItem(
-                    icon = rememberVectorPainter(Icons.Filled.LibraryAdd),
-                    label = stringResource(R.string.presentation_batch_e_action_save_as_playlist),
-                    onClick = {
-                        showMixOptionsSheet = false
-                        showSaveAsPlaylistSheet = true
-                    }
-                )
-                if (isUserMix) {
+                        .padding(vertical = 12.dp)
+                ) {
+                    Text(
+                        text = mixTitle,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 8.dp)
+                    )
                     MixOptionsItem(
-                        icon = painterResource(R.drawable.rounded_delete_24),
-                        label = stringResource(R.string.mix_delete_title),
+                        icon = painterResource(R.drawable.rounded_edit_24),
+                        label = stringResource(R.string.mix_edit_title),
                         onClick = {
                             showMixOptionsSheet = false
-                            showDeleteConfirmation = true
+                            showEditMixForm = true
                         }
                     )
+                    MixOptionsItem(
+                        icon = rememberVectorPainter(Icons.Filled.RemoveCircleOutline),
+                        label = stringResource(R.string.presentation_batch_b_remove_songs),
+                        selected = isRemoveModeEnabled,
+                        onClick = {
+                            showMixOptionsSheet = false
+                            isRemoveModeEnabled = !isRemoveModeEnabled
+                        }
+                    )
+                    MixOptionsItem(
+                        icon = painterResource(R.drawable.outline_graph_1_24),
+                        label = stringResource(R.string.presentation_batch_b_set_default_transition),
+                        onClick = {
+                            showMixOptionsSheet = false
+                            navController.navigateSafely(Screen.EditTransition.createRoute(mixId))
+                        }
+                    )
+                    MixOptionsItem(
+                        icon = rememberVectorPainter(Icons.Filled.LibraryAdd),
+                        label = stringResource(R.string.presentation_batch_e_action_save_as_playlist),
+                        onClick = {
+                            showMixOptionsSheet = false
+                            showSaveAsPlaylistSheet = true
+                        }
+                    )
+                    if (isUserMix) {
+                        MixOptionsItem(
+                            icon = painterResource(R.drawable.rounded_delete_24),
+                            label = stringResource(R.string.mix_delete_title),
+                            onClick = {
+                                showMixOptionsSheet = false
+                                showDeleteConfirmation = true
+                            }
+                        )
+                    }
                 }
             }
         }
-    }
 
-    if (showSaveAsPlaylistSheet) {
-        SaveQueueAsPlaylistSheet(
-            songs = mixSongs,
-            defaultName = mixTitle,
-            onDismiss = { showSaveAsPlaylistSheet = false },
-            onConfirm = { name, selectedIds ->
-                val orderedSelection = mixSongs
-                    .filter { selectedIds.contains(it.id) }
-                    .map { it.id }
-                if (orderedSelection.isNotEmpty()) {
-                    playlistViewModel.createPlaylist(
-                        name = name,
-                        songIds = orderedSelection
-                    )
-                    playerViewModel.sendToast(playlistCreatedToast)
-                }
-                showSaveAsPlaylistSheet = false
-            }
-        )
-    }
-
-    if (showEditMixForm && isUserMix && userMix != null) {
-        EditMixForm(
-            visible = true,
-            initial = MixFormInitial(
-                name = userMix.name,
-                rule = MixRule.fromPlaylistSource(userMix.source) ?: MixRule.TOP_PLAYED,
-                songCount = userMix.mixSongCount ?: 60,
-                artistIds = userMix.mixArtistIds ?: emptyList(),
-                coverImageUri = userMix.coverImageUri,
-                coverColorArgb = userMix.coverColorArgb,
-                coverIconName = userMix.coverIconName
-            ),
-            onDismiss = { showEditMixForm = false },
-            onSave = { name, rule, count, artistIds, imageUri, color, icon, scale, panX, panY ->
-                playlistViewModel.updateMix(
-                    playlistId = mixId,
-                    name = name,
-                    rule = rule,
-                    songCount = count,
-                    artistIds = artistIds,
-                    coverImageUri = imageUri,
-                    coverColor = color,
-                    coverIcon = icon,
-                    cropScale = scale,
-                    cropPanX = panX,
-                    cropPanY = panY
-                )
-                showEditMixForm = false
-            },
-            playerViewModel = playerViewModel
-        )
-    }
-
-    if (showEditMixForm && isForYouMix) {
-        EditMixForm(
-            visible = true,
-            isForYouMix = true,
-            initial = MixFormInitial(songCount = forYouMixSongCount),
-            onDismiss = { showEditMixForm = false },
-            onSave = { _, _, count, _, _, _, _, _, _, _ ->
-                playerViewModel.setForYouMixSongCount(count)
-                showEditMixForm = false
-            },
-            playerViewModel = playerViewModel
-        )
-    }
-
-    if (showDeleteConfirmation && isUserMix && userMix != null) {
-        AlertDialog(
-            onDismissRequest = { showDeleteConfirmation = false },
-            title = { Text(stringResource(R.string.mix_delete_confirm_title)) },
-            text = { Text(stringResource(R.string.mix_delete_confirm_body)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        playlistViewModel.deletePlaylist(mixId)
-                        navController.popBackStack()
-                        showDeleteConfirmation = false
+        if (showSaveAsPlaylistSheet) {
+            SaveQueueAsPlaylistSheet(
+                songs = mixSongs,
+                defaultName = mixTitle,
+                onDismiss = { showSaveAsPlaylistSheet = false },
+                onConfirm = { name, selectedIds ->
+                    val orderedSelection = mixSongs
+                        .filter { selectedIds.contains(it.id) }
+                        .map { it.id }
+                    if (orderedSelection.isNotEmpty()) {
+                        playlistViewModel.createPlaylist(
+                            name = name,
+                            songIds = orderedSelection
+                        )
+                        playerViewModel.sendToast(playlistCreatedToast)
                     }
-                ) {
-                    Text(stringResource(R.string.delete_action), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    showSaveAsPlaylistSheet = false
+                }
+            )
+        }
+
+        if (showEditMixForm && isUserMix && userMix != null) {
+            EditMixForm(
+                visible = true,
+                initial = MixFormInitial(
+                    name = userMix.name,
+                    rule = MixRule.fromPlaylistSource(userMix.source) ?: MixRule.TOP_PLAYED,
+                    songCount = userMix.mixSongCount ?: 60,
+                    artistIds = userMix.mixArtistIds ?: emptyList(),
+                    coverImageUri = userMix.coverImageUri,
+                    coverColorArgb = userMix.coverColorArgb,
+                    coverIconName = userMix.coverIconName
+                ),
+                onDismiss = { showEditMixForm = false },
+                onSave = { name, rule, count, artistIds, imageUri, color, icon, scale, panX, panY ->
+                    playlistViewModel.updateMix(
+                        playlistId = mixId,
+                        name = name,
+                        rule = rule,
+                        songCount = count,
+                        artistIds = artistIds,
+                        coverImageUri = imageUri,
+                        coverColor = color,
+                        coverIcon = icon,
+                        cropScale = scale,
+                        cropPanX = panX,
+                        cropPanY = panY
+                    )
+                    showEditMixForm = false
+                },
+                playerViewModel = playerViewModel
+            )
+        }
+
+        if (showEditMixForm && isForYouMix) {
+            EditMixForm(
+                visible = true,
+                isForYouMix = true,
+                initial = MixFormInitial(songCount = forYouMixSongCount),
+                onDismiss = { showEditMixForm = false },
+                onSave = { _, _, count, _, _, _, _, _, _, _ ->
+                    playerViewModel.setForYouMixSongCount(count)
+                    showEditMixForm = false
+                },
+                playerViewModel = playerViewModel
+            )
+        }
+
+        if (showDeleteConfirmation && isUserMix && userMix != null) {
+            AlertDialog(
+                onDismissRequest = { showDeleteConfirmation = false },
+                title = { Text(stringResource(R.string.mix_delete_confirm_title)) },
+                text = { Text(stringResource(R.string.mix_delete_confirm_body)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            playlistViewModel.deletePlaylist(mixId)
+                            navController.popBackStack()
+                            showDeleteConfirmation = false
+                        }
+                    ) {
+                        Text(stringResource(R.string.delete_action), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteConfirmation = false }) {
+                        Text(stringResource(R.string.cancel), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                }
+            )
+        }
+
+        SongMultiSelectionHost(
+            playerViewModel = playerViewModel,
+            multiSelectionState = multiSelectionState,
+            showSheet = showMultiSelectionSheet,
+            onDismiss = { showMultiSelectionSheet = false },
+            onRemoveFromList = {
+                val ids = selectedSongs.map { it.id }
+                when {
+                    isForYouMix -> playerViewModel.removeSongsFromYourMix(ids)
+                    isUserMix -> playlistViewModel.removeSongsFromMix(mixId, ids)
+                    else -> playerViewModel.removeSongsFromDailyMix(ids)
                 }
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteConfirmation = false }) {
-                    Text(stringResource(R.string.cancel), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
-            }
+            removeFromListLabel = stringResource(R.string.mix_remove_from_mix)
         )
     }
-
-    SongMultiSelectionHost(
-        playerViewModel = playerViewModel,
-        multiSelectionState = multiSelectionState,
-        showSheet = showMultiSelectionSheet,
-        onDismiss = { showMultiSelectionSheet = false },
-        onRemoveFromList = {
-            val ids = selectedSongs.map { it.id }
-            when {
-                isForYouMix -> playerViewModel.removeSongsFromYourMix(ids)
-                isUserMix -> playlistViewModel.removeSongsFromMix(mixId, ids)
-                else -> playerViewModel.removeSongsFromDailyMix(ids)
-            }
-        },
-        removeFromListLabel = stringResource(R.string.mix_remove_from_mix)
-    )
 }
 
 
