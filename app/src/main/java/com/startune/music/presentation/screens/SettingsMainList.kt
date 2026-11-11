@@ -43,7 +43,7 @@ internal val SettingsCategory.iconTone: SettingsIconTone
         SettingsCategory.APPEARANCE -> SettingsIconTone.TERTIARY
         SettingsCategory.PLAYBACK -> SettingsIconTone.SECONDARY
         SettingsCategory.NOTIFICATIONS -> SettingsIconTone.PRIMARY
-        SettingsCategory.BEHAVIOR -> SettingsIconTone.PRIMARY
+        SettingsCategory.BEHAVIOR -> SettingsIconTone.SECONDARY
         SettingsCategory.DATA_STORAGE -> SettingsIconTone.TERTIARY
         SettingsCategory.DEVELOPER -> SettingsIconTone.SECONDARY
         SettingsCategory.EQUALIZER -> SettingsIconTone.TERTIARY
@@ -80,7 +80,7 @@ internal sealed interface MainSettingsEntry {
             titleRes = R.string.settings_accounts_row_title,
             subtitleRes = R.string.settings_accounts_row_subtitle,
             icon = Icons.Rounded.AccountCircle,
-            iconTone = SettingsIconTone.TERTIARY,
+            iconTone = SettingsIconTone.PRIMARY,
             route = Screen.Accounts.createRoute()
         )
     }
