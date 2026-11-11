@@ -408,9 +408,6 @@ Backslash (\) can be used to escape character delimiters.</string>
     <string name="presentation_batch_g_album_sel_add_queue_play">Add to Queue &amp; Play</string>
     <string name="presentation_batch_g_app_name" translatable="false">Startune Music</string>
     <string name="presentation_batch_g_app_tagline">Music Player</string>
-    <string name="sidebar_edit_shortcuts">Edit shortcuts</string>
-    <string name="sidebar_shortcuts_dialog_title">Sidebar shortcuts</string>
-    <string name="sidebar_open">Open menu</string>
     <string name="presentation_batch_g_brick_high">HIGH %1$d</string>
     <string name="presentation_batch_g_brick_cd_close">Close</string>
     <string name="presentation_batch_g_brick_stat_score">SCORE</string>

@@ -137,7 +137,6 @@ fun HomeScreen(
     playerViewModel: PlayerViewModel = sharedPlayerViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel(),
     streamingLoginViewModel: StreamingProviderLoginViewModel = hiltViewModel(),
-    onOpenSidebar: () -> Unit
 ) {
     val context = LocalContext.current
     val isBenchmarkMode = remember {
@@ -373,7 +372,6 @@ fun HomeScreen(
                     onStreamingClick = {
                           showStreamingProviderSheet = true
                     },
-                    onMenuClick = onOpenSidebar,
                     isScrolled = isScrolledPastThreshold.value
                 )
             }

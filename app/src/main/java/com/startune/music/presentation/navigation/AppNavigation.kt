@@ -89,7 +89,6 @@ fun AppNavigation(
     paddingValues: PaddingValues,
     userPreferencesRepository: UserPreferencesRepository,
     onSearchBarActiveChange: (Boolean) -> Unit,
-    onOpenSidebar: () -> Unit
 ) {
     var startDestination by remember { mutableStateOf<String?>(null) }
 
@@ -140,7 +139,6 @@ fun AppNavigation(
                         navController = navController, 
                         paddingValuesParent = paddingValues, 
                         playerViewModel = playerViewModel,
-                        onOpenSidebar = onOpenSidebar
                     )
                 }
             }
@@ -848,7 +846,6 @@ fun AppNavigation(
                 AudioBookmarksScreen(
                     navController = navController,
                     playerViewModel = playerViewModel,
-                    onOpenSidebar = onOpenSidebar
                 )
             }
             composable(
