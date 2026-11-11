@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
@@ -93,12 +95,16 @@ fun RecentlyPlayedSection(
             }
         }
 
+        val listState = rememberLazyListState()
+
         LazyRow(
+            state = listState,
             contentPadding = contentPadding,
             horizontalArrangement = Arrangement.spacedBy(HomeRecentlyPlayedCardSpacing)
         ) {
-            items(visibleSongs, key = { it.song.id }) { item ->
+            itemsIndexed(visibleSongs, key = { _, item -> item.song.id }) { index, item ->
                 RecentlyPlayedGridCard(
+                    modifier = Modifier.carouselItemScale(listState, index),
                     item = item,
                     isCurrentSong = currentSongId == item.song.id,
                     isPlaying = isPlaying,
@@ -112,6 +118,7 @@ fun RecentlyPlayedSection(
 
 @Composable
 internal fun RecentlyPlayedGridCard(
+    modifier: Modifier = Modifier,
     item: RecentlyPlayedSongUiModel,
     isCurrentSong: Boolean,
     isPlaying: Boolean,
@@ -119,7 +126,7 @@ internal fun RecentlyPlayedGridCard(
     onLongClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .width(HomeRecentlyPlayedCardWidth)
             // Cards have no more-options button, so a long press opens the song options.
             // combinedClickable performs the long-press haptic itself.

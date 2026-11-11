@@ -97,6 +97,7 @@ import com.startune.music.data.model.Album
 import com.startune.music.data.model.Song
 import com.startune.music.data.model.SortOption
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.carouselItemScale
 import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.PlaylistBottomSheet
@@ -531,21 +532,23 @@ fun ArtistDetailScreen(
                                 key = "artist_albums_row",
                                 contentType = "artist_albums_row"
                             ) {
+                                val albumsListState = rememberLazyListState()
                                 LazyRow(
+                                    state = albumsListState,
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     contentPadding = PaddingValues(vertical = 8.dp)
                                 ) {
-                                    items(
+                                    itemsIndexed(
                                         items = albumSections,
-                                        key = { section -> "artist_album_${section.albumId}" },
-                                        contentType = { "artist_album_card" }
-                                    ) { section ->
+                                        key = { _, section -> "artist_album_${section.albumId}" },
+                                        contentType = { _, _ -> "artist_album_card" }
+                                    ) { index, section ->
                                         ArtistAlbumCard(
                                             section = section,
                                             artistName = artist.name,
                                             viewModel = viewModel,
                                             useArtworkColor = useArtworkColorForDetails,
-                                            modifier = Modifier.width(180.dp),
+                                            modifier = Modifier.width(180.dp).carouselItemScale(albumsListState, index),
                                             onClick = {
                                                 navController.navigateSafely(
                                                     Screen.AlbumDetail.createRoute(section.albumId)
@@ -577,21 +580,23 @@ fun ArtistDetailScreen(
                                 key = "artist_featured_row",
                                 contentType = "artist_albums_row"
                             ) {
+                                val featuredListState = rememberLazyListState()
                                 LazyRow(
+                                    state = featuredListState,
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     contentPadding = PaddingValues(vertical = 8.dp)
                                 ) {
-                                    items(
+                                    itemsIndexed(
                                         items = featuredOnSections,
-                                        key = { section -> "artist_featured_${section.albumId}" },
-                                        contentType = { "artist_album_card" }
-                                    ) { section ->
+                                        key = { _, section -> "artist_featured_${section.albumId}" },
+                                        contentType = { _, _ -> "artist_album_card" }
+                                    ) { index, section ->
                                         ArtistAlbumCard(
                                             section = section,
                                             artistName = artist.name,
                                             viewModel = viewModel,
                                             useArtworkColor = useArtworkColorForDetails,
-                                            modifier = Modifier.width(180.dp),
+                                            modifier = Modifier.width(180.dp).carouselItemScale(featuredListState, index),
                                             onClick = {
                                                 navController.navigateSafely(
                                                     Screen.AlbumDetail.createRoute(section.albumId)
