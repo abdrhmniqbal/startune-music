@@ -8,6 +8,7 @@ import com.startune.music.data.listenbrainz.ListenBrainzProfileStats
 import com.startune.music.data.lastfm.LastFmLoginResult
 import com.startune.music.data.lastfm.LastFmRepository
 import com.startune.music.data.listenbrainz.ListenBrainzRepository
+import com.startune.music.data.navidrome.NavidromeRepository
 import com.startune.music.data.preferences.ListenBrainzPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -34,6 +35,7 @@ private const val PROFILE_STATS_POLL_MS = 20_000L
 
 enum class ExternalServiceAccount {
     JELLYFIN,
+    NAVIDROME,
     LISTENBRAINZ,
     LASTFM
 }
@@ -100,6 +102,7 @@ data class AccountsUiState(
 @HiltViewModel
 class AccountsViewModel @Inject constructor(
     private val jellyfinRepository: JellyfinRepository,
+    private val navidromeRepository: NavidromeRepository,
     private val listenBrainzRepository: ListenBrainzRepository,
     private val listenBrainzPreferences: ListenBrainzPreferencesRepository,
     private val lastFmRepository: LastFmRepository
@@ -110,6 +113,13 @@ class AccountsViewModel @Inject constructor(
     private val jellyfinStateFlow = combine(
         jellyfinRepository.isLoggedInFlow,
         jellyfinRepository.getPlaylists().map { it.size }
+    ) { connected, playlistCount ->
+        connected to playlistCount
+    }
+
+    private val navidromeStateFlow = combine(
+        navidromeRepository.isLoggedInFlow,
+        navidromeRepository.getPlaylists().map { it.size }
     ) { connected, playlistCount ->
         connected to playlistCount
     }
@@ -199,7 +209,8 @@ class AccountsViewModel @Inject constructor(
     val uiState: StateFlow<AccountsUiState> = combine(
         combine(
             listOf(
-                jellyfinStateFlow
+                jellyfinStateFlow,
+                navidromeStateFlow
             )
         ) { it.toList() },
         listenBrainzStateFlow,
@@ -207,6 +218,7 @@ class AccountsViewModel @Inject constructor(
         loggingOutServices
     ) { states, listenBrainz, lastFm, activeLogouts ->
         val (jellyfinConnected, jellyfinPlaylistCount) = states[0]
+        val (navidromeConnected, navidromePlaylistCount) = states[1]
 
         val connectedAccounts = buildList {
             if (jellyfinConnected) {
@@ -223,6 +235,23 @@ class AccountsViewModel @Inject constructor(
                             plural = "synced playlists"
                         ),
                         isLoggingOut = ExternalServiceAccount.JELLYFIN in activeLogouts
+                    )
+                )
+            }
+            if (navidromeConnected) {
+                add(
+                    ExternalAccountUiModel(
+                        service = ExternalServiceAccount.NAVIDROME,
+                        title = "Navidrome",
+                        accountLabel = navidromeRepository.username
+                            ?.takeIf { it.isNotBlank() }
+                            ?: "Navidrome account connected",
+                        syncedContentLabel = formatCount(
+                            count = navidromePlaylistCount,
+                            singular = "synced playlist",
+                            plural = "synced playlists"
+                        ),
+                        isLoggingOut = ExternalServiceAccount.NAVIDROME in activeLogouts
                     )
                 )
             }
@@ -273,6 +302,7 @@ class AccountsViewModel @Inject constructor(
 
         val disconnectedServices = buildList {
             if (!jellyfinConnected) add(ExternalServiceAccount.JELLYFIN)
+            if (!navidromeConnected) add(ExternalServiceAccount.NAVIDROME)
             if (listenBrainz == null) add(ExternalServiceAccount.LISTENBRAINZ)
             if (lastFm == null) add(ExternalServiceAccount.LASTFM)
         }
@@ -294,6 +324,7 @@ class AccountsViewModel @Inject constructor(
                 runCatching {
                     when (service) {
                         ExternalServiceAccount.JELLYFIN -> jellyfinRepository.logout()
+                        ExternalServiceAccount.NAVIDROME -> navidromeRepository.logout()
                         ExternalServiceAccount.LISTENBRAINZ -> listenBrainzRepository.disconnect()
                         ExternalServiceAccount.LASTFM -> lastFmRepository.disconnect()
                     }

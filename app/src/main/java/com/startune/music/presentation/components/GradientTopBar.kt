@@ -103,6 +103,7 @@ fun HomeGradientTopBar(
     onMoreOptionsClick: () -> Unit,
     onBetaClick: () -> Unit,
     onStreamingClick: () -> Unit,
+    showStreamingButton: Boolean = true,
     isScrolled: Boolean = false,
 ) {
     val surfaceContainerHigh = MaterialTheme.colorScheme.surfaceContainerHighest
@@ -150,17 +151,19 @@ fun HomeGradientTopBar(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(end = 14.dp)
             ) {
-                FilledIconButton(
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        contentColor = MaterialTheme.colorScheme.onSurface
-                    ),
-                    onClick = onStreamingClick
-                ) {
-                    Icon(
-                          imageVector = Icons.Rounded.Cloud,
-                          contentDescription = stringResource(R.string.presentation_batch_g_streaming_title)
-                    )
+                if (showStreamingButton) {
+                    FilledIconButton(
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        onClick = onStreamingClick
+                    ) {
+                        Icon(
+                              imageVector = Icons.Rounded.Cloud,
+                              contentDescription = stringResource(R.string.presentation_batch_g_streaming_title)
+                        )
+                    }
                 }
                 FilledIconButton(
                     colors = IconButtonDefaults.filledIconButtonColors(

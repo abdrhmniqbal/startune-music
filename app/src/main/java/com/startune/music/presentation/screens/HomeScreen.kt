@@ -278,6 +278,9 @@ fun HomeScreen(
     var showChangelogBottomSheet by remember { mutableStateOf(false) }
     var showBetaInfoBottomSheet by remember { mutableStateOf(false) }
     var showStreamingProviderSheet by remember { mutableStateOf(false) }
+    val isJellyfinLoggedIn by streamingLoginViewModel.isJellyfinLoggedIn.collectAsStateWithLifecycle()
+    val isNavidromeLoggedIn by streamingLoginViewModel.isNavidromeLoggedIn.collectAsStateWithLifecycle()
+    val hasOnlineProvider = isJellyfinLoggedIn || isNavidromeLoggedIn
     val sheetState = rememberModalSheetState()
     val betaSheetState = rememberModalSheetState()
     val scope = rememberCoroutineScope()
@@ -372,6 +375,7 @@ fun HomeScreen(
                     onStreamingClick = {
                           showStreamingProviderSheet = true
                     },
+                    showStreamingButton = hasOnlineProvider,
                     isScrolled = isScrolledPastThreshold.value
                 )
             }
@@ -633,8 +637,6 @@ fun HomeScreen(
         }
     }
     if (showStreamingProviderSheet) {
-        val isJellyfinLoggedIn by streamingLoginViewModel.isJellyfinLoggedIn.collectAsStateWithLifecycle()
-        val isNavidromeLoggedIn by streamingLoginViewModel.isNavidromeLoggedIn.collectAsStateWithLifecycle()
         StreamingProviderSheet(
             onDismissRequest = { showStreamingProviderSheet = false },
             isJellyfinLoggedIn = isJellyfinLoggedIn,

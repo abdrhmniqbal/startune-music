@@ -78,6 +78,12 @@
             android:theme="@style/Theme.Startune"
             android:windowSoftInputMode="adjustResize" />
 
+        <activity
+            android:name=".presentation.navidrome.auth.NavidromeLoginActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Startune"
+            android:windowSoftInputMode="adjustResize" />
+
         <service
             android:name=".data.service.MusicService"
             android:exported="true"

@@ -180,6 +180,7 @@ import com.startune.music.presentation.viewmodel.ColorSchemePair
 import com.startune.music.presentation.viewmodel.PlayerUiState
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.CloudDownloadsViewModel
+import com.startune.music.presentation.viewmodel.StreamingProviderLoginViewModel
 import com.startune.music.presentation.viewmodel.StablePlayerState
 import com.startune.music.presentation.viewmodel.PlaylistUiState
 import com.startune.music.presentation.viewmodel.PlaylistViewModel
@@ -344,10 +345,14 @@ fun LibraryScreen(
     libraryViewModel: LibraryViewModel = hiltViewModel(),
     songInfoBottomSheetViewModel: SongInfoBottomSheetViewModel = hiltViewModel(),
     cloudDownloadsViewModel: CloudDownloadsViewModel = hiltViewModel(),
+    streamingLoginViewModel: StreamingProviderLoginViewModel = hiltViewModel(),
     smartMixViewModel: com.startune.music.presentation.viewmodel.SmartMixViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
+    val isJellyfinLoggedIn by streamingLoginViewModel.isJellyfinLoggedIn.collectAsStateWithLifecycle()
+    val isNavidromeLoggedIn by streamingLoginViewModel.isNavidromeLoggedIn.collectAsStateWithLifecycle()
+    val hasOnlineProvider = isJellyfinLoggedIn || isNavidromeLoggedIn
     val lastTabIndex by playerViewModel.lastLibraryTabIndexFlow.collectAsStateWithLifecycle()
     val favoriteIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
@@ -911,19 +916,21 @@ fun LibraryScreen(
                                 contentDescription = stringResource(R.string.audio_bookmarks_cd_open)
                             )
                         }
-                        FilledIconButton(
-                            colors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                            ),
-                            onClick = {
-                                navController.navigateSafely(Screen.CloudDownloads.route)
+                        if (hasOnlineProvider) {
+                            FilledIconButton(
+                                colors = IconButtonDefaults.filledIconButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                ),
+                                onClick = {
+                                    navController.navigateSafely(Screen.CloudDownloads.route)
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.CloudDownload,
+                                    contentDescription = stringResource(R.string.library_downloads_cd_open)
+                                )
                             }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.CloudDownload,
-                                contentDescription = stringResource(R.string.library_downloads_cd_open)
-                            )
                         }
                         FilledIconButton(
                             modifier = Modifier.padding(end = 14.dp),
@@ -1024,6 +1031,14 @@ fun LibraryScreen(
                 playerViewModel.playerUiState.value.toLibraryScreenProjection()
             }
         )
+        // Logging out of the last provider while "Cloud only" is on would
+        // strand the Library on an empty online-only view with the toggle
+        // hidden, so the filter is switched off with it.
+        LaunchedEffect(hasOnlineProvider) {
+            if (!hasOnlineProvider && playerUiState.hideLocalMedia) {
+                playerViewModel.setHideLocalMedia(false)
+            }
+        }
         val isLibraryContentEmpty by remember(playerViewModel) {
             combine(
                 playerViewModel.songCountFlow,
@@ -1413,7 +1428,7 @@ fun LibraryScreen(
                                     }
                                 } else null,
                                 extraContent = {
-                                    if (!isFoldersTab) {
+                                    if (!isFoldersTab && hasOnlineProvider) {
                                         Spacer(modifier = Modifier.height(12.dp))
                                         Text(
                                             text = stringResource(R.string.presentation_batch_d_cloud_sources_heading),
