@@ -11,8 +11,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,23 +24,27 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
+import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.FileDownload
+import androidx.compose.material.icons.rounded.FileOpen
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Upload
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -53,6 +60,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -61,15 +69,35 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.startune.music.R
 import com.startune.music.data.preferences.AppColorScheme
+import com.startune.music.data.preferences.ColorSchemeIds
+import com.startune.music.data.preferences.ColorSchemeSort
 import com.startune.music.data.preferences.SchemeRoles
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.viewmodel.ColorSchemeImportResult
 import com.startune.music.presentation.viewmodel.ColorSchemeViewModel
 import com.startune.music.ui.theme.BuiltInColorSchemes
-import com.startune.music.data.preferences.ColorSchemeIds
 import com.startune.music.ui.theme.LocalStartuneDarkTheme
 import com.startune.music.ui.theme.hexToColor
 import kotlinx.coroutines.launch
+import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
+
+private data class SchemeListEntry(
+    val id: String,
+    val name: String,
+    val roles: SchemeRoles?,
+    val custom: AppColorScheme?
+)
+
+private val colorSchemeRowShape = AbsoluteSmoothCornerShape(
+    cornerRadiusBR = 30.dp,
+    smoothnessAsPercentTL = 60,
+    cornerRadiusTR = 30.dp,
+    smoothnessAsPercentTR = 60,
+    cornerRadiusBL = 30.dp,
+    smoothnessAsPercentBL = 60,
+    cornerRadiusTL = 30.dp,
+    smoothnessAsPercentBR = 60
+)
 
 @Composable
 fun ColorSchemeScreen(
@@ -81,10 +109,12 @@ fun ColorSchemeScreen(
     val scope = rememberCoroutineScope()
     val selectedId by viewModel.selectedSchemeId.collectAsStateWithLifecycle()
     val customs by viewModel.customSchemes.collectAsStateWithLifecycle()
+    val sort by viewModel.colorSchemeSort.collectAsStateWithLifecycle()
     val isDark = LocalStartuneDarkTheme.current
 
     var exportScheme by remember { mutableStateOf<AppColorScheme?>(null) }
     var deleteScheme by remember { mutableStateOf<AppColorScheme?>(null) }
+    var showSortSheet by remember { mutableStateOf(false) }
 
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")
@@ -129,6 +159,45 @@ fun ColorSchemeScreen(
         }
     }
 
+    val dynamicName = stringResource(R.string.color_scheme_dynamic_name)
+    val displaySchemes = remember(customs, isDark, sort, dynamicName) {
+        val base = buildList {
+            add(
+                SchemeListEntry(
+                    id = ColorSchemeIds.DYNAMIC,
+                    name = dynamicName,
+                    roles = null,
+                    custom = null
+                )
+            )
+            BuiltInColorSchemes.all.forEach { scheme ->
+                add(
+                    SchemeListEntry(
+                        id = scheme.id,
+                        name = scheme.name,
+                        roles = if (isDark) scheme.dark else scheme.light,
+                        custom = null
+                    )
+                )
+            }
+            customs.forEach { scheme ->
+                add(
+                    SchemeListEntry(
+                        id = scheme.id,
+                        name = scheme.name,
+                        roles = if (isDark) scheme.dark else scheme.light,
+                        custom = scheme
+                    )
+                )
+            }
+        }
+        when (sort) {
+            ColorSchemeSort.DEFAULT -> base
+            ColorSchemeSort.NAME_AZ -> base.sortedBy { it.name.lowercase() }
+            ColorSchemeSort.NAME_ZA -> base.sortedByDescending { it.name.lowercase() }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -152,9 +221,14 @@ fun ColorSchemeScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { importLauncher.launch(arrayOf("application/json")) }) {
+                    FilledTonalIconButton(
+                        onClick = { importLauncher.launch(arrayOf("application/json")) },
+                        colors = IconButtonDefaults.filledTonalIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                        )
+                    ) {
                         Icon(
-                            Icons.Rounded.FileDownload,
+                            Icons.Rounded.FileOpen,
                             contentDescription = stringResource(R.string.color_scheme_import)
                         )
                     }
@@ -178,68 +252,83 @@ fun ColorSchemeScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                FilledTonalButton(
-                    onClick = { onEditTheme("new") },
-                    modifier = Modifier.fillMaxWidth()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Rounded.Add, contentDescription = null)
-                    Text(text = stringResource(R.string.color_scheme_create))
+                    FilledTonalButton(
+                        onClick = { onEditTheme("new") },
+                        shape = RoundedCornerShape(26.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 4.dp,
+                            pressedElevation = 6.dp
+                        ),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(42.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Rounded.PlaylistAdd,
+                                contentDescription = stringResource(R.string.cd_create_new_playlist),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = stringResource(R.string.library_action_new),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                    FilledTonalIconButton(
+                        onClick = { showSortSheet = true },
+                        shape = RoundedCornerShape(26.dp),
+                        modifier = Modifier.size(42.dp)
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Rounded.Sort,
+                            contentDescription = stringResource(R.string.cd_sort_options)
+                        )
+                    }
                 }
             }
-            item {
-                Text(
-                    text = stringResource(R.string.color_scheme_builtin),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            item {
+            items(displaySchemes, key = { it.id }) { entry ->
                 ColorSchemeRow(
-                    name = stringResource(R.string.color_scheme_dynamic_name),
-                    subtitle = stringResource(R.string.color_scheme_dynamic_sub),
-                    roles = null,
-                    selected = selectedId == ColorSchemeIds.DYNAMIC,
-                    onClick = { viewModel.selectScheme(ColorSchemeIds.DYNAMIC) }
-                )
-            }
-            items(BuiltInColorSchemes.all, key = { it.id }) { scheme ->
-                val roles = if (isDark) scheme.dark else scheme.light
-                ColorSchemeRow(
-                    name = scheme.name,
-                    subtitle = null,
-                    roles = roles,
-                    selected = selectedId == scheme.id,
-                    onClick = { viewModel.selectScheme(scheme.id) }
-                )
-            }
-
-            if (customs.isNotEmpty()) {
-                item {
-                    Text(
-                        text = stringResource(R.string.color_scheme_custom),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 12.dp)
-                    )
-                }
-            }
-            items(customs, key = { it.id }) { scheme ->
-                val roles = if (isDark) scheme.dark else scheme.light
-                ColorSchemeRow(
-                    name = scheme.name,
-                    subtitle = null,
-                    roles = roles,
-                    selected = selectedId == scheme.id,
-                    onClick = { viewModel.selectScheme(scheme.id) },
-                    onEdit = { onEditTheme(scheme.id) },
-                    onExport = {
-                        exportScheme = scheme
-                        exportLauncher.launch("${scheme.name}.json")
+                    name = entry.name,
+                    roles = entry.roles,
+                    selected = selectedId == entry.id,
+                    onClick = { viewModel.selectScheme(entry.id) },
+                    onEdit = entry.custom?.let { { onEditTheme(it.id) } },
+                    onExport = entry.custom?.let { scheme ->
+                        {
+                            exportScheme = scheme
+                            exportLauncher.launch("${scheme.name}.json")
+                        }
                     },
-                    onDelete = { deleteScheme = scheme }
+                    onDelete = entry.custom?.let { scheme -> { deleteScheme = scheme } }
                 )
             }
         }
+    }
+
+    if (showSortSheet) {
+        ColorSchemeSortSheet(
+            selected = sort,
+            onOptionSelected = {
+                viewModel.setColorSchemeSort(it)
+                showSortSheet = false
+            },
+            onDismissRequest = { showSortSheet = false }
+        )
     }
 
     deleteScheme?.let { scheme ->
@@ -272,7 +361,6 @@ fun ColorSchemeScreen(
 @Composable
 private fun ColorSchemeRow(
     name: String,
-    subtitle: String?,
     roles: SchemeRoles?,
     selected: Boolean,
     onClick: () -> Unit,
@@ -281,42 +369,44 @@ private fun ColorSchemeRow(
     onDelete: (() -> Unit)? = null
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
+    val containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer
+    else MaterialTheme.colorScheme.surfaceContainer
+    val contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer
+    else MaterialTheme.colorScheme.onSurface
     Surface(
-        color = MaterialTheme.colorScheme.surfaceContainer,
+        color = containerColor,
+        contentColor = contentColor,
+        shape = colorSchemeRowShape,
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
+            .defaultMinSize(minHeight = 72.dp)
+            .clip(colorSchemeRowShape)
             .clickable(onClick = onClick)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(16.dp).fillMaxWidth()
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
         ) {
             if (roles != null) {
-                SchemeDots(roles = roles)
+                SchemeStack(roles = roles, borderColor = containerColor)
             } else {
                 Icon(
                     Icons.Rounded.AutoAwesome,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(24.dp)
+                    tint = if (selected) MaterialTheme.colorScheme.onPrimaryContainer
+                    else MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(28.dp)
                 )
             }
-            Column(
+            Text(
+                text = name,
+                style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 16.dp, end = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Text(text = name, style = MaterialTheme.typography.titleMedium)
-                if (subtitle != null) {
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+                    .padding(start = 16.dp, end = 8.dp)
+            )
             if (onEdit != null || onExport != null || onDelete != null) {
                 Box {
                     IconButton(onClick = { menuExpanded = true }) {
@@ -359,26 +449,83 @@ private fun ColorSchemeRow(
                     }
                 }
             }
-            RadioButton(selected = selected, onClick = null)
+            if (selected) {
+                Icon(
+                    Icons.Rounded.Check,
+                    contentDescription = stringResource(R.string.color_scheme_selected),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                Spacer(modifier = Modifier.size(24.dp))
+            }
         }
     }
 }
 
 @Composable
-private fun SchemeDots(roles: SchemeRoles) {
-    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+private fun SchemeStack(roles: SchemeRoles, borderColor: Color) {
+    Row(horizontalArrangement = Arrangement.spacedBy(-8.dp)) {
         listOf(roles.primary, roles.secondary, roles.background).forEach { hex ->
             Box(
                 modifier = Modifier
-                    .size(20.dp)
+                    .size(28.dp)
                     .clip(CircleShape)
                     .background(hexToColor(hex))
                     .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant,
+                        width = 2.dp,
+                        color = borderColor,
                         shape = CircleShape
                     )
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ColorSchemeSortSheet(
+    selected: ColorSchemeSort,
+    onOptionSelected: (ColorSchemeSort) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onDismissRequest) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 24.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.color_scheme_sort_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 8.dp)
+            )
+            ColorSchemeSort.entries.forEach { option ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onOptionSelected(option) }
+                        .padding(horizontal = 24.dp, vertical = 14.dp)
+                ) {
+                    Text(
+                        text = stringResource(option.labelRes),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (option == selected) {
+                        Icon(
+                            Icons.Rounded.Check,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        Spacer(modifier = Modifier.size(24.dp))
+                    }
+                }
+            }
         }
     }
 }

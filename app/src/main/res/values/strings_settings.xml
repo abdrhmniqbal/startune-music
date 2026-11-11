@@ -168,11 +168,11 @@
     <string name="setcat_artwork_color_details_subtitle">Album, artist, genre, and other detail pages follow their artwork colors. When off, they use the default colors.</string>
     <string name="setcat_pitch_black_title">Pitch Black</string>
     <string name="setcat_pitch_black_subtitle">Pure black backgrounds in dark mode. Saves battery on OLED screens.</string>
-    <string name="color_scheme_builtin">Built-in</string>
-    <string name="color_scheme_custom">Custom</string>
     <string name="color_scheme_dynamic_name">Dynamic Color</string>
-    <string name="color_scheme_dynamic_sub">Follows your wallpaper</string>
-    <string name="color_scheme_create">Create new theme</string>
+    <string name="color_scheme_sort_title">Sort</string>
+    <string name="color_scheme_sort_name_az">Name (A-Z)</string>
+    <string name="color_scheme_sort_name_za">Name (Z-A)</string>
+    <string name="color_scheme_selected">Selected</string>
     <string name="color_scheme_import">Import theme</string>
     <string name="color_scheme_export">Export</string>
     <string name="color_scheme_edit">Edit</string>

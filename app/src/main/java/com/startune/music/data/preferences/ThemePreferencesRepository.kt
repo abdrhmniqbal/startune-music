@@ -25,6 +25,7 @@ class ThemePreferencesRepository @Inject constructor(
         val GLOBAL_NOW_PLAYING_THEME_ENABLED = booleanPreferencesKey("global_now_playing_theme_enabled_v1")
         val SELECTED_COLOR_SCHEME_ID = stringPreferencesKey("selected_color_scheme_id")
         val CUSTOM_COLOR_SCHEMES = stringPreferencesKey("custom_color_schemes_json")
+        val COLOR_SCHEME_SORT = stringPreferencesKey("color_scheme_sort")
         val PITCH_BLACK_ENABLED = booleanPreferencesKey("pitch_black_enabled")
     }
 
@@ -63,6 +64,10 @@ class ThemePreferencesRepository @Inject constructor(
         preferences[Keys.PITCH_BLACK_ENABLED] ?: false
     }
 
+    val colorSchemeSortFlow: Flow<ColorSchemeSort> = dataStore.data.map { preferences ->
+        ColorSchemeSort.fromStorageKey(preferences[Keys.COLOR_SCHEME_SORT])
+    }
+
     suspend fun setPlayerThemePreference(themeMode: String) =
         dataStore.edit { preferences ->
             preferences[Keys.PLAYER_THEME_PREFERENCE] = themeMode
@@ -86,6 +91,11 @@ class ThemePreferencesRepository @Inject constructor(
     suspend fun setCustomColorSchemes(schemes: List<AppColorScheme>) =
         dataStore.edit { preferences ->
             preferences[Keys.CUSTOM_COLOR_SCHEMES] = schemeJson.encodeToString(schemes)
+        }
+
+    suspend fun setColorSchemeSort(sort: ColorSchemeSort) =
+        dataStore.edit { preferences ->
+            preferences[Keys.COLOR_SCHEME_SORT] = sort.storageKey
         }
 
     suspend fun setPitchBlackEnabled(enabled: Boolean) =
