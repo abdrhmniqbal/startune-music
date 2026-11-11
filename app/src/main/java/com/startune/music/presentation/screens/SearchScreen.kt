@@ -229,7 +229,6 @@ fun SearchScreen(
         val lastPlayed = playbackHistory.groupBy { it.songId }
             .mapValues { (_, entries) -> entries.maxOf { it.timestamp } }
         allSongs.map { song -> song to (playCounts[song.id] ?: 0) }
-            .filter { (_, playCount) -> playCount > 0 }
             .sortedBy { (_, playCount) -> playCount }
             .take(SearchFreshFindsPoolLimit)
             .sortedBy { (song, _) -> lastPlayed[song.id] ?: 0L }
