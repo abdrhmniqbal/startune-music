@@ -623,6 +623,4 @@ Backslash (\) can be used to escape character delimiters.</string>
         <item>Better metadata editing with cover art support.</item>
     </string-array>
     <string name="presentation_batch_g_beta_sheet_welcome_body_stable">You\'re running the stable release build. Check the changelog to see what\'s new, and report anything that misbehaves.</string>
-    <string name="presentation_batch_g_topbar_build_debug">Debug</string>
-    <string name="presentation_batch_g_topbar_build_stable">Stable</string>
 </resources>
