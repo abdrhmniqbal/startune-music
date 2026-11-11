@@ -390,6 +390,8 @@
     <string name="top_songs_empty_title">No top songs in %1$s</string>
     <string name="top_songs_empty_subtitle">Change the range or play more songs to fill this list.</string>
     <string name="recently_added_title">Recently Added</string>
+    <string name="favorites_to_revisit_title">Favorites to Revisit</string>
+    <string name="favorites_to_revisit_subtitle">From your high-affinity rotation</string>
     <string name="recently_added_empty_title">No recently added songs</string>
     <string name="recently_added_empty_subtitle">Songs you add to your library will show up here.</string>
     <string name="action_shuffle">Shuffle</string>

@@ -111,7 +111,7 @@ fun RecentlyPlayedSection(
 }
 
 @Composable
-private fun RecentlyPlayedGridCard(
+internal fun RecentlyPlayedGridCard(
     item: RecentlyPlayedSongUiModel,
     isCurrentSong: Boolean,
     isPlaying: Boolean,

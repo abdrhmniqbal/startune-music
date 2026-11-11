@@ -90,6 +90,7 @@ import com.startune.music.data.model.SearchResultItem
 import com.startune.music.data.model.Song
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SmartImageListTargetSize
+import com.startune.music.presentation.components.FavoritesToRevisitSection
 import com.startune.music.presentation.components.RecentlyPlayedSection
 import com.startune.music.presentation.components.SongInfoBottomSheet
 import com.startune.music.presentation.components.PlaylistMultiSelectionBottomSheet
@@ -160,6 +161,7 @@ private data class SearchUiSlice(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private const val SearchRecentlyAddedPreviewLimit = 8
+private const val SearchFavoritesToRevisitPoolLimit = 20
 
 fun SearchScreen(
     paddingValues: PaddingValues,
@@ -199,6 +201,25 @@ fun SearchScreen(
     }
     val recentlyAddedUiModels = remember(recentlyAddedSongs) {
         recentlyAddedSongs.map { RecentlyPlayedSongUiModel(it, it.dateAdded) }.toImmutableList()
+    }
+    val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
+    val playbackHistory by playerViewModel.playbackHistory.collectAsStateWithLifecycle()
+    val queueFavoritesToRevisit = stringResource(R.string.presentation_batch_b_queue_favorites_to_revisit)
+    val favoritesToRevisitSongs = remember(allSongs, favoriteSongIds, playbackHistory) {
+        val byId = allSongs.associateBy { it.id }
+        val playCounts = playbackHistory.groupingBy { it.songId }.eachCount()
+        val lastPlayed = playbackHistory.groupBy { it.songId }
+            .mapValues { (_, entries) -> entries.maxOf { it.timestamp } }
+        favoriteSongIds.mapNotNull { id -> byId[id]?.let { song -> song to (playCounts[id] ?: 0) } }
+            .filter { (_, playCount) -> playCount > 0 }
+            .sortedByDescending { (_, playCount) -> playCount }
+            .take(SearchFavoritesToRevisitPoolLimit)
+            .sortedBy { (song, _) -> lastPlayed[song.id] ?: 0L }
+            .map { (song, _) -> RecentlyPlayedSongUiModel(song, lastPlayed[song.id] ?: 0L) }
+            .toImmutableList()
+    }
+    val favoritesToRevisitQueue = remember(favoritesToRevisitSongs) {
+        favoritesToRevisitSongs.map { it.song }.toImmutableList()
     }
     val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
@@ -396,7 +417,10 @@ fun SearchScreen(
                 label = "search_mode_transition"
             ) { isBrowseMode ->
                 if (isBrowseMode) {
-                    Column(modifier = Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(24.dp)
+                    ) {
                         if (recentlyAddedSongs.isNotEmpty()) {
                             RecentlyPlayedSection(
                                 songs = recentlyAddedUiModels,
@@ -412,6 +436,43 @@ fun SearchScreen(
                                 currentSongId = stablePlayerState.currentSong?.id,
                                 isPlaying = stablePlayerState.isPlaying,
                                 title = stringResource(R.string.recently_added_title)
+                            )
+                        } else {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.recently_added_empty_title),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        if (favoritesToRevisitSongs.isNotEmpty()) {
+                            FavoritesToRevisitSection(
+                                songs = favoritesToRevisitSongs,
+                                onSongClick = { song ->
+                                    if (favoritesToRevisitQueue.isNotEmpty()) {
+                                        playerViewModel.playSongs(
+                                            songsToPlay = favoritesToRevisitQueue,
+                                            startSong = song,
+                                            queueName = queueFavoritesToRevisit
+                                        )
+                                    }
+                                },
+                                onSongLongClick = handleSongMoreOptionsClick,
+                                onPlayAllClick = {
+                                    if (favoritesToRevisitQueue.isNotEmpty()) {
+                                        playerViewModel.playSongs(
+                                            songsToPlay = favoritesToRevisitQueue,
+                                            startSong = favoritesToRevisitQueue.first(),
+                                            queueName = queueFavoritesToRevisit
+                                        )
+                                    }
+                                },
+                                currentSongId = stablePlayerState.currentSong?.id,
+                                isPlaying = stablePlayerState.isPlaying
                             )
                         }
                     }
