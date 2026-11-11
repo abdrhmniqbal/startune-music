@@ -158,13 +158,13 @@ private data class SearchUiSlice(
     val searchHistory: ImmutableList<SearchHistoryItem> = persistentListOf()
 )
 
-@androidx.annotation.OptIn(UnstableApi::class)
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
-@Composable
 private const val SearchRecentlyAddedPreviewLimit = 8
 private const val SearchFavoritesToRevisitPoolLimit = 20
 private const val SearchFreshFindsPoolLimit = 20
 
+@androidx.annotation.OptIn(UnstableApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
 fun SearchScreen(
     paddingValues: PaddingValues,
     playerViewModel: PlayerViewModel = hiltViewModel(),

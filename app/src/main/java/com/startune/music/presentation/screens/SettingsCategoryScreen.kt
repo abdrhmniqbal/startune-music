@@ -2,6 +2,7 @@
 
 package com.startune.music.presentation.screens
 
+import androidx.compose.material.icons.rounded.Storage
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.components.BackupModuleSelectionDialog
 import com.startune.music.presentation.components.PlaybackSpeedControls
@@ -1579,6 +1580,32 @@ fun SettingsCategoryScreen(
                                 )
                                 Spacer(modifier = Modifier.height(10.dp))
                             }
+
+                            ThemeSelectorItem(
+                                label = stringResource(R.string.cache_limit_title),
+                                description = stringResource(R.string.cache_limit_description),
+                                options = mapOf(
+                                    "0" to stringResource(R.string.cache_limit_off),
+                                    "100" to stringResource(R.string.cache_limit_mb, 100),
+                                    "250" to stringResource(R.string.cache_limit_mb, 250),
+                                    "500" to stringResource(R.string.cache_limit_mb, 500),
+                                    "1024" to stringResource(R.string.cache_limit_gb, 1),
+                                    "2048" to stringResource(R.string.cache_limit_gb, 2)
+                                ),
+                                selectedKey = uiState.streamCacheLimitMb.toString(),
+                                onSelectionChanged = {
+                                    settingsViewModel.setStreamCacheLimitMb(it.toInt())
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Storage,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.secondary
+                                    )
+                                },
+                                modifier = Modifier.settingHighlight("item_data_storage_cache_limit", highlightKey)
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
 
                             if (!uiState.backupInfoDismissed) {
                                 BackupInfoNoticeCard(

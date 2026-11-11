@@ -16,6 +16,7 @@ import coil.ImageLoaderFactory
 import com.startune.music.data.dictionary.DictionaryManager
 import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.media.SongMetadataEditor
+import com.startune.music.data.media.StreamPlaybackCache
 import com.startune.music.data.playlist.M3uSyncCoordinator
 import com.startune.music.data.repository.ArtistImageRepository
 import com.startune.music.presentation.viewmodel.LibraryStateHolder
@@ -65,6 +66,9 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
 
     @Inject
     lateinit var userPreferencesRepository: dagger.Lazy<UserPreferencesRepository>
+
+    @Inject
+    lateinit var streamPlaybackCache: StreamPlaybackCache
 
     @Inject
     lateinit var folderArtworkSettingsCoordinator: dagger.Lazy<com.startune.music.utils.FolderArtworkSettingsCoordinator>
@@ -172,6 +176,14 @@ class StartuneApplication : Application(), ImageLoaderFactory, Configuration.Pro
         // notably when a backup restore writes it straight into DataStore, and the data
         // storage root or allowed folders can move too. A stale mirror would leave the
         // toggle reporting one thing while artwork resolution did another.
+        // The stream cache limit is a setting: apply the stored value at startup
+        // and re-apply on every change, so lowering it trims the cache right away.
+        startupScope.launch {
+            userPreferencesRepository.get().streamCacheLimitMbFlow.collect { limitMb ->
+                streamPlaybackCache.setMaxCacheBytes(limitMb * 1024L * 1024L)
+            }
+        }
+
         startupScope.launch {
             kotlinx.coroutines.flow.combine(
                 userPreferencesRepository.get().useFolderAlbumArtFlow,

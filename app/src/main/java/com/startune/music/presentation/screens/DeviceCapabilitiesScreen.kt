@@ -691,7 +691,7 @@ private fun CacheRow(
     }
 }
 
-
+@Composable
 private fun PlaybackPathCard(
     audioCapabilities: AudioCapabilities,
     memorySummary: MemorySummary?,
