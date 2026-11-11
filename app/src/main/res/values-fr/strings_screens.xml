@@ -138,6 +138,18 @@
     <string name="cd_shuffle_play_album">Lire l\'album en aléatoire</string>
     <string name="album_cover_for">Couverture de %1$s</string>
     <string name="album_detail_meta_line">%1$s · %2$s</string>
+    <string name="detail_hero_shuffle">Aléatoire</string>
+    <string name="detail_hero_play">Lecture</string>
+    <string name="detail_hero_pause">Pause</string>
+    <string name="detail_hero_resume">Reprendre</string>
+    <string name="detail_hero_more_actions">Plus d\'actions</string>
+    <string name="detail_hero_add_to_playlist">Ajouter à la playlist</string>
+    <string name="detail_hero_play_next">Lire ensuite</string>
+    <string name="detail_hero_add_to_queue">Ajouter à la file d\'attente</string>
+    <string name="detail_hero_album_count_many">%1$d albums</string>
+    <string name="detail_hero_album_count_one">1 album</string>
+    <string name="detail_hero_duration_minutes">%1$d min</string>
+    <string name="detail_hero_duration_hours">%1$d h %2$d min</string>
     <string name="mashup_cd_play_pause">Lecture/Pause</string>
     <string name="cd_song_cover">Pochette de la chanson</string>
 

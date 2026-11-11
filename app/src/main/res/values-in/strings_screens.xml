@@ -140,6 +140,18 @@
     <string name="cd_shuffle_play_album">Putar acak album</string>
     <string name="album_cover_for">Sampul %1$s</string>
     <string name="album_detail_meta_line">%1$s · %2$s</string>
+    <string name="detail_hero_shuffle">Acak</string>
+    <string name="detail_hero_play">Putar</string>
+    <string name="detail_hero_pause">Jeda</string>
+    <string name="detail_hero_resume">Lanjutkan</string>
+    <string name="detail_hero_more_actions">Opsi lainnya</string>
+    <string name="detail_hero_add_to_playlist">Tambah ke playlist</string>
+    <string name="detail_hero_play_next">Putar berikutnya</string>
+    <string name="detail_hero_add_to_queue">Tambah ke antrean</string>
+    <string name="detail_hero_album_count_many">%1$d Album</string>
+    <string name="detail_hero_album_count_one">1 Album</string>
+    <string name="detail_hero_duration_minutes">%1$d menit</string>
+    <string name="detail_hero_duration_hours">%1$d j %2$d mnt</string>
     <string name="mashup_cd_play_pause">Putar/Jeda</string>
     <string name="cd_song_cover">Sampul lagu</string>
 

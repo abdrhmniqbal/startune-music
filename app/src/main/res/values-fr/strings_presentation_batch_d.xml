@@ -123,6 +123,7 @@
     <string name="presentation_batch_d_cd_collapse_title">Réduire %1$s</string>
     <string name="presentation_batch_d_cd_expand_title">Développer %1$s</string>
     <string name="presentation_batch_d_edit_artist_image_cd">Modifier l\'image de l\'artiste</string>
+    <string name="presentation_batch_d_change_photo">Changer la photo</string>
     <string name="presentation_batch_d_reset_to_default">Réinitialiser par défaut</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">Lecture aléatoire de l\'artiste</string>
     <string name="presentation_batch_d_cd_artist">Artiste</string>

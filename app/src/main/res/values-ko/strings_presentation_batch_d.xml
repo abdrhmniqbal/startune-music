@@ -123,6 +123,7 @@
     <string name="presentation_batch_d_cd_collapse_title">%1$s 접기</string>
     <string name="presentation_batch_d_cd_expand_title">%1$s 펼치기</string>
     <string name="presentation_batch_d_edit_artist_image_cd">아티스트 이미지 편집</string>
+    <string name="presentation_batch_d_change_photo">사진 변경</string>
     <string name="presentation_batch_d_reset_to_default">기본값으로 초기화</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">아티스트 곡 셔플 재생</string>
     <string name="presentation_batch_d_cd_artist">아티스트</string>

@@ -123,6 +123,7 @@
     <string name="presentation_batch_d_cd_collapse_title">Свернуть %1$s</string>
     <string name="presentation_batch_d_cd_expand_title">Развернуть %1$s</string>
     <string name="presentation_batch_d_edit_artist_image_cd">Правка фото исполнителя</string>
+    <string name="presentation_batch_d_change_photo">Изменить фото</string>
     <string name="presentation_batch_d_reset_to_default">Сброс</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">Перемешать песни исполнителя</string>
     <string name="presentation_batch_d_cd_artist">Исполнитель</string>

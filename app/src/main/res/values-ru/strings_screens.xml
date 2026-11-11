@@ -138,6 +138,18 @@
     <string name="cd_shuffle_play_album">Перемешать альбом</string>
     <string name="album_cover_for">Обложка %1$s</string>
     <string name="album_detail_meta_line">%1$s • %2$s</string>
+    <string name="detail_hero_shuffle">Перемешать</string>
+    <string name="detail_hero_play">Воспроизвести</string>
+    <string name="detail_hero_pause">Пауза</string>
+    <string name="detail_hero_resume">Продолжить</string>
+    <string name="detail_hero_more_actions">Другие действия</string>
+    <string name="detail_hero_add_to_playlist">Добавить в плейлист</string>
+    <string name="detail_hero_play_next">Воспроизвести следующим</string>
+    <string name="detail_hero_add_to_queue">Добавить в очередь</string>
+    <string name="detail_hero_album_count_many">Альбомов: %1$d</string>
+    <string name="detail_hero_album_count_one">1 альбом</string>
+    <string name="detail_hero_duration_minutes">%1$d мин</string>
+    <string name="detail_hero_duration_hours">%1$d ч %2$d мин</string>
     <string name="mashup_cd_play_pause">Пуск/Пауза</string>
     <string name="cd_song_cover">Обложка песни</string>
 
