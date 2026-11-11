@@ -12,6 +12,8 @@ class SharedArtworkContentProviderTest {
                 callingUid = 1001,
                 providerUid = 1001,
                 uriPermissionResult = android.content.pm.PackageManager.PERMISSION_DENIED,
+                mediaContentControlResult = android.content.pm.PackageManager.PERMISSION_DENIED,
+                isPublishedSessionArtwork = false,
             )
         ).isTrue()
     }
@@ -23,6 +25,8 @@ class SharedArtworkContentProviderTest {
                 callingUid = 2001,
                 providerUid = 1001,
                 uriPermissionResult = android.content.pm.PackageManager.PERMISSION_GRANTED,
+                mediaContentControlResult = android.content.pm.PackageManager.PERMISSION_DENIED,
+                isPublishedSessionArtwork = false,
             )
         ).isTrue()
     }
@@ -34,6 +38,8 @@ class SharedArtworkContentProviderTest {
                 callingUid = 2001,
                 providerUid = 1001,
                 uriPermissionResult = android.content.pm.PackageManager.PERMISSION_DENIED,
+                mediaContentControlResult = android.content.pm.PackageManager.PERMISSION_DENIED,
+                isPublishedSessionArtwork = false,
             )
         ).isFalse()
     }

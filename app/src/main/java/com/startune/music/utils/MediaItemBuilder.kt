@@ -1,4 +1,4 @@
-﻿package com.startune.music.utils
+package com.startune.music.utils
 
 import android.content.Context
 import android.net.Uri
@@ -69,6 +69,7 @@ object MediaItemBuilder {
     )
     private val CLOUD_ARTWORK_SCHEMES = setOf(
         "jellyfin_cover",
+        "navidrome_cover",
     )
     private val SUPPORTED_INTERNAL_ARTWORK_SCHEMES = setOf(
         LocalArtworkUri.SCHEME,

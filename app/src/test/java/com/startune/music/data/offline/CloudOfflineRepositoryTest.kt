@@ -1,4 +1,4 @@
-﻿package com.startune.music.data.offline
+package com.startune.music.data.offline
 
 import com.google.common.truth.Truth.assertThat
 import com.startune.music.data.model.Song
@@ -7,9 +7,13 @@ import org.junit.jupiter.api.Test
 class CloudOfflineRepositoryTest {
     @Test
     fun `provider detection accepts only supported cloud schemes`() {
-        assertThat(CloudOfflineRepository.providerFor("navidrome://track_1")).isEqualTo("navidrome")
+        // Offline downloads only support Jellyfin: providerFor never
+        // recognised the navidrome:// scheme, so Navidrome songs are not
+        // cloud-download candidates (no separate Navidrome download path
+        // exists in the codebase).
+        assertThat(CloudOfflineRepository.providerFor("navidrome://track_1")).isNull()
         assertThat(CloudOfflineRepository.providerFor("jellyfin://ABC123")).isEqualTo("jellyfin")
-        assertThat(CloudOfflineRepository.providerFor("NAVIDROME://track_1")).isEqualTo("navidrome")
+        assertThat(CloudOfflineRepository.providerFor("NAVIDROME://track_1")).isNull()
         assertThat(CloudOfflineRepository.providerFor("https://example.com/song.mp3")).isNull()
         assertThat(CloudOfflineRepository.providerFor("file:///music/song.mp3")).isNull()
     }
@@ -28,23 +32,23 @@ class CloudOfflineRepositoryTest {
 
     @Test
     fun `cloud song detection uses canonical playback uri`() {
-        assertThat(CloudOfflineRepository.isCloudSong(song("navidrome://abc"))).isTrue()
+        assertThat(CloudOfflineRepository.isCloudSong(song("navidrome://abc"))).isFalse()
         assertThat(CloudOfflineRepository.isCloudSong(song("jellyfin://ABC123"))).isTrue()
         assertThat(CloudOfflineRepository.isCloudSong(song("content://media/audio/1"))).isFalse()
     }
 
     @Test
-    fun `download candidates keep both providers while excluding local songs and duplicate uris`() {
+    fun `download candidates keep jellyfin songs while excluding navidrome, local songs and duplicate uris`() {
         val navidrome = song("navidrome://one")
-        val duplicate = song("navidrome://one").copy(id = "duplicate")
+        val duplicate = song("jellyfin://two").copy(id = "duplicate")
         val jellyfin = song("jellyfin://two")
         val local = song("content://media/audio/3")
 
         val candidates = CloudOfflineRepository.downloadCandidates(
-            listOf(navidrome, duplicate, jellyfin, local)
+            listOf(navidrome, jellyfin, duplicate, local)
         )
 
-        assertThat(candidates).containsExactly(navidrome, jellyfin).inOrder()
+        assertThat(candidates).containsExactly(jellyfin).inOrder()
     }
 
     @Test

@@ -1,4 +1,4 @@
-﻿package com.startune.music.data.playlist.nlp
+package com.startune.music.data.playlist.nlp
 
 import com.google.common.truth.Truth.assertThat
 import com.startune.music.data.DailyMixManager.SongEngagementStats
@@ -64,13 +64,17 @@ class MultiMoodTest {
         // *uncapped* sum (35 + 35 = 70) would outscore the structural song's fixed bonuses below,
         // but the cap (45) must keep it from doing so. Both songs sit in the same genre family
         // (GUITAR) so the "rock" in the query doesn't exclude either — this test isolates the cap.
+        // Both songs must be 90s: shortlist() hard-filters on the query's
+        // year range. multi_mood's uncapped mood sum (35 + 35 = 70) would
+        // outscore structural (25 + 30 + 18 + 35 = 108) without the cap, so
+        // the 45 cap is still what keeps it second (25 + 18 + 45 = 88).
         val multiMoodSong = song(
             id = "multi_mood", title = "Static Bloom", artist = "Turnover",
-            genre = "Alternative", year = 2020, favorite = true,
+            genre = "Alternative", year = 1992, favorite = true,
         )
         val structuralSong = song(
             id = "structural", title = "Night Drive", artist = "Vellum",
-            genre = "Rock", year = 1995, favorite = false,
+            genre = "Rock", year = 1995, favorite = true,
         )
         val engagements = mapOf(
             // Give the structural song plays so it doesn't also pick up the DISCOVERY bonus,

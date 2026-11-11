@@ -1,4 +1,4 @@
-﻿package com.startune.music.utils
+package com.startune.music.utils
 
 import com.google.common.truth.Truth.assertThat
 import kotlin.io.path.createTempDirectory
@@ -9,6 +9,7 @@ class AlbumArtUtilsTest {
     @Test
     fun findExternalAlbumArtFile_returnsExplicitCoverFromDedicatedAlbumFolder() {
         val root = createTempDirectory("album-art-test").toFile()
+        AlbumArtUtils.setFolderArtStorageRoots(listOf(root))
         val albumDir = root.resolve("Calvin Harris - Funk Wav Bounces").apply { mkdirs() }
         val songFile = albumDir.resolve("Feels.mp3").apply { writeBytes(byteArrayOf(1, 2, 3)) }
         val coverFile = albumDir.resolve("cover.jpg").apply { writeBytes(ByteArray(2048) { 7 }) }
@@ -16,6 +17,7 @@ class AlbumArtUtilsTest {
         val resolved = AlbumArtUtils.findExternalAlbumArtFile(songFile.absolutePath)
 
         assertThat(resolved).isEqualTo(coverFile)
+        AlbumArtUtils.setFolderArtStorageRoots(emptyList())
         root.deleteRecursively()
     }
 

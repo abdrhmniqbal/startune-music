@@ -1,9 +1,12 @@
-﻿package com.startune.music.presentation.viewmodel
+package com.startune.music.presentation.viewmodel
 
 import android.os.SystemClock
 import com.google.common.truth.Truth.assertThat
 import com.startune.music.data.DailyMixManager
+import com.startune.music.data.database.MusicDao
+import com.startune.music.data.lastfm.LastFmScrobbleManager
 import com.startune.music.data.listenbrainz.ScrobbleManager
+import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.model.Song
 import com.startune.music.data.stats.PlaybackStatsRepository
 import io.mockk.coVerify
@@ -21,6 +24,9 @@ class ListeningStatsTrackerTest {
     private val dailyMixManager: DailyMixManager = mockk(relaxed = true)
     private val playbackStatsRepository: PlaybackStatsRepository = mockk(relaxed = true)
     private val scrobbleManager: ScrobbleManager = mockk(relaxed = true)
+    private val musicDao: MusicDao = mockk(relaxed = true)
+    private val lastFmScrobbleManager: LastFmScrobbleManager = mockk(relaxed = true)
+    private val userPreferencesRepository: UserPreferencesRepository = mockk(relaxed = true)
 
     @BeforeEach
     fun setUp() {
@@ -37,7 +43,10 @@ class ListeningStatsTrackerTest {
         val tracker = ListeningStatsTracker(
             dailyMixManager = dailyMixManager,
             playbackStatsRepository = playbackStatsRepository,
-            scrobbleManager = scrobbleManager
+            scrobbleManager = scrobbleManager,
+            musicDao = musicDao,
+            lastFmScrobbleManager = lastFmScrobbleManager,
+            userPreferencesRepository = userPreferencesRepository
         )
         val song = song(
             songId = "looped-song",
@@ -71,9 +80,12 @@ class ListeningStatsTrackerTest {
         val tracker = ListeningStatsTracker(
             dailyMixManager = dailyMixManager,
             playbackStatsRepository = playbackStatsRepository,
-            scrobbleManager = scrobbleManager
+            scrobbleManager = scrobbleManager,
+            musicDao = musicDao,
+            lastFmScrobbleManager = lastFmScrobbleManager,
+            userPreferencesRepository = userPreferencesRepository
         )
-        val song = song(songId = "song-1")
+        val song = song(songId = "song-1", durationMs = 30_000L)
         val firstChunkMs = 7_000L
         val secondChunkMs = 8_000L
         val expectedDurationMs = firstChunkMs + secondChunkMs

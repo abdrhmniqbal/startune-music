@@ -1,6 +1,7 @@
 ﻿package com.startune.music.data.service.player
 
 import androidx.media3.common.MimeTypes
+import com.startune.music.data.model.AudioOutputMode
 import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
 
@@ -10,7 +11,7 @@ class AudioDecoderPolicyTest {
     fun selectPlatformDecoders_routesAlacToExtensionRenderer() {
         val decoders = listOf("c2.qti.alac.decoder", "c2.android.alac.decoder")
 
-        val selected = AudioDecoderPolicy.selectPlatformDecoders(MimeTypes.AUDIO_ALAC, decoders)
+        val selected = AudioDecoderPolicy.selectPlatformDecoders(MimeTypes.AUDIO_ALAC, decoders, AudioOutputMode.SYSTEM_DEFAULT)
 
         assertThat(selected).isEmpty()
     }
@@ -19,7 +20,7 @@ class AudioDecoderPolicyTest {
     fun selectPlatformDecoders_routesMidiToExtensionRenderer() {
         val decoders = listOf("platform-midi-decoder")
 
-        val selected = AudioDecoderPolicy.selectPlatformDecoders(MimeTypes.AUDIO_EXOPLAYER_MIDI, decoders)
+        val selected = AudioDecoderPolicy.selectPlatformDecoders(MimeTypes.AUDIO_EXOPLAYER_MIDI, decoders, AudioOutputMode.SYSTEM_DEFAULT)
 
         assertThat(selected).isEmpty()
     }
@@ -28,7 +29,7 @@ class AudioDecoderPolicyTest {
     fun selectPlatformDecoders_preservesMedia3OrderForCoreFormats() {
         val decoders = listOf("c2.android.aac.decoder", "c2.qti.aac.decoder")
 
-        val selected = AudioDecoderPolicy.selectPlatformDecoders(MimeTypes.AUDIO_AAC, decoders)
+        val selected = AudioDecoderPolicy.selectPlatformDecoders(MimeTypes.AUDIO_AAC, decoders, AudioOutputMode.SYSTEM_DEFAULT)
 
         assertThat(selected).containsExactlyElementsIn(decoders).inOrder()
     }

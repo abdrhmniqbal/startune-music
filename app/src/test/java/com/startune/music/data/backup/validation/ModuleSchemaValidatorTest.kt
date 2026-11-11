@@ -1,6 +1,8 @@
 ﻿package com.startune.music.data.backup.validation
 
+import android.content.Context
 import com.startune.music.data.backup.model.BackupSection
+import io.mockk.mockk
 import com.startune.music.data.backup.model.BackupValidationResult
 import com.startune.music.data.backup.model.Severity
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -9,7 +11,7 @@ import org.junit.jupiter.api.Test
 class ModuleSchemaValidatorTest {
 
     private val sanitizer = ContentSanitizer()
-    private val validator = ModuleSchemaValidator(sanitizer)
+    private val validator = ModuleSchemaValidator(mockk<Context>(relaxed = true), sanitizer)
 
     @Test
     fun `valid favorites array passes validation`() {
