@@ -77,11 +77,40 @@ class ColorSchemeViewModel @Inject constructor(
 
     /**
      * Loads the editor's starting state. A new theme starts from the currently
-     * selected scheme's colors; editing loads the stored custom theme.
-     * Returns null when the id does not exist.
+     * selected scheme's colors; editing loads the stored custom theme. A
+     * "copy_<id>" theme opens the editor prefilled with the source theme's
+     * colors under "<name> copy" as a new theme. Returns null when the id
+     * does not exist.
      */
     suspend fun loadEditorInitial(themeId: String): EditorInitial? {
         val customs = themePreferencesRepository.customColorSchemesFlow.first()
+        if (themeId.startsWith("copy_")) {
+            val sourceId = themeId.removePrefix("copy_")
+            val builtIn = BuiltInColorSchemes.find(sourceId)
+            val existing = customs.firstOrNull { it.id == sourceId }
+            val sourceName: String
+            val sourceLight: SchemeRoles
+            val sourceDark: SchemeRoles
+            if (builtIn != null) {
+                sourceName = builtIn.name
+                sourceLight = builtIn.light
+                sourceDark = builtIn.dark
+            } else if (existing != null) {
+                sourceName = existing.name
+                sourceLight = existing.light
+                sourceDark = existing.dark
+            } else {
+                return null
+            }
+            val takenNames = customs.map { it.name }
+            var name = "$sourceName copy"
+            var suffix = 2
+            while (name in takenNames) {
+                name = "$sourceName copy ($suffix)"
+                suffix++
+            }
+            return EditorInitial(id = null, name = name, light = sourceLight, dark = sourceDark)
+        }
         if (themeId != "new") {
             val existing = customs.firstOrNull { it.id == themeId } ?: return null
             return EditorInitial(

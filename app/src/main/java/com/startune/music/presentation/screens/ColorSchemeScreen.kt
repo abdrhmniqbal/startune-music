@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.FileOpen
@@ -38,10 +40,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -314,7 +316,9 @@ fun ColorSchemeScreen(
                             exportLauncher.launch("${scheme.name}.json")
                         }
                     },
-                    onDelete = entry.custom?.let { scheme -> { deleteScheme = scheme } }
+                    onDelete = entry.custom?.let { scheme -> { deleteScheme = scheme } },
+                    onCopy = if (entry.id == ColorSchemeIds.DYNAMIC) null
+                    else ({ onEditTheme("copy_${entry.id}") })
                 )
             }
         }
@@ -366,7 +370,8 @@ private fun ColorSchemeRow(
     onClick: () -> Unit,
     onEdit: (() -> Unit)? = null,
     onExport: (() -> Unit)? = null,
-    onDelete: (() -> Unit)? = null
+    onDelete: (() -> Unit)? = null,
+    onCopy: (() -> Unit)? = null
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     val containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer
@@ -389,16 +394,35 @@ private fun ColorSchemeRow(
                 .padding(16.dp)
                 .fillMaxWidth()
         ) {
-            if (roles != null) {
-                SchemeStack(roles = roles, borderColor = containerColor)
-            } else {
-                Icon(
-                    Icons.Rounded.AutoAwesome,
-                    contentDescription = null,
-                    tint = if (selected) MaterialTheme.colorScheme.onPrimaryContainer
-                    else MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(28.dp)
-                )
+            Box(
+                modifier = Modifier.width(68.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                if (selected) {
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Rounded.Check,
+                            contentDescription = stringResource(R.string.color_scheme_selected),
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                } else if (roles != null) {
+                    SchemeStack(roles = roles, borderColor = containerColor)
+                } else {
+                    Icon(
+                        Icons.Rounded.AutoAwesome,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
             }
             Text(
                 text = name,
@@ -407,9 +431,18 @@ private fun ColorSchemeRow(
                     .weight(1f)
                     .padding(start = 16.dp, end = 8.dp)
             )
-            if (onEdit != null || onExport != null || onDelete != null) {
+            if (onEdit != null || onCopy != null || onExport != null || onDelete != null) {
                 Box {
-                    IconButton(onClick = { menuExpanded = true }) {
+                    FilledIconButton(
+                        onClick = { menuExpanded = true },
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer
+                            else MaterialTheme.colorScheme.surfaceContainerHigh,
+                            contentColor = if (selected) MaterialTheme.colorScheme.primaryContainer
+                            else MaterialTheme.colorScheme.onSurface
+                        ),
+                        modifier = Modifier.size(36.dp)
+                    ) {
                         Icon(Icons.Rounded.MoreVert, contentDescription = null)
                     }
                     DropdownMenu(
@@ -423,6 +456,16 @@ private fun ColorSchemeRow(
                                 onClick = {
                                     menuExpanded = false
                                     onEdit()
+                                }
+                            )
+                        }
+                        if (onCopy != null) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.color_scheme_copy)) },
+                                leadingIcon = { Icon(Icons.Rounded.ContentCopy, contentDescription = null) },
+                                onClick = {
+                                    menuExpanded = false
+                                    onCopy()
                                 }
                             )
                         }
@@ -448,16 +491,6 @@ private fun ColorSchemeRow(
                         }
                     }
                 }
-            }
-            if (selected) {
-                Icon(
-                    Icons.Rounded.Check,
-                    contentDescription = stringResource(R.string.color_scheme_selected),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(24.dp)
-                )
-            } else {
-                Spacer(modifier = Modifier.size(24.dp))
             }
         }
     }
