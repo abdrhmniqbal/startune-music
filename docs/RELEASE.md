@@ -78,6 +78,30 @@ keyPassword=...
 
 `storeFile` is optional when the release keystore is available as `vz-pixelplay.jks` at the repository root. `storePassword`, `keyAlias`, and `keyPassword` are required for signing. If signing properties or the keystore file are missing, release builds are unsigned. CI workflows create temporary CI signing keys for artifacts; those are not official release keys.
 
+## Signing Decision (beta)
+
+The beta ships signed with the CI key, not an official release key: the
+release workflow uses the shared CI keystore when `CI_KEYSTORE_B64` +
+`CI_KEYSTORE_PASSWORD` secrets exist, otherwise it generates a throwaway
+key for that run. Beta APKs from different throwaway runs cannot update
+over each other, so set the shared CI keystore secrets before the first
+beta if reinstall-free updates matter.
+
+No official release keystore exists yet. Before the first stable release,
+create one and add the four secrets (`KEYSTORE_BASE64`,
+`KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`); the release workflow
+then uses it automatically with no code change:
+
+```sh
+keytool -genkey -v -keystore startune-release.jks -alias startune-release-key \
+  -keyalg RSA -keysize 4096 -validity 10000
+base64 -w0 startune-release.jks  # store the output as KEYSTORE_BASE64
+```
+
+Back up the keystore file and its passwords somewhere safe and never
+commit them: losing the release key means the app can never be updated
+in place on GitHub releases again.
+
 For F-Droid-compatible unsigned verification builds, pass `-Pstartune.disableReleaseSigning=true` even when local signing files exist.
 
 ## Device Smoke Test

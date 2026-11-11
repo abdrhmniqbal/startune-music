@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0-beta] - 2026-11-11
+
+First beta of the Kotlin rewrite.
+
+### Added
+- Local playback with Top Songs, mixes and statistics
+- Navidrome and Jellyfin libraries with offline downloads
+- Synced lyrics, translation and romanization
+- Backup and restore (.starbk)
+- Redesigned color schemes and Material 3 Expressive interface
+
 ## [1.8.11] - 2026-10-31
 
 ### ✨ What's New
