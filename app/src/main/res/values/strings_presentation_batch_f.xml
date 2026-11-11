@@ -224,4 +224,5 @@
     <string name="mix_artists_empty">No artists in your library yet.</string>
     <string name="mix_empty_title">No mixes yet</string>
     <string name="mix_empty_hint">Create your first mix to get started.</string>
+    <string name="mix_see_all">See all</string>
 </resources>

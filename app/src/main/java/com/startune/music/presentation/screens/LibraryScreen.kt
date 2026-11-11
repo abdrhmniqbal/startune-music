@@ -1547,7 +1547,9 @@ fun LibraryScreen(
                                             playerViewModel = playerViewModel,
                                             bottomBarHeight = bottomBarHeightDp,
                                             isRefreshing = isRefreshing,
-                                            onRefresh = onRefresh
+                                            onRefresh = onRefresh,
+                                            storageFilter = playerUiState.currentStorageFilter,
+                                            onMoreOptionsClick = stableOnMoreOptionsClick
                                         )
                                     }
 
