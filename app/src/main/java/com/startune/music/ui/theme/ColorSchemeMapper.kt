@@ -6,6 +6,8 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils
+import kotlin.math.pow
+import kotlin.math.roundToInt
 import com.startune.music.data.preferences.AppColorScheme
 import com.startune.music.data.preferences.ColorSchemeIds
 import com.startune.music.data.preferences.SchemeRoles
@@ -36,30 +38,109 @@ fun hexToColor(hex: String): Color {
  * #88C0D0 has luminance 0.475, so the old threshold gave it white text at
  * 2:1, while black is 10.5:1. With this rule every built-in primary is at
  * least 5.1:1 (worst case Nord light #4C709C, white at 5.12:1).
+ *
+ * Pure Kotlin on purpose: ColorUtils.calculateLuminance delegates to
+ * android.graphics.Color, which is a stub returning 0 in JVM unit tests,
+ * so the mapper could not be unit-tested at all. This is the same
+ * formula (sRGB linearization, 0.2126/0.7152/0.0722 weights).
  */
 private fun onColorFor(color: Color): Color {
-    val luminance = ColorUtils.calculateLuminance(color.toArgb())
+    val luminance = relativeLuminance(color.toArgb())
     val whiteContrast = 1.05 / (luminance + 0.05)
     val blackContrast = (luminance + 0.05) / 0.05
     return if (whiteContrast > blackContrast) Color.White else Color.Black
+}
+
+private fun relativeLuminance(argb: Int): Double {
+    fun linear(channel: Int): Double {
+        val s = channel / 255.0
+        return if (s <= 0.03928) s / 12.92 else ((s + 0.055) / 1.055).pow(2.4)
+    }
+    val r = (argb shr 16) and 0xFF
+    val g = (argb shr 8) and 0xFF
+    val b = argb and 0xFF
+    return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b)
 }
 
 /**
  * Returns [color] with its HSL lightness replaced by [targetLightness]
  * (0..1), keeping hue and saturation, so the result tracks the scheme's own
  * color family instead of drifting to neutral grey.
+ *
+ * Pure Kotlin on purpose, same formulas as ColorUtils.colorToHSL /
+ * HSLToColor (see rgbToHsl / hslToColor below): ColorUtils delegates to
+ * android.graphics.Color, which is a stub returning 0 in JVM unit tests,
+ * so withLightness returned transparent black there and the derivation
+ * could not be unit-tested. Production output is unchanged.
  */
 private fun withLightness(color: Color, targetLightness: Float): Color {
     val hsl = FloatArray(3)
-    ColorUtils.colorToHSL(color.toArgb(), hsl)
+    rgbToHsl(color.toArgb(), hsl)
     hsl[2] = targetLightness.coerceIn(0.02f, 0.98f)
-    return Color(ColorUtils.HSLToColor(hsl))
+    return hslToColor(hsl)
 }
 
 private fun lightnessOf(color: Color): Float {
     val hsl = FloatArray(3)
-    ColorUtils.colorToHSL(color.toArgb(), hsl)
+    rgbToHsl(color.toArgb(), hsl)
     return hsl[2]
+}
+
+/**
+ * RGB (as an ARGB int) to HSL, hsl[0] = hue degrees 0..360, hsl[1] =
+ * saturation 0..1, hsl[2] = lightness 0..1. Same formulas as
+ * ColorUtils.colorToHSL.
+ */
+private fun rgbToHsl(argb: Int, hsl: FloatArray) {
+    val rf = ((argb shr 16) and 0xFF) / 255f
+    val gf = ((argb shr 8) and 0xFF) / 255f
+    val bf = (argb and 0xFF) / 255f
+    val max = maxOf(rf, gf, bf)
+    val min = minOf(rf, gf, bf)
+    val delta = max - min
+    val l = (max + min) / 2f
+    val (h, s) = if (delta == 0f) {
+        0f to 0f
+    } else {
+        val h = when (max) {
+            rf -> ((gf - bf) / delta) % 6f
+            gf -> ((bf - rf) / delta) + 2f
+            else -> ((rf - gf) / delta) + 4f
+        } * 60f
+        val s = delta / (1f - kotlin.math.abs(2f * l - 1f))
+        h to s
+    }
+    var hue = h % 360f
+    if (hue < 0f) hue += 360f
+    hsl[0] = hue.coerceIn(0f, 360f)
+    hsl[1] = s.coerceIn(0f, 1f)
+    hsl[2] = l.coerceIn(0f, 1f)
+}
+
+/**
+ * HSL (same layout as [rgbToHsl]) to an opaque [Color]. Same formulas as
+ * ColorUtils.HSLToColor.
+ */
+private fun hslToColor(hsl: FloatArray): Color {
+    val h = hsl[0]
+    val s = hsl[1]
+    val l = hsl[2]
+    val c = (1f - kotlin.math.abs(2f * l - 1f)) * s
+    val m = l - 0.5f * c
+    val x = c * (1f - kotlin.math.abs((h / 60f % 2f) - 1f))
+    val (r, g, b) = when (h.toInt() / 60) {
+        0 -> Triple(c + m, x + m, m)
+        1 -> Triple(x + m, c + m, m)
+        2 -> Triple(m, c + m, x + m)
+        3 -> Triple(m, x + m, c + m)
+        4 -> Triple(x + m, m, c + m)
+        else -> Triple(c + m, m, x + m)
+    }
+    return Color(
+        (255f * r).roundToInt().coerceIn(0, 255),
+        (255f * g).roundToInt().coerceIn(0, 255),
+        (255f * b).roundToInt().coerceIn(0, 255)
+    )
 }
 
 /**
@@ -152,6 +233,41 @@ fun ColorScheme.toPitchBlack(): ColorScheme = copy(
 )
 
 /**
+ * Derives the accent containers (primary/tertiary) from the surface
+ * container ramp instead of blending each accent 80% toward the
+ * background. That blend moved opposite to the ramp, so in dark mode
+ * the selected/highlight surface landed DARKER than the neutral
+ * surfaceContainer (Nord dark: primaryContainer L 30.8 vs
+ * surfaceContainer L 41.6) and in light mode LIGHTER (Nord light 84.3
+ * vs 80.0, Catppuccin light 87.8 vs 74.7): the selected row receded
+ * instead of standing out, on every scheme. Anchoring 7 lightness
+ * points beyond surfaceContainer -- lighter in dark mode, darker in
+ * light mode -- restores the hierarchy sheet < unselected < selected
+ * (dark) and selected < unselected < sheet (light), while
+ * withLightness keeps each accent's hue. The on-colors are picked by
+ * WCAG contrast, so text stays readable on the new lightness. This
+ * replaces the tertiaryContainer derivation in withDerivedRoles for
+ * the six-role schemes; the hardcoded Startune pair in Theme.kt keeps
+ * its own values and is untouched.
+ */
+private fun ColorScheme.withAccentContainers(
+    primary: Color,
+    tertiary: Color,
+    dark: Boolean
+): ColorScheme {
+    val target = (lightnessOf(surfaceContainer) + if (dark) 0.07f else -0.07f)
+        .coerceIn(0.02f, 0.98f)
+    val primaryContainer = withLightness(primary, target)
+    val tertiaryContainer = withLightness(tertiary, target)
+    return copy(
+        primaryContainer = primaryContainer,
+        onPrimaryContainer = onColorFor(primaryContainer),
+        tertiaryContainer = tertiaryContainer,
+        onTertiaryContainer = onColorFor(tertiaryContainer)
+    )
+}
+
+/**
  * Builds a full Material3 scheme from the six editable roles. on-colors are
  * picked by luminance and containers/variants are blended from the roles, so
  * every combination stays readable. Mirrors the role set the hardcoded
@@ -170,8 +286,6 @@ fun SchemeRoles.toColorScheme(dark: Boolean): ColorScheme {
     val surfaceVariant = Color(ColorUtils.blendARGB(surface.toArgb(), primary.toArgb(), 0.10f))
     val onSurfaceVariant = Color(ColorUtils.blendARGB(onSurface.toArgb(), background.toArgb(), 0.35f))
     val outline = Color(ColorUtils.blendARGB(onSurface.toArgb(), background.toArgb(), 0.45f))
-    val primaryContainer = Color(ColorUtils.blendARGB(primary.toArgb(), background.toArgb(), 0.80f))
-    val onPrimaryContainer = Color(ColorUtils.blendARGB(primary.toArgb(), onBackground.toArgb(), 0.55f))
     val base = if (dark) darkColorScheme() else lightColorScheme()
     return base.copy(
         primary = primary,
@@ -189,8 +303,6 @@ fun SchemeRoles.toColorScheme(dark: Boolean): ColorScheme {
         outline = outline,
         outlineVariant = outline.copy(alpha = 0.6f),
         surfaceTint = primary,
-        primaryContainer = primaryContainer,
-        onPrimaryContainer = onPrimaryContainer,
         secondaryContainer = secondary.copy(alpha = 0.15f),
         onSecondaryContainer = secondary.copy(alpha = 0.85f),
         // The *Fixed roles were never assigned here, so they fell through
@@ -215,6 +327,7 @@ fun SchemeRoles.toColorScheme(dark: Boolean): ColorScheme {
         error = error,
         onError = onColorFor(error)
     ).withDerivedRoles(dark)
+        .withAccentContainers(primary, tertiary, dark)
 }
 
 fun AppColorScheme.toColorSchemePair(): ColorSchemePair =
