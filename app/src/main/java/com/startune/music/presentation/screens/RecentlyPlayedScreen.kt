@@ -23,12 +23,10 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -62,9 +60,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.startune.music.R
 import com.startune.music.data.model.Song
-import com.startune.music.data.model.SortOption
 import com.startune.music.data.stats.StatsTimeRange
-import com.startune.music.presentation.components.LibrarySortBottomSheet
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.PlaylistBottomSheet
 import com.startune.music.presentation.components.RecentlyPlayedRangeSelector
@@ -138,8 +134,6 @@ fun RecentlyPlayedScreen(
     val playlistUiState by playlistViewModel.uiState.collectAsStateWithLifecycle()
 
     var selectedRange by rememberSaveable { mutableStateOf(StatsTimeRange.WEEK) }
-    var sortOption by remember { mutableStateOf<SortOption>(SortOption.SongDefaultOrder) }
-    var showSortSheet by remember { mutableStateOf(false) }
     val lazyListState = rememberLazyListState()
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
@@ -251,13 +245,6 @@ fun RecentlyPlayedScreen(
     val queueSongs = remember(recentlyPlayedSongs) {
         recentlyPlayedSongs.map { it.song }.toImmutableList()
     }
-    val isDefaultOrder = sortOption == SortOption.SongDefaultOrder
-    val displaySongs = remember(queueSongs, sortOption) {
-        when (sortOption) {
-            SortOption.SongDefaultOrder -> queueSongs
-            else -> sortArtistSongs(queueSongs, sortOption).toImmutableList()
-        }
-    }
 
     Box(
         modifier = Modifier
@@ -295,7 +282,7 @@ fun RecentlyPlayedScreen(
                         if (inSelectionMode) {
                             SelectionActionRow(
                                 selectedCount = selectedSongs.size,
-                                onSelectAll = { multiSelectionState.selectAll(displaySongs) },
+                                onSelectAll = { multiSelectionState.selectAll(queueSongs) },
                                 onDeselect = { multiSelectionState.clearSelection() },
                                 onOptionsClick = { showMultiSelectionSheet = true },
                                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -320,7 +307,7 @@ fun RecentlyPlayedScreen(
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
-                } else if (isDefaultOrder) {
+                } else {
                     groupedSongs.forEachIndexed { groupIndex, group ->
                         item(key = "recently_played_time_${groupIndex}_${group.key}") {
                             RecentlyPlayedTimestampDivider(
@@ -347,7 +334,7 @@ fun RecentlyPlayedScreen(
                                         multiSelectionState.toggleSelection(item.song)
                                     } else {
                                         playerViewModel.playSongs(
-                                            songsToPlay = displaySongs,
+                                            songsToPlay = queueSongs,
                                             startSong = item.song,
                                             queueName = queueRecentlyPlayed
                                         )
@@ -359,37 +346,6 @@ fun RecentlyPlayedScreen(
                                 }
                             )
                         }
-                    }
-                } else {
-                    itemsIndexed(displaySongs, key = { _, song -> song.id }, contentType = { _, _ -> "recently_played_song" }) { _, song ->
-                        EnhancedSongListItem(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            song = song,
-                            isCurrentSong = currentSongId == song.id,
-                            isPlaying = currentSongId == song.id && isPlaying,
-                            isSelected = selectedSongIds.contains(song.id),
-                            selectionIndex = if (isSelectionMode) multiSelectionState.getSelectionIndex(song.id) else null,
-                            isSelectionMode = isSelectionMode,
-                            onLongPress = {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                multiSelectionState.toggleSelection(song)
-                            },
-                            onClick = {
-                                if (isSelectionMode) {
-                                    multiSelectionState.toggleSelection(song)
-                                } else {
-                                    playerViewModel.playSongs(
-                                        songsToPlay = displaySongs,
-                                        startSong = song,
-                                        queueName = queueRecentlyPlayed
-                                    )
-                                }
-                            },
-                            onMoreOptionsClick = { selected ->
-                                playerViewModel.selectSongForInfo(selected)
-                                showSongInfoBottomSheet = true
-                            }
-                        )
                     }
                 }
             }
@@ -407,25 +363,12 @@ fun RecentlyPlayedScreen(
                 headerHeight = currentTopBarHeightDp,
                 onBackClick = { navController.popBackStack() },
                 expandedTitleEndPadding = 136.dp,
-                actions = {
-                    Row(
-                        modifier = Modifier.padding(end = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { showSortSheet = true }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.Sort,
-                                contentDescription = stringResource(R.string.presentation_batch_d_sort_by)
-                            )
-                        }
-                    }
-                }
             )
-            if (displaySongs.isNotEmpty()) {
+            if (queueSongs.isNotEmpty()) {
                 LargeExtendedFloatingActionButton(
                     onClick = {
                         playerViewModel.playSongsShuffled(
-                            songsToPlay = displaySongs,
+                            songsToPlay = queueSongs,
                             queueName = queueRecentlyPlayed,
                             startAtZero = true
                         )
@@ -462,8 +405,8 @@ fun RecentlyPlayedScreen(
                     showPlaylistBottomSheet = false
                 },
                 onPlaySong = {
-                    if (displaySongs.isNotEmpty()) {
-                        playerViewModel.playSongs(displaySongs, song, queueRecentlyPlayed)
+                    if (queueSongs.isNotEmpty()) {
+                        playerViewModel.playSongs(queueSongs, song, queueRecentlyPlayed)
                     }
                     showSongInfoBottomSheet = false
                 },
@@ -544,18 +487,6 @@ fun RecentlyPlayedScreen(
                 .zIndex(1f)
         )
 
-        if (showSortSheet) {
-            LibrarySortBottomSheet(
-                title = stringResource(R.string.presentation_batch_d_sort_by),
-                options = SortOption.SONGS.filter { it != SortOption.SongPlayCount && it != SortOption.SongPlayCountAsc }.toImmutableList(),
-                selectedOption = sortOption,
-                onDismiss = { showSortSheet = false },
-                onOptionSelected = {
-                    sortOption = it
-                    showSortSheet = false
-                }
-            )
-        }
     }
 }
 
