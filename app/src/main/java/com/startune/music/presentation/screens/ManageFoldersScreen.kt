@@ -2,7 +2,12 @@
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +44,7 @@ import com.startune.music.R
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.FileExplorerDialog
 import com.startune.music.presentation.components.FolderFilterContent
+import com.startune.music.presentation.components.RescanRequiredBanner
 import com.startune.music.presentation.viewmodel.SettingsViewModel
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -63,6 +69,8 @@ fun ManageFoldersScreen(
 
     var showPicker by remember { mutableStateOf(false) }
 
+    val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
+    val isSyncing by settingsViewModel.isSyncing.collectAsStateWithLifecycle()
     val isWhitelist by settingsViewModel.isWhitelist.collectAsStateWithLifecycle()
     val folders = (if (isWhitelist) allowedDirectories else blockedDirectories).sorted()
 
@@ -139,6 +147,22 @@ fun ManageFoldersScreen(
             contentPadding = PaddingValues(top = currentTopBarHeightDp + 8.dp, start = 16.dp, end = 16.dp, bottom = 100.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            item {
+                AnimatedVisibility(
+                    visible = uiState.folderFilterRescanRequired,
+                    enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+                    exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+                ) {
+                    RescanRequiredBanner(
+                        title = stringResource(R.string.manage_folders_rescan_banner_title),
+                        body = stringResource(R.string.manage_folders_rescan_banner_body),
+                        rescanText = stringResource(R.string.presentation_batch_g_artist_rescan),
+                        scanningText = stringResource(R.string.presentation_batch_g_artist_rescan_scanning),
+                        isResyncing = isSyncing,
+                        onRescanClick = { settingsViewModel.rescanLibrary() }
+                    )
+                }
+            }
             item {
                 FolderFilterContent(
                     isWhitelist = isWhitelist,

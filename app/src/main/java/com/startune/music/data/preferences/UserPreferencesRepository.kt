@@ -214,6 +214,8 @@ constructor(
         val CASE_SENSITIVE_ARTISTS = booleanPreferencesKey("case_sensitive_artists")
         val ARTIST_SETTINGS_RESCAN_REQUIRED =
                 booleanPreferencesKey("artist_settings_rescan_required")
+        val FOLDER_FILTER_RESCAN_REQUIRED =
+                booleanPreferencesKey("folder_filter_rescan_required")
         val ALBUM_ARTIST_SPLIT_FIX_APPLIED =
                 booleanPreferencesKey("album_artist_split_fix_applied")
         val PLAY_COUNT_BACKFILL_APPLIED =
@@ -698,6 +700,23 @@ constructor(
     suspend fun clearArtistSettingsRescanRequired() {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.ARTIST_SETTINGS_RESCAN_REQUIRED] = false
+        }
+    }
+
+    suspend fun setFolderFilterRescanRequired(required: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.FOLDER_FILTER_RESCAN_REQUIRED] = required
+        }
+    }
+
+    val folderFilterRescanRequiredFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.FOLDER_FILTER_RESCAN_REQUIRED] ?: false
+            }
+
+    suspend fun clearFolderFilterRescanRequired() {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.FOLDER_FILTER_RESCAN_REQUIRED] = false
         }
     }
 

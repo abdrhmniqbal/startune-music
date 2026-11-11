@@ -90,7 +90,15 @@ class FolderArtworkSettingsCoordinator @Inject constructor(
 
         // A song previously resolved without artwork can have a null database URI. Clearing
         // files alone never requests its image again, including after a permission regrant.
-        if (preferences.initialSetupDoneFlow.first()) {
+        // Exception: a folder-filter mode flip defers the rescan. The flag is
+        // set before the directories change (SettingsViewModel.setFolderFilterMode),
+        // so a reconcile triggered by that change sees it and skips the
+        // automatic full sync; the banner's Rescan Now performs it instead.
+        // While the flag is set, later reconciles also skip: one manual
+        // rescan covers them all.
+        if (preferences.initialSetupDoneFlow.first()
+            && !preferences.folderFilterRescanRequiredFlow.first()
+        ) {
             syncManager.fullSync()
         }
         preferences.setFolderAlbumArtCacheState(effective)
