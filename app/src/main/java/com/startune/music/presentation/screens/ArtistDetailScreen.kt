@@ -495,6 +495,7 @@ fun ArtistDetailScreen(
                                         modifier = Modifier.weight(1f),
                                         song = song,
                                         playerViewModel = playerViewModel,
+                                        customShape = getSegmentedItemShape(index, popularTracks.size),
                                         showAlbumArt = true,
                                         onMoreOptionsClick = {
                                             playerViewModel.selectSongForInfo(song)

@@ -2,6 +2,7 @@
 
 package com.startune.music.presentation.screens
 
+import com.startune.music.presentation.utils.getSegmentedItemShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -258,6 +259,7 @@ fun LibraryFavoritesTab(
                                 LibraryPlaybackAwareSongItem(
                                     song = song,
                                     playerViewModel = playerViewModel,
+                                    customShape = getSegmentedItemShape(index, favoriteSongs.itemCount),
                                     onMoreOptionsClick = { onMoreOptionsClick(song) },
                                     isSelected = selectedSongIds.contains(song.id),
                                     selectionIndex = if (isSelectionMode) getSelectionIndex(song.id) else null,
@@ -280,6 +282,7 @@ fun LibraryFavoritesTab(
                                     isPlaying = false,
                                     isLoading = true,
                                     isCurrentSong = false,
+                                    customShape = getSegmentedItemShape(index, favoriteSongs.itemCount),
                                     onMoreOptionsClick = {},
                                     onClick = {}
                                 )
@@ -337,12 +340,13 @@ fun LibrarySongsTabPaginated(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap)
             ) {
-                items(12, key = { "skeleton_song_$it" }) {
+                items(12, key = { "skeleton_song_$it" }) { index ->
                     EnhancedSongListItem(
                         song = Song.emptySong(),
                         isPlaying = false,
                         isLoading = true,
                         isCurrentSong = false,
+                        customShape = getSegmentedItemShape(index, 12),
                         onMoreOptionsClick = {},
                         onClick = {}
                     )
@@ -460,6 +464,7 @@ fun LibrarySongsTabPaginated(
                                         isPlaying = isPlayingThisSong,
                                         isCurrentSong = stablePlayerState.currentSong?.id == song.id,
                                         isLoading = false,
+                                        customShape = getSegmentedItemShape(index, paginatedSongs.itemCount),
                                         onMoreOptionsClick = rememberedOnMoreOptionsClick,
                                         onClick = rememberedOnClick
                                     )
@@ -469,6 +474,7 @@ fun LibrarySongsTabPaginated(
                                         isPlaying = false,
                                         isLoading = true,
                                         isCurrentSong = false,
+                                        customShape = getSegmentedItemShape(index, paginatedSongs.itemCount),
                                         onMoreOptionsClick = {},
                                         onClick = {}
                                     )
