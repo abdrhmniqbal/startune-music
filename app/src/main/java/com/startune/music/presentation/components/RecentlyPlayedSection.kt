@@ -50,7 +50,8 @@ fun RecentlyPlayedSection(
     currentSongId: String? = null,
     isPlaying: Boolean = true,
     contentPadding: PaddingValues = HomeRecentlyPlayedDefaultContentPadding,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    title: String = stringResource(R.string.presentation_batch_g_recently_played_title)
 ) {
     val visibleSongs = remember(songs) { songs.take(HomeRecentlyPlayedLimit) }
     if (visibleSongs.size < RecentlyPlayedSectionMinSongsToShow) return
@@ -69,7 +70,7 @@ fun RecentlyPlayedSection(
         ) {
             Text(
                 modifier = Modifier.padding(start = 6.dp),
-                text = stringResource(R.string.presentation_batch_g_recently_played_title),
+                text = title,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold
             )
