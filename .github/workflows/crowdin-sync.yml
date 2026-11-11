@@ -1,0 +1,51 @@
+name: Crowdin sync (one-off)
+
+# One-off: run the Crowdin sync (upload sources + upload translations +
+# download) without running a full release. Re-running the old release run
+# does NOT pick up the new release.yml: a re-run reuses the workflow
+# definition from the original run, so upload_translations stayed false
+# there. A fresh workflow is needed. Remove this file after the sync is
+# verified.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: Sync Crowdin translations
+    environment: main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Check Crowdin secrets are set
+        env:
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+        run: |
+          if [ -z "$CROWDIN_PROJECT_ID" ] || [ -z "$CROWDIN_PERSONAL_TOKEN" ]; then
+            echo "CROWDIN_PROJECT_ID and CROWDIN_PERSONAL_TOKEN secrets must be set in the main environment."
+            exit 1
+          fi
+
+      # Sync is bidirectional: upload sources, then seed Crowdin with the
+      # repo's existing translations (values-*/), so downloads are real
+      # translations instead of English fallback. The l10n branch only ever
+      # holds the download; it is never auto-merged to main.
+      - name: Sync Crowdin sources and translations
+        uses: crowdin/github-action@v3
+        with:
+          upload_sources: true
+          upload_translations: true
+          download_translations: true
+          create_pull_request: false
+          commit_message: "chore(l10n): sync Crowdin translations"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
