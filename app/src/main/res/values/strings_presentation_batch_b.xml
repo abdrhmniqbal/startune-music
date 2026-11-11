@@ -76,6 +76,7 @@
     <string name="presentation_batch_b_recent_empty_title">No recent plays in %1$s</string>
     <string name="presentation_batch_b_recent_empty_subtitle">Change the range or play more songs to fill this timeline.</string>
     <string name="presentation_batch_b_queue_recently_played">Recently Played</string>
+    <string name="presentation_batch_b_queue_recently_added">Recently Added</string>
     <string name="presentation_batch_b_date_today">Today</string>
     <string name="presentation_batch_b_date_yesterday">Yesterday</string>
 
