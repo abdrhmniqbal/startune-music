@@ -54,6 +54,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.MusicOff
 import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.DragIndicator
@@ -64,10 +65,11 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -104,6 +106,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
+import com.startune.music.presentation.components.subcomps.TightWrapText
 import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -152,17 +156,12 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.LargeExtendedFloatingActionButton
-import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.util.lerp
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
-import com.startune.music.utils.shapes.RoundedStarShape
 import kotlin.math.roundToInt
 
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -191,6 +190,7 @@ fun PlaylistDetailScreen(
     val moreOptionsLabel = stringResource(R.string.presentation_batch_b_more_options)
     val confirmLabel = stringResource(R.string.confirm)
     val shuffleLabel = stringResource(R.string.shortcut_shuffle_short)
+    val playItLabel = stringResource(R.string.presentation_batch_b_play_it)
     val addSongsCd = stringResource(R.string.presentation_batch_b_add_songs)
     val removeSongsCd = stringResource(R.string.presentation_batch_b_remove_songs)
     val reorderSongsCd = stringResource(R.string.presentation_batch_b_reorder_songs)
@@ -399,8 +399,6 @@ fun PlaylistDetailScreen(
     val currentTopBarHeightDp = with(density) { topBarHeight.value.toDp() }
     val solidAlpha = (collapseFraction * 2f).coerceIn(0f, 1f)
     val expandedContentAlpha = 1f - solidAlpha
-    val titleVerticalBias = lerp(1f, -1f, collapseFraction)
-    val shuffleAlignment = BiasAlignment(horizontalBias = 1f, verticalBias = titleVerticalBias)
 
 
     Scaffold(
@@ -430,8 +428,8 @@ fun PlaylistDetailScreen(
                     collapseFraction = collapseFraction,
                     headerHeight = currentTopBarHeightDp,
                     onBackClick = onBackClick,
-                    expandedTitleEndPadding = 136.dp,
-                    collapsedTitleEndPadding = 136.dp,
+                    expandedTitleStartPadding = 8.dp,
+                    titleFontSizeRange = 30.sp to 28.sp,
                     maxLines = if (collapseFraction < 0.5f) Int.MAX_VALUE else 1,
                     containerHeightRange = 160.dp to 56.dp,
                     actions = {
@@ -490,33 +488,6 @@ fun PlaylistDetailScreen(
                         size = 168.dp
                     )
                 }
-                if (!isReorderModeEnabled && localReorderableSongs.isNotEmpty()) {
-                    LargeExtendedFloatingActionButton(
-                        onClick = {
-                            playerViewModel.playSongsShuffled(
-                                songsToPlay = localReorderableSongs,
-                                queueName = currentPlaylist?.name ?: fallbackPlaylistName,
-                                playlistId = currentPlaylist?.id,
-                                startAtZero = true
-                            )
-                        },
-                        shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f),
-                        modifier = Modifier
-                            .align(shuffleAlignment)
-                            .statusBarsPadding()
-                            .padding(end = 16.dp)
-                            .graphicsLayer {
-                                alpha = expandedContentAlpha
-                                scaleX = expandedContentAlpha
-                                scaleY = expandedContentAlpha
-                            }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Shuffle,
-                            contentDescription = shuffleLabel
-                        )
-                    }
-                }
             }
         }
     ) { innerPadding ->
@@ -545,6 +516,101 @@ fun PlaylistDetailScreen(
                     .padding(top = innerPadding.calculateTopPadding())
             ) {
                 val playbackControlBottomPadding = if (isFolderPlaylist) 8.dp else 6.dp
+                // Upstream Play + Shuffle row (upstream has no floating FAB in
+                // the header; the title needs the full width the FAB blocked).
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(62.dp)
+                        .padding(horizontal = 20.dp)
+                        .padding(bottom = playbackControlBottomPadding),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            if (localReorderableSongs.isNotEmpty()) {
+                                playerViewModel.playSongs(
+                                    localReorderableSongs,
+                                    localReorderableSongs.first(),
+                                    currentPlaylist?.name ?: fallbackPlaylistName,
+                                    currentPlaylist?.id,
+                                )
+                                if (playerStableState.isShuffleEnabled) playerViewModel.toggleShuffle()
+                            }
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(76.dp),
+                        enabled = localReorderableSongs.isNotEmpty(),
+                        shape = AbsoluteSmoothCornerShape(
+                            cornerRadiusTL = 60.dp,
+                            smoothnessAsPercentTR = 60,
+                            cornerRadiusTR = 14.dp,
+                            smoothnessAsPercentTL = 60,
+                            cornerRadiusBL = 60.dp,
+                            smoothnessAsPercentBR = 60,
+                            cornerRadiusBR = 14.dp,
+                            smoothnessAsPercentBL = 60
+                        ),
+                        contentPadding = PaddingValues(horizontal = 10.dp)
+                    ) {
+                        Icon(
+                            Icons.Rounded.PlayArrow,
+                            contentDescription = stringResource(R.string.cd_play),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                        TightWrapText(
+                            text = playItLabel,
+                            modifier = Modifier.padding(end = 4.dp),
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 2,
+                            lineHeight = 20.sp
+                        )
+                    }
+                    FilledTonalButton(
+                        onClick = {
+                            if (localReorderableSongs.isNotEmpty()) {
+                                playerViewModel.playSongsShuffled(
+                                    songsToPlay = localReorderableSongs,
+                                    queueName = currentPlaylist?.name ?: fallbackPlaylistName,
+                                    playlistId = currentPlaylist?.id,
+                                    startAtZero = true,
+                                )
+                            }
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(76.dp),
+                        enabled = localReorderableSongs.isNotEmpty(),
+                        shape = AbsoluteSmoothCornerShape(
+                            cornerRadiusTL = 14.dp,
+                            smoothnessAsPercentTR = 60,
+                            cornerRadiusTR = 60.dp,
+                            smoothnessAsPercentTL = 60,
+                            cornerRadiusBL = 14.dp,
+                            smoothnessAsPercentBR = 60,
+                            cornerRadiusBR = 60.dp,
+                            smoothnessAsPercentBL = 60
+                        ),
+                        contentPadding = PaddingValues(horizontal = 10.dp)
+                    ) {
+                        Icon(
+                            Icons.Rounded.Shuffle,
+                            contentDescription = shuffleLabel,
+                            modifier = Modifier.size(ButtonDefaults.IconSize)
+                        )
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                        TightWrapText(
+                            text = shuffleLabel,
+                            modifier = Modifier.padding(end = 4.dp),
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 2,
+                            lineHeight = 20.sp
+                        )
+                    }
+                }
+
 
 
                 if (localReorderableSongs.isEmpty()) {
