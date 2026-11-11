@@ -9,6 +9,7 @@ import com.startune.music.data.backup.format.BackupEncryptedException
 import com.startune.music.data.backup.format.BackupWrongPassphraseException
 import com.startune.music.data.backup.model.BackupSection
 import com.startune.music.data.database.MusicDao
+import com.startune.music.data.media.StreamPlaybackCache
 import com.startune.music.data.stats.PlaybackStatsRepository
 import com.startune.music.data.backup.model.BackupOperationType
 import com.startune.music.data.backup.model.BackupTransferProgressUpdate
@@ -78,6 +79,7 @@ data class SettingsUiState(
     val navBarCompactMode: Boolean = false,
     val carouselStyle: String = CarouselStyle.NO_PEEK,
     val libraryNavigationMode: String = LibraryNavigationMode.TAB_ROW,
+    val streamCacheLimitMb: Int = StreamPlaybackCache.DEFAULT_STREAM_CACHE_LIMIT_MB,
     val launchTab: String = LaunchTab.HOME,
     val keepPlayingInBackground: Boolean = true,
     val restoreLastPosition: Boolean = true,
@@ -183,6 +185,7 @@ private sealed interface SettingsUiUpdate {
         val navBarStyle: String,
         val navBarCompactMode: Boolean,
         val libraryNavigationMode: String,
+        val streamCacheLimitMb: Int,
         val carouselStyle: String,
         val launchTab: String,
         val showPlayerFileInfo: Boolean,
@@ -358,6 +361,7 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.navBarStyleFlow,
                 userPreferencesRepository.navBarCompactModeFlow,
                 userPreferencesRepository.libraryNavigationModeFlow,
+                userPreferencesRepository.streamCacheLimitMbFlow,
                 userPreferencesRepository.carouselStyleFlow,
                 userPreferencesRepository.launchTabFlow,
                 userPreferencesRepository.showPlayerFileInfoFlow,
@@ -375,11 +379,12 @@ class SettingsViewModel @Inject constructor(
                     navBarStyle = values[7] as String,
                     navBarCompactMode = values[8] as Boolean,
                     libraryNavigationMode = values[9] as String,
-                    carouselStyle = values[10] as String,
-                    launchTab = values[11] as String,
-                    showPlayerFileInfo = values[12] as Boolean,
-                    globalNowPlayingThemeEnabled = values[13] as Boolean,
-                    pitchBlackEnabled = values[14] as Boolean
+                    streamCacheLimitMb = values[10] as Int,
+                    carouselStyle = values[11] as String,
+                    launchTab = values[12] as String,
+                    showPlayerFileInfo = values[13] as Boolean,
+                    globalNowPlayingThemeEnabled = values[14] as Boolean,
+                    pitchBlackEnabled = values[15] as Boolean
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -394,6 +399,7 @@ class SettingsViewModel @Inject constructor(
                         navBarStyle = update.navBarStyle,
                         navBarCompactMode = update.navBarCompactMode,
                         libraryNavigationMode = update.libraryNavigationMode,
+                        streamCacheLimitMb = update.streamCacheLimitMb,
                         carouselStyle = update.carouselStyle,
                         launchTab = update.launchTab,
                         showPlayerFileInfo = update.showPlayerFileInfo,
@@ -826,6 +832,12 @@ class SettingsViewModel @Inject constructor(
     fun setLibraryNavigationMode(mode: String) {
         viewModelScope.launch {
             userPreferencesRepository.setLibraryNavigationMode(mode)
+        }
+    }
+
+    fun setStreamCacheLimitMb(limitMb: Int) {
+        viewModelScope.launch {
+            userPreferencesRepository.setStreamCacheLimitMb(limitMb)
         }
     }
 

@@ -10,4 +10,9 @@
     <string name="cache_artwork_title">Album &amp; Artist Artwork</string>
     <string name="cache_artwork_subtitle">Cached thumbnails</string>
     <string name="device_capabilities_storage_available_of_total">%1$s available of %2$s total</string>
+    <string name="cache_limit_title">Stream cache limit</string>
+    <string name="cache_limit_description">How much streamed audio to keep for replay. Applies right away.</string>
+    <string name="cache_limit_off">Off</string>
+    <string name="cache_limit_mb">%1$d MB</string>
+    <string name="cache_limit_gb">%1$d GB</string>
 </resources>

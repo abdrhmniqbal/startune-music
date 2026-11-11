@@ -12,6 +12,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.media3.common.Player
+import com.startune.music.data.media.StreamPlaybackCache
 import com.startune.music.data.model.PlaybackQueueSnapshot
 import com.startune.music.data.model.Playlist
 import com.startune.music.data.model.SortOption
@@ -127,6 +128,7 @@ constructor(
         val YOUR_MIX_SONG_IDS = stringPreferencesKey("your_mix_song_ids")
         val FOR_YOU_MIX_SONG_COUNT = intPreferencesKey("for_you_mix_song_count")
         val NAV_BAR_CORNER_RADIUS = intPreferencesKey("nav_bar_corner_radius")
+        val STREAM_CACHE_LIMIT_MB = intPreferencesKey("stream_cache_limit_mb")
         val NAV_BAR_STYLE = stringPreferencesKey("nav_bar_style")
         val NAV_BAR_COMPACT_MODE = booleanPreferencesKey("nav_bar_compact_mode")
         val CAROUSEL_STYLE = stringPreferencesKey("carousel_style")
@@ -1844,6 +1846,18 @@ constructor(
     suspend fun setNavBarCornerRadius(radius: Int) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.NAV_BAR_CORNER_RADIUS] = sanitizeNavBarCornerRadius(radius)
+        }
+    }
+
+    val streamCacheLimitMbFlow: Flow<Int> =
+        dataStore.data.map { preferences ->
+            StreamPlaybackCache.sanitizeLimitMb(preferences[PreferencesKeys.STREAM_CACHE_LIMIT_MB])
+        }
+
+    suspend fun setStreamCacheLimitMb(limitMb: Int) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.STREAM_CACHE_LIMIT_MB] =
+                StreamPlaybackCache.sanitizeLimitMb(limitMb)
         }
     }
 

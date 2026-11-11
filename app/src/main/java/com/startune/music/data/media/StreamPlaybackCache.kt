@@ -41,9 +41,33 @@ class StreamPlaybackCache @Inject constructor(
         val expiredTrackCount: Int
     )
 
-    private companion object {
+    companion object {
+        const val DEFAULT_STREAM_CACHE_LIMIT_MB = 500
+        val STREAM_CACHE_LIMIT_PRESETS_MB = listOf(0, 100, 250, 500, 1024, 2048)
+
+        /** Snaps a stored or chosen value to the nearest preset. */
+        fun sanitizeLimitMb(limitMb: Int?): Int {
+            val value = limitMb ?: DEFAULT_STREAM_CACHE_LIMIT_MB
+            return STREAM_CACHE_LIMIT_PRESETS_MB.minByOrNull { kotlin.math.abs(it - value) }
+                ?: DEFAULT_STREAM_CACHE_LIMIT_MB
+        }
+
         private const val CACHE_DIR_NAME = "stream_playback_cache"
-        private const val MAX_CACHE_BYTES = 500L * 1024L * 1024L
+        private const val DEFAULT_MAX_CACHE_BYTES =
+            DEFAULT_STREAM_CACHE_LIMIT_MB * 1024L * 1024L
+    }
+
+    /** The limit is a setting (Data & Storage), not a constant: the app applies
+     * the stored value at startup and on every change, so a new limit trims
+     * the cache right away instead of waiting for the next stream. */
+    @Volatile
+    private var maxCacheBytes: Long = DEFAULT_MAX_CACHE_BYTES
+
+    private val evictor = DynamicCacheEvictor { maxCacheBytes }
+
+    fun setMaxCacheBytes(bytes: Long) {
+        maxCacheBytes = bytes.coerceAtLeast(0L)
+        evictor.trim()
     }
 
     private val expiryMillis =
@@ -57,7 +81,7 @@ class StreamPlaybackCache @Inject constructor(
     private val simpleCache: SimpleCache by lazy {
         SimpleCache(
             cacheDir,
-            LeastRecentlyUsedCacheEvictor(MAX_CACHE_BYTES),
+            evictor,
             StandaloneDatabaseProvider(context)
         )
     }
