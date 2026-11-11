@@ -1,12 +1,9 @@
 ﻿package com.startune.music.presentation.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,30 +11,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.startune.music.R
 import com.startune.music.data.stats.PlaybackStatsRepository
-import com.startune.music.presentation.components.SmartImage
-import com.startune.music.presentation.components.subcomps.PlayingEqIcon
+import kotlin.math.abs
 import kotlinx.collections.immutable.ImmutableList
 
 private const val TOP_TRACKS_PAGE_SIZE = 5
@@ -102,121 +93,25 @@ fun TopTracksSection(
                 pageSpacing = 24.dp,
                 verticalAlignment = Alignment.Top
             ) { page ->
+                val pageOffset = abs(page - pagerState.currentPage - pagerState.currentPageOffsetFraction)
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     pages[page].forEachIndexed { index, track ->
                         key(track.songId) {
-                            TopTrackRow(
+                            RankedSongRow(
                                 rank = page * TOP_TRACKS_PAGE_SIZE + index + 1,
-                                track = track,
+                                title = track.title,
+                                artist = track.artist,
+                                artUri = track.albumArtUri,
                                 isCurrentSong = currentSongId == track.songId,
                                 isPlaying = isPlaying,
-                                onClick = { onTrackClick(track) }
+                                onClick = { onTrackClick(track) },
+                                entranceProgress = (1f - pageOffset * (1f + index * 0.15f)).coerceIn(0f, 1f)
                             )
                         }
                     }
                 }
             }
-    }
-}
-
-@Composable
-private fun TopTrackRow(
-    rank: Int,
-    track: PlaybackStatsRepository.SongPlaybackSummary,
-    isCurrentSong: Boolean,
-    isPlaying: Boolean,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .padding(vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        TopTrackRankBadge(
-            rank = rank,
-            accentColor = MaterialTheme.colorScheme.primary,
-            accentOnColor = MaterialTheme.colorScheme.onPrimary,
-            highlighted = rank == 1
-        )
-        SmartImage(
-            model = track.albumArtUri,
-            contentDescription = track.title,
-            modifier = Modifier
-                .size(52.dp)
-                .clip(RoundedCornerShape(14.dp)),
-            shape = RoundedCornerShape(14.dp)
-        )
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = track.title,
-                style = MaterialTheme.typography.titleSmall,
-                color = if (isCurrentSong) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = track.artist,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        if (isCurrentSong) {
-            PlayingEqIcon(
-                modifier = Modifier.size(width = 18.dp, height = 16.dp),
-                color = MaterialTheme.colorScheme.primary,
-                isPlaying = isPlaying
-            )
-        }
-    }
-}
-
-@Composable
-private fun TopTrackRankBadge(
-    rank: Int,
-    accentColor: Color,
-    accentOnColor: Color,
-    highlighted: Boolean
-) {
-    val containerColor = if (highlighted) {
-        accentColor
-    } else {
-        accentColor.copy(alpha = 0.24f)
-    }
-    val contentColor = if (highlighted) {
-        accentOnColor
-    } else {
-        accentColor
-    }
-    Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = containerColor,
-        contentColor = contentColor
-    ) {
-        Box(
-            modifier = Modifier
-                .defaultMinSize(minWidth = 34.dp, minHeight = 34.dp)
-                .padding(horizontal = 10.dp, vertical = 6.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = rank.toString(),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
     }
 }
