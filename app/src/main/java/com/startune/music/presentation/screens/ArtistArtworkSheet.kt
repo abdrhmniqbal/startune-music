@@ -2,19 +2,21 @@ package com.startune.music.presentation.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -29,7 +31,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.OutlinedTextField
@@ -57,10 +60,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.startune.music.R
 import com.startune.music.data.network.deezer.DeezerArtistCandidate
 import com.startune.music.presentation.components.SmartImage
+import com.startune.music.ui.theme.ShapeCache
 import com.startune.music.presentation.components.SmartImageListTargetSize
 import com.startune.music.presentation.viewmodel.ArtistDetailViewModel
 import com.startune.music.ui.theme.RoundedSans
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 /**
  * Artwork picker for an artist, like old Startune's ArtistArtworkSheet:
@@ -104,12 +109,13 @@ fun ArtistArtworkSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
+                .padding(start = 24.dp, top = 12.dp, end = 24.dp)
         ) {
             OutlinedTextField(
                 value = query,
                 onValueChange = { viewModel.setArtworkSearchQuery(it) },
                 label = { Text(stringResource(R.string.presentation_batch_d_search_deezer_hint)) },
+                placeholder = { Text(stringResource(R.string.presentation_batch_d_search_deezer_hint)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(
@@ -130,17 +136,14 @@ fun ArtistArtworkSheet(
                         }
                     }
                 },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    unfocusedTrailingIconColor = Color.Transparent,
-                    focusedSupportingTextColor = Color.Transparent,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent
                 ),
-                shape = CircleShape,
+                shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -175,35 +178,52 @@ fun ArtistArtworkSheet(
                 }
             }
 
-            Row(
+            Surface(
+                onClick = {
+                    onPickCustomPhoto()
+                    onDismiss()
+                },
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.surfaceContainer,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
-                    .clickable {
-                        onPickCustomPhoto()
-                        onDismiss()
-                    }
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .heightIn(min = 72.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Rounded.AddAPhoto,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary
-                )
-                Text(
-                    text = stringResource(R.string.presentation_batch_d_choose_from_device),
-                    style = MaterialTheme.typography.bodyLarge,
+                Row(
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 12.dp)
-                )
-                Icon(
-                    imageVector = Icons.Rounded.ChevronRight,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(ShapeCache.expressiveAvatar)
+                            .background(MaterialTheme.colorScheme.tertiaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.AddAPhoto,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    Text(
+                        text = stringResource(R.string.presentation_batch_d_choose_from_device),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 16.dp)
+                    )
+                    Icon(
+                        imageVector = Icons.Rounded.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -232,7 +252,7 @@ fun ArtistArtworkSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f, fill = false),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(
                         items = candidates,
@@ -275,6 +295,20 @@ fun ArtistArtworkSheet(
     }
 }
 
+/**
+ * Compact count like 10.35M or 613.42K (two decimals, US formatting),
+ * for the Deezer fan count. Plain number below 1,000.
+ */
+private fun formatCompactCount(count: Int): String {
+    val value = count.toDouble()
+    return when {
+        count >= 1_000_000_000 -> String.format(Locale.US, "%.2fB", value / 1_000_000_000)
+        count >= 1_000_000 -> String.format(Locale.US, "%.2fM", value / 1_000_000)
+        count >= 1_000 -> String.format(Locale.US, "%.2fK", value / 1_000)
+        else -> count.toString()
+    }
+}
+
 @Composable
 private fun ArtworkCandidateRow(
     candidate: DeezerArtistCandidate,
@@ -282,68 +316,71 @@ private fun ArtworkCandidateRow(
     enabled: Boolean,
     onClick: () -> Unit
 ) {
-    Row(
+    val containerColor = if (isCurrent) MaterialTheme.colorScheme.primaryContainer
+        else MaterialTheme.colorScheme.surfaceContainer
+    val contentColor = if (isCurrent) MaterialTheme.colorScheme.onPrimaryContainer
+        else MaterialTheme.colorScheme.onSurface
+    val subtitleColor = if (isCurrent) contentColor.copy(alpha = 0.75f)
+        else MaterialTheme.colorScheme.onSurfaceVariant
+    Surface(
+        onClick = onClick,
+        enabled = enabled,
+        shape = RoundedCornerShape(24.dp),
+        color = containerColor,
         modifier = Modifier
             .fillMaxWidth()
-            .clip(CircleShape)
-            .background(
-                if (isCurrent) MaterialTheme.colorScheme.surfaceContainerLow
-                else MaterialTheme.colorScheme.surfaceContainerHigh
-            )
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 8.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .heightIn(min = 72.dp)
     ) {
-        SmartImage(
-            model = candidate.pictureUrl,
-            contentDescription = candidate.name,
-            shape = CircleShape,
-            targetSize = SmartImageListTargetSize,
-            modifier = Modifier.size(72.dp)
-        )
-
-        Column(
+        Row(
             modifier = Modifier
-                .weight(1f)
-                .padding(start = 14.dp)
+                .fillMaxSize()
+                .padding(start = 16.dp, end = 24.dp, top = 12.dp, bottom = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = candidate.name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1
+            SmartImage(
+                model = candidate.pictureUrl,
+                contentDescription = candidate.name,
+                shape = CircleShape,
+                targetSize = SmartImageListTargetSize,
+                modifier = Modifier.size(72.dp)
             )
-            Text(
-                text = when {
-                    candidate.fanCount > 0 -> stringResource(
-                        R.string.presentation_batch_d_fans,
-                        candidate.fanCount
-                    )
-                    candidate.albumCount > 0 -> stringResource(
-                        R.string.presentation_batch_d_albums,
-                        candidate.albumCount
-                    )
-                    else -> "Deezer ID: ${candidate.id}"
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1
-            )
-        }
 
-        if (isCurrent) {
-            Box(
+            Column(
                 modifier = Modifier
-                    .size(28.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
-                contentAlignment = Alignment.Center
+                    .weight(1f)
+                    .padding(start = 14.dp)
             ) {
+                Text(
+                    text = candidate.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.SemiBold,
+                    color = contentColor,
+                    maxLines = 1
+                )
+                Text(
+                    text = when {
+                        candidate.fanCount > 0 -> stringResource(
+                            R.string.presentation_batch_d_fans,
+                            formatCompactCount(candidate.fanCount)
+                        )
+                        candidate.albumCount > 0 -> stringResource(
+                            R.string.presentation_batch_d_albums,
+                            candidate.albumCount
+                        )
+                        else -> "Deezer ID: ${candidate.id}"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = subtitleColor,
+                    maxLines = 1
+                )
+            }
+
+            if (isCurrent) {
                 Icon(
                     imageVector = Icons.Rounded.Check,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(16.dp)
+                    tint = contentColor,
+                    modifier = Modifier.padding(start = 8.dp)
                 )
             }
         }
