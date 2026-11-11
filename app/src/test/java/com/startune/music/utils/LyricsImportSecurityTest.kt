@@ -1,4 +1,4 @@
-﻿package com.startune.music.utils
+package com.startune.music.utils
 
 import com.google.common.truth.Truth.assertThat
 import java.io.File
@@ -186,7 +186,7 @@ class LyricsImportSecurityTest {
 
         assertThat(result).isInstanceOf(LyricsImportValidationResult.Valid::class.java)
         val valid = result as LyricsImportValidationResult.Valid
-        assertThat(valid.value.sanitizedContent).isEqualTo("[00:07.53]<00:07.53>Yeah, <00:09.20>I <00:09.44>bet")
+        assertThat(valid.value.sanitizedContent).isEqualTo("[00:07.53]v1:<00:07.53>Yeah,<00:07.78> <00:09.20>I <00:09.44>bet<00:09.67>")
         assertThat(valid.value.parsedLyrics.synced).hasSize(1)
         assertThat(valid.value.parsedLyrics.synced!!.first().line).isEqualTo("Yeah, I bet")
     }
@@ -230,6 +230,6 @@ class LyricsImportSecurityTest {
         assertThat(result).isInstanceOf(LyricsImportValidationResult.Valid::class.java)
         val valid = result as LyricsImportValidationResult.Valid
         assertThat(valid.value.parsedLyrics.synced).hasSize(1)
-        assertThat(valid.value.parsedLyrics.synced!!.first().line).isEqualTo("v1: Hello world")
+        assertThat(valid.value.parsedLyrics.synced!!.first().line).isEqualTo("Hello world")
     }
 }

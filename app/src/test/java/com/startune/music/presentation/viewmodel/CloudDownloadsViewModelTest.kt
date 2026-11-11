@@ -1,4 +1,4 @@
-﻿package com.startune.music.presentation.viewmodel
+package com.startune.music.presentation.viewmodel
 
 import com.google.common.truth.Truth.assertThat
 import com.startune.music.MainCoroutineExtension
@@ -82,7 +82,7 @@ class CloudDownloadsViewModelTest {
         viewModel.downloadSelected(listOf(navidrome, duplicate, jellyfin, local))
         advanceUntilIdle()
 
-        coVerify(exactly = 1) { repository.enqueueAll(listOf(navidrome, jellyfin)) }
+        coVerify(exactly = 1) { repository.enqueueAll(listOf(jellyfin)) }
     }
 
     @Test

@@ -16,7 +16,7 @@ class BackupSectionTest {
 
     @Test
     fun `all sections have unique labels`() {
-        val labels = BackupSection.entries.map { it.label }
+        val labels = BackupSection.entries.map { it.labelRes }
         assertEquals(labels.size, labels.distinct().size, "BackupSection labels must be unique")
     }
 
@@ -33,6 +33,7 @@ class BackupSectionTest {
         assertEquals(BackupSection.QUICK_FILL, BackupSection.fromKey("quick_fill"))
         assertEquals(BackupSection.ARTIST_IMAGES, BackupSection.fromKey("artist_images"))
         assertEquals(BackupSection.EQUALIZER, BackupSection.fromKey("equalizer"))
+        assertEquals(BackupSection.AUDIO_BOOKMARKS, BackupSection.fromKey("audio_bookmarks"))
     }
 
     @Test
@@ -47,8 +48,8 @@ class BackupSectionTest {
     }
 
     @Test
-    fun `there are exactly 11 backup sections`() {
-        assertEquals(11, BackupSection.entries.size)
+    fun `there are exactly 12 backup sections`() {
+        assertEquals(12, BackupSection.entries.size)
     }
 
     @Test
@@ -56,6 +57,11 @@ class BackupSectionTest {
         assertEquals(3, BackupSection.QUICK_FILL.sinceVersion)
         assertEquals(3, BackupSection.ARTIST_IMAGES.sinceVersion)
         assertEquals(3, BackupSection.EQUALIZER.sinceVersion)
+    }
+
+    @Test
+    fun `audio bookmarks have sinceVersion 4`() {
+        assertEquals(4, BackupSection.AUDIO_BOOKMARKS.sinceVersion)
     }
 
     @Test
@@ -71,15 +77,15 @@ class BackupSectionTest {
             BackupSection.PLAYBACK_HISTORY
         )
         originalSections.forEach { section ->
-            assertEquals(1, section.sinceVersion, "${section.label} should have sinceVersion 1")
+            assertEquals(1, section.sinceVersion, "${section.key} should have sinceVersion 1")
         }
     }
 
     @Test
     fun `all sections have non-empty labels and descriptions`() {
         BackupSection.entries.forEach { section ->
-            assertTrue(section.label.isNotBlank(), "${section.key} should have a non-empty label")
-            assertTrue(section.description.isNotBlank(), "${section.key} should have a non-empty description")
+            assertTrue(section.labelRes != 0, "${section.key} should have a non-zero label resource")
+            assertTrue(section.descriptionRes != 0, "${section.key} should have a non-zero description resource")
         }
     }
 }

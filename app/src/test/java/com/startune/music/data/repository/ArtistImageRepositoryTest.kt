@@ -1,5 +1,6 @@
-﻿package com.startune.music.data.repository
+package com.startune.music.data.repository
 
+import android.content.Context
 import com.startune.music.data.database.MusicDao
 import com.startune.music.data.network.deezer.DeezerApiService
 import com.startune.music.data.network.deezer.DeezerArtist
@@ -39,7 +40,7 @@ class ArtistImageRepositoryTest {
     fun `cancelled prefetch does not mark artist as failed for the session`() = runTest {
         val deezerApiService = mockk<DeezerApiService>()
         val musicDao = mockk<MusicDao>()
-        val repository = ArtistImageRepository(deezerApiService, musicDao, userPreferencesRepository())
+        val repository = ArtistImageRepository(deezerApiService, musicDao, userPreferencesRepository(), mockk<Context>(relaxed = true))
         val firstAttemptStarted = CompletableDeferred<Unit>()
         val searchAttempts = AtomicInteger(0)
         val rawUrl = "https://cdn-images.dzcdn.net/images/artist/250x250-000000-80-0-0.jpg"
@@ -49,7 +50,7 @@ class ArtistImageRepositoryTest {
         coEvery { musicDao.getArtistImageUrl(42L) } returns null
         coEvery { musicDao.getArtistImageUrlByNormalizedName("Artist Name") } returns null
         coJustRun { musicDao.updateArtistImageUrl(42L, any()) }
-        coEvery { deezerApiService.searchArtist("Artist Name", 1) } coAnswers {
+        coEvery { deezerApiService.searchArtist("Artist Name", 10) } coAnswers {
             when (searchAttempts.incrementAndGet()) {
                 1 -> {
                     firstAttemptStarted.complete(Unit)
@@ -89,7 +90,8 @@ class ArtistImageRepositoryTest {
         val repository = ArtistImageRepository(
             deezerApiService,
             musicDao,
-            userPreferencesRepository(externalArtistImagesEnabled = false)
+            userPreferencesRepository(externalArtistImagesEnabled = false),
+            mockk<Context>(relaxed = true)
         )
 
         val imageUrl = repository.getArtistImageUrl("Artist Name", 42L)
@@ -101,6 +103,8 @@ class ArtistImageRepositoryTest {
     private fun userPreferencesRepository(externalArtistImagesEnabled: Boolean = true): UserPreferencesRepository {
         return mockk {
             every { this@mockk.externalArtistImagesEnabledFlow } returns flowOf(externalArtistImagesEnabled)
+            every { this@mockk.caseSensitiveArtistsFlow } returns flowOf(false)
+            every { this@mockk.useFolderAlbumArtFlow } returns flowOf(false)
         }
     }
 }

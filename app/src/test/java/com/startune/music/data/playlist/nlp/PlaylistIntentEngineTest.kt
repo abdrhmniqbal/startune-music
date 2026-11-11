@@ -1,4 +1,4 @@
-﻿package com.startune.music.data.playlist.nlp
+package com.startune.music.data.playlist.nlp
 
 import com.google.common.truth.Truth.assertThat
 import com.startune.music.data.DailyMixManager.SongEngagementStats
@@ -254,9 +254,10 @@ class PlaylistIntentEngineTest {
 
     @Test
     fun `tagging a song as metal removes it from a chillout mix`() {
-        // Simulates the user editing "Alternative"/"Music"/none -> "Nu Metal" and regenerating.
-        // The untagged version is admissible (offline we can't rule it out); the tagged one is not.
-        val untagged = listOf(song(id = "lp", title = "Numb", artist = "Linkin Park", genre = "Alternative"))
+        // Simulates the user editing "Ambient"/"Music"/none -> "Nu Metal" and regenerating.
+        // The untagged version is admissible (Ambient energy 0.25 maps to 90 BPM, inside the
+        // 60 BPM tolerance, and inside CHILL's 0..0.65 band); the tagged one is not.
+        val untagged = listOf(song(id = "lp", title = "Numb", artist = "Linkin Park", genre = "Ambient"))
         val tagged = listOf(song(id = "lp", title = "Numb", artist = "Linkin Park", genre = "Nu Metal"))
 
         val beforeTag = generate("chillout\n[Target BPM: 60 BPM]", untagged)

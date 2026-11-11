@@ -1,4 +1,4 @@
-﻿package com.startune.music.data.repository
+package com.startune.music.data.repository
 
 import android.content.Context
 import com.startune.music.data.database.MusicDao
@@ -14,6 +14,7 @@ import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.*
 import org.junit.jupiter.api.AfterEach
@@ -48,6 +49,10 @@ class MusicRepositoryImplTest {
         coEvery { mockUserPreferencesRepository.blockedDirectoriesFlow } returns flowOf(setOf("/dummy"))
         coEvery { mockUserPreferencesRepository.initialSetupDoneFlow } returns flowOf(true)
         coEvery { mockUserPreferencesRepository.isFolderFilterActiveFlow } returns flowOf(false)
+        coEvery { mockUserPreferencesRepository.genreDelimitersFlow } returns flowOf(listOf(";", "/", ","))
+        coEvery { mockUserPreferencesRepository.mockGenresEnabledFlow } returns flowOf(false)
+        coEvery { mockUserPreferencesRepository.unsplitGenresFlow } returns flowOf(emptyList())
+        every { mockArtistImageRepository.folderArtworkRevision } returns MutableStateFlow(0L)
         val dummyArtists = listOf(
             ArtistEntity(101L, "ArtistName1", 5, null),
             ArtistEntity(102L, "ArtistName2", 3, null)

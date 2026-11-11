@@ -1,6 +1,8 @@
 ﻿package com.startune.music.data.backup.validation
 
+import android.content.Context
 import com.startune.music.data.backup.model.BackupManifest
+import io.mockk.mockk
 import com.startune.music.data.backup.model.BackupModuleInfo
 import com.startune.music.data.backup.model.BackupValidationResult
 import com.startune.music.data.backup.model.Severity
@@ -12,7 +14,7 @@ import java.security.MessageDigest
 
 class ManifestValidatorTest {
 
-    private val validator = ManifestValidator()
+    private val validator = ManifestValidator(mockk<Context>(relaxed = true))
 
     @Test
     fun `valid manifest passes validation`() {

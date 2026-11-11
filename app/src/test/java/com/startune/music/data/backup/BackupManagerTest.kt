@@ -1,4 +1,4 @@
-﻿package com.startune.music.data.backup
+package com.startune.music.data.backup
 
 import android.content.Context
 import android.net.Uri
@@ -97,7 +97,7 @@ class BackupManagerTest {
         assertEquals(
             listOf(
                 "File extension is not .pxpl.",
-                "Engagement Stats: EngagementStats[0]: missing songId"
+                "engagement_stats: EngagementStats[0]: missing songId"
             ),
             result.warnings
         )

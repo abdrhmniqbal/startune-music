@@ -1,6 +1,8 @@
-﻿package com.startune.music.data.backup.restore
+package com.startune.music.data.backup.restore
 
+import android.content.Context
 import android.net.Uri
+import com.startune.music.R
 import com.startune.music.data.backup.format.BackupReader
 import com.startune.music.data.backup.model.BackupManifest
 import com.startune.music.data.backup.model.BackupModuleInfo
@@ -31,7 +33,17 @@ class RestoreExecutorTest {
     private val favoritesHandler: BackupModuleHandler = mockk(relaxed = true)
     private val playbackHistoryHandler: BackupModuleHandler = mockk(relaxed = true)
 
+    private val context: Context = mockk<Context>(relaxed = true).also { ctx ->
+        every { ctx.getString(R.string.backup_section_favorites_label) } returns "Favorites"
+        every { ctx.getString(R.string.backup_section_playback_history_label) } returns "Playback History"
+        every { ctx.getString(R.string.backup_restore_failed_format, any<Any>(), any<Any>()) } answers {
+            val formatArgs = secondArg<Array<Any>>()
+            "Restore failed at ${formatArgs[0]}: ${formatArgs[1]}. All applied changes were rolled back."
+        }
+    }
+
     private val executor = RestoreExecutor(
+        context = context,
         backupReader = backupReader,
         validationPipeline = validationPipeline,
         handlers = mapOf(

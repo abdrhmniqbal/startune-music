@@ -1,4 +1,4 @@
-﻿package com.startune.music.data.playlist
+package com.startune.music.data.playlist
 
 import com.startune.music.data.model.Playlist
 import com.startune.music.data.model.Song
@@ -47,7 +47,7 @@ class M3uManagerTest {
 
         val content = M3uManager.generateContent(playlist, songs)
 
-        assertThat(content).contains("#PIXELPLAYER-PLAYLIST-ID:playlist-42")
+        assertThat(content).contains("#STARTUNE-PLAYLIST-ID:playlist-42")
         assertThat(content).contains("/Music/one.flac")
         assertThat(content).contains("navidrome://song-cloud")
     }
