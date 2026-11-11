@@ -133,7 +133,7 @@
     <string name="presentation_batch_d_artwork_update_failed">Failed to update artwork</string>
     <string name="presentation_batch_d_artwork_removed">Artist artwork removed</string>
     <string name="presentation_batch_d_artwork_remove_failed">Failed to remove artwork</string>
-    <string name="presentation_batch_d_fans">%1$d fans</string>
+    <string name="presentation_batch_d_fans">%1$s fans</string>
     <string name="presentation_batch_d_albums">%1$d albums</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">Shuffle play artist</string>
     <string name="presentation_batch_d_cd_artist">Artist</string>
