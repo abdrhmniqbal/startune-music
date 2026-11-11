@@ -859,7 +859,12 @@ private fun ExpressiveMixDetailHeader(
             }
             LargeExtendedFloatingActionButton(
                 onClick = onShuffleClick,
-                modifier = Modifier.padding(start = 12.dp)
+                modifier = Modifier.padding(start = 12.dp),
+                // Cookie shape (Cookie9Sided), the same shape the mix cover
+                // tiles use. The old RoundedStarShape clipped this wide
+                // icon+text button (dbe137f); a RoundedPolygonShape scales
+                // to the full bounds, so icon + label render fully.
+                shape = ShapeCache.expressiveAvatar
             ) {
                 Icon(Icons.Rounded.Shuffle, contentDescription = shuffleLabel)
                 Spacer(Modifier.width(8.dp))
