@@ -1,6 +1,7 @@
 ﻿# F-Droid
 
-Startune Music is published on F-Droid:
+Startune Music is being prepared for F-Droid. The listing does not exist
+yet; the draft build recipe below is ready to submit:
 
 ```text
 https://f-droid.org/packages/com.startune.music/
@@ -11,8 +12,18 @@ The listing is fed by the Fastlane metadata under `fastlane/metadata/android/en-
 
 The official build recipe lives in the `fdroiddata` repository:
 `https://gitlab.com/fdroid/fdroiddata/-/blob/master/metadata/com.startune.music.yml`.
-A reference copy is mirrored at `metadata/com.startune.music.yml` in this
-repository — keep it in sync with the official recipe when build configuration changes.
+A draft copy of the recipe is kept at `metadata/com.startune.music.yml` in
+this repository — submit it to fdroiddata, then keep it in sync with the
+official recipe when build configuration changes.
+
+## Submitting the Recipe
+
+1. Fork `fdroiddata` and add `metadata/com.startune.music.yml` from this
+   repository.
+2. Open a merge request against fdroiddata. F-Droid reviews the recipe and
+   runs a test build from source.
+3. Once merged, the listing appears and updates flow automatically per
+   "How Updates Reach F-Droid" below.
 
 ## How Updates Reach F-Droid
 
@@ -56,23 +67,23 @@ tarball.
 
 ## Listing Requirements
 
-These properties got the app accepted and must be maintained:
+These properties are required for acceptance and must be maintained:
 
 1. GPL-3.0 license.
 2. OSS-focused package name: `com.startune.music`.
 3. No Firebase, Crashlytics, Play Store billing, ads, analytics, Cast, Wear OS, or
    Google Play Services runtime dependencies.
-4. Optional network services documented in `PRIVACY.md`.
+4. Optional network services documented in `docs/PRIVACY_POLICY.md`.
 5. Release builds left unsigned when local signing keys are absent.
 6. Store metadata in Fastlane format.
-7. ListenBrainz scrobbling is strictly opt-in and disabled by default: nothing is submitted
-   until the user connects their own ListenBrainz token, and disconnecting deletes queued
-   listens. Last.fm remains unsupported. The data sent while opted in is documented in
-   `PRIVACY.md`.
+7. Last.fm and ListenBrainz scrobbling are strictly opt-in and disabled by
+   default: nothing is submitted until the user connects their own account,
+   and disconnecting deletes queued items. The data sent while opted in is
+   documented in `docs/PRIVACY_POLICY.md`.
 
 ## Asset Licenses
 
-General third-party notices are tracked in `THIRD_PARTY_NOTICES.md`; a short copy is also bundled at `app/src/main/assets/licenses/THIRD_PARTY_NOTICES.md`.
+General third-party notices are tracked in `docs/THIRD_PARTY_NOTICES.md`; a short copy is also bundled at `app/src/main/assets/licenses/THIRD_PARTY_NOTICES.md`.
 
 The dependency license review table is tracked in `docs/DEPENDENCY_LICENSES.md`.
 

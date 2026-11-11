@@ -1,0 +1,31 @@
+# Reference copy of the F-Droid build recipe for Startune Music.
+# DRAFT: not yet submitted to fdroiddata, the listing does not exist yet.
+# Submit this file as metadata/com.startune.music.yml in fdroiddata, then
+# keep this copy in sync with the official recipe when build configuration
+# changes. See docs/FDROID.md for the submission steps and recipe notes.
+
+Categories:
+  - Multimedia
+License: GPL-3.0-or-later
+WebSite: https://github.com/abdrhmniqbal/startune-music
+SourceCode: https://github.com/abdrhmniqbal/startune-music
+IssueTracker: https://github.com/abdrhmniqbal/startune-music/issues
+Translation: https://crowdin.com/project/startune-music/
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+UpdateCheckData: gradle.properties|CODE=(\d+)|.|NAME=(.+)
+
+CurrentVersion: 2.0.0-beta
+CurrentVersionCode: 2000099
+
+Builds:
+  - versionName: 2.0.0-beta
+    versionCode: 2000099
+    commit: v2.0.0-beta
+    output: app/build/outputs/apk/release/app-release-unsigned.apk
+    gradle:
+      - assembleRelease -Pstartune.enableAbiSplits=false -Pstartune.disableReleaseSigning=true
+    prebuild:
+      - sed -i -e '/foojay/d' settings.gradle.kts
+      - sed -i -e 's/ -XX:+ParallelRefParsingEnabled//' gradle.properties

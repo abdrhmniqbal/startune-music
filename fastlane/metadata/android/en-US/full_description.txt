@@ -1,0 +1,13 @@
+Startune Music is an open-source Android music player for local music and self-hosted libraries.
+
+Play music stored on your device: MP3, FLAC, AAC, OGG, WAV and M4A, with albums, artists, genres and folders, favorites, playlists, statistics and Top Songs. The player supports gapless playback, crossfade, custom transitions, queue controls, shuffle, repeat and a sleep timer.
+
+Connect your own Navidrome or Jellyfin server to sync, stream and download music for offline listening. No account is needed for local playback.
+
+Synced lyrics with translation and romanization, lyrics import and editing, album-art palettes that color the interface, and home screen widgets.
+
+Back up preferences, playlists, favorites, lyrics and stats to a .starbk file and restore them later.
+
+Last.fm and ListenBrainz scrobbling are opt-in only. The app has no ads and no analytics.
+
+Startune Music is free software under the GNU General Public License v3.0 (GPL-3.0), based on PixelPlayerOSS.

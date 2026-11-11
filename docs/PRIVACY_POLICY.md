@@ -1,6 +1,6 @@
 ﻿# Privacy Policy for Startune Music
 
-Last Updated: August 2026
+Last Updated: November 2026
 
 ## Introduction
 
@@ -20,7 +20,7 @@ The application may locally process:
 
 * **Device & Hardware Information:** Audio format compatibility, display metrics, and audio hardware capabilities.
 * **Audio Metadata:** Track titles, artist names, album art, durations, and folder structures for local music organization.
-* **Cache Data:** Temporary storage for audio buffers, lyrics, and Deezer/YouTube artwork thumbnails to facilitate fast, offline playback.
+* **Cache Data:** Temporary storage for audio buffers, lyrics, and Deezer artwork thumbnails to facilitate fast, offline playback.
 * **Diagnostics & Crash Logs:** Anonymized logs generated locally to assist in troubleshooting playback stability.
 
 All local library data is processed directly on your device.
@@ -34,7 +34,7 @@ Startune Music requests only the permissions necessary to deliver core playback 
 * **Music and Audio / Storage:** To discover, index, and play local audio files and display embedded album art.
 * **Internet Access:** To stream audio from user-authorized sources, query LRCLIB for synchronized lyrics, and fetch high-resolution artwork.
 * **Foreground Service & Media Playback:** To ensure uninterrupted background playback and seamless notification/lockscreen controls.
-* **Bluetooth / Connectivity:** To route audio output to wireless headphones, Bluetooth speakers, Android Auto, and Chromecast targets.
+* **Bluetooth / Connectivity:** To route audio output to wireless headphones and Bluetooth speakers.
 
 Startune Music does not upload your local media files or library indexes to any external servers without explicit user initiation.
 
@@ -44,21 +44,14 @@ Startune Music does not upload your local media files or library indexes to any 
 
 Startune Music provides optional integrations with third-party platforms to enhance your music experience:
 
-### 1. YouTube Music
-* User authentication occurs securely through standard web sessions on-device.
-* Authentication tokens and cookies remain stored in encrypted local storage.
-* Used solely to retrieve user playlists, liked tracks, and audio streams.
+### 1. Self-Hosted Libraries (Navidrome/Subsonic, Jellyfin)
+* You log in with your own server. Credentials are stored on-device and used solely to sync your library, stream, and download music for offline listening.
 
-### 2. Telegram Integration
-* Connects via Telegram client protocols to stream audio from channels, chats, and saved messages.
-* Credentials and session strings are saved securely on-device and never transmitted to third parties.
+### 2. Lyrics, Metadata and Scrobbling (LRCLIB, Deezer, MusicBrainz, Last.fm, ListenBrainz)
+* Public APIs are queried solely for lyrics fetching, high-resolution artist artwork retrieval, and on-demand metadata matching.
+* Scrobbling listening history to Last.fm and ListenBrainz is opt-in: nothing is submitted until you connect your account, and disconnecting deletes queued items.
 
-### 3. Snapchat Creative Kit
-* Allows users to share custom song and lyric cards directly to Snapchat stories.
-* Cards are composed locally on-device. Startune Music never accesses private Snapchat messages, passwords, or contacts.
-
-### 4. Lyrics & Metadata Providers (LRCLIB, Deezer, Last.fm, ListenBrainz)
-* Public APIs are queried solely for lyrics fetching, scrobbling listening history (if enabled), and high-resolution artist artwork retrieval.
+Song and lyric cards are shared through the Android share sheet. Cards are composed locally on-device.
 
 Third-party services are subject to their respective terms of service and privacy policies. Startune Music is not affiliated with any third-party service provider.
 
@@ -111,5 +104,4 @@ We may occasionally update this Privacy Policy to reflect app updates and regula
 
 For questions, feedback, or privacy inquiries regarding Startune Music:
 
-* **Telegram Channel:** [https://t.me/Startune MusicApp](https://t.me/Startune MusicApp)
-* **GitHub Repository:** [https://github.com/ianshulyadav/Startune MusicApp](https://github.com/ianshulyadav/Startune MusicApp)
+* **GitHub Repository:** [https://github.com/abdrhmniqbal/startune-music](https://github.com/abdrhmniqbal/startune-music)
