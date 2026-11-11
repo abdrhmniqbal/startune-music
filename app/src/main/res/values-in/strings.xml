@@ -1,5 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Startune Music</string>
     <string name="app_name_change_title">Perubahan Nama Aplikasi</string>
     <string name="app_name_change_message">Aplikasi ini sekarang bernama PixelPlayerOSS. Selamat mendengarkan!</string>
     <string name="do_not_show_again">Jangan tampilkan lagi</string>
@@ -11,15 +11,14 @@
     <string name="error">Kesalahan</string>
     <string name="ok">OK</string>
     <string name="cancel">Batal</string>
+    <string name="action_delete">Delete</string>
     <string name="import_file">Impor</string>
     <string name="search">Cari</string>
-
     <string name="lyrics">Lirik</string>
     <string name="close_lyrics_sheet">Tutup Panel Lirik</string>
     <string name="loading_lyrics">Memuat lirik…</string>
     <string name="cant_find_lyrics">Tidak dapat menemukan lirik untuk lagu ini.</string>
     <string name="lyrics_provided_by">Lirik disediakan oleh</string>
-    <string name="lrclib_uri">https://lrclib.net/</string>
     <string name="lyrics_not_found">Lirik tidak ditemukan</string>
     <string name="search_lyrics_online_prompt">Apakah Anda ingin mencari lirik secara online?</string>
     <string name="lyrics_custom_search_hint">Kami tidak dapat menemukan lirik secara otomatis. Anda dapat mengedit judul atau artis dan mencoba mencari secara manual.</string>
@@ -50,7 +49,6 @@
     <string name="lyrics_sync_offset_reset">Reset</string>
     <string name="lyrics_earlier">Lebih awal</string>
     <string name="lyrics_later">Lebih lambat</string>
-
     <string name="sync_scanning">Memindai file musik…</string>
     <string name="sync_processing">Memproses file…</string>
     <string name="sync_files_progress">%1$d dari %2$d file</string>
@@ -58,6 +56,9 @@
     <string name="sync_complete">Sinkronisasi selesai</string>
     <string name="sync_pending">Menunggu…</string>
     <string name="syncing_library">Menyinkronkan pustaka…</string>
+    <string name="library_background_sync">Menyelesaikan di latar belakang...</string>
+    <string name="library_background_sync_lyrics">Memindai lirik...</string>
+    <string name="library_background_sync_cache">Membersihkan cache sampul album...</string>
     <string name="library_background_sync_cloud">Menyinkronkan sumber cloud...</string>
     <string name="unknown_song_title">Lagu tidak dikenal</string>
     <string name="unknown_artist">Artis tidak dikenal</string>
@@ -78,7 +79,6 @@
     <string name="pause_playback">Jeda putaran</string>
     <string name="play_playback">Putar</string>
     <string name="playlist_not_found">Playlist tidak ditemukan.</string>
-
     <string name="disc_number_header">Disc %d</string>
     <string name="ai_error_api_key">Silakan konfigurasi API key yang valid untuk penyedia AI yang dipilih di Pengaturan.</string>
     <string name="ai_error_generic">Kesalahan AI: %s</string>
@@ -88,16 +88,13 @@
     <string name="ai_prompt_empty">Tulis ide untuk Daily Mix Anda</string>
     <string name="ai_daily_mix_updated">Daily Mix diperbarui dengan AI</string>
     <string name="ai_no_songs_for_mix">AI tidak dapat menemukan lagu untuk mix ini</string>
-
     <string name="shortcut_shuffle_short">Acak</string>
     <string name="shortcut_shuffle_long">Acak semua lagu</string>
     <string name="shortcut_playlist_short">Playlist</string>
     <string name="shortcut_playlist_long">Playlist terakhir diputar</string>
-
     <string name="tile_shuffle_all">Acak Semua</string>
     <string name="tile_last_playlist">Playlist Terakhir</string>
     <string name="tile_last_playlist_unavailable">Tidak ada playlist yang tersedia untuk dibuka</string>
-
     <string name="invalid_album_id">ID album tidak valid</string>
     <string name="album_id_not_found">ID album tidak ditemukan</string>
     <string name="error_loading_album">Kesalahan memuat data album: %s</string>
@@ -108,22 +105,18 @@
     <string name="error_loading_artist">Kesalahan memuat data artis: %s</string>
     <string name="could_not_find_artist">Tidak dapat menemukan artis</string>
     <string name="no_valid_songs">Tidak ditemukan lagu yang valid untuk diputar</string>
-
     <string name="glance_widget_description">Widget responsif yang beradaptasi dengan ukurannya</string>
     <string name="widget_bar_4x1_desc">Bilah pemutar ringkas</string>
     <string name="widget_control_4x2_desc">Kontrol penuh dengan acak dan ulangi</string>
     <string name="widget_grid_2x2_desc">Pemutar kotak minimalis</string>
-
     <!-- Playlist bulk actions -->
     <string name="playlist_none_to_share">Tidak ada playlist untuk dibagikan</string>
     <string name="playlist_share_chooser_title">Bagikan playlist</string>
     <string name="playlist_share_failed">Gagal berbagi: %1$s</string>
     <string name="playlist_none_to_export">Tidak ada playlist untuk diekspor</string>
     <string name="playlist_export_failed">Gagal mengekspor: %1$s</string>
-    <string name="playlist_export_folder_display">Musik/Ekspor Startune Music</string>
     <string name="ai_playlist_gemini_key_required">Silakan konfigurasi API key Gemini Anda di Pengaturan.</string>
     <string name="error_unknown">Kesalahan tidak dikenal</string>
-
     <!-- Watch transfer foreground service -->
     <string name="watch_transfer_sending_n_to_watch">Mengirim %1$d lagu ke jam tangan</string>
     <string name="watch_transfer_sending_to_watch">Mengirim ke jam tangan</string>
@@ -143,13 +136,11 @@
     <string name="watch_transfer_starting_short">Memulai</string>
     <string name="watch_transfer_channel_name">Transfer jam tangan</string>
     <string name="watch_transfer_channel_description">Menampilkan progres langsung untuk transfer musik dari ponsel ke jam tangan</string>
-
     <!-- Cast HTTP server -->
     <string name="cast_server_channel_name">Server media Cast</string>
     <string name="cast_server_notification_title">Mentransmisikan ke perangkat</string>
     <string name="cast_server_notification_text">Menyajikan media ke perangkat Cast</string>
     <string name="cast_server_foreground_error">%1$s: %2$s</string>
-
     <!-- Backup / data transfer (ViewModels) -->
     <string name="backup_invalid_format">Cadangan tidak valid: %1$s</string>
     <string name="backup_progress_preparing_restore">Menyiapkan pemulihan</string>
@@ -164,9 +155,97 @@
     <string name="export_failed_format">Ekspor gagal: %1$s</string>
     <string name="data_restored_successfully">Data berhasil dipulihkan</string>
     <string name="restore_partial_unresolved_format">Pemulihan selesai dengan masalah yang belum terselesaikan. Gagal: %1$s</string>
+    <string name="backup_section_playlists_label">Playlists</string>
+    <string name="backup_section_playlists_description">Your custom playlists and ordering preferences.</string>
+    <string name="backup_section_global_settings_label">Global Settings</string>
+    <string name="backup_section_global_settings_description">Themes, behavior, playback, and app preferences.</string>
+    <string name="backup_section_favorites_label">Favorites</string>
+    <string name="backup_section_favorites_description">Songs marked as favorite.</string>
+    <string name="backup_section_lyrics_label">Saved Lyrics</string>
+    <string name="backup_section_lyrics_description">Lyrics you\'ve saved or imported.</string>
+    <string name="backup_section_search_history_label">Search History</string>
+    <string name="backup_section_search_history_description">Recent search terms in the app.</string>
+    <string name="backup_section_transitions_label">Transition Rules</string>
+    <string name="backup_section_transitions_description">Custom transition settings between songs.</string>
+    <string name="backup_section_engagement_stats_label">Engagement Stats</string>
+    <string name="backup_section_engagement_stats_description">Play count and listening duration per song.</string>
+    <string name="backup_section_playback_history_label">Playback History</string>
+    <string name="backup_section_playback_history_description">Timeline-based listening history for stats.</string>
+    <string name="backup_section_quick_fill_label">QuickFill Genres</string>
+    <string name="backup_section_quick_fill_description">Custom genres and their icons.</string>
+    <string name="backup_section_artist_images_label">Artist Images</string>
+    <string name="backup_section_artist_images_description">Cached artist image URLs from Deezer.</string>
+    <string name="backup_section_equalizer_label">Equalizer</string>
+    <string name="backup_section_equalizer_description">Your custom equalizer presets and audio profiles.</string>
+    <string name="backup_section_audio_bookmarks_label">Audio Bookmarks</string>
+    <string name="backup_section_audio_bookmarks_description">Saved timestamps inside songs and audiobooks.</string>
+    <string name="backup_preparing_title">Preparing backup</string>
+    <string name="backup_preparing_detail">Building your selected backup sections.</string>
+    <string name="backup_collecting_title">Collecting %1$s</string>
+    <string name="backup_packaging_title">Packaging backup</string>
+    <string name="backup_packaging_detail">Creating .starbk archive.</string>
+    <string name="backup_complete_title">Backup complete</string>
+    <string name="backup_complete_detail">Your Startune Music backup was created successfully.</string>
+    <string name="backup_encrypted_message">This backup is encrypted. Inspect it with its password before restoring.</string>
+    <string name="backup_validation_failed_format">Backup file failed validation: %1$s</string>
+    <string name="backup_restore_snapshots_title">Creating safety snapshots</string>
+    <string name="backup_restore_snapshots_detail">Capturing current state for rollback.</string>
+    <string name="backup_snapshot_failed_format">Failed to capture current state: %1$s</string>
+    <string name="backup_restore_preparing_title">Preparing restore</string>
+    <string name="backup_restore_preparing_detail">Selected modules will be processed one at a time.</string>
+    <string name="backup_restore_validated_title">Validated %1$s</string>
+    <string name="backup_restore_restoring_title">Restoring %1$s</string>
+    <string name="backup_restore_complete_title">Restore complete</string>
+    <string name="backup_restore_complete_detail">All selected modules were restored successfully.</string>
+    <string name="backup_restore_failed_format">Restore failed at %1$s: %2$s. All applied changes were rolled back.</string>
+    <string name="backup_unknown_module">unknown module</string>
+    <string name="backup_checksum_mismatch_format">Checksum mismatch for module \&#39;%1$s\&#39;. The backup may be corrupted.</string>
+    <string name="backup_file_empty">Backup file is empty or inaccessible.</string>
+    <string name="backup_file_access_format">Cannot open backup file: %1$s</string>
+    <string name="backup_file_access_plain">Cannot open backup file.</string>
+    <string name="backup_file_too_large_format">Backup file exceeds the %1$dMB limit.</string>
+    <string name="backup_file_extension">File extension is not .starbk. The file may not be a valid backup.</string>
+    <string name="backup_format_unknown">File is not a recognized Startune Music backup format.</string>
+    <string name="backup_zip_path_traversal_format">Suspicious zip entry path: %1$s</string>
+    <string name="backup_zip_unexpected_entry_format">Unexpected file in backup: %1$s</string>
+    <string name="backup_zip_entry_too_large_format">Backup entry \&#39;%1$s\&#39; exceeds the %2$dMB in-memory safety limit.</string>
+    <string name="backup_zip_too_large_format">Backup file expands beyond the %1$dMB safety limit.</string>
+    <string name="backup_zip_bomb">Backup file has suspicious compression ratio.</string>
+    <string name="backup_zip_corrupt_format">Backup ZIP archive is corrupted: %1$s</string>
+    <string name="backup_schema_too_old_format">Backup schema version %1$d is not supported.</string>
+    <string name="backup_schema_too_new_format">Backup was created with a newer app version (schema v%1$d). Some data may not be restored.</string>
+    <string name="backup_timestamp_future">Backup has a timestamp in the future.</string>
+    <string name="backup_timestamp_old">Backup has an unusually old timestamp.</string>
+    <string name="backup_unknown_module_format">Unknown module \&#39;%1$s\&#39; in backup. It will be skipped.</string>
+    <string name="backup_module_invalid_json_format">Module \&#39;%1$s\&#39; contains invalid JSON.</string>
+    <string name="backup_module_not_array_format">Module \&#39;%1$s\&#39; should be a JSON array.</string>
+    <string name="backup_module_too_many_entries_format">Module \&#39;%1$s\&#39; has %2$d entries (max %3$d).</string>
+    <string name="backup_module_playlists_payload_format">Module \&#39;%1$s\&#39; should be a JSON object or legacy array.</string>
+    <string name="backup_module_playlists_too_many_format">Module \&#39;%1$s\&#39; has %2$d playlists (max %3$d).</string>
+    <string name="backup_playlist_entry_not_object_format">Playlists[%1$d] is not a JSON object.</string>
+    <string name="backup_playlist_missing_id_format">Playlists[%1$d] is missing id.</string>
+    <string name="backup_playlist_missing_name_format">Playlists[%1$d] is missing name.</string>
+    <string name="backup_playlists_sort_option_invalid">playlistsSortOption looks invalid (too long).</string>
+    <string name="backup_favorites_invalid_song_id_format">Favorites[%1$d]: invalid songId</string>
+    <string name="backup_lyrics_too_long_format">Lyrics[%1$d]: content exceeds max length</string>
+    <string name="backup_search_history_query_too_long_format">SearchHistory[%1$d]: query exceeds 500 chars</string>
+    <string name="backup_engagement_entry_not_object_format">EngagementStats[%1$d]: entry is not a JSON object</string>
+    <string name="backup_engagement_missing_song_id_format">EngagementStats[%1$d]: missing songId</string>
+    <string name="backup_engagement_duplicate_song_id_format">EngagementStats[%1$d]: duplicate songId \&#39;%2$s\&#39;</string>
+    <string name="backup_engagement_play_count_not_numeric_format">EngagementStats[%1$d]: play count is not numeric</string>
+    <string name="backup_engagement_negative_play_count_format">EngagementStats[%1$d]: negative play count</string>
+    <string name="backup_engagement_total_duration_not_numeric_format">EngagementStats[%1$d]: total duration is not numeric</string>
+    <string name="backup_engagement_negative_total_duration_format">EngagementStats[%1$d]: negative total duration</string>
+    <string name="backup_engagement_last_played_not_numeric_format">EngagementStats[%1$d]: last played timestamp is not numeric</string>
+    <string name="backup_engagement_negative_last_played_format">EngagementStats[%1$d]: negative last played timestamp</string>
+    <string name="backup_playback_history_negative_duration_format">PlaybackHistory[%1$d]: negative duration</string>
+    <string name="backup_artist_images_insecure_url_format">ArtistImages[%1$d]: URL is not HTTPS</string>
+    <string name="backup_artist_images_url_too_long_format">ArtistImages[%1$d]: URL exceeds 2000 chars</string>
+    <string name="backup_transitions_duration_out_of_range_format">Transitions[%1$d]: duration out of range</string>
+    <string name="backup_preference_missing_key_format">Preference[%1$d]: missing key</string>
+    <string name="backup_preference_invalid_type_format">Preference[%1$d]: invalid type \&#39;%2$s\&#39;</string>
     <string name="models_fetch_failed">Gagal memuat model</string>
     <string name="dev_test_crash_message">Crash uji coba dipicu dari Opsi Pengembang - Ini disengaja untuk menguji sistem pelaporan crash</string>
-
     <!-- PlayerViewModel -->
     <string name="player_song_not_found_in_list">Lagu tidak ditemukan dalam daftar saat ini</string>
     <string name="player_could_not_locate_song">Tidak dapat menemukan lokasi lagu</string>
@@ -174,8 +253,17 @@
     <string name="player_playback_stopped_eot">Pemutaran berhenti: %1$s selesai (Akhir Trek).</string>
     <string name="player_default_track_title">Trek</string>
     <string name="player_no_songs_to_shuffle">Tidak ada lagu untuk diacak.</string>
+    <string name="player_audio_output_title">Play on</string>
+    <string name="player_audio_output_this_phone">This phone</string>
+    <string name="player_audio_output_wired">Wired headphones</string>
+    <string name="player_audio_output_unknown_device">Audio device</string>
+    <string name="player_audio_output_more_devices">More devices</string>
+    <string name="player_audio_output_more_devices_subtitle">Connect or switch using the system output picker</string>
     <string name="player_queue_name_selected_albums">Album Terpilih</string>
     <string name="player_no_playable_songs_in_albums">Tidak ditemukan lagu yang dapat diputar di album terpilih</string>
+    <string name="player_no_playable_songs_in_genres">No playable songs found in selected genres</string>
+    <string name="player_queue_name_selected_genres">Selected Genres</string>
+    <string name="player_could_not_queue_genres">Could not queue selected genres</string>
     <string name="player_only_first_n_albums_queued">Hanya %1$d album pertama yang dimasukkan ke antrean</string>
     <string name="player_albums_queued_format">%1$d album dimasukkan ke antrean (%2$d lagu)</string>
     <string name="player_could_not_queue_albums">Tidak dapat memasukkan album terpilih ke antrean</string>
@@ -194,13 +282,18 @@
     <string name="player_permission_denied_save_lyrics">Izin ditolak – tidak dapat menyimpan lirik</string>
     <string name="player_permission_denied_edit_this_file">Izin ditolak – tidak dapat mengedit file ini</string>
     <string name="metadata_updated_successfully">Metadata berhasil diperbarui</string>
+    <string name="metadata_edit_write_interrupted">Save interrupted. A full copy was kept and the song will be restored later.</string>
+    <string name="metadata_edit_write_still_pending">Not saved: the song must be restored first. Allow access, free up space, then retry.</string>
+    <string name="metadata_restore_permission_prompt">Allow access to restore songs an interrupted save left incomplete.</string>
+    <string name="metadata_restore_done">Restored the songs an interrupted save left incomplete</string>
+    <string name="metadata_restore_incomplete">Some songs could not be restored yet. The app will try again later.</string>
+    <string name="metadata_restore_permission_denied">Songs not restored. The app will ask again later or when you edit one.</string>
     <string name="player_updating_n_songs">Memperbarui %1$d lagu…</string>
     <string name="player_batch_genre_updated_all">Berhasil memperbarui %1$d lagu!</string>
     <string name="player_batch_genre_updated_partial">Diperbarui %1$d lagu. Gagal: %2$d</string>
     <string name="playlist_restored_toast">Daftar putar dipulihkan</string>
     <string name="delete_songs_permanent_message">Lagu-lagu ini akan dihapus secara permanen dari perangkat Anda dan tidak dapat dipulihkan.</string>
     <string name="delete_action">Hapus</string>
-
     <!-- Sleep timer (SleepTimerStateHolder + TimerOptionsBottomSheet) -->
     <string name="sleep_timer_n_minutes_format">%1$d menit</string>
     <string name="sleep_timer_display_eot">Akhir trek</string>
@@ -223,11 +316,7 @@
     <string name="ui_format_percent_d">%1$d%%</string>
     <string name="backup_manifest_schema_v">v%1$d</string>
     <string name="backup_manifest_device_line">%1$s %2$s</string>
-    <string name="library_background_sync">Menyelesaikan di latar belakang...</string>
-    <string name="library_background_sync_lyrics">Memindai lirik...</string>
-    <string name="library_background_sync_cache">Membersihkan cache sampul album...</string>
-
-    <!-- Backfilled translations -->
+    <!-- Share Bottom Sheet -->
     <string name="share_sheet_title">Bagikan</string>
     <string name="share_sheet_chooser_title">Bagikan melalui</string>
     <string name="share_card_tab_song">Kartu Lagu</string>
@@ -249,6 +338,7 @@ Selengkapnya</string>
     <string name="share_link_copied">Tautan disalin ke papan klip</string>
     <string name="share_text_format">Sekarang dengarkan \"%1$s\" oleh %2$s 🎵
 %3$s</string>
+    <!-- Player Share / Options Menu -->
     <string name="player_menu_share_card">Bagikan Kartu Cerita</string>
     <string name="player_menu_download">Unduh Lagu</string>
     <string name="player_menu_add_to_playlist">Tambahkan ke Daftar Putar</string>
@@ -258,6 +348,7 @@ Selengkapnya</string>
     <string name="action_disliked">Tidak suka</string>
     <string name="cd_player_more_options">Opsi lainnya</string>
     <string name="cd_player_theme">Ganti tema</string>
+    <!-- Cloud Offline Downloads -->
     <string name="cloud_downloads_title">Unduhan</string>
     <string name="cloud_downloads_settings_subtitle">Kelola trek cloud offline dan penyimpanan</string>
     <string name="cloud_downloads_storage_used">Penyimpanan offline terpakai</string>
@@ -283,20 +374,89 @@ Selengkapnya</string>
     <string name="cloud_download_play_all">Mainkan semua</string>
     <string name="cloud_download_shuffle_all">Kocok semua</string>
     <string name="in_your_library">Di perpustakaan Anda</string>
-    <string name="cloud_download_action">Unduh</string>
+    <string name="a11y_toggle_off">Off</string>
+    <string name="a11y_toggle_on">On</string>
+    <string name="accounts_listenbrainz_connect">Connect</string>
+    <string name="accounts_listenbrainz_connect_failed">Couldn\'t connect. Check your token and server URL, then try again.</string>
+    <string name="accounts_listenbrainz_custom_server">Scrobbling to %1$s</string>
+    <string name="accounts_listenbrainz_get_token">Open listenbrainz.org</string>
+    <string name="accounts_listenbrainz_invalid_url">Enter a valid server URL, like https://maloja.example.com/apis/listenbrainz</string>
+    <string name="accounts_listenbrainz_needs_reauth">Your token is no longer valid — reconnect to resume scrobbling. Queued listens are kept.</string>
+    <string name="accounts_listenbrainz_now_playing_format">%1$s — %2$s</string>
+    <string name="accounts_listenbrainz_now_playing_idle">Nothing playing right now</string>
+    <string name="accounts_listenbrainz_now_playing_label">Scrobbling now</string>
+    <string name="accounts_listenbrainz_reconnect">Reconnect</string>
+    <string name="accounts_listenbrainz_scrobble_jellyfin">Scrobble Jellyfin streaming</string>
+    <string name="provider_connected">Connected</string>
+    <string name="provider_connected_navidrome">Connected · Navidrome/Airsonic</string>
+    <string name="provider_connect_jellyfin">Connect your Jellyfin server</string>
+    <string name="provider_connect_navidrome">Connect Navidrome &amp; others</string>
+    <string name="storage_internal">Internal Storage</string>
+    <string name="storage_sd_card">SD Card</string>
+    <string name="storage_usb">USB Storage</string>
+    <string name="storage_usb_numbered">USB Storage %1$d</string>
+    <string name="accounts_listenbrainz_scrobble_local">Scrobble local files</string>
+    <string name="accounts_listenbrainz_server_hint">Server URL (optional)</string>
+    <string name="accounts_listenbrainz_server_supporting">Leave empty for listenbrainz.org. Works with self-hosted servers that speak the ListenBrainz API, such as Maloja.</string>
+    <string name="accounts_listenbrainz_stat_listens">Total listens</string>
+    <string name="accounts_listenbrainz_stat_queued">Queued</string>
+    <string name="accounts_listenbrainz_title">ListenBrainz</string>
+    <string name="accounts_listenbrainz_connect_subtitle">Connect to scrobble your listens</string>
+    <string name="accounts_listenbrainz_subtitle">Scrobble your listens to ListenBrainz</string>
+    <string name="accounts_lastfm_subtitle">Scrobble your listens to Last.fm</string>
+    <string name="accounts_listenbrainz_toggle_hint">If your server already scrobbles to ListenBrainz, turn that source off here to avoid duplicate listens.</string>
+    <string name="accounts_listenbrainz_token_dialog_body">Paste your user token to scrobble your listens to ListenBrainz. You can find it in your settings on listenbrainz.org.</string>
+    <string name="accounts_listenbrainz_token_dialog_title">Connect ListenBrainz</string>
+    <string name="accounts_listenbrainz_token_hint">User token</string>
+    <string name="batch_edit_cover_art_heading">Batch Cover Art</string>
+    <string name="batch_edit_cover_art_hint">This will replace the cover art for all %d selected songs</string>
+    <string name="batch_edit_failed">Failed to update songs</string>
+    <string name="batch_edit_info_message">Only modified fields will be updated. Leave fields empty to keep existing values.</string>
+    <string name="batch_edit_mixed_values">(Mixed values)</string>
+    <string name="batch_edit_multiple_covers">(Multiple different covers)</string>
+    <string name="batch_edit_optional">(Optional - leave empty to skip)</string>
+    <string name="batch_edit_partial_success">Updated %1$d of %2$d songs. Some files could not be edited.</string>
+    <string name="batch_edit_remove_all_art">Remove All Cover Art</string>
+    <string name="batch_edit_set_cover_art">Set Cover Art for All</string>
+    <string name="batch_edit_success">Successfully updated %d songs</string>
+    <string name="batch_edit_toolbar_title">Edit %d Songs</string>
     <string name="cloud_album_download">Unduh album</string>
     <string name="cloud_album_remove_downloads">Hapus unduhan</string>
+    <string name="cloud_download_action">Unduh</string>
     <string name="cloud_download_selected">Unduh trek cloud yang dipilih</string>
     <string name="cloud_download_selected_count">Unduh %1$d trek cloud</string>
-    <string name="cloud_download_selected_started">Menyiapkan %1$d trek cloud untuk pemutaran offline</string>
-    <string name="musicbrainz_lookup">Cari di MusicBrainz</string>
-    <string name="musicbrainz_searching">Mencari kecocokan rekaman…</string>
-    <string name="musicbrainz_lookup_failed">Pencarian MusicBrainz gagal</string>
-    <string name="musicbrainz_search_failed_fallback">Pencarian MusicBrainz gagal</string>
-    <string name="musicbrainz_save_failed_fallback">Metadata MusicBrainz tidak dapat disimpan</string>
-    <string name="musicbrainz_choose_match">Pilih kecocokan MusicBrainz</string>
-    <string name="musicbrainz_no_results">Tidak ditemukan rekaman yang sesuai.</string>
-    <string name="musicbrainz_match_score">Tingkat kecocokan: %1$d%%</string>
-    <string name="musicbrainz_applied">ID MusicBrainz disimpan. Tahun yang hilang dan nama placeholder telah dilengkapi.</string>
     <string name="cloud_playlist_download">Unduh playlist</string>
+    <string name="duplicates_group_count">%1$d copies</string>
+    <string name="duplicates_group_title_format">%1$s — %2$s</string>
+    <string name="duplicates_none">No duplicate tracks found.</string>
+    <string name="duplicates_none_subtitle">Duplicate songs will appear here when found.</string>
+    <string name="duplicates_summary">%1$d groups · %2$d tracks</string>
+    <string name="duplicates_title">Duplicate tracks</string>
+    <string name="lyrics_remote_disabled">Online lyrics are disabled in settings.</string>
+    <string name="musicbrainz_applied">ID MusicBrainz disimpan. Tahun yang hilang dan nama placeholder telah dilengkapi.</string>
+    <string name="musicbrainz_choose_match">Pilih kecocokan MusicBrainz</string>
+    <string name="musicbrainz_lookup">Cari di MusicBrainz</string>
+    <string name="musicbrainz_lookup_failed">Pencarian MusicBrainz gagal</string>
+    <string name="musicbrainz_match_score">Tingkat kecocokan: %1$d%%</string>
+    <string name="musicbrainz_no_results">Tidak ditemukan rekaman yang sesuai.</string>
+    <string name="musicbrainz_save_failed_fallback">Metadata MusicBrainz tidak dapat disimpan</string>
+    <string name="musicbrainz_search_failed_fallback">Pencarian MusicBrainz gagal</string>
+    <string name="musicbrainz_searching">Mencari kecocokan rekaman…</string>
+    <string name="player_albums_added_to_queue_format">%1$d albums added to queue</string>
+    <string name="player_albums_will_play_next_format">%1$d albums will play next</string>
+    <string name="player_could_not_add_albums_next">Could not add selected albums as next</string>
+    <string name="player_could_not_add_albums_queue">Could not add selected albums to queue</string>
+    <string name="player_error_skipping">Couldn\'t play this track — skipping</string>
+    <string name="player_only_first_n_albums_added_queue">Only the first %1$d albums were added to queue</string>
+    <string name="player_only_first_n_albums_next">Only the first %1$d albums were added as next</string>
+    <string name="setcat_find_duplicates_subtitle">Scan your library for tracks that appear more than once.</string>
+    <string name="setcat_find_duplicates_title">Find duplicate tracks</string>
+    <string name="setcat_playback_speed">Playback speed</string>
+    <string name="sync_failed_toast">Library sync failed. Pull down to refresh and try again.</string>
+    <string name="sync_preparing_library">Preparing your library…</string>
+    <string name="sync_scanned_count">Scanned %1$d of %2$d songs</string>
+    <string name="duration_hours_minutes_short">%1$dh %2$02dm</string>
+    <string name="duration_hours_short">%1$dh</string>
+    <string name="duration_minutes_short">%1$dm</string>
+    <string name="duration_seconds_short">%1$ds</string>
 </resources>

@@ -15,7 +15,6 @@
     <string name="presentation_batch_b_accounts_no_linked_body">Hubungkan penyedia untuk mengelolanya dari layar ini.</string>
     <string name="presentation_batch_b_accounts_connect_service">Hubungkan %1$s</string>
     <string name="presentation_batch_b_accounts_service_paren_coming_soon">%1$s (Segera hadir)</string>
-
     <!-- PlaylistDetailScreen -->
     <string name="presentation_batch_b_sort_songs">Urutkan Lagu</string>
     <string name="presentation_batch_b_more_options">Opsi Lainnya</string>
@@ -34,14 +33,25 @@
     <string name="presentation_batch_b_delete_playlist">Hapus playlist</string>
     <string name="presentation_batch_b_set_default_transition">Atur transisi default</string>
     <string name="presentation_batch_b_export_playlist">Ekspor Playlist</string>
+    <string name="presentation_batch_b_export_as_m3u">Ekspor sebagai M3U</string>
+    <string name="presentation_batch_b_export_as_m3u_desc">File daftar putar untuk pemutar media</string>
+    <string name="presentation_batch_b_export_as_csv">Ekspor sebagai CSV</string>
+    <string name="presentation_batch_b_export_as_csv_desc">Kompatibel dengan spreadsheet, mudah diimpor</string>
+    <string name="presentation_batch_b_export_save">Simpan</string>
+    <string name="presentation_batch_b_export_share">Bagikan</string>
+    <string name="presentation_batch_b_import_playlist">Impor Daftar Putar</string>
+    <string name="presentation_batch_b_import_m3u">Impor M3U</string>
+    <string name="presentation_batch_b_import_csv">Impor CSV</string>
+    <string name="presentation_batch_b_importing">Mengimpor Daftar Putar</string>
+    <string name="presentation_batch_b_import_progress">Mengimpor trek %1$d dari %2$d</string>
+    <string name="presentation_batch_b_resolving">Menyelesaikan metadata online…</string>
+    <string name="presentation_batch_b_download_playlist">Unduh daftar putar</string>
     <string name="presentation_batch_b_delete_playlist_confirm_title">Hapus playlist?</string>
     <string name="presentation_batch_b_delete_playlist_confirm_body">Apakah Anda yakin ingin menghapus playlist ini?</string>
     <string name="presentation_batch_b_rename_playlist_dialog_title">Ubah Nama Playlist</string>
     <string name="presentation_batch_b_new_name">Nama baru</string>
-
     <!-- DailyMixScreen -->
     <string name="presentation_batch_b_daily_mix_title">Daily Mix</string>
-
     <!-- QuickFillScreen -->
     <string name="presentation_batch_b_quick_fill_select_songs">Pilih Lagu</string>
     <string name="presentation_batch_b_quick_fill_choose_genre">Pilih Genre</string>
@@ -56,42 +66,26 @@
     <string name="presentation_batch_b_add_custom_genre_title">Tambah Genre Kustom</string>
     <string name="presentation_batch_b_genre_name_label">Nama Genre</string>
     <string name="presentation_batch_b_select_icon">Pilih Ikon</string>
-
     <!-- RecentlyPlayedScreen -->
     <string name="presentation_batch_b_recently_played_title">Baru Diputar</string>
     <string name="presentation_batch_b_play_latest">Putar terbaru</string>
     <string name="presentation_batch_b_recent_empty_title">Belum ada yang diputar di %1$s</string>
     <string name="presentation_batch_b_recent_empty_subtitle">Ubah rentang atau putar lebih banyak lagu untuk mengisi timeline ini.</string>
     <string name="presentation_batch_b_queue_recently_played">Baru Diputar</string>
+    <string name="presentation_batch_b_queue_recently_added">Recently Added</string>
+    <string name="presentation_batch_b_queue_favorites_to_revisit">Favorites to Revisit</string>
+    <string name="presentation_batch_b_queue_fresh_finds">Fresh finds</string>
     <string name="presentation_batch_b_date_today">Hari ini</string>
     <string name="presentation_batch_b_date_yesterday">Kemarin</string>
-
     <!-- NavBarCornerRadiusScreen -->
     <string name="presentation_batch_b_navbar_adjust_title">Sesuaikan Radius Sudut</string>
     <string name="presentation_batch_b_navbar_adjust_subtitle">Cocokkan sudut navbar dengan sudut fisik perangkat Anda untuk tampilan yang mulus.</string>
     <string name="presentation_batch_b_corner_radius_label">Radius Sudut</string>
     <string name="presentation_batch_b_corner_dp_format">%1$d dp</string>
-
     <!-- GenreDetailScreen -->
     <string name="presentation_batch_b_genre_shuffle_label">Acak %1$s</string>
-
     <plurals name="presentation_batch_b_songs_dot_duration">
-        <item quantity="one">%1$d lagu • %2$s</item>
         <item quantity="other">%1$d lagu • %2$s</item>
     </plurals>
-
-    <!-- Backfilled translations -->
-    <string name="presentation_batch_b_export_as_m3u">Ekspor sebagai M3U</string>
-    <string name="presentation_batch_b_export_as_m3u_desc">File daftar putar untuk pemutar media</string>
-    <string name="presentation_batch_b_export_as_csv">Ekspor sebagai CSV</string>
-    <string name="presentation_batch_b_export_as_csv_desc">Kompatibel dengan spreadsheet, mudah diimpor</string>
-    <string name="presentation_batch_b_export_save">Simpan</string>
-    <string name="presentation_batch_b_export_share">Bagikan</string>
-    <string name="presentation_batch_b_import_playlist">Impor Daftar Putar</string>
-    <string name="presentation_batch_b_import_m3u">Impor M3U</string>
-    <string name="presentation_batch_b_import_csv">Impor CSV</string>
-    <string name="presentation_batch_b_importing">Mengimpor Daftar Putar</string>
-    <string name="presentation_batch_b_import_progress">Mengimpor trek %1$d dari %2$d</string>
-    <string name="presentation_batch_b_resolving">Menyelesaikan metadata online…</string>
-    <string name="presentation_batch_b_download_playlist">Unduh daftar putar</string>
+    <string name="presentation_batch_b_playlist_empty_mix_body">No songs match this mix yet.</string>
 </resources>

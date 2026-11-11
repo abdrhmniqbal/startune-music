@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- AccountsScreen -->
     <string name="presentation_batch_b_accounts_linked_services">Serviços vinculados</string>
     <string name="presentation_batch_b_accounts_connected_hero_title">Contas Conectadas</string>
     <string name="presentation_batch_b_accounts_connected_hero_body">Gerencie provedores vinculados e mantenha cada integração sob seu controle.</string>
@@ -14,6 +15,7 @@
     <string name="presentation_batch_b_accounts_no_linked_body">Conecte um provedor para gerenciá-lo nesta tela.</string>
     <string name="presentation_batch_b_accounts_connect_service">Conecte %1$s</string>
     <string name="presentation_batch_b_accounts_service_paren_coming_soon">%1$s (em breve)</string>
+    <!-- PlaylistDetailScreen -->
     <string name="presentation_batch_b_sort_songs">Classificar músicas</string>
     <string name="presentation_batch_b_more_options">Mais opções</string>
     <string name="presentation_batch_b_play_it">Jogue tudo</string>
@@ -48,7 +50,9 @@
     <string name="presentation_batch_b_delete_playlist_confirm_body">Tem certeza de que deseja excluir esta playlist?</string>
     <string name="presentation_batch_b_rename_playlist_dialog_title">Renomear lista de reprodução</string>
     <string name="presentation_batch_b_new_name">Novo nome</string>
+    <!-- DailyMixScreen -->
     <string name="presentation_batch_b_daily_mix_title">Mistura Diária</string>
+    <!-- QuickFillScreen -->
     <string name="presentation_batch_b_quick_fill_select_songs">Selecione músicas</string>
     <string name="presentation_batch_b_quick_fill_choose_genre">Escolha o gênero</string>
     <string name="presentation_batch_b_search_songs_label">Pesquisar músicas</string>
@@ -62,20 +66,27 @@
     <string name="presentation_batch_b_add_custom_genre_title">Adicionar gênero personalizado</string>
     <string name="presentation_batch_b_genre_name_label">Nome do gênero</string>
     <string name="presentation_batch_b_select_icon">Selecione o ícone</string>
+    <!-- RecentlyPlayedScreen -->
     <string name="presentation_batch_b_recently_played_title">Jogado recentemente</string>
     <string name="presentation_batch_b_play_latest">Jogue o mais recente</string>
     <string name="presentation_batch_b_recent_empty_title">Nenhuma jogada recente em %1$s</string>
     <string name="presentation_batch_b_recent_empty_subtitle">Altere o intervalo ou reproduza mais músicas para preencher esta linha do tempo.</string>
     <string name="presentation_batch_b_queue_recently_played">Jogado recentemente</string>
+    <string name="presentation_batch_b_queue_recently_added">Recently Added</string>
+    <string name="presentation_batch_b_queue_favorites_to_revisit">Favorites to Revisit</string>
+    <string name="presentation_batch_b_queue_fresh_finds">Fresh finds</string>
     <string name="presentation_batch_b_date_today">Hoje</string>
     <string name="presentation_batch_b_date_yesterday">Ontem</string>
+    <!-- NavBarCornerRadiusScreen -->
     <string name="presentation_batch_b_navbar_adjust_title">Ajustar raio do canto</string>
     <string name="presentation_batch_b_navbar_adjust_subtitle">Combine os cantos do formato da barra de navegação com os cantos físicos do seu dispositivo para obter uma aparência perfeita.</string>
     <string name="presentation_batch_b_corner_radius_label">Raio do canto</string>
     <string name="presentation_batch_b_corner_dp_format">%1$d dp</string>
+    <!-- GenreDetailScreen -->
     <string name="presentation_batch_b_genre_shuffle_label">%1$s Aleatório</string>
     <plurals name="presentation_batch_b_songs_dot_duration">
         <item quantity="one">%1$d música • %2$s</item>
         <item quantity="other">%1$d músicas • %2$s</item>
     </plurals>
+    <string name="presentation_batch_b_playlist_empty_mix_body">No songs match this mix yet.</string>
 </resources>

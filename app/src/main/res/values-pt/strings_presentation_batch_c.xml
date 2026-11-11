@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Library list errors -->
     <string name="library_error_loading_songs">Erro ao carregar músicas</string>
     <string name="library_error_loading_albums">Erro ao carregar álbuns</string>
     <string name="library_error_loading_artists">Erro ao carregar artistas</string>
     <string name="library_retry">Tente novamente</string>
+    <!-- Library empty (paginated) -->
     <string name="library_no_songs_in_library_message">Nenhuma música encontrada em sua biblioteca.</string>
     <string name="library_no_songs_rescan_hint">Tente verificar novamente sua biblioteca nas configurações se você tiver músicas em seu dispositivo.</string>
     <string name="cd_no_songs_in_library">Nenhuma música encontrada</string>
+    <!-- Library action row -->
     <string name="library_action_new">Novo</string>
     <string name="cd_create_new_playlist">Criar nova lista de reprodução</string>
     <string name="cd_import_m3u_playlist">Importar lista de reprodução M3U</string>
@@ -17,8 +20,10 @@
     <string name="library_storage_filter_offline">LOCAL</string>
     <string name="library_storage_filter_downloaded_only">BAIXADO</string>
     <string name="cd_sort_options">Opções de classificação</string>
+    <!-- Fetch lyrics (manual search fields) -->
     <string name="lyrics_synced_badge">SINCRONIZADO</string>
     <string name="song_field_artist_optional">Artista (opcional)</string>
+    <!-- Song picker -->
     <string name="song_picker_title">Adicionar músicas</string>
     <string name="cd_confirm_add_songs">Adicionar músicas selecionadas</string>
     <string name="song_picker_action_add">Adicionar</string>
@@ -26,6 +31,7 @@
     <string name="song_picker_filter_favorites">Gostei</string>
     <string name="song_picker_error_load_failed">Falha ao carregar músicas</string>
     <string name="song_picker_load_more">Carregue mais</string>
+    <!-- AI playlist sheet -->
     <string name="cd_ai">Last.fm</string>
     <string name="ai_playlist_headline_perfect">Perfeitamente Curadoria</string>
     <string name="ai_playlist_headline_daily_mix">Mistura Diária</string>
@@ -41,6 +47,7 @@
     <string name="ai_playlist_generating">Gerando…</string>
     <string name="ai_playlist_ready_to_play">Pronto para jogar</string>
     <string name="ai_playlist_generate">Gerar Mistura</string>
+    <!-- Library Empty State -->
     <string name="lib_empty_songs_all_title">Nenhuma música ainda</string>
     <string name="lib_empty_songs_all_subtitle">Adicione música ao seu dispositivo ou sincronize uma fonte na nuvem para começar a ouvir.</string>
     <string name="lib_empty_songs_offline_title">Nenhuma música local encontrada</string>
@@ -69,4 +76,14 @@
     <string name="lib_empty_folders_subtitle">Pastas de armazenamento interno com música aparecerão aqui.</string>
     <string name="lib_empty_playlists_title">Ainda não há playlists</string>
     <string name="lib_empty_playlists_subtitle">Crie sua primeira playlist para organizar sua biblioteca.</string>
+    <string name="lib_empty_genres_title">No genres yet</string>
+    <string name="lib_empty_genres_subtitle">Genres from your library will appear here.</string>
+    <string name="library_tab_albums">Albums</string>
+    <string name="library_tab_artists">Artists</string>
+    <string name="library_tab_folders">Folders</string>
+    <string name="library_tab_genres">Genres</string>
+    <string name="library_tab_liked">Liked</string>
+    <string name="library_tab_playlists">Playlists</string>
+    <string name="library_tab_mixes">Mixes</string>
+    <string name="library_tab_songs">Songs</string>
 </resources>

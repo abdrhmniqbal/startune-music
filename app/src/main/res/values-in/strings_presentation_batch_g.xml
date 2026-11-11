@@ -2,6 +2,7 @@
 <resources>
     <string name="presentation_batch_g_stats_range_today">Hari ini</string>
     <string name="presentation_batch_g_stats_range_week_to_date">Minggu Berjalan</string>
+    <string name="presentation_batch_g_stats_week_label">Week %1$d</string>
     <string name="presentation_batch_g_stats_range_month_to_date">Bulan Berjalan</string>
     <string name="presentation_batch_g_stats_range_year_to_date">Tahun Berjalan</string>
     <string name="presentation_batch_g_stats_range_all_time">Semua Waktu</string>
@@ -128,12 +129,14 @@
     <string name="device_capabilities_metric_hw_decoders">Dekoder HW</string>
     <string name="device_capabilities_metric_local_music">Lagu lokal</string>
     <string name="device_capabilities_storage_title">Penyimpanan Musik Lokal</string>
+    <string name="device_capabilities_storage_internal">Internal storage</string>
     <string name="device_capabilities_storage_music_size">Ukuran musik</string>
     <string name="device_capabilities_storage_music_count">%1$d lagu lokal</string>
     <string name="device_capabilities_storage_available">Tersedia</string>
     <string name="device_capabilities_storage_total">Total %1$s</string>
     <string name="device_capabilities_storage_music_footprint">Penggunaan ruang musik</string>
     <string name="device_capabilities_storage_device_used">Penggunaan perangkat</string>
+    <string name="device_capabilities_storage_app_data">App Data</string>
     <string name="device_capabilities_storage_percent">%1$d%%</string>
     <string name="device_capabilities_storage_less_than_one_percent">&lt;1%</string>
     <string name="device_capabilities_storage_cloud_count">%1$d lagu cloud</string>
@@ -184,13 +187,19 @@
     <string name="presentation_batch_g_artist_item_word_delimiters">Pemisah Kata</string>
     <string name="presentation_batch_g_artist_word_none">Tidak ada</string>
     <string name="presentation_batch_g_artist_word_current_prefix">Saat ini: %1$s</string>
+    <string name="presentation_batch_g_artist_item_unsplit_artists">Artists to Never Split</string>
     <string name="presentation_batch_g_artist_word_ellipsis">…</string>
     <string name="presentation_batch_g_artist_cd_configure">Konfigurasikan</string>
     <string name="presentation_batch_g_artist_extract_from_title">Ekstrak Artis dari Judul</string>
     <string name="presentation_batch_g_artist_extract_from_title_sub">Deteksi feat., ft., with dalam judul lagu</string>
+    <string name="presentation_batch_g_genre_section">Genres</string>
+    <string name="presentation_batch_g_genre_item_split_symbols">Genre Split Symbols</string>
+    <string name="presentation_batch_g_genre_item_unsplit_genres">Genres to Never Split</string>
     <string name="presentation_batch_g_artist_section_library_org">Pengorganisasian Pustaka</string>
     <string name="presentation_batch_g_artist_group_by_album_artist">Kelompokkan berdasarkan Artis Album</string>
     <string name="presentation_batch_g_artist_group_by_album_artist_sub">Tampilkan album kolaborasi di bawah artis utama</string>
+    <string name="presentation_batch_g_artist_case_sensitive">Case-sensitive artists</string>
+    <string name="presentation_batch_g_artist_case_sensitive_sub">Artists that differ only by letter case stay separate</string>
     <string name="presentation_batch_g_artist_info_title">Tentang Penguraian Multi-Artis</string>
     <string name="presentation_batch_g_artist_info_body">PixelPlayerOSS memisahkan tag artis menggunakan pemisah karakter (/, ;, &amp;) dan pemisah kata (feat., ft., vs., x). Pemisah kata dicocokkan tanpa peka huruf besar-kecil.
 
@@ -290,6 +299,29 @@ Garis miring terbalik (\) dapat digunakan untuk meloloskan pemisah karakter.</st
     <string name="presentation_batch_g_cd_selected">Terpilih</string>
     <string name="presentation_batch_g_changelog_title">Log Perubahan</string>
     <string name="presentation_batch_g_changelog_view_github">Lihat di GitHub</string>
+    <string name="presentation_batch_g_changelog_error">Couldn\'t load the changelog. Check your connection and try again.</string>
+    <string name="presentation_batch_g_changelog_retry">Retry</string>
+    <string name="presentation_batch_g_changelog_empty">No releases yet.</string>
+    <string name="presentation_batch_g_changelog_no_release_notes">No release notes for this version.</string>
+    <string name="presentation_batch_g_changelog_prerelease">Pre-release</string>
+    <string name="update_notification_title">Startune Music update available</string>
+    <string name="update_notification_body">Version %1$s is available (you have %2$s).</string>
+    <string name="update_download_title">Downloading update</string>
+    <string name="update_downloading">Downloading\u2026 %1$d%%</string>
+    <string name="update_downloaded_title">Update downloaded</string>
+    <string name="update_downloaded_body">Tap to install Startune Music %1$s.</string>
+    <string name="update_sheet_title">Update available</string>
+    <string name="update_download_and_install">Download and install</string>
+    <string name="update_install">Install</string>
+    <string name="update_later">Later</string>
+    <string name="update_dont_remind">Don\'t remind me for this version</string>
+    <string name="update_download_failed">Download failed. Try again.</string>
+    <string name="update_up_to_date">You\'re up to date.</string>
+    <string name="update_check_failed">Couldn\'t check for updates. Try again.</string>
+    <string name="update_view_on_github">View on GitHub</string>
+    <string name="update_enable_install">Enable \"Install unknown apps\" to install the update.</string>
+    <string name="about_check_for_updates_title">Check for updates</string>
+    <string name="about_check_for_updates_subtitle">Version %1$s</string>
     <string name="presentation_batch_g_presets_saved_title">Preset Tersimpan</string>
     <string name="presentation_batch_g_presets_empty">Belum ada preset kustom yang tersimpan.</string>
     <string name="presentation_batch_g_presets_cd_unpin">Lepas semat</string>
@@ -309,6 +341,7 @@ Garis miring terbalik (\) dapat digunakan untuk meloloskan pemisah karakter.</st
     <string name="presentation_batch_g_beta_sheet_github_body">Cari terlebih dahulu, lalu buat laporan yang jelas untuk bug, crash, permintaan fitur, atau pertanyaan.</string>
     <string name="presentation_batch_g_beta_sheet_open_issues">Buka issue yang ada</string>
     <string name="presentation_batch_g_beta_sheet_report_bug">Laporkan masalah atau crash</string>
+    <string name="presentation_batch_g_beta_sheet_report_body">Bagikan langkah-langkah untuk mereproduksi, hasil yang diharapkan, hasil aktual, dan detail perangkat/OS Anda.</string>
     <string name="presentation_batch_g_beta_sheet_report_title">Cara melapor</string>
     <string name="presentation_batch_g_beta_sheet_report_summary">Checklist singkat sebelum membuat issue baru.</string>
     <string name="presentation_batch_g_beta_sheet_before_title">Sebelum membuat issue</string>
@@ -361,6 +394,11 @@ Garis miring terbalik (\) dapat digunakan untuk meloloskan pemisah karakter.</st
     <string name="presentation_batch_g_beta_sheet_nightly_access">Akses build tersebut melalui artifact workflow GitHub Actions repositori jika tersedia.</string>
     <string name="presentation_batch_g_beta_sheet_nightly_report_title">Melaporkan masalah nightly</string>
     <string name="presentation_batch_g_beta_sheet_nightly_report_body">Saat melaporkan masalah dari build nightly, selalu sebutkan bahwa masalah terjadi pada build nightly, bukan rilis resmi. Sertakan tanggal build, nama atau nomor workflow run, atau commit SHA jika memungkinkan. Periksa juga apakah masalah yang sama terjadi pada rilis resmi terbaru.</string>
+    <string name="presentation_batch_g_beta05_title">v1.6.08 Pembaruan</string>
+    <string name="presentation_batch_g_beta05_clean_install_title">Apa yang Baru di v1.6.08</string>
+    <string name="presentation_batch_g_beta05_clean_install_body">•</string>
+    <string name="presentation_batch_g_beta05_if_wrong_meta_title">Jelajahi Segarkan</string>
+    <string name="presentation_batch_g_beta05_if_wrong_meta_body">Nikmati tata letak Material 3 Ekspresif baru yang ramping di seluruh tab Jelajahi!</string>
     <string name="presentation_batch_g_beta05_dont_show">Jangan tampilkan lagi</string>
     <string name="presentation_batch_g_beta05_got_it">Mengerti</string>
     <string name="presentation_batch_g_album_sel_count">%1$d ALBUM</string>
@@ -368,7 +406,6 @@ Garis miring terbalik (\) dapat digunakan untuk meloloskan pemisah karakter.</st
     <string name="presentation_batch_g_album_sel_queue_hint">Antrekan + putar menghormati urutan pilihan Anda.</string>
     <string name="presentation_batch_g_album_sel_limit">Batas: %1$d album per pilihan.</string>
     <string name="presentation_batch_g_album_sel_add_queue_play">Tambah ke Antrean &amp; Putar</string>
-    <string name="presentation_batch_g_app_name">Startune Music</string>
     <string name="presentation_batch_g_app_tagline">Pemutar Musik</string>
     <string name="presentation_batch_g_brick_high">TERTINGGI %1$d</string>
     <string name="presentation_batch_g_brick_cd_close">Tutup</string>
@@ -401,6 +438,11 @@ Garis miring terbalik (\) dapat digunakan untuk meloloskan pemisah karakter.</st
     <string name="presentation_batch_g_backup_cd_select_all">Pilih semua</string>
     <string name="presentation_batch_g_backup_cd_clear_selection">Bersihkan pilihan</string>
     <string name="presentation_batch_g_backup_entries_will_replace">%1$d entri · Akan menggantikan data saat ini</string>
+    <string name="presentation_batch_g_backup_warnings_count_single">1 issue found</string>
+    <string name="presentation_batch_g_backup_warnings_count_multiple">%1$d issues found</string>
+    <string name="presentation_batch_g_backup_warnings_expand_hint">Tap to expand failed IDs and warnings</string>
+    <string name="presentation_batch_g_backup_warnings_collapse_hint">Tap to collapse</string>
+    <string name="presentation_batch_g_backup_warnings_collapse_btn">Collapse</string>
     <string name="presentation_batch_g_player_cd_cloud_stream">Cloud stream</string>
     <string name="presentation_batch_g_player_cd_collapse">Ciutkan pemutar</string>
     <string name="presentation_batch_g_player_cd_cast">Cast</string>
@@ -435,6 +477,7 @@ Garis miring terbalik (\) dapat digunakan untuk meloloskan pemisah karakter.</st
     <string name="presentation_batch_g_cast_cd_refresh_connections">Segarkan koneksi</string>
     <string name="presentation_batch_g_cast_cd_refresh_devices">Segarkan perangkat</string>
     <string name="presentation_batch_g_cast_nearby_devices">Perangkat terdekat</string>
+    <string name="presentation_batch_g_cast_nearby_title">Perangkat terdekat</string>
     <string name="presentation_batch_g_cast_nearby_desc">Diperlukan untuk mendeteksi dan mengontrol perangkat audio Bluetooth yang terhubung.</string>
     <string name="presentation_batch_g_cast_tap_to_connect">Ketuk untuk menghubungkan</string>
     <string name="presentation_batch_g_cast_no_devices_yet">Belum ada perangkat</string>
@@ -463,31 +506,12 @@ Garis miring terbalik (\) dapat digunakan untuk meloloskan pemisah karakter.</st
     <string name="presentation_batch_g_cast_open_bluetooth">Buka Bluetooth</string>
     <string name="presentation_batch_g_cast_cd_disconnect_icon">Putuskan</string>
     <string name="presentation_batch_g_cast_connecting_ellipsis">Menghubungkan…</string>
-
     <string name="presentation_batch_g_changelog_sec_highlights">Sorotan</string>
     <string name="presentation_batch_g_changelog_sec_fixes">Perbaikan</string>
     <string name="presentation_batch_g_changelog_sec_whats_new_lower">Yang baru</string>
     <string name="presentation_batch_g_changelog_sec_added">Ditambahkan</string>
     <string name="presentation_batch_g_changelog_sec_changed">Diubah</string>
     <string name="presentation_batch_g_changelog_sec_fixed">Diperbaiki</string>
-
-    <string-array name="presentation_batch_g_changelog_070_highlights">
-        <item>Peningkatan integrasi AI dan pembuatan playlist yang lebih cerdas.</item>
-        <item>Statistik mendengarkan yang lebih lengkap dengan insight dan visualisasi baru.</item>
-        <item>Alur sinkronisasi pustaka yang lebih baik di semua penyedia cloud.</item>
-        <item>Pengeditan metadata yang lebih baik dengan dukungan sampul album.</item>
-    </string-array>
-
-
-    <string name="presentation_batch_g_cast_nearby_title">Perangkat terdekat</string>
-
-    <!-- Backfilled translations -->
-    <string name="presentation_batch_g_beta_sheet_report_body">Bagikan langkah-langkah untuk mereproduksi, hasil yang diharapkan, hasil aktual, dan detail perangkat/OS Anda.</string>
-    <string name="presentation_batch_g_beta05_title">v1.6.08 Pembaruan</string>
-    <string name="presentation_batch_g_beta05_clean_install_title">Apa yang Baru di v1.6.08</string>
-    <string name="presentation_batch_g_beta05_clean_install_body">•</string>
-    <string name="presentation_batch_g_beta05_if_wrong_meta_title">Jelajahi Segarkan</string>
-    <string name="presentation_batch_g_beta05_if_wrong_meta_body">Nikmati tata letak Material 3 Ekspresif baru yang ramping di seluruh tab Jelajahi!</string>
     <string-array name="presentation_batch_g_changelog_060_whats_new">
         <item>Dukungan Android Auto kini tersedia untuk pemutaran di mobil.</item>
         <item>Dukungan Wear OS telah hadir, termasuk kontrol pemutaran jam ke ponsel yang lebih baik.</item>
@@ -590,8 +614,13 @@ Garis miring terbalik (\) dapat digunakan untuk meloloskan pemisah karakter.</st
         <item>Memperbaiki bug di mana notifikasi pemutaran tidak hilang.</item>
         <item>Memperbaiki beberapa bug yang menyebabkan aplikasi berhenti tiba-tiba.</item>
     </string-array>
-    
-    
-    
-
+    <string-array name="presentation_batch_g_changelog_070_highlights">
+        <item>Peningkatan integrasi AI dan pembuatan playlist yang lebih cerdas.</item>
+        <item>Statistik mendengarkan yang lebih lengkap dengan insight dan visualisasi baru.</item>
+        <item>Alur sinkronisasi pustaka yang lebih baik di semua penyedia cloud.</item>
+        <item>Pengeditan metadata yang lebih baik dengan dukungan sampul album.</item>
+    </string-array>
+    <string name="presentation_batch_g_beta_sheet_welcome_body_stable">You\'re running the stable release build. Check the changelog to see what\'s new, and report anything that misbehaves.</string>
+    <string name="presentation_batch_g_topbar_build_debug">Debug</string>
+    <string name="presentation_batch_g_topbar_build_stable">Stable</string>
 </resources>

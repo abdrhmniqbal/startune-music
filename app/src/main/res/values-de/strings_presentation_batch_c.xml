@@ -5,34 +5,32 @@
     <string name="library_error_loading_albums">Fehler beim Laden der Alben</string>
     <string name="library_error_loading_artists">Fehler beim Laden der Künstler</string>
     <string name="library_retry">Erneut versuchen</string>
-
     <!-- Library empty (paginated) -->
     <string name="library_no_songs_in_library_message">Keine Songs in der Bibliothek gefunden.</string>
     <string name="library_no_songs_rescan_hint">Musik auf dem Gerät? Rescan unter Einstellungen starten.</string>
     <string name="cd_no_songs_in_library">Keine Songs gefunden</string>
-
     <!-- Library action row -->
     <string name="library_action_new">Neu</string>
     <string name="cd_create_new_playlist">Neue Playlist erstellen</string>
     <string name="cd_import_m3u_playlist">M3U-Playlist importieren</string>
     <string name="cd_locate_current_song">Aktuellen Song suchen</string>
     <string name="library_storage_filter_all_songs">Alle Songs</string>
+    <string name="library_storage_filter_local">Nur lokal</string>
     <string name="library_storage_filter_online">Online</string>
     <string name="library_storage_filter_offline">Offline</string>
+    <string name="library_storage_filter_downloaded_only">HERUNTERGELADEN</string>
     <string name="cd_sort_options">Sortieroptionen</string>
-
     <!-- Fetch lyrics (manual search fields) -->
     <string name="lyrics_synced_badge">SYNCHRONISIERT</string>
     <string name="song_field_artist_optional">Künstler (optional)</string>
-
     <!-- Song picker -->
     <string name="song_picker_title">Songs hinzufügen</string>
     <string name="cd_confirm_add_songs">Ausgewählte Songs hinzufügen</string>
     <string name="song_picker_action_add">Hinzufügen</string>
     <string name="song_picker_search_label">Songs suchen…</string>
+    <string name="song_picker_filter_favorites">Gefallen</string>
     <string name="song_picker_error_load_failed">Songs konnten nicht geladen werden</string>
     <string name="song_picker_load_more">Mehr laden</string>
-
     <!-- AI playlist sheet -->
     <string name="cd_ai">KI</string>
     <string name="ai_playlist_headline_perfect">Perfekt kuratiert</string>
@@ -49,7 +47,6 @@
     <string name="ai_playlist_generating">Wird generiert…</string>
     <string name="ai_playlist_ready_to_play">Bereit zum Abspielen</string>
     <string name="ai_playlist_generate">Playlist generieren</string>
-
     <!-- Library Empty State -->
     <string name="lib_empty_songs_all_title">Noch keine Songs</string>
     <string name="lib_empty_songs_all_subtitle">Musik hinzufügen oder eine Cloud-Quelle synchronisieren.</string>
@@ -79,9 +76,14 @@
     <string name="lib_empty_folders_subtitle">Ordner im internen Speicher mit Musik erscheinen hier.</string>
     <string name="lib_empty_playlists_title">Noch keine Playlists</string>
     <string name="lib_empty_playlists_subtitle">Erste Playlist erstellen und loslegen.</string>
-
-    <!-- Backfilled translations -->
-    <string name="library_storage_filter_local">Nur lokal</string>
-    <string name="library_storage_filter_downloaded_only">HERUNTERGELADEN</string>
-    <string name="song_picker_filter_favorites">Gefallen</string>
+    <string name="lib_empty_genres_title">No genres yet</string>
+    <string name="lib_empty_genres_subtitle">Genres from your library will appear here.</string>
+    <string name="library_tab_albums">Albums</string>
+    <string name="library_tab_artists">Artists</string>
+    <string name="library_tab_folders">Folders</string>
+    <string name="library_tab_genres">Genres</string>
+    <string name="library_tab_liked">Liked</string>
+    <string name="library_tab_playlists">Playlists</string>
+    <string name="library_tab_mixes">Mixes</string>
+    <string name="library_tab_songs">Songs</string>
 </resources>

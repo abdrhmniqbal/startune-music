@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Main settings screen -->
     <string name="settings_top_bar_title">Configurações</string>
     <string name="settings_accounts_row_title">Contas</string>
     <string name="settings_accounts_row_subtitle">Gerencie Telegram, Google Drive, NetEase e mais serviços</string>
+    <!-- SettingsCategory enum (grid) -->
     <string name="settings_category_library_title">Gestão Musical</string>
     <string name="settings_category_library_subtitle">Gerenciar pastas, atualizar biblioteca, opções de análise</string>
     <string name="settings_category_content_title">Conteúdo</string>
@@ -35,6 +37,14 @@
     <string name="settings_category_ai_subtitle">Provedores de IA, chaves de API e configurações de modelo</string>
     <string name="settings_category_backup_title">Backup e restauração</string>
     <string name="settings_category_backup_subtitle">Exporte e recupere os dados pessoais do seu aplicativo</string>
+    <string name="settings_category_data_storage_title">Data &amp; Storage</string>
+    <string name="settings_category_data_storage_subtitle">Storage location, backups, and downloads</string>
+    <string name="data_storage_section_location">Storage location</string>
+    <string name="data_storage_location_title">Data Storage</string>
+    <string name="data_storage_backups_title">Backups</string>
+    <string name="data_storage_downloads_title">Downloads</string>
+    <string name="data_storage_section_downloads">Downloads</string>
+    <string name="data_storage_manage_downloads_title">Manage Downloads</string>
     <string name="settings_category_developer_title">Opções do desenvolvedor</string>
     <string name="settings_category_developer_subtitle">Recursos experimentais e depuração</string>
     <string name="settings_category_equalizer_title">Equalizador</string>
@@ -43,6 +53,7 @@
     <string name="settings_category_device_capabilities_subtitle">Especificações de áudio, codecs e informações do decodificador</string>
     <string name="settings_category_about_title">Sobre</string>
     <string name="settings_category_about_subtitle">Informações, versão e créditos do aplicativo</string>
+    <!-- Common toggles / labels used in ThemeSelectorItem maps -->
     <string name="label_on">Em</string>
     <string name="label_off">Desligado</string>
     <string name="label_enabled">Habilitado</string>
@@ -51,6 +62,7 @@
     <string name="cd_select_all">Selecionar tudo</string>
     <string name="cd_clear_selection">Limpar seleção</string>
     <string name="cd_close_notice">Aviso de encerramento</string>
+    <!-- Library category -->
     <string name="setcat_library_structure">Estrutura da Biblioteca</string>
     <string name="setcat_excluded_directories_title">Diretórios excluídos</string>
     <string name="setcat_excluded_directories_subtitle">As pastas aqui serão ignoradas durante a digitalização da sua biblioteca.</string>
@@ -67,6 +79,8 @@
     <string name="toast_full_rescan_started">Nova verificação completa iniciada…</string>
     <string name="setcat_auto_scan_lrc_title">Verificação automática de arquivos .lrc</string>
     <string name="setcat_auto_scan_lrc_subtitle">Digitalize e atribua automaticamente arquivos .lrc na mesma pasta durante a sincronização da biblioteca.</string>
+    <string name="setcat_auto_scan_on_launch_title">Auto-scan on launch</string>
+    <string name="setcat_auto_scan_on_launch_subtitle">Scan the library for new songs when the app opens.</string>
     <string name="setcat_lyrics_management">Gerenciamento de Letras</string>
     <string name="setcat_lyrics_source_priority_label">Prioridade da fonte das letras</string>
     <string name="setcat_lyrics_source_priority_desc">Escolha qual fonte tentar primeiro ao buscar as letras.</string>
@@ -75,6 +89,7 @@
     <string name="setcat_lyrics_local_first">Local (.lrc) Primeiro</string>
     <string name="setcat_reset_imported_lyrics_title">Redefinir letras importadas</string>
     <string name="setcat_reset_imported_lyrics_subtitle">Remova todas as letras importadas do banco de dados.</string>
+    <!-- Appearance -->
     <string name="setcat_app_icon_title">Ícone do aplicativo</string>
     <string name="setcat_app_icon_subtitle">Selecione o ícone do seu aplicativo preferido</string>
     <string name="app_icon_blue_purple_title">Aurora</string>
@@ -139,6 +154,48 @@
     <string name="setcat_player_theme_album_art">Arte do álbum</string>
     <string name="setcat_player_theme_global">Paleta de aplicativos</string>
     <string name="setcat_player_theme_dynamic">Dinâmica do Sistema</string>
+    <string name="setcat_color_scheme_title">Color Scheme</string>
+    <string name="setcat_color_scheme_subtitle">Choose colors for the app</string>
+    <string name="setcat_color_scheme_current_subtitle">Current: %1$s. Select a custom color scheme preset.</string>
+    <string name="setcat_show_scrollbar_title">Show Scrollbar</string>
+    <string name="setcat_show_scrollbar_subtitle">Display lateral scrollbar on music lists for quick scrolling</string>
+    <string name="setcat_artwork_color_details_title">Use artwork colors on detail pages</string>
+    <string name="setcat_artwork_color_details_subtitle">Album, artist, genre, and other detail pages follow their artwork colors. When off, they use the default colors.</string>
+    <string name="setcat_pitch_black_title">Pitch Black</string>
+    <string name="setcat_pitch_black_subtitle">Pure black backgrounds in dark mode. Saves battery on OLED screens.</string>
+    <string name="color_scheme_dynamic_name">Dynamic Color</string>
+    <string name="color_scheme_sort_title">Sort</string>
+    <string name="color_scheme_sort_name_az">Name (A-Z)</string>
+    <string name="color_scheme_sort_name_za">Name (Z-A)</string>
+    <string name="color_scheme_selected">Selected</string>
+    <string name="color_scheme_import">Import theme</string>
+    <string name="color_scheme_export">Export</string>
+    <string name="color_scheme_edit">Edit</string>
+    <string name="color_scheme_copy">Copy</string>
+    <string name="color_scheme_delete">Delete</string>
+    <string name="color_scheme_delete_title">Delete theme?</string>
+    <string name="color_scheme_delete_message">Delete %1$s? You can import it again from an exported file.</string>
+    <string name="color_scheme_deleted">Theme deleted</string>
+    <string name="color_scheme_imported">Theme imported: %1$s</string>
+    <string name="color_scheme_invalid_file">Invalid theme file</string>
+    <string name="color_scheme_export_failed">Could not write the theme file</string>
+    <string name="color_scheme_new">New theme</string>
+    <string name="color_scheme_edit_title">Edit theme</string>
+    <string name="color_scheme_save">Save theme</string>
+    <string name="color_scheme_name_label">Name</string>
+    <string name="color_scheme_name_placeholder">My theme</string>
+    <string name="color_scheme_name_required">Enter a name for the theme</string>
+    <string name="color_scheme_light">Light</string>
+    <string name="color_scheme_dark">Dark</string>
+    <string name="color_scheme_preview">Preview</string>
+    <string name="color_scheme_role_primary">Primary</string>
+    <string name="color_scheme_role_secondary">Secondary</string>
+    <string name="color_scheme_role_tertiary">Tertiary</string>
+    <string name="color_scheme_role_background">Background</string>
+    <string name="color_scheme_role_surface">Surface</string>
+    <string name="color_scheme_role_error">Error</string>
+    <string name="color_scheme_hex_label">Hex color</string>
+    <string name="color_scheme_hex_invalid">Use a 6-digit hex color, like #88C0D0.</string>
     <string name="setcat_show_player_file_info_title">Mostrar informações do arquivo do player</string>
     <string name="setcat_show_player_file_info_subtitle">Mostre codec, taxa de bits e taxa de amostragem na seção de progresso do player.</string>
     <string name="setcat_album_art_palette_title">Estilo da paleta de arte do álbum</string>
@@ -165,6 +222,8 @@
     <string name="setcat_navbar_corner_subtitle">Ajuste o raio do canto da barra de navegação.</string>
     <string name="setcat_navbar_height_adjustment">Ajuste de altura da barra de navegação</string>
     <string name="setcat_lyrics_screen">Tela de letras</string>
+    <string name="setcat_lyrics_font_size_title">Lyrics size</string>
+    <string name="setcat_lyrics_font_size_subtitle">Text size for synced and plain lyrics</string>
     <string name="setcat_immersive_lyrics_title">Letras envolventes</string>
     <string name="setcat_immersive_lyrics_subtitle">Ocultar automaticamente os controles e ampliar o texto.</string>
     <string name="setcat_auto_hide_delay_label">Atraso de ocultação automática</string>
@@ -182,12 +241,60 @@
     <string name="setcat_library_navigation_desc">Escolha como mover-se entre as guias da Biblioteca.</string>
     <string name="setcat_library_nav_tab_row">Linha da guia (padrão)</string>
     <string name="setcat_library_nav_compact_pill">Comprimido compacto e grade</string>
+    <!-- Playback -->
     <string name="setcat_background_playback">Reprodução em segundo plano</string>
     <string name="setcat_keep_playing_label">Continue jogando depois de fechar</string>
     <string name="setcat_keep_playing_desc">Se estiver desativado, remover o aplicativo dos recentes interromperá a reprodução.</string>
+    <string name="setcat_restore_last_position_title">Restore last position</string>
+    <string name="setcat_restore_last_position_subtitle">Resume the last song from where it stopped when you reopen the app.</string>
+    <string name="setcat_audio_focus">Audio focus</string>
+    <string name="setcat_resume_behavior">Resume behavior</string>
+    <string name="setcat_resume_after_call_title">Resume after a call ends</string>
+    <string name="setcat_resume_after_call_subtitle">Continue playback once phone calls finish.</string>
+    <string name="setcat_resume_on_start_title">Resume when the app starts</string>
+    <string name="setcat_resume_on_start_subtitle">Restore the last session on launch.</string>
+    <string name="setcat_resume_on_reopen_title">Resume when reopened</string>
+    <string name="setcat_resume_on_reopen_subtitle">Pick up where you left off when reopening the app.</string>
+    <string name="setcat_ignore_short_focus_loss_title">Ignore short focus losses</string>
+    <string name="setcat_ignore_short_focus_loss_subtitle">Keep playing through brief interruptions like notifications.</string>
+    <string name="setcat_pause_in_call_title">Pause during calls</string>
+    <string name="setcat_pause_in_call_subtitle">Pause playback while a phone call is active.</string>
+    <string name="setcat_resume_on_focus_gain_title">Resume on focus gain</string>
+    <string name="setcat_resume_on_focus_gain_subtitle">Continue playback after other apps release audio focus.</string>
+    <string name="setcat_duck_volume_title">Duck volume</string>
+    <string name="setcat_duck_volume_subtitle">Lower volume instead of pausing for other audio.</string>
+    <string name="setcat_respect_permanent_focus_loss_title">Respect permanent focus loss</string>
+    <string name="setcat_respect_permanent_focus_loss_subtitle">Stay paused when another app takes over playback.</string>
+    <string name="setcat_queue_aware_next_title">Queue-aware next</string>
+    <string name="setcat_queue_aware_next_subtitle">Play next adds songs after the ones already queued to play next, instead of jumping ahead of them.</string>
     <string name="setcat_battery_optimization_title">Otimização da bateria</string>
     <string name="setcat_battery_optimization_subtitle">Desative a otimização da bateria para evitar interrupções na reprodução.</string>
     <string name="toast_battery_already_disabled">A otimização da bateria já está desativada</string>
+    <string name="setcat_share_crash_logs_title">Share crash logs</string>
+    <string name="setcat_share_crash_logs_subtitle">Share the last crash report for bug reports.</string>
+    <string name="toast_no_crash_logs">No crash logs captured yet.</string>
+    <string name="setcat_clear_listening_history_title">Clear listening history</string>
+    <string name="setcat_clear_listening_history_subtitle">Clear every play history entry.</string>
+    <string name="dialog_clear_listening_history_title">Clear listening history?</string>
+    <string name="dialog_clear_listening_history_body">All plays are forgotten. Favorites and playlists are kept.</string>
+    <string name="toast_listening_history_cleared">Listening history cleared.</string>
+    <string name="setcat_clear_search_history_title">Clear search history</string>
+    <string name="setcat_clear_search_history_subtitle">Remove all recent searches.</string>
+    <string name="dialog_clear_search_history_title">Clear search history?</string>
+    <string name="dialog_clear_search_history_body">All recent searches will be removed.</string>
+    <string name="toast_search_history_cleared">Search history cleared.</string>
+    <string name="settings_category_notifications_title">Notifications</string>
+    <string name="settings_category_notifications_subtitle">Update and scan notifications.</string>
+    <string name="setcat_notifications_title">Notifications</string>
+    <string name="setcat_app_update_notifications_title">Update notifications</string>
+    <string name="setcat_app_update_notifications_enabled">Notify when a new version is available.</string>
+    <string name="setcat_app_update_notifications_disabled">Updates are discovered silently.</string>
+    <string name="setcat_include_prereleases_title">Join preview releases</string>
+    <string name="setcat_include_prereleases_enabled">Pre-release versions are offered to you.</string>
+    <string name="setcat_include_prereleases_disabled">Only stable releases are offered.</string>
+    <string name="setcat_indexer_notifications_title">Indexing notifications</string>
+    <string name="setcat_indexer_notifications_enabled">Show scan progress in the notification shade.</string>
+    <string name="setcat_indexer_notifications_disabled">Scans run without notifications.</string>
     <string name="setcat_replaygain_section">Normalização de volume (ReplayGain)</string>
     <string name="setcat_replaygain_enable_title">Habilitar ReplayGain</string>
     <string name="setcat_replaygain_enable_subtitle">Normalize os níveis de volume usando metadados ReplayGain de arquivos de áudio.</string>
@@ -212,15 +319,21 @@
     <string name="setcat_persistent_shuffle_subtitle">Lembre-se da configuração aleatória mesmo depois de fechar o aplicativo.</string>
     <string name="setcat_show_queue_history_title">Mostrar histórico da fila</string>
     <string name="setcat_show_queue_history_subtitle">Mostrar músicas tocadas anteriormente na fila.</string>
+    <string name="setcat_listening_history">Listening History</string>
+    <string name="setcat_played_threshold">Count as played after</string>
+    <!-- Behavior -->
     <string name="setcat_folders">Pastas</string>
     <string name="setcat_folder_back_gesture_title">O gesto de voltar controla as pastas</string>
     <string name="setcat_folder_back_gesture_subtitle">Na guia Pastas, o sistema navega novamente pela pilha de pastas antes de sair da Biblioteca.</string>
     <string name="setcat_player_gestures">Gestos do Jogador</string>
     <string name="setcat_tap_bg_closes_title">Toque no fundo para fechar o player</string>
     <string name="setcat_tap_bg_closes_subtitle">Toque no fundo desfocado para fechar a ficha do jogador.</string>
+    <string name="setcat_mini_player_swipe_to_skip_title">Swipe to change song</string>
+    <string name="setcat_mini_player_swipe_to_skip_subtitle">Swipe the mini player left for the next song and right for the previous one. Dismiss it by swiping down instead.</string>
     <string name="setcat_haptics">Tátil</string>
     <string name="setcat_haptic_feedback_title">Feedback tátil</string>
     <string name="setcat_haptic_feedback_subtitle">Ative o feedback de vibração em todo o aplicativo.</string>
+    <!-- AI -->
     <string name="setcat_ai_provider_section">Provedor de IA</string>
     <string name="setcat_ai_provider_label">Provedor</string>
     <string name="setcat_ai_provider_desc">Escolha seu provedor de IA</string>
@@ -249,10 +362,27 @@
     <string name="setcat_total_consumption_title">Consumo total</string>
     <string name="setcat_ai_usage_tokens_subtitle">Rastreamento de tokens %1$s
 Prompt: %2$s | Saída: %3$s | Pensei: %4$s</string>
+    <!-- Backup / developer / dialogs -->
     <string name="setcat_create_backup">Criar backup</string>
     <string name="setcat_export_backup_title">Exportar Backup</string>
     <string name="setcat_export_backup_subtitle">%1$s Cria um arquivo de backup .starbk.</string>
     <string name="setcat_restore_backup_section">Restaurar Backup</string>
+    <string name="auto_backup_section">Automatic backup</string>
+    <string name="auto_backup_title">Automatic backups</string>
+    <string name="auto_backup_hint">Backups run while the app is open and write into the chosen folder.</string>
+    <string name="auto_backup_off">Off</string>
+    <string name="auto_backup_every_12_hours">Every 12 hours</string>
+    <string name="auto_backup_every_24_hours">Every 24 hours</string>
+    <string name="auto_backup_every_3_days">Every 3 days</string>
+    <string name="auto_backup_every_week">Every week</string>
+    <string name="auto_backup_last_backup">Last backup</string>
+    <string name="auto_backup_never_backed_up">Never backed up</string>
+    <string name="auto_backup_notifications_title">Backup notifications</string>
+    <string name="auto_backup_notifications_subtitle">Show a notification while an automatic backup runs.</string>
+    <string name="auto_backup_notification_title">Backing up…</string>
+    <string name="auto_backup_notification_text">Creating an automatic backup.</string>
+    <string name="auto_backup_choose_folder">Choose folder</string>
+    <string name="auto_backup_folder_unusable">Couldn\'t use that folder.</string>
     <string name="setcat_import_backup_title">Importar Backup</string>
     <string name="setcat_import_backup_subtitle">Navegue ou escolha backups recentes. Os dados selecionados substituirão os dados atuais.</string>
     <string name="setcat_experiments">Experimentos</string>
@@ -307,7 +437,6 @@ Prompt: %2$s | Saída: %3$s | Pensei: %4$s</string>
     <string name="dialog_regenerate_stats_title">Regenerar estatísticas?</string>
     <string name="dialog_regenerate_stats_body">Isto limpará o cache de estatísticas e forçará um recálculo do histórico do banco de dados.</string>
     <string name="toast_stats_regeneration_started">Regeneração de estatísticas iniciada</string>
-    <string name="backup_file_name_format">Startune Music_Backup_%1$d.starbk</string>
     <string name="setcat_regenerate_stats_action">Regenerar estatísticas</string>
     <string name="setcat_force_palette_empty">Nenhuma música com a capa do álbum foi encontrada.</string>
     <string name="setcat_force_palette_subtitle">Recrie todas as variantes de paleta em cache para cada capa de álbum ou escolha uma única para atualizar.</string>
@@ -320,6 +449,7 @@ Prompt: %2$s | Saída: %3$s | Pensei: %4$s</string>
     <string name="cd_hide">Ocultar</string>
     <string name="setcat_select_export">Selecione e exporte</string>
     <string name="setcat_select_restore">Selecionar e restaurar</string>
+    <!-- Import backup flow (SettingsCategoryScreen) -->
     <string name="import_backup_toolbar_title">Importar Backup</string>
     <string name="import_inspecting">Inspecionando…</string>
     <string name="import_browse_file">Procure o arquivo</string>
@@ -335,6 +465,7 @@ Prompt: %2$s | Saída: %3$s | Pensei: %4$s</string>
     <string name="cd_remove_from_history">Remover do histórico</string>
     <string name="cd_clear_search">Limpar pesquisa</string>
     <string name="backup_history_modules_line">Módulos %1$d · v%2$s · esquema v%3$d</string>
+    <!-- Playback Streaming & Optimization -->
     <string name="setcat_streaming_title">Streaming e economia de dados</string>
     <string name="setcat_streaming_audio_quality_wifi_title">Qualidade de streaming WiFi</string>
     <string name="setcat_streaming_audio_quality_wifi_desc">Selecione a qualidade do áudio ao transmitir em redes WiFi.</string>
@@ -358,6 +489,7 @@ Prompt: %2$s | Saída: %3$s | Pensei: %4$s</string>
     <string name="setcat_avoid_repetitive_songs_title">Evite músicas repetitivas</string>
     <string name="setcat_avoid_repetitive_songs_desc">Filtre faixas reproduzidas recentemente ou com alta rotação da fila dinâmica.</string>
     <string name="setcat_deduplicate_queue_title">Desduplicar entradas de fila</string>
+    <!-- Last.fm Integration -->
     <string name="lastfm_integration">Integração Last.fm</string>
     <string name="lastfm_integration_desc">Configure o scrobbling do Last.fm, atualizações de reprodução agora e parâmetros de limite</string>
     <string name="lastfm_not_logged_in">Não logado</string>
@@ -381,4 +513,70 @@ Prompt: %2$s | Saída: %3$s | Pensei: %4$s</string>
     <string name="setcat_playback_client_title">Cliente de reprodução</string>
     <string name="setcat_playback_client_android_vr">Android VR (Padrão)</string>
     <string name="setcat_playback_client_web_remix">Web Client</string>
+    <string name="backup_encrypt_subtitle">Protect the file with a password (AES-256). You\'ll need it to restore.</string>
+    <string name="backup_encrypt_title">Encrypt backup</string>
+    <string name="backup_encrypted_prompt_body">This backup is protected with a password. Enter it to continue.</string>
+    <string name="backup_encrypted_prompt_title">Encrypted backup</string>
+    <string name="backup_password_confirm_hint">Confirm password</string>
+    <string name="backup_password_hint">Backup password</string>
+    <string name="backup_password_mismatch">Passwords don\'t match.</string>
+    <string name="backup_password_too_short">Use at least 4 characters.</string>
+    <string name="backup_unlock">Unlock</string>
+    <string name="backup_wrong_password">Incorrect password. Try again.</string>
+    <string name="setcat_about_startune_subtitle">App version, credits, and more.</string>
+    <string name="setcat_about_startune_title">About Startune Music</string>
+    <string name="setcat_app_language_desc">Choose the language used across the app interface.</string>
+    <string name="setcat_app_language_label">App Language</string>
+    <string name="setcat_audio_output_mode_description">Choose how decoded PCM is sent to Android. Changing mode briefly restarts the audio output.</string>
+    <string name="setcat_audio_output_mode_direct">Direct output (experimental)</string>
+    <string name="setcat_audio_output_mode_direct_description">Attempts to use the same sample rate as the audio on most devices to avoid unnecessary resampling.</string>
+    <string name="setcat_audio_output_mode_pcm_float">32-bit float PCM</string>
+    <string name="setcat_audio_output_mode_pcm_float_description">More processing headroom for high-resolution PCM. Android may still resample it; this is not bit-perfect.</string>
+    <string name="setcat_audio_output_mode_pcm_float_unsupported">Unavailable because this device could not initialize a PCM_FLOAT AudioTrack.</string>
+    <string name="setcat_audio_output_mode_system_default">System default</string>
+    <string name="setcat_audio_output_mode_system_default_description">Best compatibility. Android may mix or resample audio.</string>
+    <string name="setcat_audio_output_mode_title">Audio output mode</string>
+    <string name="setcat_external_artist_images_subtitle">Allow missing artist images to be fetched from Deezer and cached locally.</string>
+    <string name="setcat_external_artist_images_title">Artist artwork from Deezer</string>
+    <string name="setcat_external_lyrics_subtitle">Allow searches and manual fetches from lrclib.net when lyrics are missing locally.</string>
+    <string name="setcat_external_lyrics_title">Online lyrics from LRCLIB</string>
+    <string name="setcat_global_now_playing_theme_subtitle">Colors the whole app from the current song\'s album art. Light and dark mode are still respected.</string>
+    <string name="setcat_global_now_playing_theme_title">Use now playing colors across the app</string>
+    <string name="setcat_keep_screen_awake_subtitle">Prevents the screen from sleeping while music is actively playing and the app is visible.</string>
+    <string name="setcat_keep_screen_awake_title">Keep screen awake while playing</string>
+    <string name="setcat_m3u_sync_disabled_subtitle">Choose an external folder to keep local playlists in sync both ways</string>
+    <string name="setcat_m3u_sync_enabled_subtitle">Synchronizing with %1$s</string>
+    <string name="setcat_m3u_sync_now_subtitle">Import and export changes without overwriting conflicts</string>
+    <string name="setcat_m3u_sync_now_title">Sync playlists now</string>
+    <string name="setcat_m3u_sync_result">%1$d changed · %2$d conflicts · %3$d unresolved entries</string>
+    <string name="setcat_m3u_sync_section">Playlist synchronization</string>
+    <string name="setcat_m3u_sync_selected_folder">selected folder</string>
+    <string name="setcat_m3u_sync_title">Automatic M3U sync</string>
+    <string name="setcat_online_services">Optional online services</string>
+    <string name="setcat_smart_crossfade_subtitle">Match the crossfade length to the songs\' tempo when their BPM tags are compatible.</string>
+    <string name="setcat_smart_crossfade_title">Smart crossfade</string>
+    <string name="settings_search_hint">Search settings</string>
+    <string name="settings_search_no_results">No results for \"%1$s\"</string>
+    <string name="settings_search_section_related">Related settings</string>
+    <string name="settings_search_section_top_matches">Top matches</string>
+    <string name="setcat_playback_behavior">Playback</string>
+    <string name="setcat_autoplay_on_skip_title">Auto-play on skip</string>
+    <string name="setcat_autoplay_on_skip_subtitle">Start playing automatically when you skip to another song while paused.</string>
+    <!-- Playback speed -->
+    <string name="playback_speed_description">Pitch stays the same. Applies to everything you play.</string>
+    <string name="playback_speed_value">%1$s×</string>
+    <string name="playback_speed_state_description">%1$s× speed</string>
+    <string name="playback_speed_decrease">Decrease playback speed</string>
+    <string name="playback_speed_increase">Increase playback speed</string>
+    <string name="playback_speed_presets">Presets</string>
+    <string name="playback_speed_custom_action">Enter exact speed</string>
+    <string name="playback_speed_custom_title">Exact playback speed</string>
+    <string name="playback_speed_custom_field_label">Speed</string>
+    <string name="playback_speed_custom_supporting">From %1$s× to %2$s×, up to two decimals</string>
+    <string name="playback_speed_custom_error">Enter a speed from %1$s× to %2$s×</string>
+    <string name="playback_speed_multiplier_suffix">×</string>
+    <string name="setcat_folder_album_art_title">Use folder cover images</string>
+    <string name="setcat_folder_album_art_subtitle">Use cover.jpg, folder.jpg, artist.jpg or band.jpg from your music folders as artwork, instead of embedded art.</string>
+    <string name="setcat_folder_album_art_permission_required">Full photo access is required to read album and artist images from your music folders.</string>
+    <string name="setcat_folder_album_art_refreshing">Refreshing artwork…</string>
 </resources>

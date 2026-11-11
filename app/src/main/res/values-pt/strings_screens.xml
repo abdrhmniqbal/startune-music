@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Navigation / misc -->
     <string name="nav_error_genre_id_missing">Erro: ID do gênero ausente</string>
     <string name="easter_egg_thank_you">Obrigado por usar o Startune Music!</string>
+    <!-- Word delimiter config -->
     <string name="word_delimiter_section_title">Delimitadores de palavras atuais</string>
     <string name="word_delimiter_section_subtitle">Essas palavras-chave dividem os nomes dos artistas quando cercadas por espaços. Correspondido sem distinção entre maiúsculas e minúsculas. Toque para remover.</string>
     <string name="word_delimiter_empty">Nenhum delimitador de palavra configurado</string>
@@ -23,6 +25,7 @@ Exemplos:
     <string name="word_delimiter_toast_invalid">Já existe ou é inválido</string>
     <string name="word_delimiter_toast_reset">Delimitadores de palavras redefinidos para os padrões</string>
     <string name="action_reset">Redefinir</string>
+    <!-- Delimiter config (path separators) -->
     <string name="delimiter_section_title">Delimitadores atuais</string>
     <string name="delimiter_section_subtitle">Toque em um delimitador para removê-lo. Pelo menos um delimitador é necessário.</string>
     <string name="delimiter_add_title">Adicionar novo delimitador</string>
@@ -35,9 +38,24 @@ Exemplos:
     <string name="delimiter_toast_added">Delimitador adicionado</string>
     <string name="delimiter_toast_invalid">O delimitador já existe ou é inválido</string>
     <string name="path_delimiters_toolbar_title">Delimitadores</string>
+    <string name="genre_delimiters_toolbar_title">Genre Delimiters</string>
     <string name="delimiter_label_space">Espaço</string>
     <string name="cd_add_path_delimiter">Adicionar delimitador</string>
+    <!-- Unsplit (never split) names config -->
+    <string name="unsplit_section_title">Current Names</string>
+    <string name="unsplit_artists_section_subtitle">Names that always stay as one artist, even if they contain a delimiter. Tap a name to remove it.</string>
+    <string name="unsplit_genres_section_subtitle">Names that always stay as one genre, even if they contain a delimiter. Tap a name to remove it.</string>
+    <string name="unsplit_empty">No names added yet</string>
+    <string name="unsplit_add_title">Add New Name</string>
+    <string name="unsplit_artists_hint">e.g., AC/DC</string>
+    <string name="unsplit_genres_hint">e.g., Pop/Rock</string>
+    <string name="unsplit_toast_added">Name added</string>
+    <string name="unsplit_artists_toolbar_title">Artists to Never Split</string>
+    <string name="unsplit_genres_toolbar_title">Genres to Never Split</string>
+    <string name="cd_add_unsplit_name">Add name</string>
+    <!-- Accounts -->
     <string name="accounts_unable_open_screen">Não é possível abrir esta tela no momento.</string>
+    <!-- Setup (subset; more keys follow in same file) -->
     <string name="setup_welcome_prefix">Bem-vindo ao</string>
     <string name="setup_beta_symbol">β</string>
     <string name="setup_beta_label">Beta</string>
@@ -78,6 +96,7 @@ Exemplos:
     <string name="toast_grant_all_permissions">Conceda todas as permissões necessárias.</string>
     <string name="toast_grant_storage_first">Conceda permissões de armazenamento primeiro</string>
     <string name="toast_battery_settings_unavailable">Não foi possível abrir as configurações da bateria</string>
+    <!-- Content descriptions -->
     <string name="cd_expand_menu">Expandir menu</string>
     <string name="cd_next_step">Próximo</string>
     <string name="cd_finish">Concluir</string>
@@ -85,9 +104,24 @@ Exemplos:
     <string name="cd_remove">Remover</string>
     <string name="cd_add_word_delimiter">Adicionar delimitador de palavra</string>
     <string name="cd_reset_defaults">Redefinir padrões</string>
+    <!-- Setup (additional literals) -->
     <string name="setup_excluded_folders_title">Pastas excluídas</string>
     <string name="setup_excluded_folders_description">Escolha pastas para ignorar ao escanear sua biblioteca de música.</string>
     <string name="setup_choose_folders_ignore">Escolha pastas para ignorar</string>
+    <!-- Manage folders -->
+    <string name="manage_folders_filter_title">Folder filtering</string>
+    <string name="manage_folders_filter_description">Choose whether added folders include or exclude music from your library.</string>
+    <string name="manage_folders_whitelist">Whitelist</string>
+    <string name="manage_folders_blacklist">Blacklist</string>
+    <string name="manage_folders_whitelist_description">Only the folders below are scanned.</string>
+    <string name="manage_folders_blacklist_description">All folders are scanned except the ones below.</string>
+    <string name="manage_folders_rescan_banner_title">Rescan Required</string>
+    <string name="manage_folders_rescan_banner_body">Folder filter changed. Rescan your library to apply.</string>
+    <string name="manage_folders_title">Folders</string>
+    <string name="manage_folders_add">Add folder</string>
+    <string name="manage_folders_internal_storage">Internal storage</string>
+    <string name="manage_folders_empty_title">No folders added</string>
+    <string name="manage_folders_empty_message">Without filters every folder on your device is scanned.</string>
     <string name="setup_permission_media_title">Permissão de mídia</string>
     <string name="setup_permission_media_description">Startune Music precisa de acesso aos seus arquivos de áudio para construir sua biblioteca de música.</string>
     <string name="setup_permission_granted">Permissão concedida</string>
@@ -97,6 +131,9 @@ Exemplos:
     <string name="setup_enable_notifications">Habilitar notificações</string>
     <string name="setup_permission_alarms_title">Alarmes e lembretes</string>
     <string name="setup_permission_alarms_description">Permite que o Sleep Timer pause a reprodução pontualmente.</string>
+    <string name="setup_battery_optimization_title">Otimização da bateria</string>
+    <string name="setup_battery_optimization_description">Desative a otimização de bateria para evitar pausas em segundo plano.</string>
+    <string name="setup_disable_battery_optimization">Desativar otimização</string>
     <string name="setup_grant_permission_generic">Conceder permissão</string>
     <string name="setup_backup_have_title">Você tem um backup?</string>
     <string name="setup_backup_have_description">Restaure um backup do Startune Music para pular a configuração.</string>
@@ -112,17 +149,24 @@ Exemplos:
     <string name="setup_compact_mode_pill_hint">Usando navegação mínima em pílulas</string>
     <string name="setup_compact_mode_tab_hint">Usando linha de guia padrão</string>
     <string name="setup_preview_songs_label">Músicas</string>
-    <string name="setup_battery_optimization_title">Otimização da bateria</string>
-    <string name="setup_battery_optimization_description">Desative a otimização de bateria para evitar pausas em segundo plano.</string>
-    <string name="setup_disable_battery_optimization">Desativar otimização</string>
     <string name="setup_nav_floating_pill_description">Comprimido flutuante com cantos arredondados</string>
     <string name="setup_nav_full_width_description">Barra padrão de largura total</string>
+    <!-- Delete song (Material dialog from ViewModel) -->
     <string name="dialog_delete_song_title">Excluir música?</string>
     <string name="dialog_delete_song_message">\"%1$s\" de %2$s
 
 Esta música será excluída permanentemente do seu dispositivo e não poderá ser recuperada.</string>
+    <!-- Home / detail shared -->
     <string name="home_your_mix_title">Seu
 Mix</string>
+    <string name="mix_for_you_title">For You Mix</string>
+    <string name="mix_detail_size_title">Mix size</string>
+    <string name="mix_detail_size_songs">%1$d songs</string>
+    <string name="mix_edit_title">Edit mix</string>
+    <string name="mix_delete_title">Delete mix</string>
+    <string name="mix_delete_confirm_title">Delete mix?</string>
+    <string name="mix_delete_confirm_body">Are you sure you want to delete this mix?</string>
+    <string name="mix_remove_from_mix">Remove from mix</string>
     <string name="home_empty_placeholder_title">Ainda não há dados para mostrar</string>
     <string name="home_empty_placeholder_subtitle">Seu mix aparecerá aqui quando o Startune Music encontrar músicas ou sincronizar uma fonte.</string>
     <string name="home_empty_placeholder_refresh">Atualizar</string>
@@ -130,13 +174,42 @@ Mix</string>
     <string name="cd_album_art_for_title">Arte do álbum %1$s</string>
     <string name="cd_options">Opções</string>
     <string name="genre_quick_fill">Gênero de preenchimento rápido</string>
+    <string name="genre_empty_title">No songs in this genre</string>
+    <string name="genre_empty_subtitle">Songs tagged with this genre will appear here.</string>
+    <string name="mix_detail_empty_title">No songs in this mix</string>
+    <string name="mix_detail_empty_subtitle">Songs you add to this mix will appear here.</string>
+    <string name="album_detail_empty_title">No songs in this album</string>
+    <string name="album_detail_empty_subtitle">Songs in this album will appear here.</string>
+    <string name="artist_detail_empty_title">No songs by this artist</string>
+    <string name="artist_detail_empty_subtitle">Songs by this artist will appear here.</string>
+    <string name="artist_albums_empty_title">No albums by this artist</string>
+    <string name="artist_albums_empty_subtitle">Albums by this artist will appear here.</string>
+    <string name="artist_featured_empty_title">No featured appearances</string>
+    <string name="artist_featured_empty_subtitle">Songs featuring this artist will appear here.</string>
+    <string name="genre_albums_empty_title">No albums in this genre</string>
+    <string name="genre_albums_empty_subtitle">Albums in this genre will appear here.</string>
+    <string name="genre_artists_empty_title">No artists in this genre</string>
+    <string name="genre_artists_empty_subtitle">Artists in this genre will appear here.</string>
     <string name="cd_generic_artist">Artista genérico</string>
     <string name="cd_play_album">Reproduzir álbum</string>
     <string name="cd_shuffle_play_album">Reproduzir álbum aleatoriamente</string>
     <string name="album_cover_for">Capa do %1$s</string>
     <string name="album_detail_meta_line">%1$s · %2$s</string>
+    <string name="detail_hero_shuffle">Shuffle</string>
+    <string name="detail_hero_play">Play</string>
+    <string name="detail_hero_pause">Pause</string>
+    <string name="detail_hero_resume">Resume</string>
+    <string name="detail_hero_more_actions">More actions</string>
+    <string name="detail_hero_add_to_playlist">Add to playlist</string>
+    <string name="detail_hero_play_next">Play next</string>
+    <string name="detail_hero_add_to_queue">Add to queue</string>
+    <string name="detail_hero_album_count_many">%1$d Albums</string>
+    <string name="detail_hero_album_count_one">1 Album</string>
+    <string name="detail_hero_duration_minutes">%1$d min</string>
+    <string name="detail_hero_duration_hours">%1$d h %2$d min</string>
     <string name="mashup_cd_play_pause">Reproduzir/Pausar</string>
     <string name="cd_song_cover">Capa da música</string>
+    <!-- Crash report dialog -->
     <string name="crash_report_title">Ops! Algo deu errado</string>
     <string name="crash_report_subtitle">O aplicativo travou durante sua última sessão. Ajude-nos a corrigir isso compartilhando o relatório de falha.</string>
     <string name="crash_report_date_line">Data: %1$s</string>
@@ -148,6 +221,7 @@ Mix</string>
     <string name="crash_report_share_chooser">Compartilhar relatório de falha</string>
     <string name="action_copy">Copiar</string>
     <string name="action_share">Compartilhe</string>
+    <!-- Search screen -->
     <string name="search_placeholder">Procurar…</string>
     <string name="cd_search_icon">Pesquisar</string>
     <string name="cd_clear_search_query">Limpar pesquisa</string>
@@ -156,14 +230,16 @@ Mix</string>
     <string name="cd_search_history_icon">História</string>
     <string name="cd_delete_search_history_item">Excluir item do histórico de pesquisa</string>
     <string name="cd_no_search_results">Sem resultados</string>
+    <string name="search_filter_all">All</string>
     <string name="search_no_results_for_query">Nenhum resultado para \"%1$s\"</string>
     <string name="search_nothing_found">Nada encontrado</string>
     <string name="search_try_different_or_filters">Experimente um termo de pesquisa diferente ou verifique seus filtros.</string>
     <string name="search_no_results_found">Nenhum resultado encontrado.</string>
+    <!-- Genre browse -->
     <string name="browse_by_genre">Navegue por gênero</string>
     <string name="no_genres_available">Nenhum gênero disponível.</string>
+    <!-- About -->
     <string name="about_no_contributors">Nenhum contribuidor encontrado no momento. Por favor, tente novamente mais tarde.</string>
-    <string name="about_app_name">PixelMúsica</string>
     <string name="about_tagline">Leitor de música de código aberto desenvolvido com sua comunidade.</string>
     <string name="about_version_format">Versão v%1$s</string>
     <string name="about_contributions_format">Contribuição %1$d.</string>
@@ -180,6 +256,7 @@ Mix</string>
     <string name="cd_open_github_profile">Abra o perfil do GitHub</string>
     <string name="cd_contributor_avatar">Avatar de %1$s</string>
     <string name="cd_contributor_icon">Ícone de %1$s</string>
+    <!-- Streaming / cloud dashboards -->
     <string name="dash_playlists_synced_count">Listas de reprodução %1$d sincronizadas</string>
     <string name="dash_folders_synced_count">Pastas %1$d sincronizadas</string>
     <string name="dash_title_playlists">Listas de reprodução</string>
@@ -192,6 +269,20 @@ Mix</string>
     <string name="dash_quick_actions">Ações rápidas</string>
     <string name="dash_quick_actions_jellyfin_subtitle">Gerencie sua conexão com o servidor Jellyfin.</string>
     <string name="dash_status_syncing">Sincronizando</string>
+    <string name="dash_last_synced_format">Last synced: %1$s</string>
+    <string name="dash_library_playlist_title">Library</string>
+    <string name="dash_playlists_empty_hint_subsonic">Tap sync to fetch your playlists</string>
+    <string name="dash_quick_actions_subsonic_subtitle">Manage Navidrome, Airsonic and other Subsonic-compatible servers.</string>
+    <string name="dash_status_fetching_albums">Fetching album list…</string>
+    <string name="dash_status_fetching_playlists">Fetching playlists…</string>
+    <string name="dash_status_fetching_songs_from_format">Fetching songs from %1$s…</string>
+    <string name="dash_status_library_sync_complete">Library sync complete</string>
+    <string name="dash_status_no_songs_found">No library songs found</string>
+    <string name="dash_status_saving_songs_format">Saving %1$d songs to database…</string>
+    <string name="dash_status_sync_complete">Sync complete</string>
+    <string name="dash_status_syncing_library">Syncing library…</string>
+    <string name="dash_status_syncing_playlist_format">Syncing playlist: %1$s</string>
+    <string name="dash_status_updating_local">Updating local library…</string>
     <string name="dash_action_sync_library">Sincronizar biblioteca</string>
     <string name="dash_action_disconnect">Desconectar</string>
     <string name="dash_song_count">Músicas %1$d</string>
@@ -216,11 +307,6 @@ Mix</string>
     <string name="toast_added_to_queue">Adicionado à fila</string>
     <string name="toast_playing_next">Jogando a seguir</string>
     <string name="error_share_song_format">Não foi possível compartilhar a música: %1$s</string>
-    <string name="song_info_resolving_format">Resolvendo formato de áudio...</string>
-    <string name="cd_back">Voltar</string>
-    <string name="cd_search">Pesquisar</string>
-    <string name="search_results">Resultados da pesquisa</string>
-    <string name="artist_singular">Artista</string>
     <string name="settings_download_directory_title">Diretório de downloads</string>
     <string name="settings_download_directory_desc">Configurar o local de armazenamento para músicas baixadas</string>
     <string name="settings_download_audio_quality_title">Qualidade do áudio baixado</string>
@@ -298,9 +384,26 @@ Mix</string>
     <string name="explore_section_new_releases">Novos lançamentos</string>
     <string name="explore_section_new_releases_desc">Lançamentos e álbuns mais recentes</string>
     <string name="artist_popular_songs_title">Músicas Populares</string>
+    <string name="artist_info_title">Artist Info</string>
+    <string name="artist_bio_show_more">Show more</string>
+    <string name="artist_bio_show_less">Show less</string>
+    <string name="artist_songs_title">Songs</string>
+    <string name="artist_all_songs_title">All Songs</string>
+    <string name="artist_featured_on_title">Featured On</string>
     <string name="artist_albums_title">Álbuns</string>
     <string name="artist_singles_eps_title">Singles e EPs</string>
     <string name="action_see_all">Ver tudo</string>
+    <string name="top_songs_title">Top Songs</string>
+    <string name="top_songs_queue_name">Top Songs</string>
+    <string name="top_songs_empty_title">No top songs in %1$s</string>
+    <string name="top_songs_empty_subtitle">Change the range or play more songs to fill this list.</string>
+    <string name="recently_added_title">Recently Added</string>
+    <string name="favorites_to_revisit_title">Favorites to Revisit</string>
+    <string name="favorites_to_revisit_subtitle">From your high-affinity rotation</string>
+    <string name="fresh_finds_title">Fresh finds</string>
+    <string name="fresh_finds_subtitle">Songs you rarely play</string>
+    <string name="recently_added_empty_title">No recently added songs</string>
+    <string name="recently_added_empty_subtitle">Songs you add to your library will show up here.</string>
     <string name="action_shuffle">Aleatório</string>
     <string name="action_shuffle_play">Tocar Aleatório</string>
     <string name="visibility_label">Visibilidade</string>
@@ -317,7 +420,7 @@ Mix</string>
     <string name="playlist_confirm_name">Confirmar nome da playlist:</string>
     <string name="playlist_action_import">Importar</string>
     <string name="playlist_already_exists_title">A playlist já existe</string>
-    <string name="playlist_already_exists_body">Uma playlist chamada "%1$s" já existe na sua biblioteca. O que deseja fazer?</string>
+    <string name="playlist_already_exists_body">Uma playlist chamada \"%1$s\" já existe na sua biblioteca. O que deseja fazer?</string>
     <string name="playlist_update_existing">Atualizar Existente</string>
     <string name="playlist_create_new">Criar Nova</string>
     <string name="quick_import_title">Importação Rápida</string>
@@ -350,7 +453,11 @@ Mix</string>
     <string name="about_privacy_policy_title">Política de Privacidade</string>
     <string name="about_privacy_policy_desc">Leia nosso compromisso de privacidade</string>
     <string name="about_i_understand">Entendi</string>
-
+    <string name="artist_singular">Artista</string>
+    <string name="cd_back">Voltar</string>
+    <string name="cd_search">Pesquisar</string>
+    <string name="search_results">Resultados da pesquisa</string>
+    <string name="song_info_resolving_format">Resolvendo formato de áudio...</string>
     <!-- Automated Comprehensive Translations -->
     <string name="tab_playlists">PLAYLISTS</string>
     <string name="tab_folders">PASTAS</string>
@@ -425,9 +532,66 @@ Mix</string>
     <string name="toast_downloading_album_songs">Baixando músicas do álbum...</string>
     <string name="toast_tuned_out_added">Silenciado: Recomendaremos menos esta música</string>
     <string name="toast_tuned_out_removed">Removido do silenciamento</string>
-
     <string name="toast_deleted_from_offline_cache">Excluído do cache offline</string>
     <string name="toast_download_cancelled">Download cancelado</string>
     <string name="toast_download_started">Download iniciado</string>
     <string name="toast_removed_dislike">Não gostei removido</string>
+    <string name="about_link_fdroid_subtitle">Available on the F-Droid catalog</string>
+    <string name="about_link_fdroid_title">F-Droid</string>
+    <string name="about_link_translate_title">Help translate</string>
+    <string name="about_link_translate_subtitle">Contribute translations on Crowdin</string>
+    <string name="about_link_source_title">Source code</string>
+    <string name="about_project_subtitle">Source, releases, and community entry points.</string>
+    <string name="about_project_title">Project</string>
+    <string name="audio_bookmarks_title">Bookmarks</string>
+    <string name="audio_bookmarks_back_to_top">Back to top</string>
+    <string name="audio_bookmarks_cd_add">Save bookmark</string>
+    <string name="audio_bookmarks_cd_open">Audio bookmarks</string>
+    <string name="library_downloads_cd_open">Open downloads</string>
+    <string name="audio_bookmarks_clear_filter">Clear filter</string>
+    <string name="audio_bookmarks_name_label">Bookmark name</string>
+    <string name="cd_about_open_link">Open %1$s</string>
+    <string name="cd_artist_format">Artist: %1$s</string>
+    <string name="cd_genre_illustration">Genre illustration</string>
+    <string name="cd_play_artist">Play artist</string>
+    <string name="cd_play_playlist">Play playlist</string>
+    <string name="cd_toggle_grid_list">Toggle grid/list view</string>
+    <string name="dash_libraries_all">All libraries</string>
+    <string name="dash_libraries_all_subtitle">Include every library exposed by this server</string>
+    <string name="dash_libraries_change">Change</string>
+    <string name="dash_libraries_folder_subtitle">Include this library in the next library sync</string>
+    <string name="dash_libraries_load_failed">Could not load libraries; sync uses all</string>
+    <string name="dash_libraries_more_count">+%1$d more</string>
+    <string name="dash_libraries_not_music">Not a music library</string>
+    <string name="dash_libraries_selected_count">%1$d of %2$d selected</string>
+    <string name="dash_libraries_sheet_subtitle">Choose which server libraries are included when syncing the main library.</string>
+    <string name="dash_libraries_sync_needed">Sync library to apply changes</string>
+    <string name="dash_libraries_title">Libraries</string>
+    <string name="setup_external_artist_images_description">Fetch missing artist photos from Deezer and cache them locally.</string>
+    <string name="setup_external_artist_images_title">Artist artwork from Deezer</string>
+    <string name="setup_external_lyrics_description">Search lrclib.net when local or embedded lyrics are missing.</string>
+    <string name="setup_external_lyrics_title">Online lyrics from LRCLIB</string>
+    <string name="setup_external_services_footer">You can change these later in Settings &gt; Music Management &gt; Optional online services.</string>
+    <string name="setup_external_services_subtitle">Startune Music works offline by default. Enable only the lookups you want.</string>
+    <string name="setup_external_services_title">Optional Online Services</string>
+    <string name="about_licenses_title">Licenses &amp; attribution</string>
+    <string name="about_licenses_subtitle">Open-source libraries, fonts and bundled data</string>
+    <string name="about_licenses_sheet_subtitle">Third-party software, fonts and data bundled with this app.</string>
+    <string name="licenses_tab_all">All</string>
+    <string name="licenses_tab_libraries">Libraries</string>
+    <string name="licenses_tab_fonts">Fonts</string>
+    <string name="licenses_tab_contributors">Contributors</string>
+    <string name="navigation_rail_expand">Expand navigation</string>
+    <string name="navigation_rail_collapse">Collapse navigation</string>
+    <string name="licenses_tab_data">Data</string>
+    <string name="licenses_tab_raw_notice">Raw notice</string>
+    <string name="licenses_search_placeholder">Search libraries or licenses…</string>
+    <string name="licenses_cd_clear_search">Clear search</string>
+    <string name="licenses_empty_results">No licenses match \"%1$s\"</string>
+    <string name="licenses_detail_section">Section</string>
+    <string name="licenses_detail_source">Source</string>
+    <string name="licenses_detail_license">License</string>
+    <string name="licenses_toast_copied">License text copied to clipboard</string>
+    <string name="licenses_cd_close">Close</string>
+    <string name="licenses_cd_copy">Copy license text</string>
 </resources>

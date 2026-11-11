@@ -1,7 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="presentation_batch_g_stats_range_today">Сегодня</string>
     <string name="presentation_batch_g_stats_range_week_to_date">Неделя</string>
+    <string name="presentation_batch_g_stats_week_label">Week %1$d</string>
     <string name="presentation_batch_g_stats_range_month_to_date">Месяц</string>
     <string name="presentation_batch_g_stats_range_year_to_date">Год</string>
     <string name="presentation_batch_g_stats_range_all_time">Все время</string>
@@ -128,12 +129,14 @@
     <string name="device_capabilities_metric_hw_decoders">HW декодеры</string>
     <string name="device_capabilities_metric_local_music">Локальные треки</string>
     <string name="device_capabilities_storage_title">Хранилище музыки</string>
+    <string name="device_capabilities_storage_internal">Internal storage</string>
     <string name="device_capabilities_storage_music_size">Размер музыки</string>
     <string name="device_capabilities_storage_music_count">%1$d локальных треков</string>
     <string name="device_capabilities_storage_available">Доступно</string>
     <string name="device_capabilities_storage_total">%1$s всего</string>
     <string name="device_capabilities_storage_music_footprint">Занимаемое место</string>
     <string name="device_capabilities_storage_device_used">Занято на устр.</string>
+    <string name="device_capabilities_storage_app_data">App Data</string>
     <string name="device_capabilities_storage_percent">%1$d%%</string>
     <string name="device_capabilities_storage_less_than_one_percent">&lt;1%</string>
     <string name="device_capabilities_storage_cloud_count">%1$d облачных песен</string>
@@ -184,13 +187,19 @@
     <string name="presentation_batch_g_artist_item_word_delimiters">Слова-разделители</string>
     <string name="presentation_batch_g_artist_word_none">Нет</string>
     <string name="presentation_batch_g_artist_word_current_prefix">Текущие: %1$s</string>
+    <string name="presentation_batch_g_artist_item_unsplit_artists">Artists to Never Split</string>
     <string name="presentation_batch_g_artist_word_ellipsis">…</string>
     <string name="presentation_batch_g_artist_cd_configure">Настроить</string>
     <string name="presentation_batch_g_artist_extract_from_title">Брать артистов из названия</string>
     <string name="presentation_batch_g_artist_extract_from_title_sub">Искать feat., ft., with в названиях</string>
+    <string name="presentation_batch_g_genre_section">Genres</string>
+    <string name="presentation_batch_g_genre_item_split_symbols">Genre Split Symbols</string>
+    <string name="presentation_batch_g_genre_item_unsplit_genres">Genres to Never Split</string>
     <string name="presentation_batch_g_artist_section_library_org">Организация фонотеки</string>
     <string name="presentation_batch_g_artist_group_by_album_artist">Группировать по Album Artist</string>
     <string name="presentation_batch_g_artist_group_by_album_artist_sub">Показывать совместные альбомы у основного артиста</string>
+    <string name="presentation_batch_g_artist_case_sensitive">Case-sensitive artists</string>
+    <string name="presentation_batch_g_artist_case_sensitive_sub">Artists that differ only by letter case stay separate</string>
     <string name="presentation_batch_g_artist_info_title">О парсинге артистов</string>
     <string name="presentation_batch_g_artist_info_body">PixelPlayerOSS разделяет теги исполнителей по символам-разделителям (/, ;, &amp;) и по словам-разделителям (feat., ft., vs., x). Слова-разделители сопоставляются без учёта регистра.
 
@@ -290,6 +299,29 @@
     <string name="presentation_batch_g_cd_selected">Выбрано</string>
     <string name="presentation_batch_g_changelog_title">Список изменений</string>
     <string name="presentation_batch_g_changelog_view_github">На GitHub</string>
+    <string name="presentation_batch_g_changelog_error">Couldn\'t load the changelog. Check your connection and try again.</string>
+    <string name="presentation_batch_g_changelog_retry">Retry</string>
+    <string name="presentation_batch_g_changelog_empty">No releases yet.</string>
+    <string name="presentation_batch_g_changelog_no_release_notes">No release notes for this version.</string>
+    <string name="presentation_batch_g_changelog_prerelease">Pre-release</string>
+    <string name="update_notification_title">Startune Music update available</string>
+    <string name="update_notification_body">Version %1$s is available (you have %2$s).</string>
+    <string name="update_download_title">Downloading update</string>
+    <string name="update_downloading">Downloading\u2026 %1$d%%</string>
+    <string name="update_downloaded_title">Update downloaded</string>
+    <string name="update_downloaded_body">Tap to install Startune Music %1$s.</string>
+    <string name="update_sheet_title">Update available</string>
+    <string name="update_download_and_install">Download and install</string>
+    <string name="update_install">Install</string>
+    <string name="update_later">Later</string>
+    <string name="update_dont_remind">Don\'t remind me for this version</string>
+    <string name="update_download_failed">Download failed. Try again.</string>
+    <string name="update_up_to_date">You\'re up to date.</string>
+    <string name="update_check_failed">Couldn\'t check for updates. Try again.</string>
+    <string name="update_view_on_github">View on GitHub</string>
+    <string name="update_enable_install">Enable \"Install unknown apps\" to install the update.</string>
+    <string name="about_check_for_updates_title">Check for updates</string>
+    <string name="about_check_for_updates_subtitle">Version %1$s</string>
     <string name="presentation_batch_g_presets_saved_title">Сохраненные пресеты</string>
     <string name="presentation_batch_g_presets_empty">Своих пресетов пока нет.</string>
     <string name="presentation_batch_g_presets_cd_unpin">Открепить</string>
@@ -304,148 +336,13 @@
     <string name="presentation_batch_g_beta_sheet_expect_2">Поддержка устройств: Android Auto, обновления Wear OS и надежный Cast.</string>
     <string name="presentation_batch_g_beta_sheet_expect_3">Облака: Telegram, NetEase, QQ Music и стриминг Google Drive.</string>
     <string name="presentation_batch_g_beta_sheet_expect_4">Стабильность: логика очереди и перемешивания, фоновая работа и фиксы UI.</string>
-    <string name="presentation_batch_g_beta_sheet_report_title">Сообщить о проблеме</string>
-    <string name="presentation_batch_g_beta_sheet_report_body">Опишите шаги, результат и детали вашего устройства. Запись экрана очень поможет.</string>
-    <string name="presentation_batch_g_beta_sheet_open_issues">Список проблем на GitHub</string>
-    <string name="presentation_batch_g_beta_sheet_report_bug">Сообщить о баге</string>
-    <string name="presentation_batch_g_beta05_dont_show">Больше не показывать</string>
-    <string name="presentation_batch_g_beta05_got_it">Понятно</string>
-    <string name="presentation_batch_g_album_sel_count">АЛЬБОМОВ: %1$d</string>
-    <string name="presentation_batch_g_album_sel_selected">выбрано</string>
-    <string name="presentation_batch_g_album_sel_queue_hint">Очередь соблюдает порядок выбора.</string>
-    <string name="presentation_batch_g_album_sel_limit">Лимит: %1$d альбомов за раз.</string>
-    <string name="presentation_batch_g_album_sel_add_queue_play">В очередь и играть</string>
-    <string name="presentation_batch_g_app_name">Startune Music</string>
-    <string name="presentation_batch_g_app_tagline">Музыкальный плеер</string>
-    <string name="presentation_batch_g_brick_high">РЕКОРД %1$d</string>
-    <string name="presentation_batch_g_brick_cd_close">Закрыть</string>
-    <string name="presentation_batch_g_brick_stat_score">СЧЕТ</string>
-    <string name="presentation_batch_g_brick_stat_lvl">УР %1$d</string>
-    <string name="presentation_batch_g_brick_stat_lives">ЖИЗНИ</string>
-    <string name="presentation_batch_g_brick_level_complete">УРОВЕНЬ ПРОЙДЕН!</string>
-    <string name="presentation_batch_g_brick_game_over">ИГРА ОКОНЧЕНА</string>
-    <string name="presentation_batch_g_brick_score_line">Счет: %1$d</string>
-    <string name="presentation_batch_g_brick_try_again">Еще раз?</string>
-    <string name="presentation_batch_g_brick_next_level">Далее</string>
-    <string name="presentation_batch_g_brick_restart">Сначала</string>
-    <string name="presentation_batch_g_brick_tap_relaunch">НАЖМИТЕ ДЛЯ ПОВТОРА</string>
-    <string name="presentation_batch_g_brick_play_random">Случайная музыка</string>
-    <string name="presentation_batch_g_brick_title">Brick Breaker</string>
-    <string name="presentation_batch_g_brick_high_score">РЕКОРД  %1$d</string>
-    <string name="presentation_batch_g_brick_play">Играть</string>
-    <string name="presentation_batch_g_brick_drag_paddle">Тяните, чтобы двигать платформу</string>
-    <string name="presentation_batch_g_backup_restore_modules">Восстановить модули</string>
-    <string name="presentation_batch_g_backup_restoring">Восстановление</string>
-    <string name="presentation_batch_g_backup_restore_selected">Восстановить выбранное</string>
-    <string name="presentation_batch_g_backup_details">Детали бэкапа</string>
-    <string name="presentation_batch_g_backup_created">Создан</string>
-    <string name="presentation_batch_g_backup_app_version">Версия прил.</string>
-    <string name="presentation_batch_g_backup_schema">Схема</string>
-    <string name="presentation_batch_g_backup_device">Устройство</string>
-    <string name="presentation_batch_g_backup_unknown">Неизвестно</string>
-    <string name="presentation_batch_g_backup_modules_selected">Выбрано модулей: %1$d из %2$d</string>
-    <string name="presentation_batch_g_backup_transfer_progress">Перенос данных…</string>
-    <string name="presentation_batch_g_backup_cd_select_all">Выбрать все</string>
-    <string name="presentation_batch_g_backup_cd_clear_selection">Сбросить выбор</string>
-    <string name="presentation_batch_g_backup_entries_will_replace">Записей: %1$d · заменят текущие</string>
-    <string name="presentation_batch_g_player_cd_cloud_stream">Облачный стрим</string>
-    <string name="presentation_batch_g_player_cd_collapse">Свернуть плеер</string>
-    <string name="presentation_batch_g_player_cd_cast">Трансляция</string>
-    <string name="presentation_batch_g_player_cd_bluetooth">Bluetooth</string>
-    <string name="presentation_batch_g_player_cd_local_playback">Местное воспроизв.</string>
-    <string name="presentation_batch_g_player_connecting">Подключение…</string>
-    <string name="presentation_batch_g_player_cd_queue">Очередь</string>
-    <string name="presentation_batch_g_player_cd_lyrics">Текст</string>
-    <string name="presentation_batch_g_cast_subtitle_session">Сессия трансляции</string>
-    <string name="presentation_batch_g_cast_connecting">Подключение</string>
-    <string name="presentation_batch_g_cast_connected">Подключено</string>
-    <string name="presentation_batch_g_cast_this_phone">Этот телефон</string>
-    <string name="presentation_batch_g_cast_bluetooth_audio">Bluetooth аудио</string>
-    <string name="presentation_batch_g_cast_local_playback">Местное воспроизв.</string>
-    <string name="presentation_batch_g_cast_playing">Играет</string>
-    <string name="presentation_batch_g_cast_paused">Пауза</string>
-    <string name="presentation_batch_g_cast_perm_title">Приготовьтесь к подключению</string>
-    <string name="presentation_batch_g_cast_perm_body">Разрешите Startune Music видеть устройства рядом и Wi‑Fi, чтобы синхронизировать трансляции и колонки.</string>
-    <string name="presentation_batch_g_cast_perm_nearby_title">Устройства поблизости</string>
-    <string name="presentation_batch_g_cast_perm_nearby_desc">Нужно для управления Bluetooth аудио-устройствами.</string>
-    <string name="presentation_batch_g_cast_perm_location_title">Геопозиция для Wi‑Fi</string>
-    <string name="presentation_batch_g_cast_perm_location_desc">Android требует доступ к локации для получения имени Wi‑Fi сети (SSID), чтобы найти устройства Cast.</string>
-    <string name="presentation_batch_g_cast_allow_access">Разрешить доступ</string>
-    <string name="presentation_batch_g_cast_perm_footer">Мы используем эти разрешения только для связи между устройствами.</string>
-    <string name="presentation_batch_g_cast_title_connect">Подключить устройство</string>
-    <string name="presentation_batch_g_cast_scanning_nearby">Поиск поблизости</string>
-    <string name="presentation_batch_g_cast_tab_controls">Управление</string>
-    <string name="presentation_batch_g_cast_tab_devices">Устройства</string>
-    <string name="presentation_batch_g_cast_connectivity">Связь</string>
-    <string name="presentation_batch_g_cast_turn_on_wifi_bt">Включите Wi-Fi или Bluetooth</string>
-    <string name="presentation_batch_g_cast_manage_radios">Управление и пересканирование</string>
-    <string name="presentation_batch_g_cast_cd_refresh_connections">Обновить соединения</string>
-    <string name="presentation_batch_g_cast_cd_refresh_devices">Обновить устройства</string>
-    <string name="presentation_batch_g_cast_nearby_devices">Устройства поблизости</string>
-    <string name="presentation_batch_g_cast_tap_to_connect">Нажмите для подкл.</string>
-    <string name="presentation_batch_g_cast_no_devices_yet">Устройств пока нет</string>
-    <string name="presentation_batch_g_cast_disconnect">Отключить</string>
-    <string name="presentation_batch_g_cast_volume_device">Громкость устр.</string>
-    <string name="presentation_batch_g_cast_volume_phone">Громкость тел.</string>
-    <string name="presentation_batch_g_cast_searching">Поиск устройств…</string>
-    <string name="presentation_batch_g_cast_searching_hint">Убедитесь, что ТВ или колонка включены и находятся в той же Wi‑Fi сети.</string>
-    <string name="presentation_batch_g_cast_status_connected">Подключено</string>
-    <string name="presentation_batch_g_cast_status_available_connect">Можно подключить</string>
-    <string name="presentation_batch_g_cast_status_connecting">Подключение</string>
-    <string name="presentation_batch_g_cast_status_available">Доступно</string>
-    <string name="presentation_batch_g_cast_cd_battery">Уровень заряда</string>
-    <string name="presentation_batch_g_cast_cd_volume_level">Уровень громкости</string>
-    <string name="presentation_batch_g_cast_wifi">Wi-Fi</string>
-    <string name="presentation_batch_g_cast_wifi_off">Выкл</string>
-    <string name="presentation_batch_g_cast_wifi_connected">Подключено</string>
-    <string name="presentation_batch_g_cast_wifi_on">Вкл</string>
-    <string name="presentation_batch_g_cast_bluetooth">Bluetooth</string>
-    <string name="presentation_batch_g_cast_bt_connected">Подключено</string>
-    <string name="presentation_batch_g_cast_bt_on">Вкл</string>
-    <string name="presentation_batch_g_cast_bt_off">Выкл</string>
-    <string name="presentation_batch_g_cast_connections_off_title">Соединения выключены</string>
-    <string name="presentation_batch_g_cast_connections_off_body">Включите Wi‑Fi или Bluetooth для поиска устройств</string>
-    <string name="presentation_batch_g_cast_turn_on_wifi">Включить Wi‑Fi</string>
-    <string name="presentation_batch_g_cast_open_bluetooth">Открыть Bluetooth</string>
-    <string name="presentation_batch_g_cast_cd_disconnect_icon">Отключить</string>
-    <string name="presentation_batch_g_cast_connecting_ellipsis">Подключение...</string>
-
-    <string name="presentation_batch_g_changelog_sec_fixes">Исправления</string>
-    <string name="presentation_batch_g_changelog_sec_highlights">Главное</string>
-    <string name="presentation_batch_g_changelog_sec_whats_new_lower">Что нового</string>
-    <string name="presentation_batch_g_changelog_sec_added">Добавлено</string>
-    <string name="presentation_batch_g_changelog_sec_changed">Изменено</string>
-    <string name="presentation_batch_g_changelog_sec_fixed">Исправлено</string>
-    <string-array name="presentation_batch_g_changelog_060_whats_new">
-        <item>Поддержка Android Auto для прослушивания в машине.</item>
-        <item>Поддержка Wear OS с улучшенным управлением с часов.</item>
-        <item>Расширение облаков: Telegram, NetEase, QQ Music и Google Drive.</item>
-        <item>История прослушивания и восстановление очереди.</item>
-        <item>Бэкап и восстановление v3 и управление аккаунтами.</item>
-        <item>Умные тексты с ручным поиском и улучшениями хранения.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_060_improvements">
-        <item>Оптимизация запуска, фонотеки, очереди и плеера.</item>
-        <item>Редизайн экранов плеера, Cast, текстов, артистов и жанров.</item>
-        <item>Надежная навигация и поиск.</item>
-        <item>Улучшена совместимость форматов аудио.</item>
-        <item>Расширен мульти-выбор для песен, альбомов и плейлистов.</item>
-    </string-array>
-    <string-array name="presentation_batch_g_changelog_060_fixes">
-        <item>Стабильная работа очереди и перемешивания.</item>
-        <item>Исправлены ошибки фонового воспроизведения и Cast.</item>
-        <item>Поправлен таймер сна, навигация по папкам и вылеты альбомов.</item>
-        <item>Улучшена стабильность виджетов и сервисов.</item>
-        <item>Общие исправления и полировка UI.</item>
-    </string-array>
-
-    <string name="presentation_batch_g_cast_nearby_title">Устройства поблизости</string>
-    <string name="presentation_batch_g_cast_nearby_desc">Необходимо для обнаружения Bluetooth-аудиоустройств и управления ими.</string>
-
-    <!-- Beta sheet: issue guide -->
     <string name="presentation_batch_g_beta_sheet_expect_summary">Что может меняться, ломаться или улучшаться в бета-сборках в процессе тестирования.</string>
     <string name="presentation_batch_g_beta_sheet_github_title">Быстрый переход к GitHub Issues</string>
     <string name="presentation_batch_g_beta_sheet_github_body">Сначала поищите существующие задачи, затем создайте чёткий отчёт об ошибке, краше, запросе или вопросе.</string>
+    <string name="presentation_batch_g_beta_sheet_open_issues">Список проблем на GitHub</string>
+    <string name="presentation_batch_g_beta_sheet_report_bug">Сообщить о баге</string>
+    <string name="presentation_batch_g_beta_sheet_report_body">Опишите шаги, результат и детали вашего устройства. Запись экрана очень поможет.</string>
+    <string name="presentation_batch_g_beta_sheet_report_title">Сообщить о проблеме</string>
     <string name="presentation_batch_g_beta_sheet_report_summary">Краткий чеклист перед созданием нового issue.</string>
     <string name="presentation_batch_g_beta_sheet_before_title">Перед созданием issue</string>
     <string name="presentation_batch_g_beta_sheet_before_1">Поищите среди открытых и закрытых задач, чтобы не создавать дубликаты.</string>
@@ -497,13 +394,146 @@
     <string name="presentation_batch_g_beta_sheet_nightly_access">Доступны через артефакты GitHub Actions в репозитории, если опубликованы.</string>
     <string name="presentation_batch_g_beta_sheet_nightly_report_title">Отчёт о проблемах в nightly</string>
     <string name="presentation_batch_g_beta_sheet_nightly_report_body">При отчёте о проблеме из nightly всегда указывайте, что она в nightly, а не в официальном релизе. Укажите дату сборки, имя или номер запуска workflow или commit SHA — если возможно. Также проверьте, есть ли эта проблема в последнем официальном релизе.</string>
-
-    <!-- Backfilled translations -->
     <string name="presentation_batch_g_beta05_title">v1.6.08 Обновление</string>
     <string name="presentation_batch_g_beta05_clean_install_title">Что нового в версии 1.6.08</string>
     <string name="presentation_batch_g_beta05_clean_install_body">•</string>
     <string name="presentation_batch_g_beta05_if_wrong_meta_title">Исследуйте Обновить</string>
     <string name="presentation_batch_g_beta05_if_wrong_meta_body">Наслаждайтесь новым элегантным макетом Material 3 Expressive на вкладке «Обзор»!</string>
+    <string name="presentation_batch_g_beta05_dont_show">Больше не показывать</string>
+    <string name="presentation_batch_g_beta05_got_it">Понятно</string>
+    <string name="presentation_batch_g_album_sel_count">АЛЬБОМОВ: %1$d</string>
+    <string name="presentation_batch_g_album_sel_selected">выбрано</string>
+    <string name="presentation_batch_g_album_sel_queue_hint">Очередь соблюдает порядок выбора.</string>
+    <string name="presentation_batch_g_album_sel_limit">Лимит: %1$d альбомов за раз.</string>
+    <string name="presentation_batch_g_album_sel_add_queue_play">В очередь и играть</string>
+    <string name="presentation_batch_g_app_tagline">Музыкальный плеер</string>
+    <string name="presentation_batch_g_brick_high">РЕКОРД %1$d</string>
+    <string name="presentation_batch_g_brick_cd_close">Закрыть</string>
+    <string name="presentation_batch_g_brick_stat_score">СЧЕТ</string>
+    <string name="presentation_batch_g_brick_stat_lvl">УР %1$d</string>
+    <string name="presentation_batch_g_brick_stat_lives">ЖИЗНИ</string>
+    <string name="presentation_batch_g_brick_level_complete">УРОВЕНЬ ПРОЙДЕН!</string>
+    <string name="presentation_batch_g_brick_game_over">ИГРА ОКОНЧЕНА</string>
+    <string name="presentation_batch_g_brick_score_line">Счет: %1$d</string>
+    <string name="presentation_batch_g_brick_try_again">Еще раз?</string>
+    <string name="presentation_batch_g_brick_next_level">Далее</string>
+    <string name="presentation_batch_g_brick_restart">Сначала</string>
+    <string name="presentation_batch_g_brick_tap_relaunch">НАЖМИТЕ ДЛЯ ПОВТОРА</string>
+    <string name="presentation_batch_g_brick_play_random">Случайная музыка</string>
+    <string name="presentation_batch_g_brick_title">Brick Breaker</string>
+    <string name="presentation_batch_g_brick_high_score">РЕКОРД  %1$d</string>
+    <string name="presentation_batch_g_brick_play">Играть</string>
+    <string name="presentation_batch_g_brick_drag_paddle">Тяните, чтобы двигать платформу</string>
+    <string name="presentation_batch_g_backup_restore_modules">Восстановить модули</string>
+    <string name="presentation_batch_g_backup_restoring">Восстановление</string>
+    <string name="presentation_batch_g_backup_restore_selected">Восстановить выбранное</string>
+    <string name="presentation_batch_g_backup_details">Детали бэкапа</string>
+    <string name="presentation_batch_g_backup_created">Создан</string>
+    <string name="presentation_batch_g_backup_app_version">Версия прил.</string>
+    <string name="presentation_batch_g_backup_schema">Схема</string>
+    <string name="presentation_batch_g_backup_device">Устройство</string>
+    <string name="presentation_batch_g_backup_unknown">Неизвестно</string>
+    <string name="presentation_batch_g_backup_modules_selected">Выбрано модулей: %1$d из %2$d</string>
+    <string name="presentation_batch_g_backup_transfer_progress">Перенос данных…</string>
+    <string name="presentation_batch_g_backup_cd_select_all">Выбрать все</string>
+    <string name="presentation_batch_g_backup_cd_clear_selection">Сбросить выбор</string>
+    <string name="presentation_batch_g_backup_entries_will_replace">Записей: %1$d · заменят текущие</string>
+    <string name="presentation_batch_g_backup_warnings_count_single">1 issue found</string>
+    <string name="presentation_batch_g_backup_warnings_count_multiple">%1$d issues found</string>
+    <string name="presentation_batch_g_backup_warnings_expand_hint">Tap to expand failed IDs and warnings</string>
+    <string name="presentation_batch_g_backup_warnings_collapse_hint">Tap to collapse</string>
+    <string name="presentation_batch_g_backup_warnings_collapse_btn">Collapse</string>
+    <string name="presentation_batch_g_player_cd_cloud_stream">Облачный стрим</string>
+    <string name="presentation_batch_g_player_cd_collapse">Свернуть плеер</string>
+    <string name="presentation_batch_g_player_cd_cast">Трансляция</string>
+    <string name="presentation_batch_g_player_cd_bluetooth">Bluetooth</string>
+    <string name="presentation_batch_g_player_cd_local_playback">Местное воспроизв.</string>
+    <string name="presentation_batch_g_player_connecting">Подключение…</string>
+    <string name="presentation_batch_g_player_cd_queue">Очередь</string>
+    <string name="presentation_batch_g_player_cd_lyrics">Текст</string>
+    <string name="presentation_batch_g_cast_subtitle_session">Сессия трансляции</string>
+    <string name="presentation_batch_g_cast_connecting">Подключение</string>
+    <string name="presentation_batch_g_cast_connected">Подключено</string>
+    <string name="presentation_batch_g_cast_this_phone">Этот телефон</string>
+    <string name="presentation_batch_g_cast_bluetooth_audio">Bluetooth аудио</string>
+    <string name="presentation_batch_g_cast_local_playback">Местное воспроизв.</string>
+    <string name="presentation_batch_g_cast_playing">Играет</string>
+    <string name="presentation_batch_g_cast_paused">Пауза</string>
+    <string name="presentation_batch_g_cast_perm_title">Приготовьтесь к подключению</string>
+    <string name="presentation_batch_g_cast_perm_body">Разрешите Startune Music видеть устройства рядом и Wi‑Fi, чтобы синхронизировать трансляции и колонки.</string>
+    <string name="presentation_batch_g_cast_perm_nearby_title">Устройства поблизости</string>
+    <string name="presentation_batch_g_cast_perm_nearby_desc">Нужно для управления Bluetooth аудио-устройствами.</string>
+    <string name="presentation_batch_g_cast_perm_location_title">Геопозиция для Wi‑Fi</string>
+    <string name="presentation_batch_g_cast_perm_location_desc">Android требует доступ к локации для получения имени Wi‑Fi сети (SSID), чтобы найти устройства Cast.</string>
+    <string name="presentation_batch_g_cast_allow_access">Разрешить доступ</string>
+    <string name="presentation_batch_g_cast_perm_footer">Мы используем эти разрешения только для связи между устройствами.</string>
+    <string name="presentation_batch_g_cast_title_connect">Подключить устройство</string>
+    <string name="presentation_batch_g_cast_scanning_nearby">Поиск поблизости</string>
+    <string name="presentation_batch_g_cast_tab_controls">Управление</string>
+    <string name="presentation_batch_g_cast_tab_devices">Устройства</string>
+    <string name="presentation_batch_g_cast_connectivity">Связь</string>
+    <string name="presentation_batch_g_cast_turn_on_wifi_bt">Включите Wi-Fi или Bluetooth</string>
+    <string name="presentation_batch_g_cast_manage_radios">Управление и пересканирование</string>
+    <string name="presentation_batch_g_cast_cd_refresh_connections">Обновить соединения</string>
+    <string name="presentation_batch_g_cast_cd_refresh_devices">Обновить устройства</string>
+    <string name="presentation_batch_g_cast_nearby_devices">Устройства поблизости</string>
+    <string name="presentation_batch_g_cast_nearby_title">Устройства поблизости</string>
+    <string name="presentation_batch_g_cast_nearby_desc">Необходимо для обнаружения Bluetooth-аудиоустройств и управления ими.</string>
+    <string name="presentation_batch_g_cast_tap_to_connect">Нажмите для подкл.</string>
+    <string name="presentation_batch_g_cast_no_devices_yet">Устройств пока нет</string>
+    <string name="presentation_batch_g_cast_disconnect">Отключить</string>
+    <string name="presentation_batch_g_cast_volume_device">Громкость устр.</string>
+    <string name="presentation_batch_g_cast_volume_phone">Громкость тел.</string>
+    <string name="presentation_batch_g_cast_searching">Поиск устройств…</string>
+    <string name="presentation_batch_g_cast_searching_hint">Убедитесь, что ТВ или колонка включены и находятся в той же Wi‑Fi сети.</string>
+    <string name="presentation_batch_g_cast_status_connected">Подключено</string>
+    <string name="presentation_batch_g_cast_status_available_connect">Можно подключить</string>
+    <string name="presentation_batch_g_cast_status_connecting">Подключение</string>
+    <string name="presentation_batch_g_cast_status_available">Доступно</string>
+    <string name="presentation_batch_g_cast_cd_battery">Уровень заряда</string>
+    <string name="presentation_batch_g_cast_cd_volume_level">Уровень громкости</string>
+    <string name="presentation_batch_g_cast_wifi">Wi-Fi</string>
+    <string name="presentation_batch_g_cast_wifi_off">Выкл</string>
+    <string name="presentation_batch_g_cast_wifi_connected">Подключено</string>
+    <string name="presentation_batch_g_cast_wifi_on">Вкл</string>
+    <string name="presentation_batch_g_cast_bluetooth">Bluetooth</string>
+    <string name="presentation_batch_g_cast_bt_connected">Подключено</string>
+    <string name="presentation_batch_g_cast_bt_on">Вкл</string>
+    <string name="presentation_batch_g_cast_bt_off">Выкл</string>
+    <string name="presentation_batch_g_cast_connections_off_title">Соединения выключены</string>
+    <string name="presentation_batch_g_cast_connections_off_body">Включите Wi‑Fi или Bluetooth для поиска устройств</string>
+    <string name="presentation_batch_g_cast_turn_on_wifi">Включить Wi‑Fi</string>
+    <string name="presentation_batch_g_cast_open_bluetooth">Открыть Bluetooth</string>
+    <string name="presentation_batch_g_cast_cd_disconnect_icon">Отключить</string>
+    <string name="presentation_batch_g_cast_connecting_ellipsis">Подключение...</string>
+    <string name="presentation_batch_g_changelog_sec_highlights">Главное</string>
+    <string name="presentation_batch_g_changelog_sec_fixes">Исправления</string>
+    <string name="presentation_batch_g_changelog_sec_whats_new_lower">Что нового</string>
+    <string name="presentation_batch_g_changelog_sec_added">Добавлено</string>
+    <string name="presentation_batch_g_changelog_sec_changed">Изменено</string>
+    <string name="presentation_batch_g_changelog_sec_fixed">Исправлено</string>
+    <string-array name="presentation_batch_g_changelog_060_whats_new">
+        <item>Поддержка Android Auto для прослушивания в машине.</item>
+        <item>Поддержка Wear OS с улучшенным управлением с часов.</item>
+        <item>Расширение облаков: Telegram, NetEase, QQ Music и Google Drive.</item>
+        <item>История прослушивания и восстановление очереди.</item>
+        <item>Бэкап и восстановление v3 и управление аккаунтами.</item>
+        <item>Умные тексты с ручным поиском и улучшениями хранения.</item>
+    </string-array>
+    <string-array name="presentation_batch_g_changelog_060_improvements">
+        <item>Оптимизация запуска, фонотеки, очереди и плеера.</item>
+        <item>Редизайн экранов плеера, Cast, текстов, артистов и жанров.</item>
+        <item>Надежная навигация и поиск.</item>
+        <item>Улучшена совместимость форматов аудио.</item>
+        <item>Расширен мульти-выбор для песен, альбомов и плейлистов.</item>
+    </string-array>
+    <string-array name="presentation_batch_g_changelog_060_fixes">
+        <item>Стабильная работа очереди и перемешивания.</item>
+        <item>Исправлены ошибки фонового воспроизведения и Cast.</item>
+        <item>Поправлен таймер сна, навигация по папкам и вылеты альбомов.</item>
+        <item>Улучшена стабильность виджетов и сервисов.</item>
+        <item>Общие исправления и полировка UI.</item>
+    </string-array>
     <string-array name="presentation_batch_g_changelog_050_highlights">
         <item>Обновление интерфейса Material 3 Expressive</item>
         <item>10-полосный эквалайзер и эффекты</item>
@@ -590,5 +620,7 @@
         <item>Улучшенный процесс синхронизации медиатеки со всеми облачными провайдерами.</item>
         <item>Улучшенное редактирование метаданных с поддержкой обложек альбомов.</item>
     </string-array>
-
+    <string name="presentation_batch_g_beta_sheet_welcome_body_stable">You\'re running the stable release build. Check the changelog to see what\'s new, and report anything that misbehaves.</string>
+    <string name="presentation_batch_g_topbar_build_debug">Debug</string>
+    <string name="presentation_batch_g_topbar_build_stable">Stable</string>
 </resources>

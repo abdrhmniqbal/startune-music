@@ -11,6 +11,7 @@
     <string name="widget_preview_artist">Artista</string>
     <string name="cd_repeat">Repita</string>
     <string name="widget_wavy_progress_bar_desc">Barra de progresso, porcentagem %1$d</string>
+    <!-- Lyrics more bottom sheet -->
     <string name="lyrics_more_appearance">Aparência</string>
     <string name="lyrics_more_alignment">Alinhamento</string>
     <string name="lyrics_more_controls">Controles</string>
@@ -25,10 +26,12 @@
     <string name="cd_lyrics_align_left">Alinhar letras à esquerda</string>
     <string name="cd_lyrics_align_center">Alinhar letras ao centro</string>
     <string name="cd_lyrics_align_right">Alinhe as letras à direita</string>
+    <!-- No internet -->
     <string name="no_internet_dialog_title">Sem conexão com a internet</string>
     <string name="no_internet_dialog_message">Este conteúdo requer uma conexão com a internet. Verifique suas configurações de rede e tente novamente.</string>
     <string name="offline_screen_title">Você está off-line</string>
     <string name="offline_screen_message">Verifique sua conexão com a Internet e tente acessar este conteúdo novamente.</string>
+    <!-- Equalizer preset dialogs -->
     <string name="equalizer_save_custom_preset_title">Salvar predefinição personalizada</string>
     <string name="equalizer_save_custom_preset_body">Insira um nome para sua predefinição de equalizador personalizada.</string>
     <string name="equalizer_preset_name_label">Nome predefinido</string>
@@ -36,6 +39,7 @@
     <string name="error_name_empty">O nome não pode ficar vazio</string>
     <string name="action_save">Salvar</string>
     <string name="action_rename">Renomear</string>
+    <!-- AI metadata sheet -->
     <string name="ai_metadata_headline_success">Perfeitamente marcado!</string>
     <string name="ai_metadata_headline_default">Metadados de IA</string>
     <string name="ai_metadata_subtitle_generating">Consultando o guia Daily Mix…</string>
@@ -48,6 +52,7 @@
     <string name="song_field_composer">Compositor</string>
     <string name="action_try_again">Tente novamente</string>
     <string name="action_apply_changes">Aplicar alterações</string>
+    <!-- Edit song metadata sheet -->
     <string name="edit_song_info_dialog_title">Editando metadados de músicas</string>
     <string name="edit_song_info_dialog_body">A edição dos metadados de uma música pode afetar a forma como ela é exibida e organizada na sua biblioteca. As alterações são permanentes e podem não ser reversíveis.</string>
     <string name="edit_song_got_it">Entendi</string>
@@ -77,6 +82,7 @@
     <string name="edit_song_crop_dialog_hint">Use gestos de pinçar e arrastar para encontrar o enquadramento perfeito.</string>
     <string name="edit_song_apply_cover_art">Aplicar arte de capa</string>
     <string name="edit_song_unable_to_load_image">Não foi possível carregar a imagem selecionada</string>
+    <!-- Song info bottom sheet -->
     <string name="song_info_share_chooser_title">Compartilhe o arquivo de música via</string>
     <string name="cd_play_song_action">Reproduzir música</string>
     <string name="cd_share_song_file">Compartilhar arquivo de música</string>
@@ -110,8 +116,11 @@
     <string name="song_info_tab_details">Detalhes</string>
     <string name="song_info_tab_info_badge">INFORMAÇÕES</string>
     <string name="cd_details_tab">Detalhes</string>
+    <!-- Multi-selection bottom sheet -->
     <string name="multi_selection_songs_count_upper">MÚSICAS DO %1$d</string>
     <string name="multi_selection_selected">selecionado</string>
+    <string name="multi_selection_genres_count_upper">%1$d GENRES</string>
+    <string name="multi_selection_genres_queue_hint">Perform batch operations on all songs within these genres.</string>
     <string name="cd_play_all">Jogue tudo</string>
     <string name="action_play_all">Jogue tudo</string>
     <string name="cd_like_all">Como todos</string>
@@ -140,7 +149,57 @@
     <string name="reorder_tabs_reset_dialog_title">Redefinir ordem</string>
     <string name="reorder_tabs_reset_dialog_body">Redefinir a ordem das guias para o padrão?</string>
     <string name="reorder_tabs_reordering">Reordenando guias…</string>
+    <string name="reorder_tabs_visible_title">Visible tabs</string>
+    <string name="reorder_tabs_hidden_title">Hidden tabs</string>
+    <string name="reorder_tabs_hide_action">Hide tab</string>
+    <string name="reorder_tabs_show_action">Show tab</string>
     <string name="cd_drag_handle">Alça de arrastar</string>
     <string name="cd_reset">Redefinir</string>
     <string name="action_done">Feito</string>
+    <string name="cd_add_selected_albums_to_queue">Add selected albums to queue</string>
+    <string name="cd_album_art_of">Album art of %1$s</string>
+    <string name="cd_album_art_placeholder">%1$s placeholder</string>
+    <string name="cd_choose_song_tone">Choose how to use this song as a system sound</string>
+    <string name="cd_cover_art">Cover art</string>
+    <string name="cd_play_selected_albums">Play selected albums</string>
+    <string name="cd_play_selected_albums_next">Play selected albums next</string>
+    <string name="cd_show_controls">Show controls</string>
+    <string name="edit_song_add_custom_field">Add metadata field</string>
+    <string name="edit_song_custom_field_name">Field name</string>
+    <string name="edit_song_custom_field_value">Value</string>
+    <string name="edit_song_custom_metadata_description">Set a 0–5 rating or add text fields such as MOOD, COMMENT, YEAR, or BPM.</string>
+    <string name="edit_song_custom_metadata_formats">Rating and custom fields can be written to MP3, WAV, AIFF, FLAC, OGG, Opus, M4A, M4B, and MP4 files.</string>
+    <string name="edit_song_custom_metadata_heading">Optional metadata</string>
+    <string name="edit_song_custom_metadata_invalid">Check the optional metadata fields.</string>
+    <string name="edit_song_rating">Rating (0–5)</string>
+    <string name="edit_song_rating_not_set">Not set</string>
+    <string name="edit_song_remove_custom_field">Remove field</string>
+    <string name="equalizer_action_save_new">Save New</string>
+    <string name="folder_state_excluded">Excluded</string>
+    <string name="folder_state_included">Included</string>
+    <string name="playlist_created_songs_added_toast">Playlist created and songs added</string>
+    <string name="playlist_saved_toast">Saved</string>
+    <string name="playlist_songs_added_toast">Songs added to playlists</string>
+    <string name="song_info_choose_tone">Set as sound</string>
+    <string name="song_info_ringtone_failed">Couldn\'t set ringtone: %1$s</string>
+    <string name="song_info_ringtone_local_only">Only local songs can be used as ringtones.</string>
+    <string name="song_info_ringtone_missing_file">Couldn\'t prepare this audio file for ringtone.</string>
+    <string name="song_info_ringtone_permission_missing">Modify system settings was not enabled.</string>
+    <string name="song_info_ringtone_permission_prompt">Enable Modify system settings, then return to Startune Music to finish automatically.</string>
+    <string name="song_info_set_as_short">Set as</string>
+    <string name="song_info_tone_alarm_label">alarm sound</string>
+    <string name="song_info_tone_alarm_subtitle">Clock alarms</string>
+    <string name="song_info_tone_alarm_title">Alarm sound</string>
+    <string name="song_info_tone_confirm_action">Set sound</string>
+    <string name="song_info_tone_confirm_body">Set \"%1$s\" as your %2$s?</string>
+    <string name="song_info_tone_confirm_title">Confirm sound change</string>
+    <string name="song_info_tone_notification_label">notification sound</string>
+    <string name="song_info_tone_notification_subtitle">Messages and app alerts</string>
+    <string name="song_info_tone_notification_title">Notification sound</string>
+    <string name="song_info_tone_picker_body">Choose where Startune Music should install this sound.</string>
+    <string name="song_info_tone_picker_title">Use this song as</string>
+    <string name="song_info_tone_ringtone_label">ringtone</string>
+    <string name="song_info_tone_ringtone_subtitle">Incoming calls</string>
+    <string name="song_info_tone_ringtone_title">Phone ringtone</string>
+    <string name="song_info_tone_success">Set \"%1$s\" as your %2$s</string>
 </resources>

@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <plurals name="delete_playlists_confirmation_title">
+        <item quantity="one">Delete %d playlist?</item>
+        <item quantity="other">Delete %d playlists?</item>
+    </plurals>
+    <plurals name="delete_playlists_confirmation_body">
+        <item quantity="one">Are you sure you want to delete %d playlist?</item>
+        <item quantity="other">Are you sure you want to delete %d playlists?</item>
+    </plurals>
     <plurals name="sharing_playlists_message">
         <item quantity="one">Condivisione di %d playlist</item>
         <item quantity="other">Condivisione di %d playlist</item>
@@ -38,22 +46,34 @@
     </plurals>
     <plurals name="stats_active_days_count">
         <item quantity="one">%d giorno attivo</item>
-        <item quantity="many">%d giorni attivi</item>
         <item quantity="other">%d giorni attivi</item>
     </plurals>
     <plurals name="stats_artists_count">
         <item quantity="one">%d artista</item>
-        <item quantity="many">%d artisti</item>
         <item quantity="other">%d artisti</item>
     </plurals>
     <plurals name="stats_days_count">
         <item quantity="one">%d giorno</item>
-        <item quantity="many">%d giorni</item>
         <item quantity="other">%d giorni</item>
+    </plurals>
+    <plurals name="stats_plays_count">
+        <item quantity="one">%d play</item>
+        <item quantity="other">%d plays</item>
     </plurals>
     <plurals name="stats_sessions_count">
         <item quantity="one">%d sessione</item>
-        <item quantity="many">%d sessioni</item>
         <item quantity="other">%d sessioni</item>
+    </plurals>
+    <plurals name="stats_tracks_count">
+        <item quantity="one">%d track</item>
+        <item quantity="other">%d tracks</item>
+    </plurals>
+    <plurals name="song_count">
+        <item quantity="one">%d Song</item>
+        <item quantity="other">%d Songs</item>
+    </plurals>
+    <plurals name="bookmark_moment_count">
+        <item quantity="one">%d moment</item>
+        <item quantity="other">%d moments</item>
     </plurals>
 </resources>

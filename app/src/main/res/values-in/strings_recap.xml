@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="recap_card_title">Rekap %1$d Kamu</string>
+    <!-- Entry points. %1$d is a calendar year, e.g. 2025. -->
+    <string name="recap_card_title" tools:ignore="PluralsCandidate">Rekap %1$d Kamu</string>
     <string name="recap_card_title_so_far">%1$d Kamu Sejauh Ini</string>
     <string name="recap_card_subtitle">Kenang lagi tahun musikmu</string>
     <string name="recap_card_subtitle_so_far">Lihat bagaimana tahun musikmu terbentuk</string>
-    <string name="recap_home_card_title">Rekap %1$d kamu sudah tiba</string>
+    <string name="recap_home_card_title" tools:ignore="PluralsCandidate">Rekap %1$d kamu sudah tiba</string>
     <string name="recap_home_card_subtitle">Kenang lagi lagu, artis, dan momen yang mewarnai tahunmu.</string>
     <string name="recap_home_card_open">Buka rekap</string>
     <string name="recap_home_card_dismiss">Abaikan</string>
+    <!-- Story controls -->
     <string name="recap_cd_close">Tutup rekap</string>
     <string name="recap_cd_pause">Jeda</string>
     <string name="recap_cd_resume">Lanjutkan</string>
@@ -16,13 +18,16 @@
     <string name="recap_action_previous_slide">Slide sebelumnya</string>
     <string name="recap_close">Tutup</string>
     <string name="recap_not_enough_title">Belum cukup banyak mendengarkan</string>
-    <string name="recap_not_enough_subtitle">Terus putar musik dan rekap %1$d kamu akan terisi.</string>
+    <string name="recap_not_enough_subtitle" tools:ignore="PluralsCandidate">Terus putar musik dan rekap %1$d kamu akan terisi.</string>
+    <!-- Intro -->
     <string name="recap_intro_kicker">Rekap PixelPlayerOSS</string>
     <string name="recap_intro_title">Tahunmu dalam musik</string>
     <string name="recap_intro_title_so_far">Tahunmu sejauh ini</string>
     <string name="recap_intro_subtitle">Kilas balik lagu, artis, dan momen yang menjadi soundtrack tahunmu.</string>
     <string name="recap_tap_hint">Ketuk untuk lanjut</string>
-    <string name="recap_minutes_kicker">Pada %1$d kamu mendengarkan selama</string>
+    <!-- Listening time -->
+    <string name="recap_minutes_kicker" tools:ignore="PluralsCandidate">Pada %1$d kamu mendengarkan selama</string>
+    <!-- Unit shown under the big number of minutes; the number itself is not part of the text. -->
     <plurals name="recap_minutes_unit" tools:ignore="ImpliedQuantity">
         <item quantity="other">menit</item>
     </plurals>
@@ -34,8 +39,10 @@
     </plurals>
     <string name="recap_minutes_daily_average">Rata-rata harian</string>
     <string name="recap_minutes_active_days">Hari bermusik</string>
+    <!-- Months. %1$s is a compact duration, e.g. "32h 10m". -->
     <string name="recap_months_kicker">Bulan tersibukmu</string>
     <string name="recap_months_detail">%1$s mendengarkan</string>
+    <!-- Listening clock -->
     <string name="recap_clock_kicker">Jam dengarmu</string>
     <string name="recap_personality_early_bird">Pendengar pagi</string>
     <string name="recap_personality_early_bird_desc">Kamu memulai hari dengan musik. Pagi adalah waktu terbaikmu.</string>
@@ -45,22 +52,30 @@
     <string name="recap_personality_evening_desc">Saat hari mulai tenang, musik justru makin keras.</string>
     <string name="recap_personality_night_owl">Si burung hantu</string>
     <string name="recap_personality_night_owl_desc">Makin larut, makin banyak kamu mendengarkan.</string>
+    <!-- %1$s is a weekday name, e.g. "Saturday". -->
     <string name="recap_clock_favorite_day">Hari favorit: %1$s</string>
+    <!-- Screen reader text for the month and hour charts. %1$s in the chart strings is a list of
+         entries, each built from recap_cd_chart_entry: %1$s is a month or hour, %2$s a duration. -->
     <string name="recap_cd_chart_entry">%1$s: %2$s</string>
     <string name="recap_cd_months_chart">Waktu dengar per bulan: %1$s</string>
     <string name="recap_cd_clock_chart">Waktu dengar per jam: %1$s</string>
+    <!-- Dedication -->
     <string name="recap_dedication_kicker">Rekor beruntunmu</string>
+    <!-- Unit shown under the big number of days; the number itself is not part of the text. -->
     <plurals name="recap_streak_unit" tools:ignore="ImpliedQuantity">
         <item quantity="other">hari berturut-turut</item>
     </plurals>
     <string name="recap_dedication_longest_session">Sesi terlama</string>
     <string name="recap_dedication_biggest_day">Hari tersibuk</string>
     <string name="recap_dedication_first_song">Lagu pertama tahun ini</string>
+    <!-- Genres and decade. %1$s is a percentage, e.g. "38%". -->
     <string name="recap_genres_kicker">Genre teratasmu</string>
     <string name="recap_genres_share">%1$s dari waktu dengarmu</string>
     <string name="recap_decade_kicker">Eramu</string>
+    <!-- %1$d is the first year of a decade, e.g. 1990 for "1990s". -->
     <string name="recap_decade_value">Era %1$d-an</string>
     <string name="recap_decade_detail">%1$s dari waktu dengarmu berasal dari musik yang rilis di dekade ini.</string>
+    <!-- Top albums, artists and songs -->
     <string name="recap_albums_kicker">Album teratasmu</string>
     <plurals name="recap_unique_albums">
         <item quantity="other">%d album dalam rotasimu</item>
@@ -73,6 +88,7 @@
     <plurals name="recap_unique_songs">
         <item quantity="other">Kamu memutar %d lagu berbeda</item>
     </plurals>
+    <!-- Summary -->
     <string name="recap_summary_kicker">Sekilas tahunmu</string>
     <string name="recap_summary_title">%1$d-ku dalam musik</string>
     <string name="recap_summary_title_so_far">%1$d-ku sejauh ini</string>

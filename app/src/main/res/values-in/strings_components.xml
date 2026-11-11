@@ -11,7 +11,6 @@
     <string name="widget_preview_artist">Artis</string>
     <string name="cd_repeat">Ulangi</string>
     <string name="widget_wavy_progress_bar_desc">Bilah progres, %1$d persen</string>
-
     <!-- Lyrics more bottom sheet -->
     <string name="lyrics_more_appearance">Tampilan</string>
     <string name="lyrics_more_alignment">Posisi teks</string>
@@ -27,13 +26,11 @@
     <string name="cd_lyrics_align_left">Rata kiri lirik</string>
     <string name="cd_lyrics_align_center">Rata tengah lirik</string>
     <string name="cd_lyrics_align_right">Rata kanan lirik</string>
-
     <!-- No internet -->
     <string name="no_internet_dialog_title">Tidak ada koneksi internet</string>
     <string name="no_internet_dialog_message">Konten ini memerlukan koneksi internet. Silakan periksa pengaturan jaringan Anda dan coba lagi.</string>
     <string name="offline_screen_title">Anda sedang offline</string>
     <string name="offline_screen_message">Silakan periksa koneksi internet Anda dan coba lagi untuk mengakses konten ini.</string>
-
     <!-- Equalizer preset dialogs -->
     <string name="equalizer_save_custom_preset_title">Simpan preset kustom</string>
     <string name="equalizer_save_custom_preset_body">Masukkan nama untuk preset equalizer kustom.</string>
@@ -42,7 +39,6 @@
     <string name="error_name_empty">Nama tidak boleh kosong</string>
     <string name="action_save">Simpan</string>
     <string name="action_rename">Ubah Nama</string>
-
     <!-- AI metadata sheet -->
     <string name="ai_metadata_headline_success">Berhasil ditandai!</string>
     <string name="ai_metadata_headline_default">Metadata AI</string>
@@ -51,10 +47,11 @@
     <string name="song_field_title">Judul</string>
     <string name="song_field_artist">Artis</string>
     <string name="song_field_album">Album</string>
+    <string name="song_field_album_artist">Artis album</string>
     <string name="song_field_genre">Genre</string>
+    <string name="song_field_composer">Komposer</string>
     <string name="action_try_again">Coba lagi</string>
     <string name="action_apply_changes">Terapkan perubahan</string>
-
     <!-- Edit song metadata sheet -->
     <string name="edit_song_info_dialog_title">Mengedit metadata lagu</string>
     <string name="edit_song_info_dialog_body">Mengedit metadata lagu dapat memengaruhi cara lagu ditampilkan dan diatur dalam pustaka Anda. Perubahan bersifat permanen dan mungkin tidak dapat dibatalkan.</string>
@@ -85,7 +82,6 @@
     <string name="edit_song_crop_dialog_hint">Cubit dan geser untuk menyesuaikan framing.</string>
     <string name="edit_song_apply_cover_art">Terapkan</string>
     <string name="edit_song_unable_to_load_image">Tidak dapat memuat gambar yang dipilih</string>
-
     <!-- Song info bottom sheet -->
     <string name="song_info_share_chooser_title">Bagikan file lagu melalui</string>
     <string name="cd_play_song_action">Putar lagu</string>
@@ -120,10 +116,11 @@
     <string name="song_info_tab_details">Detail</string>
     <string name="song_info_tab_info_badge">INFO</string>
     <string name="cd_details_tab">Detail</string>
-
     <!-- Multi-selection bottom sheet -->
     <string name="multi_selection_songs_count_upper">%1$d LAGU</string>
     <string name="multi_selection_selected">terpilih</string>
+    <string name="multi_selection_genres_count_upper">%1$d GENRES</string>
+    <string name="multi_selection_genres_queue_hint">Perform batch operations on all songs within these genres.</string>
     <string name="cd_play_all">Putar semua</string>
     <string name="action_play_all">Putar semua</string>
     <string name="cd_like_all">Sukai semua</string>
@@ -132,7 +129,6 @@
     <string name="cd_add_all_to_queue">Tambahkan semua ke antrean</string>
     <string name="cd_delete_all_songs">Hapus semua</string>
     <string name="action_delete_all">Hapus semua</string>
-
     <string name="playlist_dismissed_message">Playlist ditutup</string>
     <string name="action_undo">Urungkan</string>
     <string name="home_option_dj_mashup">DJ Mashup</string>
@@ -143,14 +139,12 @@
     <string name="playlist_picker_add_songs_title">Tambahkan %1$d lagu ke…</string>
     <string name="playlist_picker_select_playlists">Pilih playlist</string>
     <string name="search_playlists_hint">Cari playlist…</string>
-
     <string name="multi_selection_playlists_count_upper">%1$d PLAYLIST</string>
     <string name="cd_export_all">Ekspor semua</string>
     <string name="cd_merge_all">Gabungkan</string>
     <string name="cd_share_all">Bagikan semua</string>
     <string name="action_export">Ekspor</string>
     <string name="action_merge">Gabungkan</string>
-
     <string name="reorder_tabs_sheet_title">Urutkan ulang tab pustaka</string>
     <string name="reorder_tabs_reset_dialog_title">Reset urutan</string>
     <string name="reorder_tabs_reset_dialog_body">Reset urutan tab ke default?</string>
@@ -162,20 +156,50 @@
     <string name="cd_drag_handle">Drag handle</string>
     <string name="cd_reset">Reset</string>
     <string name="action_done">Selesai</string>
-
-    <!-- Backfilled translations -->
-    <string name="song_field_album_artist">Artis album</string>
-    <string name="song_field_composer">Komposer</string>
-    <string name="song_info_tone_picker_body">Pilih tempat PixelPlayerOSS harus memasang suara ini.</string>
-    <string name="song_info_ringtone_permission_prompt">Aktifkan Ubah setelan sistem, lalu kembali ke PixelPlayerOSS untuk menyelesaikannya secara otomatis.</string>
-    <string name="edit_song_custom_metadata_heading">Metadata opsional</string>
-    <string name="edit_song_custom_metadata_description">Atur rating 0–5 atau tambahkan kolom teks seperti MOOD, COMMENT, YEAR, atau BPM.</string>
-    <string name="edit_song_rating">Rating (0–5)</string>
-    <string name="edit_song_rating_not_set">Belum diatur</string>
+    <string name="cd_add_selected_albums_to_queue">Add selected albums to queue</string>
+    <string name="cd_album_art_of">Album art of %1$s</string>
+    <string name="cd_album_art_placeholder">%1$s placeholder</string>
+    <string name="cd_choose_song_tone">Choose how to use this song as a system sound</string>
+    <string name="cd_cover_art">Cover art</string>
+    <string name="cd_play_selected_albums">Play selected albums</string>
+    <string name="cd_play_selected_albums_next">Play selected albums next</string>
+    <string name="cd_show_controls">Show controls</string>
+    <string name="edit_song_add_custom_field">Tambah kolom metadata</string>
     <string name="edit_song_custom_field_name">Nama kolom</string>
     <string name="edit_song_custom_field_value">Nilai</string>
-    <string name="edit_song_add_custom_field">Tambah kolom metadata</string>
-    <string name="edit_song_remove_custom_field">Hapus kolom</string>
+    <string name="edit_song_custom_metadata_description">Atur rating 0–5 atau tambahkan kolom teks seperti MOOD, COMMENT, YEAR, atau BPM.</string>
     <string name="edit_song_custom_metadata_formats">Rating dan kolom kustom dapat ditulis ke file MP3, WAV, AIFF, FLAC, OGG, Opus, M4A, M4B, dan MP4.</string>
+    <string name="edit_song_custom_metadata_heading">Metadata opsional</string>
     <string name="edit_song_custom_metadata_invalid">Periksa kolom metadata opsional.</string>
+    <string name="edit_song_rating">Rating (0–5)</string>
+    <string name="edit_song_rating_not_set">Belum diatur</string>
+    <string name="edit_song_remove_custom_field">Hapus kolom</string>
+    <string name="equalizer_action_save_new">Save New</string>
+    <string name="folder_state_excluded">Excluded</string>
+    <string name="folder_state_included">Included</string>
+    <string name="playlist_created_songs_added_toast">Playlist created and songs added</string>
+    <string name="playlist_saved_toast">Saved</string>
+    <string name="playlist_songs_added_toast">Songs added to playlists</string>
+    <string name="song_info_choose_tone">Set as sound</string>
+    <string name="song_info_ringtone_failed">Couldn\'t set ringtone: %1$s</string>
+    <string name="song_info_ringtone_local_only">Only local songs can be used as ringtones.</string>
+    <string name="song_info_ringtone_missing_file">Couldn\'t prepare this audio file for ringtone.</string>
+    <string name="song_info_ringtone_permission_missing">Modify system settings was not enabled.</string>
+    <string name="song_info_ringtone_permission_prompt">Aktifkan Ubah setelan sistem, lalu kembali ke PixelPlayerOSS untuk menyelesaikannya secara otomatis.</string>
+    <string name="song_info_set_as_short">Set as</string>
+    <string name="song_info_tone_alarm_label">alarm sound</string>
+    <string name="song_info_tone_alarm_subtitle">Clock alarms</string>
+    <string name="song_info_tone_alarm_title">Alarm sound</string>
+    <string name="song_info_tone_confirm_action">Set sound</string>
+    <string name="song_info_tone_confirm_body">Set \"%1$s\" as your %2$s?</string>
+    <string name="song_info_tone_confirm_title">Confirm sound change</string>
+    <string name="song_info_tone_notification_label">notification sound</string>
+    <string name="song_info_tone_notification_subtitle">Messages and app alerts</string>
+    <string name="song_info_tone_notification_title">Notification sound</string>
+    <string name="song_info_tone_picker_body">Pilih tempat PixelPlayerOSS harus memasang suara ini.</string>
+    <string name="song_info_tone_picker_title">Use this song as</string>
+    <string name="song_info_tone_ringtone_label">ringtone</string>
+    <string name="song_info_tone_ringtone_subtitle">Incoming calls</string>
+    <string name="song_info_tone_ringtone_title">Phone ringtone</string>
+    <string name="song_info_tone_success">Set \"%1$s\" as your %2$s</string>
 </resources>

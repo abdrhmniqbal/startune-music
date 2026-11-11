@@ -2,6 +2,7 @@
 <resources>
     <string name="presentation_batch_g_stats_range_today">Oggi</string>
     <string name="presentation_batch_g_stats_range_week_to_date">Settimana in corso</string>
+    <string name="presentation_batch_g_stats_week_label">Week %1$d</string>
     <string name="presentation_batch_g_stats_range_month_to_date">Mese in corso</string>
     <string name="presentation_batch_g_stats_range_year_to_date">Anno in corso</string>
     <string name="presentation_batch_g_stats_range_all_time">Sempre</string>
@@ -128,12 +129,14 @@
     <string name="device_capabilities_metric_hw_decoders">Decoder HW</string>
     <string name="device_capabilities_metric_local_music">Musica locale</string>
     <string name="device_capabilities_storage_title">Archivio musica locale</string>
+    <string name="device_capabilities_storage_internal">Internal storage</string>
     <string name="device_capabilities_storage_music_size">Dimensione musica</string>
     <string name="device_capabilities_storage_music_count">%1$d brani locali</string>
     <string name="device_capabilities_storage_available">Disponibile</string>
     <string name="device_capabilities_storage_total">%1$s totali</string>
     <string name="device_capabilities_storage_music_footprint">Impronta musica</string>
     <string name="device_capabilities_storage_device_used">Dispositivo usato</string>
+    <string name="device_capabilities_storage_app_data">App Data</string>
     <string name="device_capabilities_storage_percent">%1$d%%</string>
     <string name="device_capabilities_storage_less_than_one_percent">&lt;1%</string>
     <string name="device_capabilities_storage_cloud_count">%1$d brani cloud</string>
@@ -184,30 +187,36 @@
     <string name="presentation_batch_g_artist_item_word_delimiters">Delimitatori parola</string>
     <string name="presentation_batch_g_artist_word_none">Nessuno</string>
     <string name="presentation_batch_g_artist_word_current_prefix">Attuale: %1$s</string>
+    <string name="presentation_batch_g_artist_item_unsplit_artists">Artists to Never Split</string>
     <string name="presentation_batch_g_artist_word_ellipsis">…</string>
     <string name="presentation_batch_g_artist_cd_configure">Configura</string>
     <string name="presentation_batch_g_artist_extract_from_title">Estrai artisti dal titolo</string>
     <string name="presentation_batch_g_artist_extract_from_title_sub">Rileva feat., ft., with nei titoli dei brani</string>
+    <string name="presentation_batch_g_genre_section">Genres</string>
+    <string name="presentation_batch_g_genre_item_split_symbols">Genre Split Symbols</string>
+    <string name="presentation_batch_g_genre_item_unsplit_genres">Genres to Never Split</string>
     <string name="presentation_batch_g_artist_section_library_org">Organizzazione libreria</string>
     <string name="presentation_batch_g_artist_group_by_album_artist">Raggruppa per album artist</string>
     <string name="presentation_batch_g_artist_group_by_album_artist_sub">Mostra album di collaborazione sotto l\'artista principale</string>
+    <string name="presentation_batch_g_artist_case_sensitive">Case-sensitive artists</string>
+    <string name="presentation_batch_g_artist_case_sensitive_sub">Artists that differ only by letter case stay separate</string>
     <string name="presentation_batch_g_artist_info_title">Informazioni parsing multi-artista</string>
     <string name="presentation_batch_g_artist_info_body">PixelPlayerOSS divide i tag degli artisti usando delimitatori di carattere (/, ;, &amp;) e delimitatori di parola (feat., ft., vs., x). I delimitatori di parola vengono riconosciuti senza distinzione tra maiuscole e minuscole.
 
-"Estrai artisti dal titolo" rileva schemi come (feat. Artista) nei titoli dei brani.
+\"Estrai artisti dal titolo\" rileva schemi come (feat. Artista) nei titoli dei brani.
 
 La barra rovesciata (\) può essere usata per l\'escape dei delimitatori di carattere.</string>
     <string name="presentation_batch_g_artist_example_arrow"> → </string>
     <string name="presentation_batch_g_artist_examples_title">Esempi</string>
-    <string name="presentation_batch_g_artist_ex_1_in">"Artista1/Artista2"</string>
+    <string name="presentation_batch_g_artist_ex_1_in">Artista1/Artista2</string>
     <string name="presentation_batch_g_artist_ex_1_out">Artista1, Artista2</string>
-    <string name="presentation_batch_g_artist_ex_2_in">"Drake feat. Rihanna"</string>
+    <string name="presentation_batch_g_artist_ex_2_in">Drake feat. Rihanna</string>
     <string name="presentation_batch_g_artist_ex_2_out">Drake, Rihanna</string>
-    <string name="presentation_batch_g_artist_ex_3_in">"Marshmello x Bastille"</string>
+    <string name="presentation_batch_g_artist_ex_3_in">Marshmello x Bastille</string>
     <string name="presentation_batch_g_artist_ex_3_out">Marshmello, Bastille</string>
-    <string name="presentation_batch_g_artist_ex_4_in">"Brano (ft. B)" di A</string>
+    <string name="presentation_batch_g_artist_ex_4_in">\"Brano (ft. B)\" di A</string>
     <string name="presentation_batch_g_artist_ex_4_out">A, B</string>
-    <string name="presentation_batch_g_artist_ex_5_in">"AC\\DC"</string>
+    <string name="presentation_batch_g_artist_ex_5_in">AC\\DC</string>
     <string name="presentation_batch_g_artist_ex_5_out">AC/DC (escaped)</string>
     <string name="presentation_batch_g_artist_topbar_title">Artisti</string>
     <string name="presentation_batch_g_artist_rescan_banner_title">Scansione richiesta</string>
@@ -271,6 +280,7 @@ La barra rovesciata (\) può essere usata per l\'escape dei delimitatori di cara
     <string name="presentation_batch_g_lyrics_offset_plus_point_one">+.1</string>
     <string name="presentation_batch_g_lyrics_offset_plus_half">+.5</string>
     <string name="presentation_batch_g_lyrics_offset_zero">0s</string>
+    <!-- Formatted with getString(..., floatSeconds) -->
     <string name="presentation_batch_g_lyrics_offset_seconds_fmt">%1$+.1fs</string>
     <string name="presentation_batch_g_playstore_open">Apri Play Store</string>
     <string name="presentation_batch_g_playstore_continue_beta">Continua beta</string>
@@ -289,6 +299,29 @@ La barra rovesciata (\) può essere usata per l\'escape dei delimitatori di cara
     <string name="presentation_batch_g_cd_selected">Selezionato</string>
     <string name="presentation_batch_g_changelog_title">Changelog</string>
     <string name="presentation_batch_g_changelog_view_github">Vedi su GitHub</string>
+    <string name="presentation_batch_g_changelog_error">Couldn\'t load the changelog. Check your connection and try again.</string>
+    <string name="presentation_batch_g_changelog_retry">Retry</string>
+    <string name="presentation_batch_g_changelog_empty">No releases yet.</string>
+    <string name="presentation_batch_g_changelog_no_release_notes">No release notes for this version.</string>
+    <string name="presentation_batch_g_changelog_prerelease">Pre-release</string>
+    <string name="update_notification_title">Startune Music update available</string>
+    <string name="update_notification_body">Version %1$s is available (you have %2$s).</string>
+    <string name="update_download_title">Downloading update</string>
+    <string name="update_downloading">Downloading\u2026 %1$d%%</string>
+    <string name="update_downloaded_title">Update downloaded</string>
+    <string name="update_downloaded_body">Tap to install Startune Music %1$s.</string>
+    <string name="update_sheet_title">Update available</string>
+    <string name="update_download_and_install">Download and install</string>
+    <string name="update_install">Install</string>
+    <string name="update_later">Later</string>
+    <string name="update_dont_remind">Don\'t remind me for this version</string>
+    <string name="update_download_failed">Download failed. Try again.</string>
+    <string name="update_up_to_date">You\'re up to date.</string>
+    <string name="update_check_failed">Couldn\'t check for updates. Try again.</string>
+    <string name="update_view_on_github">View on GitHub</string>
+    <string name="update_enable_install">Enable \"Install unknown apps\" to install the update.</string>
+    <string name="about_check_for_updates_title">Check for updates</string>
+    <string name="about_check_for_updates_subtitle">Version %1$s</string>
     <string name="presentation_batch_g_presets_saved_title">Preset salvati</string>
     <string name="presentation_batch_g_presets_empty">Ancora nessun preset personalizzato salvato.</string>
     <string name="presentation_batch_g_presets_cd_unpin">Stacca</string>
@@ -303,10 +336,69 @@ La barra rovesciata (\) può essere usata per l\'escape dei delimitatori di cara
     <string name="presentation_batch_g_beta_sheet_expect_2">Supporto dispositivi più ampio: Android Auto, aggiornamenti Wear OS e maggiore affidabilità Cast.</string>
     <string name="presentation_batch_g_beta_sheet_expect_3">Ecosistema cloud espanso: playlist Telegram, sincronizzazione NetEase, QQ Music e aggiornamenti streaming Google Drive.</string>
     <string name="presentation_batch_g_beta_sheet_expect_4">Passata affidabilità generale: logica coda/shuffle, comportamento riproduzione in background e molte correzioni UI.</string>
-    <string name="presentation_batch_g_beta_sheet_report_title">Segnala un problema</string>
-    <string name="presentation_batch_g_beta_sheet_report_body">Condividi i passaggi per riprodurre, il risultato atteso, il risultato effettivo e i dettagli del tuo dispositivo/SO. Un breve screen recording è molto utile.</string>
+    <string name="presentation_batch_g_beta_sheet_expect_summary">Quali build beta possono cambiare, interrompere o migliorare durante i test.</string>
+    <string name="presentation_batch_g_beta_sheet_github_title">Scorciatoia per il problema di GitHub</string>
+    <string name="presentation_batch_g_beta_sheet_github_body">Cerca prima, quindi apri un rapporto mirato su bug, arresti anomali, richieste o domande.</string>
     <string name="presentation_batch_g_beta_sheet_open_issues">Apri issue GitHub</string>
     <string name="presentation_batch_g_beta_sheet_report_bug">Segnala un bug</string>
+    <string name="presentation_batch_g_beta_sheet_report_body">Condividi i passaggi per riprodurre, il risultato atteso, il risultato effettivo e i dettagli del tuo dispositivo/SO. Un breve screen recording è molto utile.</string>
+    <string name="presentation_batch_g_beta_sheet_report_title">Segnala un problema</string>
+    <string name="presentation_batch_g_beta_sheet_report_summary">Una rapida lista di controllo prima di aprire un nuovo numero.</string>
+    <string name="presentation_batch_g_beta_sheet_before_title">Prima di aprire un numero</string>
+    <string name="presentation_batch_g_beta_sheet_before_1">Cerca i problemi aperti e chiusi esistenti per evitare duplicati.</string>
+    <string name="presentation_batch_g_beta_sheet_before_2">Aggiorna all\'ultima versione di PixelPlayerOSS e verifica che il problema si presenti ancora.</string>
+    <string name="presentation_batch_g_beta_sheet_before_3">Riavvia l\'app e conferma che il problema persiste.</string>
+    <string name="presentation_batch_g_beta_sheet_before_4">Prova a riprodurlo e scrivi i passaggi esatti.</string>
+    <string name="presentation_batch_g_beta_sheet_issue_type_title">Quale tipo di problema?</string>
+    <string name="presentation_batch_g_beta_sheet_issue_type_bug">Segnalazione di bug: qualcosa si comporta in modo errato.</string>
+    <string name="presentation_batch_g_beta_sheet_issue_type_feature">Richiesta di funzionalità: aggiungi una nuova funzionalità o un miglioramento.</string>
+    <string name="presentation_batch_g_beta_sheet_issue_type_question">Domanda: utilizza Discussioni se abilitato o apri un problema con un\'etichetta di domanda.</string>
+    <string name="presentation_batch_g_beta_sheet_bug_title">Segnalazione bug</string>
+    <string name="presentation_batch_g_beta_sheet_bug_summary_text">Copia questi campi quando qualcosa si comporta in modo errato o si blocca.</string>
+    <string name="presentation_batch_g_beta_sheet_bug_template_title">Segnalazione bug</string>
+    <string name="presentation_batch_g_beta_sheet_bug_summary">Breve riassunto:</string>
+    <string name="presentation_batch_g_beta_sheet_bug_expected">Comportamento previsto:</string>
+    <string name="presentation_batch_g_beta_sheet_bug_actual">Comportamento attuale:</string>
+    <string name="presentation_batch_g_beta_sheet_bug_steps">Passaggi per riprodurre/riprodurre: 1. 2. 3.</string>
+    <string name="presentation_batch_g_beta_sheet_bug_frequency">Quanto spesso accade? Sempre/A volte/Raramente.</string>
+    <string name="presentation_batch_g_beta_sheet_bug_screenshot">Screenshot/video: se disponibile.</string>
+    <string name="presentation_batch_g_beta_sheet_bug_logs">Log/analisi dello stack: se disponibile.</string>
+    <string name="presentation_batch_g_beta_sheet_env_title">Ambiente</string>
+    <string name="presentation_batch_g_beta_sheet_env_version">Versione di PixelPlayerOSS:</string>
+    <string name="presentation_batch_g_beta_sheet_env_source">Origine di installazione: versione GitHub, build di debug, build notturna, ecc.</string>
+    <string name="presentation_batch_g_beta_sheet_env_android">Versione Android:</string>
+    <string name="presentation_batch_g_beta_sheet_env_device">Modello dispositivo:</string>
+    <string name="presentation_batch_g_beta_sheet_env_extra">Contesto extra: utilizzo della scheda SD, impostazioni speciali, autorizzazioni, ecc.</string>
+    <string name="presentation_batch_g_beta_sheet_feature_title">Richiesta di funzionalità</string>
+    <string name="presentation_batch_g_beta_sheet_feature_summary">Copia questi campi quando desideri una nuova funzionalità o un miglioramento.</string>
+    <string name="presentation_batch_g_beta_sheet_feature_problem">Dichiarazione del problema: quale problema stai cercando di risolvere?</string>
+    <string name="presentation_batch_g_beta_sheet_feature_solution">Soluzione proposta: come dovrebbe funzionare?</string>
+    <string name="presentation_batch_g_beta_sheet_feature_alternatives">Alternative considerate: altri approcci?</string>
+    <string name="presentation_batch_g_beta_sheet_feature_scope">Ambito: quali schermate o flussi sono interessati?</string>
+    <string name="presentation_batch_g_beta_sheet_feature_mockup">Mockup o immagine di riferimento se disponibile.</string>
+    <string name="presentation_batch_g_beta_sheet_quality_title">Titoli, privacy e ambito</string>
+    <string name="presentation_batch_g_beta_sheet_quality_summary">Rendi il report facile da valutare e sicuro da condividere.</string>
+    <string name="presentation_batch_g_beta_sheet_title_examples_title">Buoni titoli di numeri</string>
+    <string name="presentation_batch_g_beta_sheet_title_example_1">Equalizzatore: l\'indicatore si sposta quando si cambiano le schede preimpostate</string>
+    <string name="presentation_batch_g_beta_sheet_title_example_2">Ricerca: l\'elenco della cronologia non viene visualizzato per la query vuota</string>
+    <string name="presentation_batch_g_beta_sheet_title_example_3">Funzionalità: aggiunta l\'opzione di ordinamento della playlist \"Aggiunti di recente\"</string>
+    <string name="presentation_batch_g_beta_sheet_avoid_title">Si prega di evitare</string>
+    <string name="presentation_batch_g_beta_sheet_avoid_1">Rapporti generici come \"Non funziona\".</string>
+    <string name="presentation_batch_g_beta_sheet_avoid_2">Molti problemi non correlati in un unico numero.</string>
+    <string name="presentation_batch_g_beta_sheet_avoid_3">Registri o screenshot non oscurati con dati privati.</string>
+    <string name="presentation_batch_g_beta_sheet_privacy_title">Informativa sulla privacy</string>
+    <string name="presentation_batch_g_beta_sheet_privacy_body">Prima di pubblicare registri, screenshot o video, rimuovi le informazioni personali o private.</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_title">Costruzioni notturne</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_summary">In che modo i nightlies differiscono dalle uscite e cosa includere quando si fermano.</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_body">Le build notturne vengono generate dall\'ultimo commit e possono contenere modifiche non completate, bug temporanei o regressioni. Sono più sperimentali delle versioni ufficiali.</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_access">Accedervi dagli artefatti del flusso di lavoro GitHub Actions del repository, se disponibili.</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_report_title">Segnalazione di problemi notturni</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_report_body">Quando segnali un problema relativo a una build notturna, menziona sempre che si è verificato durante una build notturna, non nella versione ufficiale. Includi la data di creazione, il nome o il numero di esecuzione del flusso di lavoro o, se possibile, esegui il commit di SHA. Controlla anche se lo stesso problema si verifica nell\'ultima versione ufficiale.</string>
+    <string name="presentation_batch_g_beta05_title">Aggiornamento v1.6.08</string>
+    <string name="presentation_batch_g_beta05_clean_install_title">Novità nella v1.6.08</string>
+    <string name="presentation_batch_g_beta05_clean_install_body">•</string>
+    <string name="presentation_batch_g_beta05_if_wrong_meta_title">Esplora Aggiorna</string>
+    <string name="presentation_batch_g_beta05_if_wrong_meta_body">Goditi il ​​nuovo ed elegante layout Material 3 Expressive nella scheda Esplora!</string>
     <string name="presentation_batch_g_beta05_dont_show">Non mostrare più</string>
     <string name="presentation_batch_g_beta05_got_it">Ho capito</string>
     <string name="presentation_batch_g_album_sel_count">%1$d ALBUM</string>
@@ -314,7 +406,6 @@ La barra rovesciata (\) può essere usata per l\'escape dei delimitatori di cara
     <string name="presentation_batch_g_album_sel_queue_hint">Coda + riproduzione rispetta l\'ordine della tua selezione.</string>
     <string name="presentation_batch_g_album_sel_limit">Limite: %1$d album per selezione.</string>
     <string name="presentation_batch_g_album_sel_add_queue_play">Aggiungi alla coda e riproduci</string>
-    <string name="presentation_batch_g_app_name">Startune Music</string>
     <string name="presentation_batch_g_app_tagline">Lettore musicale</string>
     <string name="presentation_batch_g_brick_high">HIGH %1$d</string>
     <string name="presentation_batch_g_brick_cd_close">Chiudi</string>
@@ -347,6 +438,11 @@ La barra rovesciata (\) può essere usata per l\'escape dei delimitatori di cara
     <string name="presentation_batch_g_backup_cd_select_all">Seleziona tutti</string>
     <string name="presentation_batch_g_backup_cd_clear_selection">Cancella selezione</string>
     <string name="presentation_batch_g_backup_entries_will_replace">%1$d voci · Sostituirà i dati attuali</string>
+    <string name="presentation_batch_g_backup_warnings_count_single">1 issue found</string>
+    <string name="presentation_batch_g_backup_warnings_count_multiple">%1$d issues found</string>
+    <string name="presentation_batch_g_backup_warnings_expand_hint">Tap to expand failed IDs and warnings</string>
+    <string name="presentation_batch_g_backup_warnings_collapse_hint">Tap to collapse</string>
+    <string name="presentation_batch_g_backup_warnings_collapse_btn">Collapse</string>
     <string name="presentation_batch_g_player_cd_cloud_stream">Stream cloud</string>
     <string name="presentation_batch_g_player_cd_collapse">Comprimi player</string>
     <string name="presentation_batch_g_player_cd_cast">Cast</string>
@@ -381,6 +477,8 @@ La barra rovesciata (\) può essere usata per l\'escape dei delimitatori di cara
     <string name="presentation_batch_g_cast_cd_refresh_connections">Aggiorna connessioni</string>
     <string name="presentation_batch_g_cast_cd_refresh_devices">Aggiorna dispositivi</string>
     <string name="presentation_batch_g_cast_nearby_devices">Dispositivi nelle vicinanze</string>
+    <string name="presentation_batch_g_cast_nearby_title">Dispositivi nelle vicinanze</string>
+    <string name="presentation_batch_g_cast_nearby_desc">Necessario per rilevare e controllare i dispositivi audio Bluetooth collegati.</string>
     <string name="presentation_batch_g_cast_tap_to_connect">Tocca per connettere</string>
     <string name="presentation_batch_g_cast_no_devices_yet">Ancora nessun dispositivo</string>
     <string name="presentation_batch_g_cast_disconnect">Disconnetti</string>
@@ -408,9 +506,8 @@ La barra rovesciata (\) può essere usata per l\'escape dei delimitatori di cara
     <string name="presentation_batch_g_cast_open_bluetooth">Apri Bluetooth</string>
     <string name="presentation_batch_g_cast_cd_disconnect_icon">Disconnetti</string>
     <string name="presentation_batch_g_cast_connecting_ellipsis">Connessione...</string>
-
-    <string name="presentation_batch_g_changelog_sec_fixes">Correzioni</string>
     <string name="presentation_batch_g_changelog_sec_highlights">Highlights</string>
+    <string name="presentation_batch_g_changelog_sec_fixes">Correzioni</string>
     <string name="presentation_batch_g_changelog_sec_whats_new_lower">Novità</string>
     <string name="presentation_batch_g_changelog_sec_added">Aggiunto</string>
     <string name="presentation_batch_g_changelog_sec_changed">Modificato</string>
@@ -517,74 +614,13 @@ La barra rovesciata (\) può essere usata per l\'escape dei delimitatori di cara
         <item>Corretto un bug per cui la notifica di riproduzione non veniva cancellata.</item>
         <item>Corretti diversi bug che causavano il crash dell\'app.</item>
     </string-array>
-
-    <!-- Backfilled translations -->
-    <string name="presentation_batch_g_beta_sheet_expect_summary">Quali build beta possono cambiare, interrompere o migliorare durante i test.</string>
-    <string name="presentation_batch_g_beta_sheet_github_title">Scorciatoia per il problema di GitHub</string>
-    <string name="presentation_batch_g_beta_sheet_github_body">Cerca prima, quindi apri un rapporto mirato su bug, arresti anomali, richieste o domande.</string>
-    <string name="presentation_batch_g_beta_sheet_report_summary">Una rapida lista di controllo prima di aprire un nuovo numero.</string>
-    <string name="presentation_batch_g_beta_sheet_before_title">Prima di aprire un numero</string>
-    <string name="presentation_batch_g_beta_sheet_before_1">Cerca i problemi aperti e chiusi esistenti per evitare duplicati.</string>
-    <string name="presentation_batch_g_beta_sheet_before_2">Aggiorna all\'ultima versione di PixelPlayerOSS e verifica che il problema si presenti ancora.</string>
-    <string name="presentation_batch_g_beta_sheet_before_3">Riavvia l\'app e conferma che il problema persiste.</string>
-    <string name="presentation_batch_g_beta_sheet_before_4">Prova a riprodurlo e scrivi i passaggi esatti.</string>
-    <string name="presentation_batch_g_beta_sheet_issue_type_title">Quale tipo di problema?</string>
-    <string name="presentation_batch_g_beta_sheet_issue_type_bug">Segnalazione di bug: qualcosa si comporta in modo errato.</string>
-    <string name="presentation_batch_g_beta_sheet_issue_type_feature">Richiesta di funzionalità: aggiungi una nuova funzionalità o un miglioramento.</string>
-    <string name="presentation_batch_g_beta_sheet_issue_type_question">Domanda: utilizza Discussioni se abilitato o apri un problema con un\'etichetta di domanda.</string>
-    <string name="presentation_batch_g_beta_sheet_bug_title">Segnalazione bug</string>
-    <string name="presentation_batch_g_beta_sheet_bug_summary_text">Copia questi campi quando qualcosa si comporta in modo errato o si blocca.</string>
-    <string name="presentation_batch_g_beta_sheet_bug_template_title">Segnalazione bug</string>
-    <string name="presentation_batch_g_beta_sheet_bug_summary">Breve riassunto:</string>
-    <string name="presentation_batch_g_beta_sheet_bug_expected">Comportamento previsto:</string>
-    <string name="presentation_batch_g_beta_sheet_bug_actual">Comportamento attuale:</string>
-    <string name="presentation_batch_g_beta_sheet_bug_steps">Passaggi per riprodurre/riprodurre: 1. 2. 3.</string>
-    <string name="presentation_batch_g_beta_sheet_bug_frequency">Quanto spesso accade? Sempre/A volte/Raramente.</string>
-    <string name="presentation_batch_g_beta_sheet_bug_screenshot">Screenshot/video: se disponibile.</string>
-    <string name="presentation_batch_g_beta_sheet_bug_logs">Log/analisi dello stack: se disponibile.</string>
-    <string name="presentation_batch_g_beta_sheet_env_title">Ambiente</string>
-    <string name="presentation_batch_g_beta_sheet_env_version">Versione di PixelPlayerOSS:</string>
-    <string name="presentation_batch_g_beta_sheet_env_source">Origine di installazione: versione GitHub, build di debug, build notturna, ecc.</string>
-    <string name="presentation_batch_g_beta_sheet_env_android">Versione Android:</string>
-    <string name="presentation_batch_g_beta_sheet_env_device">Modello dispositivo:</string>
-    <string name="presentation_batch_g_beta_sheet_env_extra">Contesto extra: utilizzo della scheda SD, impostazioni speciali, autorizzazioni, ecc.</string>
-    <string name="presentation_batch_g_beta_sheet_feature_title">Richiesta di funzionalità</string>
-    <string name="presentation_batch_g_beta_sheet_feature_summary">Copia questi campi quando desideri una nuova funzionalità o un miglioramento.</string>
-    <string name="presentation_batch_g_beta_sheet_feature_problem">Dichiarazione del problema: quale problema stai cercando di risolvere?</string>
-    <string name="presentation_batch_g_beta_sheet_feature_solution">Soluzione proposta: come dovrebbe funzionare?</string>
-    <string name="presentation_batch_g_beta_sheet_feature_alternatives">Alternative considerate: altri approcci?</string>
-    <string name="presentation_batch_g_beta_sheet_feature_scope">Ambito: quali schermate o flussi sono interessati?</string>
-    <string name="presentation_batch_g_beta_sheet_feature_mockup">Mockup o immagine di riferimento se disponibile.</string>
-    <string name="presentation_batch_g_beta_sheet_quality_title">Titoli, privacy e ambito</string>
-    <string name="presentation_batch_g_beta_sheet_quality_summary">Rendi il report facile da valutare e sicuro da condividere.</string>
-    <string name="presentation_batch_g_beta_sheet_title_examples_title">Buoni titoli di numeri</string>
-    <string name="presentation_batch_g_beta_sheet_title_example_1">Equalizzatore: l\'indicatore si sposta quando si cambiano le schede preimpostate</string>
-    <string name="presentation_batch_g_beta_sheet_title_example_2">Ricerca: l\'elenco della cronologia non viene visualizzato per la query vuota</string>
-    <string name="presentation_batch_g_beta_sheet_title_example_3">Funzionalità: aggiunta l\'opzione di ordinamento della playlist \"Aggiunti di recente\"</string>
-    <string name="presentation_batch_g_beta_sheet_avoid_title">Si prega di evitare</string>
-    <string name="presentation_batch_g_beta_sheet_avoid_1">Rapporti generici come \"Non funziona\".</string>
-    <string name="presentation_batch_g_beta_sheet_avoid_2">Molti problemi non correlati in un unico numero.</string>
-    <string name="presentation_batch_g_beta_sheet_avoid_3">Registri o screenshot non oscurati con dati privati.</string>
-    <string name="presentation_batch_g_beta_sheet_privacy_title">Informativa sulla privacy</string>
-    <string name="presentation_batch_g_beta_sheet_privacy_body">Prima di pubblicare registri, screenshot o video, rimuovi le informazioni personali o private.</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_title">Costruzioni notturne</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_summary">In che modo i nightlies differiscono dalle uscite e cosa includere quando si fermano.</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_body">Le build notturne vengono generate dall\'ultimo commit e possono contenere modifiche non completate, bug temporanei o regressioni. Sono più sperimentali delle versioni ufficiali.</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_access">Accedervi dagli artefatti del flusso di lavoro GitHub Actions del repository, se disponibili.</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_report_title">Segnalazione di problemi notturni</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_report_body">Quando segnali un problema relativo a una build notturna, menziona sempre che si è verificato durante una build notturna, non nella versione ufficiale. Includi la data di creazione, il nome o il numero di esecuzione del flusso di lavoro o, se possibile, esegui il commit di SHA. Controlla anche se lo stesso problema si verifica nell\'ultima versione ufficiale.</string>
-    <string name="presentation_batch_g_beta05_title">Aggiornamento v1.6.08</string>
-    <string name="presentation_batch_g_beta05_clean_install_title">Novità nella v1.6.08</string>
-    <string name="presentation_batch_g_beta05_clean_install_body">•</string>
-    <string name="presentation_batch_g_beta05_if_wrong_meta_title">Esplora Aggiorna</string>
-    <string name="presentation_batch_g_beta05_if_wrong_meta_body">Goditi il ​​nuovo ed elegante layout Material 3 Expressive nella scheda Esplora!</string>
-    <string name="presentation_batch_g_cast_nearby_title">Dispositivi nelle vicinanze</string>
-    <string name="presentation_batch_g_cast_nearby_desc">Necessario per rilevare e controllare i dispositivi audio Bluetooth collegati.</string>
     <string-array name="presentation_batch_g_changelog_070_highlights">
         <item>Miglioramenti nell\'integrazione dell\'IA e generazione più intelligente delle playlist.</item>
         <item>Statistiche di ascolto avanzate con approfondimenti più dettagliati e nuove visualizzazioni.</item>
         <item>Flusso di sincronizzazione della libreria migliorato su tutti i provider cloud.</item>
         <item>Migliore modifica dei metadati con supporto per le copertine degli album.</item>
     </string-array>
-
+    <string name="presentation_batch_g_beta_sheet_welcome_body_stable">You\'re running the stable release build. Check the changelog to see what\'s new, and report anything that misbehaves.</string>
+    <string name="presentation_batch_g_topbar_build_debug">Debug</string>
+    <string name="presentation_batch_g_topbar_build_stable">Stable</string>
 </resources>

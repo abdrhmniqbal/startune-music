@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Lyrics screen, More sheet: copies the whole song as plain text -->
     <string name="lyrics_more_copy_lyrics">Копировать текст песни</string>
+    <!-- Shown below Android 13, which confirms clipboard writes itself -->
     <string name="lyrics_copied">Текст песни скопирован в буфер обмена</string>
     <string name="lyrics_line_copied">Строка скопирована в буфер обмена</string>
+    <!-- Accessibility label of the long-press action on a lyric line -->
     <string name="lyrics_copy_line_action">Копировать строку</string>
 </resources>

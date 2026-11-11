@@ -15,7 +15,6 @@
     <string name="presentation_batch_b_accounts_no_linked_body">Подключите поставщика, чтобы управлять им с этого экрана.</string>
     <string name="presentation_batch_b_accounts_connect_service">Подключить %1$s</string>
     <string name="presentation_batch_b_accounts_service_paren_coming_soon">%1$s (Скоро)</string>
-
     <!-- PlaylistDetailScreen -->
     <string name="presentation_batch_b_sort_songs">Сортировать песни</string>
     <string name="presentation_batch_b_more_options">Дополнительно</string>
@@ -34,14 +33,25 @@
     <string name="presentation_batch_b_delete_playlist">Удалить плейлист</string>
     <string name="presentation_batch_b_set_default_transition">Переход по умолчанию</string>
     <string name="presentation_batch_b_export_playlist">Экспортировать плейлист</string>
+    <string name="presentation_batch_b_export_as_m3u">Экспортировать как M3U</string>
+    <string name="presentation_batch_b_export_as_m3u_desc">Файл списка воспроизведения для медиаплееров</string>
+    <string name="presentation_batch_b_export_as_csv">Экспортировать в формате CSV</string>
+    <string name="presentation_batch_b_export_as_csv_desc">Совместимость с электронными таблицами, легкость импорта</string>
+    <string name="presentation_batch_b_export_save">Сохранить</string>
+    <string name="presentation_batch_b_export_share">Поделиться</string>
+    <string name="presentation_batch_b_import_playlist">Импортировать плейлист</string>
+    <string name="presentation_batch_b_import_m3u">Импортировать M3U</string>
+    <string name="presentation_batch_b_import_csv">Импортировать CSV</string>
+    <string name="presentation_batch_b_importing">Импорт списка воспроизведения</string>
+    <string name="presentation_batch_b_import_progress">Импорт трека %1$d из %2$d</string>
+    <string name="presentation_batch_b_resolving">Разрешение онлайн-метаданных…</string>
+    <string name="presentation_batch_b_download_playlist">Скачать плейлист</string>
     <string name="presentation_batch_b_delete_playlist_confirm_title">Удалить плейлист?</string>
     <string name="presentation_batch_b_delete_playlist_confirm_body">Вы уверены, что хотите удалить этот плейлист?</string>
     <string name="presentation_batch_b_rename_playlist_dialog_title">Переименовать плейлист</string>
     <string name="presentation_batch_b_new_name">Новое название</string>
-
     <!-- DailyMixScreen -->
     <string name="presentation_batch_b_daily_mix_title">Daily Mix</string>
-
     <!-- QuickFillScreen -->
     <string name="presentation_batch_b_quick_fill_select_songs">Выберите песни</string>
     <string name="presentation_batch_b_quick_fill_choose_genre">Выберите жанр</string>
@@ -56,44 +66,29 @@
     <string name="presentation_batch_b_add_custom_genre_title">Добавить свой жанр</string>
     <string name="presentation_batch_b_genre_name_label">Название жанра</string>
     <string name="presentation_batch_b_select_icon">Выберите иконку</string>
-
     <!-- RecentlyPlayedScreen -->
     <string name="presentation_batch_b_recently_played_title">Недавно прослушано</string>
     <string name="presentation_batch_b_play_latest">Играть последние</string>
     <string name="presentation_batch_b_recent_empty_title">Нет недавних воспроизведений в %1$s</string>
     <string name="presentation_batch_b_recent_empty_subtitle">Измените диапазон или слушайте больше песен, чтобы заполнить этот список.</string>
     <string name="presentation_batch_b_queue_recently_played">Недавно прослушано</string>
+    <string name="presentation_batch_b_queue_recently_added">Recently Added</string>
+    <string name="presentation_batch_b_queue_favorites_to_revisit">Favorites to Revisit</string>
+    <string name="presentation_batch_b_queue_fresh_finds">Fresh finds</string>
     <string name="presentation_batch_b_date_today">Сегодня</string>
     <string name="presentation_batch_b_date_yesterday">Вчера</string>
-
     <!-- NavBarCornerRadiusScreen -->
     <string name="presentation_batch_b_navbar_adjust_title">Настройка радиуса углов</string>
     <string name="presentation_batch_b_navbar_adjust_subtitle">Настройте углы панели навигации в соответствии с физическими углами вашего устройства.</string>
     <string name="presentation_batch_b_corner_radius_label">Радиус углов</string>
     <string name="presentation_batch_b_corner_dp_format">%1$d dp</string>
-
     <!-- GenreDetailScreen -->
     <string name="presentation_batch_b_genre_shuffle_label">Перемешать %1$s</string>
-
     <plurals name="presentation_batch_b_songs_dot_duration">
         <item quantity="one">%1$d песня • %2$s</item>
         <item quantity="few">%1$d песни • %2$s</item>
         <item quantity="many">%1$d песен • %2$s</item>
         <item quantity="other">%1$d песни • %2$s</item>
     </plurals>
-
-    <!-- Backfilled translations -->
-    <string name="presentation_batch_b_export_as_m3u">Экспортировать как M3U</string>
-    <string name="presentation_batch_b_export_as_m3u_desc">Файл списка воспроизведения для медиаплееров</string>
-    <string name="presentation_batch_b_export_as_csv">Экспортировать в формате CSV</string>
-    <string name="presentation_batch_b_export_as_csv_desc">Совместимость с электронными таблицами, легкость импорта</string>
-    <string name="presentation_batch_b_export_save">Сохранить</string>
-    <string name="presentation_batch_b_export_share">Поделиться</string>
-    <string name="presentation_batch_b_import_playlist">Импортировать плейлист</string>
-    <string name="presentation_batch_b_import_m3u">Импортировать M3U</string>
-    <string name="presentation_batch_b_import_csv">Импортировать CSV</string>
-    <string name="presentation_batch_b_importing">Импорт списка воспроизведения</string>
-    <string name="presentation_batch_b_import_progress">Импорт трека %1$d из %2$d</string>
-    <string name="presentation_batch_b_resolving">Разрешение онлайн-метаданных…</string>
-    <string name="presentation_batch_b_download_playlist">Скачать плейлист</string>
+    <string name="presentation_batch_b_playlist_empty_mix_body">No songs match this mix yet.</string>
 </resources>

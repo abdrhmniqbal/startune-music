@@ -11,6 +11,8 @@
     <string name="presentation_batch_f_sync_phase_processing_tracks">Traitement des pistes</string>
     <string name="presentation_batch_f_sync_phase_saving_db">Enregistrement dans la base de données</string>
     <string name="presentation_batch_f_sync_phase_scanning_lrc">Analyse des fichiers de paroles</string>
+    <string name="presentation_batch_f_sync_phase_cleaning_cache">Nettoyage du cache des pochettes d\'album</string>
+    <string name="presentation_batch_f_sync_phase_syncing_cloud">Synchronisation des sources cloud</string>
     <string name="presentation_batch_f_sync_phase_completing">Fin de la synchronisation</string>
     <string name="presentation_batch_f_sync_progress_detailed">%1$s • %2$d%% (%3$d/%4$d)</string>
     <string name="presentation_batch_f_sync_progress_indeterminate">%1$s…</string>
@@ -36,7 +38,6 @@
     <string name="presentation_batch_f_ai_preset_sonic_enthusiast_prompt">Vous êtes un analyste audiophile concentré sur la complexité de la production et l\'instrumentation. Privilégiez les pistes caractérisées par une plage dynamique élevée, des polyrythmies complexes et une qualité de scène sonore supérieure. Favorisez les pièces d\'écoute active qui récompensent l\'auditeur pour son attention à la fidélité technique et au détail de l\'arrangement.</string>
     <string name="presentation_batch_f_ai_preset_energy_catalyst_name">Catalyseur d\'énergie</string>
     <string name="presentation_batch_f_ai_preset_energy_catalyst_prompt">Vous êtes un générateur de rythme à haute impulsion. Votre philosophie est centrée sur des lignes de basse entraînantes, une intensité percutante et des grooves contagieux. Privilégiez la compatibilité club à haut BPM, l\'énergie syncopée et une tension rythmique continue pour maintenir le rythme cardiaque et la motivation de l\'auditeur à leur maximum.</string>
-
     <!-- Create playlist -->
     <string name="presentation_batch_f_new_playlist">Nouvelle liste de lecture</string>
     <string name="presentation_batch_f_add_songs">Ajouter des chansons</string>
@@ -73,6 +74,10 @@
     <string name="mix_rule_forgotten_favorites_subtitle">Pistes favorites que vous n\'avez pas écoutées depuis un moment.</string>
     <string name="mix_rule_new_gems_title">Nouvelles pépites</string>
     <string name="mix_rule_new_gems_subtitle">Pistes récemment ajoutées avec peu d\'écoutes.</string>
+    <string name="mix_rule_artists_title">By Artists</string>
+    <string name="mix_rule_artists_subtitle">Songs from artists you pick.</string>
+    <string name="mix_rule_genres_title">By Genres</string>
+    <string name="mix_rule_genres_subtitle">Songs from genres you pick.</string>
     <!-- Palette style -->
     <string name="presentation_batch_f_palette_style_heading">Style de palette</string>
     <string name="presentation_batch_f_palette_style_subtitle">Choisissez les couleurs de l\'album pour l\'interface du lecteur.</string>
@@ -94,7 +99,6 @@
     <string name="presentation_batch_f_accuracy_summary_subtle">%1$d • Subtil</string>
     <string name="presentation_batch_f_accuracy_summary_balanced">%1$d • Équilibré</string>
     <string name="presentation_batch_f_accuracy_summary_precise">%1$d • Précis</string>
-
     <!-- Experimental settings -->
     <string name="presentation_batch_f_exp_player_ui_tweaks_section">Optimisations de chargement de l\'interface</string>
     <string name="presentation_batch_f_exp_animated_lyrics_title">Paroles animées (Appareils puissants)</string>
@@ -144,13 +148,11 @@
     <string name="presentation_batch_f_album_art_quality_medium_line">Moyenne (512px) - Équilibrée</string>
     <string name="presentation_batch_f_album_art_quality_high_line">Haute (800px) - Meilleure qualité</string>
     <string name="presentation_batch_f_album_art_quality_original_line">Originale - Qualité maximale</string>
-
     <!-- Settings category screen (composables) -->
     <string name="presentation_batch_f_percent">%1$d%%</string>
     <string name="presentation_batch_f_status_bullet_step">%1$s • %2$s</string>
     <string name="presentation_batch_f_dot_space_suffix"> · %1$s</string>
     <string name="presentation_batch_f_unknown_short">\?</string>
-
     <string name="presentation_batch_f_working">Opération en cours…</string>
     <string name="presentation_batch_f_phone_number_title">Numéro de téléphone</string>
     <string name="presentation_batch_f_phone_number_hint">Numéro de téléphone</string>
@@ -167,7 +169,6 @@
     <string name="presentation_batch_f_password_label">Mot de passe</string>
     <string name="presentation_batch_f_verify_password">Vérifier le mot de passe</string>
     <string name="presentation_batch_f_please_wait">Veuillez patienter…</string>
-
     <string name="presentation_batch_f_add_channel_fab">Ajouter un canal</string>
     <string name="presentation_batch_f_syncing">Synchronisation en cours</string>
     <string name="presentation_batch_f_sync_now">Synchroniser maintenant</string>
@@ -179,11 +180,13 @@
     <string name="presentation_batch_f_fetch_latest_songs">Récupérer les dernières chansons de ce canal</string>
     <string name="presentation_batch_f_remove_channel">Supprimer le canal</string>
     <string name="presentation_batch_f_remove_channel_subtitle">Arrêter la synchronisation et supprimer les chansons en cache</string>
+    <string name="presentation_batch_f_remove_channel_confirm_title">Supprimer la chaîne ?</string>
+    <string name="presentation_batch_f_remove_channel_confirm_body">%1$s arrêtera la synchronisation et toutes les chansons mises en cache de cette chaîne seront supprimées.</string>
+    <string name="presentation_batch_f_remove_channel_confirm_action">Retirer</string>
     <string name="presentation_batch_f_no_channels_synced">Aucun canal synchronisé</string>
     <string name="presentation_batch_f_add_channel_button">Ajouter un canal</string>
     <string name="presentation_batch_f_never_synced">Jamais synchronisé</string>
     <string name="presentation_batch_f_synced_relative">Synchronisé %1$s</string>
-
     <!-- Telegram channel search -->
     <string name="presentation_batch_f_add_channel_sheet_title">Ajouter un canal</string>
     <string name="presentation_batch_f_channel_search_placeholder">\@nomducanal ou lien</string>
@@ -192,7 +195,6 @@
     <string name="presentation_batch_f_search_channel_title">Rechercher un canal</string>
     <string name="presentation_batch_f_search_channel_body">Entrez un nom d\'utilisateur de canal public ou un lien\npour synchroniser ses fichiers audio</string>
     <string name="presentation_batch_f_done">Terminé</string>
-
     <plurals name="presentation_batch_f_n_songs">
         <item quantity="one">%d chanson</item>
         <item quantity="other">%d chansons</item>
@@ -201,11 +203,28 @@
         <item quantity="one">%d sujet</item>
         <item quantity="other">%d sujets</item>
     </plurals>
-
-    <!-- Backfilled translations -->
-    <string name="presentation_batch_f_sync_phase_cleaning_cache">Nettoyage du cache des pochettes d\'album</string>
-    <string name="presentation_batch_f_sync_phase_syncing_cloud">Synchronisation des sources cloud</string>
-    <string name="presentation_batch_f_remove_channel_confirm_title">Supprimer la chaîne ?</string>
-    <string name="presentation_batch_f_remove_channel_confirm_body">%1$s arrêtera la synchronisation et toutes les chansons mises en cache de cette chaîne seront supprimées.</string>
-    <string name="presentation_batch_f_remove_channel_confirm_action">Retirer</string>
+    <string name="presentation_batch_f_adjust_cover_hint">Use pinch and drag gestures to find the perfect framing</string>
+    <string name="presentation_batch_f_adjust_cover_title">Adjust your cover art</string>
+    <string name="presentation_batch_f_change">Change</string>
+    <string name="presentation_batch_f_edit_cover_title">Edit Cover</string>
+    <string name="presentation_batch_f_remove">Remove</string>
+    <string name="mix_create_title">New mix</string>
+    <string name="mix_name_label">Mix name</string>
+    <string name="mix_name_placeholder">My mix</string>
+    <string name="mix_preset_label">Preset</string>
+    <string name="mix_generation_mode_label">Generation Mode</string>
+    <string name="mix_playlist_size_title">Playlist size</string>
+    <string name="mix_playlist_size_subtitle">Number of songs to generate</string>
+    <string name="mix_artists_label">Artists</string>
+    <string name="mix_artists_hint">Choose one or more artists for this mix.</string>
+    <string name="mix_artists_add">Add artists</string>
+    <string name="mix_artists_search_placeholder">Search artists</string>
+    <string name="mix_artists_empty">No artists in your library yet.</string>
+    <string name="mix_genres_label">Genres</string>
+    <string name="mix_genres_placeholder">Rock, K-Pop, Jazz</string>
+    <string name="mix_genres_hint">Separate genres with commas. Recognized genres become chips.</string>
+    <string name="mix_empty_title">No mixes yet</string>
+    <string name="mix_empty_hint">Create your first mix to get started.</string>
+    <string name="mix_cover_cd">Mix</string>
+    <string name="mix_see_all">See all</string>
 </resources>

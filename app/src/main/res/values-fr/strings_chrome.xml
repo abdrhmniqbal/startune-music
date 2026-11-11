@@ -9,7 +9,6 @@
     <string name="queue_name_all_songs_shuffled">Toutes les chansons (aléatoire)</string>
     <string name="queue_name_liked_songs_shuffled">Titres favoris (aléatoire)</string>
     <string name="queue_name_selected_songs">Titres sélectionnés</string>
-
     <!-- Player sheet, mini player and full player chrome -->
     <string name="cd_player_sheet_collapsed">Panneau du lecteur Startune réduit, %1$s</string>
     <string name="cd_player_sheet_expanded">Panneau du lecteur Startune développé, %1$s</string>
@@ -24,4 +23,29 @@
     <string name="add_bookmark_saved_point">Point de lecture enregistré</string>
     <string name="add_bookmark_use_lyric_line">Utiliser la ligne de paroles</string>
     <string name="add_bookmark_default_name">Marque-page @ %1$s</string>
+    <string name="bookmark_sort_most_moments_label">Most moments</string>
+    <string name="bookmark_sort_most_moments_cd">Sort bookmarks by most moments</string>
+    <string name="bookmark_sort_recent_label">Recent</string>
+    <string name="bookmark_sort_recent_cd">Sort bookmarks by recent moments</string>
+    <string name="bookmark_sort_title_label">A-Z</string>
+    <string name="bookmark_sort_title_cd">Sort bookmarks alphabetically</string>
+    <string name="bookmark_actions_cd">Bookmark actions</string>
+    <string name="bookmark_delete_cd">Delete bookmark</string>
+    <string name="bookmark_rename_title">Rename bookmark</string>
+    <string name="bookmark_rename_body">Update the label for this saved cue.</string>
+    <string name="bookmark_saved_moments_title">Saved moments</string>
+    <string name="bookmark_search_placeholder">Search bookmarks</string>
+    <string name="bookmark_cue_label">Cue %1$s</string>
+    <string name="bookmark_toast_cue_copied">Cue copied</string>
+    <string name="bookmark_toast_audio_not_found">Audio file not found</string>
+    <string name="bookmark_empty_no_audio_title">No bookmarked audio yet</string>
+    <string name="bookmark_empty_no_audio_subtitle">Saved moments will appear here grouped by track.</string>
+    <string name="bookmark_empty_no_folders_title">No bookmark folders found</string>
+    <string name="bookmark_empty_no_folders_subtitle">Try searching by song, artist, album, cue, or bookmark tag.</string>
+    <string name="bookmark_empty_folder_title">No moments in this folder</string>
+    <string name="bookmark_empty_folder_subtitle">Bookmarks for this track may have been deleted.</string>
+    <string name="bookmark_search_clear_cd">Clear bookmark search</string>
+    <string name="bookmark_search_cd">Bookmarks</string>
+    <string name="bookmark_actions_close_cd">Close bookmark actions</string>
+    <string name="bookmark_actions_open_cd">Open bookmark actions</string>
 </resources>

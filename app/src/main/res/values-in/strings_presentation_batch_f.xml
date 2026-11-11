@@ -11,6 +11,7 @@
     <string name="presentation_batch_f_sync_phase_processing_tracks">Memproses trek</string>
     <string name="presentation_batch_f_sync_phase_saving_db">Menyimpan ke database</string>
     <string name="presentation_batch_f_sync_phase_scanning_lrc">Memindai file lirik</string>
+    <string name="presentation_batch_f_sync_phase_cleaning_cache">Membersihkan cache sampul album...</string>
     <string name="presentation_batch_f_sync_phase_syncing_cloud">Menyinkronkan sumber cloud...</string>
     <string name="presentation_batch_f_sync_phase_completing">Menyelesaikan sinkronisasi</string>
     <string name="presentation_batch_f_sync_progress_detailed">%1$s • %2$d%% (%3$d/%4$d)</string>
@@ -37,7 +38,6 @@
     <string name="presentation_batch_f_ai_preset_sonic_enthusiast_prompt">Anda adalah analis audiophile yang berfokus pada kompleksitas produksi dan instrumentasi. Prioritaskan trek yang ditandai dengan rentang dinamis tinggi, poliritme yang rumit, dan kualitas soundstage yang unggul. Utamakan karya-karya yang menuntut pendengaran aktif yang menghargai pendengar karena memperhatikan kesetiaan teknis dan detail aransemen.</string>
     <string name="presentation_batch_f_ai_preset_energy_catalyst_name">Katalis Energi</string>
     <string name="presentation_batch_f_ai_preset_energy_catalyst_prompt">Anda adalah penghasil ritme bermomentum tinggi. Filosofi Anda berpusat pada bassline yang kuat, intensitas perkusi, dan alunan yang menular. Prioritaskan lagu yang cocok untuk klub dengan BPM tinggi, energi sinkopasi, dan ketegangan ritme yang berkelanjutan untuk menjaga detak jantung dan motivasi pendengar tetap di tingkat puncak.</string>
-
     <!-- Create playlist -->
     <string name="presentation_batch_f_new_playlist">Playlist baru</string>
     <string name="presentation_batch_f_add_songs">Tambah Lagu</string>
@@ -74,6 +74,10 @@
     <string name="mix_rule_forgotten_favorites_subtitle">Trek favorit yang sudah lama tidak Anda putar.</string>
     <string name="mix_rule_new_gems_title">Temuan Baru</string>
     <string name="mix_rule_new_gems_subtitle">Trek yang baru saja ditambahkan dengan jumlah putaran rendah.</string>
+    <string name="mix_rule_artists_title">By Artists</string>
+    <string name="mix_rule_artists_subtitle">Songs from artists you pick.</string>
+    <string name="mix_rule_genres_title">By Genres</string>
+    <string name="mix_rule_genres_subtitle">Songs from genres you pick.</string>
     <!-- Palette style -->
     <string name="presentation_batch_f_palette_style_heading">Gaya palet</string>
     <string name="presentation_batch_f_palette_style_subtitle">Pilih warna album untuk UI pemutar.</string>
@@ -95,7 +99,6 @@
     <string name="presentation_batch_f_accuracy_summary_subtle">%1$d • Halus</string>
     <string name="presentation_batch_f_accuracy_summary_balanced">%1$d • Seimbang</string>
     <string name="presentation_batch_f_accuracy_summary_precise">%1$d • Presisi</string>
-
     <!-- Experimental settings -->
     <string name="presentation_batch_f_exp_player_ui_tweaks_section">Penyesuaian pemuatan PlayerUI</string>
     <string name="presentation_batch_f_exp_animated_lyrics_title">Lirik Animasi (Perangkat kelas atas)</string>
@@ -145,13 +148,11 @@
     <string name="presentation_batch_f_album_art_quality_medium_line">Sedang (512px) - Seimbang</string>
     <string name="presentation_batch_f_album_art_quality_high_line">Tinggi (800px) - Kualitas terbaik</string>
     <string name="presentation_batch_f_album_art_quality_original_line">Asli - Kualitas maksimum</string>
-
     <!-- Settings category screen (composables) -->
     <string name="presentation_batch_f_percent">%1$d%%</string>
     <string name="presentation_batch_f_status_bullet_step">%1$s • %2$s</string>
     <string name="presentation_batch_f_dot_space_suffix"> · %1$s</string>
     <string name="presentation_batch_f_unknown_short">\?</string>
-
     <string name="presentation_batch_f_working">Bekerja…</string>
     <string name="presentation_batch_f_phone_number_title">Nomor Telepon</string>
     <string name="presentation_batch_f_phone_number_hint">Nomor telepon</string>
@@ -168,7 +169,6 @@
     <string name="presentation_batch_f_password_label">Kata Sandi</string>
     <string name="presentation_batch_f_verify_password">Verifikasi Kata Sandi</string>
     <string name="presentation_batch_f_please_wait">Harap tunggu…</string>
-
     <string name="presentation_batch_f_add_channel_fab">Tambah Saluran</string>
     <string name="presentation_batch_f_syncing">Menyinkronkan</string>
     <string name="presentation_batch_f_sync_now">Sinkronkan sekarang</string>
@@ -180,13 +180,13 @@
     <string name="presentation_batch_f_fetch_latest_songs">Ambil lagu terbaru dari saluran ini</string>
     <string name="presentation_batch_f_remove_channel">Hapus saluran</string>
     <string name="presentation_batch_f_remove_channel_subtitle">Berhenti menyinkronkan dan hapus lagu yang dicache</string>
+    <string name="presentation_batch_f_remove_channel_confirm_title">Hapus channel?</string>
     <string name="presentation_batch_f_remove_channel_confirm_body">%1$s akan berhenti disinkronkan dan semua lagu cache dari channel ini akan dihapus.</string>
     <string name="presentation_batch_f_remove_channel_confirm_action">Hapus</string>
     <string name="presentation_batch_f_no_channels_synced">Tidak Ada Saluran yang Disinkronkan</string>
     <string name="presentation_batch_f_add_channel_button">Tambah saluran</string>
     <string name="presentation_batch_f_never_synced">Belum pernah disinkronkan</string>
     <string name="presentation_batch_f_synced_relative">Disinkronkan %1$s</string>
-
     <!-- Telegram channel search -->
     <string name="presentation_batch_f_add_channel_sheet_title">Tambah Saluran</string>
     <string name="presentation_batch_f_channel_search_placeholder">\@namasaluran atau tautan</string>
@@ -195,15 +195,34 @@
     <string name="presentation_batch_f_search_channel_title">Cari saluran</string>
     <string name="presentation_batch_f_search_channel_body">Masukkan username atau tautan saluran publik\nuntuk menyinkronkan file audionya</string>
     <string name="presentation_batch_f_done">Selesai</string>
-
     <plurals name="presentation_batch_f_n_songs">
-        <item quantity="one">%d lagu</item>
         <item quantity="other">%d lagu</item>
     </plurals>
     <plurals name="presentation_batch_f_n_topics">
-        <item quantity="one">%d topik</item>
         <item quantity="other">%d topik</item>
     </plurals>
-    <string name="presentation_batch_f_sync_phase_cleaning_cache">Membersihkan cache sampul album...</string>
-    <string name="presentation_batch_f_remove_channel_confirm_title">Hapus channel?</string>
+    <string name="presentation_batch_f_adjust_cover_hint">Use pinch and drag gestures to find the perfect framing</string>
+    <string name="presentation_batch_f_adjust_cover_title">Adjust your cover art</string>
+    <string name="presentation_batch_f_change">Change</string>
+    <string name="presentation_batch_f_edit_cover_title">Edit Cover</string>
+    <string name="presentation_batch_f_remove">Remove</string>
+    <string name="mix_create_title">New mix</string>
+    <string name="mix_name_label">Mix name</string>
+    <string name="mix_name_placeholder">My mix</string>
+    <string name="mix_preset_label">Preset</string>
+    <string name="mix_generation_mode_label">Generation Mode</string>
+    <string name="mix_playlist_size_title">Playlist size</string>
+    <string name="mix_playlist_size_subtitle">Number of songs to generate</string>
+    <string name="mix_artists_label">Artists</string>
+    <string name="mix_artists_hint">Choose one or more artists for this mix.</string>
+    <string name="mix_artists_add">Add artists</string>
+    <string name="mix_artists_search_placeholder">Search artists</string>
+    <string name="mix_artists_empty">No artists in your library yet.</string>
+    <string name="mix_genres_label">Genres</string>
+    <string name="mix_genres_placeholder">Rock, K-Pop, Jazz</string>
+    <string name="mix_genres_hint">Separate genres with commas. Recognized genres become chips.</string>
+    <string name="mix_empty_title">No mixes yet</string>
+    <string name="mix_empty_hint">Create your first mix to get started.</string>
+    <string name="mix_cover_cd">Mix</string>
+    <string name="mix_see_all">See all</string>
 </resources>

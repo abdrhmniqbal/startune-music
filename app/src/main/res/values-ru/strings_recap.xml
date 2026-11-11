@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="recap_card_title">Ваши итоги %1$d</string>
+    <!-- Entry points. %1$d is a calendar year, e.g. 2025. -->
+    <string name="recap_card_title" tools:ignore="PluralsCandidate">Ваши итоги %1$d</string>
     <string name="recap_card_title_so_far">Ваш %1$d: промежуточные итоги</string>
     <string name="recap_card_subtitle">Вспомните свой музыкальный год</string>
     <string name="recap_card_subtitle_so_far">Посмотрите, каким получается ваш музыкальный год</string>
-    <string name="recap_home_card_title">Ваши итоги %1$d уже готовы</string>
+    <string name="recap_home_card_title" tools:ignore="PluralsCandidate">Ваши итоги %1$d уже готовы</string>
     <string name="recap_home_card_subtitle">Вспомните песни, исполнителей и моменты, которыми запомнился ваш год.</string>
     <string name="recap_home_card_open">Открыть итоги</string>
     <string name="recap_home_card_dismiss">Скрыть</string>
+    <!-- Story controls -->
     <string name="recap_cd_close">Закрыть итоги</string>
     <string name="recap_cd_pause">Пауза</string>
     <string name="recap_cd_resume">Продолжить</string>
@@ -16,13 +18,16 @@
     <string name="recap_action_previous_slide">Предыдущий слайд</string>
     <string name="recap_close">Закрыть</string>
     <string name="recap_not_enough_title">Пока недостаточно прослушиваний</string>
-    <string name="recap_not_enough_subtitle">Продолжайте слушать музыку, и ваши итоги %1$d года наполнятся.</string>
+    <string name="recap_not_enough_subtitle" tools:ignore="PluralsCandidate">Продолжайте слушать музыку, и ваши итоги %1$d года наполнятся.</string>
+    <!-- Intro -->
     <string name="recap_intro_kicker">Итоги PixelPlayerOSS</string>
     <string name="recap_intro_title">Ваш год в музыке</string>
     <string name="recap_intro_title_so_far">Ваш год на данный момент</string>
     <string name="recap_intro_subtitle">Оглянемся на песни, исполнителей и моменты, которые звучали в вашем году.</string>
     <string name="recap_tap_hint">Нажмите, чтобы продолжить</string>
-    <string name="recap_minutes_kicker">В %1$d году вы слушали музыку</string>
+    <!-- Listening time -->
+    <string name="recap_minutes_kicker" tools:ignore="PluralsCandidate">В %1$d году вы слушали музыку</string>
+    <!-- Unit shown under the big number of minutes; the number itself is not part of the text. -->
     <plurals name="recap_minutes_unit" tools:ignore="ImpliedQuantity">
         <item quantity="one">минуту</item>
         <item quantity="few">минуты</item>
@@ -43,8 +48,10 @@
     </plurals>
     <string name="recap_minutes_daily_average">В среднем за день</string>
     <string name="recap_minutes_active_days">Дней с музыкой</string>
+    <!-- Months. %1$s is a compact duration, e.g. "32h 10m". -->
     <string name="recap_months_kicker">Ваш самый музыкальный месяц</string>
     <string name="recap_months_detail">%1$s прослушивания</string>
+    <!-- Listening clock -->
     <string name="recap_clock_kicker">Ваши часы прослушивания</string>
     <string name="recap_personality_early_bird">Жаворонок</string>
     <string name="recap_personality_early_bird_desc">Ваш день начинался с музыки. Утро было вашим временем.</string>
@@ -54,11 +61,16 @@
     <string name="recap_personality_evening_desc">Когда день затихал, музыка звучала громче.</string>
     <string name="recap_personality_night_owl">Сова</string>
     <string name="recap_personality_night_owl_desc">Чем позже, тем больше вы слушали.</string>
+    <!-- %1$s is a weekday name, e.g. "Saturday". -->
     <string name="recap_clock_favorite_day">Любимый день: %1$s</string>
+    <!-- Screen reader text for the month and hour charts. %1$s in the chart strings is a list of
+         entries, each built from recap_cd_chart_entry: %1$s is a month or hour, %2$s a duration. -->
     <string name="recap_cd_chart_entry">%1$s: %2$s</string>
     <string name="recap_cd_months_chart">Прослушивание по месяцам: %1$s</string>
     <string name="recap_cd_clock_chart">Прослушивание по часам: %1$s</string>
+    <!-- Dedication -->
     <string name="recap_dedication_kicker">Ваша самая длинная серия</string>
+    <!-- Unit shown under the big number of days; the number itself is not part of the text. -->
     <plurals name="recap_streak_unit" tools:ignore="ImpliedQuantity">
         <item quantity="one">день подряд</item>
         <item quantity="few">дня подряд</item>
@@ -68,11 +80,14 @@
     <string name="recap_dedication_longest_session">Самая долгая сессия</string>
     <string name="recap_dedication_biggest_day">Самый музыкальный день</string>
     <string name="recap_dedication_first_song">Первая песня года</string>
+    <!-- Genres and decade. %1$s is a percentage, e.g. "38%". -->
     <string name="recap_genres_kicker">Ваши любимые жанры</string>
     <string name="recap_genres_share">%1$s всего прослушивания</string>
     <string name="recap_decade_kicker">Ваша эпоха</string>
+    <!-- %1$d is the first year of a decade, e.g. 1990 for "1990s". -->
     <string name="recap_decade_value">%1$d-е</string>
     <string name="recap_decade_detail">На музыку этого десятилетия пришлось %1$s прослушивания.</string>
+    <!-- Top albums, artists and songs -->
     <string name="recap_albums_kicker">Ваши любимые альбомы</string>
     <plurals name="recap_unique_albums">
         <item quantity="one">Всего альбомов: %d</item>
@@ -94,6 +109,7 @@
         <item quantity="many">Всего разных песен: %d</item>
         <item quantity="other">Всего разных песен: %d</item>
     </plurals>
+    <!-- Summary -->
     <string name="recap_summary_kicker">Ваш год вкратце</string>
     <string name="recap_summary_title">Мой музыкальный %1$d</string>
     <string name="recap_summary_title_so_far">Мой %1$d: промежуточные итоги</string>

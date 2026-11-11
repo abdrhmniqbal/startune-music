@@ -2,6 +2,7 @@
 <resources>
     <string name="presentation_batch_g_stats_range_today">Aujourd\'hui</string>
     <string name="presentation_batch_g_stats_range_week_to_date">Semaine en cours</string>
+    <string name="presentation_batch_g_stats_week_label">Week %1$d</string>
     <string name="presentation_batch_g_stats_range_month_to_date">Mois en cours</string>
     <string name="presentation_batch_g_stats_range_year_to_date">Année en cours</string>
     <string name="presentation_batch_g_stats_range_all_time">Depuis toujours</string>
@@ -128,12 +129,14 @@
     <string name="device_capabilities_metric_hw_decoders">Décodeurs matériels</string>
     <string name="device_capabilities_metric_local_music">Titres locaux</string>
     <string name="device_capabilities_storage_title">Stockage musique locale</string>
+    <string name="device_capabilities_storage_internal">Internal storage</string>
     <string name="device_capabilities_storage_music_size">Taille musique</string>
     <string name="device_capabilities_storage_music_count">%1$d titres locaux</string>
     <string name="device_capabilities_storage_available">Disponible</string>
     <string name="device_capabilities_storage_total">%1$s au total</string>
     <string name="device_capabilities_storage_music_footprint">Empreinte musique</string>
     <string name="device_capabilities_storage_device_used">Appareil utilisé</string>
+    <string name="device_capabilities_storage_app_data">App Data</string>
     <string name="device_capabilities_storage_percent">%1$d%%</string>
     <string name="device_capabilities_storage_less_than_one_percent">&lt;1%</string>
     <string name="device_capabilities_storage_cloud_count">%1$d titres cloud</string>
@@ -184,13 +187,19 @@
     <string name="presentation_batch_g_artist_item_word_delimiters">Délimiteurs de mots</string>
     <string name="presentation_batch_g_artist_word_none">Aucun</string>
     <string name="presentation_batch_g_artist_word_current_prefix">Actuel : %1$s</string>
+    <string name="presentation_batch_g_artist_item_unsplit_artists">Artists to Never Split</string>
     <string name="presentation_batch_g_artist_word_ellipsis">…</string>
     <string name="presentation_batch_g_artist_cd_configure">Configurer</string>
     <string name="presentation_batch_g_artist_extract_from_title">Extraire les artistes du titre</string>
     <string name="presentation_batch_g_artist_extract_from_title_sub">Détecter feat., ft., with dans les titres de chansons</string>
+    <string name="presentation_batch_g_genre_section">Genres</string>
+    <string name="presentation_batch_g_genre_item_split_symbols">Genre Split Symbols</string>
+    <string name="presentation_batch_g_genre_item_unsplit_genres">Genres to Never Split</string>
     <string name="presentation_batch_g_artist_section_library_org">Organisation de la bibliothèque</string>
     <string name="presentation_batch_g_artist_group_by_album_artist">Grouper par artiste de l\'album</string>
     <string name="presentation_batch_g_artist_group_by_album_artist_sub">Afficher les albums de collaboration sous l\'artiste principal</string>
+    <string name="presentation_batch_g_artist_case_sensitive">Case-sensitive artists</string>
+    <string name="presentation_batch_g_artist_case_sensitive_sub">Artists that differ only by letter case stay separate</string>
     <string name="presentation_batch_g_artist_info_title">À propos de l\'analyse multi-artistes</string>
     <string name="presentation_batch_g_artist_info_body">PixelPlayerOSS sépare les balises d\'artistes à l\'aide de délimiteurs de caractères (/, ;, &amp;) et de délimiteurs de mots (feat., ft., vs., x). Les délimiteurs de mots ne sont pas sensibles à la casse.
 
@@ -271,6 +280,7 @@ La barre oblique inverse (\) permet d\'échapper les délimiteurs de caractères
     <string name="presentation_batch_g_lyrics_offset_plus_point_one">+.1</string>
     <string name="presentation_batch_g_lyrics_offset_plus_half">+.5</string>
     <string name="presentation_batch_g_lyrics_offset_zero">0s</string>
+    <!-- Formatted with getString(..., floatSeconds) -->
     <string name="presentation_batch_g_lyrics_offset_seconds_fmt">%1$+.1fs</string>
     <string name="presentation_batch_g_playstore_open">Ouvrir le Play Store</string>
     <string name="presentation_batch_g_playstore_continue_beta">Continuer la bêta</string>
@@ -289,6 +299,29 @@ La barre oblique inverse (\) permet d\'échapper les délimiteurs de caractères
     <string name="presentation_batch_g_cd_selected">Sélectionné</string>
     <string name="presentation_batch_g_changelog_title">Journal des modifications</string>
     <string name="presentation_batch_g_changelog_view_github">Voir sur GitHub</string>
+    <string name="presentation_batch_g_changelog_error">Couldn\'t load the changelog. Check your connection and try again.</string>
+    <string name="presentation_batch_g_changelog_retry">Retry</string>
+    <string name="presentation_batch_g_changelog_empty">No releases yet.</string>
+    <string name="presentation_batch_g_changelog_no_release_notes">No release notes for this version.</string>
+    <string name="presentation_batch_g_changelog_prerelease">Pre-release</string>
+    <string name="update_notification_title">Startune Music update available</string>
+    <string name="update_notification_body">Version %1$s is available (you have %2$s).</string>
+    <string name="update_download_title">Downloading update</string>
+    <string name="update_downloading">Downloading\u2026 %1$d%%</string>
+    <string name="update_downloaded_title">Update downloaded</string>
+    <string name="update_downloaded_body">Tap to install Startune Music %1$s.</string>
+    <string name="update_sheet_title">Update available</string>
+    <string name="update_download_and_install">Download and install</string>
+    <string name="update_install">Install</string>
+    <string name="update_later">Later</string>
+    <string name="update_dont_remind">Don\'t remind me for this version</string>
+    <string name="update_download_failed">Download failed. Try again.</string>
+    <string name="update_up_to_date">You\'re up to date.</string>
+    <string name="update_check_failed">Couldn\'t check for updates. Try again.</string>
+    <string name="update_view_on_github">View on GitHub</string>
+    <string name="update_enable_install">Enable \"Install unknown apps\" to install the update.</string>
+    <string name="about_check_for_updates_title">Check for updates</string>
+    <string name="about_check_for_updates_subtitle">Version %1$s</string>
     <string name="presentation_batch_g_presets_saved_title">Préréglages enregistrés</string>
     <string name="presentation_batch_g_presets_empty">Aucun préréglage personnalisé enregistré pour l\'instant.</string>
     <string name="presentation_batch_g_presets_cd_unpin">Détacher</string>
@@ -303,10 +336,69 @@ La barre oblique inverse (\) permet d\'échapper les délimiteurs de caractères
     <string name="presentation_batch_g_beta_sheet_expect_2">Support d\'appareils plus large : Android Auto, améliorations Wear OS et fiabilité Cast renforcée.</string>
     <string name="presentation_batch_g_beta_sheet_expect_3">Écosystème cloud élargi : playlists Telegram, sync NetEase Music, QQ Music et mises à jour du streaming Google Drive.</string>
     <string name="presentation_batch_g_beta_sheet_expect_4">Grande passe de fiabilité : logique file d\'attente/aléatoire, comportement de lecture en arrière-plan et nombreuses corrections d\'interface.</string>
-    <string name="presentation_batch_g_beta_sheet_report_title">Signaler un problème</string>
-    <string name="presentation_batch_g_beta_sheet_report_body">Partagez les étapes de reproduction, le résultat attendu, le résultat actuel et les détails de votre appareil/OS. Une courte capture d\'écran est très utile.</string>
+    <string name="presentation_batch_g_beta_sheet_expect_summary">Les versions bêta peuvent changer, s\'interrompre ou s\'améliorer pendant les tests.</string>
+    <string name="presentation_batch_g_beta_sheet_github_title">Raccourci du problème GitHub</string>
+    <string name="presentation_batch_g_beta_sheet_github_body">Recherchez d\'abord, puis ouvrez un rapport ciblé sur les bogues, les plantages, les demandes ou les questions.</string>
     <string name="presentation_batch_g_beta_sheet_open_issues">Ouvrir les issues GitHub</string>
     <string name="presentation_batch_g_beta_sheet_report_bug">Signaler un bug</string>
+    <string name="presentation_batch_g_beta_sheet_report_body">Partagez les étapes de reproduction, le résultat attendu, le résultat actuel et les détails de votre appareil/OS. Une courte capture d\'écran est très utile.</string>
+    <string name="presentation_batch_g_beta_sheet_report_title">Signaler un problème</string>
+    <string name="presentation_batch_g_beta_sheet_report_summary">Une liste de contrôle rapide avant d\'ouvrir un nouveau numéro.</string>
+    <string name="presentation_batch_g_beta_sheet_before_title">Avant d\'ouvrir un numéro</string>
+    <string name="presentation_batch_g_beta_sheet_before_1">Recherchez les problèmes ouverts et fermés existants pour éviter les doublons.</string>
+    <string name="presentation_batch_g_beta_sheet_before_2">Passez à la dernière version de PixelPlayerOSS et vérifiez que le problème persiste.</string>
+    <string name="presentation_batch_g_beta_sheet_before_3">Redémarrez l\'application et confirmez que le problème persiste.</string>
+    <string name="presentation_batch_g_beta_sheet_before_4">Essayez de le reproduire et notez les étapes exactes.</string>
+    <string name="presentation_batch_g_beta_sheet_issue_type_title">Quel type de problème ?</string>
+    <string name="presentation_batch_g_beta_sheet_issue_type_bug">Rapport de bug : quelque chose ne se comporte pas correctement.</string>
+    <string name="presentation_batch_g_beta_sheet_issue_type_feature">Demande de fonctionnalité : ajoutez une nouvelle fonctionnalité ou une amélioration.</string>
+    <string name="presentation_batch_g_beta_sheet_issue_type_question">Question : utilisez Discussions si cette option est activée ou ouvrez un problème avec une étiquette de question.</string>
+    <string name="presentation_batch_g_beta_sheet_bug_title">Rapport de bug</string>
+    <string name="presentation_batch_g_beta_sheet_bug_summary_text">Copiez ces champs lorsque quelque chose se comporte incorrectement ou plante.</string>
+    <string name="presentation_batch_g_beta_sheet_bug_template_title">Rapport de bug</string>
+    <string name="presentation_batch_g_beta_sheet_bug_summary">Bref résumé :</string>
+    <string name="presentation_batch_g_beta_sheet_bug_expected">Comportement attendu :</string>
+    <string name="presentation_batch_g_beta_sheet_bug_actual">Comportement actuel :</string>
+    <string name="presentation_batch_g_beta_sheet_bug_steps">Étapes pour jouer/reproduire : 1. 2. 3.</string>
+    <string name="presentation_batch_g_beta_sheet_bug_frequency">À quelle fréquence cela arrive-t-il ? Toujours / Parfois / Rarement.</string>
+    <string name="presentation_batch_g_beta_sheet_bug_screenshot">Capture d\'écran/vidéo : si disponible.</string>
+    <string name="presentation_batch_g_beta_sheet_bug_logs">Journaux/trace de pile : si disponible.</string>
+    <string name="presentation_batch_g_beta_sheet_env_title">Environnement</string>
+    <string name="presentation_batch_g_beta_sheet_env_version">Version de PixelPlayerOSS :</string>
+    <string name="presentation_batch_g_beta_sheet_env_source">Source d\'installation : version GitHub, version de débogage, version nocturne, etc.</string>
+    <string name="presentation_batch_g_beta_sheet_env_android">Version Android :</string>
+    <string name="presentation_batch_g_beta_sheet_env_device">Modèle d\'appareil :</string>
+    <string name="presentation_batch_g_beta_sheet_env_extra">Contexte supplémentaire : utilisation de la carte SD, paramètres spéciaux, autorisations, etc.</string>
+    <string name="presentation_batch_g_beta_sheet_feature_title">Demande de fonctionnalité</string>
+    <string name="presentation_batch_g_beta_sheet_feature_summary">Copiez ces champs lorsque vous souhaitez une nouvelle fonctionnalité ou une amélioration.</string>
+    <string name="presentation_batch_g_beta_sheet_feature_problem">Énoncé du problème : quel problème essayez-vous de résoudre ?</string>
+    <string name="presentation_batch_g_beta_sheet_feature_solution">Solution proposée : Comment cela devrait-il fonctionner ?</string>
+    <string name="presentation_batch_g_beta_sheet_feature_alternatives">Alternatives envisagées : Existe-t-il d\'autres approches ?</string>
+    <string name="presentation_batch_g_beta_sheet_feature_scope">Périmètre : Quels écrans ou flux sont concernés ?</string>
+    <string name="presentation_batch_g_beta_sheet_feature_mockup">Maquette ou image de référence si disponible.</string>
+    <string name="presentation_batch_g_beta_sheet_quality_title">Titres, confidentialité et portée</string>
+    <string name="presentation_batch_g_beta_sheet_quality_summary">Rendez le rapport facile à trier et à partager en toute sécurité.</string>
+    <string name="presentation_batch_g_beta_sheet_title_examples_title">Titres de bons numéros</string>
+    <string name="presentation_batch_g_beta_sheet_title_example_1">Égaliseur : l\'indicateur se déplace lors du changement d\'onglet prédéfini</string>
+    <string name="presentation_batch_g_beta_sheet_title_example_2">Recherche : la liste d\'historique n\'apparaît pas pour les requêtes vides</string>
+    <string name="presentation_batch_g_beta_sheet_title_example_3">Fonctionnalité : Ajouter une option de tri de playlist « Récemment ajouté »</string>
+    <string name="presentation_batch_g_beta_sheet_avoid_title">Veuillez éviter</string>
+    <string name="presentation_batch_g_beta_sheet_avoid_1">Rapports génériques du type « Ça ne marche pas ».</string>
+    <string name="presentation_batch_g_beta_sheet_avoid_2">Plusieurs problèmes sans rapport dans un seul numéro.</string>
+    <string name="presentation_batch_g_beta_sheet_avoid_3">Journaux non expurgés ou captures d’écran contenant des données privées.</string>
+    <string name="presentation_batch_g_beta_sheet_privacy_title">Note de confidentialité</string>
+    <string name="presentation_batch_g_beta_sheet_privacy_body">Avant de publier des journaux, des captures d\'écran ou des vidéos, supprimez les informations personnelles ou privées.</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_title">Constructions nocturnes</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_summary">En quoi les nightlies diffèrent des sorties et que faut-il inclure lorsqu\'elles sortent.</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_body">Les builds nocturnes sont générés à partir du dernier commit et peuvent contenir des modifications inachevées, des bogues temporaires ou des régressions. Ils sont plus expérimentaux que les versions officielles.</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_access">Accédez-y à partir des artefacts de workflow GitHub Actions du référentiel, si disponibles.</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_report_title">Signaler les problèmes nocturnes</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_report_body">Lorsque vous signalez un problème provenant d\'une version nocturne, mentionnez toujours qu\'il s\'est produit sur une version nocturne, et non sur la version officielle. Incluez la date de construction, le nom ou le numéro d’exécution du flux de travail, ou validez SHA si possible. Vérifiez également si le même problème se produit sur la dernière version officielle.</string>
+    <string name="presentation_batch_g_beta05_title">v1.6.08 Mise à jour</string>
+    <string name="presentation_batch_g_beta05_clean_install_title">Quoi de neuf dans la v1.6.08</string>
+    <string name="presentation_batch_g_beta05_clean_install_body">•</string>
+    <string name="presentation_batch_g_beta05_if_wrong_meta_title">Explorer Actualiser</string>
+    <string name="presentation_batch_g_beta05_if_wrong_meta_body">Profitez de la nouvelle disposition élégante de Material 3 Expressive dans l\'onglet Explorer !</string>
     <string name="presentation_batch_g_beta05_dont_show">Ne plus afficher</string>
     <string name="presentation_batch_g_beta05_got_it">Compris</string>
     <string name="presentation_batch_g_album_sel_count">%1$d ALBUMS</string>
@@ -314,7 +406,6 @@ La barre oblique inverse (\) permet d\'échapper les délimiteurs de caractères
     <string name="presentation_batch_g_album_sel_queue_hint">File d\'attente + lecture respecte l\'ordre de votre sélection.</string>
     <string name="presentation_batch_g_album_sel_limit">Limite : %1$d albums par sélection.</string>
     <string name="presentation_batch_g_album_sel_add_queue_play">Ajouter à la file d\'attente &amp; Lire</string>
-    <string name="presentation_batch_g_app_name">Startune Music</string>
     <string name="presentation_batch_g_app_tagline">Lecteur de musique</string>
     <string name="presentation_batch_g_brick_high">MEILLEUR %1$d</string>
     <string name="presentation_batch_g_brick_cd_close">Fermer</string>
@@ -347,6 +438,11 @@ La barre oblique inverse (\) permet d\'échapper les délimiteurs de caractères
     <string name="presentation_batch_g_backup_cd_select_all">Tout sélectionner</string>
     <string name="presentation_batch_g_backup_cd_clear_selection">Effacer la sélection</string>
     <string name="presentation_batch_g_backup_entries_will_replace">%1$d entrées · Remplacera les données actuelles</string>
+    <string name="presentation_batch_g_backup_warnings_count_single">1 issue found</string>
+    <string name="presentation_batch_g_backup_warnings_count_multiple">%1$d issues found</string>
+    <string name="presentation_batch_g_backup_warnings_expand_hint">Tap to expand failed IDs and warnings</string>
+    <string name="presentation_batch_g_backup_warnings_collapse_hint">Tap to collapse</string>
+    <string name="presentation_batch_g_backup_warnings_collapse_btn">Collapse</string>
     <string name="presentation_batch_g_player_cd_cloud_stream">Stream cloud</string>
     <string name="presentation_batch_g_player_cd_collapse">Réduire le lecteur</string>
     <string name="presentation_batch_g_player_cd_cast">Diffuser</string>
@@ -381,6 +477,8 @@ La barre oblique inverse (\) permet d\'échapper les délimiteurs de caractères
     <string name="presentation_batch_g_cast_cd_refresh_connections">Actualiser les connexions</string>
     <string name="presentation_batch_g_cast_cd_refresh_devices">Actualiser les appareils</string>
     <string name="presentation_batch_g_cast_nearby_devices">Appareils proches</string>
+    <string name="presentation_batch_g_cast_nearby_title">Appareils à proximité</string>
+    <string name="presentation_batch_g_cast_nearby_desc">Nécessaire pour détecter et contrôler les appareils audio Bluetooth connectés.</string>
     <string name="presentation_batch_g_cast_tap_to_connect">Appuyez pour connecter</string>
     <string name="presentation_batch_g_cast_no_devices_yet">Aucun appareil pour l\'instant</string>
     <string name="presentation_batch_g_cast_disconnect">Déconnecter</string>
@@ -408,9 +506,8 @@ La barre oblique inverse (\) permet d\'échapper les délimiteurs de caractères
     <string name="presentation_batch_g_cast_open_bluetooth">Ouvrir le Bluetooth</string>
     <string name="presentation_batch_g_cast_cd_disconnect_icon">Déconnecter</string>
     <string name="presentation_batch_g_cast_connecting_ellipsis">Connexion en cours...</string>
-
-    <string name="presentation_batch_g_changelog_sec_fixes">Corrections</string>
     <string name="presentation_batch_g_changelog_sec_highlights">Points forts</string>
+    <string name="presentation_batch_g_changelog_sec_fixes">Corrections</string>
     <string name="presentation_batch_g_changelog_sec_whats_new_lower">Nouveautés</string>
     <string name="presentation_batch_g_changelog_sec_added">Ajouté</string>
     <string name="presentation_batch_g_changelog_sec_changed">Modifié</string>
@@ -517,74 +614,13 @@ La barre oblique inverse (\) permet d\'échapper les délimiteurs de caractères
         <item>Correction d\'un bug où la notification de lecture ne se fermait pas.</item>
         <item>Correction de plusieurs bugs qui faisaient planter l\'application.</item>
     </string-array>
-
-    <!-- Backfilled translations -->
-    <string name="presentation_batch_g_beta_sheet_expect_summary">Les versions bêta peuvent changer, s\'interrompre ou s\'améliorer pendant les tests.</string>
-    <string name="presentation_batch_g_beta_sheet_github_title">Raccourci du problème GitHub</string>
-    <string name="presentation_batch_g_beta_sheet_github_body">Recherchez d\'abord, puis ouvrez un rapport ciblé sur les bogues, les plantages, les demandes ou les questions.</string>
-    <string name="presentation_batch_g_beta_sheet_report_summary">Une liste de contrôle rapide avant d\'ouvrir un nouveau numéro.</string>
-    <string name="presentation_batch_g_beta_sheet_before_title">Avant d\'ouvrir un numéro</string>
-    <string name="presentation_batch_g_beta_sheet_before_1">Recherchez les problèmes ouverts et fermés existants pour éviter les doublons.</string>
-    <string name="presentation_batch_g_beta_sheet_before_2">Passez à la dernière version de PixelPlayerOSS et vérifiez que le problème persiste.</string>
-    <string name="presentation_batch_g_beta_sheet_before_3">Redémarrez l\'application et confirmez que le problème persiste.</string>
-    <string name="presentation_batch_g_beta_sheet_before_4">Essayez de le reproduire et notez les étapes exactes.</string>
-    <string name="presentation_batch_g_beta_sheet_issue_type_title">Quel type de problème ?</string>
-    <string name="presentation_batch_g_beta_sheet_issue_type_bug">Rapport de bug : quelque chose ne se comporte pas correctement.</string>
-    <string name="presentation_batch_g_beta_sheet_issue_type_feature">Demande de fonctionnalité : ajoutez une nouvelle fonctionnalité ou une amélioration.</string>
-    <string name="presentation_batch_g_beta_sheet_issue_type_question">Question : utilisez Discussions si cette option est activée ou ouvrez un problème avec une étiquette de question.</string>
-    <string name="presentation_batch_g_beta_sheet_bug_title">Rapport de bug</string>
-    <string name="presentation_batch_g_beta_sheet_bug_summary_text">Copiez ces champs lorsque quelque chose se comporte incorrectement ou plante.</string>
-    <string name="presentation_batch_g_beta_sheet_bug_template_title">Rapport de bug</string>
-    <string name="presentation_batch_g_beta_sheet_bug_summary">Bref résumé :</string>
-    <string name="presentation_batch_g_beta_sheet_bug_expected">Comportement attendu :</string>
-    <string name="presentation_batch_g_beta_sheet_bug_actual">Comportement actuel :</string>
-    <string name="presentation_batch_g_beta_sheet_bug_steps">Étapes pour jouer/reproduire : 1. 2. 3.</string>
-    <string name="presentation_batch_g_beta_sheet_bug_frequency">À quelle fréquence cela arrive-t-il ? Toujours / Parfois / Rarement.</string>
-    <string name="presentation_batch_g_beta_sheet_bug_screenshot">Capture d\'écran/vidéo : si disponible.</string>
-    <string name="presentation_batch_g_beta_sheet_bug_logs">Journaux/trace de pile : si disponible.</string>
-    <string name="presentation_batch_g_beta_sheet_env_title">Environnement</string>
-    <string name="presentation_batch_g_beta_sheet_env_version">Version de PixelPlayerOSS :</string>
-    <string name="presentation_batch_g_beta_sheet_env_source">Source d\'installation : version GitHub, version de débogage, version nocturne, etc.</string>
-    <string name="presentation_batch_g_beta_sheet_env_android">Version Android :</string>
-    <string name="presentation_batch_g_beta_sheet_env_device">Modèle d\'appareil :</string>
-    <string name="presentation_batch_g_beta_sheet_env_extra">Contexte supplémentaire : utilisation de la carte SD, paramètres spéciaux, autorisations, etc.</string>
-    <string name="presentation_batch_g_beta_sheet_feature_title">Demande de fonctionnalité</string>
-    <string name="presentation_batch_g_beta_sheet_feature_summary">Copiez ces champs lorsque vous souhaitez une nouvelle fonctionnalité ou une amélioration.</string>
-    <string name="presentation_batch_g_beta_sheet_feature_problem">Énoncé du problème : quel problème essayez-vous de résoudre ?</string>
-    <string name="presentation_batch_g_beta_sheet_feature_solution">Solution proposée : Comment cela devrait-il fonctionner ?</string>
-    <string name="presentation_batch_g_beta_sheet_feature_alternatives">Alternatives envisagées : Existe-t-il d\'autres approches ?</string>
-    <string name="presentation_batch_g_beta_sheet_feature_scope">Périmètre : Quels écrans ou flux sont concernés ?</string>
-    <string name="presentation_batch_g_beta_sheet_feature_mockup">Maquette ou image de référence si disponible.</string>
-    <string name="presentation_batch_g_beta_sheet_quality_title">Titres, confidentialité et portée</string>
-    <string name="presentation_batch_g_beta_sheet_quality_summary">Rendez le rapport facile à trier et à partager en toute sécurité.</string>
-    <string name="presentation_batch_g_beta_sheet_title_examples_title">Titres de bons numéros</string>
-    <string name="presentation_batch_g_beta_sheet_title_example_1">Égaliseur : l\'indicateur se déplace lors du changement d\'onglet prédéfini</string>
-    <string name="presentation_batch_g_beta_sheet_title_example_2">Recherche : la liste d\'historique n\'apparaît pas pour les requêtes vides</string>
-    <string name="presentation_batch_g_beta_sheet_title_example_3">Fonctionnalité : Ajouter une option de tri de playlist « Récemment ajouté »</string>
-    <string name="presentation_batch_g_beta_sheet_avoid_title">Veuillez éviter</string>
-    <string name="presentation_batch_g_beta_sheet_avoid_1">Rapports génériques du type « Ça ne marche pas ».</string>
-    <string name="presentation_batch_g_beta_sheet_avoid_2">Plusieurs problèmes sans rapport dans un seul numéro.</string>
-    <string name="presentation_batch_g_beta_sheet_avoid_3">Journaux non expurgés ou captures d’écran contenant des données privées.</string>
-    <string name="presentation_batch_g_beta_sheet_privacy_title">Note de confidentialité</string>
-    <string name="presentation_batch_g_beta_sheet_privacy_body">Avant de publier des journaux, des captures d\'écran ou des vidéos, supprimez les informations personnelles ou privées.</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_title">Constructions nocturnes</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_summary">En quoi les nightlies diffèrent des sorties et que faut-il inclure lorsqu\'elles sortent.</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_body">Les builds nocturnes sont générés à partir du dernier commit et peuvent contenir des modifications inachevées, des bogues temporaires ou des régressions. Ils sont plus expérimentaux que les versions officielles.</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_access">Accédez-y à partir des artefacts de workflow GitHub Actions du référentiel, si disponibles.</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_report_title">Signaler les problèmes nocturnes</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_report_body">Lorsque vous signalez un problème provenant d\'une version nocturne, mentionnez toujours qu\'il s\'est produit sur une version nocturne, et non sur la version officielle. Incluez la date de construction, le nom ou le numéro d’exécution du flux de travail, ou validez SHA si possible. Vérifiez également si le même problème se produit sur la dernière version officielle.</string>
-    <string name="presentation_batch_g_beta05_title">v1.6.08 Mise à jour</string>
-    <string name="presentation_batch_g_beta05_clean_install_title">Quoi de neuf dans la v1.6.08</string>
-    <string name="presentation_batch_g_beta05_clean_install_body">•</string>
-    <string name="presentation_batch_g_beta05_if_wrong_meta_title">Explorer Actualiser</string>
-    <string name="presentation_batch_g_beta05_if_wrong_meta_body">Profitez de la nouvelle disposition élégante de Material 3 Expressive dans l\'onglet Explorer !</string>
-    <string name="presentation_batch_g_cast_nearby_title">Appareils à proximité</string>
-    <string name="presentation_batch_g_cast_nearby_desc">Nécessaire pour détecter et contrôler les appareils audio Bluetooth connectés.</string>
     <string-array name="presentation_batch_g_changelog_070_highlights">
         <item>Améliorations de l\'intégration de l\'IA et génération de listes de lecture plus intelligente.</item>
         <item>Statistiques d\'écoute enrichies avec des aperçus plus approfondis et de nouvelles visualisations.</item>
         <item>Flux de synchronisation de la bibliothèque amélioré pour tous les fournisseurs cloud.</item>
         <item>Meilleure édition des métadonnées avec prise en charge des pochettes d\'album.</item>
     </string-array>
-
+    <string name="presentation_batch_g_beta_sheet_welcome_body_stable">You\'re running the stable release build. Check the changelog to see what\'s new, and report anything that misbehaves.</string>
+    <string name="presentation_batch_g_topbar_build_debug">Debug</string>
+    <string name="presentation_batch_g_topbar_build_stable">Stable</string>
 </resources>

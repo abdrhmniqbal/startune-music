@@ -2,6 +2,7 @@
 <resources>
     <string name="presentation_batch_g_stats_range_today">Hoje</string>
     <string name="presentation_batch_g_stats_range_week_to_date">Semana até agora</string>
+    <string name="presentation_batch_g_stats_week_label">Week %1$d</string>
     <string name="presentation_batch_g_stats_range_month_to_date">Mês acumulado</string>
     <string name="presentation_batch_g_stats_range_year_to_date">Acumulado no ano</string>
     <string name="presentation_batch_g_stats_range_all_time">Todos os tempos</string>
@@ -88,6 +89,16 @@
     <string name="presentation_batch_g_stats_unique_tracks">Faixas únicas</string>
     <string name="presentation_batch_g_stats_top_three_share_label">3 principais compartilhamentos</string>
     <string name="presentation_batch_g_stats_avatar_placeholder">\?</string>
+    <string name="presentation_batch_g_stats_hero_per_day">%1$s / day</string>
+    <string name="presentation_batch_g_stats_section_heavy_rotation">Heavy rotation</string>
+    <string name="presentation_batch_g_stats_heavy_rotation_subtitle">What you kept coming back to in this range.</string>
+    <string name="presentation_batch_g_stats_tab_tracks">Tracks</string>
+    <string name="presentation_batch_g_stats_tab_artists">Artists</string>
+    <string name="presentation_batch_g_stats_tab_albums">Albums</string>
+    <string name="presentation_batch_g_stats_tab_genres">Genres</string>
+    <string name="presentation_batch_g_stats_top_pick">Top pick</string>
+    <string name="presentation_batch_g_stats_section_listening_variety">Listening variety</string>
+    <string name="presentation_batch_g_stats_habit_longest_streak">Longest streak</string>
     <string name="presentation_batch_g_device_info_title">Informações do dispositivo</string>
     <string name="presentation_batch_g_device_supported_codecs_title">Codecs de áudio suportados</string>
     <string name="presentation_batch_g_device_section_audio_output">Saída de áudio</string>
@@ -118,12 +129,14 @@
     <string name="device_capabilities_metric_hw_decoders">Descodificadores HW</string>
     <string name="device_capabilities_metric_local_music">Músicas locais</string>
     <string name="device_capabilities_storage_title">Armazenamento local de música</string>
+    <string name="device_capabilities_storage_internal">Internal storage</string>
     <string name="device_capabilities_storage_music_size">Tamanho da música</string>
     <string name="device_capabilities_storage_music_count">Músicas locais %1$d</string>
     <string name="device_capabilities_storage_available">Disponível</string>
     <string name="device_capabilities_storage_total">%1$s total</string>
     <string name="device_capabilities_storage_music_footprint">Pegada musical</string>
     <string name="device_capabilities_storage_device_used">Dispositivo utilizado</string>
+    <string name="device_capabilities_storage_app_data">App Data</string>
     <string name="device_capabilities_storage_percent">%1$d%%</string>
     <string name="device_capabilities_storage_less_than_one_percent">&lt;1%</string>
     <string name="device_capabilities_storage_cloud_count">Músicas na nuvem %1$d</string>
@@ -174,13 +187,19 @@
     <string name="presentation_batch_g_artist_item_word_delimiters">Delimitadores de palavras</string>
     <string name="presentation_batch_g_artist_word_none">Nenhum</string>
     <string name="presentation_batch_g_artist_word_current_prefix">Atual: %1$s</string>
+    <string name="presentation_batch_g_artist_item_unsplit_artists">Artists to Never Split</string>
     <string name="presentation_batch_g_artist_word_ellipsis">…</string>
     <string name="presentation_batch_g_artist_cd_configure">Configurar</string>
     <string name="presentation_batch_g_artist_extract_from_title">Extrair Artistas do Título</string>
     <string name="presentation_batch_g_artist_extract_from_title_sub">Detectar feat., ft., com títulos de músicas</string>
+    <string name="presentation_batch_g_genre_section">Genres</string>
+    <string name="presentation_batch_g_genre_item_split_symbols">Genre Split Symbols</string>
+    <string name="presentation_batch_g_genre_item_unsplit_genres">Genres to Never Split</string>
     <string name="presentation_batch_g_artist_section_library_org">Organização da Biblioteca</string>
     <string name="presentation_batch_g_artist_group_by_album_artist">Agrupar por Artista do Álbum</string>
     <string name="presentation_batch_g_artist_group_by_album_artist_sub">Mostrar álbuns de colaboração sob o artista principal</string>
+    <string name="presentation_batch_g_artist_case_sensitive">Case-sensitive artists</string>
+    <string name="presentation_batch_g_artist_case_sensitive_sub">Artists that differ only by letter case stay separate</string>
     <string name="presentation_batch_g_artist_info_title">Sobre análise multiartista</string>
     <string name="presentation_batch_g_artist_info_body">Startune Music divide tags de artistas usando delimitadores de caracteres (/, ;, &amp;) e delimitadores de palavras (feat., ft., vs., x). Os delimitadores de palavras são correspondidos sem distinção entre maiúsculas e minúsculas.
 
@@ -261,6 +280,7 @@ A barra invertida (\) pode ser usada para escapar dos delimitadores de caractere
     <string name="presentation_batch_g_lyrics_offset_plus_point_one">+.1</string>
     <string name="presentation_batch_g_lyrics_offset_plus_half">+.5</string>
     <string name="presentation_batch_g_lyrics_offset_zero">0s</string>
+    <!-- Formatted with getString(..., floatSeconds) -->
     <string name="presentation_batch_g_lyrics_offset_seconds_fmt">%1$+.1fs</string>
     <string name="presentation_batch_g_playstore_open">Abra a Play Store</string>
     <string name="presentation_batch_g_playstore_continue_beta">Continuar versão beta</string>
@@ -279,6 +299,29 @@ A barra invertida (\) pode ser usada para escapar dos delimitadores de caractere
     <string name="presentation_batch_g_cd_selected">Selecionado</string>
     <string name="presentation_batch_g_changelog_title">Registro de alterações</string>
     <string name="presentation_batch_g_changelog_view_github">Veja no GitHub</string>
+    <string name="presentation_batch_g_changelog_error">Couldn\'t load the changelog. Check your connection and try again.</string>
+    <string name="presentation_batch_g_changelog_retry">Retry</string>
+    <string name="presentation_batch_g_changelog_empty">No releases yet.</string>
+    <string name="presentation_batch_g_changelog_no_release_notes">No release notes for this version.</string>
+    <string name="presentation_batch_g_changelog_prerelease">Pre-release</string>
+    <string name="update_notification_title">Startune Music update available</string>
+    <string name="update_notification_body">Version %1$s is available (you have %2$s).</string>
+    <string name="update_download_title">Downloading update</string>
+    <string name="update_downloading">Downloading\u2026 %1$d%%</string>
+    <string name="update_downloaded_title">Update downloaded</string>
+    <string name="update_downloaded_body">Tap to install Startune Music %1$s.</string>
+    <string name="update_sheet_title">Update available</string>
+    <string name="update_download_and_install">Download and install</string>
+    <string name="update_install">Install</string>
+    <string name="update_later">Later</string>
+    <string name="update_dont_remind">Don\'t remind me for this version</string>
+    <string name="update_download_failed">Download failed. Try again.</string>
+    <string name="update_up_to_date">You\'re up to date.</string>
+    <string name="update_check_failed">Couldn\'t check for updates. Try again.</string>
+    <string name="update_view_on_github">View on GitHub</string>
+    <string name="update_enable_install">Enable \"Install unknown apps\" to install the update.</string>
+    <string name="about_check_for_updates_title">Check for updates</string>
+    <string name="about_check_for_updates_subtitle">Version %1$s</string>
     <string name="presentation_batch_g_presets_saved_title">Predefinições salvas</string>
     <string name="presentation_batch_g_presets_empty">Nenhuma predefinição personalizada salva ainda.</string>
     <string name="presentation_batch_g_presets_cd_unpin">Desafixar</string>
@@ -363,7 +406,6 @@ A barra invertida (\) pode ser usada para escapar dos delimitadores de caractere
     <string name="presentation_batch_g_album_sel_queue_hint">Queue + play respeita sua ordem de seleção.</string>
     <string name="presentation_batch_g_album_sel_limit">Limite: álbuns %1$d por seleção.</string>
     <string name="presentation_batch_g_album_sel_add_queue_play">Adicionar à fila e jogar</string>
-    <string name="presentation_batch_g_app_name">PixelMúsica</string>
     <string name="presentation_batch_g_app_tagline">Leitor de música</string>
     <string name="presentation_batch_g_brick_high">ALTO %1$d</string>
     <string name="presentation_batch_g_brick_cd_close">Fechar</string>
@@ -396,6 +438,11 @@ A barra invertida (\) pode ser usada para escapar dos delimitadores de caractere
     <string name="presentation_batch_g_backup_cd_select_all">Selecionar tudo</string>
     <string name="presentation_batch_g_backup_cd_clear_selection">Limpar seleção</string>
     <string name="presentation_batch_g_backup_entries_will_replace">Entradas %1$d · Substituirão os dados atuais</string>
+    <string name="presentation_batch_g_backup_warnings_count_single">1 issue found</string>
+    <string name="presentation_batch_g_backup_warnings_count_multiple">%1$d issues found</string>
+    <string name="presentation_batch_g_backup_warnings_expand_hint">Tap to expand failed IDs and warnings</string>
+    <string name="presentation_batch_g_backup_warnings_collapse_hint">Tap to collapse</string>
+    <string name="presentation_batch_g_backup_warnings_collapse_btn">Collapse</string>
     <string name="presentation_batch_g_player_cd_cloud_stream">Fluxo de nuvem</string>
     <string name="presentation_batch_g_player_cd_collapse">Recolher jogador</string>
     <string name="presentation_batch_g_player_cd_cast">Elenco</string>
@@ -573,5 +620,7 @@ A barra invertida (\) pode ser usada para escapar dos delimitadores de caractere
         <item>Fluxo de sincronização de biblioteca melhorado em todos os provedores de nuvem.</item>
         <item>Melhor edição de metadados com suporte a capas de álbuns.</item>
     </string-array>
-
+    <string name="presentation_batch_g_beta_sheet_welcome_body_stable">You\'re running the stable release build. Check the changelog to see what\'s new, and report anything that misbehaves.</string>
+    <string name="presentation_batch_g_topbar_build_debug">Debug</string>
+    <string name="presentation_batch_g_topbar_build_stable">Stable</string>
 </resources>

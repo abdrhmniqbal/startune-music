@@ -15,7 +15,6 @@
     <string name="presentation_batch_b_accounts_no_linked_body">Connectez un fournisseur pour le gérer depuis cet écran.</string>
     <string name="presentation_batch_b_accounts_connect_service">Connecter %1$s</string>
     <string name="presentation_batch_b_accounts_service_paren_coming_soon">%1$s (Bientôt disponible)</string>
-
     <!-- PlaylistDetailScreen -->
     <string name="presentation_batch_b_sort_songs">Trier les chansons</string>
     <string name="presentation_batch_b_more_options">Plus d\'options</string>
@@ -34,14 +33,25 @@
     <string name="presentation_batch_b_delete_playlist">Supprimer la liste de lecture</string>
     <string name="presentation_batch_b_set_default_transition">Définir la transition par défaut</string>
     <string name="presentation_batch_b_export_playlist">Exporter la liste de lecture</string>
+    <string name="presentation_batch_b_export_as_m3u">Exporter au format M3U</string>
+    <string name="presentation_batch_b_export_as_m3u_desc">Fichier de liste de lecture pour les lecteurs multimédias</string>
+    <string name="presentation_batch_b_export_as_csv">Exporter au format CSV</string>
+    <string name="presentation_batch_b_export_as_csv_desc">Compatible avec les feuilles de calcul, facile à importer</string>
+    <string name="presentation_batch_b_export_save">Enregistrer</string>
+    <string name="presentation_batch_b_export_share">Partager</string>
+    <string name="presentation_batch_b_import_playlist">Importer une liste de lecture</string>
+    <string name="presentation_batch_b_import_m3u">Importer M3U</string>
+    <string name="presentation_batch_b_import_csv">Importer un fichier CSV</string>
+    <string name="presentation_batch_b_importing">Importation d\'une liste de lecture</string>
+    <string name="presentation_batch_b_import_progress">Importation de la piste %1$d de %2$d</string>
+    <string name="presentation_batch_b_resolving">Résoudre les métadonnées en ligne…</string>
+    <string name="presentation_batch_b_download_playlist">Télécharger la liste de lecture</string>
     <string name="presentation_batch_b_delete_playlist_confirm_title">Supprimer la liste de lecture ?</string>
     <string name="presentation_batch_b_delete_playlist_confirm_body">Êtes-vous sûr de vouloir supprimer cette liste de lecture ?</string>
     <string name="presentation_batch_b_rename_playlist_dialog_title">Renommer la liste de lecture</string>
     <string name="presentation_batch_b_new_name">Nouveau nom</string>
-
     <!-- DailyMixScreen -->
     <string name="presentation_batch_b_daily_mix_title">Daily Mix</string>
-
     <!-- QuickFillScreen -->
     <string name="presentation_batch_b_quick_fill_select_songs">Sélectionner des chansons</string>
     <string name="presentation_batch_b_quick_fill_choose_genre">Choisir un genre</string>
@@ -56,42 +66,27 @@
     <string name="presentation_batch_b_add_custom_genre_title">Ajouter un genre personnalisé</string>
     <string name="presentation_batch_b_genre_name_label">Nom du genre</string>
     <string name="presentation_batch_b_select_icon">Sélectionner l\'icône</string>
-
     <!-- RecentlyPlayedScreen -->
     <string name="presentation_batch_b_recently_played_title">Écoutés récemment</string>
     <string name="presentation_batch_b_play_latest">Lire les plus récents</string>
     <string name="presentation_batch_b_recent_empty_title">Aucune écoute récente dans %1$s</string>
     <string name="presentation_batch_b_recent_empty_subtitle">Changez la période ou écoutez plus de chansons pour remplir cette chronologie.</string>
     <string name="presentation_batch_b_queue_recently_played">Écoutés récemment</string>
+    <string name="presentation_batch_b_queue_recently_added">Recently Added</string>
+    <string name="presentation_batch_b_queue_favorites_to_revisit">Favorites to Revisit</string>
+    <string name="presentation_batch_b_queue_fresh_finds">Fresh finds</string>
     <string name="presentation_batch_b_date_today">Aujourd\'hui</string>
     <string name="presentation_batch_b_date_yesterday">Hier</string>
-
     <!-- NavBarCornerRadiusScreen -->
     <string name="presentation_batch_b_navbar_adjust_title">Ajuster le rayon des angles</string>
     <string name="presentation_batch_b_navbar_adjust_subtitle">Faites correspondre les angles de la barre de navigation avec les angles physiques de votre appareil pour un aspect homogène.</string>
     <string name="presentation_batch_b_corner_radius_label">Rayon des angles</string>
     <string name="presentation_batch_b_corner_dp_format">%1$d dp</string>
-
     <!-- GenreDetailScreen -->
     <string name="presentation_batch_b_genre_shuffle_label">Aléatoire %1$s</string>
-
     <plurals name="presentation_batch_b_songs_dot_duration">
         <item quantity="one">%1$d chanson • %2$s</item>
         <item quantity="other">%1$d chansons • %2$s</item>
     </plurals>
-
-    <!-- Backfilled translations -->
-    <string name="presentation_batch_b_export_as_m3u">Exporter au format M3U</string>
-    <string name="presentation_batch_b_export_as_m3u_desc">Fichier de liste de lecture pour les lecteurs multimédias</string>
-    <string name="presentation_batch_b_export_as_csv">Exporter au format CSV</string>
-    <string name="presentation_batch_b_export_as_csv_desc">Compatible avec les feuilles de calcul, facile à importer</string>
-    <string name="presentation_batch_b_export_save">Enregistrer</string>
-    <string name="presentation_batch_b_export_share">Partager</string>
-    <string name="presentation_batch_b_import_playlist">Importer une liste de lecture</string>
-    <string name="presentation_batch_b_import_m3u">Importer M3U</string>
-    <string name="presentation_batch_b_import_csv">Importer un fichier CSV</string>
-    <string name="presentation_batch_b_importing">Importation d\'une liste de lecture</string>
-    <string name="presentation_batch_b_import_progress">Importation de la piste %1$d de %2$d</string>
-    <string name="presentation_batch_b_resolving">Résoudre les métadonnées en ligne…</string>
-    <string name="presentation_batch_b_download_playlist">Télécharger la liste de lecture</string>
+    <string name="presentation_batch_b_playlist_empty_mix_body">No songs match this mix yet.</string>
 </resources>

@@ -2,6 +2,7 @@
 <resources>
     <string name="presentation_batch_g_stats_range_today">Heute</string>
     <string name="presentation_batch_g_stats_range_week_to_date">Diese Woche</string>
+    <string name="presentation_batch_g_stats_week_label">Week %1$d</string>
     <string name="presentation_batch_g_stats_range_month_to_date">Dieser Monat</string>
     <string name="presentation_batch_g_stats_range_year_to_date">Dieses Jahr</string>
     <string name="presentation_batch_g_stats_range_all_time">Gesamt</string>
@@ -128,12 +129,14 @@
     <string name="device_capabilities_metric_hw_decoders">HW-Decoder</string>
     <string name="device_capabilities_metric_local_music">Lokale Songs</string>
     <string name="device_capabilities_storage_title">Lokaler Musikspeicher</string>
+    <string name="device_capabilities_storage_internal">Internal storage</string>
     <string name="device_capabilities_storage_music_size">Musikgröße</string>
     <string name="device_capabilities_storage_music_count">%1$d lokale Songs</string>
     <string name="device_capabilities_storage_available">Verfügbar</string>
     <string name="device_capabilities_storage_total">%1$s gesamt</string>
     <string name="device_capabilities_storage_music_footprint">Musik-Speicherbedarf</string>
     <string name="device_capabilities_storage_device_used">Gerät genutzt</string>
+    <string name="device_capabilities_storage_app_data">App Data</string>
     <string name="device_capabilities_storage_percent">%1$d%%</string>
     <string name="device_capabilities_storage_less_than_one_percent">&lt;1%</string>
     <string name="device_capabilities_storage_cloud_count">%1$d Cloud-Songs</string>
@@ -184,13 +187,19 @@
     <string name="presentation_batch_g_artist_item_word_delimiters">Wort-Trennzeichen</string>
     <string name="presentation_batch_g_artist_word_none">Keine</string>
     <string name="presentation_batch_g_artist_word_current_prefix">Aktuell: %1$s</string>
+    <string name="presentation_batch_g_artist_item_unsplit_artists">Artists to Never Split</string>
     <string name="presentation_batch_g_artist_word_ellipsis">…</string>
     <string name="presentation_batch_g_artist_cd_configure">Konfigurieren</string>
     <string name="presentation_batch_g_artist_extract_from_title">Künstler aus Titel extrahieren</string>
     <string name="presentation_batch_g_artist_extract_from_title_sub">feat., ft., with in Songtiteln erkennen</string>
+    <string name="presentation_batch_g_genre_section">Genres</string>
+    <string name="presentation_batch_g_genre_item_split_symbols">Genre Split Symbols</string>
+    <string name="presentation_batch_g_genre_item_unsplit_genres">Genres to Never Split</string>
     <string name="presentation_batch_g_artist_section_library_org">Bibliotheksorganisation</string>
     <string name="presentation_batch_g_artist_group_by_album_artist">Nach Album-Künstler gruppieren</string>
     <string name="presentation_batch_g_artist_group_by_album_artist_sub">Kollaborations-Alben unter dem Hauptkünstler anzeigen</string>
+    <string name="presentation_batch_g_artist_case_sensitive">Case-sensitive artists</string>
+    <string name="presentation_batch_g_artist_case_sensitive_sub">Artists that differ only by letter case stay separate</string>
     <string name="presentation_batch_g_artist_info_title">Über Mehrkünstler-Parsing</string>
     <string name="presentation_batch_g_artist_info_body">PixelPlayerOSS teilt Künstler-Tags anhand von Zeichen-Trennzeichen (/, ;, &amp;) und Wort-Trennzeichen (feat., ft., vs., x). Bei Wort-Trennzeichen wird die Groß-/Kleinschreibung nicht beachtet.
 
@@ -271,6 +280,7 @@ Mit einem Backslash (\) lassen sich Zeichen-Trennzeichen maskieren.</string>
     <string name="presentation_batch_g_lyrics_offset_plus_point_one">+.1</string>
     <string name="presentation_batch_g_lyrics_offset_plus_half">+.5</string>
     <string name="presentation_batch_g_lyrics_offset_zero">0s</string>
+    <!-- Formatted with getString(..., floatSeconds) -->
     <string name="presentation_batch_g_lyrics_offset_seconds_fmt">%1$+.1fs</string>
     <string name="presentation_batch_g_playstore_open">Im Play Store öffnen</string>
     <string name="presentation_batch_g_playstore_continue_beta">Beta fortsetzen</string>
@@ -289,6 +299,29 @@ Mit einem Backslash (\) lassen sich Zeichen-Trennzeichen maskieren.</string>
     <string name="presentation_batch_g_cd_selected">Ausgewählt</string>
     <string name="presentation_batch_g_changelog_title">Changelog</string>
     <string name="presentation_batch_g_changelog_view_github">Auf GitHub anzeigen</string>
+    <string name="presentation_batch_g_changelog_error">Couldn\'t load the changelog. Check your connection and try again.</string>
+    <string name="presentation_batch_g_changelog_retry">Retry</string>
+    <string name="presentation_batch_g_changelog_empty">No releases yet.</string>
+    <string name="presentation_batch_g_changelog_no_release_notes">No release notes for this version.</string>
+    <string name="presentation_batch_g_changelog_prerelease">Pre-release</string>
+    <string name="update_notification_title">Startune Music update available</string>
+    <string name="update_notification_body">Version %1$s is available (you have %2$s).</string>
+    <string name="update_download_title">Downloading update</string>
+    <string name="update_downloading">Downloading\u2026 %1$d%%</string>
+    <string name="update_downloaded_title">Update downloaded</string>
+    <string name="update_downloaded_body">Tap to install Startune Music %1$s.</string>
+    <string name="update_sheet_title">Update available</string>
+    <string name="update_download_and_install">Download and install</string>
+    <string name="update_install">Install</string>
+    <string name="update_later">Later</string>
+    <string name="update_dont_remind">Don\'t remind me for this version</string>
+    <string name="update_download_failed">Download failed. Try again.</string>
+    <string name="update_up_to_date">You\'re up to date.</string>
+    <string name="update_check_failed">Couldn\'t check for updates. Try again.</string>
+    <string name="update_view_on_github">View on GitHub</string>
+    <string name="update_enable_install">Enable \"Install unknown apps\" to install the update.</string>
+    <string name="about_check_for_updates_title">Check for updates</string>
+    <string name="about_check_for_updates_subtitle">Version %1$s</string>
     <string name="presentation_batch_g_presets_saved_title">Gespeicherte Presets</string>
     <string name="presentation_batch_g_presets_empty">Noch keine eigenen Presets gespeichert.</string>
     <string name="presentation_batch_g_presets_cd_unpin">Lösen</string>
@@ -303,10 +336,69 @@ Mit einem Backslash (\) lassen sich Zeichen-Trennzeichen maskieren.</string>
     <string name="presentation_batch_g_beta_sheet_expect_2">Breitere Geräteunterstützung: Android Auto, Wear OS-Updates und stabileres Cast.</string>
     <string name="presentation_batch_g_beta_sheet_expect_3">Erweitertes Cloud-Ökosystem: Telegram-Playlists, NetEase-Sync, QQ Music und Google Drive-Updates.</string>
     <string name="presentation_batch_g_beta_sheet_expect_4">Großer Stabilitätspass: Queue/Shuffle-Logik, Hintergrundwiedergabe und viele UI-Fixes.</string>
-    <string name="presentation_batch_g_beta_sheet_report_title">Problem melden</string>
-    <string name="presentation_batch_g_beta_sheet_report_body">Reproduktionsschritte, erwartetes/tatsächliches Ergebnis und Gerät/OS angeben. Eine kurze Bildschirmaufnahme hilft sehr.</string>
+    <string name="presentation_batch_g_beta_sheet_expect_summary">Welche Beta-Builds sich während des Tests ändern, kaputt gehen oder verbessert werden können.</string>
+    <string name="presentation_batch_g_beta_sheet_github_title">GitHub-Problemverknüpfung</string>
+    <string name="presentation_batch_g_beta_sheet_github_body">Suchen Sie zuerst und öffnen Sie dann einen gezielten Bericht nach Fehlern, Abstürzen, Anfragen oder Fragen.</string>
     <string name="presentation_batch_g_beta_sheet_open_issues">GitHub Issues öffnen</string>
     <string name="presentation_batch_g_beta_sheet_report_bug">Bug melden</string>
+    <string name="presentation_batch_g_beta_sheet_report_body">Reproduktionsschritte, erwartetes/tatsächliches Ergebnis und Gerät/OS angeben. Eine kurze Bildschirmaufnahme hilft sehr.</string>
+    <string name="presentation_batch_g_beta_sheet_report_title">Problem melden</string>
+    <string name="presentation_batch_g_beta_sheet_report_summary">Eine kurze Checkliste vor dem Öffnen einer neuen Ausgabe.</string>
+    <string name="presentation_batch_g_beta_sheet_before_title">Vor dem Öffnen einer Ausgabe</string>
+    <string name="presentation_batch_g_beta_sheet_before_1">Durchsuchen Sie vorhandene offene und geschlossene Probleme, um Duplikate zu vermeiden.</string>
+    <string name="presentation_batch_g_beta_sheet_before_2">Aktualisiere auf die neueste PixelPlayerOSS-Version und prüfe, ob das Problem weiterhin auftritt.</string>
+    <string name="presentation_batch_g_beta_sheet_before_3">Starten Sie die App neu und stellen Sie sicher, dass das Problem weiterhin besteht.</string>
+    <string name="presentation_batch_g_beta_sheet_before_4">Versuchen Sie es zu reproduzieren und schreiben Sie die genauen Schritte auf.</string>
+    <string name="presentation_batch_g_beta_sheet_issue_type_title">Welcher Problemtyp?</string>
+    <string name="presentation_batch_g_beta_sheet_issue_type_bug">Fehlerbericht: Etwas verhält sich falsch.</string>
+    <string name="presentation_batch_g_beta_sheet_issue_type_feature">Funktionsanfrage: Fügen Sie eine neue Funktion oder Verbesserung hinzu.</string>
+    <string name="presentation_batch_g_beta_sheet_issue_type_question">Frage: Verwenden Sie Diskussionen, falls aktiviert, oder öffnen Sie ein Problem mit einer Fragebezeichnung.</string>
+    <string name="presentation_batch_g_beta_sheet_bug_title">Fehlerbericht</string>
+    <string name="presentation_batch_g_beta_sheet_bug_summary_text">Kopieren Sie diese Felder, wenn sich etwas falsch verhält oder abstürzt.</string>
+    <string name="presentation_batch_g_beta_sheet_bug_template_title">Fehlerbericht</string>
+    <string name="presentation_batch_g_beta_sheet_bug_summary">Kurze Zusammenfassung:</string>
+    <string name="presentation_batch_g_beta_sheet_bug_expected">Erwartetes Verhalten:</string>
+    <string name="presentation_batch_g_beta_sheet_bug_actual">Aktuelles Verhalten:</string>
+    <string name="presentation_batch_g_beta_sheet_bug_steps">Schritte zum Abspielen/Wiedergeben: 1. 2. 3.</string>
+    <string name="presentation_batch_g_beta_sheet_bug_frequency">Wie oft kommt es vor? Immer / Manchmal / Selten.</string>
+    <string name="presentation_batch_g_beta_sheet_bug_screenshot">Screenshot/Video: falls verfügbar.</string>
+    <string name="presentation_batch_g_beta_sheet_bug_logs">Protokolle/Stack-Trace: falls verfügbar.</string>
+    <string name="presentation_batch_g_beta_sheet_env_title">Umwelt</string>
+    <string name="presentation_batch_g_beta_sheet_env_version">PixelPlayerOSS-Version:</string>
+    <string name="presentation_batch_g_beta_sheet_env_source">Installationsquelle: GitHub-Release, Debug-Build, Nightly Build usw.</string>
+    <string name="presentation_batch_g_beta_sheet_env_android">Android-Version:</string>
+    <string name="presentation_batch_g_beta_sheet_env_device">Gerätemodell:</string>
+    <string name="presentation_batch_g_beta_sheet_env_extra">Zusätzlicher Kontext: SD-Kartennutzung, spezielle Einstellungen, Berechtigungen usw.</string>
+    <string name="presentation_batch_g_beta_sheet_feature_title">Funktionsanfrage</string>
+    <string name="presentation_batch_g_beta_sheet_feature_summary">Kopieren Sie diese Felder, wenn Sie eine neue Funktion oder Verbesserung wünschen.</string>
+    <string name="presentation_batch_g_beta_sheet_feature_problem">Problemstellung: Welches Problem versuchen Sie zu lösen?</string>
+    <string name="presentation_batch_g_beta_sheet_feature_solution">Lösungsvorschlag: Wie soll es funktionieren?</string>
+    <string name="presentation_batch_g_beta_sheet_feature_alternatives">In Betracht gezogene Alternativen: Gibt es andere Ansätze?</string>
+    <string name="presentation_batch_g_beta_sheet_feature_scope">Geltungsbereich: Welche Bildschirme oder Flows sind betroffen?</string>
+    <string name="presentation_batch_g_beta_sheet_feature_mockup">Modell oder Referenzbild, falls verfügbar.</string>
+    <string name="presentation_batch_g_beta_sheet_quality_title">Titel, Datenschutz und Geltungsbereich</string>
+    <string name="presentation_batch_g_beta_sheet_quality_summary">Machen Sie den Bericht einfach zu selektieren und sicher zu teilen.</string>
+    <string name="presentation_batch_g_beta_sheet_title_examples_title">Gute Ausgabetitel</string>
+    <string name="presentation_batch_g_beta_sheet_title_example_1">Equalizer: Die Anzeige verschiebt sich beim Wechseln der voreingestellten Registerkarten</string>
+    <string name="presentation_batch_g_beta_sheet_title_example_2">Suche: Verlaufsliste wird für leere Abfrage</string>
+    <string name="presentation_batch_g_beta_sheet_title_example_3">nicht angezeigt Funktion: Sortieroption für Playlists „Zuletzt hinzugefügt“ hinzufügen</string>
+    <string name="presentation_batch_g_beta_sheet_avoid_title">Bitte vermeiden Sie</string>
+    <string name="presentation_batch_g_beta_sheet_avoid_1">Allgemeine Berichte wie „Es funktioniert nicht“.</string>
+    <string name="presentation_batch_g_beta_sheet_avoid_2">Mehrere unabhängige Probleme in einem Problem.</string>
+    <string name="presentation_batch_g_beta_sheet_avoid_3">Nicht redigierte Protokolle oder Screenshots mit privaten Daten.</string>
+    <string name="presentation_batch_g_beta_sheet_privacy_title">Datenschutzhinweis</string>
+    <string name="presentation_batch_g_beta_sheet_privacy_body">Entfernen Sie persönliche oder private Informationen, bevor Sie Protokolle, Screenshots oder Videos veröffentlichen.</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_title">Nächtliche Builds</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_summary">Wie sich Nightlies von Veröffentlichungen unterscheiden und was bei der Veröffentlichung enthalten sein sollte.</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_body">Nächtliche Builds werden aus dem letzten Commit generiert und können unvollendete Änderungen, vorübergehende Fehler oder Regressionen enthalten. Sie sind experimenteller als offizielle Veröffentlichungen.</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_access">Greifen Sie über die GitHub Actions-Workflow-Artefakte des Repositorys darauf zu, sofern verfügbar.</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_report_title">Nächtliche Probleme melden</string>
+    <string name="presentation_batch_g_beta_sheet_nightly_report_body">Wenn Sie ein Problem mit einem nächtlichen Build melden, erwähnen Sie immer, dass es bei einem nächtlichen Build und nicht bei der offiziellen Veröffentlichung aufgetreten ist. Geben Sie das Erstellungsdatum, den Namen oder die Nummer der Workflow-Ausführung an oder schreiben Sie nach Möglichkeit SHA fest. Überprüfen Sie auch, ob das gleiche Problem bei der neuesten offiziellen Version auftritt.</string>
+    <string name="presentation_batch_g_beta05_title">v1.6.08-Update</string>
+    <string name="presentation_batch_g_beta05_clean_install_title">Was ist neu in v1.6.08</string>
+    <string name="presentation_batch_g_beta05_clean_install_body">•</string>
+    <string name="presentation_batch_g_beta05_if_wrong_meta_title">Entdecken, aktualisieren</string>
+    <string name="presentation_batch_g_beta05_if_wrong_meta_body">Genießen Sie das elegante neue Material 3 Expressive-Layout auf der Registerkarte „Erkunden“!</string>
     <string name="presentation_batch_g_beta05_dont_show">Nicht mehr anzeigen</string>
     <string name="presentation_batch_g_beta05_got_it">Verstanden</string>
     <string name="presentation_batch_g_album_sel_count">%1$d ALBEN</string>
@@ -314,7 +406,6 @@ Mit einem Backslash (\) lassen sich Zeichen-Trennzeichen maskieren.</string>
     <string name="presentation_batch_g_album_sel_queue_hint">Queue + Abspielen beachtet die Auswahlreihenfolge.</string>
     <string name="presentation_batch_g_album_sel_limit">Limit: %1$d Alben pro Auswahl.</string>
     <string name="presentation_batch_g_album_sel_add_queue_play">Zur Queue &amp; Abspielen</string>
-    <string name="presentation_batch_g_app_name">Startune Music</string>
     <string name="presentation_batch_g_app_tagline">Musikplayer</string>
     <string name="presentation_batch_g_brick_high">HOCH %1$d</string>
     <string name="presentation_batch_g_brick_cd_close">Schließen</string>
@@ -347,6 +438,11 @@ Mit einem Backslash (\) lassen sich Zeichen-Trennzeichen maskieren.</string>
     <string name="presentation_batch_g_backup_cd_select_all">Alle auswählen</string>
     <string name="presentation_batch_g_backup_cd_clear_selection">Auswahl aufheben</string>
     <string name="presentation_batch_g_backup_entries_will_replace">%1$d Einträge · Aktuelle Daten werden ersetzt</string>
+    <string name="presentation_batch_g_backup_warnings_count_single">1 issue found</string>
+    <string name="presentation_batch_g_backup_warnings_count_multiple">%1$d issues found</string>
+    <string name="presentation_batch_g_backup_warnings_expand_hint">Tap to expand failed IDs and warnings</string>
+    <string name="presentation_batch_g_backup_warnings_collapse_hint">Tap to collapse</string>
+    <string name="presentation_batch_g_backup_warnings_collapse_btn">Collapse</string>
     <string name="presentation_batch_g_player_cd_cloud_stream">Cloud-Stream</string>
     <string name="presentation_batch_g_player_cd_collapse">Player einklappen</string>
     <string name="presentation_batch_g_player_cd_cast">Cast</string>
@@ -410,9 +506,8 @@ Mit einem Backslash (\) lassen sich Zeichen-Trennzeichen maskieren.</string>
     <string name="presentation_batch_g_cast_open_bluetooth">Bluetooth öffnen</string>
     <string name="presentation_batch_g_cast_cd_disconnect_icon">Trennen</string>
     <string name="presentation_batch_g_cast_connecting_ellipsis">Verbinde...</string>
-
-    <string name="presentation_batch_g_changelog_sec_fixes">Fixes</string>
     <string name="presentation_batch_g_changelog_sec_highlights">Highlights</string>
+    <string name="presentation_batch_g_changelog_sec_fixes">Fixes</string>
     <string name="presentation_batch_g_changelog_sec_whats_new_lower">Neu</string>
     <string name="presentation_batch_g_changelog_sec_added">Hinzugefügt</string>
     <string name="presentation_batch_g_changelog_sec_changed">Geändert</string>
@@ -519,72 +614,13 @@ Mit einem Backslash (\) lassen sich Zeichen-Trennzeichen maskieren.</string>
         <item>Bug behoben, bei dem die Wiedergabe-Benachrichtigung nicht gelöscht wurde.</item>
         <item>Mehrere Absturz-Bugs behoben.</item>
     </string-array>
-
-    <!-- Backfilled translations -->
-    <string name="presentation_batch_g_beta_sheet_expect_summary">Welche Beta-Builds sich während des Tests ändern, kaputt gehen oder verbessert werden können.</string>
-    <string name="presentation_batch_g_beta_sheet_github_title">GitHub-Problemverknüpfung</string>
-    <string name="presentation_batch_g_beta_sheet_github_body">Suchen Sie zuerst und öffnen Sie dann einen gezielten Bericht nach Fehlern, Abstürzen, Anfragen oder Fragen.</string>
-    <string name="presentation_batch_g_beta_sheet_report_summary">Eine kurze Checkliste vor dem Öffnen einer neuen Ausgabe.</string>
-    <string name="presentation_batch_g_beta_sheet_before_title">Vor dem Öffnen einer Ausgabe</string>
-    <string name="presentation_batch_g_beta_sheet_before_1">Durchsuchen Sie vorhandene offene und geschlossene Probleme, um Duplikate zu vermeiden.</string>
-    <string name="presentation_batch_g_beta_sheet_before_2">Aktualisiere auf die neueste PixelPlayerOSS-Version und prüfe, ob das Problem weiterhin auftritt.</string>
-    <string name="presentation_batch_g_beta_sheet_before_3">Starten Sie die App neu und stellen Sie sicher, dass das Problem weiterhin besteht.</string>
-    <string name="presentation_batch_g_beta_sheet_before_4">Versuchen Sie es zu reproduzieren und schreiben Sie die genauen Schritte auf.</string>
-    <string name="presentation_batch_g_beta_sheet_issue_type_title">Welcher Problemtyp?</string>
-    <string name="presentation_batch_g_beta_sheet_issue_type_bug">Fehlerbericht: Etwas verhält sich falsch.</string>
-    <string name="presentation_batch_g_beta_sheet_issue_type_feature">Funktionsanfrage: Fügen Sie eine neue Funktion oder Verbesserung hinzu.</string>
-    <string name="presentation_batch_g_beta_sheet_issue_type_question">Frage: Verwenden Sie Diskussionen, falls aktiviert, oder öffnen Sie ein Problem mit einer Fragebezeichnung.</string>
-    <string name="presentation_batch_g_beta_sheet_bug_title">Fehlerbericht</string>
-    <string name="presentation_batch_g_beta_sheet_bug_summary_text">Kopieren Sie diese Felder, wenn sich etwas falsch verhält oder abstürzt.</string>
-    <string name="presentation_batch_g_beta_sheet_bug_template_title">Fehlerbericht</string>
-    <string name="presentation_batch_g_beta_sheet_bug_summary">Kurze Zusammenfassung:</string>
-    <string name="presentation_batch_g_beta_sheet_bug_expected">Erwartetes Verhalten:</string>
-    <string name="presentation_batch_g_beta_sheet_bug_actual">Aktuelles Verhalten:</string>
-    <string name="presentation_batch_g_beta_sheet_bug_steps">Schritte zum Abspielen/Wiedergeben: 1. 2. 3.</string>
-    <string name="presentation_batch_g_beta_sheet_bug_frequency">Wie oft kommt es vor? Immer / Manchmal / Selten.</string>
-    <string name="presentation_batch_g_beta_sheet_bug_screenshot">Screenshot/Video: falls verfügbar.</string>
-    <string name="presentation_batch_g_beta_sheet_bug_logs">Protokolle/Stack-Trace: falls verfügbar.</string>
-    <string name="presentation_batch_g_beta_sheet_env_title">Umwelt</string>
-    <string name="presentation_batch_g_beta_sheet_env_version">PixelPlayerOSS-Version:</string>
-    <string name="presentation_batch_g_beta_sheet_env_source">Installationsquelle: GitHub-Release, Debug-Build, Nightly Build usw.</string>
-    <string name="presentation_batch_g_beta_sheet_env_android">Android-Version:</string>
-    <string name="presentation_batch_g_beta_sheet_env_device">Gerätemodell:</string>
-    <string name="presentation_batch_g_beta_sheet_env_extra">Zusätzlicher Kontext: SD-Kartennutzung, spezielle Einstellungen, Berechtigungen usw.</string>
-    <string name="presentation_batch_g_beta_sheet_feature_title">Funktionsanfrage</string>
-    <string name="presentation_batch_g_beta_sheet_feature_summary">Kopieren Sie diese Felder, wenn Sie eine neue Funktion oder Verbesserung wünschen.</string>
-    <string name="presentation_batch_g_beta_sheet_feature_problem">Problemstellung: Welches Problem versuchen Sie zu lösen?</string>
-    <string name="presentation_batch_g_beta_sheet_feature_solution">Lösungsvorschlag: Wie soll es funktionieren?</string>
-    <string name="presentation_batch_g_beta_sheet_feature_alternatives">In Betracht gezogene Alternativen: Gibt es andere Ansätze?</string>
-    <string name="presentation_batch_g_beta_sheet_feature_scope">Geltungsbereich: Welche Bildschirme oder Flows sind betroffen?</string>
-    <string name="presentation_batch_g_beta_sheet_feature_mockup">Modell oder Referenzbild, falls verfügbar.</string>
-    <string name="presentation_batch_g_beta_sheet_quality_title">Titel, Datenschutz und Geltungsbereich</string>
-    <string name="presentation_batch_g_beta_sheet_quality_summary">Machen Sie den Bericht einfach zu selektieren und sicher zu teilen.</string>
-    <string name="presentation_batch_g_beta_sheet_title_examples_title">Gute Ausgabetitel</string>
-    <string name="presentation_batch_g_beta_sheet_title_example_1">Equalizer: Die Anzeige verschiebt sich beim Wechseln der voreingestellten Registerkarten</string>
-    <string name="presentation_batch_g_beta_sheet_title_example_2">Suche: Verlaufsliste wird für leere Abfrage</string>
-    <string name="presentation_batch_g_beta_sheet_title_example_3">nicht angezeigt Funktion: Sortieroption für Playlists „Zuletzt hinzugefügt“ hinzufügen</string>
-    <string name="presentation_batch_g_beta_sheet_avoid_title">Bitte vermeiden Sie</string>
-    <string name="presentation_batch_g_beta_sheet_avoid_1">Allgemeine Berichte wie „Es funktioniert nicht“.</string>
-    <string name="presentation_batch_g_beta_sheet_avoid_2">Mehrere unabhängige Probleme in einem Problem.</string>
-    <string name="presentation_batch_g_beta_sheet_avoid_3">Nicht redigierte Protokolle oder Screenshots mit privaten Daten.</string>
-    <string name="presentation_batch_g_beta_sheet_privacy_title">Datenschutzhinweis</string>
-    <string name="presentation_batch_g_beta_sheet_privacy_body">Entfernen Sie persönliche oder private Informationen, bevor Sie Protokolle, Screenshots oder Videos veröffentlichen.</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_title">Nächtliche Builds</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_summary">Wie sich Nightlies von Veröffentlichungen unterscheiden und was bei der Veröffentlichung enthalten sein sollte.</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_body">Nächtliche Builds werden aus dem letzten Commit generiert und können unvollendete Änderungen, vorübergehende Fehler oder Regressionen enthalten. Sie sind experimenteller als offizielle Veröffentlichungen.</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_access">Greifen Sie über die GitHub Actions-Workflow-Artefakte des Repositorys darauf zu, sofern verfügbar.</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_report_title">Nächtliche Probleme melden</string>
-    <string name="presentation_batch_g_beta_sheet_nightly_report_body">Wenn Sie ein Problem mit einem nächtlichen Build melden, erwähnen Sie immer, dass es bei einem nächtlichen Build und nicht bei der offiziellen Veröffentlichung aufgetreten ist. Geben Sie das Erstellungsdatum, den Namen oder die Nummer der Workflow-Ausführung an oder schreiben Sie nach Möglichkeit SHA fest. Überprüfen Sie auch, ob das gleiche Problem bei der neuesten offiziellen Version auftritt.</string>
-    <string name="presentation_batch_g_beta05_title">v1.6.08-Update</string>
-    <string name="presentation_batch_g_beta05_clean_install_title">Was ist neu in v1.6.08</string>
-    <string name="presentation_batch_g_beta05_clean_install_body">•</string>
-    <string name="presentation_batch_g_beta05_if_wrong_meta_title">Entdecken, aktualisieren</string>
-    <string name="presentation_batch_g_beta05_if_wrong_meta_body">Genießen Sie das elegante neue Material 3 Expressive-Layout auf der Registerkarte „Erkunden“!</string>
     <string-array name="presentation_batch_g_changelog_070_highlights">
         <item>Verbesserungen der KI-Integration und intelligentere Playlist-Erstellung.</item>
         <item>Erweiterte Hörstatistiken mit tieferen Einblicken und neuen Visualisierungen.</item>
         <item>Verbesserter Bibliothekssynchronisierungsablauf über alle Cloud-Anbieter hinweg.</item>
         <item>Bessere Bearbeitung von Metadaten mit Unterstützung von Albumcovern.</item>
     </string-array>
-
+    <string name="presentation_batch_g_beta_sheet_welcome_body_stable">You\'re running the stable release build. Check the changelog to see what\'s new, and report anything that misbehaves.</string>
+    <string name="presentation_batch_g_topbar_build_debug">Debug</string>
+    <string name="presentation_batch_g_topbar_build_stable">Stable</string>
 </resources>
