@@ -518,10 +518,11 @@ private fun BookmarkFolderTopBar(
         else Color.White.copy(alpha = 0.42f)
     val solidAlpha = (collapseFraction * 2f).coerceIn(0f, 1f)
     val expandedContentAlpha = 1f - solidAlpha
+    val momentCountText = formatBookmarkMomentCount(bookmarkCount)
     val subtitle = remember(song.displayArtist, bookmarkCount) {
         listOf(
             song.displayArtist.ifBlank { "Unknown artist" },
-            formatBookmarkMomentCount(bookmarkCount)
+            momentCountText
         ).joinToString(" - ")
     }
     val headerOverlayBrush = remember(surfaceColor, expandedContentAlpha) {
