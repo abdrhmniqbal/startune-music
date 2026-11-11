@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.startune.music.data.preferences.AppColorScheme
 import com.startune.music.data.preferences.ColorSchemeExport
 import com.startune.music.data.preferences.ColorSchemeIds
+import com.startune.music.data.preferences.ColorSchemeSort
 import com.startune.music.data.preferences.SchemeRoles
 import com.startune.music.data.preferences.ThemePreferencesRepository
 import com.startune.music.ui.theme.BuiltInColorSchemes
@@ -57,8 +58,19 @@ class ColorSchemeViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
+    val colorSchemeSort: StateFlow<ColorSchemeSort> = themePreferencesRepository.colorSchemeSortFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = ColorSchemeSort.DEFAULT
+        )
+
     fun selectScheme(id: String) {
         viewModelScope.launch { themePreferencesRepository.setSelectedColorSchemeId(id) }
+    }
+
+    fun setColorSchemeSort(sort: ColorSchemeSort) {
+        viewModelScope.launch { themePreferencesRepository.setColorSchemeSort(sort) }
     }
 
     fun newSchemeId(): String = UUID.randomUUID().toString()
