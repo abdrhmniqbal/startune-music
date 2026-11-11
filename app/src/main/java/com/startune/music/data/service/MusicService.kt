@@ -1557,7 +1557,8 @@ class MusicService : MediaSessionService() {
         var repeatMode = Player.REPEAT_MODE_OFF
         var currentPosition = 0L
         var totalDuration = 0L
-        var snapshotWindowIndex = 0
+        var snapshotNextWindowIndex = C.INDEX_UNSET
+        var snapshotShuffleModeEnabled = false
         var snapshotTimeline: Timeline = Timeline.EMPTY
         withContext(Dispatchers.Main) {
             currentItem = player.currentMediaItem
@@ -1565,7 +1566,8 @@ class MusicService : MediaSessionService() {
             repeatMode = player.repeatMode
             currentPosition = player.currentPosition
             totalDuration = player.duration.coerceAtLeast(0)
-            snapshotWindowIndex = player.currentMediaItemIndex
+            snapshotNextWindowIndex = player.nextMediaItemIndex
+            snapshotShuffleModeEnabled = player.shuffleModeEnabled
             snapshotTimeline = player.currentTimeline
         }
 
@@ -1652,33 +1654,61 @@ class MusicService : MediaSessionService() {
         }
         val isFavorite = isSongFavorite(mediaId)
         val queueItems = mutableListOf<com.startune.music.data.model.QueueItem>()
+        // Follow the player's actual navigation order so shuffle and repeat-all previews match.
         if (!snapshotTimeline.isEmpty) {
             val window = Timeline.Window()
-
-            val startIndex = if (snapshotWindowIndex + 1 < snapshotTimeline.windowCount) snapshotWindowIndex + 1 else 0
-
-            val endIndex = (startIndex + 4).coerceAtMost(snapshotTimeline.windowCount)
-            for (i in startIndex until endIndex) {
-                snapshotTimeline.getWindow(i, window)
-                val mediaItem = window.mediaItem
-                val songId = mediaItem.mediaId.toLongOrNull()
-                if (songId != null) {
-                    val initialQueueArtworkUri = resolveWidgetArtworkUriCandidates(mediaItem.mediaMetadata)
-                        .firstOrNull()
-                    val queueArtworkUri = when {
-                        initialQueueArtworkUri == null -> resolveRepositoryArtworkUri(mediaItem.mediaId)
-                        initialQueueArtworkUri.scheme?.lowercase() == "content" &&
-                            initialQueueArtworkUri.authority == "$packageName.provider" ->
-                            resolveRepositoryArtworkUri(mediaItem.mediaId) ?: initialQueueArtworkUri
-                        else -> initialQueueArtworkUri
-                    }
-                    queueItems.add(
-                        com.startune.music.data.model.QueueItem(
-                            id = songId,
-                            albumArtUri = queueArtworkUri?.toString()
+            val previewIndices = widgetQueuePreviewIndices(
+                firstIndex = snapshotNextWindowIndex,
+                limit = WIDGET_QUEUE_PREVIEW_LIMIT,
+                nextIndex = { currentIndex ->
+                    if (currentIndex !in 0 until snapshotTimeline.windowCount) {
+                        C.INDEX_UNSET
+                    } else {
+                        snapshotTimeline.getNextWindowIndex(
+                            currentIndex,
+                            repeatMode,
+                            snapshotShuffleModeEnabled,
                         )
-                    )
+                    }
+                },
+            )
+
+            for (index in previewIndices) {
+                if (index !in 0 until snapshotTimeline.windowCount) continue
+                snapshotTimeline.getWindow(index, window)
+                val mediaItem = window.mediaItem
+                val metadataTitle = mediaItem.mediaMetadata.title?.toString()?.trim().orEmpty()
+                val metadataArtist = mediaItem.mediaMetadata.artist?.toString()?.trim().orEmpty()
+                val initialQueueArtworkUri = resolveWidgetArtworkUriCandidates(mediaItem.mediaMetadata)
+                    .firstOrNull()
+                val isProviderArtwork = initialQueueArtworkUri?.scheme?.lowercase() == "content" &&
+                    initialQueueArtworkUri.authority == "$packageName.provider"
+                val needsRepositoryFallback = metadataTitle.isBlank() ||
+                    metadataArtist.isBlank() ||
+                    initialQueueArtworkUri == null ||
+                    isProviderArtwork
+                val repositorySong = if (needsRepositoryFallback) {
+                    runCatching {
+                        withContext(Dispatchers.IO) {
+                            musicRepository.getSong(mediaItem.mediaId).first()
+                        }
+                    }.getOrNull()
+                } else {
+                    null
                 }
+                val queueArtworkUri = when {
+                    initialQueueArtworkUri == null -> resolveRepositoryArtworkUri(mediaItem.mediaId)
+                    isProviderArtwork -> resolveRepositoryArtworkUri(mediaItem.mediaId) ?: initialQueueArtworkUri
+                    else -> initialQueueArtworkUri
+                }
+
+                mediaItem.toWidgetQueueItem(
+                    fallbackTitle = repositorySong?.title
+                        .orEmpty()
+                        .ifBlank { getString(R.string.unknown_song_title) },
+                    fallbackArtist = repositorySong?.displayArtist.orEmpty(),
+                    fallbackArtworkUri = queueArtworkUri?.toString(),
+                )?.let(queueItems::add)
             }
         }
 
