@@ -1,17 +1,11 @@
 package com.startune.music.presentation.screens
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,7 +16,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,19 +30,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.QueueMusic
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.AddPhotoAlternate
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
@@ -74,12 +60,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextGeometricTransform
@@ -92,17 +73,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
-import coil.ImageLoader
-import coil.request.ImageRequest
 import com.startune.music.R
 import com.startune.music.data.model.Artist
 import com.startune.music.data.model.MixRule
-import androidx.compose.ui.layout.ContentScale
 import com.startune.music.data.model.Genre
 import com.startune.music.data.playlist.nlp.GenreTaxonomy
 import com.startune.music.data.playlist.nlp.NlpText
-import com.startune.music.presentation.components.SmartImage
-import com.startune.music.presentation.components.ImageCropView
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.ui.theme.RoundedSans
 import com.startune.music.ui.theme.ShapeCache
@@ -153,15 +129,14 @@ private fun mixRuleSubtitle(rule: MixRule): String =
  * Create-mix form, full screen like the playlist form: a name (required,
  * typed by hand), the song count, one of the six generation modes, an artist
  * picker for the By Artists mode or a comma-separated genre input for the
- * By Genres mode, and the same Default / Image cover choice as playlists.
- * The cover is auto-generated (the icon choice was removed); a mix cover is
- * always shown in the cookie shape.
+ * By Genres mode. There is no cover UI: the cover is always
+ * auto-generated.
  */
 
 /**
  * Initial values for editing a mix. Create mode uses the defaults.
- * [coverImageUri] is the mix's stored cover path, kept as-is when the user
- * does not pick a new image.
+ * The stored cover fields are kept for the callers; the form no longer shows
+ * or edits a cover, so saving a mix clears them.
  */
 data class MixFormInitial(
     val name: String = "",
@@ -176,8 +151,8 @@ data class MixFormInitial(
 
 /**
  * Edit-mix form: the same full-screen form as [CreateMixForm], prefilled
- * from the mix. For the For You Mix only the size is editable (its name,
- * rule and cover are fixed), so the name, preset and cover sections hide.
+ * from the mix. For the For You Mix only the size is editable (its name and
+ * rule are fixed), so the name and preset sections hide.
  */
 @Composable
 fun EditMixForm(
@@ -301,53 +276,13 @@ private fun CreateMixFormContent(
         updated
     }
 
-    var selectedTab by remember {
-        mutableStateOf(if (initial.coverImageUri != null) 1 else 0)
-    }
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var showCropUi by remember { mutableStateOf(false) }
-    var imageBitmap by remember(selectedImageUri) { mutableStateOf<ImageBitmap?>(null) }
-    var cropScale by remember { mutableFloatStateOf(1f) }
-    var cropOffset by remember { mutableStateOf(Offset.Zero) }
-    var existingCoverImageUri by remember { mutableStateOf(initial.coverImageUri) }
 
-    LaunchedEffect(selectedImageUri) {
-        if (selectedImageUri != null) {
-            val loader = ImageLoader(context)
-            val request = ImageRequest.Builder(context)
-                .data(selectedImageUri)
-                .allowHardware(false)
-                .build()
-            val result = loader.execute(request)
-            val drawable = result.drawable
-            if (drawable is android.graphics.drawable.BitmapDrawable) {
-                imageBitmap = drawable.bitmap.asImageBitmap()
-            }
-        } else {
-            imageBitmap = null
-            cropScale = 1f
-            cropOffset = Offset.Zero
-        }
-    }
 
-    val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            selectedImageUri = it
-            cropScale = 1f
-            cropOffset = Offset.Zero
-            showCropUi = true
-        }
-    }
 
     val canCreate = isForYouMix || (mixName.isNotBlank() &&
         (selectedRule != MixRule.ARTISTS || selectedArtistIds.isNotEmpty()) &&
         (selectedRule != MixRule.GENRES || effectiveGenres.isNotEmpty()))
 
-    BackHandler(enabled = showCropUi) {
-        showCropUi = false
-    }
 
     Scaffold(
         topBar = {
@@ -370,12 +305,10 @@ private fun CreateMixFormContent(
                             containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                             contentColor = MaterialTheme.colorScheme.onSurface
                         ),
-                        onClick = {
-                            if (showCropUi) showCropUi = false else onDismiss()
-                        }
+                        onClick = onDismiss
                     ) {
                         Icon(
-                            if (showCropUi) Icons.AutoMirrored.Rounded.ArrowBack else Icons.Rounded.Close,
+                            Icons.Rounded.Close,
                             contentDescription = stringResource(R.string.presentation_batch_f_cd_back_or_cancel)
                         )
                     }
@@ -386,108 +319,32 @@ private fun CreateMixFormContent(
             )
         },
         floatingActionButton = {
-            if (!showCropUi) {
-                MediumExtendedFloatingActionButton(
-                    text = { Text(stringResource(if (isEdit) R.string.action_save else R.string.presentation_batch_f_create)) },
-                    icon = {
-                        Icon(Icons.Rounded.Check, contentDescription = null)
-                    },
-                    onClick = {
-                        if (!canCreate) return@MediumExtendedFloatingActionButton
-                        val imageUriString = if (selectedTab == 1) selectedImageUri?.toString() ?: existingCoverImageUri else null
-                        val scale = if (selectedTab == 1) cropScale else 1f
-                        val panX = if (selectedTab == 1) cropOffset.x else 0f
-                        val panY = if (selectedTab == 1) cropOffset.y else 0f
-                        onCreate(
-                            mixName.trim(),
-                            selectedRule,
-                            sliderValue.toInt(),
-                            selectedArtistIds,
-                            effectiveGenres,
-                            imageUriString,
-                            null,
-                            null,
-                            scale,
-                            panX,
-                            panY
-                        )
-                    },
-                    containerColor = if (canCreate) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
-                    contentColor = if (canCreate) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-                )
-            }
+            MediumExtendedFloatingActionButton(
+                text = { Text(stringResource(if (isEdit) R.string.action_save else R.string.presentation_batch_f_create)) },
+                icon = {
+                    Icon(Icons.Rounded.Check, contentDescription = null)
+                },
+                onClick = {
+                    if (!canCreate) return@MediumExtendedFloatingActionButton
+                    onCreate(
+                        mixName.trim(),
+                        selectedRule,
+                        sliderValue.toInt(),
+                        selectedArtistIds,
+                        effectiveGenres,
+                        null,
+                        null,
+                        null,
+                        1f,
+                        0f,
+                        0f
+                    )
+                },
+                containerColor = if (canCreate) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
+                contentColor = if (canCreate) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+            )
         }
     ) { padding ->
-        if (showCropUi) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-            ) {
-                val cropBitmap = imageBitmap
-                if (cropBitmap != null) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Spacer(Modifier.height(32.dp))
-                        Text(
-                            text = stringResource(R.string.presentation_batch_f_adjust_cover_title),
-                            style = MaterialTheme.typography.headlineSmall,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(horizontal = 24.dp)
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(R.string.presentation_batch_f_adjust_cover_hint),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(horizontal = 32.dp)
-                        )
-                        Spacer(Modifier.weight(1f))
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(1f)
-                                .padding(16.dp)
-                                .clip(ShapeCache.expressiveAvatar)
-                        ) {
-                            ImageCropView(
-                                imageBitmap = cropBitmap,
-                                modifier = Modifier.fillMaxSize(),
-                                scale = cropScale,
-                                pan = cropOffset,
-                                enabled = true,
-                                onCrop = { scale, pan ->
-                                    cropScale = scale
-                                    cropOffset = pan
-                                }
-                            )
-                        }
-                        Spacer(Modifier.weight(1f))
-                        Button(
-                            onClick = { showCropUi = false },
-                            modifier = Modifier
-                                .align(Alignment.End)
-                                .padding(24.dp)
-                                .height(56.dp),
-                            shape = CircleShape
-                        ) {
-                            Icon(Icons.Rounded.Check, contentDescription = null)
-                            Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.presentation_batch_f_done))
-                        }
-                    }
-                } else {
-                    ContainedLoadingIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-            }
-            return@Scaffold
-        }
 
         Column(
             modifier = Modifier
@@ -495,131 +352,6 @@ private fun CreateMixFormContent(
                 .padding(padding)
                 .imePadding()
         ) {
-            if (!isForYouMix) {
-            AnimatedContent(
-                targetState = selectedTab,
-                transitionSpec = {
-                    fadeIn(animationSpec = tween(220)) togetherWith fadeOut(animationSpec = tween(220))
-                },
-                label = "mix_cover_preview_transition",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 4.dp)
-            ) { targetTab ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(240.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    when (targetTab) {
-                        0 -> {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(180.dp)
-                                        .clip(ShapeCache.expressiveAvatar)
-                                        .background(MaterialTheme.colorScheme.surfaceContainerHighest),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        Icons.AutoMirrored.Filled.QueueMusic,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(80.dp),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                                    )
-                                }
-                                Spacer(Modifier.height(16.dp))
-                                Text(
-                                    stringResource(R.string.presentation_batch_f_auto_generated_collage),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        1 -> {
-                            val previewBitmap = imageBitmap
-                            if (previewBitmap != null || existingCoverImageUri != null) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(180.dp)
-                                            .clip(ShapeCache.expressiveAvatar)
-                                            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                                    ) {
-                                        if (previewBitmap != null) {
-                                            ImageCropView(
-                                                imageBitmap = previewBitmap,
-                                                modifier = Modifier.fillMaxSize(),
-                                                scale = cropScale,
-                                                pan = cropOffset,
-                                                enabled = false,
-                                                onCrop = { _, _ -> }
-                                            )
-                                        } else {
-                                            SmartImage(
-                                                model = existingCoverImageUri,
-                                                contentDescription = null,
-                                                contentScale = ContentScale.Crop,
-                                                modifier = Modifier.fillMaxSize()
-                                            )
-                                        }
-                                    }
-                                    Spacer(Modifier.height(12.dp))
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        modifier = Modifier.padding(horizontal = 16.dp)
-                                    ) {
-                                        FilledTonalButton(
-                                            onClick = { imagePickerLauncher.launch("image/*") },
-                                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                                            modifier = Modifier.height(40.dp).weight(1f)
-                                        ) {
-                                            Icon(Icons.Rounded.AddPhotoAlternate, contentDescription = null, modifier = Modifier.size(18.dp))
-                                            Spacer(Modifier.width(8.dp))
-                                            Text(stringResource(R.string.presentation_batch_f_change), style = MaterialTheme.typography.labelLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                        }
-                                        FilledTonalButton(
-                                            onClick = { selectedImageUri = null; existingCoverImageUri = null },
-                                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                                            modifier = Modifier.height(40.dp).weight(1f),
-                                            colors = ButtonDefaults.filledTonalButtonColors(
-                                                containerColor = MaterialTheme.colorScheme.errorContainer,
-                                                contentColor = MaterialTheme.colorScheme.onErrorContainer
-                                            )
-                                        ) {
-                                            Icon(Icons.Rounded.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
-                                            Spacer(Modifier.width(8.dp))
-                                            Text(stringResource(R.string.presentation_batch_f_remove), style = MaterialTheme.typography.labelLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                        }
-                                    }
-                                }
-                            } else {
-                                Box(
-                                    modifier = Modifier
-                                        .size(180.dp)
-                                        .clip(ShapeCache.expressiveAvatar)
-                                        .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                                        .clickable { imagePickerLauncher.launch("image/*") },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Icon(
-                                            Icons.Rounded.AddPhotoAlternate,
-                                            contentDescription = stringResource(R.string.presentation_batch_f_cd_add_photo),
-                                            modifier = Modifier.size(56.dp),
-                                            tint = MaterialTheme.colorScheme.primary
-                                        )
-                                        Spacer(Modifier.height(12.dp))
-                                        Text(stringResource(R.string.presentation_batch_f_pick_image), style = MaterialTheme.typography.titleSmall)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            }
 
             Column(
                 modifier = Modifier
@@ -652,21 +384,6 @@ private fun CreateMixFormContent(
                 Spacer(modifier = Modifier.height(8.dp))
                 }
 
-                if (!isForYouMix) {
-                val tabs = persistentListOf(
-                    stringResource(R.string.presentation_batch_f_tab_default),
-                    stringResource(R.string.presentation_batch_f_tab_image)
-                )
-                ExpressiveButtonGroup(
-                    items = tabs,
-                    selectedIndex = selectedTab,
-                    onItemClick = { selectedTab = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 22.dp)
-                )
-
-                }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
