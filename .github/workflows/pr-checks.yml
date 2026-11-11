@@ -3,7 +3,7 @@ name: PR Checks
 on:
   pull_request:
     branches:
-      - v2.0.0-kotlin
+      - main
     # Docs-only changes can't break the build or need testing. Workflow
     # changes are deliberately not ignored so edits to this file are exercised.
     paths-ignore:
@@ -15,7 +15,7 @@ on:
       - "LICENSE"
   push:
     branches:
-      - v2.0.0-kotlin
+      - main
     paths-ignore:
       - "**.md"
       - "docs/**"

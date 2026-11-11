@@ -1,17 +1,17 @@
 ﻿# Release Checklist
 
-Startune Music releases are shipped from `v2.0.0-kotlin` by the release
+Startune Music releases are shipped from `main` by the release
 workflow: Crowdin sync first, then checks, then the release. The release
 candidate passes local checks and a basic device smoke test before tagging.
 
 ## Release Workflow
 
-Run the `Release` workflow from the Actions tab on the `v2.0.0-kotlin`
+Run the `Release` workflow from the Actions tab on the `main`
 branch, with the version from `gradle.properties` (for example `2.0.0-beta`).
 It runs, in order:
 
 1. **Crowdin sync**: uploads the current `res/values` strings and downloads
-   the latest translations, committing them to `v2.0.0-kotlin`.
+   the latest translations, committing them to `main`.
 2. **Checks**: compile, lint, unit tests (the same gate as PR checks).
 3. **Release**: verifies the input version matches `gradle.properties`,
    builds the signed ABI-split release APKs, creates the `v<version>` tag
@@ -118,7 +118,7 @@ Install the release candidate and verify:
 
 ## Publishing
 
-1. Ensure `v2.0.0-kotlin` is clean and pushed.
+1. Ensure `main` is clean and pushed.
 2. Run the `Release` workflow from the Actions tab with the version.
 3. The workflow creates the tag, the GitHub release, the APK artifacts,
    and the changelog notes. Verify the release page afterwards.

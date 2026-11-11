@@ -52,10 +52,10 @@ LRCLIB and Deezer can be enabled during first-run setup or later in Settings. Mu
 
 ## Build From Source
 
-Clone the repository (the `v2.0.0-kotlin` branch holds this app; the default `master` branch holds the older TypeScript project):
+Clone the repository (the `main` branch holds this app; the `master` branch holds the older TypeScript project):
 
 ```sh
-git clone -b v2.0.0-kotlin https://github.com/abdrhmniqbal/startune-music.git
+git clone -b main https://github.com/abdrhmniqbal/startune-music.git
 cd startune-music
 ```
 
@@ -97,7 +97,7 @@ GitHub releases:
 https://github.com/abdrhmniqbal/startune-music/releases
 ```
 
-`v2.0.0-beta` is the upcoming first release from the `v2.0.0-kotlin` branch.
+`v2.0.0-beta` is the upcoming first release from the `main` branch.
 
 F-Droid listing for `com.startune.music` is being prepared for the beta release:
 
