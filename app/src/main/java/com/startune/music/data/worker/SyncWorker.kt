@@ -180,6 +180,8 @@ constructor(
                     val rescanRequired =
                             userPreferencesRepository.artistSettingsRescanRequiredFlow.first() ||
                                     !albumArtistSplitFixApplied
+                    val folderFilterRescanRequired =
+                            userPreferencesRepository.folderFilterRescanRequiredFlow.first()
                     val directoryRulesVersion =
                         userPreferencesRepository.getDirectoryRulesVersion()
                     val lastAppliedDirectoryRulesVersion =
@@ -384,6 +386,9 @@ constructor(
 
                     if (rescanRequired) {
                         userPreferencesRepository.clearArtistSettingsRescanRequired()
+                    }
+                    if (folderFilterRescanRequired) {
+                        userPreferencesRepository.clearFolderFilterRescanRequired()
                     }
                     if (!albumArtistSplitFixApplied) {
                         userPreferencesRepository.markAlbumArtistSplitFixApplied()

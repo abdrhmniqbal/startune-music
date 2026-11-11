@@ -39,9 +39,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Album
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -50,10 +48,8 @@ import androidx.compose.material.icons.rounded.LibraryMusic
 import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -93,6 +89,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.startune.music.R
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.RescanRequiredBanner
 import com.startune.music.presentation.components.ExpressiveTopBarContent
 import com.startune.music.presentation.settings.search.settingHighlight
 import com.startune.music.presentation.settings.search.LocalSettingsHighlightTarget
@@ -208,6 +205,10 @@ fun ArtistSettingsScreen(
                     exit = shrinkVertically() + fadeOut()
                 ) {
                     RescanRequiredBanner(
+                        title = stringResource(R.string.presentation_batch_g_artist_rescan_banner_title),
+                        body = stringResource(R.string.presentation_batch_g_artist_rescan_banner_body),
+                        rescanText = stringResource(R.string.presentation_batch_g_artist_rescan),
+                        scanningText = stringResource(R.string.presentation_batch_g_artist_rescan_scanning),
                         isResyncing = uiState.isResyncing,
                         onRescanClick = { viewModel.rescanLibrary() }
                     )
@@ -484,83 +485,6 @@ fun ArtistSettingsScreen(
 }
 
 
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun RescanRequiredBanner(
-    isResyncing: Boolean,
-    onRescanClick: () -> Unit
-) {
-    Surface(
-        color = MaterialTheme.colorScheme.tertiaryContainer,
-        shape = RoundedCornerShape(16.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Warning,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onTertiaryContainer,
-                modifier = Modifier.size(24.dp)
-            )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.presentation_batch_g_artist_rescan_banner_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer
-                )
-                Text(
-                    text = stringResource(R.string.presentation_batch_g_artist_rescan_banner_body),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Button(
-                onClick = onRescanClick,
-                enabled = !isResyncing,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary,
-                    contentColor = MaterialTheme.colorScheme.onTertiary
-                ),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                if (isResyncing) {
-                    LoadingIndicator(
-                        modifier = Modifier.size(16.dp),
-                        color = MaterialTheme.colorScheme.onTertiary
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Outlined.Refresh,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = if (isResyncing) {
-                        stringResource(R.string.presentation_batch_g_artist_rescan_scanning)
-                    } else {
-                        stringResource(R.string.presentation_batch_g_artist_rescan)
-                    },
-                    style = MaterialTheme.typography.labelMedium
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun InfoCard(

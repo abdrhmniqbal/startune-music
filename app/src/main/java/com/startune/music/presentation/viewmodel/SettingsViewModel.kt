@@ -97,6 +97,7 @@ data class SettingsUiState(
     val autoBackupIntervalHours: Int = 24,
     val autoBackupLastRunMs: Long = 0L,
     val autoBackupNotificationsEnabled: Boolean = true,
+    val folderFilterRescanRequired: Boolean = false,
     val dataStorageRoot: String = "",
     val keepScreenAwakeWhilePlaying: Boolean = false,
     val resumeOnHeadsetReconnect: Boolean = false,
@@ -226,6 +227,7 @@ private sealed interface SettingsUiUpdate {
         val autoScanOnLaunch: Boolean,
         val lyricsFontSizeSp: Float,
         val autoBackupNotificationsEnabled: Boolean,
+        val folderFilterRescanRequired: Boolean,
         val useFolderAlbumArt: Boolean
     ) : SettingsUiUpdate
 }
@@ -439,7 +441,8 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.autoScanOnLaunchFlow,
                 userPreferencesRepository.lyricsFontSizeFlow,
                 userPreferencesRepository.autoBackupNotificationsEnabledFlow,
-                userPreferencesRepository.useFolderAlbumArtFlow
+                userPreferencesRepository.useFolderAlbumArtFlow,
+                userPreferencesRepository.folderFilterRescanRequiredFlow
             ) { values ->
                 val requestedAudioOutputMode = values[4] as AudioOutputMode
                 SettingsUiUpdate.Group2(
@@ -487,7 +490,8 @@ class SettingsViewModel @Inject constructor(
                     autoScanOnLaunch = values[34] as Boolean,
                     lyricsFontSizeSp = values[35] as Float,
                     autoBackupNotificationsEnabled = values[36] as Boolean,
-                    useFolderAlbumArt = values[37] as Boolean
+                    useFolderAlbumArt = values[37] as Boolean,
+                    folderFilterRescanRequired = values[38] as Boolean
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -527,6 +531,7 @@ class SettingsViewModel @Inject constructor(
                         autoBackupIntervalHours = update.autoBackupIntervalHours,
                         autoBackupLastRunMs = update.autoBackupLastRunMs,
                         autoBackupNotificationsEnabled = update.autoBackupNotificationsEnabled,
+                        folderFilterRescanRequired = update.folderFilterRescanRequired,
                         useFolderAlbumArt = update.useFolderAlbumArt,
                         dataStorageRoot = update.dataStorageRoot,
                         autoScanOnLaunch = update.autoScanOnLaunch,
@@ -680,6 +685,12 @@ class SettingsViewModel @Inject constructor(
 
     fun setFolderFilterMode(whitelist: Boolean) {
         viewModelScope.launch {
+            // Set the pending-rescan flag BEFORE the directories change:
+            // StartuneApplication calls the folder-artwork coordinator's
+            // reconcile on allowedDirectoriesFlow changes, and the
+            // coordinator skips its automatic full sync while this flag
+            // is set. The banner's Rescan Now performs the rescan instead.
+            userPreferencesRepository.setFolderFilterRescanRequired(true)
             userPreferencesRepository.setFolderFilterMode(whitelist)
             val allowed = userPreferencesRepository.allowedDirectoriesFlow.first()
             val blocked = userPreferencesRepository.blockedDirectoriesFlow.first()
@@ -1201,6 +1212,18 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             if (isSyncing.value) return@launch
             syncManager.fullSync()
+        }
+    }
+
+    /**
+     * Manual rescan for the folder-filter banner: the same light rescan
+     * the artist-settings banner uses. A mode flip defers the rescan
+     * here instead of triggering one immediately.
+     */
+    fun rescanLibrary() {
+        viewModelScope.launch {
+            if (isSyncing.value) return@launch
+            syncManager.fullSync(deepScan = false)
         }
     }
 

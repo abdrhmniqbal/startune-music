@@ -116,6 +116,8 @@
     <string name="manage_folders_blacklist">Blacklist</string>
     <string name="manage_folders_whitelist_description">Only the folders below are scanned.</string>
     <string name="manage_folders_blacklist_description">All folders are scanned except the ones below.</string>
+    <string name="manage_folders_rescan_banner_title">Rescan Required</string>
+    <string name="manage_folders_rescan_banner_body">Folder filter changed. Rescan your library to apply.</string>
     <string name="manage_folders_title">Folders</string>
     <string name="manage_folders_add">Add folder</string>
     <string name="manage_folders_internal_storage">Internal storage</string>
