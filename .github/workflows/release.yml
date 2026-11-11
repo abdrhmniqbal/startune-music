@@ -1,0 +1,184 @@
+name: Release
+
+# Manual release: Crowdin sync first, then checks, then release.
+# Run from the Actions tab on the v2.0.0-kotlin branch with the version
+# from gradle.properties (for example 2.0.0-beta). The workflow creates
+# the v<version> tag and the GitHub release itself.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version from gradle.properties (example: 2.0.0-beta)"
+        required: true
+        type: string
+        default: "2.0.0-beta"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  crowdin:
+    name: Sync Crowdin translations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: v2.0.0-kotlin
+
+      - name: Check Crowdin secrets are set
+        env:
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+        run: |
+          if [ -z "$CROWDIN_PROJECT_ID" ] || [ -z "$CROWDIN_PERSONAL_TOKEN" ]; then
+            echo "CROWDIN_PROJECT_ID and CROWDIN_PERSONAL_TOKEN secrets must be set in repository settings."
+            exit 1
+          fi
+
+      - name: Download latest translations and commit them
+        uses: crowdin/github-action@v3
+        with:
+          upload_sources: true
+          upload_translations: false
+          download_translations: true
+          create_pull_request: false
+          commit_message: "chore(l10n): sync Crowdin translations for ${{ inputs.version }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+
+  checks:
+    name: Checks
+    needs: crowdin
+    uses: ./.github/workflows/checks.yml
+
+  release:
+    name: Build release APKs and publish
+    needs: checks
+    runs-on: ubuntu-latest
+    outputs:
+      release_tag: v${{ inputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: v2.0.0-kotlin
+          fetch-depth: 0
+
+      - name: Verify version matches gradle.properties
+        run: |
+          APP_VERSION_NAME="$(grep '^APP_VERSION_NAME=' gradle.properties | cut -d= -f2)"
+          if [ "${{ inputs.version }}" != "$APP_VERSION_NAME" ]; then
+            echo "Input version '${{ inputs.version }}' does not match APP_VERSION_NAME '$APP_VERSION_NAME' in gradle.properties."
+            exit 1
+          fi
+          echo "Version: ${{ inputs.version }}"
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6.2.0
+
+      # Signing, in priority order:
+      # 1. Official release keystore (KEYSTORE_BASE64 + KEYSTORE_PASSWORD +
+      #    KEY_ALIAS + KEY_PASSWORD secrets) when present.
+      # 2. Shared CI keystore (CI_KEYSTORE_B64 + CI_KEYSTORE_PASSWORD) so CI
+      #    builds install over each other.
+      # 3. Throwaway keystore generated for this run only.
+      # The official release key is decided separately; until it exists the
+      # beta ships signed with the CI key (see docs/RELEASE.md).
+      - name: Set up signing keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          CI_KEYSTORE_B64: ${{ secrets.CI_KEYSTORE_B64 }}
+          CI_KEYSTORE_PASSWORD: ${{ secrets.CI_KEYSTORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
+            echo "Using official release keystore."
+            printf '%s' "$KEYSTORE_BASE64" | base64 -d > release.jks
+            {
+              echo "storeFile=release.jks"
+              echo "storePassword=$KEYSTORE_PASSWORD"
+              echo "keyAlias=$KEY_ALIAS"
+              echo "keyPassword=$KEY_PASSWORD"
+            } > keystore.properties
+          elif [ -n "$CI_KEYSTORE_B64" ] && [ -n "$CI_KEYSTORE_PASSWORD" ]; then
+            echo "Using shared CI keystore."
+            printf '%s' "$CI_KEYSTORE_B64" | base64 -d > startune-ci.jks
+            {
+              echo "storeFile=startune-ci.jks"
+              echo "storePassword=$CI_KEYSTORE_PASSWORD"
+              echo "keyAlias=startune-ci-key"
+              echo "keyPassword=$CI_KEYSTORE_PASSWORD"
+            } > keystore.properties
+          else
+            echo "No keystore secret set; generating a throwaway keystore for this run."
+            KEYSTORE_PASSWORD="$(openssl rand -hex 16)"
+            keytool -genkey -v -keystore startune-ci.jks -alias startune-ci-key -keyalg RSA -keysize 4096 -validity 10000 \
+              -storepass "$KEYSTORE_PASSWORD" -keypass "$KEYSTORE_PASSWORD" \
+              -dname "CN=Startune Music CI, OU=Dev, O=Startune Music, L=World, S=World, C=US"
+            {
+              echo "storeFile=startune-ci.jks"
+              echo "storePassword=$KEYSTORE_PASSWORD"
+              echo "keyAlias=startune-ci-key"
+              echo "keyPassword=$KEYSTORE_PASSWORD"
+            } > keystore.properties
+          fi
+
+      - name: Build release APKs
+        run: ./gradlew :app:assembleRelease -Pstartune.enableAbiSplits=true
+
+      - name: Verify and rename split APKs
+        run: |
+          set -euo pipefail
+          BUILD_TOOLS_VERSION="$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)"
+          mkdir -p release-apks
+          for abi in arm64-v8a armeabi-v7a; do
+            apk="app/build/outputs/apk/release/app-$abi-release.apk"
+            "$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/aapt2" dump badging "$apk" >/dev/null
+            "$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/apksigner" verify --verbose "$apk"
+            cp "$apk" "release-apks/startune-music-${{ inputs.version }}-$abi.apk"
+          done
+          ls -lah release-apks/
+
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: startune-music-${{ inputs.version }}
+          path: release-apks/*.apk
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Create GitHub Release with APKs
+        uses: softprops/action-gh-release@v2
+        with:
+          name: v${{ inputs.version }}
+          tag_name: v${{ inputs.version }}
+          target_commitish: v2.0.0-kotlin
+          files: release-apks/*.apk
+          fail_on_unmatched_files: true
+          prerelease: ${{ contains(inputs.version, '-') }}
+          generate_release_notes: false
+
+  release-notes:
+    name: Attach Release Notes
+    needs: release
+    permissions:
+      contents: write
+    uses: ./.github/workflows/release-notes.yml
+    with:
+      release_tag: ${{ needs.release.outputs.release_tag }}

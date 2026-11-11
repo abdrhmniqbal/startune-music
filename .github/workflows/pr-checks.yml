@@ -1,0 +1,37 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches:
+      - v2.0.0-kotlin
+    # Docs-only changes can't break the build or need testing. Workflow
+    # changes are deliberately not ignored so edits to this file are exercised.
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "assets/**"
+      - "fastlane/**"
+      - "metadata/**"
+      - "LICENSE"
+  push:
+    branches:
+      - v2.0.0-kotlin
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "assets/**"
+      - "fastlane/**"
+      - "metadata/**"
+      - "LICENSE"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
