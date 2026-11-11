@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -78,6 +79,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -99,7 +102,9 @@ import com.startune.music.R
 import com.startune.music.data.listenbrainz.ListenBrainzProfileStats
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.MiniPlayerHeight
+import com.startune.music.presentation.components.ProviderRow
 import com.startune.music.presentation.jellyfin.auth.JellyfinLoginActivity
+import com.startune.music.presentation.navidrome.auth.NavidromeLoginActivity
 import com.startune.music.presentation.viewmodel.AccountsViewModel
 import com.startune.music.presentation.viewmodel.ExternalAccountUiModel
 import com.startune.music.presentation.viewmodel.ExternalServiceAccount
@@ -118,6 +123,7 @@ import kotlinx.collections.immutable.ImmutableList
 fun AccountsScreen(
     onBackClick: () -> Unit,
     onOpenJellyfinDashboard: () -> Unit = {},
+    onOpenNavidromeDashboard: () -> Unit = {},
     viewModel: AccountsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -305,7 +311,7 @@ fun AccountsScreen(
                         )
                     }
                     item {
-                        AvailableServicesCard(
+                        AvailableServicesList(
                             disconnectedServices = uiState.disconnectedServices,
                             onConnect = onConnectService
                         )
@@ -577,9 +583,10 @@ private fun EmptyAccountsCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            disconnectedServices.forEach { service ->
-                ConnectServiceButton(service = service, onConnect = onConnect)
-            }
+            AvailableServicesList(
+                disconnectedServices = disconnectedServices,
+                onConnect = onConnect
+            )
         }
     }
 }
@@ -604,6 +611,14 @@ private fun servicePalette(service: ExternalServiceAccount): ServicePalette {
             primaryActionContainer = Color(0xFFE3F2FD),
             primaryActionTint = Color(0xFF1565C0)
         )
+        ExternalServiceAccount.NAVIDROME -> ServicePalette(
+            iconContainer = Color(0xFF1A9E75),
+            iconTint = Color.White,
+            statusContainer = Color(0xFFDFF2EB),
+            statusTint = Color(0xFF0E7A5C),
+            primaryActionContainer = Color(0xFFE3F2EC),
+            primaryActionTint = Color(0xFF0E7A5C)
+        )
         ExternalServiceAccount.LISTENBRAINZ -> ServicePalette(
             iconContainer = Color(0xFFEB743B),
             iconTint = Color.White,
@@ -626,6 +641,7 @@ private fun servicePalette(service: ExternalServiceAccount): ServicePalette {
 private fun accountIcon(service: ExternalServiceAccount): ImageVector {
     return when (service) {
         ExternalServiceAccount.JELLYFIN -> Icons.Rounded.CloudQueue
+        ExternalServiceAccount.NAVIDROME -> Icons.Rounded.CloudQueue
         ExternalServiceAccount.LISTENBRAINZ -> Icons.Rounded.GraphicEq
         ExternalServiceAccount.LASTFM -> Icons.Filled.MusicNote
     }
@@ -636,6 +652,13 @@ private fun ServiceIcon(service: ExternalServiceAccount, tint: Color, modifier: 
     if (service == ExternalServiceAccount.JELLYFIN) {
         Icon(
             painter = painterResource(R.drawable.ic_jellyfin),
+            contentDescription = null,
+            tint = tint,
+            modifier = modifier
+        )
+    } else if (service == ExternalServiceAccount.NAVIDROME) {
+        Icon(
+            painter = painterResource(R.drawable.ic_navidrome_md3),
             contentDescription = null,
             tint = tint,
             modifier = modifier
@@ -654,8 +677,9 @@ private fun ServiceIcon(service: ExternalServiceAccount, tint: Color, modifier: 
 private fun serviceDisplayName(service: ExternalServiceAccount): String {
     return when (service) {
         ExternalServiceAccount.JELLYFIN -> stringResource(R.string.auth_jellyfin_title)
+        ExternalServiceAccount.NAVIDROME -> "Navidrome"
         ExternalServiceAccount.LISTENBRAINZ -> stringResource(R.string.accounts_listenbrainz_title)
-        ExternalServiceAccount.LASTFM -> stringResource(R.string.lastfm_integration)
+        ExternalServiceAccount.LASTFM -> "Last.fm"
     }
 }
 
@@ -673,6 +697,16 @@ private fun openService(
                 safeStartActivity(
                     context = context,
                     intent = Intent(context, JellyfinLoginActivity::class.java)
+                )
+            }
+        }
+        ExternalServiceAccount.NAVIDROME -> {
+            if (preferDashboard) {
+                onOpenNavidromeDashboard()
+            } else {
+                safeStartActivity(
+                    context = context,
+                    intent = Intent(context, NavidromeLoginActivity::class.java)
                 )
             }
         }
@@ -701,65 +735,63 @@ private fun safeStartActivity(
         }
 }
 
+/**
+ * The not-yet-connected services as one segmented list, using the same
+ * rows as the Home streaming provider sheet.
+ */
 @Composable
-private fun AvailableServicesCard(
+private fun AvailableServicesList(
     disconnectedServices: ImmutableList<ExternalServiceAccount>,
     onConnect: (ExternalServiceAccount) -> Unit
 ) {
-    Card(
-        shape = AbsoluteSmoothCornerShape(28.dp, 60),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    Surface(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        shape = RoundedCornerShape(20.dp),
+        color = Color.Transparent,
+        tonalElevation = 0.dp
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp)
+                .clip(RoundedCornerShape(20.dp)),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             disconnectedServices.forEach { service ->
-                ConnectServiceButton(service = service, onConnect = onConnect)
+                ProviderRow(
+                    iconPainter = serviceConnectIcon(service),
+                    iconTint = serviceConnectTint(service),
+                    title = serviceDisplayName(service),
+                    subtitle = serviceConnectSubtitle(service),
+                    shape = RoundedCornerShape(8.dp),
+                    onClick = { onConnect(service) }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun ConnectServiceButton(
-    service: ExternalServiceAccount,
-    onConnect: (ExternalServiceAccount) -> Unit
-) {
-    val connectTemplate = stringResource(R.string.presentation_batch_b_accounts_connect_service)
-    FilledTonalButton(
-        onClick = { onConnect(service) },
-        shape = AbsoluteSmoothCornerShape(18.dp, 60),
-        colors = androidx.compose.material3.ButtonDefaults.filledTonalButtonColors(
-            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        modifier = Modifier.fillMaxWidth().height(48.dp)
-    ) {
-        when (service) {
-            ExternalServiceAccount.JELLYFIN -> Icon(
-                painter = painterResource(R.drawable.ic_jellyfin),
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-            ExternalServiceAccount.LISTENBRAINZ -> Icon(
-                imageVector = Icons.Rounded.GraphicEq,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-            ExternalServiceAccount.LASTFM -> Icon(
-                imageVector = Icons.Filled.MusicNote,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-        }
-        Spacer(modifier = Modifier.size(8.dp))
-        Text(
-            text = connectTemplate.format(serviceDisplayName(service))
-        )
-    }
+private fun serviceConnectIcon(service: ExternalServiceAccount): Painter = when (service) {
+    ExternalServiceAccount.JELLYFIN -> painterResource(R.drawable.ic_jellyfin)
+    ExternalServiceAccount.NAVIDROME -> painterResource(R.drawable.ic_navidrome_md3)
+    ExternalServiceAccount.LISTENBRAINZ -> rememberVectorPainter(Icons.Rounded.GraphicEq)
+    ExternalServiceAccount.LASTFM -> rememberVectorPainter(Icons.Filled.MusicNote)
+}
+
+private fun serviceConnectTint(service: ExternalServiceAccount): Color = when (service) {
+    ExternalServiceAccount.JELLYFIN -> Color(0xFF00A4DC)
+    ExternalServiceAccount.NAVIDROME -> Color(0xFF1A9E75)
+    ExternalServiceAccount.LISTENBRAINZ -> Color(0xFFEB743B)
+    ExternalServiceAccount.LASTFM -> Color(0xFFB90000)
+}
+
+@Composable
+private fun serviceConnectSubtitle(service: ExternalServiceAccount): String = when (service) {
+    ExternalServiceAccount.JELLYFIN -> stringResource(R.string.auth_jellyfin_subtitle)
+    ExternalServiceAccount.NAVIDROME -> stringResource(R.string.auth_navidrome_subtitle)
+    ExternalServiceAccount.LISTENBRAINZ -> stringResource(R.string.accounts_listenbrainz_connect_subtitle)
+    ExternalServiceAccount.LASTFM -> stringResource(R.string.lastfm_enable_scrobbling_desc)
 }
 
 @Composable

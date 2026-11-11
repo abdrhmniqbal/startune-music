@@ -247,6 +247,9 @@ fun AppNavigation(
                         onBackClick = { navController.popBackStack() },
                         onOpenJellyfinDashboard = {
                             navController.navigateSafely(Screen.JellyfinDashboard.route)
+                        },
+                        onOpenNavidromeDashboard = {
+                            navController.navigateSafely(Screen.NavidromeDashboard.route)
                         }
                     )
                 }
