@@ -2,6 +2,8 @@
 <resources>
     <string name="data_storage_section_dictionaries">Dictionaries</string>
     <string name="dictionaries_title">Dictionaries</string>
+    <string name="dictionaries_empty_title">No dictionaries available</string>
+    <string name="dictionaries_empty_subtitle">Check your connection and try again.</string>
     <string name="dictionaries_subtitle">Download dictionaries for lyric romanization</string>
     <string name="dictionaries_not_downloaded">Not downloaded</string>
     <string name="dictionaries_update_available">Update available</string>
