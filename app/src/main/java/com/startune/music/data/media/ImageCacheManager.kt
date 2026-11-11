@@ -4,6 +4,7 @@ import android.content.Context
 import coil.annotation.ExperimentalCoilApi
 import coil.imageLoader
 import coil.memory.MemoryCache
+import com.startune.music.data.image.RemoteArtworkCache
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -41,4 +42,26 @@ class ImageCacheManager @Inject constructor(
             }
         }
     }
+
+    /**
+     * Total bytes of cached artwork: Coil's disk cache plus the remote-cover
+     * files (Jellyfin/Navidrome) stored directly in cacheDir. Call off the
+     * main thread.
+     */
+    fun artworkCacheSizeBytes(): Long {
+        val coilSize = context.imageLoader.diskCache?.size ?: 0L
+        val remoteSize = context.cacheDir.listFiles()
+            ?.filter { RemoteArtworkCache.isCachedImage(it) }
+            ?.sumOf { it.length() }
+            ?: 0L
+        return coilSize + remoteSize
+    }
+
+    /** Deletes the remote-cover files. Pair with [clearAllCoverArtCaches]. */
+    fun clearRemoteArtworkCache() {
+        context.cacheDir.listFiles()
+            ?.filter { RemoteArtworkCache.isCachedImage(it) }
+            ?.forEach { it.delete() }
+    }
+
 }

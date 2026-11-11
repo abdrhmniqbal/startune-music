@@ -36,22 +36,27 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.CleaningServices
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.GraphicEq
 import androidx.compose.material.icons.rounded.Headphones
+import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Memory
+import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Speaker
 import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -82,6 +87,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
@@ -91,6 +97,7 @@ import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.viewmodel.AudioCapabilities
 import com.startune.music.presentation.viewmodel.AudioOutputCategory
+import com.startune.music.presentation.viewmodel.CacheStorageSummary
 import com.startune.music.presentation.viewmodel.DeviceCapabilitiesState
 import com.startune.music.presentation.viewmodel.DeviceCapabilitiesViewModel
 import com.startune.music.presentation.viewmodel.ExoPlayerInfo
@@ -373,11 +380,23 @@ fun LocalMusicStorageCard(
         }
 
         if (storageSummary.appDataBytes > 0) {
-            InfoTile(
-                label = stringResource(R.string.device_capabilities_storage_app_data),
-                value = appDataSize,
-                modifier = Modifier.fillMaxWidth()
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.device_capabilities_storage_app_data),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = appDataSize,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
 
         if (storageSummary.cloudSongCount > 0 || storageSummary.unavailableLocalFileCount > 0) {
@@ -422,7 +441,6 @@ private fun VolumeStorageSection(
         Formatter.formatShortFileSize(context, volume.totalBytes)
     }
     val musicPercent = storagePercentLabel(volume.musicFraction)
-    val usedPercent = storagePercentLabel(volume.usedFraction)
 
     Column(
         modifier = modifier,
@@ -437,46 +455,243 @@ private fun VolumeStorageSection(
         }
 
         Row(
-            modifier = Modifier.height(IntrinsicSize.Min),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            InfoTile(
-                label = stringResource(R.string.device_capabilities_storage_music_size),
-                value = musicSize,
-                supporting = stringResource(
-                    R.string.device_capabilities_storage_music_count,
-                    volume.songCount
+            Column {
+                Text(
+                    text = musicSize,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(
+                        R.string.device_capabilities_storage_music_count,
+                        volume.songCount
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Text(
+                text = stringResource(
+                    R.string.device_capabilities_storage_available_of_total,
+                    availableSize,
+                    totalSize
                 ),
-                modifier = Modifier.weight(1f)
-            )
-            InfoTile(
-                label = stringResource(R.string.device_capabilities_storage_available),
-                value = availableSize,
-                supporting = stringResource(R.string.device_capabilities_storage_total, totalSize),
-                modifier = Modifier.weight(1f)
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
+        ProgressReadout(
+            label = stringResource(R.string.device_capabilities_storage_music_footprint),
+            value = musicPercent,
+            progress = volume.musicFraction
+        )
+    }
+}
+
+@Composable
+fun ReclaimableCard(
+    cacheSummary: CacheStorageSummary,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val reclaimableSize = remember(cacheSummary.reclaimableBytes) {
+        Formatter.formatShortFileSize(context, cacheSummary.reclaimableBytes)
+    }
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = AbsoluteSmoothCornerShape(28.dp, 60),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        tonalElevation = 0.dp
+    ) {
         Column(
-            modifier = Modifier.padding(start = 6.dp, end = 6.dp, bottom = 6.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            ProgressReadout(
-                label = stringResource(R.string.device_capabilities_storage_music_footprint),
-                value = musicPercent,
-                progress = volume.musicFraction
-            )
-            ProgressReadout(
-                label = stringResource(R.string.device_capabilities_storage_device_used),
-                value = usedPercent,
-                progress = volume.usedFraction,
-                color = MaterialTheme.colorScheme.secondary
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Surface(
+                    modifier = Modifier.size(56.dp),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Rounded.CleaningServices,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+                Column {
+                    Text(
+                        text = stringResource(R.string.cache_reclaimable_title),
+                        style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 2.sp),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = reclaimableSize,
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+            Text(
+                text = stringResource(
+                    R.string.cache_reclaimable_subtitle,
+                    cacheSummary.expiredTrackCount
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
 }
 
 @Composable
+fun AppCacheStorageCard(
+    cacheSummary: CacheStorageSummary,
+    onClearStream: () -> Unit,
+    onClearArtwork: () -> Unit,
+    onCleanAll: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val streamSize = remember(cacheSummary.streamBytes) {
+        Formatter.formatShortFileSize(context, cacheSummary.streamBytes)
+    }
+    val streamExpiredSize = remember(cacheSummary.streamExpiredBytes) {
+        Formatter.formatShortFileSize(context, cacheSummary.streamExpiredBytes)
+    }
+    val artworkSize = remember(cacheSummary.artworkBytes) {
+        Formatter.formatShortFileSize(context, cacheSummary.artworkBytes)
+    }
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = AbsoluteSmoothCornerShape(28.dp, 60),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        tonalElevation = 0.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                StatusIcon(
+                    icon = Icons.Rounded.Storage,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                Text(
+                    text = stringResource(R.string.cache_storage_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                FilledTonalButton(
+                    onClick = onCleanAll,
+                    enabled = cacheSummary.totalCacheBytes > 0L,
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
+                ) {
+                    Text(text = stringResource(R.string.cache_clean_all))
+                }
+            }
+
+            CacheRow(
+                icon = Icons.Rounded.MusicNote,
+                title = stringResource(R.string.cache_stream_title),
+                subtitle = stringResource(R.string.cache_stream_expired, streamExpiredSize),
+                size = streamSize,
+                canClear = cacheSummary.streamBytes > 0L,
+                onClear = onClearStream
+            )
+            CacheRow(
+                icon = Icons.Rounded.Image,
+                title = stringResource(R.string.cache_artwork_title),
+                subtitle = stringResource(R.string.cache_artwork_subtitle),
+                size = artworkSize,
+                canClear = cacheSummary.artworkBytes > 0L,
+                onClear = onClearArtwork
+            )
+        }
+    }
+}
+
+@Composable
+private fun CacheRow(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    size: String,
+    canClear: Boolean,
+    onClear: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Surface(
+            modifier = Modifier.size(48.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surfaceContainerHighest
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Text(
+            text = size,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        OutlinedButton(
+            onClick = onClear,
+            enabled = canClear,
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
+        ) {
+            Text(text = stringResource(R.string.cache_clear))
+        }
+    }
+}
+
+
 private fun PlaybackPathCard(
     audioCapabilities: AudioCapabilities,
     memorySummary: MemorySummary?,

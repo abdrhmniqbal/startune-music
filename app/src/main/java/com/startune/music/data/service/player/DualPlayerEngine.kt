@@ -35,6 +35,7 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.extractor.DefaultExtractorsFactory
 import androidx.media3.extractor.mp3.Mp3Extractor
 import androidx.media3.extractor.flac.FlacExtractor
+import com.startune.music.data.media.StreamPlaybackCache
 import com.startune.music.data.model.AudioOutputMode
 import com.startune.music.data.model.TransitionSettings
 import com.startune.music.data.offline.CloudOfflineRepository
@@ -226,7 +227,8 @@ class DualPlayerEngine @Inject constructor(
     private val jellyfinStreamProxy: com.startune.music.data.jellyfin.JellyfinStreamProxy,
     private val navidromeStreamProxy: com.startune.music.data.navidrome.NavidromeStreamProxy,
     private val cloudOfflineRepository: CloudOfflineRepository,
-    private val userPreferencesRepository: UserPreferencesRepository
+    private val userPreferencesRepository: UserPreferencesRepository,
+    private val streamPlaybackCache: StreamPlaybackCache
 ) {
     private companion object {
         private const val AUDIO_OFFLOAD_STALL_FALLBACK_MS = 1_500L
@@ -1321,6 +1323,7 @@ class DualPlayerEngine @Inject constructor(
                             resolvedUriCache.put(originalUri, proxyUri)
                         }
                     if (resolved != null) {
+                        streamPlaybackCache.registerStreamKey(resolved.toString(), originalUri)
                         return dataSpec.buildUpon().setUri(resolved).build()
                     }
                     // Cache miss: resolve inline. resolveDataSpec runs on ExoPlayer's
@@ -1339,6 +1342,7 @@ class DualPlayerEngine @Inject constructor(
                         throw IOException("Failed to resolve $scheme stream", e)
                     }
                     if (inlineResolved != uri) {
+                        streamPlaybackCache.registerStreamKey(inlineResolved.toString(), originalUri)
                         return dataSpec.buildUpon().setUri(inlineResolved).build()
                     }
                     // No proxy can serve a raw cloud scheme; fail with a clear cause
@@ -1349,7 +1353,7 @@ class DualPlayerEngine @Inject constructor(
             }
         }
         
-        val dataSourceFactory = DefaultDataSource.Factory(context)
+        val dataSourceFactory = DefaultDataSource.Factory(context, streamPlaybackCache.dataSourceFactory())
         val resolvingFactory = ResolvingDataSource.Factory(dataSourceFactory, resolver)
         val extractorsFactory = DefaultExtractorsFactory()
             .setMp3ExtractorFlags(Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING)

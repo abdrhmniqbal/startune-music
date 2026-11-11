@@ -1567,6 +1567,19 @@ fun SettingsCategoryScreen(
                                 LocalMusicStorageCard(storageSummary = storage)
                             }
 
+                            deviceCapabilitiesState.cacheSummary?.let { cache ->
+                                Spacer(modifier = Modifier.height(10.dp))
+                                ReclaimableCard(cacheSummary = cache)
+                                Spacer(modifier = Modifier.height(10.dp))
+                                AppCacheStorageCard(
+                                    cacheSummary = cache,
+                                    onClearStream = { deviceCapabilitiesViewModel.clearStreamPlaybackCache() },
+                                    onClearArtwork = { deviceCapabilitiesViewModel.clearArtworkCache() },
+                                    onCleanAll = { deviceCapabilitiesViewModel.clearAllCaches() }
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                            }
+
                             if (!uiState.backupInfoDismissed) {
                                 BackupInfoNoticeCard(
                                     onDismiss = { settingsViewModel.setBackupInfoDismissed(true) }

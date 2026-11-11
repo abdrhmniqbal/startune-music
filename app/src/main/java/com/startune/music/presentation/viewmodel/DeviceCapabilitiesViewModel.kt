@@ -20,6 +20,8 @@ import com.startune.music.R
 import com.startune.music.data.database.DeviceCapabilitySongRow
 import com.startune.music.data.database.MusicDao
 import com.startune.music.data.dictionary.DictionaryManager
+import com.startune.music.data.media.ImageCacheManager
+import com.startune.music.data.media.StreamPlaybackCache
 import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.database.SourceType
 import com.startune.music.data.service.player.ActiveDecoderInfo
@@ -115,6 +117,20 @@ data class LocalMusicStorageSummary(
     val appDataBytes: Long = 0L
 )
 
+data class CacheStorageSummary(
+    val streamBytes: Long,
+    val streamExpiredBytes: Long,
+    val expiredTrackCount: Int,
+    val artworkBytes: Long
+) {
+    /** Bytes that belong to streams unplayed long enough to count as forgotten. */
+    val reclaimableBytes: Long
+        get() = streamExpiredBytes
+
+    val totalCacheBytes: Long
+        get() = streamBytes + artworkBytes
+}
+
 data class PlaybackCompatibilitySummary(
     val supportedLibrarySongCount: Int,
     val unsupportedLibrarySongCount: Int,
@@ -145,6 +161,7 @@ data class DeviceCapabilitiesState(
     val audioCapabilities: AudioCapabilities? = null,
     val exoPlayerInfo: ExoPlayerInfo? = null,
     val storageSummary: LocalMusicStorageSummary? = null,
+    val cacheSummary: CacheStorageSummary? = null,
     val playbackCompatibility: PlaybackCompatibilitySummary? = null,
     val formatSupport: ImmutableList<FormatSupportInfo> = persistentListOf(),
     val memorySummary: MemorySummary? = null,
@@ -164,7 +181,9 @@ class DeviceCapabilitiesViewModel @Inject constructor(
     private val engine: DualPlayerEngine,
     private val musicDao: MusicDao,
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val dictionaryManager: DictionaryManager
+    private val dictionaryManager: DictionaryManager,
+    private val streamPlaybackCache: StreamPlaybackCache,
+    private val imageCacheManager: ImageCacheManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DeviceCapabilitiesState())
@@ -182,6 +201,7 @@ class DeviceCapabilitiesViewModel @Inject constructor(
                 val audioCaps = getAudioCapabilities()
                 val libraryRows = musicDao.getDeviceCapabilitySongRows()
                 val storage = getLocalMusicStorageSummary(libraryRows)
+                val cacheSummary = getCacheStorageSummary()
                 val playback = getPlaybackCompatibilitySummary(libraryRows, audioCaps)
                 val formatSupport = getFormatSupport(libraryRows, audioCaps)
                 val memorySummary = getMemorySummary()
@@ -192,6 +212,7 @@ class DeviceCapabilitiesViewModel @Inject constructor(
                     audioCapabilities = audioCaps,
                     exoPlayerInfo = exoInfo,
                     storageSummary = storage,
+                    cacheSummary = cacheSummary,
                     playbackCompatibility = playback,
                     formatSupport = formatSupport.toImmutableList(),
                     memorySummary = memorySummary,
@@ -606,6 +627,45 @@ private fun audioFormatCandidates(): List<AudioFormatCandidate> {
         add(AudioFormatCandidate("QCELP", "audio/qcelp", null))
         add(AudioFormatCandidate("IMA-ADPCM", "audio/x-ima-adpcm", null))
     }
+
+    private fun getCacheStorageSummary(): CacheStorageSummary {
+        val streamStats = streamPlaybackCache.stats()
+        return CacheStorageSummary(
+            streamBytes = streamStats.totalBytes,
+            streamExpiredBytes = streamStats.expiredBytes,
+            expiredTrackCount = streamStats.expiredTrackCount,
+            artworkBytes = imageCacheManager.artworkCacheSizeBytes()
+        )
+    }
+
+    fun clearStreamPlaybackCache() {
+        viewModelScope.launch(Dispatchers.IO) {
+            streamPlaybackCache.clear()
+            refreshCacheSummary()
+        }
+    }
+
+    fun clearArtworkCache() {
+        viewModelScope.launch(Dispatchers.IO) {
+            imageCacheManager.clearAllCoverArtCaches()
+            imageCacheManager.clearRemoteArtworkCache()
+            refreshCacheSummary()
+        }
+    }
+
+    fun clearAllCaches() {
+        viewModelScope.launch(Dispatchers.IO) {
+            streamPlaybackCache.clear()
+            imageCacheManager.clearAllCoverArtCaches()
+            imageCacheManager.clearRemoteArtworkCache()
+            refreshCacheSummary()
+        }
+    }
+
+    private fun refreshCacheSummary() {
+        _state.value = _state.value.copy(cacheSummary = getCacheStorageSummary())
+    }
+
 }
 
 private fun normalizeMimeType(mimeType: String): String {
