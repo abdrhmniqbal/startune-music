@@ -232,5 +232,6 @@
     <string name="mix_genres_hint">Separate genres with commas. Recognized genres become chips.</string>
     <string name="mix_empty_title">No mixes yet</string>
     <string name="mix_empty_hint">Create your first mix to get started.</string>
+    <string name="mix_cover_cd">Mix</string>
     <string name="mix_see_all">See all</string>
 </resources>

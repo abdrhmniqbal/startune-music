@@ -732,14 +732,7 @@ private fun albumArtPaletteStyleDescription(style: AlbumArtPaletteStyle): String
 
 @Composable
 private fun albumArtPaletteStyleLabel(style: AlbumArtPaletteStyle): String =
-    stringResource(
-        when (style) {
-            AlbumArtPaletteStyle.TONAL_SPOT -> R.string.presentation_batch_f_palette_label_tonal_spot
-            AlbumArtPaletteStyle.VIBRANT -> R.string.presentation_batch_f_palette_label_vibrant
-            AlbumArtPaletteStyle.EXPRESSIVE -> R.string.presentation_batch_f_palette_label_expressive
-            AlbumArtPaletteStyle.FRUIT_SALAD -> R.string.presentation_batch_f_palette_label_fruit_salad
-        }
-    )
+    stringResource(style.labelRes)
 
 @Composable
 private fun accuracySummaryText(value: Int): String {

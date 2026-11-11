@@ -1,6 +1,8 @@
 ﻿package com.startune.music.utils
 
 import android.content.res.Resources
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.pluralStringResource
 import com.startune.music.R
 import com.startune.music.data.model.Song
 import java.util.Locale
@@ -71,8 +73,9 @@ fun formatListeningDurationCompact(milliseconds: Long): String {
     }
 }
 
+@Composable
 fun formatSongCount(count: Int): String {
-    return if (count <= 1) "$count Song" else "$count Songs"
+    return pluralStringResource(R.plurals.song_count, count, count)
 }
 
 fun formatTimeAgo(timestamp: Long): String {

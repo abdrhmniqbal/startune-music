@@ -1,6 +1,9 @@
 ﻿package com.startune.music.data.backup.validation
 
 import com.startune.music.data.backup.model.BackupManifest
+import android.content.Context
+import com.startune.music.R
+import dagger.hilt.android.qualifiers.ApplicationContext
 import com.startune.music.data.backup.model.BackupSection
 import com.startune.music.data.backup.model.BackupValidationResult
 import com.startune.music.data.backup.model.Severity
@@ -10,28 +13,30 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ManifestValidator @Inject constructor() {
+class ManifestValidator @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
 
     fun validate(manifest: BackupManifest): BackupValidationResult {
         val errors = mutableListOf<ValidationError>()
 
         if (manifest.schemaVersion < BackupManifest.MIN_SUPPORTED_VERSION) {
-            errors.add(ValidationError("SCHEMA_TOO_OLD", "Backup schema version ${manifest.schemaVersion} is not supported."))
+            errors.add(ValidationError("SCHEMA_TOO_OLD", context.getString(R.string.backup_schema_too_old_format, manifest.schemaVersion)))
         }
         if (manifest.schemaVersion > BackupManifest.CURRENT_SCHEMA_VERSION) {
             errors.add(ValidationError(
                 "SCHEMA_TOO_NEW",
-                "Backup was created with a newer app version (schema v${manifest.schemaVersion}). Some data may not be restored.",
+                context.getString(R.string.backup_schema_too_new_format, manifest.schemaVersion),
                 severity = Severity.WARNING
             ))
         }
 
         val now = System.currentTimeMillis()
         if (manifest.createdAt > now + 86_400_000) {
-            errors.add(ValidationError("TIMESTAMP_FUTURE", "Backup has a timestamp in the future.", severity = Severity.WARNING))
+            errors.add(ValidationError("TIMESTAMP_FUTURE", context.getString(R.string.backup_timestamp_future), severity = Severity.WARNING))
         }
         if (manifest.createdAt < 1_700_000_000_000) {
-            errors.add(ValidationError("TIMESTAMP_OLD", "Backup has an unusually old timestamp.", severity = Severity.WARNING))
+            errors.add(ValidationError("TIMESTAMP_OLD", context.getString(R.string.backup_timestamp_old), severity = Severity.WARNING))
         }
 
         val knownKeys = BackupSection.entries.map { it.key }.toSet()
@@ -39,7 +44,7 @@ class ManifestValidator @Inject constructor() {
             if (key !in knownKeys) {
                 errors.add(ValidationError(
                     "UNKNOWN_MODULE",
-                    "Unknown module '$key' in backup. It will be skipped.",
+                    context.getString(R.string.backup_unknown_module_format, key),
                     module = key,
                     severity = Severity.WARNING
                 ))

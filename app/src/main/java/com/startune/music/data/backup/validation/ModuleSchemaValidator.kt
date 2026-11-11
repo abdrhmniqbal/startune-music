@@ -1,6 +1,9 @@
 ﻿package com.startune.music.data.backup.validation
 
 import com.google.gson.JsonParser
+import android.content.Context
+import com.startune.music.R
+import dagger.hilt.android.qualifiers.ApplicationContext
 import com.startune.music.data.backup.model.BackupSection
 import com.startune.music.data.backup.model.BackupValidationResult
 import com.startune.music.data.backup.model.Severity
@@ -10,6 +13,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ModuleSchemaValidator @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val contentSanitizer: ContentSanitizer
 ) {
     private data class NumericFieldResult(
@@ -29,7 +33,7 @@ class ModuleSchemaValidator @Inject constructor(
         val jsonElement = try {
             JsonParser.parseString(payload)
         } catch (e: Exception) {
-            errors.add(ValidationError("INVALID_JSON", "Module '${section.key}' contains invalid JSON.", module = section.key))
+            errors.add(ValidationError("INVALID_JSON", context.getString(R.string.backup_module_invalid_json_format, section.key), module = section.key))
             return BackupValidationResult.Invalid(errors)
         }
 
@@ -46,12 +50,12 @@ class ModuleSchemaValidator @Inject constructor(
 
         if (section != BackupSection.QUICK_FILL && section != BackupSection.EQUALIZER) {
             if (!jsonElement.isJsonArray) {
-                errors.add(ValidationError("NOT_ARRAY", "Module '${section.key}' should be a JSON array.", module = section.key))
+                errors.add(ValidationError("NOT_ARRAY", context.getString(R.string.backup_module_not_array_format, section.key), module = section.key))
                 return BackupValidationResult.Invalid(errors)
             }
             val array = jsonElement.asJsonArray
             if (array.size() > MAX_ENTRIES_PER_MODULE) {
-                errors.add(ValidationError("TOO_MANY_ENTRIES", "Module '${section.key}' has ${array.size()} entries (max $MAX_ENTRIES_PER_MODULE).", module = section.key))
+                errors.add(ValidationError("TOO_MANY_ENTRIES", context.getString(R.string.backup_module_too_many_entries_format, section.key, array.size(), MAX_ENTRIES_PER_MODULE), module = section.key))
                 return BackupValidationResult.Invalid(errors)
             }
         }
@@ -97,7 +101,7 @@ class ModuleSchemaValidator @Inject constructor(
             errors.add(
                 ValidationError(
                     "INVALID_PLAYLISTS_PAYLOAD",
-                    "Module '${BackupSection.PLAYLISTS.key}' should be a JSON object or legacy array.",
+                    context.getString(R.string.backup_module_playlists_payload_format, BackupSection.PLAYLISTS.key),
                     module = BackupSection.PLAYLISTS.key
                 )
             )
@@ -110,7 +114,7 @@ class ModuleSchemaValidator @Inject constructor(
             errors.add(
                 ValidationError(
                     "TOO_MANY_ENTRIES",
-                    "Module '${BackupSection.PLAYLISTS.key}' has ${playlistsArray.size()} playlists (max $MAX_ENTRIES_PER_MODULE).",
+                    context.getString(R.string.backup_module_playlists_too_many_format, BackupSection.PLAYLISTS.key, playlistsArray.size(), MAX_ENTRIES_PER_MODULE),
                     module = BackupSection.PLAYLISTS.key
                 )
             )
@@ -122,7 +126,7 @@ class ModuleSchemaValidator @Inject constructor(
                 errors.add(
                     ValidationError(
                         "INVALID_PLAYLIST_ENTRY",
-                        "Playlists[$index] is not a JSON object.",
+                        context.getString(R.string.backup_playlist_entry_not_object_format, index),
                         module = BackupSection.PLAYLISTS.key,
                         severity = Severity.WARNING
                     )
@@ -136,7 +140,7 @@ class ModuleSchemaValidator @Inject constructor(
                 errors.add(
                     ValidationError(
                         "MISSING_PLAYLIST_ID",
-                        "Playlists[$index] is missing id.",
+                        context.getString(R.string.backup_playlist_missing_id_format, index),
                         module = BackupSection.PLAYLISTS.key,
                         severity = Severity.WARNING
                     )
@@ -146,7 +150,7 @@ class ModuleSchemaValidator @Inject constructor(
                 errors.add(
                     ValidationError(
                         "MISSING_PLAYLIST_NAME",
-                        "Playlists[$index] is missing name.",
+                        context.getString(R.string.backup_playlist_missing_name_format, index),
                         module = BackupSection.PLAYLISTS.key,
                         severity = Severity.WARNING
                     )
@@ -159,7 +163,7 @@ class ModuleSchemaValidator @Inject constructor(
             errors.add(
                 ValidationError(
                     "INVALID_SORT_OPTION",
-                    "playlistsSortOption looks invalid (too long).",
+                    context.getString(R.string.backup_playlists_sort_option_invalid),
                     module = BackupSection.PLAYLISTS.key,
                     severity = Severity.WARNING
                 )
@@ -176,7 +180,7 @@ class ModuleSchemaValidator @Inject constructor(
                 errors.add(
                     ValidationError(
                         "INVALID_SONG_ID",
-                        "Favorites[$i]: invalid songId",
+                        context.getString(R.string.backup_favorites_invalid_song_id_format, i),
                         module = "favorites",
                         severity = Severity.WARNING
                     )
@@ -191,7 +195,7 @@ class ModuleSchemaValidator @Inject constructor(
             val obj = element.asJsonObject
             val content = obj.get("content")?.asString ?: ""
             if (content.length > MAX_STRING_LENGTH) {
-                errors.add(ValidationError("LYRICS_TOO_LONG", "Lyrics[$i]: content exceeds max length", module = "lyrics", severity = Severity.WARNING))
+                errors.add(ValidationError("LYRICS_TOO_LONG", context.getString(R.string.backup_lyrics_too_long_format, i), module = "lyrics", severity = Severity.WARNING))
             }
         }
     }
@@ -202,7 +206,7 @@ class ModuleSchemaValidator @Inject constructor(
             val obj = element.asJsonObject
             val query = obj.get("query")?.asString ?: ""
             if (query.length > 500) {
-                errors.add(ValidationError("QUERY_TOO_LONG", "SearchHistory[$i]: query exceeds 500 chars", module = "search_history", severity = Severity.WARNING))
+                errors.add(ValidationError("QUERY_TOO_LONG", context.getString(R.string.backup_search_history_query_too_long_format, i), module = "search_history", severity = Severity.WARNING))
             }
         }
     }
@@ -214,7 +218,7 @@ class ModuleSchemaValidator @Inject constructor(
                 errors.add(
                     ValidationError(
                         "INVALID_ENGAGEMENT_ENTRY",
-                        "EngagementStats[$i]: entry is not a JSON object",
+                        context.getString(R.string.backup_engagement_entry_not_object_format, i),
                         module = "engagement_stats",
                         severity = Severity.WARNING
                     )
@@ -227,7 +231,7 @@ class ModuleSchemaValidator @Inject constructor(
                 errors.add(
                     ValidationError(
                         "MISSING_SONG_ID",
-                        "EngagementStats[$i]: missing songId",
+                        context.getString(R.string.backup_engagement_missing_song_id_format, i),
                         module = "engagement_stats",
                         severity = Severity.WARNING
                     )
@@ -236,7 +240,7 @@ class ModuleSchemaValidator @Inject constructor(
                 errors.add(
                     ValidationError(
                         "DUPLICATE_SONG_ID",
-                        "EngagementStats[$i]: duplicate songId '$songId'",
+                        context.getString(R.string.backup_engagement_duplicate_song_id_format, i, songId),
                         module = "engagement_stats",
                         severity = Severity.WARNING
                     )
@@ -248,7 +252,7 @@ class ModuleSchemaValidator @Inject constructor(
                 errors.add(
                     ValidationError(
                         "INVALID_PLAY_COUNT",
-                        "EngagementStats[$i]: play count is not numeric",
+                        context.getString(R.string.backup_engagement_play_count_not_numeric_format, i),
                         module = "engagement_stats",
                         severity = Severity.WARNING
                     )
@@ -257,7 +261,7 @@ class ModuleSchemaValidator @Inject constructor(
                 errors.add(
                     ValidationError(
                         "NEGATIVE_PLAY_COUNT",
-                        "EngagementStats[$i]: negative play count",
+                        context.getString(R.string.backup_engagement_negative_play_count_format, i),
                         module = "engagement_stats",
                         severity = Severity.WARNING
                     )
@@ -277,7 +281,7 @@ class ModuleSchemaValidator @Inject constructor(
                 errors.add(
                     ValidationError(
                         "INVALID_TOTAL_DURATION",
-                        "EngagementStats[$i]: total duration is not numeric",
+                        context.getString(R.string.backup_engagement_total_duration_not_numeric_format, i),
                         module = "engagement_stats",
                         severity = Severity.WARNING
                     )
@@ -286,7 +290,7 @@ class ModuleSchemaValidator @Inject constructor(
                 errors.add(
                     ValidationError(
                         "NEGATIVE_TOTAL_DURATION",
-                        "EngagementStats[$i]: negative total duration",
+                        context.getString(R.string.backup_engagement_negative_total_duration_format, i),
                         module = "engagement_stats",
                         severity = Severity.WARNING
                     )
@@ -305,7 +309,7 @@ class ModuleSchemaValidator @Inject constructor(
                 errors.add(
                     ValidationError(
                         "INVALID_LAST_PLAYED_TIMESTAMP",
-                        "EngagementStats[$i]: last played timestamp is not numeric",
+                        context.getString(R.string.backup_engagement_last_played_not_numeric_format, i),
                         module = "engagement_stats",
                         severity = Severity.WARNING
                     )
@@ -314,7 +318,7 @@ class ModuleSchemaValidator @Inject constructor(
                 errors.add(
                     ValidationError(
                         "NEGATIVE_LAST_PLAYED_TIMESTAMP",
-                        "EngagementStats[$i]: negative last played timestamp",
+                        context.getString(R.string.backup_engagement_negative_last_played_format, i),
                         module = "engagement_stats",
                         severity = Severity.WARNING
                     )
@@ -329,7 +333,7 @@ class ModuleSchemaValidator @Inject constructor(
             val obj = element.asJsonObject
             val durationMs = obj.get("durationMs")?.asLong ?: 0
             if (durationMs < 0) {
-                errors.add(ValidationError("NEGATIVE_DURATION", "PlaybackHistory[$i]: negative duration", module = "playback_history", severity = Severity.WARNING))
+                errors.add(ValidationError("NEGATIVE_DURATION", context.getString(R.string.backup_playback_history_negative_duration_format, i), module = "playback_history", severity = Severity.WARNING))
             }
         }
     }
@@ -340,10 +344,10 @@ class ModuleSchemaValidator @Inject constructor(
             val obj = element.asJsonObject
             val imageUrl = obj.get("imageUrl")?.asString ?: ""
             if (imageUrl.isNotEmpty() && !imageUrl.startsWith("https://")) {
-                errors.add(ValidationError("INSECURE_URL", "ArtistImages[$i]: URL is not HTTPS", module = "artist_images", severity = Severity.WARNING))
+                errors.add(ValidationError("INSECURE_URL", context.getString(R.string.backup_artist_images_insecure_url_format, i), module = "artist_images", severity = Severity.WARNING))
             }
             if (imageUrl.length > 2000) {
-                errors.add(ValidationError("URL_TOO_LONG", "ArtistImages[$i]: URL exceeds 2000 chars", module = "artist_images", severity = Severity.WARNING))
+                errors.add(ValidationError("URL_TOO_LONG", context.getString(R.string.backup_artist_images_url_too_long_format, i), module = "artist_images", severity = Severity.WARNING))
             }
         }
     }
@@ -356,7 +360,7 @@ class ModuleSchemaValidator @Inject constructor(
             if (settings != null) {
                 val durationMs = settings.get("durationMs")?.asInt ?: 0
                 if (durationMs < 0 || durationMs > 30_000) {
-                    errors.add(ValidationError("INVALID_TRANSITION_DURATION", "Transitions[$i]: duration out of range", module = "transitions", severity = Severity.WARNING))
+                    errors.add(ValidationError("INVALID_TRANSITION_DURATION", context.getString(R.string.backup_transitions_duration_out_of_range_format, i), module = "transitions", severity = Severity.WARNING))
                 }
             }
         }
@@ -370,10 +374,10 @@ class ModuleSchemaValidator @Inject constructor(
             val key = obj.get("key")?.asString
             val type = obj.get("type")?.asString
             if (key.isNullOrBlank()) {
-                errors.add(ValidationError("MISSING_PREF_KEY", "Preference[$i]: missing key", module = moduleKey, severity = Severity.WARNING))
+                errors.add(ValidationError("MISSING_PREF_KEY", context.getString(R.string.backup_preference_missing_key_format, i), module = moduleKey, severity = Severity.WARNING))
             }
             if (type == null || type !in VALID_PREF_TYPES) {
-                errors.add(ValidationError("INVALID_PREF_TYPE", "Preference[$i]: invalid type '$type'", module = moduleKey, severity = Severity.WARNING))
+                errors.add(ValidationError("INVALID_PREF_TYPE", context.getString(R.string.backup_preference_invalid_type_format, i, type), module = moduleKey, severity = Severity.WARNING))
             }
         }
     }

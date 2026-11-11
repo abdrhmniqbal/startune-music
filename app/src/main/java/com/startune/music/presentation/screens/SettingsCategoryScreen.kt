@@ -907,7 +907,7 @@ fun SettingsCategoryScreen(
                                 )
                                 SettingsItem(
                                     title = stringResource(R.string.setcat_album_art_palette_title),
-                                    subtitle = stringResource(R.string.setcat_album_art_palette_subtitle, uiState.albumArtPaletteStyle.label),
+                                    subtitle = stringResource(R.string.setcat_album_art_palette_subtitle, stringResource(uiState.albumArtPaletteStyle.labelRes)),
                                     leadingIcon = { Icon(Icons.Outlined.Style, null, tint = MaterialTheme.colorScheme.secondary) },
                                     trailingIcon = { Icon(Icons.Rounded.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                                     onClick = { navController.navigateSafely(Screen.PaletteStyle.createRoute()) }
@@ -2712,7 +2712,7 @@ private fun BackupSectionSelectableCard(
                     verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     Text(
-                        text = section.label,
+                        text = stringResource(section.labelRes),
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontFamily = RoundedSans
                         ),
@@ -2720,7 +2720,7 @@ private fun BackupSectionSelectableCard(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = section.description,
+                        text = stringResource(section.descriptionRes),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -2912,7 +2912,7 @@ private fun BackupTransferProgressDialog(progress: BackupTransferProgressUpdate)
 
                 progress.section?.let { section ->
                     Text(
-                        text = section.label,
+                        text = stringResource(section.labelRes),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
                         textAlign = TextAlign.Center

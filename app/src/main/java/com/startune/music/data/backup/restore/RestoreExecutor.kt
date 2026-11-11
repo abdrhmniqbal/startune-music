@@ -1,6 +1,9 @@
 ﻿package com.startune.music.data.backup.restore
 
 import android.net.Uri
+import android.content.Context
+import com.startune.music.R
+import dagger.hilt.android.qualifiers.ApplicationContext
 import com.startune.music.data.backup.format.BackupReader
 import com.startune.music.data.backup.model.BackupOperationType
 import com.startune.music.data.backup.model.BackupSection
@@ -18,6 +21,7 @@ import javax.inject.Singleton
 
 @Singleton
 class RestoreExecutor @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val backupReader: BackupReader,
     private val validationPipeline: ValidationPipeline,
     private val handlers: Map<BackupSection, @JvmSuppressWildcards BackupModuleHandler>
@@ -35,7 +39,7 @@ class RestoreExecutor @Inject constructor(
         val totalSteps = selectedModules.size * 2 + 3
         var step = 0
 
-        reportProgress(onProgress, ++step, totalSteps, "Creating safety snapshots", "Capturing current state for rollback.")
+        reportProgress(onProgress, ++step, totalSteps, context.getString(R.string.backup_restore_snapshots_title), context.getString(R.string.backup_restore_snapshots_detail))
 
         val snapshots = mutableMapOf<BackupSection, String>()
         try {
@@ -47,10 +51,10 @@ class RestoreExecutor @Inject constructor(
             }
         } catch (e: Exception) {
             Timber.tag(TAG).e(e, "Snapshot phase failed")
-            return@withContext RestoreResult.TotalFailure("Failed to capture current state: ${e.message}")
+            return@withContext RestoreResult.TotalFailure(context.getString(R.string.backup_snapshot_failed_format, e.message))
         }
 
-        reportProgress(onProgress, ++step, totalSteps, "Preparing restore", "Selected modules will be processed one at a time.")
+        reportProgress(onProgress, ++step, totalSteps, context.getString(R.string.backup_restore_preparing_title), context.getString(R.string.backup_restore_preparing_detail))
 
         val restoredModules = mutableListOf<BackupSection>()
         var currentSection: BackupSection? = null
@@ -62,7 +66,7 @@ class RestoreExecutor @Inject constructor(
                     moduleInfo.sizeBytes > BackupReader.MAX_MODULE_PAYLOAD_BYTES
                 ) {
                     throw IllegalStateException(
-                        "Backup payload for ${section.label} is ${moduleInfo.sizeBytes / (1024 * 1024)}MB, " +
+                        "Backup payload for ${section.key} is ${moduleInfo.sizeBytes / (1024 * 1024)}MB, " +
                             "which exceeds the ${BackupReader.MAX_MODULE_PAYLOAD_BYTES / (1024 * 1024)}MB restore safety limit."
                     )
                 }
@@ -74,21 +78,21 @@ class RestoreExecutor @Inject constructor(
                 )
                 if (validationResult is BackupValidationResult.Invalid && validationResult.fatalErrors.isNotEmpty()) {
                     throw IllegalStateException(
-                        "Validation failed for ${section.label}: ${validationResult.fatalErrors.first().message}"
+                        "Validation failed for ${section.key}: ${validationResult.fatalErrors.first().message}"
                     )
                 }
 
                 reportProgress(
                     onProgress, ++step, totalSteps,
-                    "Validated ${section.label}",
-                    section.description,
+                    context.getString(R.string.backup_restore_validated_title, context.getString(section.labelRes)),
+                    context.getString(section.descriptionRes),
                     section
                 )
 
                 reportProgress(
                     onProgress, ++step, totalSteps,
-                    "Restoring ${section.label}",
-                    section.description,
+                    context.getString(R.string.backup_restore_restoring_title, context.getString(section.labelRes)),
+                    context.getString(section.descriptionRes),
                     section
                 )
 
@@ -117,9 +121,9 @@ class RestoreExecutor @Inject constructor(
             val failedSection = currentSection
 
             if (rollbackSuccess) {
-                val failedLabel = failedSection?.label ?: "unknown module"
+                val failedLabel = failedSection?.let { context.getString(it.labelRes) } ?: context.getString(R.string.backup_unknown_module)
                 return@withContext RestoreResult.TotalFailure(
-                    "Restore failed at $failedLabel: $failedReason. All applied changes were rolled back."
+                    context.getString(R.string.backup_restore_failed_format, failedLabel, failedReason)
                 )
             }
 
@@ -130,7 +134,7 @@ class RestoreExecutor @Inject constructor(
             )
         }
 
-        reportProgress(onProgress, ++step, totalSteps, "Restore complete", "All selected modules were restored successfully.")
+        reportProgress(onProgress, ++step, totalSteps, context.getString(R.string.backup_restore_complete_title), context.getString(R.string.backup_restore_complete_detail))
 
         RestoreResult.Success
     }
