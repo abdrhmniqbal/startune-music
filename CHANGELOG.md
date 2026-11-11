@@ -9,14 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.0-beta] - 2026-11-11
 
-First beta of the Kotlin rewrite.
+First beta of the Kotlin rewrite: Startune Music rebuilt as a native Kotlin app, analytics-free.
+
+> If you installed one of the earlier test APKs, uninstall it first. This beta is signed with the release keystore, so it cannot update over the throwaway-signed test builds.
 
 ### Added
-- Local playback with Top Songs, mixes and statistics
+- Local playback with Top Songs, mixes and listening statistics
 - Navidrome and Jellyfin libraries with offline downloads
-- Synced lyrics, translation and romanization
+- Last.fm, ListenBrainz and Deezer scrobbling
+- Synced lyrics with translation and romanization
 - Backup and restore (.starbk)
-- Redesigned color schemes and Material 3 Expressive interface
+- Material 3 Expressive interface with redesigned color schemes
+- Empty states for every list screen
+- Per-ABI release builds: arm64-v8a, armeabi-v7a, x86, x86_64
 
 ## [1.8.11] - 2026-10-31
 
