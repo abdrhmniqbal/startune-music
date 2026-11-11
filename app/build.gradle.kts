@@ -141,6 +141,13 @@ android {
 
     lint {
         checkReleaseBuilds = false
+        // Baseline snapshots the pre-existing lint state (2026-11-11:
+        // 1829 MissingTranslation, 146 ExtraTranslation from the stale
+        // Crowdin translations, plus upstream issues). The checks
+        // workflow fails only on NEW issues. Regenerate with
+        // ./gradlew :app:updateLintBaseline after the Crowdin sync
+        // refreshes translations, never hand-edit it.
+        baseline = file("lint-baseline.xml")
     }
 
     splits {
