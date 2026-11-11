@@ -238,7 +238,6 @@ fun SearchScreen(
     val freshFindsQueue = remember(freshFindsSongs) {
         freshFindsSongs.map { it.song }.toImmutableList()
     }
-    val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
     var showSongInfoBottomSheet by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
