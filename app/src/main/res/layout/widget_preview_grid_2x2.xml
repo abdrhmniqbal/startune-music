@@ -25,7 +25,7 @@
                 android:layout_height="44dp"
                 android:layout_weight="1"
                 android:background="@drawable/widget_album_art_placeholder"
-                android:contentDescription="Album Art" />
+                android:contentDescription="@string/widget_album_art" />
 
             <ImageView
                 android:layout_width="44dp"
@@ -33,7 +33,7 @@
                 android:layout_marginStart="6dp"
                 android:layout_weight="1"
                 android:background="@drawable/widget_button_primary_background"
-                android:contentDescription="Play/Pause"
+                android:contentDescription="@string/mashup_cd_play_pause"
                 android:padding="10dp"
                 android:src="@drawable/rounded_pause_24"
                 app:tint="?android:attr/colorBackground" />
@@ -50,7 +50,7 @@
                 android:layout_height="44dp"
                 android:layout_weight="1"
                 android:background="@drawable/widget_button_secondary_background"
-                android:contentDescription="Previous"
+                android:contentDescription="@string/previous_track"
                 android:padding="10dp"
                 android:src="@drawable/rounded_skip_previous_24"
                 app:tint="?android:attr/textColorSecondary" />
@@ -61,7 +61,7 @@
                 android:layout_marginStart="6dp"
                 android:layout_weight="1"
                 android:background="@drawable/widget_button_secondary_background"
-                android:contentDescription="Next"
+                android:contentDescription="@string/next_track"
                 android:padding="10dp"
                 android:src="@drawable/rounded_skip_next_24"
                 app:tint="?android:attr/textColorSecondary" />
