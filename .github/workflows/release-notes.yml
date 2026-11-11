@@ -1,0 +1,157 @@
+# Purpose: Attaches CHANGELOG.md notes to an existing GitHub release.
+# Caller: The release workflow, or manual workflow_dispatch runs.
+# Dependencies: actions/checkout, GitHub CLI, jq, CHANGELOG.md, GITHUB_TOKEN contents write permission.
+# Main Functions: Extract requested tag section from CHANGELOG.md, derive previous version from changelog order, build release-body.md, locate release ID, update release body through GitHub API.
+# Side Effects: Updates the GitHub Release body for the requested tag.
+
+name: Release Notes
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag (example: v2.0.0-beta)"
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      release_tag:
+        description: "Release tag (example: v2.0.0-beta)"
+        required: true
+        type: string
+
+jobs:
+  attach-release-notes:
+    name: Attach Release Notes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build release notes from changelog
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+
+          if [ ! -f CHANGELOG.md ]; then
+            echo "CHANGELOG.md was not found"
+            exit 1
+          fi
+
+          RELEASE_VERSION="${RELEASE_TAG#v}"
+
+          awk \
+            -v version="${RELEASE_VERSION}" \
+            -v tag="${RELEASE_TAG}" '
+              function normalize_heading(value) {
+                normalized = value
+                sub(/^v/, "", normalized)
+                return normalized
+              }
+
+              /^##[[:space:]]+\[/ {
+                heading = $0
+                sub(/^##[[:space:]]+\[/, "", heading)
+                sub(/\].*$/, "", heading)
+
+                if (capture) {
+                  print heading > "previous-version.txt"
+                  exit
+                }
+
+                capture = (heading == version || heading == tag || normalize_heading(heading) == version)
+                next
+              }
+
+              capture {
+                print
+              }
+            ' CHANGELOG.md > changelog-section.md
+
+          if [ ! -s changelog-section.md ]; then
+            echo "No CHANGELOG.md section found for ${RELEASE_TAG}"
+            exit 1
+          fi
+
+          PREVIOUS_VERSION=""
+          if [ -f previous-version.txt ]; then
+            PREVIOUS_VERSION="$(tr -d '\r' < previous-version.txt | xargs)"
+          fi
+
+          if [ -n "${PREVIOUS_VERSION}" ]; then
+            PREVIOUS_TAG="v${PREVIOUS_VERSION#v}"
+            COMPARE_URL="https://github.com/${GITHUB_REPOSITORY}/compare/${PREVIOUS_TAG}...${RELEASE_TAG}"
+          else
+            COMPARE_URL=""
+          fi
+
+          {
+            echo "Check out the [past release notes](https://github.com/${GITHUB_REPOSITORY}/releases) if you're upgrading from an earlier version."
+            echo
+            cat changelog-section.md
+            echo
+
+            if [ -n "${COMPARE_URL}" ]; then
+              echo "**Full Changelog**:"
+              echo "${COMPARE_URL}"
+            fi
+          } > release-body.md
+
+          echo "RELEASE_BODY_PATH=release-body.md" >> "${GITHUB_ENV}"
+
+      - name: Attach notes to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+
+          find_release_id() {
+            gh api --paginate "repos/${GITHUB_REPOSITORY}/releases" \
+              | jq -sr --arg tag "${RELEASE_TAG}" '[.[][] | select(.tag_name == $tag) | .id][0] // empty'
+          }
+
+          RELEASE_ID=""
+          for attempt in $(seq 1 12); do
+            RELEASE_ID="$(find_release_id)"
+
+            if [ -n "${RELEASE_ID}" ]; then
+              break
+            fi
+
+            echo "Waiting for release ${RELEASE_TAG} to be available (${attempt}/12)"
+            sleep 5
+          done
+
+          if [ -z "${RELEASE_ID}" ]; then
+            echo "Release ${RELEASE_TAG} was not found"
+            exit 1
+          fi
+
+          if [[ "${RELEASE_TAG}" == *-rc.* ]] || [[ "${RELEASE_TAG}" == *-beta* ]] || [[ "${RELEASE_TAG}" == *-alpha* ]]; then
+            PRERELEASE=true
+          else
+            PRERELEASE=false
+          fi
+
+          jq -n \
+            --arg name "${RELEASE_TAG}" \
+            --arg tag_name "${RELEASE_TAG}" \
+            --rawfile body "${RELEASE_BODY_PATH}" \
+            --argjson prerelease "${PRERELEASE}" \
+            '{name: $name, tag_name: $tag_name, body: $body, prerelease: $prerelease}' \
+            > release-update.json
+
+          gh api \
+            --method PATCH \
+            "repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}" \
+            --input release-update.json \
+            >/dev/null
+
+          echo "Attached release notes to ${RELEASE_TAG}"

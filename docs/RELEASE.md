@@ -1,14 +1,40 @@
 ﻿# Release Checklist
 
-Startune Music releases are shipped from `main` after the release candidate passes local checks and a basic device smoke test.
+Startune Music releases are shipped from `v2.0.0-kotlin` by the release
+workflow: Crowdin sync first, then checks, then the release. The release
+candidate passes local checks and a basic device smoke test before tagging.
+
+## Release Workflow
+
+Run the `Release` workflow from the Actions tab on the `v2.0.0-kotlin`
+branch, with the version from `gradle.properties` (for example `2.0.0-beta`).
+It runs, in order:
+
+1. **Crowdin sync**: uploads the current `res/values` strings and downloads
+   the latest translations, committing them to `v2.0.0-kotlin`.
+2. **Checks**: compile, lint, unit tests (the same gate as PR checks).
+3. **Release**: verifies the input version matches `gradle.properties`,
+   builds the signed ABI-split release APKs, creates the `v<version>` tag
+   and the GitHub release, then attaches the `CHANGELOG.md` section for
+   the version as the release notes.
+
+Required repository secrets:
+
+- `CROWDIN_PROJECT_ID` and `CROWDIN_PERSONAL_TOKEN` (Crowdin project API).
+- Signing, in priority order: `KEYSTORE_BASE64` + `KEYSTORE_PASSWORD` +
+  `KEY_ALIAS` + `KEY_PASSWORD` for the official release key;
+  `CI_KEYSTORE_B64` + `CI_KEYSTORE_PASSWORD` for the shared CI key;
+  without either, the workflow generates a throwaway key for that run.
+  The official release key is decided separately; until it exists the
+  beta ships signed with the CI key.
 
 ## Versioning
 
 Version values live in `gradle.properties`:
 
 ```properties
-APP_VERSION_NAME=0.1.0
-APP_VERSION_CODE=1
+APP_VERSION_NAME=2.0.0-beta
+APP_VERSION_CODE=2000099
 ```
 
 For every public release:
@@ -16,7 +42,9 @@ For every public release:
 1. Update `APP_VERSION_NAME`.
 2. Increment `APP_VERSION_CODE`.
 3. Move the relevant `CHANGELOG.md` entries from `Unreleased` to the release version.
-4. Tag the release as `v<APP_VERSION_NAME>`, for example `v0.1.0`.
+4. Tag the release as `v<APP_VERSION_NAME>`, for example `v2.0.0-beta`. The
+   release workflow creates the tag itself; only tag manually when
+   publishing without Actions.
 
 ## Required Local Checks
 
@@ -66,11 +94,15 @@ Install the release candidate and verify:
 
 ## Publishing
 
-1. Ensure `main` is clean and pushed.
-2. Create a tag: `git tag v<APP_VERSION_NAME>`.
-3. Push the tag: `git push origin v<APP_VERSION_NAME>`.
-4. Create a GitHub release from the tag.
-5. Attach APK artifacts and paste the changelog section.
+1. Ensure `v2.0.0-kotlin` is clean and pushed.
+2. Run the `Release` workflow from the Actions tab with the version.
+3. The workflow creates the tag, the GitHub release, the APK artifacts,
+   and the changelog notes. Verify the release page afterwards.
+
+Without Actions, the manual fallback is: create a tag
+`git tag v<APP_VERSION_NAME>`, push it
+`git push origin v<APP_VERSION_NAME>`, create a GitHub release from the
+tag, attach the APK artifacts, and paste the changelog section.
 
 ## F-Droid Metadata
 
@@ -78,5 +110,5 @@ Before submitting a tagged release to F-Droid-compatible app stores:
 
 1. Update `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt`.
 2. Verify the unsigned universal release build from [FDROID.md](FDROID.md).
-3. Check `PRIVACY.md` still matches the optional network services present in the app.
+3. Check `docs/PRIVACY_POLICY.md` still matches the optional network services present in the app.
 4. Create source archives from git, not from the working tree, so ignored local artifacts are excluded.
