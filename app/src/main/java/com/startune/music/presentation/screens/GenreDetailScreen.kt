@@ -19,6 +19,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
@@ -37,6 +39,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -87,6 +90,9 @@ import kotlin.math.roundToInt
 import androidx.compose.ui.res.stringResource
 import kotlinx.collections.immutable.toImmutableList
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import com.startune.music.presentation.utils.GenreIconProvider
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -382,7 +388,9 @@ fun GenreDetailScreen(
                     startColor = startColor,
                     contentColor = contentColor,
                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    collapsedContentColor = MaterialTheme.colorScheme.onSurface
+                    collapsedContentColor = MaterialTheme.colorScheme.onSurface,
+                    genreName = themeGenre?.name ?: decodedGenreId,
+                    customIcons = customGenreIcons
                 )
             }
 
@@ -612,7 +620,9 @@ fun GenreCollapsibleTopBar(
     startColor: Color,
     containerColor: Color,
     contentColor: Color,
-    collapsedContentColor: Color
+    collapsedContentColor: Color,
+    genreName: String,
+    customIcons: Map<String, Int> = emptyMap()
 ) {
     val solidAlpha = (collapseFraction * 2f).coerceIn(0f, 1f)
     val animatedContentColor = androidx.compose.ui.graphics.lerp(
@@ -649,6 +659,25 @@ fun GenreCollapsibleTopBar(
                 .background(verticalGradient)
         )
 
+        // Genre illustration on the right, like the Library genre card:
+        // 90.dp, tinted with the header content color, bleeding off the
+        // corner, fading out as the bar collapses.
+        Box(
+            modifier = Modifier
+                .size(90.dp)
+                .align(Alignment.BottomEnd)
+                .offset(x = 16.dp, y = 16.dp)
+                .alpha(0.55f * (1f - collapseFraction).coerceIn(0f, 1f))
+        ) {
+            SmartImage(
+                model = GenreIconProvider.getGenreImageResource(genreName, customIcons),
+                contentDescription = stringResource(R.string.cd_genre_illustration),
+                modifier = Modifier.fillMaxSize(),
+                colorFilter = ColorFilter.tint(animatedContentColor),
+                contentScale = ContentScale.Crop
+            )
+        }
+
         Box(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
              FilledIconButton(
                 modifier = Modifier
@@ -670,6 +699,7 @@ fun GenreCollapsibleTopBar(
                 modifier = Modifier.fillMaxSize(),
                 collapsedTitleStartPadding = 68.dp,
                 expandedTitleStartPadding = 20.dp,
+                expandedTitleEndPadding = 110.dp,
                 maxLines = if (collapseFraction < 0.5f) Int.MAX_VALUE else 1,
                 contentColor = animatedContentColor
             )
