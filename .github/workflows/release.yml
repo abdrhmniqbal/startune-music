@@ -91,55 +91,31 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6.2.0
 
-      # Signing, in priority order:
-      # 1. Official release keystore (KEYSTORE_BASE64 + KEYSTORE_PASSWORD +
-      #    KEY_ALIAS + KEY_PASSWORD secrets) when present.
-      # 2. Shared CI keystore (CI_KEYSTORE_B64 + CI_KEYSTORE_PASSWORD) so CI
-      #    builds install over each other.
-      # 3. Throwaway keystore generated for this run only.
-      # The official release key is decided separately; until it exists the
-      # beta ships signed with the CI key (see docs/RELEASE.md).
+      # Signing: one keystore for beta and stable (Iqbal's decision
+      # 2026-11-11): ANDROID_KEYSTORE_BASE64 + ANDROID_KEYSTORE_PASSWORD +
+      # ANDROID_KEY_ALIAS + ANDROID_KEY_PASSWORD secrets in the main
+      # environment. Fail fast when they are missing: a release silently
+      # signed with a throwaway key could never be updated in place.
       - name: Set up signing keystore
         env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          CI_KEYSTORE_B64: ${{ secrets.CI_KEYSTORE_B64 }}
-          CI_KEYSTORE_PASSWORD: ${{ secrets.CI_KEYSTORE_PASSWORD }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           set -euo pipefail
-          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
-            echo "Using official release keystore."
-            printf '%s' "$KEYSTORE_BASE64" | base64 -d > release.jks
-            {
-              echo "storeFile=release.jks"
-              echo "storePassword=$KEYSTORE_PASSWORD"
-              echo "keyAlias=$KEY_ALIAS"
-              echo "keyPassword=$KEY_PASSWORD"
-            } > keystore.properties
-          elif [ -n "$CI_KEYSTORE_B64" ] && [ -n "$CI_KEYSTORE_PASSWORD" ]; then
-            echo "Using shared CI keystore."
-            printf '%s' "$CI_KEYSTORE_B64" | base64 -d > startune-ci.jks
-            {
-              echo "storeFile=startune-ci.jks"
-              echo "storePassword=$CI_KEYSTORE_PASSWORD"
-              echo "keyAlias=startune-ci-key"
-              echo "keyPassword=$CI_KEYSTORE_PASSWORD"
-            } > keystore.properties
-          else
-            echo "No keystore secret set; generating a throwaway keystore for this run."
-            KEYSTORE_PASSWORD="$(openssl rand -hex 16)"
-            keytool -genkey -v -keystore startune-ci.jks -alias startune-ci-key -keyalg RSA -keysize 4096 -validity 10000 \
-              -storepass "$KEYSTORE_PASSWORD" -keypass "$KEYSTORE_PASSWORD" \
-              -dname "CN=Startune Music CI, OU=Dev, O=Startune Music, L=World, S=World, C=US"
-            {
-              echo "storeFile=startune-ci.jks"
-              echo "storePassword=$KEYSTORE_PASSWORD"
-              echo "keyAlias=startune-ci-key"
-              echo "keyPassword=$KEYSTORE_PASSWORD"
-            } > keystore.properties
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ] || [ -z "$ANDROID_KEY_ALIAS" ] || [ -z "$ANDROID_KEY_PASSWORD" ]; then
+            echo "Missing keystore secrets: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD must all be set in the main environment. See docs/RELEASE.md."
+            exit 1
           fi
+          echo "Using the unified release keystore."
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 -d > release.jks
+          {
+            echo "storeFile=release.jks"
+            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
+            echo "keyAlias=$ANDROID_KEY_ALIAS"
+            echo "keyPassword=$ANDROID_KEY_PASSWORD"
+          } > keystore.properties
 
       - name: Build release APKs
         run: ./gradlew :app:assembleRelease -Pstartune.enableAbiSplits=true
