@@ -56,7 +56,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@drawable/widget_button_secondary_background"
-            android:contentDescription="Previous"
+            android:contentDescription="@string/previous_track"
             android:padding="8dp"
             android:src="@drawable/rounded_skip_previous_24"
             app:tint="?android:attr/textColorSecondary" />
@@ -66,7 +66,7 @@
             android:layout_height="40dp"
             android:layout_marginStart="6dp"
             android:background="@drawable/widget_button_primary_background"
-            android:contentDescription="Play/Pause"
+            android:contentDescription="@string/mashup_cd_play_pause"
             android:padding="8dp"
             android:src="@drawable/rounded_pause_24"
             app:tint="?android:attr/colorBackground" />
@@ -76,7 +76,7 @@
             android:layout_height="40dp"
             android:layout_marginStart="6dp"
             android:background="@drawable/widget_button_secondary_background"
-            android:contentDescription="Next"
+            android:contentDescription="@string/next_track"
             android:padding="8dp"
             android:src="@drawable/rounded_skip_next_24"
             app:tint="?android:attr/textColorSecondary" />
