@@ -35,7 +35,7 @@ fun TabAnimation(
     index: Int,
     selectedColor: Color = MaterialTheme.colorScheme.primary,
     onSelectedColor: Color = MaterialTheme.colorScheme.onPrimary,
-    unselectedColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    unselectedColor: Color = MaterialTheme.colorScheme.surface,
     onUnselectedColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
     title: String,
     selectedIndex: Int,
