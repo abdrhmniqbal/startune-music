@@ -181,6 +181,8 @@ constructor(
         val PLAYED_THRESHOLD_PERCENT = intPreferencesKey("played_threshold_percent")
         val PLAYBACK_SPEED = androidx.datastore.preferences.core.floatPreferencesKey("playback_speed")
         val SHOW_SCROLLBAR = booleanPreferencesKey("show_scrollbar")
+        val USE_ARTWORK_COLOR_FOR_DETAILS =
+                booleanPreferencesKey("use_artwork_color_for_details")
         val AUTOPLAY_ON_SKIP = booleanPreferencesKey("autoplay_on_skip")
         val CUSTOM_GENRES = androidx.datastore.preferences.core.stringSetPreferencesKey("custom_genres")
         val CUSTOM_GENRE_ICONS = stringPreferencesKey("custom_genre_icons")
@@ -429,6 +431,17 @@ constructor(
     suspend fun setShowScrollbar(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_SCROLLBAR] = enabled
+        }
+    }
+
+    val useArtworkColorForDetailsFlow: Flow<Boolean> =
+        dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.USE_ARTWORK_COLOR_FOR_DETAILS] ?: true
+        }.distinctUntilChanged()
+
+    suspend fun setUseArtworkColorForDetails(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.USE_ARTWORK_COLOR_FOR_DETAILS] = enabled
         }
     }
 

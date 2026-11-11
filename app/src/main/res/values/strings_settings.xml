@@ -164,6 +164,8 @@
     <string name="setcat_color_scheme_current_subtitle">Current: %1$s. Select a custom color scheme preset.</string>
     <string name="setcat_show_scrollbar_title">Show Scrollbar</string>
     <string name="setcat_show_scrollbar_subtitle">Display lateral scrollbar on music lists for quick scrolling</string>
+    <string name="setcat_artwork_color_details_title">Use artwork colors on detail pages</string>
+    <string name="setcat_artwork_color_details_subtitle">Album, artist, genre, and other detail pages follow their artwork colors. When off, they use the default colors.</string>
     <string name="setcat_pitch_black_title">Pitch Black</string>
     <string name="setcat_pitch_black_subtitle">Pure black backgrounds in dark mode. Saves battery on OLED screens.</string>
     <string name="color_scheme_builtin">Built-in</string>

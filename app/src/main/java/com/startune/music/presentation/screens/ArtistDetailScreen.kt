@@ -19,6 +19,8 @@ import com.startune.music.presentation.components.rememberSongCollectionMenuActi
 import com.startune.music.presentation.utils.getSegmentedItemShape
 import com.startune.music.presentation.utils.SegmentedItemShapeDefaults
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.MutableStateFlow
+import com.startune.music.presentation.viewmodel.ColorSchemePair
 
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -177,9 +179,11 @@ fun ArtistDetailScreen(
     val isDarkTheme = LocalStartuneDarkTheme.current
     val baseColorScheme = MaterialTheme.colorScheme
 
+    val useArtworkColorForDetails by playerViewModel.useArtworkColorForDetails.collectAsStateWithLifecycle()
     val artistColorSchemePair by viewModel.artistColorScheme.collectAsStateWithLifecycle()
-    val artistColorScheme = remember(artistColorSchemePair, isDarkTheme) {
-        artistColorSchemePair?.let { pair -> if (isDarkTheme) pair.dark else pair.light }
+    val artistColorScheme = remember(artistColorSchemePair, isDarkTheme, useArtworkColorForDetails) {
+        if (!useArtworkColorForDetails) baseColorScheme
+        else artistColorSchemePair?.let { pair -> if (isDarkTheme) pair.dark else pair.light }
             ?: baseColorScheme
     }
 
@@ -540,6 +544,7 @@ fun ArtistDetailScreen(
                                             section = section,
                                             artistName = artist.name,
                                             viewModel = viewModel,
+                                            useArtworkColor = useArtworkColorForDetails,
                                             modifier = Modifier.width(180.dp),
                                             onClick = {
                                                 navController.navigateSafely(
@@ -585,6 +590,7 @@ fun ArtistDetailScreen(
                                             section = section,
                                             artistName = artist.name,
                                             viewModel = viewModel,
+                                            useArtworkColor = useArtworkColorForDetails,
                                             modifier = Modifier.width(180.dp),
                                             onClick = {
                                                 navController.navigateSafely(
@@ -1396,6 +1402,7 @@ fun ArtistAlbumCard(
     section: ArtistAlbumSection,
     artistName: String,
     viewModel: ArtistDetailViewModel,
+    useArtworkColor: Boolean,
     modifier: Modifier = Modifier,
     isSelected: Boolean = false,
     selectionIndex: Int? = null,
@@ -1416,8 +1423,9 @@ fun ArtistAlbumCard(
             albumArtist = section.songs.firstNotNullOfOrNull { it.albumArtist }
         )
     }
-    val albumColorSchemeFlow = remember(album.albumArtUriString) {
-        viewModel.themeStateHolder.getAlbumColorSchemeFlow(album.albumArtUriString ?: "")
+    val albumColorSchemeFlow = remember(album.albumArtUriString, useArtworkColor) {
+        if (useArtworkColor) viewModel.themeStateHolder.getAlbumColorSchemeFlow(album.albumArtUriString ?: "")
+        else MutableStateFlow<ColorSchemePair?>(null)
     }
     Box(modifier = modifier) {
         AlbumGridItemRedesigned(

@@ -98,6 +98,7 @@ data class SettingsUiState(
     val autoBackupLastRunMs: Long = 0L,
     val autoBackupNotificationsEnabled: Boolean = true,
     val folderFilterRescanRequired: Boolean = false,
+    val useArtworkColorForDetails: Boolean = true,
     val dataStorageRoot: String = "",
     val keepScreenAwakeWhilePlaying: Boolean = false,
     val resumeOnHeadsetReconnect: Boolean = false,
@@ -228,6 +229,7 @@ private sealed interface SettingsUiUpdate {
         val lyricsFontSizeSp: Float,
         val autoBackupNotificationsEnabled: Boolean,
         val folderFilterRescanRequired: Boolean,
+        val useArtworkColorForDetails: Boolean,
         val useFolderAlbumArt: Boolean
     ) : SettingsUiUpdate
 }
@@ -442,7 +444,8 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.lyricsFontSizeFlow,
                 userPreferencesRepository.autoBackupNotificationsEnabledFlow,
                 userPreferencesRepository.useFolderAlbumArtFlow,
-                userPreferencesRepository.folderFilterRescanRequiredFlow
+                userPreferencesRepository.folderFilterRescanRequiredFlow,
+                userPreferencesRepository.useArtworkColorForDetailsFlow
             ) { values ->
                 val requestedAudioOutputMode = values[4] as AudioOutputMode
                 SettingsUiUpdate.Group2(
@@ -491,7 +494,8 @@ class SettingsViewModel @Inject constructor(
                     lyricsFontSizeSp = values[35] as Float,
                     autoBackupNotificationsEnabled = values[36] as Boolean,
                     useFolderAlbumArt = values[37] as Boolean,
-                    folderFilterRescanRequired = values[38] as Boolean
+                    folderFilterRescanRequired = values[38] as Boolean,
+                    useArtworkColorForDetails = values[39] as Boolean
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -532,6 +536,7 @@ class SettingsViewModel @Inject constructor(
                         autoBackupLastRunMs = update.autoBackupLastRunMs,
                         autoBackupNotificationsEnabled = update.autoBackupNotificationsEnabled,
                         folderFilterRescanRequired = update.folderFilterRescanRequired,
+                        useArtworkColorForDetails = update.useArtworkColorForDetails,
                         useFolderAlbumArt = update.useFolderAlbumArt,
                         dataStorageRoot = update.dataStorageRoot,
                         autoScanOnLaunch = update.autoScanOnLaunch,
@@ -1009,6 +1014,12 @@ class SettingsViewModel @Inject constructor(
     fun setShowScrollbar(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setShowScrollbar(enabled)
+        }
+    }
+
+    fun setUseArtworkColorForDetails(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setUseArtworkColorForDetails(enabled)
         }
     }
 

@@ -99,6 +99,7 @@ fun ArtistDetailListScreen(
     playlistViewModel: PlaylistViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val useArtworkColorForDetails by playerViewModel.useArtworkColorForDetails.collectAsStateWithLifecycle()
     val favoriteIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
     val navBarCompactMode by playerViewModel.navBarCompactMode.collectAsStateWithLifecycle()
     val systemNavBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -355,6 +356,7 @@ fun ArtistDetailListScreen(
                                 section = section,
                                 artistName = artist.name,
                                 viewModel = viewModel,
+                                useArtworkColor = useArtworkColorForDetails,
                                 isSelected = selectedAlbumSectionIds.contains(section.albumId),
                                 selectionIndex = if (isAlbumSelectionMode) {
                                     selectedAlbumSections.indexOfFirst { it.albumId == section.albumId }.takeIf { it >= 0 }?.plus(1)

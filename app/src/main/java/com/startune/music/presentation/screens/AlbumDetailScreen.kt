@@ -187,8 +187,10 @@ fun AlbumDetailScreen(
         albumArtUri?.let { playerViewModel.themeStateHolder.getAlbumColorSchemeFlow(it, eager = false) }
     }
     val albumColorSchemePair = albumColorSchemeFlow?.collectAsStateWithLifecycle()?.value
-    val albumColorScheme = remember(albumColorSchemePair, isDarkTheme, baseColorScheme) {
-        albumColorSchemePair?.let { pair -> if (isDarkTheme) pair.dark else pair.light }
+    val useArtworkColorForDetails by playerViewModel.useArtworkColorForDetails.collectAsStateWithLifecycle()
+    val albumColorScheme = remember(albumColorSchemePair, isDarkTheme, baseColorScheme, useArtworkColorForDetails) {
+        if (!useArtworkColorForDetails) baseColorScheme
+        else albumColorSchemePair?.let { pair -> if (isDarkTheme) pair.dark else pair.light }
             ?: baseColorScheme
     }
     var headerArtworkLoaded by remember(albumArtUri) { mutableStateOf(albumArtUri == null) }

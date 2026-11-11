@@ -873,6 +873,14 @@ fun SettingsCategoryScreen(
                                     leadingIcon = { Icon(painterResource(R.drawable.rounded_rounded_corner_24), null, tint = MaterialTheme.colorScheme.secondary) },
                                     modifier = Modifier.settingHighlight("item_appearance_smooth_corners", highlightKey)
                                 )
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.setcat_artwork_color_details_title),
+                                    subtitle = stringResource(R.string.setcat_artwork_color_details_subtitle),
+                                    checked = uiState.useArtworkColorForDetails,
+                                    onCheckedChange = settingsViewModel::setUseArtworkColorForDetails,
+                                    leadingIcon = { Icon(Icons.Outlined.Image, null, tint = MaterialTheme.colorScheme.secondary) },
+                                    modifier = Modifier.settingHighlight("item_appearance_artwork_color_details", highlightKey)
+                                )
                             }
 
                             SettingsSubsection(title = stringResource(R.string.setcat_now_playing)) {
