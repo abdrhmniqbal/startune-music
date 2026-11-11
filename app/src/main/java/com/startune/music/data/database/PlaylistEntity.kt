@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 import com.startune.music.data.model.Playlist
 import kotlinx.serialization.json.Json
 
-private val artistIdsJson = Json { ignoreUnknownKeys = true }
+private val mixListJson = Json { ignoreUnknownKeys = true }
 
 @Entity(
     tableName = "playlists",
@@ -49,6 +49,8 @@ data class PlaylistEntity(
     val mixSongCount: Int? = null,
     @ColumnInfo(name = "mix_artist_ids")
     val mixArtistIds: String? = null,
+    @ColumnInfo(name = "mix_genres")
+    val mixGenres: String? = null,
 )
 
 fun PlaylistEntity.toPlaylist(songIds: List<String>): Playlist {
@@ -70,7 +72,10 @@ fun PlaylistEntity.toPlaylist(songIds: List<String>): Playlist {
         source = source,
         mixSongCount = mixSongCount,
         mixArtistIds = mixArtistIds?.let {
-            runCatching { artistIdsJson.decodeFromString<List<Long>>(it) }.getOrNull()
+            runCatching { mixListJson.decodeFromString<List<Long>>(it) }.getOrNull()
+        },
+        mixGenres = mixGenres?.let {
+            runCatching { mixListJson.decodeFromString<List<String>>(it) }.getOrNull()
         },
     )
 }
@@ -92,6 +97,7 @@ fun Playlist.toEntity(): PlaylistEntity {
         coverShapeDetail4 = coverShapeDetail4,
         source = source,
         mixSongCount = mixSongCount,
-        mixArtistIds = mixArtistIds?.let { artistIdsJson.encodeToString(it) },
+        mixArtistIds = mixArtistIds?.let { mixListJson.encodeToString(it) },
+        mixGenres = mixGenres?.let { mixListJson.encodeToString(it) },
     )
 }

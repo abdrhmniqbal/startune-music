@@ -614,18 +614,20 @@ fun MixDetailScreen(
                     rule = MixRule.fromPlaylistSource(userMix.source) ?: MixRule.TOP_PLAYED,
                     songCount = userMix.mixSongCount ?: 60,
                     artistIds = userMix.mixArtistIds ?: emptyList(),
+                    genres = userMix.mixGenres ?: emptyList(),
                     coverImageUri = userMix.coverImageUri,
                     coverColorArgb = userMix.coverColorArgb,
                     coverIconName = userMix.coverIconName
                 ),
                 onDismiss = { showEditMixForm = false },
-                onSave = { name, rule, count, artistIds, imageUri, color, icon, scale, panX, panY ->
+                onSave = { name, rule, count, artistIds, genres, imageUri, color, icon, scale, panX, panY ->
                     playlistViewModel.updateMix(
                         playlistId = mixId,
                         name = name,
                         rule = rule,
                         songCount = count,
                         artistIds = artistIds,
+                        genres = genres,
                         coverImageUri = imageUri,
                         coverColor = color,
                         coverIcon = icon,
@@ -645,7 +647,7 @@ fun MixDetailScreen(
                 isForYouMix = true,
                 initial = MixFormInitial(songCount = forYouMixSongCount),
                 onDismiss = { showEditMixForm = false },
-                onSave = { _, _, count, _, _, _, _, _, _, _ ->
+                onSave = { _, _, count, _, _, _, _, _, _, _, _ ->
                     playerViewModel.setForYouMixSongCount(count)
                     showEditMixForm = false
                 },

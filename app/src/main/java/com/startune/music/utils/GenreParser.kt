@@ -84,6 +84,14 @@ object GenreParser {
             .replace('/', '_')
 
     /**
+     * [key] with all punctuation stripped, so spellings that differ only in
+     * separators compare equal: "K-Pop" and "kpop", "R&B" and "R & B",
+     * "Hip-Hop" and "hip hop". Used when matching typed genre text against
+     * stored genre tags.
+     */
+    fun looseKey(name: String): String = key(name).filter { it.isLetterOrDigit() }
+
+    /**
      * Whether [genre], one genre as [split] returns it, is a cloud source placeholder rather than
      * real music, compared by [key].
      */

@@ -285,6 +285,16 @@ val MIGRATION_11_12 = object : Migration(11, 12) {
     }
 }
 
+/**
+ * v12 -> v13: store the picked genres of a By Genres mix, mirroring
+ * `mix_artist_ids` so a genre mix can refresh from its rule.
+ */
+val MIGRATION_12_13 = object : Migration(12, 13) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `playlists` ADD COLUMN `mix_genres` TEXT")
+    }
+}
+
 val MIGRATION_6_7 = object : Migration(6, 7) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("DELETE FROM song_artist_cross_ref WHERE song_id IN (SELECT id FROM songs WHERE source_type = 5)")

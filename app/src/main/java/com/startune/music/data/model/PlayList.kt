@@ -25,7 +25,9 @@ data class Playlist(
     /** Song count for a mix (a playlist whose source is a mix rule). Null for regular playlists. */
     val mixSongCount: Int? = null,
     /** Picked artist ids for an ARTISTS mix, in pick order. Null for other mixes and playlists. */
-    val mixArtistIds: List<Long>? = null
+    val mixArtistIds: List<Long>? = null,
+    /** Picked genres for a GENRES mix, in pick order. Null for other mixes and playlists. */
+    val mixGenres: List<String>? = null
 )
 
 enum class PlaylistShapeType {

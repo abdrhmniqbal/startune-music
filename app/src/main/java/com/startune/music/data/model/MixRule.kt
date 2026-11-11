@@ -32,6 +32,11 @@ enum class MixRule(
         storageKey = "artists",
         title = "Artists",
         subtitle = "Songs from artists you pick."
+    ),
+    GENRES(
+        storageKey = "genres",
+        title = "By Genres",
+        subtitle = "Songs from genres you pick."
     );
 
     companion object {
