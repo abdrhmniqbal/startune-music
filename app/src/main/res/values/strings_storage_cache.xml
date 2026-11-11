@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cache_reclaimable_title">RECLAIMABLE</string>
+    <string name="cache_reclaimable_subtitle">%1$d track(s) unplayed for long enough to be considered forgotten under your rules.</string>
+    <string name="cache_storage_title">App Cache &amp; Storage</string>
+    <string name="cache_clean_all">Clean All</string>
+    <string name="cache_clear">Clear</string>
+    <string name="cache_stream_title">Stream Playback Cache</string>
+    <string name="cache_stream_expired">Expired: %1$s</string>
+    <string name="cache_artwork_title">Album &amp; Artist Artwork</string>
+    <string name="cache_artwork_subtitle">Cached thumbnails</string>
+    <string name="device_capabilities_storage_available_of_total">%1$s available of %2$s total</string>
+</resources>
