@@ -432,7 +432,6 @@
     <string name="setcat_keep_screen_awake_title">Garder l\'écran allumé pendant la lecture</string>
     <string name="setcat_keep_screen_awake_subtitle">Empêche l\'écran de se mettre en veille pendant la lecture de musique tant que l\'application est visible.</string>
     <string name="setcat_folder_album_art_title">Utiliser les pochettes du dossier</string>
-    <string name="setcat_folder_album_art_subtitle">Utiliser cover.jpg, folder.jpg ou une image similaire du dossier d\'un morceau comme pochette, de préférence à la pochette intégrée. Les dossiers partagés comme Music, Downloads, DCIM et Pictures sont ignorés. Les dossiers des artistes sont aussi parcourus pour trouver artist.jpg, band.jpg et leurs variantes PNG. Les photos choisies manuellement sont prioritaires.</string>
     <string name="setcat_folder_album_art_permission_required">L\'accès complet aux photos est nécessaire pour lire les images des albums et des artistes dans vos dossiers de musique.</string>
     <string name="setcat_folder_album_art_refreshing">Actualisation des images…</string>
 </resources>

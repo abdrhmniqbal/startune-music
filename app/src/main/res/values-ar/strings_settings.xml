@@ -273,7 +273,6 @@
     <string name="setcat_keep_screen_awake_title">إبقاء الشاشة مضاءة أثناء التشغيل</string>
     <string name="setcat_keep_screen_awake_subtitle">يمنع انطفاء الشاشة أثناء تشغيل الموسيقى وطالما كان التطبيق ظاهرًا.</string>
     <string name="setcat_folder_album_art_title">استخدام صور الغلاف من المجلد</string>
-    <string name="setcat_folder_album_art_subtitle">استخدام cover.jpg أو folder.jpg أو صورة مشابهة من مجلد الأغنية كغلاف للألبوم، مع تفضيلها على الغلاف المضمّن. يتم تجاهل المجلدات المشتركة مثل Music و Downloads و DCIM و Pictures. يتم أيضًا البحث في مجلدات الفنانين عن artist.jpg وband.jpg ونسخ PNG. تُعطى الأولوية لصور الفنانين المختارة يدويًا.</string>
     <string name="setcat_folder_album_art_permission_required">يلزم الوصول الكامل إلى الصور لقراءة صور الألبومات والفنانين من مجلدات الموسيقى.</string>
     <string name="setcat_folder_album_art_refreshing">جارٍ تحديث الصور…</string>
 </resources>
