@@ -7,16 +7,6 @@ files:
   # All translatable string files. colors.xml, splash_colors.xml and
   # themes.xml hold no strings and are deliberately not listed.
   - source: /app/src/main/res/values/strings*.xml
-    translation: /app/src/main/res/values/values-%two_letters_code%/%original_file_name%
+    translation: /app/src/main/res/values-%android_code%/%original_file_name%
   - source: /app/src/main/res/values/plurals.xml
-    translation: /app/src/main/res/values/values-%two_letters_code%/plurals.xml
-
-languages_mapping:
-  two_letters_code:
-    # Android keeps the legacy qualifier for Indonesian.
-    id: in
-    # Brazilian Portuguese shares the values-pt directory.
-    pt-BR: pt
-    # %two_letters_code% would collapse both Chinese variants to zh.
-    zh-CN: zh-rCN
-    zh-TW: zh-rTW
+    translation: /app/src/main/res/values-%android_code%/plurals.xml
