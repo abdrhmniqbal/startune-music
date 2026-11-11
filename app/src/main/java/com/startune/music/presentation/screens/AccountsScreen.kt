@@ -221,6 +221,7 @@ fun AccountsScreen(
                 context = context,
                 service = service,
                 onOpenJellyfinDashboard = onOpenJellyfinDashboard,
+                onOpenNavidromeDashboard = onOpenNavidromeDashboard,
                 preferDashboard = false
             )
         }
@@ -262,6 +263,7 @@ fun AccountsScreen(
                                 context = context,
                                 service = account.service,
                                 onOpenJellyfinDashboard = onOpenJellyfinDashboard,
+                                onOpenNavidromeDashboard = onOpenNavidromeDashboard,
                                 preferDashboard = true
                             )
                         },
@@ -687,6 +689,7 @@ private fun openService(
     context: Context,
     service: ExternalServiceAccount,
     onOpenJellyfinDashboard: () -> Unit,
+    onOpenNavidromeDashboard: () -> Unit,
     preferDashboard: Boolean
 ) {
     when (service) {

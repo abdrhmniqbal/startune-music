@@ -6,7 +6,7 @@ import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
 import androidx.media3.datasource.cache.SimpleCache
-import androidx.media3.datasource.cache.StandaloneDatabaseProvider
+import androidx.media3.database.StandaloneDatabaseProvider
 import com.startune.music.data.playlist.MixBuilder
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File

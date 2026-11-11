@@ -30,7 +30,7 @@ class DynamicCacheEvictor(
 
     override fun onStartFile(cache: Cache, key: String, position: Long, length: Long) {
         this.cache = cache
-        if (length != C.LENGTH_UNSET) {
+        if (length != C.LENGTH_UNSET.toLong()) {
             synchronized(this) { evictCache(cache, length) }
         }
     }

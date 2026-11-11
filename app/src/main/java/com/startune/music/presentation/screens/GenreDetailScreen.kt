@@ -337,6 +337,7 @@ fun GenreDetailScreen(
                         item(key = "genre_albums") {
                             GenreAlbumsSection(
                                 albums = uiState.randomAlbums,
+                                useArtworkColorForDetails = useArtworkColorForDetails,
                                 onViewMoreClick = {
                                     navController.navigateSafely(
                                         com.startune.music.presentation.navigation.Screen.GenreDetailList.createRoute(genreId, GenreDetailView.Albums.name)
@@ -911,7 +912,8 @@ private fun GenreAlbumsSection(
     albums: List<AlbumData>,
     onViewMoreClick: () -> Unit,
     onAlbumClick: (AlbumData) -> Unit,
-    playerViewModel: PlayerViewModel
+    playerViewModel: PlayerViewModel,
+    useArtworkColorForDetails: Boolean
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
