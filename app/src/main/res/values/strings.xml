@@ -343,6 +343,7 @@
     <string name="duplicates_group_count">%1$d copies</string>
     <string name="duplicates_group_title_format">%1$s — %2$s</string>
     <string name="duplicates_none">No duplicate tracks found.</string>
+    <string name="duplicates_none_subtitle">Duplicate songs will appear here when found.</string>
     <string name="duplicates_summary">%1$d groups · %2$d tracks</string>
     <string name="duplicates_title">Duplicate tracks</string>
     <string name="lyrics_remote_disabled">Online lyrics are disabled in settings.</string>

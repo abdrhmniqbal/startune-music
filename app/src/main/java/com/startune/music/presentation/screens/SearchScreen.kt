@@ -89,6 +89,7 @@ import com.startune.music.data.model.SearchHistoryItem
 import com.startune.music.data.model.SearchResultItem
 import com.startune.music.data.model.Song
 import com.startune.music.presentation.components.SmartImage
+import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.SmartImageListTargetSize
 import com.startune.music.presentation.components.FavoritesToRevisitSection
 import com.startune.music.presentation.components.FreshFindsSection
@@ -458,10 +459,10 @@ fun SearchScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    text = stringResource(R.string.recently_added_empty_title),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                ExpressiveEmptyState(
+                                    iconRes = R.drawable.rounded_music_off_24,
+                                    titleRes = R.string.recently_added_empty_title,
+                                    subtitleRes = R.string.recently_added_empty_subtitle
                                 )
                             }
                         }

@@ -5,6 +5,7 @@ package com.startune.music.presentation.screens
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.navigation.navigateSafelyReplacing
 import com.startune.music.presentation.components.DetailHeroArtistChip
+import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.DetailHeroFloatingLayer
 import com.startune.music.presentation.components.DetailHeroPinnedActionsHeight
 import com.startune.music.presentation.components.DetailSongsSummary
@@ -531,6 +532,16 @@ fun AlbumDetailScreen(
                                 dock = heroDock,
                                 titleStyle = heroTitleStyle
                             )
+                        }
+                        if (songs.isEmpty()) {
+                            item(key = "album_empty", contentType = "album_empty") {
+                                ExpressiveEmptyState(
+                                    iconRes = R.drawable.rounded_album_24,
+                                    titleRes = R.string.album_detail_empty_title,
+                                    subtitleRes = R.string.album_detail_empty_subtitle,
+                                    modifier = Modifier.padding(top = 48.dp)
+                                )
+                            }
                         }
                         if (songs.isNotEmpty()) {
                             item(key = "album_songs_summary", contentType = "detail_songs_summary") {

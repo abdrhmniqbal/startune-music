@@ -2,6 +2,7 @@
 <resources>
     <!-- QueueBottomSheet -->
     <string name="presentation_batch_e_queue_empty">Queue is empty.</string>
+    <string name="queue_empty_subtitle">Songs you play will appear here.</string>
     <string name="presentation_batch_e_cd_queue_actions">Queue actions</string>
     <string name="presentation_batch_e_action_clear_queue">Clear queue</string>
     <string name="presentation_batch_e_action_save_as_playlist">Save as playlist</string>

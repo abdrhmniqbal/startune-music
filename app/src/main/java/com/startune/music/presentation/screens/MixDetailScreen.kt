@@ -4,6 +4,7 @@ import com.startune.music.presentation.navigation.navigateSafely
 
 import androidx.compose.foundation.background
 import com.startune.music.presentation.components.subcomps.SelectionActionRow
+import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.subcomps.SelectionCountPill
 import androidx.compose.ui.zIndex
 import com.startune.music.presentation.components.rememberModalSheetState
@@ -374,6 +375,16 @@ fun MixDetailScreen(
                         }
                     }
 
+                    if (mixSongs.isEmpty()) {
+                        item(key = "mix_empty") {
+                            ExpressiveEmptyState(
+                                iconRes = R.drawable.rounded_instant_mix_24,
+                                titleRes = R.string.mix_detail_empty_title,
+                                subtitleRes = R.string.mix_detail_empty_subtitle,
+                                modifier = Modifier.padding(top = 48.dp)
+                            )
+                        }
+                    }
                     items(mixSongs, key = { it.id }) { song ->
                         EnhancedSongListItem(
                             modifier = Modifier

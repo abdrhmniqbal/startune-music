@@ -760,14 +760,15 @@ fun QueueBottomSheet(
 
                 if (displaySongCount == 0) {
                     Box(
-                        modifier         = Modifier
+                        modifier = Modifier
                             .fillMaxWidth()
-                            .padding(32.dp),
+                            .padding(vertical = 32.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            stringResource(R.string.presentation_batch_e_queue_empty),
-                            color = colors.onSurface
+                        ExpressiveEmptyState(
+                            iconRes = R.drawable.rounded_music_off_24,
+                            titleRes = R.string.presentation_batch_e_queue_empty,
+                            subtitleRes = R.string.queue_empty_subtitle
                         )
                     }
                 } else {

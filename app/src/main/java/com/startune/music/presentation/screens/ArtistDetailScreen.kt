@@ -8,6 +8,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import com.startune.music.presentation.components.DetailHeroFloatingLayer
+import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.DetailHeroPinnedActionsHeight
 import com.startune.music.presentation.components.DetailSongsSummary
 import com.startune.music.presentation.components.HeroPlayState
@@ -451,6 +452,16 @@ fun ArtistDetailScreen(
                                 modifier = Modifier.padding(bottom = 8.dp),
                                 dock = heroDock
                             )
+                        }
+                        if (songs.isEmpty()) {
+                            item(key = "artist_empty", contentType = "artist_empty") {
+                                ExpressiveEmptyState(
+                                    iconRes = R.drawable.rounded_artist_24,
+                                    titleRes = R.string.artist_detail_empty_title,
+                                    subtitleRes = R.string.artist_detail_empty_subtitle,
+                                    modifier = Modifier.padding(top = 48.dp)
+                                )
+                            }
                         }
                         if (songs.isNotEmpty()) {
                             item(key = "artist_songs_summary", contentType = "detail_songs_summary") {

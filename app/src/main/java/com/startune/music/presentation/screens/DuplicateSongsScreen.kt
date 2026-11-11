@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.startune.music.R
+import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.data.library.DuplicateFinder
 import com.startune.music.data.model.Song
 import com.startune.music.presentation.viewmodel.DuplicateSongsViewModel
@@ -67,10 +68,10 @@ fun DuplicateSongsScreen(
 
             uiState.groups.isEmpty() -> {
                 Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                    Text(
-                        stringResource(R.string.duplicates_none),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    ExpressiveEmptyState(
+                        iconRes = R.drawable.rounded_music_off_24,
+                        titleRes = R.string.duplicates_none,
+                        subtitleRes = R.string.duplicates_none_subtitle
                     )
                 }
             }
