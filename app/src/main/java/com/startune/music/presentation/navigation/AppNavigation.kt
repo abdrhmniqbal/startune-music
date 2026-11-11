@@ -62,6 +62,7 @@ import com.startune.music.presentation.screens.MashupScreen
 import com.startune.music.presentation.screens.NavBarCornerRadiusScreen
 import com.startune.music.presentation.screens.PaletteStyleSettingsScreen
 import com.startune.music.presentation.screens.PlaylistDetailScreen
+import com.startune.music.presentation.screens.RecentlyAddedScreen
 import com.startune.music.presentation.screens.RecentlyPlayedScreen
 
 import com.startune.music.presentation.screens.AboutScreen
@@ -349,6 +350,20 @@ fun AppNavigation(
             ) {
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
                     RecentlyPlayedScreen(
+                        playerViewModel = playerViewModel,
+                        navController = navController
+                    )
+                }
+            }
+            composable(
+                Screen.RecentlyAdded.route,
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { popEnterTransition() },
+                popExitTransition = { popExitTransition() },
+            ) {
+                ScreenWrapper(navController = navController, playerViewModel = playerViewModel) {
+                    RecentlyAddedScreen(
                         playerViewModel = playerViewModel,
                         navController = navController
                     )

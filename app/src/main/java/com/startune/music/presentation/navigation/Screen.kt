@@ -38,6 +38,7 @@ sealed class Screen(val route: String) {
         fun createRoute(mixId: String) = "mix_detail/$mixId"
     }
     object RecentlyPlayed : Screen("recently_played")
+    object RecentlyAdded : Screen("recently_added")
     object TopTracks : Screen("top_tracks")
     object Stats : Screen("stats")
     object Recap : Screen("recap/{year}") {
