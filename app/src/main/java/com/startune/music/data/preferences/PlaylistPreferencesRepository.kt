@@ -57,7 +57,8 @@ class PlaylistPreferencesRepository @Inject constructor(
         customId: String? = null,
         source: String = "LOCAL",
         mixSongCount: Int? = null,
-        mixArtistIds: List<Long>? = null
+        mixArtistIds: List<Long>? = null,
+        mixGenres: List<String>? = null
     ): Playlist {
         ensureMigratedIfNeeded()
         val now = System.currentTimeMillis()
@@ -79,6 +80,7 @@ class PlaylistPreferencesRepository @Inject constructor(
             source = source,
             mixSongCount = mixSongCount,
             mixArtistIds = mixArtistIds,
+            mixGenres = mixGenres,
         )
         localPlaylistDao.upsertPlaylist(newPlaylist.toEntity())
         localPlaylistDao.replacePlaylistSongs(newPlaylist.id, newPlaylist.songIds)

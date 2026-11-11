@@ -56,13 +56,11 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumExtendedFloatingActionButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -100,15 +98,15 @@ import com.startune.music.R
 import com.startune.music.data.model.Artist
 import com.startune.music.data.model.MixRule
 import androidx.compose.ui.layout.ContentScale
+import com.startune.music.data.model.Genre
+import com.startune.music.data.playlist.nlp.GenreTaxonomy
+import com.startune.music.data.playlist.nlp.NlpText
 import com.startune.music.presentation.components.SmartImage
-import com.startune.music.presentation.components.CoverColorPicker
-import com.startune.music.presentation.components.CoverIconPicker
 import com.startune.music.presentation.components.ImageCropView
-import com.startune.music.presentation.components.getIconByName
-import com.startune.music.presentation.components.getThemeContentColor
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.ui.theme.RoundedSans
 import com.startune.music.ui.theme.ShapeCache
+import com.startune.music.utils.GenreParser
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -121,8 +119,22 @@ private fun mixRuleTitle(rule: MixRule): String =
             MixRule.FORGOTTEN_FAVORITES -> R.string.mix_rule_forgotten_favorites_title
             MixRule.NEW_GEMS -> R.string.mix_rule_new_gems_title
             MixRule.ARTISTS -> R.string.mix_rule_artists_title
+            MixRule.GENRES -> R.string.mix_rule_genres_title
         }
     )
+
+/** Generation modes in the order the form shows them. */
+private val generationModeOrder = listOf(
+    MixRule.RECENTLY_PLAYED,
+    MixRule.TOP_PLAYED,
+    MixRule.FORGOTTEN_FAVORITES,
+    MixRule.NEW_GEMS,
+    MixRule.ARTISTS,
+    MixRule.GENRES
+)
+
+/** Selected artist/genre badge blue, measured from the mix reference screenshot. */
+private val MixBadgeBlue = Color(0xFF004A87)
 
 @Composable
 private fun mixRuleSubtitle(rule: MixRule): String =
@@ -133,15 +145,17 @@ private fun mixRuleSubtitle(rule: MixRule): String =
             MixRule.FORGOTTEN_FAVORITES -> R.string.mix_rule_forgotten_favorites_subtitle
             MixRule.NEW_GEMS -> R.string.mix_rule_new_gems_subtitle
             MixRule.ARTISTS -> R.string.mix_rule_artists_subtitle
+            MixRule.GENRES -> R.string.mix_rule_genres_subtitle
         }
     )
 
 /**
  * Create-mix form, full screen like the playlist form: a name (required,
- * typed by hand), one of the five presets, an artist picker for the Artists
- * preset, the song count, and the same Default / Image / Icon cover choice
- * as playlists. A mix cover is always shown in the cookie shape; the choice
- * only changes what is inside it.
+ * typed by hand), the song count, one of the six generation modes, an artist
+ * picker for the By Artists mode or a comma-separated genre input for the
+ * By Genres mode, and the same Default / Image cover choice as playlists.
+ * The cover is auto-generated (the icon choice was removed); a mix cover is
+ * always shown in the cookie shape.
  */
 
 /**
@@ -154,6 +168,7 @@ data class MixFormInitial(
     val rule: MixRule = MixRule.TOP_PLAYED,
     val songCount: Int = 60,
     val artistIds: List<Long> = emptyList(),
+    val genres: List<String> = emptyList(),
     val coverImageUri: String? = null,
     val coverColorArgb: Int? = null,
     val coverIconName: String? = null
@@ -168,7 +183,7 @@ data class MixFormInitial(
 fun EditMixForm(
     visible: Boolean,
     onDismiss: () -> Unit,
-    onSave: (String, MixRule, Int, List<Long>, String?, Int?, String?, Float, Float, Float) -> Unit,
+    onSave: (String, MixRule, Int, List<Long>, List<String>, String?, Int?, String?, Float, Float, Float) -> Unit,
     playerViewModel: PlayerViewModel,
     initial: MixFormInitial = MixFormInitial(),
     isForYouMix: Boolean = false
@@ -207,7 +222,7 @@ fun EditMixForm(
 fun CreateMixForm(
     visible: Boolean,
     onDismiss: () -> Unit,
-    onCreate: (String, MixRule, Int, List<Long>, String?, Int?, String?, Float, Float, Float) -> Unit,
+    onCreate: (String, MixRule, Int, List<Long>, List<String>, String?, Int?, String?, Float, Float, Float) -> Unit,
     playerViewModel: PlayerViewModel
 ) {
     val transitionState = remember { MutableTransitionState(false) }
@@ -241,7 +256,7 @@ fun CreateMixForm(
 @Composable
 private fun CreateMixFormContent(
     onDismiss: () -> Unit,
-    onCreate: (String, MixRule, Int, List<Long>, String?, Int?, String?, Float, Float, Float) -> Unit,
+    onCreate: (String, MixRule, Int, List<Long>, List<String>, String?, Int?, String?, Float, Float, Float) -> Unit,
     playerViewModel: PlayerViewModel,
     initial: MixFormInitial = MixFormInitial(),
     isEdit: Boolean = false,
@@ -255,22 +270,45 @@ private fun CreateMixFormContent(
     var sliderValue by remember { mutableFloatStateOf(initial.songCount.toFloat()) }
     var selectedArtistIds by remember { mutableStateOf<List<Long>>(initial.artistIds) }
     var showArtistPicker by remember { mutableStateOf(false) }
+    var genreInput by remember { mutableStateOf("") }
+    var selectedGenres by remember { mutableStateOf<List<String>>(initial.genres) }
+    var modeExpanded by remember { mutableStateOf(false) }
+    val libraryGenres by playerViewModel.genres.collectAsStateWithLifecycle()
+    val onGenreInputChange: (String) -> Unit = { newText ->
+        val (resolved, remaining) = resolveGenreInput(newText, libraryGenres)
+        if (resolved.isNotEmpty()) {
+            val updated = selectedGenres.toMutableList()
+            resolved.forEach { if (it !in updated) updated.add(it) }
+            selectedGenres = updated
+        }
+        genreInput = remaining
+    }
+    val resolveRemainingGenres: () -> Unit = {
+        val (resolved, remaining) = resolveGenreInput(genreInput, libraryGenres, resolveLast = true)
+        if (resolved.isNotEmpty()) {
+            val updated = selectedGenres.toMutableList()
+            resolved.forEach { if (it !in updated) updated.add(it) }
+            selectedGenres = updated
+        }
+        genreInput = remaining
+    }
+    // Genres typed but not yet chipped (the trailing token) still count for
+    // validation and saving, so a trailing genre is never silently lost.
+    val effectiveGenres = remember(selectedGenres, genreInput, libraryGenres) {
+        val (resolved, _) = resolveGenreInput(genreInput, libraryGenres, resolveLast = true)
+        val updated = selectedGenres.toMutableList()
+        resolved.forEach { if (it !in updated) updated.add(it) }
+        updated
+    }
 
     var selectedTab by remember {
-        mutableStateOf(
-            if (initial.coverImageUri != null) 1
-            else if (initial.coverColorArgb != null) 2
-            else 0
-        )
+        mutableStateOf(if (initial.coverImageUri != null) 1 else 0)
     }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var showCropUi by remember { mutableStateOf(false) }
     var imageBitmap by remember(selectedImageUri) { mutableStateOf<ImageBitmap?>(null) }
     var cropScale by remember { mutableFloatStateOf(1f) }
     var cropOffset by remember { mutableStateOf(Offset.Zero) }
-    val defaultColor = MaterialTheme.colorScheme.primaryContainer.toArgb()
-    var selectedColor by remember { mutableStateOf<Int?>(initial.coverColorArgb ?: defaultColor) }
-    var selectedIconName by remember { mutableStateOf<String?>(initial.coverIconName ?: "MusicNote") }
     var existingCoverImageUri by remember { mutableStateOf(initial.coverImageUri) }
 
     LaunchedEffect(selectedImageUri) {
@@ -304,7 +342,8 @@ private fun CreateMixFormContent(
     }
 
     val canCreate = isForYouMix || (mixName.isNotBlank() &&
-        (selectedRule != MixRule.ARTISTS || selectedArtistIds.isNotEmpty()))
+        (selectedRule != MixRule.ARTISTS || selectedArtistIds.isNotEmpty()) &&
+        (selectedRule != MixRule.GENRES || effectiveGenres.isNotEmpty()))
 
     BackHandler(enabled = showCropUi) {
         showCropUi = false
@@ -356,8 +395,6 @@ private fun CreateMixFormContent(
                     onClick = {
                         if (!canCreate) return@MediumExtendedFloatingActionButton
                         val imageUriString = if (selectedTab == 1) selectedImageUri?.toString() ?: existingCoverImageUri else null
-                        val color = if (selectedTab == 2) selectedColor else null
-                        val icon = if (selectedTab == 2) selectedIconName else null
                         val scale = if (selectedTab == 1) cropScale else 1f
                         val panX = if (selectedTab == 1) cropOffset.x else 0f
                         val panY = if (selectedTab == 1) cropOffset.y else 0f
@@ -366,9 +403,10 @@ private fun CreateMixFormContent(
                             selectedRule,
                             sliderValue.toInt(),
                             selectedArtistIds,
+                            effectiveGenres,
                             imageUriString,
-                            color,
-                            icon,
+                            null,
+                            null,
                             scale,
                             panX,
                             panY
@@ -578,29 +616,6 @@ private fun CreateMixFormContent(
                                 }
                             }
                         }
-                        2 -> {
-                            Box(
-                                modifier = Modifier
-                                    .size(180.dp)
-                                    .clip(ShapeCache.expressiveAvatar)
-                                    .background(
-                                        selectedColor?.let { Color(it) }
-                                            ?: MaterialTheme.colorScheme.primaryContainer
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (selectedIconName != null) {
-                                    val icon = getIconByName(selectedIconName) ?: Icons.Rounded.MusicNote
-                                    Icon(
-                                        imageVector = icon,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(80.dp),
-                                        tint = selectedColor?.let { getThemeContentColor(it, MaterialTheme.colorScheme) }
-                                            ?: MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -640,8 +655,7 @@ private fun CreateMixFormContent(
                 if (!isForYouMix) {
                 val tabs = persistentListOf(
                     stringResource(R.string.presentation_batch_f_tab_default),
-                    stringResource(R.string.presentation_batch_f_tab_image),
-                    stringResource(R.string.presentation_batch_f_tab_icon)
+                    stringResource(R.string.presentation_batch_f_tab_image)
                 )
                 ExpressiveButtonGroup(
                     items = tabs,
@@ -654,65 +668,130 @@ private fun CreateMixFormContent(
 
                 }
 
-                AnimatedVisibility(visible = selectedTab == 2) {
-                    Column(
-                        modifier = Modifier.padding(top = 14.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        CoverColorPicker(
-                            selectedColor = selectedColor,
-                            onColorChange = { selectedColor = it }
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Surface(
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                    shape = RoundedCornerShape(28.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 22.dp)
+                ) {
+                    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Text(
+                                    text = stringResource(R.string.mix_playlist_size_title),
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(
+                                    text = stringResource(R.string.mix_playlist_size_subtitle),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Surface(
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                shape = RoundedCornerShape(50)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.mix_detail_size_songs, sliderValue.toInt()),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                )
+                            }
+                        }
+                        Slider(
+                            value = sliderValue,
+                            onValueChange = { sliderValue = it },
+                            valueRange = 10f..100f,
+                            steps = 17,
+                            modifier = Modifier.fillMaxWidth()
                         )
-                        CoverIconPicker(
-                            selectedIconName = selectedIconName,
-                            onIconChange = { selectedIconName = it }
-                        )
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            listOf(10, 20, 30, 40, 50).forEach { count ->
+                                if (sliderValue.toInt() == count) {
+                                    Button(
+                                        onClick = { sliderValue = count.toFloat() },
+                                        modifier = Modifier.weight(1f).height(40.dp),
+                                        shape = RoundedCornerShape(12.dp),
+                                        contentPadding = PaddingValues(0.dp)
+                                    ) { Text(count.toString()) }
+                                } else {
+                                    FilledTonalButton(
+                                        onClick = { sliderValue = count.toFloat() },
+                                        modifier = Modifier.weight(1f).height(40.dp),
+                                        shape = RoundedCornerShape(12.dp),
+                                        contentPadding = PaddingValues(0.dp)
+                                    ) { Text(count.toString()) }
+                                }
+                            }
+                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 if (!isForYouMix) {
-                Text(
-                    text = stringResource(R.string.mix_preset_label),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 22.dp)
-                )
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ExposedDropdownMenuBox(
+                    expanded = modeExpanded,
+                    onExpandedChange = { modeExpanded = it },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 22.dp)
                 ) {
-                    MixRule.entries.forEach { rule ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { selectedRule = rule },
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = selectedRule == rule,
-                                onClick = { selectedRule = rule }
+                    OutlinedTextField(
+                        value = mixRuleTitle(selectedRule),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.mix_generation_mode_label)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = modeExpanded) },
+                        shape = RoundedCornerShape(28.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedBorderColor = Color.Transparent
+                        )
+                    )
+                    ExposedDropdownMenu(
+                        expanded = modeExpanded,
+                        onDismissRequest = { modeExpanded = false }
+                    ) {
+                        generationModeOrder.forEach { rule ->
+                            DropdownMenuItem(
+                                text = {
+                                    Column {
+                                        Text(text = mixRuleTitle(rule), style = MaterialTheme.typography.bodyMedium)
+                                        Text(
+                                            text = mixRuleSubtitle(rule),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                },
+                                onClick = { selectedRule = rule; modeExpanded = false },
+                                trailingIcon = {
+                                    if (selectedRule == rule) {
+                                        Icon(Icons.Rounded.Check, contentDescription = null)
+                                    }
+                                }
                             )
-                            Column(modifier = Modifier.padding(start = 8.dp)) {
-                                Text(
-                                    text = mixRuleTitle(rule),
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                Text(
-                                    text = mixRuleSubtitle(rule),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
                         }
                     }
                 }
-
                 }
 
                 AnimatedVisibility(visible = selectedRule == MixRule.ARTISTS) {
@@ -741,17 +820,9 @@ private fun CreateMixFormContent(
                                 selectedArtistIds.forEach { artistId ->
                                     val artistName = artists.firstOrNull { it.id == artistId }?.name
                                         ?: return@forEach
-                                    InputChip(
-                                        selected = false,
-                                        onClick = { selectedArtistIds = selectedArtistIds - artistId },
-                                        label = { Text(artistName) },
-                                        trailingIcon = {
-                                            Icon(
-                                                Icons.Rounded.Close,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                        }
+                                    MixBadgeChip(
+                                        text = artistName,
+                                        onRemove = { selectedArtistIds = selectedArtistIds - artistId }
                                     )
                                 }
                             }
@@ -765,32 +836,57 @@ private fun CreateMixFormContent(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                AnimatedVisibility(visible = selectedRule == MixRule.GENRES) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 22.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.mix_genres_label),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        OutlinedTextField(
+                            value = genreInput,
+                            onValueChange = { onGenreInputChange(it) },
+                            label = { Text(stringResource(R.string.mix_genres_label)) },
+                            placeholder = { Text(stringResource(R.string.mix_genres_placeholder)) },
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                focusedBorderColor = Color.Transparent,
+                                unfocusedBorderColor = Color.Transparent
+                            ),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(onDone = { resolveRemainingGenres() })
+                        )
+                        if (selectedGenres.isNotEmpty()) {
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                selectedGenres.forEach { genre ->
+                                    MixBadgeChip(
+                                        text = genre,
+                                        onRemove = { selectedGenres = selectedGenres - genre }
+                                    )
+                                }
+                            }
+                        }
+                        Text(
+                            text = stringResource(R.string.mix_genres_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
 
-                Text(
-                    text = stringResource(R.string.mix_detail_size_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 22.dp)
-                )
-                Text(
-                    text = stringResource(R.string.mix_detail_size_songs, sliderValue.toInt()),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 22.dp)
-                )
-                Slider(
-                    value = sliderValue,
-                    onValueChange = { sliderValue = it },
-                    valueRange = 10f..100f,
-                    steps = 17,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 22.dp)
-                )
                 Spacer(Modifier.height(100.dp))
             }
         }
@@ -907,6 +1003,7 @@ private fun ArtistPickerBottomSheet(
                             onClick = {},
                             isSelectionMode = true,
                             isSelected = selectedArtistIds.contains(artist.id),
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                             onSelectionToggle = { onToggleArtist(artist.id) }
                         )
                     }
@@ -921,4 +1018,75 @@ private fun ArtistPickerBottomSheet(
             }
         }
     }
+}
+
+/**
+ * A selected artist/genre badge: the blue chip from the mix reference, white
+ * text, and a dismiss X.
+ */
+@Composable
+private fun MixBadgeChip(text: String, onRemove: () -> Unit) {
+    Surface(
+        color = MixBadgeBlue,
+        contentColor = Color.White,
+        shape = RoundedCornerShape(50)
+    ) {
+        Row(
+            Modifier.padding(start = 12.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(text, style = MaterialTheme.typography.labelLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            IconButton(onClick = onRemove, modifier = Modifier.size(24.dp)) {
+                Icon(Icons.Rounded.Close, contentDescription = null, Modifier.size(18.dp))
+            }
+        }
+    }
+}
+
+/**
+ * Splits comma-separated genre text and resolves each completed token
+ * against the library genres with the NLP ([GenreTaxonomy] alias fallback).
+ * Returns the newly resolved canonical names and the text that stays in the
+ * field (unresolved completed tokens plus the trailing incomplete token,
+ * unless [resolveLast] also resolves it, e.g. on Done). Separators never
+ * become chips: only resolved genres do.
+ */
+private fun resolveGenreInput(
+    text: String,
+    libraryGenres: List<Genre>,
+    resolveLast: Boolean = false
+): Pair<List<String>, String> {
+    val segments = text.split(",")
+    val completed = if (resolveLast) segments else segments.dropLast(1)
+    val trailing = if (resolveLast) "" else segments.lastOrNull() ?: ""
+    val resolved = mutableListOf<String>()
+    val remaining = mutableListOf<String>()
+    completed.forEach { raw ->
+        val token = raw.trim()
+        if (token.isEmpty()) return@forEach
+        resolveGenreToken(token, libraryGenres)?.let { resolved.add(it) } ?: remaining.add(token)
+    }
+    if (trailing.isNotBlank()) remaining.add(trailing.trim())
+    return resolved to remaining.joinToString(", ")
+}
+
+/**
+ * One typed genre token to its canonical library name, or the token itself
+ * when the NLP taxonomy knows it as a genre word, or null when it matches
+ * nothing. Exact loose-key match first ("K-Pop" for "kpop"), then a
+ * containing match for longer tokens ("Alternative Rock" for "rock").
+ */
+private fun resolveGenreToken(token: String, libraryGenres: List<Genre>): String? {
+    val key = GenreParser.looseKey(token)
+    if (key.isEmpty()) return null
+    libraryGenres.firstOrNull { GenreParser.looseKey(it.name) == key }?.let { return it.name }
+    if (key.length >= 3) {
+        libraryGenres.firstOrNull { other ->
+            val otherKey = GenreParser.looseKey(other.name)
+            otherKey.contains(key) || key.contains(otherKey)
+        }?.let { return it.name }
+    }
+    if (GenreTaxonomy.resolve(NlpText.normalize(token)) != null) return token
+    return null
 }

@@ -313,6 +313,7 @@ class PlaylistViewModel @Inject constructor(
         rule: MixRule,
         songCount: Int,
         artistIds: List<Long> = emptyList(),
+        genres: List<String> = emptyList(),
         coverImageUri: String? = null,
         coverColor: Int? = null,
         coverIcon: String? = null,
@@ -332,7 +333,7 @@ class PlaylistViewModel @Inject constructor(
                     cropPanY
                 )
             }
-            val songIds = buildMixSongIds(rule = rule, limit = songCount, artistIds = artistIds)
+            val songIds = buildMixSongIds(rule = rule, limit = songCount, artistIds = artistIds, genres = genres)
             playlistPreferencesRepository.createPlaylist(
                 name = name,
                 songIds = songIds,
@@ -341,7 +342,8 @@ class PlaylistViewModel @Inject constructor(
                 coverIconName = coverIcon,
                 source = rule.toMixSource(),
                 mixSongCount = songCount,
-                mixArtistIds = artistIds.ifEmpty { null }
+                mixArtistIds = artistIds.ifEmpty { null },
+                mixGenres = genres.ifEmpty { null }
             )
             _playlistCreationEvent.emit(true)
         }
@@ -353,6 +355,7 @@ class PlaylistViewModel @Inject constructor(
         rule: MixRule,
         songCount: Int,
         artistIds: List<Long> = emptyList(),
+        genres: List<String> = emptyList(),
         coverImageUri: String? = null,
         coverColor: Int? = null,
         coverIcon: String? = null,
@@ -386,6 +389,7 @@ class PlaylistViewModel @Inject constructor(
                     source = rule.toMixSource(),
                     mixSongCount = songCount,
                     mixArtistIds = artistIds.ifEmpty { null },
+                    mixGenres = genres.ifEmpty { null },
                     lastModified = System.currentTimeMillis()
                 )
             )
@@ -421,7 +425,8 @@ class PlaylistViewModel @Inject constructor(
             val candidates = buildMixSongIds(
                 rule = rule,
                 limit = playlist.songIds.size + 1,
-                artistIds = playlist.mixArtistIds ?: emptyList()
+                artistIds = playlist.mixArtistIds ?: emptyList(),
+                genres = playlist.mixGenres ?: emptyList()
             )
             val backfill = candidates.firstOrNull { it !in remaining && it != songId }
             playlistPreferencesRepository.addMixRemovedSongIds(playlistId, listOf(songId))
@@ -440,7 +445,8 @@ class PlaylistViewModel @Inject constructor(
     private suspend fun buildMixSongIds(
         rule: MixRule,
         limit: Int,
-        artistIds: List<Long> = emptyList()
+        artistIds: List<Long> = emptyList(),
+        genres: List<String> = emptyList()
     ): List<String> {
         val allSongs = musicRepository.getAllSongsOnce()
         if (allSongs.isEmpty()) return emptyList()
@@ -452,7 +458,8 @@ class PlaylistViewModel @Inject constructor(
             favoriteIds = musicRepository.getFavoriteSongIdsOnce(),
             now = System.currentTimeMillis(),
             limit = limit,
-            artistIds = artistIds
+            artistIds = artistIds,
+            genreNames = genres
         )
     }
 
@@ -463,7 +470,8 @@ class PlaylistViewModel @Inject constructor(
         val refreshedSongIds = buildMixSongIds(
             rule = mixRule,
             limit = limit,
-            artistIds = playlist.mixArtistIds ?: emptyList()
+            artistIds = playlist.mixArtistIds ?: emptyList(),
+            genres = playlist.mixGenres ?: emptyList()
         ).filterNot { it in excludedIds }.take(limit - excludedIds.size)
 
         if (refreshedSongIds == playlist.songIds) return playlist
@@ -595,7 +603,8 @@ class PlaylistViewModel @Inject constructor(
             val candidates = buildMixSongIds(
                     rule = rule,
                     limit = (playlist.mixSongCount ?: 60) + removedCount,
-                    artistIds = playlist.mixArtistIds ?: emptyList()
+                    artistIds = playlist.mixArtistIds ?: emptyList(),
+                    genres = playlist.mixGenres ?: emptyList()
                 )
             val backfills = candidates.filterNot {
                 it in remaining || it in songIds

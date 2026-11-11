@@ -1747,12 +1747,13 @@ fun LibraryScreen(
     CreateMixForm(
         visible = showCreateMixForm,
         onDismiss = { showCreateMixForm = false },
-        onCreate = { name, rule, songCount, artistIds, coverImageUri, coverColor, coverIcon, cropScale, cropPanX, cropPanY ->
+        onCreate = { name, rule, songCount, artistIds, genres, coverImageUri, coverColor, coverIcon, cropScale, cropPanX, cropPanY ->
             playlistViewModel.createMix(
                 name = name,
                 rule = rule,
                 songCount = songCount,
                 artistIds = artistIds,
+                genres = genres,
                 coverImageUri = coverImageUri,
                 coverColor = coverColor,
                 coverIcon = coverIcon,
@@ -3376,6 +3377,8 @@ fun ArtistListItem(
     isSelected: Boolean = false,
     selectionIndex: Int? = null,
     customShape: Shape? = null,
+    /** Container color of a selected row when non-null (the picker passes primaryContainer). */
+    selectedContainerColor: Color? = null,
     onLongPress: () -> Unit = {},
     onSelectionToggle: () -> Unit = {}
 ) {
@@ -3416,7 +3419,8 @@ fun ArtistListItem(
             ),
         shape = cardShape,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            containerColor = if (isSelected && selectedContainerColor != null) selectedContainerColor
+            else MaterialTheme.colorScheme.surfaceContainerLow
         )
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
