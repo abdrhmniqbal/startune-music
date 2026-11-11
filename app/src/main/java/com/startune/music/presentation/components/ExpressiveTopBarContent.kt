@@ -67,7 +67,8 @@ fun ExpressiveTopBarContent(
     enableExpandedTitleWidthCompression: Boolean = true,
     titleWidthCompressionThreshold: Dp? = null,
     titleMinWidthAxis: Float = DefaultTopBarTitleCompressedWidthAxis,
-    supportingContent: (@Composable () -> Unit)? = null
+    supportingContent: (@Composable () -> Unit)? = null,
+    titleContent: (@Composable (TextStyle) -> Unit)? = null
 ) {
     val clampedFraction = collapseFraction.coerceIn(0f, 1f)
     val titleScale = lerp(titleScaleRange.first, titleScaleRange.second, clampedFraction)
@@ -158,16 +159,20 @@ fun ExpressiveTopBarContent(
                     .align(Alignment.TopStart)
                     .padding(top = titleTopPadding)
             ) {
-                Text(
-                    text = title,
-                    style = resolvedTitleStyle,
-                    color = contentColor,
-                    maxLines = maxLines,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.graphicsLayer {
-                        transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0f, 0.5f)
-                    }
-                )
+                if (titleContent != null) {
+                    titleContent(resolvedTitleStyle)
+                } else {
+                    Text(
+                        text = title,
+                        style = resolvedTitleStyle,
+                        color = contentColor,
+                        maxLines = maxLines,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.graphicsLayer {
+                            transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0f, 0.5f)
+                        }
+                    )
+                }
                 if (!subtitle.isNullOrEmpty()) {
                     Text(
                         text = subtitle,

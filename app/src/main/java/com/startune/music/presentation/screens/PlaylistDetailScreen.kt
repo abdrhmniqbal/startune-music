@@ -1,5 +1,9 @@
 ﻿package com.startune.music.presentation.screens
 
+import kotlinx.collections.immutable.toImmutableList
+import com.startune.music.presentation.components.PlaylistCover
+import com.startune.music.presentation.components.AutoScrollingText
+import androidx.compose.ui.platform.LocalWindowInfo
 import android.widget.Toast
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.navigation.navigateSafelyReplacing
@@ -320,8 +324,19 @@ fun PlaylistDetailScreen(
     val density = LocalDensity.current
 
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    // The cover would leave no room for the songs on short (landscape phone) windows.
+    val hasRoomForCover = LocalWindowInfo.current.containerDpSize.height >= 560.dp
+    // Tall enough for the 168.dp cover above the title text (title text sits
+    // 108.dp above the header bottom: 160.dp title container minus ~52.dp
+    // top padding); the cover's bottom edge sits 120.dp above the bottom.
     val minTopBarHeight = 62.dp + statusBarHeight
-    val maxTopBarHeight = 200.dp
+    val maxTopBarHeight = if (hasRoomForCover) 328.dp else 200.dp
+    // The same first songs the library thumbnail uses, so the collage matches it.
+    val coverSongs = remember(currentPlaylist?.songIds, songsInPlaylist) {
+        currentPlaylist?.songIds.orEmpty().take(4)
+            .mapNotNull { id -> songsInPlaylist.firstOrNull { it.id == id } }
+            .toImmutableList()
+    }
 
     val minTopBarHeightPx = with(density) { minTopBarHeight.toPx() }
     val maxTopBarHeightPx = with(density) { maxTopBarHeight.toPx() }
@@ -392,6 +407,13 @@ fun PlaylistDetailScreen(
             ) {
                 CollapsibleCommonTopBar(
                     title = currentPlaylist?.name ?: fallbackPlaylistName,
+                    titleContent = { style ->
+                        AutoScrollingText(
+                            text = currentPlaylist?.name ?: fallbackPlaylistName,
+                            style = style,
+                            gradientEdgeColor = MaterialTheme.colorScheme.surface
+                        )
+                    },
                     subtitle = stringResource(
                         R.string.presentation_batch_f_status_bullet_step,
                         formatSongCount(songsInPlaylist.size),
@@ -446,6 +468,20 @@ fun PlaylistDetailScreen(
                         }
                     }
                 )
+                // Centered cover above the expanded title (upstream dff8a8c:
+                // 168.dp, only when expanded and the window is tall enough).
+                val playlistForCover = currentPlaylist
+                if (hasRoomForCover && playlistForCover != null) {
+                    PlaylistCover(
+                        playlist = playlistForCover,
+                        playlistSongs = coverSongs,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 120.dp)
+                            .graphicsLayer { alpha = expandedContentAlpha },
+                        size = 168.dp
+                    )
+                }
                 if (!isReorderModeEnabled && localReorderableSongs.isNotEmpty()) {
                     LargeExtendedFloatingActionButton(
                         onClick = {
