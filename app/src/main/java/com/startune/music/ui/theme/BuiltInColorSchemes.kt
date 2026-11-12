@@ -25,10 +25,15 @@ import com.startune.music.data.preferences.SchemeRoles
  * onSurface/onBackground is the theme's foreground (not pure black/white,
  * which the mapper used to guess); the surface container ramp is the
  * theme's own raised levels in order (bg1/bg2/bg3, Surface0/1/2, current
- * line, base02...); primaryContainer is the theme's selection color with
- * the accent as its on-color; onSurfaceVariant is the theme's muted
- * foreground (comment/subtext); outline is the theme's border level.
- * Roles with no override keep the mapper's derivation.
+ * line, base02...); onSurfaceVariant is the theme's muted foreground
+ * (comment/subtext); outline is the theme's border level.
+ * primaryContainer is deliberately NOT overridden: the themes' selection
+ * colors sit only ~2-8 lightness points from surfaceContainerLow, so a
+ * primaryContainer highlight (current song row, tonal buttons) blended
+ * into the surface. The mapper derives it instead (7 points beyond
+ * surfaceContainer, primary hue kept, on-color by WCAG), which keeps the
+ * highlight visible in every theme. Roles with no override keep the
+ * mapper's derivation.
  *
  * Surface rule: surface is the theme's first official raised level (panel,
  * current line, bg1, surface0) that sits at least ~5 lightness points from
@@ -68,8 +73,6 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.SURFACE_CONTAINER to "#D8DEE9",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#D8DEE9",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#D8DEE9",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#D8DEE9",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#4C709C",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#4C566A",
                 ColorRoleKeys.OUTLINE to "#D8DEE9"
             )
@@ -89,8 +92,6 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.SURFACE_CONTAINER to "#434C5E",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#4C566A",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#4C566A",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#4C566A",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#88C0D0",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#7B8694",
                 ColorRoleKeys.OUTLINE to "#4C566A"
             )
@@ -115,8 +116,6 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.SURFACE_CONTAINER to "#CCD0DA",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#BCC0CC",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#ACB0BE",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#BCC0CC",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#8839EF",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#6C6F85",
                 ColorRoleKeys.OUTLINE to "#9CA0B0"
             )
@@ -136,8 +135,6 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.SURFACE_CONTAINER to "#313244",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#45475A",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#585B70",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#45475A",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#CBA6F7",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#A6ADC8",
                 ColorRoleKeys.OUTLINE to "#6C7086"
             )
@@ -162,8 +159,6 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.SURFACE_CONTAINER to "#DEDCCF",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#D4D0C0",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#C9C4B0",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#DEDCCF",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#644AC9",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#6272A4",
                 ColorRoleKeys.OUTLINE to "#DEDCCF"
             )
@@ -183,8 +178,6 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.SURFACE_CONTAINER to "#44475A",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#44475A",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#4D4F68",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#44475A",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#BD93F9",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#6272A4",
                 ColorRoleKeys.OUTLINE to "#44475A"
             )
@@ -209,8 +202,6 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.SURFACE_CONTAINER to "#D5C4A1",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#BDAE93",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#A89984",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#D5C4A1",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#B57614",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#7C6F64",
                 ColorRoleKeys.OUTLINE to "#D5C4A1"
             )
@@ -230,8 +221,6 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.SURFACE_CONTAINER to "#504945",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#665C54",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#7C6F64",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#504945",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#FABD2F",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#A89984",
                 ColorRoleKeys.OUTLINE to "#665C54"
             )
@@ -256,8 +245,6 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.SURFACE_CONTAINER to "#C4C8DA",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#B4B8D0",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#A8AECB",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#C4C8DA",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#34548A",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#848CB5",
                 ColorRoleKeys.OUTLINE to "#B4B8D0"
             )
@@ -277,8 +264,6 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.SURFACE_CONTAINER to "#292E42",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#292E42",
                 ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#3B4261",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#292E42",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#7AA2F7",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#565F89",
                 ColorRoleKeys.OUTLINE to "#3B4261"
             )
@@ -298,8 +283,6 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#657B83",
                 ColorRoleKeys.ON_BACKGROUND to "#657B83",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#EEE8D5",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#268BD2",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#93A1A1",
                 ColorRoleKeys.OUTLINE to "#EEE8D5"
             )
@@ -314,8 +297,6 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#839496",
                 ColorRoleKeys.ON_BACKGROUND to "#839496",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#073642",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#268BD2",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#586E75",
                 ColorRoleKeys.OUTLINE to "#073642"
             )
@@ -335,8 +316,6 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#5C6A72",
                 ColorRoleKeys.ON_BACKGROUND to "#5C6A72",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#F0EAD4",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#8DA101",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#829181",
                 ColorRoleKeys.OUTLINE to "#E8DFC8"
             )
@@ -351,8 +330,6 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#D3C6AA",
                 ColorRoleKeys.ON_BACKGROUND to "#D3C6AA",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#323C41",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#A7C080",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#859289",
                 ColorRoleKeys.OUTLINE to "#445055"
             )
@@ -372,8 +349,6 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#5C6773",
                 ColorRoleKeys.ON_BACKGROUND to "#5C6773",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#F0F1F2",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#F29718",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#828C99",
                 ColorRoleKeys.OUTLINE to "#E8E9EB"
             )
@@ -388,8 +363,6 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#B3B1AD",
                 ColorRoleKeys.ON_BACKGROUND to "#B3B1AD",
-                ColorRoleKeys.PRIMARY_CONTAINER to "#161A24",
-                ColorRoleKeys.ON_PRIMARY_CONTAINER to "#E6B450",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#626A73",
                 ColorRoleKeys.OUTLINE to "#1C212E"
             )
