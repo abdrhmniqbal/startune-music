@@ -202,6 +202,8 @@
     <string name="color_scheme_hex_label">Hex color</string>
     <string name="color_scheme_hex_invalid">Use a 6-digit hex color, like #88C0D0.</string>
     <string name="color_scheme_advanced">Advanced colors</string>
+    <string name="color_scheme_rainbow">Rainbow</string>
+    <string name="color_scheme_rainbow_slot">Rainbow %1$d</string>
     <string name="color_scheme_auto">Auto</string>
     <string name="color_scheme_reset_auto">Reset to auto</string>
     <string name="color_scheme_group_containers">Containers</string>

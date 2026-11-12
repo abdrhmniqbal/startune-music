@@ -1,7 +1,6 @@
 ﻿package com.startune.music.presentation.screens
 
 import com.startune.music.presentation.navigation.navigateSafely
-import com.startune.music.ui.theme.rainbowColor
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
@@ -300,7 +299,7 @@ fun SettingsScreen(
                 ExpressiveSettingsGroup {
                     mainSettingsEntries.forEachIndexed { index, entry ->
                         val shape = settingsGroupItemShape(index, mainSettingsEntries.size)
-                        val rainbow = colorScheme.rainbowColor(entry.rainbowIndex)
+                        val rainbow = com.startune.music.ui.theme.activeRainbowColor(entry.rainbowIndex)
                         val colors = rainbow.container to rainbow.onContainer
 
                         when (entry) {

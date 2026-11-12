@@ -35,6 +35,13 @@ import com.startune.music.data.preferences.SchemeRoles
  * highlight visible in every theme. Roles with no override keep the
  * mapper's derivation.
  *
+ * Rainbow: each variant stores its official accent palette as
+ * SchemeRoles.rainbow (genre cards, Settings icons). Nord Aurora is the
+ * reference: Nord10-15 plus Frost Nord7-8. The stored palette is what
+ * the UI shows; the derived hue-rotation palette is only the fallback
+ * for custom themes without a stored rainbow. The rainbow is editable
+ * in the theme editor and travels in the exported JSON.
+ *
  * Surface rule: surface is the theme's first official raised level (panel,
  * current line, bg1, surface0) that sits at least ~5 lightness points from
  * the background; when the first level is closer, the next official level
@@ -68,14 +75,10 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#2E3440",
                 ColorRoleKeys.ON_BACKGROUND to "#2E3440",
-                ColorRoleKeys.SURFACE_CONTAINER_LOWEST to "#ECEFF4",
-                ColorRoleKeys.SURFACE_CONTAINER_LOW to "#E5E9F0",
-                ColorRoleKeys.SURFACE_CONTAINER to "#D8DEE9",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#D8DEE9",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#D8DEE9",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#4C566A",
                 ColorRoleKeys.OUTLINE to "#D8DEE9"
-            )
+            ),
+            rainbow = listOf("#5E81AC", "#BF616A", "#D08770", "#EBCB8B", "#A3BE8C", "#B48EAD", "#8FBCBB", "#88C0D0")
         ),
         dark = SchemeRoles(
             primary = "#88C0D0",
@@ -87,14 +90,10 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#D8DEE9",
                 ColorRoleKeys.ON_BACKGROUND to "#D8DEE9",
-                ColorRoleKeys.SURFACE_CONTAINER_LOWEST to "#2E3440",
-                ColorRoleKeys.SURFACE_CONTAINER_LOW to "#3B4252",
-                ColorRoleKeys.SURFACE_CONTAINER to "#434C5E",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#4C566A",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#4C566A",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#7B8694",
                 ColorRoleKeys.OUTLINE to "#4C566A"
-            )
+            ),
+            rainbow = listOf("#5E81AC", "#BF616A", "#D08770", "#EBCB8B", "#A3BE8C", "#B48EAD", "#8FBCBB", "#88C0D0")
         )
     )
 
@@ -111,14 +110,10 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#4C4F69",
                 ColorRoleKeys.ON_BACKGROUND to "#4C4F69",
-                ColorRoleKeys.SURFACE_CONTAINER_LOWEST to "#E6E9EF",
-                ColorRoleKeys.SURFACE_CONTAINER_LOW to "#EFF1F5",
-                ColorRoleKeys.SURFACE_CONTAINER to "#CCD0DA",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#BCC0CC",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#ACB0BE",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#6C6F85",
                 ColorRoleKeys.OUTLINE to "#9CA0B0"
-            )
+            ),
+            rainbow = listOf("#D20F39", "#FE640B", "#DF8E1D", "#40A02B", "#179299", "#1E66F5", "#8839EF", "#EA76CB")
         ),
         dark = SchemeRoles(
             primary = "#CBA6F7",
@@ -130,14 +125,10 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#CDD6F4",
                 ColorRoleKeys.ON_BACKGROUND to "#CDD6F4",
-                ColorRoleKeys.SURFACE_CONTAINER_LOWEST to "#181825",
-                ColorRoleKeys.SURFACE_CONTAINER_LOW to "#1E1E2E",
-                ColorRoleKeys.SURFACE_CONTAINER to "#313244",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#45475A",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#585B70",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#A6ADC8",
                 ColorRoleKeys.OUTLINE to "#6C7086"
-            )
+            ),
+            rainbow = listOf("#F38BA8", "#FAB387", "#F9E2AF", "#A6E3A1", "#94E2D5", "#89B4FA", "#CBA6F7", "#F5C2E7")
         )
     )
 
@@ -154,14 +145,10 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#282A36",
                 ColorRoleKeys.ON_BACKGROUND to "#282A36",
-                ColorRoleKeys.SURFACE_CONTAINER_LOWEST to "#FFFBEB",
-                ColorRoleKeys.SURFACE_CONTAINER_LOW to "#F5F0DC",
-                ColorRoleKeys.SURFACE_CONTAINER to "#DEDCCF",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#D4D0C0",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#C9C4B0",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#6272A4",
                 ColorRoleKeys.OUTLINE to "#DEDCCF"
-            )
+            ),
+            rainbow = listOf("#8BE9FD", "#50FA7B", "#FFB86C", "#FF79C6", "#BD93F9", "#FF5555", "#F1FA8C", "#6272A4")
         ),
         dark = SchemeRoles(
             primary = "#BD93F9",
@@ -173,14 +160,10 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#F8F8F2",
                 ColorRoleKeys.ON_BACKGROUND to "#F8F8F2",
-                ColorRoleKeys.SURFACE_CONTAINER_LOWEST to "#282A36",
-                ColorRoleKeys.SURFACE_CONTAINER_LOW to "#343746",
-                ColorRoleKeys.SURFACE_CONTAINER to "#44475A",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#44475A",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#4D4F68",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#6272A4",
                 ColorRoleKeys.OUTLINE to "#44475A"
-            )
+            ),
+            rainbow = listOf("#8BE9FD", "#50FA7B", "#FFB86C", "#FF79C6", "#BD93F9", "#FF5555", "#F1FA8C", "#6272A4")
         )
     )
 
@@ -197,14 +180,10 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#3C3836",
                 ColorRoleKeys.ON_BACKGROUND to "#3C3836",
-                ColorRoleKeys.SURFACE_CONTAINER_LOWEST to "#FBF1C7",
-                ColorRoleKeys.SURFACE_CONTAINER_LOW to "#EBDBB2",
-                ColorRoleKeys.SURFACE_CONTAINER to "#D5C4A1",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#BDAE93",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#A89984",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#7C6F64",
                 ColorRoleKeys.OUTLINE to "#D5C4A1"
-            )
+            ),
+            rainbow = listOf("#CC241D", "#98971A", "#D79921", "#458588", "#B16286", "#689D6A", "#D65D0E", "#7C6F64")
         ),
         dark = SchemeRoles(
             primary = "#FABD2F",
@@ -216,14 +195,10 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#EBDBB2",
                 ColorRoleKeys.ON_BACKGROUND to "#EBDBB2",
-                ColorRoleKeys.SURFACE_CONTAINER_LOWEST to "#282828",
-                ColorRoleKeys.SURFACE_CONTAINER_LOW to "#3C3836",
-                ColorRoleKeys.SURFACE_CONTAINER to "#504945",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#665C54",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#7C6F64",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#A89984",
                 ColorRoleKeys.OUTLINE to "#665C54"
-            )
+            ),
+            rainbow = listOf("#FB4934", "#B8BB26", "#FABD2F", "#83A598", "#D3869B", "#8EC07C", "#FE8019", "#928374")
         )
     )
 
@@ -240,14 +215,10 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#3760BF",
                 ColorRoleKeys.ON_BACKGROUND to "#3760BF",
-                ColorRoleKeys.SURFACE_CONTAINER_LOWEST to "#E1E2E7",
-                ColorRoleKeys.SURFACE_CONTAINER_LOW to "#DBDCE2",
-                ColorRoleKeys.SURFACE_CONTAINER to "#C4C8DA",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#B4B8D0",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#A8AECB",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#848CB5",
                 ColorRoleKeys.OUTLINE to "#B4B8D0"
-            )
+            ),
+            rainbow = listOf("#2E7DE9", "#007197", "#587539", "#9854F1", "#F76E7A", "#F52A65", "#8C6C3E", "#7847BD")
         ),
         dark = SchemeRoles(
             primary = "#7AA2F7",
@@ -259,14 +230,10 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#C0CAF5",
                 ColorRoleKeys.ON_BACKGROUND to "#C0CAF5",
-                ColorRoleKeys.SURFACE_CONTAINER_LOWEST to "#16161E",
-                ColorRoleKeys.SURFACE_CONTAINER_LOW to "#1A1B26",
-                ColorRoleKeys.SURFACE_CONTAINER to "#292E42",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGH to "#292E42",
-                ColorRoleKeys.SURFACE_CONTAINER_HIGHEST to "#3B4261",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#565F89",
                 ColorRoleKeys.OUTLINE to "#3B4261"
-            )
+            ),
+            rainbow = listOf("#7AA2F7", "#7DCFFF", "#9ECE6A", "#BB9AF7", "#FF9E64", "#F7768E", "#E0AF68", "#9D7CD8")
         )
     )
 
@@ -285,7 +252,8 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.ON_BACKGROUND to "#657B83",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#93A1A1",
                 ColorRoleKeys.OUTLINE to "#EEE8D5"
-            )
+            ),
+            rainbow = listOf("#B58900", "#CB4B16", "#DC322F", "#D33682", "#6C71C4", "#268BD2", "#2AA198", "#859900")
         ),
         dark = SchemeRoles(
             primary = "#268BD2",
@@ -299,7 +267,8 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.ON_BACKGROUND to "#839496",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#586E75",
                 ColorRoleKeys.OUTLINE to "#073642"
-            )
+            ),
+            rainbow = listOf("#B58900", "#CB4B16", "#DC322F", "#D33682", "#6C71C4", "#268BD2", "#2AA198", "#859900")
         )
     )
 
@@ -318,7 +287,8 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.ON_BACKGROUND to "#5C6A72",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#829181",
                 ColorRoleKeys.OUTLINE to "#E8DFC8"
-            )
+            ),
+            rainbow = listOf("#F85552", "#F57D26", "#DFA000", "#8DA101", "#35A77C", "#3A94C5", "#DF69BA", "#5C6A72")
         ),
         dark = SchemeRoles(
             primary = "#A7C080",
@@ -332,7 +302,8 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.ON_BACKGROUND to "#D3C6AA",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#859289",
                 ColorRoleKeys.OUTLINE to "#445055"
-            )
+            ),
+            rainbow = listOf("#E67E80", "#E69875", "#DBBC7F", "#A7C080", "#83C092", "#7FBBB3", "#D699B6", "#7A8478")
         )
     )
 
@@ -351,7 +322,8 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.ON_BACKGROUND to "#5C6773",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#828C99",
                 ColorRoleKeys.OUTLINE to "#E8E9EB"
-            )
+            ),
+            rainbow = listOf("#F26D78", "#B8CC52", "#E6B450", "#39BAE6", "#D2A6FF", "#FF9940", "#F0719B", "#59C2FF")
         ),
         dark = SchemeRoles(
             primary = "#E6B450",
@@ -365,7 +337,8 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.ON_BACKGROUND to "#B3B1AD",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#626A73",
                 ColorRoleKeys.OUTLINE to "#1C212E"
-            )
+            ),
+            rainbow = listOf("#F26D78", "#B8CC52", "#E6B450", "#39BAE6", "#D2A6FF", "#FF9940", "#F0719B", "#59C2FF")
         )
     )
 

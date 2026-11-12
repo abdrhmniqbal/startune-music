@@ -64,6 +64,7 @@ import com.startune.music.ui.theme.colorToHex
 import com.startune.music.ui.theme.hexToColor
 import com.startune.music.ui.theme.isValidHex
 import com.startune.music.ui.theme.normalizeHex
+import com.startune.music.ui.theme.rainbowColors
 import com.startune.music.ui.theme.roleColor
 import com.startune.music.ui.theme.toColorScheme
 
@@ -187,6 +188,18 @@ private sealed interface PickerTarget {
         override val labelRes: Int,
         override val hex: String
     ) : PickerTarget
+
+    /** A rainbow slot (one of the 8 colorful colors); clearing it returns
+     * the whole rainbow to auto-derived (the theme's official palette or
+     * the derived fallback). The label is "Rainbow N", built at the
+     * call site, so labelRes is unused here. */
+    data class Rainbow(
+        override val isDark: Boolean,
+        val index: Int,
+        override val hex: String
+    ) : PickerTarget {
+        override val labelRes: Int get() = R.string.color_scheme_rainbow
+    }
 }
 
 private val PRESET_COLORS = listOf(
@@ -221,6 +234,23 @@ private fun SchemeRoles.withOverride(key: String, hex: String): SchemeRoles =
 
 private fun SchemeRoles.withoutOverride(key: String): SchemeRoles =
     copy(overrides = overrides - key)
+
+/**
+ * Stores [hex] at rainbow slot [index], padding shorter stored lists
+ * with the effective (stored or derived) palette so indices stay stable.
+ * The effective palette comes from the roles' own derivation.
+ */
+private fun SchemeRoles.withRainbow(index: Int, hex: String, isDark: Boolean): SchemeRoles {
+    val effective = rainbowColors(isDark)
+        .map { colorToHex(it.container) }
+    val padded = effective.toMutableList()
+    while (padded.size <= index) padded.add(effective.getOrElse(padded.size) { "#000000" })
+    padded[index] = hex
+    return copy(rainbow = padded)
+}
+
+/** Clears the stored rainbow; the palette returns to auto-derived. */
+private fun SchemeRoles.withoutRainbow(): SchemeRoles = copy(rainbow = emptyList())
 
 @Composable
 fun ColorSchemeEditorScreen(
@@ -483,20 +513,78 @@ fun ColorSchemeEditorScreen(
                     }
                 )
             }
+            item {
+                Text(
+                    text = stringResource(R.string.color_scheme_rainbow),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 12.dp)
+                )
+            }
+            item {
+                Text(
+                    text = stringResource(R.string.color_scheme_light),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            item {
+                RainbowSection(
+                    roles = light,
+                    isDark = false,
+                    onPick = { index, hex ->
+                        pickerTarget = PickerTarget.Rainbow(isDark = false, index = index, hex = hex)
+                    }
+                )
+            }
+            item {
+                Text(
+                    text = stringResource(R.string.color_scheme_dark),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            item {
+                RainbowSection(
+                    roles = dark,
+                    isDark = true,
+                    onPick = { index, hex ->
+                        pickerTarget = PickerTarget.Rainbow(isDark = true, index = index, hex = hex)
+                    }
+                )
+            }
         }
     }
 
     pickerTarget?.let { target ->
+        val title = if (target is PickerTarget.Rainbow) {
+            stringResource(R.string.color_scheme_rainbow_slot, target.index + 1)
+        } else {
+            stringResource(target.labelRes)
+        }
         ColorPickerDialog(
-            title = stringResource(target.labelRes),
+            title = title,
             currentHex = target.hex,
-            showResetToAuto = target is PickerTarget.Override,
+            showResetToAuto = target is PickerTarget.Override || target is PickerTarget.Rainbow,
             onResetToAuto = {
-                val override = target as PickerTarget.Override
-                if (override.isDark) {
-                    dark = dark.withoutOverride(override.key)
-                } else {
-                    light = light.withoutOverride(override.key)
+                when (target) {
+                    is PickerTarget.Override -> {
+                        if (target.isDark) {
+                            dark = dark.withoutOverride(target.key)
+                        } else {
+                            light = light.withoutOverride(target.key)
+                        }
+                    }
+                    is PickerTarget.Rainbow -> {
+                        // Reset clears the whole stored rainbow for this
+                        // variant, so every slot returns to auto-derived.
+                        if (target.isDark) {
+                            dark = dark.withoutRainbow()
+                        } else {
+                            light = light.withoutRainbow()
+                        }
+                    }
+                    is PickerTarget.Base -> Unit
                 }
                 pickerTarget = null
             },
@@ -517,10 +605,45 @@ fun ColorSchemeEditorScreen(
                             light = light.withOverride(target.key, hex)
                         }
                     }
+                    is PickerTarget.Rainbow -> {
+                        if (target.isDark) {
+                            dark = dark.withRainbow(target.index, hex, isDark = true)
+                        } else {
+                            light = light.withRainbow(target.index, hex, isDark = false)
+                        }
+                    }
                 }
                 pickerTarget = null
             }
         )
+    }
+}
+
+/**
+ * The rainbow (colorful elements: genre cards, Settings icons): 8 slots.
+ * Each row shows the effective color and an Auto badge when that slot is
+ * not stored, i.e. it comes from the derived palette. Tapping a slot
+ * opens the picker; confirming stores that slot.
+ */
+@Composable
+private fun RainbowSection(
+    roles: SchemeRoles,
+    isDark: Boolean,
+    onPick: (index: Int, hex: String) -> Unit
+) {
+    val effective = remember(roles, isDark) { roles.rainbowColors(isDark) }
+    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        effective.forEachIndexed { index, themeColor ->
+            val isAuto = index >= roles.rainbow.size
+            val hex = colorToHex(themeColor.container)
+            AdvancedRoleRow(
+                label = stringResource(R.string.color_scheme_rainbow_slot, index + 1),
+                hex = hex,
+                isAuto = isAuto,
+                shape = getSegmentedItemShape(index, effective.size),
+                onClick = { onPick(index, hex) }
+            )
+        }
     }
 }
 

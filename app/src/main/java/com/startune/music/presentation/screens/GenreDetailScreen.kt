@@ -181,12 +181,14 @@ fun GenreDetailScreen(
     val defaultOnContainer = MaterialTheme.colorScheme.onSurfaceVariant
     val themeGenre = uiState.genre
     val colorScheme = MaterialTheme.colorScheme
-    val themeColor = remember(themeGenre, decodedGenreId, colorScheme, defaultContainer, defaultOnContainer) {
+    val rainbowPalette = com.startune.music.ui.theme.LocalRainbowPalette.current
+    val themeColor = remember(themeGenre, decodedGenreId, colorScheme, rainbowPalette, defaultContainer, defaultOnContainer) {
         if (themeGenre != null) {
             com.startune.music.ui.theme.GenreThemeUtils.getGenreThemeColor(
                 genre = themeGenre,
                 scheme = colorScheme,
-                fallbackGenreId = decodedGenreId
+                fallbackGenreId = decodedGenreId,
+                storedPalette = rainbowPalette
             )
         } else {
             com.startune.music.ui.theme.GenreThemeColor(

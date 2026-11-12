@@ -139,11 +139,13 @@ private fun GenreCard(
     onSelectionToggle: () -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val themeColor = remember(genre, colorScheme) {
+    val rainbowPalette = com.startune.music.ui.theme.LocalRainbowPalette.current
+    val themeColor = remember(genre, colorScheme, rainbowPalette) {
         com.startune.music.ui.theme.GenreThemeUtils.getGenreThemeColor(
             genre = genre,
             scheme = colorScheme,
-            fallbackGenreId = genre.id
+            fallbackGenreId = genre.id,
+            storedPalette = rainbowPalette
         )
     }
     val backgroundColor = themeColor.container

@@ -275,11 +275,13 @@ private fun StackedGenrePreviews(
         genres.forEachIndexed { index, genre ->
             val offsetX = index * (imageSize.value - overlap.value)
             val colorScheme = MaterialTheme.colorScheme
-            val themeColor = remember(genre, colorScheme) {
+            val rainbowPalette = com.startune.music.ui.theme.LocalRainbowPalette.current
+            val themeColor = remember(genre, colorScheme, rainbowPalette) {
                 GenreThemeUtils.getGenreThemeColor(
                     genre = genre,
                     scheme = colorScheme,
-                    fallbackGenreId = genre.id
+                    fallbackGenreId = genre.id,
+                    storedPalette = rainbowPalette
                 )
             }
             Box(
