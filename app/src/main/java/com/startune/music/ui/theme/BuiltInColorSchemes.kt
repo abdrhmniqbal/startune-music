@@ -37,15 +37,20 @@ import com.startune.music.data.preferences.SchemeRoles
  *
  * Rainbow: each variant stores its official accent palette as
  * SchemeRoles.rainbow (genre cards, Settings icons). Nord Aurora is the
- * reference: Nord10-15 plus Frost Nord7-8. The stored palette is what
- * the UI shows; the derived hue-rotation palette is only the fallback
- * for custom themes without a stored rainbow. The rainbow is editable
- * in the theme editor and travels in the exported JSON.
+ * reference: nord11-15 only, five colors, no Frost blue (Frost nord7-10
+ * is the primary-accent palette, not the rainbow). Aurora is the same in
+ * both ambiances, so both variants store the same 8-slot cycle of Aurora
+ * in order. The stored palette is what the UI shows; the derived
+ * hue-rotation palette is only the fallback for custom themes without a
+ * stored rainbow. The rainbow is editable in the theme editor and travels
+ * in the exported JSON.
  *
- * Surface rule: surface is the theme's first official raised level (panel,
- * current line, bg1, surface0) that sits at least ~5 lightness points from
- * the background; when the first level is closer, the next official level
- * is used. Two themes have no official level that far: Solarized dark
+ * Surface rule: surface is the theme's official elevated level (panel,
+ * modal, button: nord1, bg1, surface0), NOT the selection/current-line
+ * level (nord2 is selection, not a surface). It must sit at least ~5
+ * lightness points from the background; when the elevated level is closer,
+ * the next official level is used. Two themes have no official level that
+ * far: Solarized dark
  * (base02 is 3.7 points above base03) and Ayu dark (line_highlight is 2.7
  * points above background); their surfaces stay the official values and
  * the separation there comes from the derived container ramp instead.
@@ -66,7 +71,7 @@ object BuiltInColorSchemes {
         id = "nord",
         name = "Nord",
         light = SchemeRoles(
-            primary = "#4C709C",
+            primary = "#88C0D0",
             secondary = "#81A1C1",
             tertiary = "#B48EAD",
             background = "#ECEFF4",
@@ -78,14 +83,14 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#4C566A",
                 ColorRoleKeys.OUTLINE to "#D8DEE9"
             ),
-            rainbow = listOf("#5E81AC", "#BF616A", "#D08770", "#EBCB8B", "#A3BE8C", "#B48EAD", "#8FBCBB", "#88C0D0")
+            rainbow = listOf("#BF616A", "#D08770", "#EBCB8B", "#A3BE8C", "#B48EAD", "#BF616A", "#D08770", "#EBCB8B")
         ),
         dark = SchemeRoles(
             primary = "#88C0D0",
             secondary = "#81A1C1",
             tertiary = "#5E81AC",
             background = "#2E3440",
-            surface = "#434C5E",
+            surface = "#3B4252",
             error = "#BF616A",
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#D8DEE9",
@@ -93,7 +98,7 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#7B8694",
                 ColorRoleKeys.OUTLINE to "#4C566A"
             ),
-            rainbow = listOf("#5E81AC", "#BF616A", "#D08770", "#EBCB8B", "#A3BE8C", "#B48EAD", "#8FBCBB", "#88C0D0")
+            rainbow = listOf("#BF616A", "#D08770", "#EBCB8B", "#A3BE8C", "#B48EAD", "#BF616A", "#D08770", "#EBCB8B")
         )
     )
 
