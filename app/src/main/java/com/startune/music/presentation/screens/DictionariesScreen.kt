@@ -55,6 +55,7 @@ import com.startune.music.presentation.utils.getSegmentedItemShape
 import com.startune.music.presentation.viewmodel.DictionariesViewModel
 import com.startune.music.presentation.viewmodel.DictionaryPackUiState
 import com.startune.music.presentation.viewmodel.DictionaryStatus
+import com.startune.music.presentation.components.ExpressiveEmptyState
 
 @Composable
 fun DictionariesScreen(
@@ -287,29 +288,10 @@ private fun DictionariesLoadingItem() {
 
 @Composable
 private fun DictionariesEmptyState() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 56.dp, horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(
-            Icons.Rounded.Translate,
-            contentDescription = null,
-            modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Spacer(Modifier.height(16.dp))
-        Text(
-            stringResource(R.string.dictionaries_empty_title),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(Modifier.height(6.dp))
-        Text(
-            stringResource(R.string.dictionaries_empty_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
+    ExpressiveEmptyState(
+        icon = Icons.Rounded.Translate,
+        title = stringResource(R.string.dictionaries_empty_title),
+        subtitle = stringResource(R.string.dictionaries_empty_subtitle),
+        modifier = Modifier.padding(vertical = 56.dp)
+    )
 }

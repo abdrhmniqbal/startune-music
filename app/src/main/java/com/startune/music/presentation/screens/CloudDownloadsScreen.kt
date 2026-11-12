@@ -57,6 +57,7 @@ import com.startune.music.data.offline.OfflineDownload
 import com.startune.music.data.offline.OfflineDownloadStatus
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.viewmodel.CloudDownloadsViewModel
+import com.startune.music.presentation.components.ExpressiveEmptyState
 
 @Composable
 fun CloudDownloadsScreen(
@@ -319,31 +320,12 @@ private fun DownloadItemCard(
 
 @Composable
 private fun DownloadsEmptyState() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 56.dp, horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(
-            Icons.Rounded.CloudDownload,
-            contentDescription = null,
-            modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Spacer(Modifier.height(16.dp))
-        Text(
-            stringResource(R.string.cloud_downloads_empty_title),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(Modifier.height(6.dp))
-        Text(
-            stringResource(R.string.cloud_downloads_empty_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
+    ExpressiveEmptyState(
+        icon = Icons.Rounded.CloudDownload,
+        title = stringResource(R.string.cloud_downloads_empty_title),
+        subtitle = stringResource(R.string.cloud_downloads_empty_subtitle),
+        modifier = Modifier.padding(vertical = 56.dp)
+    )
 }
 
 private data class DownloadVisual(

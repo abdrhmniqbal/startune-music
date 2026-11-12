@@ -448,30 +448,14 @@ fun FileExplorerContent(
 
 @Composable
 private fun ExplorerEmptyState(
-    text: String,
-    iconColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+    text: String
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 36.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.FolderOff,
-            contentDescription = null,
-            tint = iconColor,
-            modifier = Modifier.size(64.dp)
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
-        )
-    }
+    ExpressiveEmptyState(
+        icon = Icons.Rounded.FolderOff,
+        title = text,
+        subtitle = null,
+        modifier = Modifier.padding(vertical = 36.dp)
+    )
 }
 
 @Composable

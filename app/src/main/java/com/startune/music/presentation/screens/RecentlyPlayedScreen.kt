@@ -29,7 +29,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -111,6 +110,8 @@ import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.utils.shapes.RoundedStarShape
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import androidx.compose.material.icons.rounded.History
+import com.startune.music.presentation.components.ContainedEmptyState
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -580,41 +581,15 @@ private fun RecentlyPlayedEmptyState(
     range: StatsTimeRange,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = AbsoluteSmoothCornerShape(
-            cornerRadiusTL = 26.dp,
-            smoothnessAsPercentTR = 60,
-            cornerRadiusTR = 26.dp,
-            smoothnessAsPercentBR = 60,
-            cornerRadiusBL = 26.dp,
-            smoothnessAsPercentBL = 60,
-            cornerRadiusBR = 26.dp,
-            smoothnessAsPercentTL = 60
+    ContainedEmptyState(
+        icon = Icons.Rounded.History,
+        title = stringResource(
+            R.string.presentation_batch_b_recent_empty_title,
+            range.displayName.lowercase()
         ),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = stringResource(
-                    R.string.presentation_batch_b_recent_empty_title,
-                    range.displayName.lowercase()
-                ),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-            Text(
-                text = stringResource(R.string.presentation_batch_b_recent_empty_subtitle),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
+        subtitle = stringResource(R.string.presentation_batch_b_recent_empty_subtitle),
+        modifier = modifier
+    )
 }
 
 private data class TimestampGroup(

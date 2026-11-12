@@ -33,7 +33,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.filled.MusicOff
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -93,6 +92,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import com.startune.music.presentation.utils.GenreIconProvider
+import com.startune.music.presentation.components.ExpressiveEmptyState
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -721,29 +721,12 @@ private val GenreGridCardWidth = 180.dp
 
 @Composable
 private fun GenreEmptyState() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 48.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Icon(
-            Icons.Filled.MusicOff,
-            null,
-            Modifier.size(48.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            stringResource(R.string.genre_empty_title),
-            style = MaterialTheme.typography.titleMedium
-        )
-        Text(
-            stringResource(R.string.genre_empty_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
+    ExpressiveEmptyState(
+        iconRes = R.drawable.rounded_music_off_24,
+        titleRes = R.string.genre_empty_title,
+        subtitleRes = R.string.genre_empty_subtitle,
+        modifier = Modifier.padding(top = 48.dp)
+    )
 }
 
 @Composable
