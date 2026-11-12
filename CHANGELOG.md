@@ -23,254 +23,526 @@ First beta of the Kotlin rewrite: Startune Music rebuilt as a native Kotlin app,
 - Empty states for every list screen
 - Per-ABI release builds: arm64-v8a, armeabi-v7a, x86, x86_64
 
-## [1.8.11] - 2026-10-31
+## [1.0.5] - 2026-07-24
 
-### ✨ What's New
-- **Custom Proxy Support:** Full HTTP & SOCKS5 proxy with authentication and connection testing in Settings.
-- **Edge-to-Edge Lyrics Blur:** Seamless Gaussian blur covering the full screen and transparent status bar.
+### ⚙️ Changed
 
-### ⚡ Fixes & Improvements
-- **Instant Resume:** Refreshes expired audio links after pauses to eliminate playback stalls.
-- **Call & Audio Focus Recovery:** Fixed stutter and glitches when returning from calls.
-- **Cold Start Restoration:** Restores your last song and queue cleanly on startup.
-- **Artist & Search Polish:** Fixed search metadata display and improved artist page scrolling.
-- **Smarter Auto-Queue:** Reduced duplicate tracks during continuous playback.
-- **Smooth Gestures:** Refined 120Hz Explore scrolling and player sheet drag physics.
+- Replaced `useGuardedRouter` 900ms guard delay with direct router calls to prevent dropped navigation events and blank screens. (@abdrhmniqbal)
 
-## [1.8.10] - 2026-10-24
+### 🧩 Fixed
 
-### ✨ What's New
-- **Full Player & Lyrics Blur:** Added smooth Gaussian blur behind the main player and frosted glass blur behind the synchronized lyrics sheet with edge-to-edge support.
-- **Customizable Share Cards:** Create and share stylish 9:16 song and lyrics story cards with background blur and dynamic branding.
-- **Brand New Search Experience:** Redesigned search screen with a clean 2x2 grid, recent searches, and authentic browse feeds.
-- **Moods, Genres & Charts:** Explore curated moods and genres, plus trending top charts and new releases right from the app.
-- **Free Lossless Streaming & Fallback:** Stream high-resolution FLAC audio for free, with seamless automatic fallback to JioSaavn or YouTube Music.
-- **Integrated Storage Sense:** Easily manage device storage, find duplicate downloads, and automatically clean old stream caches with smart rules.
-- **Material 3 Expressive UI & Animations:** Refined navigation bar, smooth corner radius, fluid micro-animations, and bounce feedback.
+- MiniPlayer component maintained persistently in DOM tree with transform animations to prevent disappearing on rapid transitions. (@abdrhmniqbal)
+- Removed `isFetching` check from artist & album detail screens to prevent infinite loading spinners on background refetches. (@abdrhmniqbal)
+- Created Expo Config Plugin (`with-startune-modules`) to auto-register custom native modules (`BatteryOptimizationModule`, `AppUpdaterModule`) in `MainApplication.kt` during prebuilds and EAS builds. (@abdrhmniqbal)
+- Fixed GitHub Actions release workflow 403 error by using `workflow_call` and `contents: write` permissions for attaching release notes. (@abdrhmniqbal)
+- Prevented repeated Deezer API queries for artists with existing cached artwork and added an in-memory query cache for artist image lookups. (@abdrhmniqbal)
 
-### ⚡ Fixes & Improvements
-- **Major Performance Boost:** Reduced CPU and RAM usage by ~40% for cooler, longer-lasting battery life.
-- **120Hz Smooth Scrolling:** Hardware-accelerated image decoding and pipelined queueing eliminate stutter and dropped frames.
-- **Reliable Shuffle & Queue:** Fixed shuffle dropping songs in large playlists and albums.
-- **Faster Playback Startup:** Optimized track buffering and artwork preloading for instant music playback.
-- **Pure Offline Mode:** Physical audio file verification with zero navigation lag when browsing local tracks.
-- **Interaction Polish:** Fixed predictive back navigation sheet dismissal races and keyboard flicker on dialog dismissal.
+## [1.0.4] - 2026-07-21
 
-## [1.7.10] - 2026-10-05
+### ⚙️ Changed
 
-### ✨ What's New
-- **Lossless Audio & Downloads:** Support for Hi-Fi Lossless streaming & downloading with format badges and audio chain info (requires bringing your own API or logging into paid streaming accounts).
-- **Quick Playlist Import:** Import Spotify and YouTube playlists directly by pasting a link.
-- **Material 3 Expressive UI:** Floating navigation pill bar, home header pill, and customizable home collage.
-- **Redesigned Explore Tab:** Horizontal Daily Discover carousel, mood filter chips, and personalized New Releases.
-- **Enhanced Audio Sharing:** Share stylized song cards and lyric stories directly to Snapchat and social media.
-- **Color Themes & Presets:** Added new Material 3 palettes (Purple Pink, Dark & Grey, Pure Monochrome, and Dynamic Pastel).
-- **Expanded Local Audio Support:** Native playback and indexing for Apple Lossless (ALAC) and `.caf` audio files.
-- **Smart Auto-Queue & Radios:** Start an instant radio mix from any song with seamless crossfade transitions.
-- **In-App Update Checker:** Automatically check for new releases and install updates directly within the app.
-- **Full Localization:** 100% complete translation coverage across 11 languages (including Portuguese).
+- Replaced `react-native-audio-browser` with custom pure modules and explicitly pin Node 24 for APK releases. (@abdrhmniqbal)
+- Consolidated navigation, logging, and localization wrappers. (@abdrhmniqbal)
+- Player projector now syncs based on meaningful state updates rather than playback ticks to prevent UI stutters. (@abdrhmniqbal)
+- Moved Deezer artist queries entirely to the client side, dropping Last.fm integration for bios. (@abdrhmniqbal)
+- Cleaned up build scripts: migrated to Bun, removed dead metadata retrievers, and pinned trusted deps. (@abdrhmniqbal)
 
-### ⚡ Fixes & Improvements
-- **Shuffle & Queue Controls:** Rewrote player and queue shuffle to reorder tracks in-place seamlessly without dropping or resetting playback.
-- **Personalized Feed & Explore:** Connected user account authentication to load real YouTube Music home shelves with unified single-pass refreshing.
-- **Predictive Back Stability:** Safeguarded against system gesture dispatcher races during sheet dismissal.
-- **Changelog & Update Popup:** Formatted markdown bold text and deduplicated repeated titles in update bottom sheet.
-- **Playback & Cold Start:** Discarding the player cleanly clears playback without unexpected auto-play on restart.
-- **Smoother Queueing:** Tapping songs in search results plays only the selected track instead of replacing the entire queue.
-- **Mobile Data & Offline Sync:** Fast track loading and reliable background playlist caching on cellular networks.
-- **Faster Startup:** Instant tab switching and reduced memory footprint across all screens.
+### 🧩 Fixed
 
-## [1.6.09] - 2026-08-28
+- Playlist active track hydration no longer gets wiped on restore. (@abdrhmniqbal)
+- Queue list fast-scroll crash fixed by dropping mismatched `getItemLayout`. (@abdrhmniqbal)
+- Player no longer forces full re-render of queue items on every tick. (@abdrhmniqbal)
+- TrackInfo anchors to bottom reliably in compact, lyrics, and queue views. (@abdrhmniqbal)
+- Last.fm scrobbler now sends only the primary artist name. (@abdrhmniqbal)
+- Notification handlers execute at the right time, decoupled from render bodies. (@abdrhmniqbal)
+- Deezer search prefers exact artist matches before falling back to normalized ones. (@abdrhmniqbal)
 
-### Features & Enhancements
-- **Massive APK Size Reduction**: Reduced APK download footprint by ~18 MB.
-- **Built-in 0-MB Japanese Romanization**: Migrated to native Android ICU transliterator engine with zero APK overhead.
-- **On-Demand Japanese Kanji Pack**: Optional offline high-accuracy Kanji dictionary downloadable dynamically on-demand.
-- **Daily Mix Regeneration**: Resolved force update race condition for immediate mix refresh.
-- **Background Database Optimization**: Non-blocking asynchronous queue writes and stale Quick Picks auto-refresh on app resume.
+## [1.0.3] - 2026-07-09
 
-## [1.6.08] - 2026-07-31
+### ✨ Added
 
-### Features & Enhancements
-- **Redesigned Explore Tab**: Material 3 Expressive hero banner, bento-style category cards, and mood filter chips.
-- **Instant Search Playback**: Tap any song in search results to play immediately, seamlessly integrated with the mini player.
-- **Search Layout Optimization**: Smooth scrolling above the mini player with clean layout bounds.
-- **Explore Header Refresh**: Styled typography matching the main Library tab.
+- Dev builds default to extra logging so contributors get full diagnostics without manually enabling it. (@abdrhmniqbal)
 
-### Performance & Reliability
-- **Accelerated Library Loading**: Background database querying for faster tab switching and instant library rendering.
-- **Seamless Track Transitions**: Smart Auto-Queue buffering eliminates playback interruptions.
-- **Snappy App Startup**: Optimized theme extraction and on-demand initialization for instant launch.
-- **Optimized UI Rendering**: Memoized component allocations for smooth 60fps scrolling across all lists.
-- **Background Task Safety**: Reliable background operations for playlist and library updates.
+### ⚙️ Changed
 
-## [1.5.06] - 2026-06-12
+- Categorized the indexer module into cohesive submodules (scan, metadata, external, progress, state, utils) and moved batch utilities into `indexer/utils/batch`. (@abdrhmniqbal)
+- Redesigned the now-playing equalizer loader into a continuous, seamless wave with proportional sizing; larger on grid carousels. (@abdrhmniqbal)
 
-### Added
-- **Smart Mix Playlist Generator (Last.fm Creator)**:
-  - Replicated and adapted the creation and discovery features of LastWave into a native Compose implementation.
-  - Created a config screen supporting 8 distinct generation modes (Top Tracks, Recent Tracks, Similar Tracks/Artists, Genre, Recommendations, etc.).
-  - Added "Recent Mixes (last.fm)" horizontal carousel to the Explore Screen with custom preview cards.
-- **Spotify-Style Snapchat Story Sharing**:
-  - Integrated the official Snapchat Creative Kit SDK for premium story sharing of customized song and lyrics cards.
-- **Share Card Customizations**:
-  - Implemented dynamic pastel theming, frosted glassmorphic card containers with deep blurred artwork backgrounds, and wavy seekbar animations.
-- **Explore Progressive Loading**:
-  - Phased Explore screen rendering (Lazy loading above-the-fold feeds first, then personalized lists in the background) for near-instant page loads.
-- **Explore Personalization**:
-  - Integrated ArchiveTune's sorting algorithm to prioritize explore new release albums by your favorite and most-played artists.
-- **Material You Dynamic Colors**: Added a "Dynamic (System)" option to the App Color Palette setting on Android 12+ devices.
-- **Explore Launch Tab**: Support setting the Explore screen as the default tab upon launching the app.
-- **Smart Mix Playlist Retention**: Added settings to choose retention periods (24 hours, 7 days, 30 days, or permanent) for generated AI playlists, with automated startup pruning.
+### 🧩 Fixed
 
-### Changed
-- Reworked share and options bottom sheets to use dynamic themes and rounded list items.
-- Optimized centerpiece floating card width to 84% for wider margins relative to background.
-- Maximized size and centered monochrome/base app logo drawables for launcher compatibility.
-- Streamlined auto-queue track selection with similarity scoring, discovery balancing, and duplicate prevention.
+- Version comparison ignores the local `-dev` build marker so dev builds no longer offer a spurious app update. (@abdrhmniqbal)
+- Bottom navigation hides while scrolling and reappears after scroll settles, removing the hide→show→hide flicker. (@abdrhmniqbal)
 
-### Fixed
-- **MIUI/HyperOS Lockscreen Art Fix**: Added a custom `SharedArtworkContentProvider` to resolve missing lockscreen album art on Xiaomi/Redmi devices.
-- **SmartMix thread-safety**: Fixed concurrent modification crash in the "My Recommendations" mode by synchronizing the candidates list.
-- **Playback Reloading Bug**: Resolved redundant playback requests causing YouTube streams to restart after 1 second.
-- **Database optimizations**: Resolved Room database parameter warnings and optimized large database queries.
-- **Explore screen crash**: Added ProGuard keep rules for Explore cache models to prevent Gson ClassCastException under R8 optimization.
-- **Search Result Queueing**: Restored click behavior to play only the selected search result rather than loading the entire list.
-- **Library isolation & database updates**: Excluded YouTube Music related/similar songs from showing up in the main library, and corrected dynamic download/favorite status updates in the UI.
-- **Playlist management & song removal**: Upgraded playlist deletion and song removal to support all song ID variants, resolving issues with "ghost" playlists, and fixed downloaded songs isolation so downloading new tracks doesn't clear the local downloaded playlist.
+## [1.0.2] - 2026-07-08
 
-### Performance
-- Optimized prefetching by making audio bytes loading cooperatively cancelable on skipping.
-- Prioritized high-quality Opus audio streaming to minimize initial latency.
+### ⚙️ Changed
 
-## [1.4.06] - 2026-06-06
+- Refactored lyrics module into a single parser and `useLyrics` hook, removing workarounds and duplicate files. (@abdrhmniqbal)
+- Collapsed duplicated zoom-transition helpers and thin navigation wrappers. (@abdrhmniqbal)
+- Refactored notifications: fixed dedup key, extracted shared pending-route flush, table-driven indexer actions. (@abdrhmniqbal)
+- Replaced bootstrap waiter registry with a single bootstrap completion promise. (@abdrhmniqbal)
+- Collapsed duplicated cast command try/catch/log boilerplate into one helper. (@abdrhmniqbal)
+- Deleted dead history cache-service and duplicated write functions; consolidated play recording into `tracks/repository`. (@abdrhmniqbal)
+- Redesigned runtime error state with the canonical `EmptyState`; removed `DatabaseProvider` pass-through. (@abdrhmniqbal)
 
-### Added
-- **Last.fm Scrobbler Integration**:
-  - Implemented background playback scrobbling engine that calculates progress in real-time.
-  - Added live "Now Playing" updates synced automatically during playback.
-  - Added dedicated Last.fm settings UI containing threshold configuration sliders (Minimum Track Duration, Delay Percentage, and Max Delay Duration).
-  - Added connection management card inside the Accounts screen supporting active username labels and dynamic logouts.
-  - Integrated customizable inputs for **API Key** and **API Secret** during linking, and enforced them as **compulsory fields** to prevent rate-limiting bottlenecks and enhance security.
-- **YouTube Music Playlist Export & Import**:
-  - Integrated support for playlist exports and imports using standard M3U and CSV formats.
-  - Implemented URL-decoding for paths, extensionless filename matching, and automated lookup via YouTube Music search to resolve missing local/remote tracks.
-  - Optimized lookup speeds using concurrent network requests, bulk database insertions, and duplicate merge confirmation flows.
-  - Enhanced import pipelines to retrieve and persist rich metadata alongside high-quality album art.
-- **Audio Streaming Improvements**:
-  - Prioritized Opus audio format streaming to optimize and accelerate initial playback load latency.
+### 🧩 Fixed
 
-### Changed
-- Removed default built-in Last.fm API credential fallbacks in the UI, requiring each user to register their own developer credentials.
+- Last.fm artist refresh: avoid HTTP 406, isolate per-artist failures, add resume cursor. (@abdrhmniqbal)
+- Notification-open blank screen: drop stale launch notification replay and gate route until router ready. (@abdrhmniqbal)
+- Mini-player not restoring after idle/paused state on reopen. (@abdrhmniqbal)
+- Replaced deprecated `FileSystem.downloadAsync` with `File.downloadFileAsync` in artwork cache. (@abdrhmniqbal)
+- Bottom bar stays hidden on short (non-scrollable) lists; auto-shows after scroll idle. (@abdrhmniqbal)
 
-### Fixed
-- **CI/CD & Nightly Releases**: Integrated Pyrogram MTProto inside nightly Telegram publishers to bypass the 50MB Bot API file size upload limit, added fallbacks for GitHub release redirect links, and added rate-limiting delay retries.
-- **R8 / ProGuard Optimization**:
-  - Added ProGuard keep rules for Explore caching data models to prevent Gson ClassCastExceptions.
-  - Added dontwarn rules for `javax.script` and `org.mozilla.javascript.engine` to resolve release R8 build compilation failures.
-- **UI & Stability**: Resolved Quick Picks personalization errors, auto-queue online mix radio transition bugs, and Artist See All list pagination regressions.
+## [1.0.1] - 2026-07-04
 
-## [0.5.0-beta] - 2026-01-14
+### ✨ Added
 
-### Added
-- Implemented 10-band Equalizer and effects suite (feat: @theovilardo)
-- Added M3U playlist import/export support (feat/fix: @lostf1sh, @theovilardo)
-- Integrated Deezer API for artist images (feat: @lostf1sh)
-- Added Gemini AI model selection, system prompt settings, and AI playlist entry point (feat: @lostf1sh, @theovilardo)
-- Added sync offset support for lyrics and multi-strategy remote search (feat/fix: @lostf1sh, @theovilardo)
-- Added Baseline Profiles for improved performance (feat/fix: @theovilardo, @google-labs-julesbot)
-- Added support for custom playlist covers
+- Native APK download & install with notification progress for in-app updates. (@abdrhmniqbal)
+- Battery Optimization as Expo native module (auto-linked, no manual registration). (@abdrhmniqbal)
+- Static theme colors auto-generated from CSS as single source of truth. (@abdrhmniqbal)
+- Auto-link raw URLs in release notes with shortened display text. (@abdrhmniqbal)
 
-### Changed
-- **Material 3 Expressive UI**: Modernized Settings, Stats, Player, Bottom Sheets, and dialogs (refactor: @theovilardo, @lostf1sh)
-- **Library Sync**: Rebuilt initial sync flow with phase-based progress reporting and linear indicators (feat: @lostf1sh)
-- **Settings Architecture**: Introduced category sub-screens and improved navigation handling (refactor/fix: @theovilardo)
-- **Queue & Player**: Decoupled queue updates from scroll animations, added animated queue scrolling (feat/fix: @lostf1sh, @theovilardo)
-- Improved widget previews and case-insensitive sorting logic (feat/fix: @lostf1sh, @google-labs-julesbot)
+### ⚙️ Changed
 
-### Fixed
-- Fixed casting stability, queue transitions, and reduced latency (fix: @theovilardo)
-- Fixed delayed content rendering and unwanted collapses in Player Sheet (fix/refactor: @theovilardo)
-- Fixed reordering issues in queue
-- General crash fixes and minor UX improvements (fix: @lostf1sh, @theovilardo)
+- Migrated from app.json to app.config.ts with Expo Modules API for native code. (@abdrhmniqbal)
+- Upgraded to Expo SDK 57. (@abdrhmniqbal)
+- Migrated file-path.ts from expo-file-system/legacy to modern File/Directory API. (@abdrhmniqbal)
+- App-update sheet redesigned with proper snap points (48%, 88%) and matching footer color. (@abdrhmniqbal)
+- Removed unused exports (101 symbols across 49 files) and consolidated duplicate utilities. (@abdrhmniqbal)
+- Extracted shared detail screen hooks (useArtistDetailData, usePlaybackActions, useDetailScrollHandlers). (@abdrhmniqbal)
 
-## [0.4.0-beta] - 2025-12-15
+### 🧩 Fixed
 
-### Added
-- Major navigation redesign
-- New file explorer for choosing source directories
-- Landscape mode (thanks to "leave this blank for now")
-- New Connectivity and casting functionalities
-- Seamless continuity between remote devices
-- Gapless transition between songs
-- Crossfade
-- New Custom Transitions feature (only for playlists)
-- Keep playing after closed the app
-- UI Optimizations
-- Improved stats feature
-- Redesigned Queue control with more features
-- Improved different filetypes support for playing and metadata editing
-- Improved permission controller
-- Minor bug fixes
+- Album card crash when handlePress is undefined in horizontal grid. (@abdrhmniqbal)
+- Kotlin JVM target mismatch on react-native-image-colors causing build failures. (@abdrhmniqbal)
+- All lint warnings resolved (unused imports, useless escapes, unsafe finally, exhaustive-deps). (@abdrhmniqbal)
+- Update sheet text now non-selectable with consistent drag handler. (@abdrhmniqbal)
 
-## [0.3.0-beta] - 2025-10-28
+## [1.0.0] - 2026-06-30
 
-### What's new
-- Introduced a richer listening stats hub with deeper insights into your sessions.
-- Launched a floating quick player to instantly open and preview local files.
-- Added a folders tab with a tree-style navigator and playlist-ready view.
+### ✨ Added
 
-### Improvements
-- Refined the overall Material 3 UI for a cleaner and more cohesive experience.
-- Smoothed out animations and transitions across the app for more fluid navigation.
-- Enhanced the artist screen layout with richer details and polish.
-- Upgraded DailyMix and YourMix generation with smarter, more diverse selections.
-- Strengthened the AI assistant to deliver more relevant playback suggestions.
-- Improved search relevance and presentation for faster discovery.
-- Expanded support for a broader range of audio file formats.
+- 15 new themes: Default, Nord, Dracula, Catppuccin, Tokyo, Gruvbox, Everforest, Rose Pine,
+  Solarized, Ayu, Monochrome, Aquamarine, Crimson Pulse, Banana Breeze, Candy Pop. (@abdrhmniqbal)
+- Theme search filter on settings screen. (@abdrhmniqbal)
+- Opus file artwork extraction support. (@abdrhmniqbal)
+- Mic-01 and Playlist-03 icons. (@abdrhmniqbal)
 
-### Fixes
-- Resolved metadata quirks so song details stay accurate everywhere.
-- Restored notification shortcuts so they reliably jump back into playback.
+### ⚙️ Changed
 
-## [0.2.0-beta] - 2024-09-15
+- Top-tracks time picker changed from BottomSheet to inline Tabs. (@abdrhmniqbal)
+- Top-tracks chart now uses unified data source across all time ranges. (@abdrhmniqbal)
+- Pull-to-refresh removed from top-tracks (uses scroll-driven refresh only). (@abdrhmniqbal)
+- Native header text size increased app-wide. (@abdrhmniqbal)
+- Tabs styling updated to match app color conventions. (@abdrhmniqbal)
+- Lyrics zoom level now persists between sessions. (@abdrhmniqbal)
+- Library tabs now require explicit long-press drag to reorder, preventing accidental reordering. (@abdrhmniqbal)
 
-### Added
-- Chromecast support for casting audio from your device (temporarily disabled).
-- In-app changelog to keep you updated on the latest features.
-- Improved lyrics search
-- Support for .LRC files, both embedded and external.
-- Offline lyrics support.
-- Synchronized lyrics (synced with the song).
-- New screen to view the full queue.
-- Reorder and remove songs from the queue.
-- Mini-player gestures (swipe down to close).
-- Added more material animations.
-- New settings to customize the look and feel.
-- New settings to clear the cache.
+### 🧩 Fixed
 
-### Changed
-- Complete redesign of the user interface.
-- Complete redesign of the player.
-- Performance improvements in the library.
-- Improved application startup speed.
-- The AI now provides better results.
+- Playlist form scrolling blocked when touch starts on track list area. (@abdrhmniqbal)
+- Mix artwork missing on action sheet. (@abdrhmniqbal)
+- Mix visuals no longer overlap with reserved genre colors. (@abdrhmniqbal)
+- Sleep timer not applying selected duration correctly. (@abdrhmniqbal)
+- Settings search missing some entries. (@abdrhmniqbal)
 
-### Fixed
-- Fixed various bugs in the tag editor.
-- Fixed a bug where the playback notification was not clearing.
-- Fixed several bugs that caused the app to crash.
+## [1.0.0-rc.2] - 2026-06-29
 
-## [0.1.0-beta] - 2024-08-30
+### ✨ Added
 
-### Added
-- Initial beta release of PixelMusic Music Player.
-- Local music scanning and playback (MP3, FLAC, AAC).
-- Background playback using a foreground service and Media3.
-- Modern UI with Jetpack Compose, Material 3, and Dynamic Color support.
-- Music library organization by songs, albums, and artists.
-- Home screen widget for music control.
-- Real-time audio waveform visualization.
-- Built-in tag editor for song metadata.
-- AI-powered features using Gemini.
-- Smooth in-app permission handling.
+- Custom sort order option on playlist detail screen. (@abdrhmniqbal)
+- Update timestamp display on mix detail page. (@abdrhmniqbal)
+
+### ⚙️ Changed
+
+- Restructured settings page layout for visual consistency. (@abdrhmniqbal)
+- Unified playlist creation, editing, and save-to-queue flows. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- Mixes not refreshing after daily/weekly DB regeneration. (@abdrhmniqbal)
+- Sheet components crashing or failing to mount in library genres and album detail views. (@abdrhmniqbal)
+- Full player not dismissable when launched from external file deep-links. (@abdrhmniqbal)
+- Action sheet content clipped due to conflicting snap points. (@abdrhmniqbal)
+- Multi-artist split name display formatting. (@abdrhmniqbal)
+
+## [1.0.0-rc.1] - 2026-06-25
+
+### ✨ Added
+
+- Adaptive theme system with Nord, Catppuccin (Latte/Mocha), Dracula, and Alucard variants. (@abdrhmniqbal)
+- Last.fm integration with artist bio, artwork, scrobbling, and authentication. (@abdrhmniqbal)
+- Daily Mix and For You Mix with custom layouts and persisted state. (@abdrhmniqbal)
+- Collection action sheet and artwork grid for mixes. (@abdrhmniqbal)
+- Backup and restore settings with automatic backup option. (@abdrhmniqbal)
+- Onboarding flow covering theme, folder filters, permissions, and battery settings. (@abdrhmniqbal)
+- Search indexing with auto-scroll and UI highlighting. (@abdrhmniqbal)
+- Top-tracks timespan picker with chart update time display. (@abdrhmniqbal)
+- Album artist metadata support. (@abdrhmniqbal)
+- Play and shuffle buttons on artist detail page. (@abdrhmniqbal)
+- Expanded media action sheets across library views. (@abdrhmniqbal)
+- Reorderable and toggleable library tabs via settings. (@abdrhmniqbal)
+- Force-update mixes action with danger dialog. (@abdrhmniqbal)
+- Reset search history option in settings. (@abdrhmniqbal)
+- User feedback feature. (@abdrhmniqbal)
+- Polled progress for time indicator. (@abdrhmniqbal)
+- Fallback to lrclib API when local lyrics are missing. (@abdrhmniqbal)
+- Lyrics extracted and persisted during indexing for faster playback. (@abdrhmniqbal)
+
+### ⚙️ Changed
+
+- Last.fm authentication reworked for improved reliability. (@abdrhmniqbal)
+- Direction-aware entering/exiting animations for library tabs. (@abdrhmniqbal)
+- Icons added to player action menu. (@abdrhmniqbal)
+- Faster app startup by deferring cached track loading and initial scan. (@abdrhmniqbal)
+- Redesigned track metadata sheet UI. (@abdrhmniqbal)
+- Redesigned Last.fm integration flow with shared bottom-sheet inputs. (@abdrhmniqbal)
+- Refined backup UI flow and consolidated automatic backup options. (@abdrhmniqbal)
+- Redesigned settings layout grouped by intent. (@abdrhmniqbal)
+- Improved rainbow color contrast across themes. (@abdrhmniqbal)
+- Removed outer borders on settings to match borderless style. (@abdrhmniqbal)
+- Refined What's New typography. (@abdrhmniqbal)
+- Smoother audio crossfade transitions. (@abdrhmniqbal)
+- Improved track action sheet design. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- Shuffle not applying correctly when starting playback. (@abdrhmniqbal)
+- Player queue rendering, shuffle settings, history scrobbling, and playlist form layout. (@abdrhmniqbal)
+- Playback not preserved when app is reopened or dismissed. (@abdrhmniqbal)
+- Startup playback and settings state not restored correctly. (@abdrhmniqbal)
+- Duplicate mix visual presets causing overlapping colors. (@abdrhmniqbal)
+- Random blank screen after navigation. (@abdrhmniqbal)
+- Playlist form track list not scrollable. (@abdrhmniqbal)
+- Local track artwork overwriting Last.fm artist artwork. (@abdrhmniqbal)
+- Albums not split by effective album artist. (@abdrhmniqbal)
+- Last.fm returning invalid fallback art or placeholder images. (@abdrhmniqbal)
+- Last.fm authentication not working with mobile flow. (@abdrhmniqbal)
+- Restore backup CTA appearing in wrong step. (@abdrhmniqbal)
+- Duplicate artist entries in indexer causing duplicates in lists. (@abdrhmniqbal)
+- Poor contrast on artist detail overlay. (@abdrhmniqbal)
+- Slow external file playback handoff. (@abdrhmniqbal)
+- Sleep timer not stopping at track end or play count limit. (@abdrhmniqbal)
+- Startune Music deep-link scheme not registered. (@abdrhmniqbal)
+- Notification player deep-link broken. (@abdrhmniqbal)
+- Repeat mode behavior incorrect at queue end and on manual skips. (@abdrhmniqbal)
+- Metadata year not parsed correctly from date-like values. (@abdrhmniqbal)
+- Malformed UTF-16 prefix in lyrics causing display issues. (@abdrhmniqbal)
+- Build failures from missing generated files and invalid dependency version. (@abdrhmniqbal)
+
+## [0.3.0] - 2026-05-03
+
+### ✨ Added
+
+- Help Translate entry in About settings with Crowdin integration groundwork. (@abdrhmniqbal)
+
+### ⚙️ Changed
+
+- Simplified What's New experience; release notes now sourced from GitHub Releases and repository CHANGELOG. (@abdrhmniqbal)
+- Refined player and sleep timer layouts for better spacing, stability, and clearer timer state. (@abdrhmniqbal)
+- Improved lyrics rendering for timed karaoke markup and wrapped word handling. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- Karaoke wrapping showing leading spaces or splitting lyric fragments incorrectly. (@abdrhmniqbal)
+- Custom sleep timer selection not waiting for confirmation before applying. (@abdrhmniqbal)
+- Update notification not opening latest version popup on tap. (@abdrhmniqbal)
+
+## [0.3.0-rc.5] - 2026-05-02
+
+### ✨ Added
+
+- Sleep timer settings to customize auto-stop behavior. (@abdrhmniqbal)
+- Customizable "count as played" threshold value. (@abdrhmniqbal)
+
+### ⚙️ Changed
+
+- Improved player layout with refined controls and better spacing. (@abdrhmniqbal)
+- Better karaoke handling for timed lyrics. (@abdrhmniqbal)
+- Refined sleep timer option layout with aligned controls. (@abdrhmniqbal)
+- Removed unnecessary lyrics view and search route. (@abdrhmniqbal)
+- Improved performance by moving database sync outside render phase. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- Queue view remounting on every track change, causing previous tracks to disappear. (@abdrhmniqbal)
+- Changelog showing versions above installed app version. (@abdrhmniqbal)
+- Lyrics screen crash when lyrics unavailable. (@abdrhmniqbal)
+- Scale loader animation not animating in some cases. (@abdrhmniqbal)
+- Update checker not detecting available versions. (@abdrhmniqbal)
+- External player integration not working. (@abdrhmniqbal)
+
+## [0.3.0-rc.4] - 2026-04-30
+
+### ✨ Added
+
+- App update checker. (@abdrhmniqbal)
+- Open source license screen. (@abdrhmniqbal)
+
+### ⚙️ Changed
+
+- Improved realtime lyrics performance. (@abdrhmniqbal)
+- Improved artwork caching. (@abdrhmniqbal)
+- Filter chip on favorites list now hides when no items available. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- Split multiple values input not recognizing keyboard input. (@abdrhmniqbal)
+- External audio intent handling. (@abdrhmniqbal)
+
+## [0.3.0-rc.3] - 2026-04-29
+
+### ✨ Added
+
+- Save queue to playlist feature. (@abdrhmniqbal)
+- "Playing from" indicator on player. (@abdrhmniqbal)
+- Track count sort option on genres list. (@abdrhmniqbal)
+- Play queue based on search result. (@abdrhmniqbal)
+
+### ⚙️ Changed
+
+- Redesigned favorites list. (@abdrhmniqbal)
+- Improved search screen consistency with other screens. (@abdrhmniqbal)
+- Improved settings categorization. (@abdrhmniqbal)
+- Enhanced audio playback settings with transition and resume behavior. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- Not all songs added to queue when using "view more" on lists. (@abdrhmniqbal)
+- External audio playback handling. (@abdrhmniqbal)
+
+## [0.3.0-rc.2] - 2026-04-28
+
+### ✨ Added
+
+- Configurable multi-value splitting for artists and genres. (@abdrhmniqbal)
+- More language options. (@abdrhmniqbal)
+- Incremental indexer updates (no full rescan needed). (@abdrhmniqbal)
+
+### ⚙️ Changed
+
+- Improved split multiple values settings and metadata handling. (@abdrhmniqbal)
+- Improved settings page layout. (@abdrhmniqbal)
+- Shuffle state now preserved between sessions. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- Multiple artists not displayed on UI. (@abdrhmniqbal)
+- Navigation issue on multiple value picker. (@abdrhmniqbal)
+- Search not working properly. (@abdrhmniqbal)
+- Artist artwork not uniform across all screens. (@abdrhmniqbal)
+- Queue resetting on track change. (@abdrhmniqbal)
+- Deep-link not matching route for external file intents. (@abdrhmniqbal)
+
+## [0.3.0-rc.1] - 2026-04-27
+
+### ✨ Added
+
+- i18n internationalization for multiple languages. (@abdrhmniqbal)
+- Audio crossfade configuration. (@abdrhmniqbal)
+- Reset listening history option with confirmation dialog. (@abdrhmniqbal)
+- Session-only lyric preferences for karaoke mode and zoom level. (@abdrhmniqbal)
+
+### ⚙️ Changed
+
+- Crossfade setting now applied during playback. (@abdrhmniqbal)
+- Improved indexer performance for batch processing. (@abdrhmniqbal)
+- Player and notification icons now use visible white assets. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- Audio file open intents not working. (@abdrhmniqbal)
+- Artist header actions unstable. (@abdrhmniqbal)
+- Track list action spacing inconsistent. (@abdrhmniqbal)
+- Lyrics not caching resolved sources. (@abdrhmniqbal)
+- Completed indexer notification tap not handled. (@abdrhmniqbal)
+- Angle-bracket and timed markup lyrics not supported. (@abdrhmniqbal)
+- Playlist detail tracks not sorted properly. (@abdrhmniqbal)
+- Notification icon not uniform across Android versions. (@abdrhmniqbal)
+- Missing track details causing React Query instability after file deletion. (@abdrhmniqbal)
+- Search input overlapping back button during focus transition. (@abdrhmniqbal)
+- Player drag-to-close responding from entire interface instead of drag handle only. (@abdrhmniqbal)
+- Duplicate rapid taps to same navigation target causing navigation issues. (@abdrhmniqbal)
+- Decorative chevrons on playlist and folder rows blocking row taps. (@abdrhmniqbal)
+- Back button on detail screens requiring two taps. (@abdrhmniqbal)
+
+## [0.2.2] - 2026-04-25
+
+### ✨ Added
+
+- Dedicated full-player route with zoom-style presentation. (@abdrhmniqbal)
+- "Recently Added" search destination for newly indexed tracks. (@abdrhmniqbal)
+- Playback session snapshots: queue position restored after app restart. (@abdrhmniqbal)
+- Track counts on genre cards. (@abdrhmniqbal)
+- Shared themed refresh control across major screens. (@abdrhmniqbal)
+
+### ⚙️ Changed
+
+- Refined album, artist, playlist, and player transitions with zoom presentation. (@abdrhmniqbal)
+- Reworked search screen composition and keyboard handling. (@abdrhmniqbal)
+- Refreshed home, library, settings, and shared UI surfaces. (@abdrhmniqbal)
+- More reliable play count and listening history recording. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- Detail-screen back navigation requiring two taps. (@abdrhmniqbal)
+- Search back button overlapping typed query text during focus transition. (@abdrhmniqbal)
+- Recent-search playlist artwork showing single image instead of collage. (@abdrhmniqbal)
+- Zoom-transition backgrounds not rendering correctly. (@abdrhmniqbal)
+- Expo Router "Too many screens defined" warnings from extraneous Home route declarations. (@abdrhmniqbal)
+- Back button overlapping search input. (@abdrhmniqbal)
+
+## [0.2.1] - 2026-04-16
+
+### ⚙️ Changed
+
+- Playlist picker selection handling unified for player and track action sheets. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- Duplicate navigation/tab bars on search detail screens (album, artist, playlist). (@abdrhmniqbal)
+
+## [0.2.0] - 2026-04-10
+
+### ✨ Added
+
+- "Recently Added" tracks on Search home screen. (@abdrhmniqbal)
+- Recent search history with richer targets (albums, artists, playlists). (@abdrhmniqbal)
+- Search detail routes for albums, artists, and playlists. (@abdrhmniqbal)
+- Genre browsing as a first-class Library tab. (@abdrhmniqbal)
+- Indexer run snapshots with retry/backoff handling. (@abdrhmniqbal)
+
+### ⚙️ Changed
+
+- Simplified player session restore for better long-background recovery. (@abdrhmniqbal)
+- Removed skeleton loading UIs in favor of direct content and empty states. (@abdrhmniqbal)
+- Enhanced grid and list component layout and performance. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- Shuffle and queue updates interrupting active playback. (@abdrhmniqbal)
+- Playback state transitions unstable when switching tracks from lists. (@abdrhmniqbal)
+- Search and detail routing inconsistencies. (@abdrhmniqbal)
+- Artwork fallback inconsistent across track, album, and artist surfaces. (@abdrhmniqbal)
+- Indexer notifications and autoscan timing unreliable. (@abdrhmniqbal)
+- Genre-related screens not visible. (@abdrhmniqbal)
+- Artist image fallback on album lists. (@abdrhmniqbal)
+- Native repeat mode not preserved across queue resets. (@abdrhmniqbal)
+- Stale "preparing" notification overwriting completion notification. (@abdrhmniqbal)
+
+## [0.2.0-rc.2] - 2026-04-02
+
+### ✨ Added
+
+- System notification controls for indexing (pause, resume, cancel, open library). (@abdrhmniqbal)
+- Google Cast controls in full player. (@abdrhmniqbal)
+
+### ⚙️ Changed
+
+- Improved navigation transitions for media detail routes. (@abdrhmniqbal)
+- Faster indexing with parallel metadata extraction and artwork caching. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- Background playback and foreground autoscan freezing. (@abdrhmniqbal)
+- Player state not resyncing after shuffle and skip. (@abdrhmniqbal)
+- Artist artwork inconsistent between tabs and detail screens. (@abdrhmniqbal)
+- Incremental indexing not responding and history not refreshing after playback. (@abdrhmniqbal)
+- Progress indexer notification spamming. (@abdrhmniqbal)
+- Repeated media permission prompts during autoscan. (@abdrhmniqbal)
+
+## [0.2.0-rc.1] - 2026-03-28
+
+### ✨ Added
+
+- Synchronized lyrics support for embedded lyrics, `.lrc`, and TTML formats. (@abdrhmniqbal)
+
+### ⚙️ Changed
+
+- Settings and preferences consolidated into clearer module ownership. (@abdrhmniqbal)
+- Player session persistence separated into dedicated module. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- Repeated media permission prompts during autoscan. (@abdrhmniqbal)
+- Home history not refreshing after playback activity. (@abdrhmniqbal)
+
+## [0.1.0] - 2026-03-12
+
+### ✨ Added
+
+- Offline local music playback with queue, repeat, shuffle, seeking, and background playback. (@abdrhmniqbal)
+- Library browsing for tracks, albums, artists, genres, favorites, folders, and playlists. (@abdrhmniqbal)
+- Playlist creation, editing, reordering, and track action sheet flows. (@abdrhmniqbal)
+- Full-player UI, mini player, queue view, artist and album detail screens. (@abdrhmniqbal)
+- Folder filters, track-duration filters, force reindex, autoscan, battery optimization, and logging controls. (@abdrhmniqbal)
+- Track metadata inspection and removable local files. (@abdrhmniqbal)
+
+### ⚙️ Changed
+
+- Major UI redesign across home, library, search, album, artist, playlist, player, and settings. (@abdrhmniqbal)
+- Adopted Expo Router with bottom-sheet based full-player flows and HeroUI controls. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- Search route handling, navigation history, queue sorting, playback resume, and indexing updates. (@abdrhmniqbal)
+- Artist image fallback and genre metadata handling. (@abdrhmniqbal)
+
+## [0.1.0-rc.3] - 2026-03-02
+
+### ✨ Added
+
+- About screen. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- History not recorded on track repeat. (@abdrhmniqbal)
+- Track action sheet not appearing on first long-press. (@abdrhmniqbal)
+- Bottom padding missing on list components. (@abdrhmniqbal)
+- Album artist metadata never indexed. (@abdrhmniqbal)
+- History missing for manual track selection. (@abdrhmniqbal)
+- Routes unable to handle special characters properly. (@abdrhmniqbal)
+- Folder filters applied without user confirmation. (@abdrhmniqbal)
+- Lists not refreshing immediately after applying filters. (@abdrhmniqbal)
+
+## [0.1.0-rc.2] - 2026-02-28
+
+### ✨ Added
+
+- Player action sheet. (@abdrhmniqbal)
+- Full-player bottom sheet. (@abdrhmniqbal)
+- Add tracks to playlist from track action sheet. (@abdrhmniqbal)
+- Playlist item reordering. (@abdrhmniqbal)
+- Queue list reordering. (@abdrhmniqbal)
+- Battery optimization settings. (@abdrhmniqbal)
+
+### ⚙️ Changed
+
+- Restructured settings page. (@abdrhmniqbal)
+- Full-player UI improvements. (@abdrhmniqbal)
+- Track action sheet improvements. (@abdrhmniqbal)
+- Upgraded HeroUI sliders. (@abdrhmniqbal)
+
+### 🧩 Fixed
+
+- Inconsistent interface elements across screens. (@abdrhmniqbal)
+- Notification click not matching correct route. (@abdrhmniqbal)
+- Color contrast on full-player background. (@abdrhmniqbal)
+- Notification icon issues. (@abdrhmniqbal)
+- Open file functionality. (@abdrhmniqbal)
+- Sort logic not handling special characters. (@abdrhmniqbal)
+- Selected items not showing on track picker sheet. (@abdrhmniqbal)
+- Case sensitivity in sort values. (@abdrhmniqbal)
+- Database init blocking UI. (@abdrhmniqbal)
+- Playback session not persisting. (@abdrhmniqbal)
+- Bottom nav not hiding while scrolling on library tabs. (@abdrhmniqbal)
+- Search tab resetting on clear input. (@abdrhmniqbal)
+- Albums and artists not filtered correctly. (@abdrhmniqbal)
+
+## [0.1.0-rc.1] - 2026-02-19
+
+### ✨ Added
+
+- Initial project setup and basic UI scaffolding. (@abdrhmniqbal)
+- Local library indexing and playback foundations. (@abdrhmniqbal)
+- Early iterations of queueing, sorting, and favorites. (@abdrhmniqbal)
