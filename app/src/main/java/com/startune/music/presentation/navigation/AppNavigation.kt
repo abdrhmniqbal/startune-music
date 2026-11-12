@@ -79,6 +79,8 @@ import com.startune.music.presentation.viewmodel.PlaylistViewModel
 import kotlinx.coroutines.flow.first
 import com.startune.music.presentation.components.ScreenWrapper
 import com.startune.music.presentation.settings.search.ProvideSettingsHighlight
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 @OptIn(UnstableApi::class)
 @SuppressLint("UnrememberedGetBackStackEntry")
@@ -93,9 +95,28 @@ fun AppNavigation(
     var startDestination by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
-        startDestination = userPreferencesRepository.launchTabFlow
-            .first()
-            .toRoute()
+        val launchTab = userPreferencesRepository.launchTabFlow.first()
+        val effectiveTab = if (launchTab == LaunchTab.LAST_OPENED) {
+            userPreferencesRepository.lastOpenedTabFlow.first()
+        } else {
+            launchTab
+        }
+        startDestination = effectiveTab.toRoute()
+    }
+
+    // Remember the last main tab (Home/Search/Library) so the "Last opened
+    // tab" launch option can restore it. Observed from the NavController so
+    // it covers the bottom bar, the navigation rail, back press, and deep
+    // links, not just tap handlers. Detail screens are ignored.
+    LaunchedEffect(navController) {
+        navController.currentBackStackEntryFlow
+            .map { it.destination.route.toLaunchTab() }
+            .distinctUntilChanged()
+            .collect { launchTab ->
+                if (launchTab != null) {
+                    userPreferencesRepository.setLastOpenedTab(launchTab)
+                }
+            }
     }
 
     startDestination?.let { initialRoute ->
@@ -873,6 +894,14 @@ private fun String.toRoute(): String = when (this) {
     LaunchTab.SEARCH -> Screen.Search.route
     LaunchTab.LIBRARY -> Screen.Library.route
     else -> Screen.Home.route
+}
+
+/** Maps a main-root route to its LaunchTab value, or null for other screens. */
+private fun String?.toLaunchTab(): String? = when (this) {
+    Screen.Home.route -> LaunchTab.HOME
+    Screen.Search.route -> LaunchTab.SEARCH
+    Screen.Library.route -> LaunchTab.LIBRARY
+    else -> null
 }
 
 private enum class MainRootDirection {

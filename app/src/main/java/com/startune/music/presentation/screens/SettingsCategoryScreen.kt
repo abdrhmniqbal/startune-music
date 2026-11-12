@@ -1038,6 +1038,7 @@ fun SettingsCategoryScreen(
                                         LaunchTab.HOME to stringResource(R.string.tab_home),
                                         LaunchTab.SEARCH to stringResource(R.string.search),
                                         LaunchTab.LIBRARY to stringResource(R.string.tab_library),
+                                        LaunchTab.LAST_OPENED to stringResource(R.string.setcat_default_tab_last_opened),
                                     ),
                                     selectedKey = uiState.launchTab,
                                     onSelectionChanged = { settingsViewModel.setLaunchTab(it) },
