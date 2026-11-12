@@ -729,52 +729,14 @@ fun SongPickerEmptyState(
     }
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 28.dp),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f),
-                tonalElevation = 2.dp
-            ) {
-                Box(
-                    modifier = Modifier.size(56.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = spec.first),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Text(
-                    text = stringResource(spec.second),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontFamily = RoundedSans,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center
-                )
-                Text(
-                    text = stringResource(spec.third),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
+        ExpressiveEmptyState(
+            iconRes = spec.first,
+            titleRes = spec.second,
+            subtitleRes = spec.third
+        )
     }
 }
 

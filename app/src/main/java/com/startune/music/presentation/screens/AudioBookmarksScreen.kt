@@ -163,6 +163,7 @@ import java.util.Locale
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
+import com.startune.music.presentation.components.ExpressiveEmptyState
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1980,40 +1981,14 @@ private fun BookmarksEmptyState(
     title: String,
     subtitle: String
 ) {
-    Column(
+    ExpressiveEmptyState(
+        icon = Icons.Rounded.Bookmark,
+        title = title,
+        subtitle = subtitle,
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 32.dp, vertical = 56.dp)
-            .navigationBarsPadding(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Surface(
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.surfaceContainerHighest,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Bookmark,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(18.dp)
-                    .size(32.dp)
-            )
-        }
-        Spacer(modifier = Modifier.height(18.dp))
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
+            .padding(vertical = 56.dp)
+            .navigationBarsPadding()
+    )
 }
 
 @Composable

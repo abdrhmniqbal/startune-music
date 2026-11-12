@@ -171,6 +171,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
+import com.startune.music.presentation.components.ContainedEmptyState
 
 private const val PULL_TO_REFRESH_MIN_DURATION_MS = 3500L
 private const val HEAVY_ROTATION_LIMIT = 5
@@ -387,7 +388,7 @@ fun StatsScreen(
                     }
                     if (summary == null || !summary.hasListeningActivity()) {
                         item(key = "empty", contentType = "empty") {
-                            StatsEmptyState(
+                            ContainedEmptyState(
                                 icon = Icons.Outlined.GraphicEq,
                                 title = stringResource(R.string.presentation_batch_g_stats_empty_no_timeline_title),
                                 subtitle = stringResource(R.string.presentation_batch_g_stats_empty_no_timeline_subtitle),
@@ -726,60 +727,6 @@ private fun HeroVitalCard(
 
 // endregion
 
-@Composable
-private fun StatsEmptyState(
-    icon: ImageVector,
-    title: String,
-    subtitle: String,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(28.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            modifier = Modifier.padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(RoundedStarShape(sides = 8, curve = 0.1, rotation = 0f))
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Center
-                )
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun RangeTabsHeader(
@@ -1253,7 +1200,7 @@ private fun ListeningTimelineSection(
         }
 
         if (!hasTimeline) {
-            StatsEmptyState(
+            ContainedEmptyState(
                 icon = Icons.Outlined.PlayCircleOutline,
                 title = stringResource(R.string.presentation_batch_g_stats_empty_no_timeline_title),
                 subtitle = stringResource(R.string.presentation_batch_g_stats_empty_no_timeline_subtitle)
@@ -1923,7 +1870,7 @@ private fun HeavyRotationSection(
                 buildRotationEntries(summary, dimension, artistImages)
             }
             if (entries.isEmpty()) {
-                StatsEmptyState(
+                ContainedEmptyState(
                     icon = dimension.emptyIcon,
                     title = stringResource(dimension.emptyTitleRes),
                     subtitle = stringResource(dimension.emptySubtitleRes)
@@ -2391,7 +2338,7 @@ private fun ListeningVarietyCard(
         )
 
         if (slices.isEmpty()) {
-            StatsEmptyState(
+            ContainedEmptyState(
                 icon = Icons.Outlined.AutoGraph,
                 title = stringResource(R.string.presentation_batch_g_stats_empty_no_concentration_title),
                 subtitle = stringResource(R.string.presentation_batch_g_stats_empty_no_concentration_subtitle)
