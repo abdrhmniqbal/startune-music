@@ -94,8 +94,15 @@ data class AppColorScheme(
     val dark: SchemeRoles
 )
 
+/**
+ * Version 3 is the full theme format: the exported scheme's overrides
+ * map is complete (every overridable role has an explicit value), so the
+ * JSON defines the whole theme. Version 2 exported only the overrides
+ * the author set, leaving the rest to the mapper's derivation. Both
+ * decode the same way; a v2 file simply has fewer overrides.
+ */
 @Serializable
 data class ColorSchemeExport(
-    val version: Int = 2,
+    val version: Int = 3,
     val scheme: AppColorScheme
 )
