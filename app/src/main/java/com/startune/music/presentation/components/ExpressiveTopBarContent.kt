@@ -148,8 +148,13 @@ fun ExpressiveTopBarContent(
         } else {
             0.sp
         }
+        // Center on the VISIBLE content: the subtitle fades out on collapse
+        // (subtitleAlpha -> 0) but still occupies layout space, so counting
+        // its full height pushed the collapsed title ~10.dp too high, above
+        // the back button and actions. Expanded is unchanged (alpha = 1).
+        val visibleSubtitleLineHeight = subtitleLineHeight * subtitleAlpha
         val titleTopPadding = with(density) {
-            ((titleContainerHeight - (titleLineHeight.toDp() + subtitleLineHeight.toDp())) / 2)
+            ((titleContainerHeight - (titleLineHeight.toDp() + visibleSubtitleLineHeight.toDp())) / 2)
                 .coerceAtLeast(0.dp)
         }
         Box(
