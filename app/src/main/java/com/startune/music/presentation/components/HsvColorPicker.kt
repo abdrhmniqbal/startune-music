@@ -20,8 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.awaitPointerEventScope
-import androidx.compose.ui.input.pointer.awaitPointerEventScope
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -44,22 +43,19 @@ private val RAINBOW_COLORS = listOf(
 
 /**
  * Handles press and drag on a box, calling [onPosition] with the pointer
- * position (in pixels, relative to the box) on down and on every move.
+ * position (in pixels, relative to the box) on press and on every move.
  * Used by both the saturation/value square and the hue slider so a tap
  * and a drag behave the same way.
  */
 private fun Modifier.pressAndDrag(onPosition: (x: Float, y: Float) -> Unit) =
     pointerInput(Unit) {
-        awaitPointerEventScope {
-            while (true) {
-                val event = awaitPointerEvent()
-                val change = event.changes.firstOrNull() ?: continue
-                if (change.pressed) {
-                    change.consume()
-                    onPosition(change.position.x, change.position.y)
-                }
+        detectDragGestures(
+            onDragStart = { offset -> onPosition(offset.x, offset.y) },
+            onDrag = { change, _ ->
+                change.consume()
+                onPosition(change.position.x, change.position.y)
             }
-        }
+        )
     }
 
 /**
