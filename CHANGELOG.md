@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Expanded playlist title is now centered instead of left-aligned.
 - Mix cards are visible in every theme again: the official raised levels sit only about 3 lightness points above the background in every theme (not just Solarized, Everforest and Ayu), so a surfaceContainer card blended into the page. All eight themes now use the derived container ramp (which keeps its 7-point dark / 5-point light separation) instead of the too-close official values.
 - The current song row in the song list is highlighted again: primaryContainer was overridden to each theme's selection color, which sits only about 2-8 lightness points from the normal row background, so the highlight blended into the list. primaryContainer is now derived by the mapper (7 points beyond the surface, primary hue kept), so the playing song stands out in every theme.
+- Nord theme now follows the official Nord palette exactly: the rainbow is pure Aurora (nord11-15, red/orange/yellow/green/purple) with no Frost blue mixed in; the dark surface is nord1 (the elevated level for panels and buttons) instead of nord2 (the selection color); the light primary is nord8, the official primary accent, which the Frost palette uses identically in light and dark.
 
 ## [2.0.0-beta] - 2026-11-11
 
