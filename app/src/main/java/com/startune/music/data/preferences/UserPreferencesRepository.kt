@@ -134,6 +134,7 @@ constructor(
         val CAROUSEL_STYLE = stringPreferencesKey("carousel_style")
         val LIBRARY_NAVIGATION_MODE = stringPreferencesKey("library_navigation_mode")
         val LAUNCH_TAB = stringPreferencesKey("launch_tab")
+        val LAST_OPENED_TAB = stringPreferencesKey("last_opened_tab")
 
         val GLOBAL_TRANSITION_SETTINGS = stringPreferencesKey("global_transition_settings_json")
         val LIBRARY_TABS_ORDER = stringPreferencesKey("library_tabs_order")
@@ -1909,6 +1910,16 @@ constructor(
 
     suspend fun setLaunchTab(tab: String) {
         dataStore.edit { preferences -> preferences[PreferencesKeys.LAUNCH_TAB] = tab }
+    }
+
+    /** The main tab (Home/Search/Library) that was last open. Never holds LAST_OPENED. */
+    val lastOpenedTabFlow: Flow<String> =
+            dataStore.data.map { preferences ->
+                preferences[PreferencesKeys.LAST_OPENED_TAB] ?: LaunchTab.HOME
+            }
+
+    suspend fun setLastOpenedTab(tab: String) {
+        dataStore.edit { preferences -> preferences[PreferencesKeys.LAST_OPENED_TAB] = tab }
     }
 
     suspend fun setKeepPlayingInBackground(enabled: Boolean) {
