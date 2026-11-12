@@ -164,6 +164,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.platform.LocalDensity
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import kotlin.math.roundToInt
+import androidx.compose.ui.text.style.TextAlign
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(
@@ -448,6 +449,7 @@ fun PlaylistDetailScreen(
                                 AutoScrollingText(
                                     text = currentPlaylist?.name ?: fallbackPlaylistName,
                                     style = style,
+                                    textAlign = TextAlign.Center,
                                     gradientEdgeColor = MaterialTheme.colorScheme.surface
                                 )
                             }
