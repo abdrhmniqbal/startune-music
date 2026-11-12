@@ -35,6 +35,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -179,11 +180,12 @@ fun GenreDetailScreen(
     val defaultContainer = MaterialTheme.colorScheme.surfaceVariant
     val defaultOnContainer = MaterialTheme.colorScheme.onSurfaceVariant
     val themeGenre = uiState.genre
-    val themeColor = remember(themeGenre, decodedGenreId, darkMode, defaultContainer, defaultOnContainer) {
+    val colorScheme = MaterialTheme.colorScheme
+    val themeColor = remember(themeGenre, decodedGenreId, colorScheme, defaultContainer, defaultOnContainer) {
         if (themeGenre != null) {
             com.startune.music.ui.theme.GenreThemeUtils.getGenreThemeColor(
                 genre = themeGenre,
-                isDark = darkMode,
+                scheme = colorScheme,
                 fallbackGenreId = decodedGenreId
             )
         } else {
@@ -272,8 +274,8 @@ fun GenreDetailScreen(
         if (!useArtworkColorForDetails) baseColorScheme
         else com.startune.music.ui.theme.GenreThemeUtils.getGenreDetailColorScheme(
             genre = themeGenre,
+            scheme = baseColorScheme,
             fallbackGenreId = decodedGenreId,
-            isDark = darkMode,
             paletteStyle = genrePaletteStyle
         )
     }

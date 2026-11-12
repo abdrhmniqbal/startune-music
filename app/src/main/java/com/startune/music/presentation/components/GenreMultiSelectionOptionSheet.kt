@@ -264,7 +264,6 @@ private fun StackedGenrePreviews(
     val overlap = 30.dp
     val borderWidth = 3.dp
     val borderColor = MaterialTheme.colorScheme.surfaceContainerLow
-    val isDark = LocalStartuneDarkTheme.current
 
     val numGenres = genres.size
     val totalWidth = if (numGenres == 0) 0.dp else imageSize + (imageSize - overlap) * (numGenres - 1)
@@ -275,10 +274,11 @@ private fun StackedGenrePreviews(
     ) {
         genres.forEachIndexed { index, genre ->
             val offsetX = index * (imageSize.value - overlap.value)
-            val themeColor = remember(genre, isDark) {
+            val colorScheme = MaterialTheme.colorScheme
+            val themeColor = remember(genre, colorScheme) {
                 GenreThemeUtils.getGenreThemeColor(
                     genre = genre,
-                    isDark = isDark,
+                    scheme = colorScheme,
                     fallbackGenreId = genre.id
                 )
             }

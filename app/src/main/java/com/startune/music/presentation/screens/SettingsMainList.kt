@@ -19,13 +19,6 @@ import com.startune.music.presentation.navigation.Screen
  */
 internal enum class SettingsIconTone { PRIMARY, SECONDARY, TERTIARY }
 
-/** Icon circle background paired with the icon tint for a row of the given [tone]. */
-internal fun ColorScheme.settingsIconColors(tone: SettingsIconTone): Pair<Color, Color> = when (tone) {
-    SettingsIconTone.PRIMARY -> primaryContainer to onPrimaryContainer
-    SettingsIconTone.SECONDARY -> secondaryContainer to onSecondaryContainer
-    SettingsIconTone.TERTIARY -> tertiaryContainer to onTertiaryContainer
-}
-
 /**
  * Accent for thin markers such as the settings search result bars. Container colours sit too
  * close to the card surface to read at that width, so markers use the accent role itself.
@@ -53,12 +46,17 @@ internal val SettingsCategory.iconTone: SettingsIconTone
 /** A row of the main Settings list. */
 internal sealed interface MainSettingsEntry {
     val iconTone: SettingsIconTone
+    /** Index into the theme-derived rainbow palette (ui.theme.rainbowColor). */
+    val rainbowIndex: Int
     val route: String
 
     /** A row drawn from the category's own title, subtitle and icon. */
     data class Category(val category: SettingsCategory) : MainSettingsEntry {
         override val iconTone: SettingsIconTone
             get() = category.iconTone
+
+        override val rainbowIndex: Int
+            get() = category.ordinal
 
         override val route: String
             get() = when (category) {
@@ -74,6 +72,7 @@ internal sealed interface MainSettingsEntry {
         @StringRes val subtitleRes: Int,
         val icon: ImageVector,
         override val iconTone: SettingsIconTone,
+        override val rainbowIndex: Int,
         override val route: String
     ) : MainSettingsEntry {
         ACCOUNTS(
@@ -81,6 +80,7 @@ internal sealed interface MainSettingsEntry {
             subtitleRes = R.string.settings_accounts_row_subtitle,
             icon = Icons.Rounded.AccountCircle,
             iconTone = SettingsIconTone.PRIMARY,
+            rainbowIndex = SettingsCategory.entries.size,
             route = Screen.Accounts.createRoute()
         )
     }

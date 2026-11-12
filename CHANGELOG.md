@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Last opened tab option in Default Tab settings: the app opens on the tab you last used (Home, Search, or Library).
 - Full theme customization: every color role can now be set explicitly in the theme editor (containers, surface levels, text colors, outline, fixed and inverse colors), with an Auto badge when a role is still derived. The color picker now has a full-spectrum rainbow picker (saturation/value square plus hue slider) alongside hex and presets; an override can be reset to Auto.
 - All eight built-in themes recreated from their official palettes: foreground, surface container ramp, primary container, muted text and outline now use the real theme values instead of the auto-derived guesses.
+- Rainbow colors now follow the selected theme: genre cards and the Settings category icons share one theme-derived rainbow palette (the theme's primary, secondary, tertiary and error hues, as containers and accents), so the app's colorful elements stay consistent with each other and with the theme.
 
 ### Fixed
 - Changelog now loads from the raw CHANGELOG.md file instead of the GitHub API, which failed on shared mobile data.
@@ -19,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Empty states unified into two shared patterns, with and without a container.
 - Collapsed playlist top bar: the title no longer runs under the Sort and More actions, and it is centered on the navigation row.
 - Expanded playlist title is now centered instead of left-aligned.
+- Mix cards are visible in every theme again: Solarized, Everforest and Ayu used official raised levels only about 3 lightness points above the background, so a surfaceContainer card blended into the page. Those three themes now use the derived container ramp (which keeps its 7-point dark / 5-point light separation) instead of the too-close official values.
 
 ## [2.0.0-beta] - 2026-11-11
 

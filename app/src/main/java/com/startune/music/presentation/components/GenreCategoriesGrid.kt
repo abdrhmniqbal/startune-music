@@ -138,11 +138,11 @@ private fun GenreCard(
     onLongPress: () -> Unit = {},
     onSelectionToggle: () -> Unit = {}
 ) {
-    val isDark = LocalStartuneDarkTheme.current
-    val themeColor = remember(genre, isDark) {
+    val colorScheme = MaterialTheme.colorScheme
+    val themeColor = remember(genre, colorScheme) {
         com.startune.music.ui.theme.GenreThemeUtils.getGenreThemeColor(
             genre = genre,
-            isDark = isDark,
+            scheme = colorScheme,
             fallbackGenreId = genre.id
         )
     }

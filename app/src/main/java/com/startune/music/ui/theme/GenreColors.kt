@@ -91,6 +91,20 @@ object GenreThemeUtils {
         return if (isDark) darkColors[index] else lightColors[index]
     }
 
+    /** Theme-derived rainbow: the genre's color comes from the active
+     * theme's rainbow palette, so it follows the selected theme. The
+     * stored per-genre color (fixed palette) is only a fallback for
+     * callers with no ColorScheme. */
+    fun getGenreThemeColor(genreId: String, scheme: ColorScheme): GenreThemeColor {
+        if (isUnknownGenreId(genreId)) {
+            val bg = scheme.background
+            val isDark = 0.299f * bg.red + 0.587f * bg.green + 0.114f * bg.blue <= 0.5f
+            return if (isDark) unknownDarkThemeColor else unknownLightThemeColor
+        }
+        val hash = abs(genreId.hashCode())
+        return scheme.rainbowColor(hash)
+    }
+
     fun getGenreThemeColor(
         genre: Genre?,
         isDark: Boolean,
@@ -108,6 +122,17 @@ object GenreThemeUtils {
             container = seed,
             onContainer = explicitOnColor ?: seed.contrastContentColor()
         )
+    }
+
+    /** Theme-derived rainbow for a genre object: the color follows the
+     * active theme; the stored per-genre hex is not used here. */
+    fun getGenreThemeColor(
+        genre: Genre?,
+        scheme: ColorScheme,
+        fallbackGenreId: String = "unknown"
+    ): GenreThemeColor {
+        val effectiveGenreId = genre?.id?.takeIf { it.isNotBlank() } ?: fallbackGenreId
+        return getGenreThemeColor(effectiveGenreId, scheme)
     }
 
     private fun androidx.compose.ui.graphics.Color.contrastContentColor(): androidx.compose.ui.graphics.Color {
@@ -168,6 +193,30 @@ object GenreThemeUtils {
         val referenceColor = getGenreThemeColor(
             genre = genre,
             isDark = isDark,
+            fallbackGenreId = fallbackGenreId
+        )
+        return getColorSchemeFromSeed(
+            seedColor = referenceColor.container,
+            isDark = isDark,
+            paletteStyle = paletteStyle,
+            forceMonochrome = isUnknownGenreId(effectiveGenreId)
+        )
+    }
+
+    /** Theme-derived seed for the detail page: the generated scheme follows
+     * the active theme's rainbow genre color. */
+    fun getGenreDetailColorScheme(
+        genre: Genre?,
+        scheme: ColorScheme,
+        fallbackGenreId: String = "unknown",
+        paletteStyle: AlbumArtPaletteStyle = AlbumArtPaletteStyle.default
+    ): ColorScheme {
+        val effectiveGenreId = genre?.id?.takeIf { it.isNotBlank() } ?: fallbackGenreId
+        val bg = scheme.background
+        val isDark = 0.299f * bg.red + 0.587f * bg.green + 0.114f * bg.blue <= 0.5f
+        val referenceColor = getGenreThemeColor(
+            genre = genre,
+            scheme = scheme,
             fallbackGenreId = fallbackGenreId
         )
         return getColorSchemeFromSeed(
@@ -239,4 +288,34 @@ object GenreThemeUtils {
             null
         }
     }
+}
+
+/**
+ * The rainbow palette: one shared variable for every colorful accent in the
+ * app. It is derived from the active [ColorScheme], so it follows the
+ * selected theme: the four accent hues (primary, secondary, tertiary,
+ * error), each as its container and as the accent itself, give eight
+ * distinct colors that stay in the theme's family. Genre cards and the
+ * Settings category icons both pick from this same palette, so the app's
+ * colorful elements stay consistent with each other and with the theme.
+ */
+fun ColorScheme.rainbowPalette(): List<GenreThemeColor> = listOf(
+    GenreThemeColor(primaryContainer, onPrimaryContainer),
+    GenreThemeColor(secondaryContainer, onSecondaryContainer),
+    GenreThemeColor(tertiaryContainer, onTertiaryContainer),
+    GenreThemeColor(errorContainer, onErrorContainer),
+    GenreThemeColor(primary, onPrimary),
+    GenreThemeColor(secondary, onSecondary),
+    GenreThemeColor(tertiary, onTertiary),
+    GenreThemeColor(error, onError)
+)
+
+/**
+ * Picks a rainbow color by [index], wrapping around the palette so any
+ * number of items (genres, settings categories) gets a stable color.
+ */
+fun ColorScheme.rainbowColor(index: Int): GenreThemeColor {
+    val palette = rainbowPalette()
+    val i = ((index % palette.size) + palette.size) % palette.size
+    return palette[i]
 }
