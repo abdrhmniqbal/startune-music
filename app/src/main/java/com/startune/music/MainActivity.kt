@@ -149,6 +149,7 @@ import com.startune.music.data.preferences.ColorSchemeIds
 import com.startune.music.ui.theme.StartuneTheme
 import com.startune.music.ui.theme.LocalShowScrollbar
 import com.startune.music.ui.theme.resolveAppWideNowPlayingColorSchemePair
+import com.startune.music.ui.theme.resolveSelectedRainbowPair
 import com.startune.music.ui.theme.resolveSelectedSchemePair
 import com.startune.music.utils.AppLocaleManager
 import com.startune.music.utils.CrashHandler
@@ -326,6 +327,9 @@ class MainActivity : ComponentActivity() {
             val baseColorSchemePair = remember(selectedColorSchemeId, customColorSchemes) {
                 resolveSelectedSchemePair(selectedColorSchemeId, customColorSchemes)
             }
+            val baseRainbowPair = remember(selectedColorSchemeId, customColorSchemes) {
+                resolveSelectedRainbowPair(selectedColorSchemeId, customColorSchemes)
+            }
             val activePlayerColorSchemePair by playerViewModel
                 .activePlayerColorSchemePair
                 .collectAsStateWithLifecycle()
@@ -409,6 +413,7 @@ class MainActivity : ComponentActivity() {
                 darkTheme = useDarkTheme,
                 colorSchemePairOverride = appWideNowPlayingScheme,
                 baseColorSchemePair = baseColorSchemePair,
+                rainbowPair = baseRainbowPair,
                 pitchBlack = pitchBlackEnabled
             ) {
                 var contentVisible by remember { mutableStateOf(false) }

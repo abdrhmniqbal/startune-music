@@ -28,6 +28,15 @@ import androidx.core.graphics.ColorUtils
 val LocalStartuneDarkTheme = staticCompositionLocalOf { false }
 val LocalShowScrollbar = staticCompositionLocalOf { true }
 
+/**
+ * The active rainbow palette (genre cards, Settings icons): the selected
+ * theme's stored official accent palette when it has one, else null and
+ * callers fall back to the derived palette from the ColorScheme. A
+ * now-playing override also falls back to derived, because the override
+ * scheme has no stored rainbow.
+ */
+val LocalRainbowPalette = staticCompositionLocalOf<List<GenreThemeColor>?> { null }
+
 private tailrec fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this
     is ContextWrapper -> baseContext.findActivity()
@@ -114,6 +123,7 @@ fun StartuneTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     colorSchemePairOverride: ColorSchemePair? = null,
     baseColorSchemePair: ColorSchemePair? = null,
+    rainbowPair: Pair<List<GenreThemeColor>, List<GenreThemeColor>>? = null,
     pitchBlack: Boolean = false,
     content: @Composable () -> Unit
 ) {
@@ -145,7 +155,18 @@ fun StartuneTheme(
         navigationColor = displayColorScheme.background
     )
 
-    CompositionLocalProvider(LocalStartuneDarkTheme provides darkTheme) {
+    // The stored rainbow belongs to the base theme; a now-playing
+    // override has none, so it falls back to the derived palette.
+    val activeRainbow = if (colorSchemePairOverride != null) {
+        null
+    } else {
+        rainbowPair?.let { if (darkTheme) it.second else it.first }
+    }
+
+    CompositionLocalProvider(
+        LocalStartuneDarkTheme provides darkTheme,
+        LocalRainbowPalette provides activeRainbow
+    ) {
         MaterialTheme(
             colorScheme = displayColorScheme,
             motionScheme = MotionScheme.expressive(),

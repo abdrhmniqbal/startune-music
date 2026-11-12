@@ -105,6 +105,24 @@ object GenreThemeUtils {
         return scheme.rainbowColor(hash)
     }
 
+    /** Same, but from a stored official palette (e.g. Nord Aurora) when
+     * the active theme ships one; [storedPalette] null or empty falls
+     * back to the derived palette from [scheme]. */
+    fun getGenreThemeColor(
+        genreId: String,
+        scheme: ColorScheme,
+        storedPalette: List<GenreThemeColor>?
+    ): GenreThemeColor {
+        if (isUnknownGenreId(genreId)) {
+            val bg = scheme.background
+            val isDark = 0.299f * bg.red + 0.587f * bg.green + 0.114f * bg.blue <= 0.5f
+            return if (isDark) unknownDarkThemeColor else unknownLightThemeColor
+        }
+        val hash = abs(genreId.hashCode())
+        if (!storedPalette.isNullOrEmpty()) return storedPalette.rainbowColor(hash)
+        return scheme.rainbowColor(hash)
+    }
+
     fun getGenreThemeColor(
         genre: Genre?,
         isDark: Boolean,
@@ -125,14 +143,17 @@ object GenreThemeUtils {
     }
 
     /** Theme-derived rainbow for a genre object: the color follows the
-     * active theme; the stored per-genre hex is not used here. */
+     * active theme; the stored per-genre hex is not used here. Pass a
+     * stored official palette when the active theme ships one; null or
+     * empty falls back to the derived palette from [scheme]. */
     fun getGenreThemeColor(
         genre: Genre?,
         scheme: ColorScheme,
-        fallbackGenreId: String = "unknown"
+        fallbackGenreId: String = "unknown",
+        storedPalette: List<GenreThemeColor>? = null
     ): GenreThemeColor {
         val effectiveGenreId = genre?.id?.takeIf { it.isNotBlank() } ?: fallbackGenreId
-        return getGenreThemeColor(effectiveGenreId, scheme)
+        return getGenreThemeColor(effectiveGenreId, scheme, storedPalette)
     }
 
     private fun androidx.compose.ui.graphics.Color.contrastContentColor(): androidx.compose.ui.graphics.Color {
@@ -293,22 +314,30 @@ object GenreThemeUtils {
 /**
  * The rainbow palette: one shared variable for every colorful accent in the
  * app. It is derived from the active [ColorScheme], so it follows the
- * selected theme: the four accent hues (primary, secondary, tertiary,
- * error), each as its container and as the accent itself, give eight
- * distinct colors that stay in the theme's family. Genre cards and the
- * Settings category icons both pick from this same palette, so the app's
- * colorful elements stay consistent with each other and with the theme.
+ * selected theme. Every color uses the same lightness and saturation, with
+ * hues rotated 45 degrees from the theme primary, so the palette is one
+ * consistent family: no faded container next to a solid accent. Built-in
+ * themes override this with their official accent palette (stored in
+ * SchemeRoles.rainbow, e.g. Nord Aurora); this derivation is only the
+ * fallback for custom themes without a stored rainbow. Genre cards and
+ * the Settings category icons both pick from this same palette, so the
+ * app's colorful elements stay consistent with each other and with the
+ * theme.
  */
-fun ColorScheme.rainbowPalette(): List<GenreThemeColor> = listOf(
-    GenreThemeColor(primaryContainer, onPrimaryContainer),
-    GenreThemeColor(secondaryContainer, onSecondaryContainer),
-    GenreThemeColor(tertiaryContainer, onTertiaryContainer),
-    GenreThemeColor(errorContainer, onErrorContainer),
-    GenreThemeColor(primary, onPrimary),
-    GenreThemeColor(secondary, onSecondary),
-    GenreThemeColor(tertiary, onTertiary),
-    GenreThemeColor(error, onError)
-)
+fun ColorScheme.rainbowPalette(): List<GenreThemeColor> {
+    val bg = background
+    val isDark = 0.299f * bg.red + 0.587f * bg.green + 0.114f * bg.blue <= 0.5f
+    val lightness = if (isDark) 0.45f else 0.62f
+    val saturation = if (isDark) 0.60f else 0.55f
+    val hsl = FloatArray(3)
+    rgbToHsl(primary.toArgb(), hsl)
+    val baseHue = hsl[0]
+    return (0 until 8).map { i ->
+        val hue = (baseHue + i * 45f) % 360f
+        val container = hslToColor(floatArrayOf(hue, saturation, lightness))
+        GenreThemeColor(container, onColorFor(container))
+    }
+}
 
 /**
  * Picks a rainbow color by [index], wrapping around the palette so any
@@ -319,3 +348,25 @@ fun ColorScheme.rainbowColor(index: Int): GenreThemeColor {
     val i = ((index % palette.size) + palette.size) % palette.size
     return palette[i]
 }
+
+/**
+ * Picks a rainbow color by [index] from a stored palette, wrapping the
+ * same way. Used when a theme ships its official accent palette.
+ */
+fun List<GenreThemeColor>.rainbowColor(index: Int): GenreThemeColor {
+    val i = ((index % size) + size) % size
+    return this[i]
+}
+
+/**
+ * The active rainbow color for [index]: the selected theme's stored
+ * official palette (LocalRainbowPalette) when StartuneTheme provides one,
+ * else the derived palette from the active ColorScheme.
+ */
+@androidx.compose.runtime.Composable
+fun activeRainbowColor(index: Int): GenreThemeColor {
+    val stored = LocalRainbowPalette.current
+    if (stored != null && stored.isNotEmpty()) return stored.rainbowColor(index)
+    return androidx.compose.material3.MaterialTheme.colorScheme.rainbowColor(index)
+}
+

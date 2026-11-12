@@ -139,7 +139,7 @@ fun ColorScheme.roleColor(key: String): Color = when (key) {
  * so the mapper could not be unit-tested at all. This is the same
  * formula (sRGB linearization, 0.2126/0.7152/0.0722 weights).
  */
-private fun onColorFor(color: Color): Color {
+internal fun onColorFor(color: Color): Color {
     val luminance = relativeLuminance(color.toArgb())
     val whiteContrast = 1.05 / (luminance + 0.05)
     val blackContrast = (luminance + 0.05) / 0.05
@@ -168,14 +168,14 @@ private fun relativeLuminance(argb: Int): Double {
  * so withLightness returned transparent black there and the derivation
  * could not be unit-tested. Production output is unchanged.
  */
-private fun withLightness(color: Color, targetLightness: Float): Color {
+internal fun withLightness(color: Color, targetLightness: Float): Color {
     val hsl = FloatArray(3)
     rgbToHsl(color.toArgb(), hsl)
     hsl[2] = targetLightness.coerceIn(0.02f, 0.98f)
     return hslToColor(hsl)
 }
 
-private fun lightnessOf(color: Color): Float {
+internal fun lightnessOf(color: Color): Float {
     val hsl = FloatArray(3)
     rgbToHsl(color.toArgb(), hsl)
     return hsl[2]
@@ -186,7 +186,7 @@ private fun lightnessOf(color: Color): Float {
  * saturation 0..1, hsl[2] = lightness 0..1. Same formulas as
  * ColorUtils.colorToHSL.
  */
-private fun rgbToHsl(argb: Int, hsl: FloatArray) {
+internal fun rgbToHsl(argb: Int, hsl: FloatArray) {
     val rf = ((argb shr 16) and 0xFF) / 255f
     val gf = ((argb shr 8) and 0xFF) / 255f
     val bf = (argb and 0xFF) / 255f
@@ -216,7 +216,7 @@ private fun rgbToHsl(argb: Int, hsl: FloatArray) {
  * HSL (same layout as [rgbToHsl]) to an opaque [Color]. Same formulas as
  * ColorUtils.HSLToColor.
  */
-private fun hslToColor(hsl: FloatArray): Color {
+internal fun hslToColor(hsl: FloatArray): Color {
     val h = hsl[0]
     val s = hsl[1]
     val l = hsl[2]
@@ -493,6 +493,45 @@ fun AppColorScheme.toColorSchemePair(): ColorSchemePair =
         light = light.toColorScheme(dark = false),
         dark = dark.toColorScheme(dark = true)
     )
+
+/**
+ * The rainbow for one variant: the stored official accent palette
+ * (SchemeRoles.rainbow, e.g. Nord Aurora) when present, else the derived
+ * palette from the variant's own ColorScheme. Each stored hex is a
+ * container; its on-color comes from WCAG contrast, same as the derived
+ * palette. A stored list shorter than 8 is padded from the derived
+ * palette so indices always resolve.
+ */
+fun SchemeRoles.rainbowColors(dark: Boolean): List<GenreThemeColor> {
+    val derived = toColorScheme(dark).rainbowPalette()
+    if (rainbow.isEmpty()) return derived
+    val stored = rainbow.map { hex ->
+        val container = hexToColor(hex)
+        GenreThemeColor(container, onColorFor(container))
+    }
+    return if (stored.size >= derived.size) stored
+    else stored + derived.drop(stored.size)
+}
+
+/** Light and dark rainbow for a scheme, in the same order as the pair. */
+fun AppColorScheme.rainbowPair(): Pair<List<GenreThemeColor>, List<GenreThemeColor>> =
+    light.rainbowColors(dark = false) to dark.rainbowColors(dark = true)
+
+/**
+ * Resolves the selected scheme id to its rainbow pair, parallel to
+ * [resolveSelectedSchemePair]. Dynamic Color and unknown ids resolve to
+ * null (the derived palette is used).
+ */
+fun resolveSelectedRainbowPair(
+    selectedId: String,
+    customs: List<AppColorScheme>
+): Pair<List<GenreThemeColor>, List<GenreThemeColor>>? {
+    if (selectedId == ColorSchemeIds.DYNAMIC) return null
+    val scheme = BuiltInColorSchemes.find(selectedId)
+        ?: customs.firstOrNull { it.id == selectedId }
+        ?: return null
+    return scheme.rainbowPair()
+}
 
 /**
  * Resolves the selected scheme id to the pair StartuneTheme should use as its

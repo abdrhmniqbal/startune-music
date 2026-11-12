@@ -75,7 +75,15 @@ data class SchemeRoles(
     val background: String,
     val surface: String,
     val error: String,
-    val overrides: Map<String, String> = emptyMap()
+    val overrides: Map<String, String> = emptyMap(),
+    /**
+     * The rainbow palette for the colorful elements (genre cards, Settings
+     * category icons): up to 8 "#RRGGBB" container hexes, one per slot.
+     * The on-color for each is computed by WCAG at runtime. Empty =
+     * fall back to the derived palette (theme accents as containers and
+     * accents), so old themes render exactly as before.
+     */
+    val rainbow: List<String> = emptyList()
 )
 
 @Serializable
