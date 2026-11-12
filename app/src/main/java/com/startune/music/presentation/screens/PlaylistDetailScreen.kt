@@ -440,13 +440,25 @@ fun PlaylistDetailScreen(
                 ) {
                     CollapsibleCommonTopBar(
                         title = currentPlaylist?.name ?: fallbackPlaylistName,
-                        titleContent = { style ->
-                            AutoScrollingText(
-                                text = currentPlaylist?.name ?: fallbackPlaylistName,
-                                style = style,
-                                gradientEdgeColor = MaterialTheme.colorScheme.surface
-                            )
+                        // Collapsed the title is one line with an ellipsis, not the
+                        // marquee: the marquee never truncates, so a long title ran
+                        // underneath the action buttons. Expanded keeps the marquee.
+                        titleContent = if (collapseFraction < 0.5f) {
+                            { style ->
+                                AutoScrollingText(
+                                    text = currentPlaylist?.name ?: fallbackPlaylistName,
+                                    style = style,
+                                    gradientEdgeColor = MaterialTheme.colorScheme.surface
+                                )
+                            }
+                        } else {
+                            null
                         },
+                        // The actions row (Sort 48.dp + More 48.dp + 8.dp spacing +
+                        // 12.dp end padding = 116.dp; folder playlists have only
+                        // Sort = 60.dp) sits on top of the title, so the collapsed
+                        // title must end before it, plus an 8.dp gap.
+                        collapsedTitleEndPadding = if (isFolderPlaylist) 68.dp else 124.dp,
                         subtitle = stringResource(
                             R.string.presentation_batch_f_status_bullet_step,
                             formatSongCount(songsInPlaylist.size),
