@@ -518,6 +518,102 @@ fun AppColorScheme.rainbowPair(): Pair<List<GenreThemeColor>, List<GenreThemeCol
     light.rainbowColors(dark = false) to dark.rainbowColors(dark = true)
 
 /**
+ * All overridable roles for one variant, resolved to explicit values:
+ * the stored overrides where present, the mapper's derivation elsewhere.
+ * This is what a full theme export writes, so the JSON defines every
+ * role and the theme does not depend on the derivation at import time.
+ *
+ * Roles the derivation defines with an alpha (secondaryContainer,
+ * onSecondaryContainer, outlineVariant) are composited over the surface
+ * they are drawn on, to their effective opaque hex. Exporting the raw
+ * RGB would drop the alpha and the imported theme would render them
+ * opaque instead of translucent.
+ */
+fun SchemeRoles.fullOverrides(dark: Boolean): Map<String, String> {
+    val scheme = toColorScheme(dark)
+    val surface = scheme.surface
+    val container = compositeOver(scheme.secondaryContainer, surface)
+    return ALL_ROLE_KEYS.associateWith { key ->
+        val color = scheme.roleColor(key)
+        val effective = when (key) {
+            ColorRoleKeys.SECONDARY_CONTAINER -> container
+            ColorRoleKeys.ON_SECONDARY_CONTAINER ->
+                compositeOver(color, container)
+            ColorRoleKeys.OUTLINE_VARIANT ->
+                compositeOver(color, surface)
+            else -> color
+        }
+        colorToHex(effective)
+    }
+}
+
+/** Composites [foreground] (possibly translucent) over [background]. */
+private fun compositeOver(foreground: Color, background: Color): Color {
+    val a = foreground.alpha
+    if (a >= 1f) return foreground
+    val r = (foreground.red * a + background.red * (1f - a))
+    val g = (foreground.green * a + background.green * (1f - a))
+    val b = (foreground.blue * a + background.blue * (1f - a))
+    return Color(r, g, b)
+}
+
+/** Every key in [ColorRoleKeys] that [ColorScheme.roleColor] can read. */
+private val ALL_ROLE_KEYS = listOf(
+    ColorRoleKeys.ON_PRIMARY,
+    ColorRoleKeys.PRIMARY_CONTAINER,
+    ColorRoleKeys.ON_PRIMARY_CONTAINER,
+    ColorRoleKeys.PRIMARY_FIXED,
+    ColorRoleKeys.PRIMARY_FIXED_DIM,
+    ColorRoleKeys.ON_PRIMARY_FIXED,
+    ColorRoleKeys.ON_PRIMARY_FIXED_VARIANT,
+    ColorRoleKeys.ON_SECONDARY,
+    ColorRoleKeys.SECONDARY_CONTAINER,
+    ColorRoleKeys.ON_SECONDARY_CONTAINER,
+    ColorRoleKeys.SECONDARY_FIXED,
+    ColorRoleKeys.SECONDARY_FIXED_DIM,
+    ColorRoleKeys.ON_SECONDARY_FIXED,
+    ColorRoleKeys.ON_SECONDARY_FIXED_VARIANT,
+    ColorRoleKeys.ON_TERTIARY,
+    ColorRoleKeys.TERTIARY_CONTAINER,
+    ColorRoleKeys.ON_TERTIARY_CONTAINER,
+    ColorRoleKeys.TERTIARY_FIXED,
+    ColorRoleKeys.TERTIARY_FIXED_DIM,
+    ColorRoleKeys.ON_TERTIARY_FIXED,
+    ColorRoleKeys.ON_TERTIARY_FIXED_VARIANT,
+    ColorRoleKeys.ON_ERROR,
+    ColorRoleKeys.ERROR_CONTAINER,
+    ColorRoleKeys.ON_ERROR_CONTAINER,
+    ColorRoleKeys.ON_BACKGROUND,
+    ColorRoleKeys.ON_SURFACE,
+    ColorRoleKeys.SURFACE_VARIANT,
+    ColorRoleKeys.ON_SURFACE_VARIANT,
+    ColorRoleKeys.SURFACE_DIM,
+    ColorRoleKeys.SURFACE_BRIGHT,
+    ColorRoleKeys.SURFACE_CONTAINER_LOWEST,
+    ColorRoleKeys.SURFACE_CONTAINER_LOW,
+    ColorRoleKeys.SURFACE_CONTAINER,
+    ColorRoleKeys.SURFACE_CONTAINER_HIGH,
+    ColorRoleKeys.SURFACE_CONTAINER_HIGHEST,
+    ColorRoleKeys.OUTLINE,
+    ColorRoleKeys.OUTLINE_VARIANT,
+    ColorRoleKeys.INVERSE_SURFACE,
+    ColorRoleKeys.INVERSE_ON_SURFACE,
+    ColorRoleKeys.INVERSE_PRIMARY,
+    ColorRoleKeys.SCRIM,
+    ColorRoleKeys.SURFACE_TINT
+)
+
+/**
+ * A copy of this scheme whose overrides are complete: every overridable
+ * role has an explicit value. This is the form the exporter writes, so
+ * an exported theme is a full theme.
+ */
+fun AppColorScheme.toFullScheme(): AppColorScheme = copy(
+    light = light.copy(overrides = light.fullOverrides(dark = false)),
+    dark = dark.copy(overrides = dark.fullOverrides(dark = true))
+)
+
+/**
  * Resolves the selected scheme id to its rainbow pair, parallel to
  * [resolveSelectedSchemePair]. Dynamic Color and unknown ids resolve to
  * null (the derived palette is used).

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.startune.music.data.preferences.AppColorScheme
 import com.startune.music.data.preferences.ColorSchemeExport
+import com.startune.music.ui.theme.toFullScheme
 import com.startune.music.data.preferences.ColorSchemeIds
 import com.startune.music.data.preferences.ColorSchemeSort
 import com.startune.music.data.preferences.SchemeRoles
@@ -152,8 +153,14 @@ class ColorSchemeViewModel @Inject constructor(
         }
     }
 
+    /** Exports a full theme: every overridable role has an explicit
+     * value, so the JSON is a complete theme definition, not just the
+     * six base roles plus the overrides the author happened to set. */
     fun exportJson(scheme: AppColorScheme): String =
-        importJson.encodeToString(ColorSchemeExport.serializer(), ColorSchemeExport(scheme = scheme))
+        importJson.encodeToString(
+            ColorSchemeExport.serializer(),
+            ColorSchemeExport(scheme = scheme.toFullScheme())
+        )
 
     suspend fun importFromJson(text: String): ColorSchemeImportResult {
         val parsed = runCatching {
