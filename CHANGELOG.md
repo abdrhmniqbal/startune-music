@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Last opened tab option in Default Tab settings: the app opens on the tab you last used (Home, Search, or Library).
+- Full theme customization: every color role can now be set explicitly in the theme editor (containers, surface levels, text colors, outline, fixed and inverse colors), with an Auto badge when a role is still derived. The color picker now has a full-spectrum rainbow picker (saturation/value square plus hue slider) alongside hex and presets; an override can be reset to Auto.
+- All eight built-in themes recreated from their official palettes: foreground, surface container ramp, primary container, muted text and outline now use the real theme values instead of the auto-derived guesses.
 
 ### Fixed
 - Changelog now loads from the raw CHANGELOG.md file instead of the GitHub API, which failed on shared mobile data.

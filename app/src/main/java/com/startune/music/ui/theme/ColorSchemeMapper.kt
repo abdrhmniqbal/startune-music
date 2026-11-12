@@ -9,6 +9,7 @@ import androidx.core.graphics.ColorUtils
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import com.startune.music.data.preferences.AppColorScheme
+import com.startune.music.data.preferences.ColorRoleKeys
 import com.startune.music.data.preferences.ColorSchemeIds
 import com.startune.music.data.preferences.SchemeRoles
 import com.startune.music.presentation.viewmodel.ColorSchemePair
@@ -29,6 +30,100 @@ fun hexToColor(hex: String): Color {
         clean.substring(2, 4).toInt(16),
         clean.substring(4, 6).toInt(16)
     )
+}
+
+/** Converts an opaque [Color] to a "#RRGGBB" hex string. */
+fun colorToHex(color: Color): String {
+    val argb = color.toArgb()
+    return "#%06X".format(argb and 0xFFFFFF)
+}
+
+/**
+ * HSV (hue 0..360, saturation 0..1, value 0..1) to an opaque [Color].
+ * Pure Kotlin, so the color picker behaves the same in unit tests.
+ */
+fun hsvToColor(h: Float, s: Float, v: Float): Color {
+    val hue = ((h % 360f) + 360f) % 360f
+    val sat = s.coerceIn(0f, 1f)
+    val value = v.coerceIn(0f, 1f)
+    val c = value * sat
+    val x = c * (1f - kotlin.math.abs((hue / 60f % 2f) - 1f))
+    val m = value - c
+    val (r, g, b) = when ((hue / 60f).toInt() % 6) {
+        0 -> Triple(c, x, 0f)
+        1 -> Triple(x, c, 0f)
+        2 -> Triple(0f, c, x)
+        3 -> Triple(0f, x, c)
+        4 -> Triple(x, 0f, c)
+        else -> Triple(c, 0f, x)
+    }
+    return Color(r + m, g + m, b + m)
+}
+
+/** Converts a [Color] to HSV: hue 0..360, saturation 0..1, value 0..1. */
+fun colorToHsv(color: Color): FloatArray {
+    val r = color.red
+    val g = color.green
+    val b = color.blue
+    val max = maxOf(r, g, b)
+    val min = minOf(r, g, b)
+    val delta = max - min
+    var h = when {
+        delta == 0f -> 0f
+        max == r -> ((g - b) / delta % 6f) * 60f
+        max == g -> ((b - r) / delta + 2f) * 60f
+        else -> ((r - g) / delta + 4f) * 60f
+    }
+    if (h < 0f) h += 360f
+    val s = if (max == 0f) 0f else delta / max
+    return floatArrayOf(h, s, max)
+}
+
+/** Reads one role of a [ColorScheme] by its [ColorRoleKeys] key. */
+fun ColorScheme.roleColor(key: String): Color = when (key) {
+    ColorRoleKeys.ON_PRIMARY -> onPrimary
+    ColorRoleKeys.PRIMARY_CONTAINER -> primaryContainer
+    ColorRoleKeys.ON_PRIMARY_CONTAINER -> onPrimaryContainer
+    ColorRoleKeys.PRIMARY_FIXED -> primaryFixed
+    ColorRoleKeys.PRIMARY_FIXED_DIM -> primaryFixedDim
+    ColorRoleKeys.ON_PRIMARY_FIXED -> onPrimaryFixed
+    ColorRoleKeys.ON_PRIMARY_FIXED_VARIANT -> onPrimaryFixedVariant
+    ColorRoleKeys.ON_SECONDARY -> onSecondary
+    ColorRoleKeys.SECONDARY_CONTAINER -> secondaryContainer
+    ColorRoleKeys.ON_SECONDARY_CONTAINER -> onSecondaryContainer
+    ColorRoleKeys.SECONDARY_FIXED -> secondaryFixed
+    ColorRoleKeys.SECONDARY_FIXED_DIM -> secondaryFixedDim
+    ColorRoleKeys.ON_SECONDARY_FIXED -> onSecondaryFixed
+    ColorRoleKeys.ON_SECONDARY_FIXED_VARIANT -> onSecondaryFixedVariant
+    ColorRoleKeys.ON_TERTIARY -> onTertiary
+    ColorRoleKeys.TERTIARY_CONTAINER -> tertiaryContainer
+    ColorRoleKeys.ON_TERTIARY_CONTAINER -> onTertiaryContainer
+    ColorRoleKeys.TERTIARY_FIXED -> tertiaryFixed
+    ColorRoleKeys.TERTIARY_FIXED_DIM -> tertiaryFixedDim
+    ColorRoleKeys.ON_TERTIARY_FIXED -> onTertiaryFixed
+    ColorRoleKeys.ON_TERTIARY_FIXED_VARIANT -> onTertiaryFixedVariant
+    ColorRoleKeys.ON_ERROR -> onError
+    ColorRoleKeys.ERROR_CONTAINER -> errorContainer
+    ColorRoleKeys.ON_ERROR_CONTAINER -> onErrorContainer
+    ColorRoleKeys.ON_BACKGROUND -> onBackground
+    ColorRoleKeys.ON_SURFACE -> onSurface
+    ColorRoleKeys.SURFACE_VARIANT -> surfaceVariant
+    ColorRoleKeys.ON_SURFACE_VARIANT -> onSurfaceVariant
+    ColorRoleKeys.SURFACE_DIM -> surfaceDim
+    ColorRoleKeys.SURFACE_BRIGHT -> surfaceBright
+    ColorRoleKeys.SURFACE_CONTAINER_LOWEST -> surfaceContainerLowest
+    ColorRoleKeys.SURFACE_CONTAINER_LOW -> surfaceContainerLow
+    ColorRoleKeys.SURFACE_CONTAINER -> surfaceContainer
+    ColorRoleKeys.SURFACE_CONTAINER_HIGH -> surfaceContainerHigh
+    ColorRoleKeys.SURFACE_CONTAINER_HIGHEST -> surfaceContainerHighest
+    ColorRoleKeys.OUTLINE -> outline
+    ColorRoleKeys.OUTLINE_VARIANT -> outlineVariant
+    ColorRoleKeys.INVERSE_SURFACE -> inverseSurface
+    ColorRoleKeys.INVERSE_ON_SURFACE -> inverseOnSurface
+    ColorRoleKeys.INVERSE_PRIMARY -> inversePrimary
+    ColorRoleKeys.SCRIM -> scrim
+    ColorRoleKeys.SURFACE_TINT -> surfaceTint
+    else -> onSurface
 }
 
 /**
@@ -268,6 +363,68 @@ private fun ColorScheme.withAccentContainers(
 }
 
 /**
+ * Applies explicit per-role overrides on top of a fully derived scheme.
+ * An override wins over the derived guess for that role; a role with no
+ * override (or an invalid hex value, which is skipped) keeps its derived
+ * color. This is what lets a theme match its official palette instead of
+ * only approximating it through the six base roles.
+ */
+private fun ColorScheme.withOverrides(overrides: Map<String, String>): ColorScheme {
+    if (overrides.isEmpty()) return this
+    var scheme = this
+    for ((key, hex) in overrides) {
+        if (!isValidHex(hex)) continue
+        val color = hexToColor(normalizeHex(hex))
+        scheme = when (key) {
+            ColorRoleKeys.ON_PRIMARY -> scheme.copy(onPrimary = color)
+            ColorRoleKeys.PRIMARY_CONTAINER -> scheme.copy(primaryContainer = color)
+            ColorRoleKeys.ON_PRIMARY_CONTAINER -> scheme.copy(onPrimaryContainer = color)
+            ColorRoleKeys.PRIMARY_FIXED -> scheme.copy(primaryFixed = color)
+            ColorRoleKeys.PRIMARY_FIXED_DIM -> scheme.copy(primaryFixedDim = color)
+            ColorRoleKeys.ON_PRIMARY_FIXED -> scheme.copy(onPrimaryFixed = color)
+            ColorRoleKeys.ON_PRIMARY_FIXED_VARIANT -> scheme.copy(onPrimaryFixedVariant = color)
+            ColorRoleKeys.ON_SECONDARY -> scheme.copy(onSecondary = color)
+            ColorRoleKeys.SECONDARY_CONTAINER -> scheme.copy(secondaryContainer = color)
+            ColorRoleKeys.ON_SECONDARY_CONTAINER -> scheme.copy(onSecondaryContainer = color)
+            ColorRoleKeys.SECONDARY_FIXED -> scheme.copy(secondaryFixed = color)
+            ColorRoleKeys.SECONDARY_FIXED_DIM -> scheme.copy(secondaryFixedDim = color)
+            ColorRoleKeys.ON_SECONDARY_FIXED -> scheme.copy(onSecondaryFixed = color)
+            ColorRoleKeys.ON_SECONDARY_FIXED_VARIANT -> scheme.copy(onSecondaryFixedVariant = color)
+            ColorRoleKeys.ON_TERTIARY -> scheme.copy(onTertiary = color)
+            ColorRoleKeys.TERTIARY_CONTAINER -> scheme.copy(tertiaryContainer = color)
+            ColorRoleKeys.ON_TERTIARY_CONTAINER -> scheme.copy(onTertiaryContainer = color)
+            ColorRoleKeys.TERTIARY_FIXED -> scheme.copy(tertiaryFixed = color)
+            ColorRoleKeys.TERTIARY_FIXED_DIM -> scheme.copy(tertiaryFixedDim = color)
+            ColorRoleKeys.ON_TERTIARY_FIXED -> scheme.copy(onTertiaryFixed = color)
+            ColorRoleKeys.ON_TERTIARY_FIXED_VARIANT -> scheme.copy(onTertiaryFixedVariant = color)
+            ColorRoleKeys.ON_ERROR -> scheme.copy(onError = color)
+            ColorRoleKeys.ERROR_CONTAINER -> scheme.copy(errorContainer = color)
+            ColorRoleKeys.ON_ERROR_CONTAINER -> scheme.copy(onErrorContainer = color)
+            ColorRoleKeys.ON_BACKGROUND -> scheme.copy(onBackground = color)
+            ColorRoleKeys.ON_SURFACE -> scheme.copy(onSurface = color)
+            ColorRoleKeys.SURFACE_VARIANT -> scheme.copy(surfaceVariant = color)
+            ColorRoleKeys.ON_SURFACE_VARIANT -> scheme.copy(onSurfaceVariant = color)
+            ColorRoleKeys.SURFACE_DIM -> scheme.copy(surfaceDim = color)
+            ColorRoleKeys.SURFACE_BRIGHT -> scheme.copy(surfaceBright = color)
+            ColorRoleKeys.SURFACE_CONTAINER_LOWEST -> scheme.copy(surfaceContainerLowest = color)
+            ColorRoleKeys.SURFACE_CONTAINER_LOW -> scheme.copy(surfaceContainerLow = color)
+            ColorRoleKeys.SURFACE_CONTAINER -> scheme.copy(surfaceContainer = color)
+            ColorRoleKeys.SURFACE_CONTAINER_HIGH -> scheme.copy(surfaceContainerHigh = color)
+            ColorRoleKeys.SURFACE_CONTAINER_HIGHEST -> scheme.copy(surfaceContainerHighest = color)
+            ColorRoleKeys.OUTLINE -> scheme.copy(outline = color)
+            ColorRoleKeys.OUTLINE_VARIANT -> scheme.copy(outlineVariant = color)
+            ColorRoleKeys.INVERSE_SURFACE -> scheme.copy(inverseSurface = color)
+            ColorRoleKeys.INVERSE_ON_SURFACE -> scheme.copy(inverseOnSurface = color)
+            ColorRoleKeys.INVERSE_PRIMARY -> scheme.copy(inversePrimary = color)
+            ColorRoleKeys.SCRIM -> scheme.copy(scrim = color)
+            ColorRoleKeys.SURFACE_TINT -> scheme.copy(surfaceTint = color)
+            else -> scheme
+        }
+    }
+    return scheme
+}
+
+/**
  * Builds a full Material3 scheme from the six editable roles. on-colors are
  * picked by luminance and containers/variants are blended from the roles, so
  * every combination stays readable. Mirrors the role set the hardcoded
@@ -328,6 +485,7 @@ fun SchemeRoles.toColorScheme(dark: Boolean): ColorScheme {
         onError = onColorFor(error)
     ).withDerivedRoles(dark)
         .withAccentContainers(primary, tertiary, dark)
+        .withOverrides(overrides)
 }
 
 fun AppColorScheme.toColorSchemePair(): ColorSchemePair =
