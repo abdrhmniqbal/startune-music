@@ -48,9 +48,7 @@ import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Menu
-import androidx.compose.material.icons.rounded.TravelExplore
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -145,7 +143,6 @@ fun SongInfoBottomSheet(
     val audioMeta by songInfoViewModel.audioMeta.collectAsStateWithLifecycle()
     val resolvedArtists by songInfoViewModel.resolvedArtists.collectAsStateWithLifecycle()
     val offlineDownload by songInfoViewModel.offlineDownload.collectAsStateWithLifecycle()
-    val musicBrainzState by songInfoViewModel.musicBrainzState.collectAsStateWithLifecycle()
     val isCloudSong = remember(song.contentUriString) { CloudOfflineRepository.isCloudSong(song) }
     val ringtonePermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -300,17 +297,6 @@ fun SongInfoBottomSheet(
         songInfoViewModel.bindSong(song)
         songInfoViewModel.loadAudioMeta(song)
         songInfoViewModel.loadArtistsForSong(song)
-    }
-
-    LaunchedEffect(musicBrainzState) {
-        if (musicBrainzState is SongInfoBottomSheetViewModel.MusicBrainzUiState.Applied) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.musicbrainz_applied),
-                Toast.LENGTH_LONG
-            ).show()
-            songInfoViewModel.dismissMusicBrainz()
-        }
     }
 
     val pagerState = androidx.compose.foundation.pager.rememberPagerState(pageCount = { 2 })
@@ -700,23 +686,6 @@ fun SongInfoBottomSheet(
                                         }
 
                                         item {
-                                            FilledTonalButton(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .heightIn(min = 66.dp),
-                                                shape = CircleShape,
-                                                onClick = { songInfoViewModel.searchMusicBrainz(song) }
-                                            ) {
-                                                Icon(
-                                                    Icons.Rounded.TravelExplore,
-                                                    contentDescription = stringResource(R.string.musicbrainz_lookup)
-                                                )
-                                                Spacer(Modifier.width(10.dp))
-                                                Text(stringResource(R.string.musicbrainz_lookup))
-                                            }
-                                        }
-
-                                        item {
                                             Spacer(Modifier.height(80.dp))
                                         }
                                     }
@@ -906,97 +875,6 @@ fun SongInfoBottomSheet(
             showEditSheet = false
         },
     )
-
-    when (val state = musicBrainzState) {
-        SongInfoBottomSheetViewModel.MusicBrainzUiState.Idle,
-        SongInfoBottomSheetViewModel.MusicBrainzUiState.Applied -> Unit
-
-        SongInfoBottomSheetViewModel.MusicBrainzUiState.Loading -> {
-            AlertDialog(
-                onDismissRequest = {},
-                confirmButton = {},
-                title = { Text(stringResource(R.string.musicbrainz_lookup)) },
-                text = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        LoadingIndicator(modifier = Modifier.size(28.dp))
-                        Text(stringResource(R.string.musicbrainz_searching))
-                    }
-                }
-            )
-        }
-
-        is SongInfoBottomSheetViewModel.MusicBrainzUiState.Error -> {
-            AlertDialog(
-                onDismissRequest = songInfoViewModel::dismissMusicBrainz,
-                confirmButton = {
-                    TextButton(onClick = { songInfoViewModel.searchMusicBrainz(song) }) {
-                        Text(stringResource(R.string.cloud_download_retry))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = songInfoViewModel::dismissMusicBrainz) {
-                        Text(stringResource(R.string.cancel))
-                    }
-                },
-                title = { Text(stringResource(R.string.musicbrainz_lookup_failed)) },
-                text = { Text(state.message) }
-            )
-        }
-
-        is SongInfoBottomSheetViewModel.MusicBrainzUiState.Results -> {
-            AlertDialog(
-                onDismissRequest = songInfoViewModel::dismissMusicBrainz,
-                confirmButton = {
-                    TextButton(onClick = songInfoViewModel::dismissMusicBrainz) {
-                        Text(stringResource(R.string.cancel))
-                    }
-                },
-                title = { Text(stringResource(R.string.musicbrainz_choose_match)) },
-                text = {
-                    if (state.matches.isEmpty()) {
-                        Text(stringResource(R.string.musicbrainz_no_results))
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.heightIn(max = 420.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(state.matches, key = { it.recordingId + (it.releaseId ?: "") }) { match ->
-                                Surface(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            songInfoViewModel.applyMusicBrainzMatch(song, match)
-                                        },
-                                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                    shape = RoundedCornerShape(16.dp)
-                                ) {
-                                    Column(Modifier.padding(14.dp)) {
-                                        Text(match.title, fontWeight = FontWeight.Bold)
-                                        Text(
-                                            listOfNotNull(
-                                                match.artist.takeIf { it.isNotBlank() },
-                                                match.album.takeIf { it.isNotBlank() },
-                                                match.year.takeIf { it > 0 }?.toString()
-                                            ).joinToString(" · "),
-                                            style = MaterialTheme.typography.bodyMedium
-                                        )
-                                        Text(
-                                            stringResource(R.string.musicbrainz_match_score, match.score),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            )
-        }
-    }
 
     val artistPickerSheetState = rememberModalSheetState(skipPartiallyExpanded = true)
     if (showArtistPicker && resolvedArtists.isNotEmpty()) {
