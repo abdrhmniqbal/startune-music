@@ -66,6 +66,7 @@ import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
@@ -166,11 +167,11 @@ fun RecapScreen(
             RecapStory(
                 model = state.model,
                 onClose = onClose,
-                onShare = { layer ->
+                onShare = { layer, background ->
                     scope.launch {
                         try {
                             if (!layer.hasContent) error("Summary card has not been drawn yet")
-                            shareRecapImage(context, layer, shareFileStem, shareText)
+                            shareRecapImage(context, layer, shareFileStem, shareText, background)
                         } catch (cancellation: CancellationException) {
                             throw cancellation
                         } catch (throwable: Exception) {
@@ -197,7 +198,7 @@ fun RecapScreen(
 private fun RecapStory(
     model: RecapUiModel,
     onClose: () -> Unit,
-    onShare: (GraphicsLayer) -> Unit,
+    onShare: (GraphicsLayer, Color) -> Unit,
     onPlayTopSongs: () -> Unit
 ) {
     val slides = model.slides

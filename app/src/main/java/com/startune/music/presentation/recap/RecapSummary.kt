@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -36,7 +39,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -44,10 +49,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.startune.music.R
 import java.text.NumberFormat
+import kotlin.random.Random
 
 /** Closing slide: a shareable card of the year's highlights, plus what to do next. */
 @Composable
@@ -93,7 +100,7 @@ internal fun RecapSummarySlide(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Button(
-                onClick = { actions.onShare(cardLayer) },
+                onClick = { actions.onShare(cardLayer, palette.background) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = palette.content,
                     contentColor = palette.background
@@ -155,125 +162,203 @@ private fun RecapSummaryCard(slide: RecapSlide.Summary, palette: RecapPalette) {
     // The monogram fallback must stand out on the accent card, so it is drawn in the ink.
     val heroPalette = remember(palette) { palette.copy(accent = palette.onAccent, onAccent = palette.accent) }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(32.dp))
             .background(palette.accent)
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Hero: the top artist's photo beside the title, big enough to anchor the poster.
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        RecapSummaryBackdrop(slide = slide, ink = ink)
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            if (topArtist != null) {
-                RecapArtwork(
-                    model = topArtist.imageUri,
-                    shape = MaterialShapes.Cookie9Sided.toShape(),
-                    palette = heroPalette,
-                    monogram = rememberMonogram(topArtist.name),
-                    targetSizePx = 256,
-                    modifier = Modifier.size(112.dp)
-                )
-            }
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+            // Hero: the top artist's photo beside the title, big enough to anchor the poster.
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clip(MaterialShapes.Cookie9Sided.toShape())
-                            .background(ink),
-                    )
-                    Spacer(Modifier.size(8.dp))
-                    Text(
-                        text = stringResource(R.string.recap_intro_kicker),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontFamily = rememberRecapFlexFont(weight = 680, width = 110f),
-                        color = ink.copy(alpha = 0.85f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                if (topArtist != null) {
+                    RecapArtwork(
+                        model = topArtist.imageUri,
+                        shape = MaterialShapes.Cookie9Sided.toShape(),
+                        palette = heroPalette,
+                        monogram = rememberMonogram(topArtist.name),
+                        targetSizePx = 256,
+                        modifier = Modifier.size(112.dp)
                     )
                 }
-                RecapHeadline(
-                    text = recapSummaryTitle(slide.range, slide.year, slide.endDate, slide.isSoFar),
-                    color = ink,
-                    maxFontSize = 30.sp,
-                    minFontSize = 20.sp,
-                    weight = 880
-                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clip(MaterialShapes.Cookie9Sided.toShape())
+                                .background(ink),
+                        )
+                        Spacer(Modifier.size(8.dp))
+                        Text(
+                            text = stringResource(R.string.recap_intro_kicker),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontFamily = rememberRecapFlexFont(weight = 680, width = 110f),
+                            color = ink.copy(alpha = 0.85f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    RecapHeadline(
+                        text = recapSummaryTitle(slide.range, slide.year, slide.endDate, slide.isSoFar),
+                        color = ink,
+                        maxFontSize = 30.sp,
+                        minFontSize = 20.sp,
+                        weight = 880
+                    )
+                }
             }
-        }
-        Column {
-            Text(
-                text = stringResource(R.string.recap_summary_minutes),
-                style = MaterialTheme.typography.labelLarge,
-                color = ink.copy(alpha = 0.78f)
-            )
-            RecapHeadline(
-                text = minutes,
-                color = ink,
-                maxFontSize = 52.sp,
-                minFontSize = 28.sp,
-                maxLines = 1,
-                weight = 950
-            )
-        }
-        // Ranked lists, side by side so the card stays a poster: every row is a rank plus
-        // one line of name, so long names ellipsize instead of wrapping mid-word.
-        if (slide.topArtists.isNotEmpty() || slide.topSongs.isNotEmpty()) {
+            // Headline stats, side by side: minutes listened next to the top genre.
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                if (slide.topArtists.isNotEmpty()) {
-                    SummaryRankColumn(
-                        heading = stringResource(R.string.recap_summary_top_artists),
-                        names = slide.topArtists.map { it.name },
-                        ink = ink,
-                        modifier = Modifier.weight(1f)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.recap_summary_minutes),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = ink.copy(alpha = 0.78f)
+                    )
+                    RecapHeadline(
+                        text = minutes,
+                        color = ink,
+                        maxFontSize = 52.sp,
+                        minFontSize = 28.sp,
+                        maxLines = 1,
+                        weight = 950
                     )
                 }
-                if (slide.topSongs.isNotEmpty()) {
-                    SummaryRankColumn(
-                        heading = stringResource(R.string.recap_summary_top_songs),
-                        names = slide.topSongs.map { it.title },
-                        ink = ink,
-                        modifier = Modifier.weight(1f)
-                    )
+                slide.topGenre?.let { genre ->
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.recap_summary_top_genre),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = ink.copy(alpha = 0.78f)
+                        )
+                        Text(
+                            text = genre,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontFamily = rememberRecapFlexFont(weight = 800, width = 108f),
+                            color = ink,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
-        }
-        slide.topGenre?.let { genre ->
-            Column {
-                Text(
-                    text = stringResource(R.string.recap_summary_top_genre),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = ink.copy(alpha = 0.78f)
-                )
-                Text(
-                    text = genre,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontFamily = rememberRecapFlexFont(weight = 800, width = 108f),
-                    color = ink,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+            // Ranked lists, side by side so the card stays a poster: every row is a rank plus
+            // one line of name, so long names ellipsize instead of wrapping mid-word.
+            if (slide.topArtists.isNotEmpty() || slide.topSongs.isNotEmpty()) {
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    if (slide.topArtists.isNotEmpty()) {
+                        SummaryRankColumn(
+                            heading = stringResource(R.string.recap_summary_top_artists),
+                            names = slide.topArtists.map { it.name },
+                            ink = ink,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    if (slide.topSongs.isNotEmpty()) {
+                        SummaryRankColumn(
+                            heading = stringResource(R.string.recap_summary_top_songs),
+                            names = slide.topSongs.map { it.title },
+                            ink = ink,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
             }
-        }
-        Text(
-            text = stringResource(R.string.recap_summary_footer),
-            style = MaterialTheme.typography.labelMedium,
-            fontFamily = rememberRecapFlexFont(weight = 700, width = 110f),
-            color = ink.copy(alpha = 0.6f),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
+            Text(
+                text = stringResource(R.string.recap_summary_footer),
+                style = MaterialTheme.typography.labelMedium,
+                fontFamily = rememberRecapFlexFont(weight = 700, width = 110f),
+                color = ink.copy(alpha = 0.6f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            }
     }
 }
+
+/**
+ * Decorative shapes behind the poster content, so the card reads as expressive rather
+ * than a clean flat panel. The shapes are drawn from the slide and the ink colour, so
+ * they stay put across recompositions and change only when the recap itself changes.
+ * They sit at the card's edges, partly outside it, at a low alpha so the text on top
+ * keeps its contrast.
+ */
+@Composable
+private fun RecapSummaryBackdrop(slide: RecapSlide.Summary, ink: Color) {
+    val shapes = remember(slide.range, slide.year, slide.endDate, ink) {
+        val random = Random(slide.year * 31L + slide.range.ordinal * 7L + slide.endDate.dayOfYear + ink.hashCode())
+        val cookieShapes = listOf(
+            MaterialShapes.Cookie9Sided.toShape(),
+            MaterialShapes.Cookie6Sided.toShape(),
+            CircleShape
+        )
+        listOf(
+            BackdropShape(
+                shape = cookieShapes[random.nextInt(cookieShapes.size)],
+                size = (176 + random.nextInt(48)).dp,
+                alignment = Alignment.TopEnd,
+                offsetX = (48 + random.nextInt(24)).dp,
+                offsetY = (-56 + random.nextInt(16)).dp,
+                rotation = random.nextFloat() * 360f,
+                alpha = 0.07f + random.nextFloat() * 0.05f
+            ),
+            BackdropShape(
+                shape = cookieShapes[random.nextInt(cookieShapes.size)],
+                size = (144 + random.nextInt(48)).dp,
+                alignment = Alignment.BottomStart,
+                offsetX = (-64 + random.nextInt(24)).dp,
+                offsetY = (40 + random.nextInt(24)).dp,
+                rotation = random.nextFloat() * 360f,
+                alpha = 0.07f + random.nextFloat() * 0.05f
+            ),
+            BackdropShape(
+                shape = cookieShapes[random.nextInt(cookieShapes.size)],
+                size = (96 + random.nextInt(40)).dp,
+                alignment = Alignment.CenterEnd,
+                offsetX = (56 + random.nextInt(24)).dp,
+                offsetY = (8 + random.nextInt(24)).dp,
+                rotation = random.nextFloat() * 360f,
+                alpha = 0.06f + random.nextFloat() * 0.04f
+            )
+        )
+    }
+    Box(modifier = Modifier.fillMaxSize()) {
+        shapes.forEach { shape ->
+            Box(
+                modifier = Modifier
+                    .align(shape.alignment)
+                    .offset(shape.offsetX, shape.offsetY)
+                    .size(shape.size)
+                    .rotate(shape.rotation)
+                    .clip(shape.shape)
+                    .background(ink.copy(alpha = shape.alpha))
+            )
+        }
+    }
+}
+
+private data class BackdropShape(
+    val shape: Shape,
+    val size: Dp,
+    val alignment: Alignment,
+    val offsetX: Dp,
+    val offsetY: Dp,
+    val rotation: Float,
+    val alpha: Float
+)
 
 /** One ranked list on the summary poster: a heading plus rank-and-name rows, one line each. */
 @Composable
