@@ -298,13 +298,15 @@ private fun RecapSummaryCard(slide: RecapSlide.Summary, palette: RecapPalette) {
  */
 @Composable
 private fun RecapSummaryBackdrop(slide: RecapSlide.Summary, ink: Color) {
+    // toShape() reads the density, so it runs here in the composable body, not inside
+    // the remember block below.
+    val cookieShapes = listOf(
+        MaterialShapes.Cookie9Sided.toShape(),
+        MaterialShapes.Cookie6Sided.toShape(),
+        CircleShape
+    )
     val shapes = remember(slide.range, slide.year, slide.endDate, ink) {
         val random = Random(slide.year * 31L + slide.range.ordinal * 7L + slide.endDate.dayOfYear + ink.hashCode())
-        val cookieShapes = listOf(
-            MaterialShapes.Cookie9Sided.toShape(),
-            MaterialShapes.Cookie6Sided.toShape(),
-            CircleShape
-        )
         listOf(
             BackdropShape(
                 shape = cookieShapes[random.nextInt(cookieShapes.size)],
