@@ -2453,11 +2453,15 @@ private fun BottomToggleRow(
     onLyricsClick: () -> Unit
 ) {
     val rowCorners = 60.dp
-    val inactiveBg = LocalMaterialTheme.current.onSurface.copy(alpha = 0.07f)
-    // onSurface renders as the light variant's dark tone inside the player
-    // sheet, which made the inactive icons invisible (1.19:1). onPrimaryContainer
-    // is the player's base text color and stays light here (9.95:1 on the pill).
-    val inactiveContentColor = LocalMaterialTheme.current.onPrimaryContainer
+    // Inactive is a muted version of each button's own Fixed color. The old
+    // inactive pair (onSurface at 7% alpha + onPrimaryContainer) was invisible
+    // in the album scheme: the pill showed the dark container through it and
+    // onPrimaryContainer resolves to black here, so the icon was black on dark
+    // (screenshot: icon #000000 on pill #2B414B). Fixed roles are light with a
+    // dark on-color in both light and dark schemes, so a Fixed color at 50%
+    // alpha stays visible on the dark bar and its on-color stays readable.
+    // Each button keeps its own hue; alpha alone marks active vs inactive.
+    val inactiveAlpha = 0.5f
 
 
     Box(
@@ -2504,8 +2508,8 @@ private fun BottomToggleRow(
                 activeColor = LocalMaterialTheme.current.primaryFixed,
                 activeCornerRadius = rowCorners,
                 activeContentColor = LocalMaterialTheme.current.onPrimaryFixed,
-                inactiveColor = inactiveBg,
-                inactiveContentColor = inactiveContentColor,
+                inactiveColor = LocalMaterialTheme.current.primaryFixed.copy(alpha = inactiveAlpha),
+                inactiveContentColor = LocalMaterialTheme.current.onPrimaryFixed,
                 onClick = onShuffleToggle,
                 iconId = R.drawable.rounded_shuffle_24,
                 contentDesc = stringResource(R.string.cd_shuffle)
@@ -2518,8 +2522,8 @@ private fun BottomToggleRow(
                 activeColor = LocalMaterialTheme.current.tertiaryFixed,
                 activeCornerRadius = rowCorners,
                 activeContentColor = LocalMaterialTheme.current.onTertiaryFixed,
-                inactiveColor = inactiveBg,
-                inactiveContentColor = inactiveContentColor,
+                inactiveColor = LocalMaterialTheme.current.tertiaryFixed.copy(alpha = inactiveAlpha),
+                inactiveContentColor = LocalMaterialTheme.current.onTertiaryFixed,
                 onClick = onLyricsClick,
                 iconId = R.drawable.rounded_lyrics_24,
                 contentDesc = stringResource(R.string.presentation_batch_g_player_cd_lyrics)
@@ -2536,8 +2540,8 @@ private fun BottomToggleRow(
                 activeColor = LocalMaterialTheme.current.secondaryFixed,
                 activeCornerRadius = rowCorners,
                 activeContentColor = LocalMaterialTheme.current.onSecondaryFixed,
-                inactiveColor = inactiveBg,
-                inactiveContentColor = inactiveContentColor,
+                inactiveColor = LocalMaterialTheme.current.secondaryFixed.copy(alpha = inactiveAlpha),
+                inactiveContentColor = LocalMaterialTheme.current.onSecondaryFixed,
                 onClick = onRepeatToggle,
                 iconId = repeatIcon,
                 contentDesc = stringResource(R.string.cd_repeat)
