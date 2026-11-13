@@ -5,8 +5,11 @@ import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.FileProvider
 import com.startune.music.R
 import java.io.File
@@ -23,7 +26,8 @@ internal suspend fun shareRecapImage(
     context: Context,
     layer: GraphicsLayer,
     fileStem: String,
-    shareText: String
+    shareText: String,
+    background: Color
 ) {
     val captured = layer.toImageBitmap().asAndroidBitmap()
     val uri = withContext(Dispatchers.IO) {
@@ -33,10 +37,12 @@ internal suspend fun shareRecapImage(
         } else {
             captured
         }
+        // The story canvas is 9:16, so the image fills an Instagram story with no crop.
+        val story = letterboxToStory(bitmap, background)
         val directory = File(context.cacheDir, RECAP_SHARE_DIRECTORY).apply { mkdirs() }
         val file = File(directory, "$fileStem.png")
         file.outputStream().use { stream ->
-            check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)) { "PNG encoding failed" }
+            check(story.compress(Bitmap.CompressFormat.PNG, 100, stream)) { "PNG encoding failed" }
         }
         FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
     }
@@ -52,4 +58,31 @@ internal suspend fun shareRecapImage(
     val chooser = Intent.createChooser(send, context.getString(R.string.recap_share_chooser_title))
     if (context !is Activity) chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     context.startActivity(chooser)
+}
+
+/**
+ * The 9:16 canvas a captured bitmap is centred on, so the shared image fits an Instagram
+ * story. The canvas always contains the bitmap at its own size: it is never upscaled or
+ * stretched, and its width is a multiple of 9 so width*16 == height*9 exactly.
+ */
+internal fun storyCanvasSize(width: Int, height: Int): Pair<Int, Int> {
+    val canvasWidth = ((maxOf(width, (height * 9 + 15) / 16) + 8) / 9) * 9
+    return canvasWidth to canvasWidth / 9 * 16
+}
+
+/** Centres [bitmap] on a 9:16 canvas filled with [background]; returns [bitmap] unchanged when it already is 9:16. */
+internal fun letterboxToStory(bitmap: Bitmap, background: Color): Bitmap {
+    val (canvasWidth, canvasHeight) = storyCanvasSize(bitmap.width, bitmap.height)
+    if (canvasWidth == bitmap.width && canvasHeight == bitmap.height) return bitmap
+    return Bitmap.createBitmap(canvasWidth, canvasHeight, Bitmap.Config.ARGB_8888).also { story ->
+        Canvas(story).apply {
+            drawColor(background.toArgb())
+            drawBitmap(
+                bitmap,
+                ((canvasWidth - bitmap.width) / 2).toFloat(),
+                ((canvasHeight - bitmap.height) / 2).toFloat(),
+                null
+            )
+        }
+    }
 }

@@ -93,7 +93,7 @@ private const val HOURS_PER_DAY = 24
 /** What the summary slide's buttons do; the rest of the story only reads. */
 @Immutable
 internal data class RecapSummaryActions(
-    val onShare: (GraphicsLayer) -> Unit,
+    val onShare: (GraphicsLayer, Color) -> Unit,
     val onPlayTopSongs: () -> Unit,
     val onReplay: () -> Unit
 )
