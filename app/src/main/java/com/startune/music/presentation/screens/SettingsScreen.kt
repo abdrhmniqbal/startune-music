@@ -300,7 +300,14 @@ fun SettingsScreen(
                     mainSettingsEntries.forEachIndexed { index, entry ->
                         val shape = settingsGroupItemShape(index, mainSettingsEntries.size)
                         val rainbow = com.startune.music.ui.theme.activeRainbowColor(entry.rainbowIndex)
-                        val colors = rainbow.container to rainbow.onContainer
+                        // One icon color for every row. The rainbow used to pick white or
+                        // black per circle by readability, so the icons were mixed (white on
+                        // the dark hues, black on the light ones). Measured from a screenshot
+                        // of the dynamic-color rainbow, black is the better single color:
+                        // worst case purple at 2.58:1 and only one circle under 3:1, against
+                        // white's worst case lime at 2.36:1 with three circles under 3:1.
+                        // The low-contrast rows are accepted: these are icons, not text.
+                        val colors = rainbow.container to Color.Black
 
                         when (entry) {
                             is MainSettingsEntry.Category -> ExpressiveCategoryItem(
