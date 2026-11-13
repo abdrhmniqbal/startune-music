@@ -83,6 +83,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.startune.music.data.model.Album
 import com.startune.music.data.model.Artist
+import com.startune.music.data.model.ItemOptionsTarget
 import com.startune.music.data.model.Playlist
 import com.startune.music.data.model.SearchFilterType
 import com.startune.music.data.model.SearchHistoryItem
@@ -94,6 +95,8 @@ import com.startune.music.presentation.components.SmartImageListTargetSize
 import com.startune.music.presentation.components.FavoritesToRevisitSection
 import com.startune.music.presentation.components.FreshFindsSection
 import com.startune.music.presentation.components.RecentlyPlayedSection
+import com.startune.music.presentation.components.CollectionOptionsBottomSheet
+import com.startune.music.presentation.components.ItemMoreOptionsButton
 import com.startune.music.presentation.components.SongInfoBottomSheet
 import com.startune.music.presentation.components.PlaylistMultiSelectionBottomSheet
 import com.startune.music.presentation.components.SongMultiSelectionHost
@@ -241,6 +244,7 @@ fun SearchScreen(
     }
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
     var showSongInfoBottomSheet by remember { mutableStateOf(false) }
+    var itemOptionsTarget by remember { mutableStateOf<ItemOptionsTarget?>(null) }
     val keyboardController = LocalSoftwareKeyboardController.current
     val searchInputFocusRequester = remember { FocusRequester() }
 
@@ -689,6 +693,14 @@ fun SearchScreen(
             }
 
         }
+    }
+
+    itemOptionsTarget?.let { target ->
+        CollectionOptionsBottomSheet(
+            target = target,
+            playerViewModel = playerViewModel,
+            onDismiss = { itemOptionsTarget = null }
+        )
     }
 }
 
@@ -1188,7 +1200,8 @@ fun SearchResultsList(
                                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                         toggleAlbumSelection(item.album)
                                     },
-                                    onSelectionToggle = { toggleAlbumSelection(item.album) }
+                                    onSelectionToggle = { toggleAlbumSelection(item.album) },
+                                    onMoreOptionsClick = { itemOptionsTarget = ItemOptionsTarget.Album(item.album) }
                                 )
                             }
 
@@ -1226,7 +1239,8 @@ fun SearchResultsList(
                                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                         toggleArtistSelection(item.artist)
                                     },
-                                    onSelectionToggle = { toggleArtistSelection(item.artist) }
+                                    onSelectionToggle = { toggleArtistSelection(item.artist) },
+                                    onMoreOptionsClick = { itemOptionsTarget = ItemOptionsTarget.Artist(item.artist) }
                                 )
                             }
 
@@ -1275,7 +1289,8 @@ fun SearchResultsList(
                                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                         playlistSelectionState.toggleSelection(item.playlist)
                                     },
-                                    onSelectionToggle = { playlistSelectionState.toggleSelection(item.playlist) }
+                                    onSelectionToggle = { playlistSelectionState.toggleSelection(item.playlist) },
+                                    onMoreOptionsClick = { itemOptionsTarget = ItemOptionsTarget.Playlist(item.playlist) }
                                 )
                             }
                         }
@@ -1446,7 +1461,8 @@ fun SearchResultAlbumItem(
     selectionIndex: Int? = null,
     isSelectionMode: Boolean = false,
     onLongPress: () -> Unit = {},
-    onSelectionToggle: () -> Unit = {}
+    onSelectionToggle: () -> Unit = {},
+    onMoreOptionsClick: (() -> Unit)? = null
 ) {
     val itemShape = remember {
         AbsoluteSmoothCornerShape(
@@ -1527,6 +1543,13 @@ fun SearchResultAlbumItem(
                 ) {
                     Icon(Icons.Rounded.PlayArrow, contentDescription = stringResource(R.string.cd_play_album), modifier = Modifier.size(24.dp))
                 }
+                if (onMoreOptionsClick != null) {
+                    Spacer(Modifier.width(8.dp))
+                    ItemMoreOptionsButton(
+                        title = album.title,
+                        onClick = { onMoreOptionsClick?.invoke() }
+                    )
+                }
             }
         }
     }
@@ -1542,7 +1565,8 @@ fun SearchResultArtistItem(
     selectionIndex: Int? = null,
     isSelectionMode: Boolean = false,
     onLongPress: () -> Unit = {},
-    onSelectionToggle: () -> Unit = {}
+    onSelectionToggle: () -> Unit = {},
+    onMoreOptionsClick: (() -> Unit)? = null
 ) {
     val itemShape = remember {
         AbsoluteSmoothCornerShape(
@@ -1630,6 +1654,13 @@ fun SearchResultArtistItem(
                 ) {
                     Icon(Icons.Rounded.PlayArrow, contentDescription = stringResource(R.string.cd_play_artist), modifier = Modifier.size(24.dp))
                 }
+                if (onMoreOptionsClick != null) {
+                    Spacer(Modifier.width(8.dp))
+                    ItemMoreOptionsButton(
+                        title = artist.name,
+                        onClick = { onMoreOptionsClick?.invoke() }
+                    )
+                }
             }
         }
     }
@@ -1646,7 +1677,8 @@ fun SearchResultPlaylistItem(
     selectionIndex: Int? = null,
     isSelectionMode: Boolean = false,
     onLongPress: () -> Unit = {},
-    onSelectionToggle: () -> Unit = {}
+    onSelectionToggle: () -> Unit = {},
+    onMoreOptionsClick: (() -> Unit)? = null
 ) {
     val itemShape = remember {
         AbsoluteSmoothCornerShape(
@@ -1718,6 +1750,13 @@ fun SearchResultPlaylistItem(
                     )
                 ) {
                     Icon(Icons.Rounded.PlayArrow, contentDescription = stringResource(R.string.cd_play_playlist), modifier = Modifier.size(24.dp))
+                }
+                if (onMoreOptionsClick != null) {
+                    Spacer(Modifier.width(8.dp))
+                    ItemMoreOptionsButton(
+                        title = playlist.name,
+                        onClick = { onMoreOptionsClick?.invoke() }
+                    )
                 }
             }
         }

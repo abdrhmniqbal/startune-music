@@ -150,6 +150,7 @@ import com.startune.music.presentation.components.ShimmerBox
 import com.startune.music.data.model.Album
 import com.startune.music.data.model.Artist
 import com.startune.music.data.model.Genre
+import com.startune.music.data.model.ItemOptionsTarget
 import com.startune.music.data.model.MusicFolder
 import com.startune.music.data.model.FolderSource
 import com.startune.music.data.model.Song
@@ -168,6 +169,8 @@ import com.startune.music.presentation.components.PlaylistArtCollage
 import com.startune.music.presentation.components.PlayerSheetAwareBackHandler
 import com.startune.music.presentation.components.ReorderTabsSheet
 import com.startune.music.presentation.components.EditMultipleSongsSheet
+import com.startune.music.presentation.components.CollectionOptionsBottomSheet
+import com.startune.music.presentation.components.ItemMoreOptionsButton
 import com.startune.music.presentation.components.SongInfoBottomSheet
 import com.startune.music.presentation.components.subcomps.LibraryActionRow
 import com.startune.music.presentation.navigation.Screen
@@ -364,6 +367,7 @@ fun LibraryScreen(
         .collectAsStateWithLifecycle(initialValue = false)
 
     var showSongInfoBottomSheet by remember { mutableStateOf(false) }
+    var itemOptionsTarget by remember { mutableStateOf<ItemOptionsTarget?>(null) }
     var showPlaylistBottomSheet by remember { mutableStateOf(false) }
     var playlistSheetSongs by remember { mutableStateOf<ImmutableList<Song>>(persistentListOf()) }
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
@@ -644,6 +648,17 @@ fun LibraryScreen(
         { song ->
             playerViewModel.selectSongForInfo(song)
             showSongInfoBottomSheet = true
+        }
+    }
+    val openFolderAsPlaylist: (MusicFolder) -> Unit = remember(navController) {
+        { folder ->
+            val encodedPath = Uri.encode(folder.path)
+            navController.navigateSafelyReplacing(
+                route = Screen.PlaylistDetail.createRoute(
+                    "${PlaylistViewModel.FOLDER_PLAYLIST_PREFIX}$encodedPath"
+                ),
+                patternToPop = Screen.PlaylistDetail.route
+            )
         }
     }
     var isMinDelayActive by remember { mutableStateOf(false) }
@@ -1506,6 +1521,7 @@ fun LibraryScreen(
                                             }
                                         }
                                         LibraryAlbumsTab(
+                                            onAlbumMoreOptionsClick = { album -> itemOptionsTarget = ItemOptionsTarget.Album(album) },
                                             albums = albumsLazyPagingItems,
                                             isLoading = isLoading,
                                             playerViewModel = playerViewModel,
@@ -1528,6 +1544,7 @@ fun LibraryScreen(
                                         val isLoading = playerUiState.isLoadingLibraryCategories
 
                                         LibraryArtistsTab(
+                                            onArtistMoreOptionsClick = { artist -> itemOptionsTarget = ItemOptionsTarget.Artist(artist) },
                                             artists = artistsLazyPagingItems,
                                             isLoading = isLoading,
                                             playerViewModel = playerViewModel,
@@ -1553,6 +1570,7 @@ fun LibraryScreen(
 
                                     LibraryTabId.PLAYLISTS -> {
                                         LibraryPlaylistsTab(
+                                            onPlaylistMoreOptionsClick = { playlist -> itemOptionsTarget = ItemOptionsTarget.Playlist(playlist) },
                                             playlistUiState = playlistUiState,
                                             filteredPlaylists = visiblePlaylists,
                                             navController = navController,
@@ -1571,6 +1589,7 @@ fun LibraryScreen(
 
                                     LibraryTabId.MIXES -> {
                                         LibraryMixesTab(
+                                            onMixMoreOptionsClick = { playlist -> itemOptionsTarget = ItemOptionsTarget.Playlist(playlist) },
                                             playlistUiState = playlistUiState,
                                             filteredMixes = visibleMixes,
                                             navController = navController,
@@ -1617,6 +1636,7 @@ fun LibraryScreen(
                                         val defaultFolderName = stringResource(R.string.presentation_batch_d_folder_name_fallback)
 
                                         LibraryFoldersTab(
+                                            onFolderMoreOptionsClick = { folder -> itemOptionsTarget = ItemOptionsTarget.Folder(folder) },
                                             folders = folders,
                                             currentFolder = currentFolder,
                                             isLoading = isLoading,
@@ -1624,15 +1644,7 @@ fun LibraryScreen(
                                             stablePlayerState = stablePlayerState,
                                             onNavigateBack = { playerViewModel.navigateBackFolder() },
                                             onFolderClick = { folderPath -> playerViewModel.navigateToFolder(folderPath) },
-                                            onFolderAsPlaylistClick = { folder ->
-                                                val encodedPath = Uri.encode(folder.path)
-                                                navController.navigateSafelyReplacing(
-                                                    route = Screen.PlaylistDetail.createRoute(
-                                                        "${PlaylistViewModel.FOLDER_PLAYLIST_PREFIX}$encodedPath"
-                                                    ),
-                                                    patternToPop = Screen.PlaylistDetail.route
-                                                )
-                                            },
+                                            onFolderAsPlaylistClick = openFolderAsPlaylist,
                                             onPlaySong = { song, queue ->
                                                 playerViewModel.showAndPlaySong(
                                                     song,
@@ -1666,6 +1678,7 @@ fun LibraryScreen(
 
                                     LibraryTabId.GENRES -> {
                                         GenreCategoriesGrid(
+                                            onGenreMoreOptionsClick = { genre -> itemOptionsTarget = ItemOptionsTarget.Genre(genre) },
                                             genres = genres,
                                             onGenreClick = { genre ->
                                                 val encodedGenreId = java.net.URLEncoder.encode(genre.id, "UTF-8")
@@ -1894,6 +1907,15 @@ fun LibraryScreen(
             onDismiss = { showPlaylistBottomSheet = false },
             bottomBarHeight = bottomBarHeightDp,
             playerViewModel = playerViewModel,
+        )
+    }
+
+    itemOptionsTarget?.let { target ->
+        CollectionOptionsBottomSheet(
+            target = target,
+            playerViewModel = playerViewModel,
+            onDismiss = { itemOptionsTarget = null },
+            onOpenFolderAsPlaylist = openFolderAsPlaylist
         )
     }
 
@@ -2768,6 +2790,7 @@ fun LibraryFoldersTab(
     onNavigateBack: () -> Unit,
     onFolderClick: (String) -> Unit,
     onFolderAsPlaylistClick: (MusicFolder) -> Unit,
+    onFolderMoreOptionsClick: ((MusicFolder) -> Unit)? = null,
     onPlaySong: (Song, List<Song>) -> Unit,
     stablePlayerState: StablePlayerState,
     bottomBarHeight: Dp,
@@ -3018,7 +3041,8 @@ fun LibraryFoldersTab(
                                         FolderPlaylistItem(
                                             folder = folder,
                                             onClick = { onFolderAsPlaylistClick(folder) },
-                                            customShape = getSegmentedItemShape(index, itemsToShow.size)
+                                            customShape = getSegmentedItemShape(index, itemsToShow.size),
+                                            onMoreOptionsClick = onFolderMoreOptionsClick?.let { callback -> { callback(folder) } }
                                         )
                                     }
                                 } else {
@@ -3026,7 +3050,8 @@ fun LibraryFoldersTab(
                                         FolderListItem(
                                             folder = folder,
                                             onClick = { onFolderClick(folder.path) },
-                                            customShape = getSegmentedItemShape(index, itemsToShow.size)
+                                            customShape = getSegmentedItemShape(index, itemsToShow.size),
+                                            onMoreOptionsClick = onFolderMoreOptionsClick?.let { callback -> { callback(folder) } }
                                         )
                                     }
                                 }
@@ -3077,7 +3102,7 @@ fun LibraryFoldersTab(
 }
 
 @Composable
-fun FolderPlaylistItem(folder: MusicFolder, onClick: () -> Unit, customShape: Shape? = null) {
+fun FolderPlaylistItem(folder: MusicFolder, onClick: () -> Unit, customShape: Shape? = null, onMoreOptionsClick: (() -> Unit)? = null) {
     val previewSongs = remember(folder) { folder.collectAllSongs().take(9).toImmutableList() }
 
     Card(
@@ -3113,12 +3138,18 @@ fun FolderPlaylistItem(folder: MusicFolder, onClick: () -> Unit, customShape: Sh
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+            if (onMoreOptionsClick != null) {
+                ItemMoreOptionsButton(
+                    title = folder.name,
+                    onClick = { onMoreOptionsClick?.invoke() }
+                )
+            }
         }
     }
 }
 
 @Composable
-fun FolderListItem(folder: MusicFolder, onClick: () -> Unit, customShape: Shape? = null) {
+fun FolderListItem(folder: MusicFolder, onClick: () -> Unit, customShape: Shape? = null, onMoreOptionsClick: (() -> Unit)? = null) {
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
@@ -3141,6 +3172,13 @@ fun FolderListItem(folder: MusicFolder, onClick: () -> Unit, customShape: Shape?
             Column {
                 Text(folder.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(formatSongCount(folder.totalSongCount), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            if (onMoreOptionsClick != null) {
+                Spacer(modifier = Modifier.weight(1f))
+                ItemMoreOptionsButton(
+                    title = folder.name,
+                    onClick = { onMoreOptionsClick?.invoke() }
+                )
             }
         }
     }
@@ -3205,7 +3243,8 @@ fun AlbumGridItemRedesigned(
     isSelected: Boolean = false,
     selectionIndex: Int? = null,
     onLongPress: () -> Unit = {},
-    onSelectionToggle: () -> Unit = {}
+    onSelectionToggle: () -> Unit = {},
+    onMoreOptionsClick: (() -> Unit)? = null
 ) {
     val albumColorSchemePair by albumColorSchemePairFlow.collectAsStateWithLifecycle()
     val systemIsDark = LocalStartuneDarkTheme.current
@@ -3232,6 +3271,7 @@ fun AlbumGridItemRedesigned(
         animationSpec = tween(durationMillis = 220),
         label = "albumGridSelectionBorder"
     )
+    val showMoreOptions = onMoreOptionsClick != null && !isSelectionMode
 
     if (isLoading) {
         Card(
@@ -3392,6 +3432,16 @@ fun AlbumGridItemRedesigned(
                         )
                     }
                 }
+
+                if (showMoreOptions) {
+                    ItemMoreOptionsButton(
+                        title = album.title,
+                        onClick = { onMoreOptionsClick?.invoke() },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp)
+                    )
+                }
             }
         }
     }
@@ -3410,7 +3460,8 @@ fun ArtistListItem(
     /** Container color of a selected row when non-null (the picker passes primaryContainer). */
     selectedContainerColor: Color? = null,
     onLongPress: () -> Unit = {},
-    onSelectionToggle: () -> Unit = {}
+    onSelectionToggle: () -> Unit = {},
+    onMoreOptionsClick: (() -> Unit)? = null
 ) {
     val cardShape = customShape ?: RoundedCornerShape(18.dp)
     val selectionScale by animateFloatAsState(
@@ -3423,6 +3474,7 @@ fun ArtistListItem(
         animationSpec = tween(durationMillis = 200),
         label = "artistSelectionBorder"
     )
+    val showMoreOptions = onMoreOptionsClick != null && !isSelectionMode
 
     Card(
         modifier = Modifier
@@ -3460,7 +3512,7 @@ fun ArtistListItem(
                     .padding(
                         start = 12.dp,
                         top = 12.dp,
-                        end = if (isSelected) 54.dp else 12.dp,
+                        end = if (isSelected || showMoreOptions) 54.dp else 12.dp,
                         bottom = 12.dp
                     ),
                 verticalAlignment = Alignment.CenterVertically
@@ -3539,6 +3591,16 @@ fun ArtistListItem(
                     )
                 }
             }
+
+            if (showMoreOptions) {
+                ItemMoreOptionsButton(
+                    title = artist.name,
+                    onClick = { onMoreOptionsClick?.invoke() },
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 10.dp)
+                )
+            }
         }
     }
 }
@@ -3553,7 +3615,8 @@ fun ArtistGridItem(
     isSelected: Boolean = false,
     selectionIndex: Int? = null,
     onLongPress: () -> Unit = {},
-    onSelectionToggle: () -> Unit = {}
+    onSelectionToggle: () -> Unit = {},
+    onMoreOptionsClick: (() -> Unit)? = null
 ) {
     val selectionScale by animateFloatAsState(
         targetValue = if (isSelected) 0.985f else 1f,
@@ -3565,6 +3628,7 @@ fun ArtistGridItem(
         animationSpec = tween(durationMillis = 220),
         label = "artistGridSelectionBorder"
     )
+    val showMoreOptions = onMoreOptionsClick != null && !isSelectionMode
 
     if (isLoading) {
         Column(
@@ -3670,6 +3734,16 @@ fun ArtistGridItem(
                         }
                     }
                 }
+
+                if (showMoreOptions) {
+                    ItemMoreOptionsButton(
+                        title = artist.name,
+                        onClick = { onMoreOptionsClick?.invoke() },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(6.dp)
+                    )
+                }
             }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -3708,7 +3782,8 @@ fun AlbumListItem(
     selectionIndex: Int? = null,
     customShape: Shape? = null,
     onLongPress: () -> Unit = {},
-    onSelectionToggle: () -> Unit = {}
+    onSelectionToggle: () -> Unit = {},
+    onMoreOptionsClick: (() -> Unit)? = null
 ) {
     val albumColorSchemePair by albumColorSchemePairFlow.collectAsStateWithLifecycle()
     val systemIsDark = LocalStartuneDarkTheme.current
@@ -3734,6 +3809,7 @@ fun AlbumListItem(
         animationSpec = tween(durationMillis = 200),
         label = "albumListSelectionBorder"
     )
+    val showMoreOptions = onMoreOptionsClick != null && !isSelectionMode
 
     if (isLoading) {
         Card(
@@ -3849,7 +3925,7 @@ fun AlbumListItem(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(horizontal = 12.dp, vertical = 10.dp),
+                                .padding(start = 12.dp, end = if (showMoreOptions) 52.dp else 12.dp, top = 10.dp, bottom = 10.dp),
                             verticalArrangement = Arrangement.Center
                         ) {
                             val variableTextStyle = remember(album.id, album.title) {
@@ -3903,6 +3979,16 @@ fun AlbumListItem(
                             fontWeight = FontWeight.Bold
                         )
                     }
+                }
+
+                if (showMoreOptions) {
+                    ItemMoreOptionsButton(
+                        title = album.title,
+                        onClick = { onMoreOptionsClick?.invoke() },
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 8.dp)
+                    )
                 }
             }
         }
