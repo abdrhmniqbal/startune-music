@@ -147,24 +147,19 @@ internal fun onColorFor(color: Color): Color {
 }
 
 /**
- * On-color for a rainbow container. Same max-contrast rule as [onColorFor],
- * except white is only chosen when it is clearly better: when the two
- * contrasts are within 0.2 of each other the choice is a coin flip on
- * near-identical colors, so similar mid-tone accents end up with different
- * icon colors and the rainbow looks inconsistent. Solarized orange #CB4B16
- * is white at 4.61 vs black at 4.56 and red #DC322F white at 4.63 vs black
- * at 4.54, while magenta #D33682 is black at 4.62 vs white at 4.55, so the
- * Settings icons flip between white and black on colors that look the
- * same brightness. Preferring black in that near-tie zone keeps the set
- * uniform at a negligible contrast cost (at most 0.2). Only the rainbow
+ * The one fixed foreground for every rainbow container: black in dark mode,
+ * white in light mode. This replaces the per-color contrast rule, which
+ * picked white on the dark hues and black on the light ones, so the
+ * Settings icons and genre cards were a mix of white and black. The fixed
+ * color fails contrast on some rows and that is accepted: these are icons
+ * and short labels, not body text. Measured on the dynamic-color rainbow,
+ * black in dark mode is worst on purple at 2.58:1 with only one circle
+ * under 3:1; white in light mode is worst on lime at 1.72:1 with four
+ * circles under 2.1:1, so the light-mode icons are faint. Only the rainbow
  * uses this; [onColorFor] still decides every other role.
  */
-internal fun rainbowOnColorFor(color: Color): Color {
-    val luminance = relativeLuminance(color.toArgb())
-    val whiteContrast = 1.05 / (luminance + 0.05)
-    val blackContrast = (luminance + 0.05) / 0.05
-    return if (whiteContrast > blackContrast + 0.2) Color.White else Color.Black
-}
+internal fun rainbowFixedOnColor(dark: Boolean): Color =
+    if (dark) Color.Black else Color.White
 
 private fun relativeLuminance(argb: Int): Double {
     fun linear(channel: Int): Double {
@@ -518,16 +513,16 @@ fun AppColorScheme.toColorSchemePair(): ColorSchemePair =
  * The rainbow for one variant: the stored official accent palette
  * (SchemeRoles.rainbow, e.g. Nord Aurora) when present, else the derived
  * palette from the variant's own ColorScheme. Each stored hex is a
- * container; its on-color comes from WCAG contrast, same as the derived
- * palette. A stored list shorter than 8 is padded from the derived
- * palette so indices always resolve.
+ * container; its on-color is the fixed rainbow foreground
+ * ([rainbowFixedOnColor]). A stored list shorter than 8 is padded from the
+ * derived palette so indices always resolve.
  */
 fun SchemeRoles.rainbowColors(dark: Boolean): List<GenreThemeColor> {
     val derived = toColorScheme(dark).rainbowPalette()
     if (rainbow.isEmpty()) return derived
     val stored = rainbow.map { hex ->
         val container = hexToColor(hex)
-        GenreThemeColor(container, rainbowOnColorFor(container))
+        GenreThemeColor(container, rainbowFixedOnColor(dark))
     }
     return if (stored.size >= derived.size) stored
     else stored + derived.drop(stored.size)

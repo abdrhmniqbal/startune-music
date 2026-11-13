@@ -335,7 +335,7 @@ fun ColorScheme.rainbowPalette(): List<GenreThemeColor> {
     return (0 until 8).map { i ->
         val hue = (baseHue + i * 45f) % 360f
         val container = hslToColor(floatArrayOf(hue, saturation, lightness))
-        GenreThemeColor(container, rainbowOnColorFor(container))
+        GenreThemeColor(container, rainbowFixedOnColor(isDark))
     }
 }
 
