@@ -45,6 +45,7 @@ import com.startune.music.data.model.Album
 import com.startune.music.data.model.Artist
 import com.startune.music.data.model.FolderSource
 import com.startune.music.data.model.Genre
+import com.startune.music.data.model.ItemOptionsTarget
 import com.startune.music.data.model.Lyrics
 import com.startune.music.data.model.LyricsSourcePreference
 import com.startune.music.data.model.SearchFilterType
@@ -2157,6 +2158,26 @@ class PlayerViewModel @Inject constructor(
             } catch (e: Exception) {
                 Timber.tag("PlayerViewModel").e(e, "Error playing artist ${artist.name}")
             }
+        }
+    }
+
+    /**
+     * Songs behind an item-options target, loaded lazily when its sheet opens.
+     * Album songs keep the disc/track order playAlbum uses.
+     */
+    suspend fun loadSongsForOptionsTarget(target: ItemOptionsTarget): List<Song> {
+        return when (target) {
+            is ItemOptionsTarget.Album -> {
+                musicRepository.getSongsForAlbum(target.album.id).first().sortedWith(
+                    compareBy<Song> { it.discNumber ?: 1 }
+                        .thenBy { if (it.trackNumber > 0) it.trackNumber else Int.MAX_VALUE }
+                        .thenBy { it.title.lowercase() }
+                )
+            }
+            is ItemOptionsTarget.Artist -> musicRepository.getSongsForArtist(target.artist.id).first()
+            is ItemOptionsTarget.Playlist -> musicRepository.getSongsByIdsOnce(target.playlist.songIds)
+            is ItemOptionsTarget.Genre -> getSongsForGenres(listOf(target.genre))
+            is ItemOptionsTarget.Folder -> target.folder.songs
         }
     }
 

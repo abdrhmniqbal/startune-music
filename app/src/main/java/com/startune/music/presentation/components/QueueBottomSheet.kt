@@ -862,7 +862,6 @@ fun QueueBottomSheet(
                                         enableSwipeToDismiss = canReorder,
                                         swipeStateIdentity = itemStableKey,
                                         onDismissSong = { onRemoveSong(song.id) },
-                                        isFromPlaylist = true,
                                         onMoreOptionsClick = { onSongInfoClick(song) },
                                         dragHandle = {
                                             IconButton(
@@ -1904,7 +1903,6 @@ fun QueuePlaylistSongItem(
     enableSwipeToDismiss: Boolean = false,
     swipeStateIdentity: Long = 0L,
     onDismissSong: () -> Unit = {},
-    isFromPlaylist: Boolean,
     isSelected: Boolean = false,
     selectionIndex: Int? = null,
     isSelectionMode: Boolean = false,
@@ -2155,7 +2153,7 @@ fun QueuePlaylistSongItem(
                         Spacer(Modifier.width(8.dp))
                     }
 
-                    if (isFromPlaylist && !isSelectionMode) {
+                    if (!isSelectionMode) {
                         FilledIconButton(
                             onClick = { onMoreOptionsClick(song) },
                             colors = IconButtonDefaults.filledIconButtonColors(

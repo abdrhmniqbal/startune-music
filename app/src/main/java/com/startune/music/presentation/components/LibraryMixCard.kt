@@ -64,6 +64,7 @@ fun LibraryMixCard(
     playerViewModel: PlayerViewModel,
     onSeeAllClick: () -> Unit,
     onMoreOptionsClick: (Song) -> Unit,
+    onMixMoreOptionsClick: ((Playlist) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val mixSongs by remember(playlist.songIds, playerViewModel) {
@@ -144,6 +145,12 @@ fun LibraryMixCard(
                         .graphicsLayer { rotationZ = chevronRotation },
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                if (onMixMoreOptionsClick != null) {
+                    ItemMoreOptionsButton(
+                        title = playlist.name,
+                        onClick = { onMixMoreOptionsClick?.invoke() }
+                    )
+                }
             }
 
             AnimatedVisibility(

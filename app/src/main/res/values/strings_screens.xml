@@ -203,6 +203,7 @@
     <string name="detail_hero_add_to_playlist">Add to playlist</string>
     <string name="detail_hero_play_next">Play next</string>
     <string name="detail_hero_add_to_queue">Add to queue</string>
+    <string name="item_options_open_as_playlist">Open as playlist</string>
     <string name="detail_hero_album_count_many">%1$d Albums</string>
     <string name="detail_hero_album_count_one">1 Album</string>
     <string name="detail_hero_duration_minutes">%1$d min</string>

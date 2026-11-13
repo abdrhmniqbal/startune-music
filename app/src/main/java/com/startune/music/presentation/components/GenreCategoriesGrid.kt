@@ -23,9 +23,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,7 +67,8 @@ fun GenreCategoriesGrid(
     selectedGenres: ImmutableList<Genre> = persistentListOf(),
     isSelectionMode: Boolean = false,
     onLongPress: (Genre) -> Unit = {},
-    onSelectionToggle: (Genre) -> Unit = {}
+    onSelectionToggle: (Genre) -> Unit = {},
+    onGenreMoreOptionsClick: ((Genre) -> Unit)? = null
 ) {
     if (genres.isEmpty()) {
         Box(
@@ -119,7 +122,8 @@ fun GenreCategoriesGrid(
                 selectionIndex = genreSelectionIndex.takeIf { it >= 0 }?.plus(1),
                 isSelectionMode = isSelectionMode,
                 onLongPress = { onLongPress(genre) },
-                onSelectionToggle = { onSelectionToggle(genre) }
+                onSelectionToggle = { onSelectionToggle(genre) },
+                onMoreOptionsClick = onGenreMoreOptionsClick?.let { callback -> { callback(genre) } }
             )
         }
     }
@@ -136,7 +140,8 @@ private fun GenreCard(
     selectionIndex: Int? = null,
     isSelectionMode: Boolean = false,
     onLongPress: () -> Unit = {},
-    onSelectionToggle: () -> Unit = {}
+    onSelectionToggle: () -> Unit = {},
+    onMoreOptionsClick: (() -> Unit)? = null
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val rainbowPalette = com.startune.music.ui.theme.LocalRainbowPalette.current
@@ -176,8 +181,9 @@ private fun GenreCard(
                 .clip(RoundedCornerShape(20.dp))
                 .background(backgroundColor)
         ) {
+            val showMoreOptions = onMoreOptionsClick != null && !isSelectionMode
             val titleStartPadding = 14.dp
-            val titleEndPadding = if (isGridView) 14.dp else 96.dp
+            val titleEndPadding = if (isGridView) (if (showMoreOptions) 52.dp else 14.dp) else 96.dp
             val titlePresentation = remember(
                 genre.id,
                 genre.name,
@@ -267,6 +273,23 @@ private fun GenreCard(
                             modifier = Modifier.size(17.dp)
                         )
                     }
+                }
+            }
+
+            if (showMoreOptions) {
+                IconButton(
+                    onClick = { onMoreOptionsClick?.invoke() },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(6.dp)
+                        .size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.MoreVert,
+                        contentDescription = stringResource(R.string.presentation_batch_g_list_cd_more_for_title, genre.name),
+                        tint = onBackgroundColor,
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
             }
         }

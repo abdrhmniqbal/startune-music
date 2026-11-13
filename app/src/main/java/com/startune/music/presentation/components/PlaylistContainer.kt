@@ -133,6 +133,7 @@ fun PlaylistContainer(
     selectedPlaylistIds: Set<String> = emptySet(),
     onPlaylistLongPress: (Playlist) -> Unit = {},
     onPlaylistSelectionToggle: (Playlist) -> Unit = {},
+    onPlaylistMoreOptionsClick: ((Playlist) -> Unit)? = null,
     playlistSelectionStateHolder: PlaylistSelectionStateHolder? = null,
     useMixCover: Boolean = false,
     navigateToMixDetail: Boolean = false,
@@ -202,7 +203,8 @@ fun PlaylistContainer(
                     filteredPlaylists = filteredPlaylists,
                     selectedPlaylists = selectedPlaylists,
                     currentSortOption = currentSortOption,
-                    isListView = isListView
+                    isListView = isListView,
+                    onPlaylistMoreOptionsClick = onPlaylistMoreOptionsClick
                 )
             } else {
                 val playlistPullToRefreshState = rememberPullToRefreshState()
@@ -231,7 +233,8 @@ fun PlaylistContainer(
                         onPlaylistLongPress = onPlaylistLongPress,
                         onPlaylistSelectionToggle = onPlaylistSelectionToggle,
                         useMixCover = useMixCover,
-                        navigateToMixDetail = navigateToMixDetail
+                        navigateToMixDetail = navigateToMixDetail,
+                        onPlaylistMoreOptionsClick = onPlaylistMoreOptionsClick
                     )
                 }
             }
@@ -270,7 +273,8 @@ fun PlaylistItems(
     onPlaylistLongPress: (Playlist) -> Unit = {},
     onPlaylistSelectionToggle: (Playlist) -> Unit = {},
     useMixCover: Boolean = false,
-    navigateToMixDetail: Boolean = false
+    navigateToMixDetail: Boolean = false,
+    onPlaylistMoreOptionsClick: ((Playlist) -> Unit)? = null
 ) {
     val hasCurrentSong by remember(playerViewModel) {
         playerViewModel.stablePlayerState
@@ -355,9 +359,9 @@ fun PlaylistItems(
                     isSelectionMode = isSelectionMode,
                     isSelected = selectedPlaylistIds.contains(playlist.id),
                     selectionIndex = selectionIndex,
-                    customShape = getSegmentedItemShape(index, filteredPlaylists.size),
                     onLongPress = { onPlaylistLongPress(playlist) },
-                    onPlaylistSelectionToggle = { onPlaylistSelectionToggle(playlist) }
+                    onPlaylistSelectionToggle = { onPlaylistSelectionToggle(playlist) },
+                    onMoreOptionsClick = onPlaylistMoreOptionsClick?.let { callback -> { callback(playlist) } }
                 )
             }
         }
@@ -427,7 +431,8 @@ fun PlaylistItems(
                         selectionIndex = selectionIndex,
                         onLongPress = { onPlaylistLongPress(playlist) },
                         onPlaylistSelectionToggle = { onPlaylistSelectionToggle(playlist) },
-                        useMixCover = useMixCover
+                        useMixCover = useMixCover,
+                        onMoreOptionsClick = onPlaylistMoreOptionsClick?.let { callback -> { callback(playlist) } }
                     )
                 }
             }
@@ -448,7 +453,8 @@ fun PlaylistItem(
     selectionIndex: Int = -1,
     customShape: Shape? = null,
     onLongPress: () -> Unit = {},
-    onPlaylistSelectionToggle: () -> Unit = {}
+    onPlaylistSelectionToggle: () -> Unit = {},
+    onMoreOptionsClick: (() -> Unit)? = null
 ) {
     val playlistPreviewSongIds = remember(playlist.songIds) {
         playlist.songIds.take(4)
@@ -557,6 +563,14 @@ fun PlaylistItem(
                 )
             }
 
+            if (onMoreOptionsClick != null && !isSelectionMode && !isAddingToPlaylist) {
+                Spacer(modifier = Modifier.width(10.dp))
+                ItemMoreOptionsButton(
+                    title = playlist.name,
+                    onClick = { onMoreOptionsClick?.invoke() }
+                )
+            }
+
             if (isSelected && isSelectionMode) {
                 Spacer(modifier = Modifier.width(10.dp))
                 Box(
@@ -608,7 +622,8 @@ fun PlaylistGridItem(
     selectionIndex: Int = -1,
     onLongPress: () -> Unit = {},
     onPlaylistSelectionToggle: () -> Unit = {},
-    useMixCover: Boolean = false
+    useMixCover: Boolean = false,
+    onMoreOptionsClick: (() -> Unit)? = null
 ) {
     val playlistPreviewSongIds = remember(playlist.songIds) {
         playlist.songIds.take(16)
@@ -792,6 +807,16 @@ fun PlaylistGridItem(
                         )
                     }
                 }
+            }
+
+            if (onMoreOptionsClick != null && !isSelectionMode) {
+                ItemMoreOptionsButton(
+                    title = playlist.name,
+                    onClick = { onMoreOptionsClick?.invoke() },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                )
             }
         }
     }

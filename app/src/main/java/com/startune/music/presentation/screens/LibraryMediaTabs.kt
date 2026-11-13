@@ -92,6 +92,7 @@ fun LibraryAlbumsTab(
     isListView: Boolean,
     currentAlbumSortOption: SortOption,
     onAlbumClick: (Long) -> Unit,
+    onAlbumMoreOptionsClick: ((Album) -> Unit)? = null,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     isSelectionMode: Boolean = false,
@@ -348,7 +349,8 @@ fun LibraryAlbumsTab(
                                             selectionIndex = getSelectionIndex(album.id),
                                             customShape = getSegmentedItemShape(index, albums.itemCount),
                                             onLongPress = rememberedOnLongPress,
-                                            onSelectionToggle = rememberedOnSelectionToggle
+                                            onSelectionToggle = rememberedOnSelectionToggle,
+                                            onMoreOptionsClick = onAlbumMoreOptionsClick?.let { callback -> { callback(album) } }
                                         )
                                     } else {
                                         AlbumListItem(
@@ -423,7 +425,8 @@ fun LibraryAlbumsTab(
                                             isSelected = selectedAlbumIds.contains(album.id),
                                             selectionIndex = getSelectionIndex(album.id),
                                             onLongPress = rememberedOnLongPress,
-                                            onSelectionToggle = rememberedOnSelectionToggle
+                                            onSelectionToggle = rememberedOnSelectionToggle,
+                                            onMoreOptionsClick = onAlbumMoreOptionsClick?.let { callback -> { callback(album) } }
                                         )
                                     } else {
                                         AlbumGridItemRedesigned(
@@ -471,6 +474,7 @@ fun LibraryArtistsTab(
     isListView: Boolean,
     currentArtistSortOption: SortOption,
     onArtistClick: (Long) -> Unit,
+    onArtistMoreOptionsClick: ((Artist) -> Unit)? = null,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     isSelectionMode: Boolean = false,
@@ -658,7 +662,8 @@ fun LibraryArtistsTab(
                                         selectionIndex = getSelectionIndex(artist.id),
                                         customShape = getSegmentedItemShape(index, artists.itemCount),
                                         onLongPress = rememberedOnLongPress,
-                                        onSelectionToggle = rememberedOnSelectionToggle
+                                        onSelectionToggle = rememberedOnSelectionToggle,
+                                        onMoreOptionsClick = onArtistMoreOptionsClick?.let { callback -> { callback(artist) } }
                                     )
                                 } else {
                                     ArtistListItem(
@@ -729,7 +734,8 @@ fun LibraryArtistsTab(
                                             isSelected = selectedArtistIds.contains(artist.id),
                                             selectionIndex = getSelectionIndex(artist.id),
                                             onLongPress = rememberedOnLongPress,
-                                            onSelectionToggle = rememberedOnSelectionToggle
+                                            onSelectionToggle = rememberedOnSelectionToggle,
+                                            onMoreOptionsClick = onArtistMoreOptionsClick?.let { callback -> { callback(artist) } }
                                         )
                                     } else {
                                         ArtistGridItem(
@@ -763,7 +769,8 @@ fun LibraryPlaylistsTab(
     selectedPlaylistIds: Set<String> = emptySet(),
     onPlaylistLongPress: (com.startune.music.data.model.Playlist) -> Unit = {},
     onPlaylistSelectionToggle: (com.startune.music.data.model.Playlist) -> Unit = {},
-    onPlaylistOptionsClick: () -> Unit = {}
+    onPlaylistOptionsClick: () -> Unit = {},
+    onPlaylistMoreOptionsClick: ((com.startune.music.data.model.Playlist) -> Unit)? = null
 ) {
     PlaylistContainer(
         isListView = isListView,
@@ -778,7 +785,8 @@ fun LibraryPlaylistsTab(
         isSelectionMode = isSelectionMode,
         selectedPlaylistIds = selectedPlaylistIds,
         onPlaylistLongPress = onPlaylistLongPress,
-        onPlaylistSelectionToggle = onPlaylistSelectionToggle
+        onPlaylistSelectionToggle = onPlaylistSelectionToggle,
+        onPlaylistMoreOptionsClick = onPlaylistMoreOptionsClick
     )
 }
 
@@ -793,7 +801,8 @@ fun LibraryMixesTab(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     storageFilter: StorageFilter,
-    onMoreOptionsClick: (Song) -> Unit
+    onMoreOptionsClick: (Song) -> Unit,
+    onMixMoreOptionsClick: ((com.startune.music.data.model.Playlist) -> Unit)? = null
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         if (playlistUiState.isLoading && filteredMixes.isEmpty()) {
@@ -844,7 +853,8 @@ fun LibraryMixesTab(
                             onSeeAllClick = {
                                 navController.navigateSafely(Screen.MixDetail.createRoute(mix.id))
                             },
-                            onMoreOptionsClick = onMoreOptionsClick
+                            onMoreOptionsClick = onMoreOptionsClick,
+                            onMixMoreOptionsClick = onMixMoreOptionsClick
                         )
                     }
                 }
