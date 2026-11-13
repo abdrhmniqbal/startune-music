@@ -395,6 +395,7 @@ fun GenreDetailScreen(
                     contentColor = contentColor,
                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
                     collapsedContentColor = MaterialTheme.colorScheme.onSurface,
+                    titleColor = MaterialTheme.colorScheme.onBackground,
                     genreName = themeGenre?.name ?: decodedGenreId,
                     customIcons = customGenreIcons
                 )
@@ -627,12 +628,24 @@ fun GenreCollapsibleTopBar(
     containerColor: Color,
     contentColor: Color,
     collapsedContentColor: Color,
+    titleColor: Color,
     genreName: String,
     customIcons: Map<String, Int> = emptyMap()
 ) {
     val solidAlpha = (collapseFraction * 2f).coerceIn(0f, 1f)
     val animatedContentColor = androidx.compose.ui.graphics.lerp(
         start = contentColor,
+        stop = collapsedContentColor,
+        fraction = solidAlpha
+    )
+    // The title sits at the bottom of the header, where the vertical
+    // gradient has faded to almost transparent, so it is drawn over the
+    // page background, not over the solid container color. Its color
+    // must therefore contrast with the background (titleColor), while
+    // the back button and illustration sit at the top over the strong
+    // gradient, where the container's on-color is correct.
+    val animatedTitleColor = androidx.compose.ui.graphics.lerp(
+        start = titleColor,
         stop = collapsedContentColor,
         fraction = solidAlpha
     )
@@ -707,7 +720,7 @@ fun GenreCollapsibleTopBar(
                 expandedTitleStartPadding = 20.dp,
                 expandedTitleEndPadding = 110.dp,
                 maxLines = if (collapseFraction < 0.5f) Int.MAX_VALUE else 1,
-                contentColor = animatedContentColor
+                contentColor = animatedTitleColor
             )
         }
     }
