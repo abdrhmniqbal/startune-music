@@ -258,7 +258,7 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#657B83",
                 ColorRoleKeys.ON_BACKGROUND to "#657B83",
-                ColorRoleKeys.ON_SURFACE_VARIANT to "#93A1A1",
+                ColorRoleKeys.ON_SURFACE_VARIANT to "#586E75",
                 ColorRoleKeys.OUTLINE to "#EEE8D5"
             ),
             rainbow = listOf("#B58900", "#CB4B16", "#DC322F", "#D33682", "#6C71C4", "#268BD2", "#2AA198", "#859900")
@@ -273,7 +273,7 @@ object BuiltInColorSchemes {
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#839496",
                 ColorRoleKeys.ON_BACKGROUND to "#839496",
-                ColorRoleKeys.ON_SURFACE_VARIANT to "#586E75",
+                ColorRoleKeys.ON_SURFACE_VARIANT to "#839496",
                 ColorRoleKeys.OUTLINE to "#073642"
             ),
             rainbow = listOf("#B58900", "#CB4B16", "#DC322F", "#D33682", "#6C71C4", "#268BD2", "#2AA198", "#859900")
