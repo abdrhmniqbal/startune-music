@@ -146,6 +146,26 @@ internal fun onColorFor(color: Color): Color {
     return if (whiteContrast > blackContrast) Color.White else Color.Black
 }
 
+/**
+ * On-color for a rainbow container. Same max-contrast rule as [onColorFor],
+ * except white is only chosen when it is clearly better: when the two
+ * contrasts are within 0.2 of each other the choice is a coin flip on
+ * near-identical colors, so similar mid-tone accents end up with different
+ * icon colors and the rainbow looks inconsistent. Solarized orange #CB4B16
+ * is white at 4.61 vs black at 4.56 and red #DC322F white at 4.63 vs black
+ * at 4.54, while magenta #D33682 is black at 4.62 vs white at 4.55, so the
+ * Settings icons flip between white and black on colors that look the
+ * same brightness. Preferring black in that near-tie zone keeps the set
+ * uniform at a negligible contrast cost (at most 0.2). Only the rainbow
+ * uses this; [onColorFor] still decides every other role.
+ */
+internal fun rainbowOnColorFor(color: Color): Color {
+    val luminance = relativeLuminance(color.toArgb())
+    val whiteContrast = 1.05 / (luminance + 0.05)
+    val blackContrast = (luminance + 0.05) / 0.05
+    return if (whiteContrast > blackContrast + 0.2) Color.White else Color.Black
+}
+
 private fun relativeLuminance(argb: Int): Double {
     fun linear(channel: Int): Double {
         val s = channel / 255.0
@@ -507,7 +527,7 @@ fun SchemeRoles.rainbowColors(dark: Boolean): List<GenreThemeColor> {
     if (rainbow.isEmpty()) return derived
     val stored = rainbow.map { hex ->
         val container = hexToColor(hex)
-        GenreThemeColor(container, onColorFor(container))
+        GenreThemeColor(container, rainbowOnColorFor(container))
     }
     return if (stored.size >= derived.size) stored
     else stored + derived.drop(stored.size)
