@@ -578,6 +578,7 @@ fun SearchScreen(
                             currentPlayingSongId = stablePlayerState.currentSong?.id,
                             isPlaying = stablePlayerState.isPlaying,
                             onSongMoreOptionsClick = handleSongMoreOptionsClick,
+                            onItemMoreOptionsClick = { itemOptionsTarget = it },
                             navController = navController
                         )
                     }
@@ -852,6 +853,7 @@ fun SearchResultsList(
     currentPlayingSongId: String?,
     isPlaying: Boolean,
     onSongMoreOptionsClick: (Song) -> Unit,
+    onItemMoreOptionsClick: (ItemOptionsTarget) -> Unit,
     navController: NavHostController
 ) {
     val localDensity = LocalDensity.current
@@ -1201,7 +1203,7 @@ fun SearchResultsList(
                                         toggleAlbumSelection(item.album)
                                     },
                                     onSelectionToggle = { toggleAlbumSelection(item.album) },
-                                    onMoreOptionsClick = { itemOptionsTarget = ItemOptionsTarget.Album(item.album) }
+                                    onMoreOptionsClick = { onItemMoreOptionsClick(ItemOptionsTarget.Album(item.album)) }
                                 )
                             }
 
@@ -1240,7 +1242,7 @@ fun SearchResultsList(
                                         toggleArtistSelection(item.artist)
                                     },
                                     onSelectionToggle = { toggleArtistSelection(item.artist) },
-                                    onMoreOptionsClick = { itemOptionsTarget = ItemOptionsTarget.Artist(item.artist) }
+                                    onMoreOptionsClick = { onItemMoreOptionsClick(ItemOptionsTarget.Artist(item.artist)) }
                                 )
                             }
 
@@ -1290,7 +1292,7 @@ fun SearchResultsList(
                                         playlistSelectionState.toggleSelection(item.playlist)
                                     },
                                     onSelectionToggle = { playlistSelectionState.toggleSelection(item.playlist) },
-                                    onMoreOptionsClick = { itemOptionsTarget = ItemOptionsTarget.Playlist(item.playlist) }
+                                    onMoreOptionsClick = { onItemMoreOptionsClick(ItemOptionsTarget.Playlist(item.playlist)) }
                                 )
                             }
                         }
