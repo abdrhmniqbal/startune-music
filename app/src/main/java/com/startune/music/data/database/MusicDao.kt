@@ -1870,13 +1870,24 @@ interface MusicDao {
 
     /**
      * Album-artist variant of [getSongsForArtist]: every song whose effective album artist is
-     * [artistId]. Used by the artist detail screen when "Group by Album Artist" is on so the
-     * detail view stays consistent with the collapsed Artists tab (tapping "Various Artists"
-     * shows the compilation tracks rather than an empty screen).
+     * [artistId], plus every song where the artist is a track artist (primary [SongEntity.artistId]
+     * or a [song_artist_cross_ref] row). Used by the artist detail screen when "Group by Album
+     * Artist" is on. The album-artist arm alone hid compilation tracks: a song with artist aespa
+     * on a "Various Artists" album has album_artist_id of Various Artists, so it never reached
+     * aespa's page even though the cross-refs name aespa as the primary artist. The union
+     * mirrors [getLocalArtistDirectories]; the detail view model already partitions the result
+     * into primary sections (album artist is the artist) and Featured On (anything else), so
+     * the compilation track lands in Featured On instead of vanishing. The Artists tab itself
+     * is unchanged: it still groups and counts by album artist only.
      */
     @Query("""
-        SELECT * FROM songs
-        WHERE album_artist_id = :artistId
+        SELECT * FROM songs WHERE id IN (
+            SELECT id AS song_id FROM songs WHERE artist_id = :artistId
+            UNION
+            SELECT id AS song_id FROM songs WHERE album_artist_id = :artistId
+            UNION
+            SELECT song_id FROM song_artist_cross_ref WHERE artist_id = :artistId
+        )
         ORDER BY title ASC
     """)
     fun getSongsForArtistByAlbumArtist(artistId: Long): Flow<List<SongEntity>>
