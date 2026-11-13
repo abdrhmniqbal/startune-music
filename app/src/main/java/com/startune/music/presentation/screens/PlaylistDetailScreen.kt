@@ -792,7 +792,6 @@ fun PlaylistDetailScreen(
                                                     }
                                                 }
                                             },
-                                            isFromPlaylist = true,
                                             isReorderModeEnabled = isReorderModeEnabled && !isSelectionMode,
                                             isDragHandleVisible = isReorderModeEnabled && isEditablePlaylist && !isSelectionMode,
                                             isRemoveButtonVisible = isRemoveModeEnabled && isEditablePlaylist && !isSelectionMode,
