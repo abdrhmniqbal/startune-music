@@ -38,9 +38,12 @@ import com.startune.music.data.preferences.SchemeRoles
  * Rainbow: each variant stores its official accent palette as
  * SchemeRoles.rainbow (genre cards, Settings icons). Nord Aurora is the
  * reference: nord11-15 only, five colors, no Frost blue (Frost nord7-10
- * is the primary-accent palette, not the rainbow). Aurora is the same in
- * both ambiances, so both variants store the same 8-slot cycle of Aurora
- * in order. The stored palette is what the UI shows; the derived
+ * is the primary-accent palette, not the rainbow). Aurora has only five
+ * colors, so the other three slots are new colors with the same feel
+ * (Aurora's average lightness/saturation): lime #BDCA7D, violet #967DCA
+ * and pink #CA7DA3, so all eight slots are distinct. Aurora is the same
+ * in both ambiances, so both variants store the same eight colors in hue
+ * order. The stored palette is what the UI shows; the derived
  * hue-rotation palette is only the fallback for custom themes without a
  * stored rainbow. The rainbow is editable in the theme editor and travels
  * in the exported JSON.
@@ -83,7 +86,7 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#4C566A",
                 ColorRoleKeys.OUTLINE to "#D8DEE9"
             ),
-            rainbow = listOf("#BF616A", "#D08770", "#EBCB8B", "#A3BE8C", "#B48EAD", "#BF616A", "#D08770", "#EBCB8B")
+            rainbow = listOf("#BF616A", "#D08770", "#EBCB8B", "#BDCA7D", "#A3BE8C", "#967DCA", "#B48EAD", "#CA7DA3")
         ),
         dark = SchemeRoles(
             primary = "#88C0D0",
@@ -98,7 +101,7 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#E5E9F0",
                 ColorRoleKeys.OUTLINE to "#4C566A"
             ),
-            rainbow = listOf("#BF616A", "#D08770", "#EBCB8B", "#A3BE8C", "#B48EAD", "#BF616A", "#D08770", "#EBCB8B")
+            rainbow = listOf("#BF616A", "#D08770", "#EBCB8B", "#BDCA7D", "#A3BE8C", "#967DCA", "#B48EAD", "#CA7DA3")
         )
     )
 

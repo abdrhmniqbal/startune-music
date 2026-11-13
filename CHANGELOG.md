@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The current song row in the song list is highlighted again: primaryContainer was overridden to each theme's selection color, which sits only about 2-8 lightness points from the normal row background, so the highlight blended into the list. primaryContainer is now derived by the mapper (7 points beyond the surface, primary hue kept), so the playing song stands out in every theme.
 - Nord theme now follows the official Nord palette exactly: the rainbow is pure Aurora (nord11-15, red/orange/yellow/green/purple) with no Frost blue mixed in; the dark surface is nord1 (the elevated level for panels and buttons) instead of nord2 (the selection color); the light primary is nord8, the official primary accent, which the Frost palette uses identically in light and dark.
 - Nord dark muted text now uses nord5, the official subtle-text color for dark ambiance, instead of a custom gray-blue that is not a Nord color. Every hex code in the Nord theme is now an official Nord palette color.
+- Nord rainbow has no more duplicates: Aurora has only five colors, so the other three slots are new colors with the same feel (Aurora's average lightness and saturation): lime #BDCA7D, violet #967DCA and pink #CA7DA3, all eight slots distinct and in hue order.
 
 ## [2.0.0-beta] - 2026-11-11
 
