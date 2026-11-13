@@ -138,7 +138,17 @@ internal fun rememberSheetThemeState(
 
     val miniReadyAlpha = miniAppearProgress.value
     val miniAppearScale = lerp(0.985f, 1f, miniAppearProgress.value)
-    val playerAreaBackground = miniPlayerScheme.primaryContainer
+    // The player background was the scheme's primaryContainer at full
+    // opacity, a vivid color (this album: #670DE8) that felt too bright.
+    // The Library header uses the same primaryContainer at 40% alpha over
+    // the page background, a dark comfortable color. Composite the same
+    // 40% over the scheme's own background so the sheet stays opaque but
+    // dark, for every theme and album.
+    val playerAreaBackground = lerp(
+        miniPlayerScheme.background,
+        miniPlayerScheme.primaryContainer,
+        0.4f
+    )
 
     return SheetThemeState(
         albumColorScheme = albumColorScheme,
