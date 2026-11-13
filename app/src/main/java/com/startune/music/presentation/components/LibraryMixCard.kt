@@ -148,7 +148,7 @@ fun LibraryMixCard(
                 if (onMixMoreOptionsClick != null) {
                     ItemMoreOptionsButton(
                         title = playlist.name,
-                        onClick = { onMixMoreOptionsClick?.invoke() }
+                        onClick = { onMixMoreOptionsClick?.invoke(playlist) }
                     )
                 }
             }
