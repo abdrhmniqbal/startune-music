@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.stats.PlaybackStatsRepository
+import com.startune.music.data.stats.StatsTimeRange
 import com.startune.music.di.DispatcherProvider
 import com.startune.music.presentation.recap.RecapEntry
 import com.startune.music.presentation.recap.RecapSchedule
@@ -94,7 +95,16 @@ class RecapEntryViewModel @Inject constructor(
             if (year == null || year == dismissedYear) return@mapLatest null
             val totals = playbackStatsRepository.loadRecapYearTotals()
             if (!RecapSchedule.hasEnoughListening(year, totals)) return@mapLatest null
-            RecapEntry(year = year, isSoFar = RecapSchedule.isSoFar(year, today))
+            RecapEntry(
+                range = StatsTimeRange.YEAR,
+                year = year,
+                endDate = RecapSchedule.yearEndDate(year, today),
+                isSoFar = RecapSchedule.isSoFar(
+                    StatsTimeRange.YEAR,
+                    RecapSchedule.yearEndDate(year, today),
+                    today
+                )
+            )
         }
         .distinctUntilChanged()
         .catch { throwable ->

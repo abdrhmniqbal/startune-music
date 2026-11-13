@@ -2,6 +2,7 @@
 
 import android.net.Uri
 import androidx.compose.runtime.Immutable
+import com.startune.music.data.stats.StatsTimeRange
 
 
 @Immutable
@@ -41,8 +42,8 @@ sealed class Screen(val route: String) {
     object RecentlyAdded : Screen("recently_added")
     object TopTracks : Screen("top_tracks")
     object Stats : Screen("stats")
-    object Recap : Screen("recap/{year}") {
-        fun createRoute(year: Int) = "recap/$year"
+    object Recap : Screen("recap/{range}/{year}") {
+        fun createRoute(range: StatsTimeRange, year: Int) = "recap/${range.name}/$year"
     }
     object Duplicates : Screen("duplicates?highlightKey={highlightKey}") {
         fun createRoute(highlightKey: String? = null) =

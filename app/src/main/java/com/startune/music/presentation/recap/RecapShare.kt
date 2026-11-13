@@ -17,9 +17,14 @@ private const val RECAP_SHARE_DIRECTORY = "recap"
 
 /**
  * Saves what [layer] last recorded as a PNG in the cache and opens the share sheet for it.
- * Each year overwrites its previous image, so the cache never collects old copies.
+ * Each period overwrites its previous image, so the cache never collects old copies.
  */
-internal suspend fun shareRecapImage(context: Context, layer: GraphicsLayer, year: Int) {
+internal suspend fun shareRecapImage(
+    context: Context,
+    layer: GraphicsLayer,
+    fileStem: String,
+    shareText: String
+) {
     val captured = layer.toImageBitmap().asAndroidBitmap()
     val uri = withContext(Dispatchers.IO) {
         // Recorded layers come back as hardware bitmaps, which cannot be encoded directly.
@@ -29,7 +34,7 @@ internal suspend fun shareRecapImage(context: Context, layer: GraphicsLayer, yea
             captured
         }
         val directory = File(context.cacheDir, RECAP_SHARE_DIRECTORY).apply { mkdirs() }
-        val file = File(directory, "recap_$year.png")
+        val file = File(directory, "$fileStem.png")
         file.outputStream().use { stream ->
             check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)) { "PNG encoding failed" }
         }
@@ -39,7 +44,7 @@ internal suspend fun shareRecapImage(context: Context, layer: GraphicsLayer, yea
     val send = Intent(Intent.ACTION_SEND).apply {
         type = "image/png"
         putExtra(Intent.EXTRA_STREAM, uri)
-        putExtra(Intent.EXTRA_TEXT, context.getString(R.string.recap_share_text, year))
+        putExtra(Intent.EXTRA_TEXT, shareText)
         // ClipData lets the share sheet preview the image and carries the read grant.
         clipData = ClipData.newRawUri(null, uri)
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

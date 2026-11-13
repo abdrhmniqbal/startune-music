@@ -181,6 +181,7 @@ constructor(
         val HI_FI_MODE_ENABLED = booleanPreferencesKey("hi_fi_mode_enabled")
         val CROSSFADE_DURATION = intPreferencesKey("crossfade_duration")
         val RECAP_HOME_CARD_DISMISSED_YEAR = intPreferencesKey("recap_home_card_dismissed_year")
+        val RECAP_PALETTE_ROTATION = intPreferencesKey("recap_palette_rotation")
         val PLAYED_THRESHOLD_PERCENT = intPreferencesKey("played_threshold_percent")
         val PLAYBACK_SPEED = androidx.datastore.preferences.core.floatPreferencesKey("playback_speed")
         val SHOW_SCROLLBAR = booleanPreferencesKey("show_scrollbar")
@@ -315,6 +316,19 @@ constructor(
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.RECAP_HOME_CARD_DISMISSED_YEAR] = year
         }
+    }
+
+    /**
+     * The palette rotation for the next recap build, then advances it by one, so each recap
+     * starts on a different colour of the theme. Returns the rotation to use for this build.
+     */
+    suspend fun nextRecapPaletteRotation(): Int {
+        var rotation = 0
+        dataStore.edit { preferences ->
+            rotation = preferences[PreferencesKeys.RECAP_PALETTE_ROTATION] ?: 0
+            preferences[PreferencesKeys.RECAP_PALETTE_ROTATION] = rotation + 1
+        }
+        return rotation
     }
 
     val isCrossfadeEnabledFlow: Flow<Boolean> =

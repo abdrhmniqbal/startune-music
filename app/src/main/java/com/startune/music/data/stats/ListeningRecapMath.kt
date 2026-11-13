@@ -1,19 +1,24 @@
 package com.startune.music.data.stats
 
 import com.startune.music.data.stats.PlaybackStatsRepository.PlaybackSpan
+import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalAdjusters
 
-/** The part of a calendar year a recap covers. */
+/** The part of a period a recap covers. */
 internal data class RecapBounds(
     val startMillis: Long,
-    /** Inclusive: the last millisecond of the year, or now while the year is still running. */
+    /** Inclusive: the last millisecond of the period, or now while it is still running. */
     val endMillis: Long,
-    val isYearComplete: Boolean,
-    /** Calendar days from January 1 to [endMillis], both included. */
-    val daysInRange: Int
+    val isPeriodComplete: Boolean,
+    /** Calendar days from the period start to [endMillis], both included. */
+    val daysInRange: Int,
+    /** The date at [endMillis]. */
+    val endDate: LocalDate
 )
 
 /** Release decade most of the tagged listening came from. */
@@ -41,15 +46,91 @@ internal fun recapYearBounds(year: Int, zoneId: ZoneId, nowMillis: Long): RecapB
     val start = firstDay.atStartOfDay(zoneId).toInstant().toEpochMilli()
     if (start > nowMillis) return null
     val nextYearStart = firstDay.plusYears(1).atStartOfDay(zoneId).toInstant().toEpochMilli()
-    val isYearComplete = nowMillis >= nextYearStart
-    val end = if (isYearComplete) nextYearStart - 1 else nowMillis
+    val isPeriodComplete = nowMillis >= nextYearStart
+    val end = if (isPeriodComplete) nextYearStart - 1 else nowMillis
     val lastDay = Instant.ofEpochMilli(end).atZone(zoneId).toLocalDate()
     return RecapBounds(
         startMillis = start,
         endMillis = end,
-        isYearComplete = isYearComplete,
-        daysInRange = (ChronoUnit.DAYS.between(firstDay, lastDay) + 1).toInt()
+        isPeriodComplete = isPeriodComplete,
+        daysInRange = (ChronoUnit.DAYS.between(firstDay, lastDay) + 1).toInt(),
+        endDate = lastDay
     )
+}
+
+/**
+ * Start and end of [range] as of [nowMillis]: the range always ends at now, so a recap is a
+ * "to date" story. [earliestEventStartMillis] is the earliest play's start, or null without any
+ * play; only ALL needs it. YEAR uses [year] (a previous year ends on its December 31); the
+ * other ranges ignore it and always cover the running period. Null when there is nothing to
+ * cover: a year that has not started, or ALL with no plays at all.
+ */
+internal fun recapRangeBounds(
+    range: StatsTimeRange,
+    year: Int,
+    earliestEventStartMillis: Long?,
+    zoneId: ZoneId,
+    nowMillis: Long
+): RecapBounds? {
+    if (range == StatsTimeRange.YEAR) return recapYearBounds(year, zoneId, nowMillis)
+    val (startMillis, endMillis) = range.resolveBounds(earliestEventStartMillis, nowMillis, zoneId)
+    val start = startMillis ?: return null
+    val today = Instant.ofEpochMilli(nowMillis).atZone(zoneId).toLocalDate()
+    val firstDay = Instant.ofEpochMilli(start).atZone(zoneId).toLocalDate()
+    return RecapBounds(
+        startMillis = start,
+        endMillis = endMillis,
+        isPeriodComplete = false,
+        daysInRange = (ChronoUnit.DAYS.between(firstDay, today) + 1).toInt(),
+        endDate = today
+    )
+}
+
+/**
+ * Start and end of [this] range as of [nowMillis], both in [zoneId]. The end is always now.
+ * The start is null only for ALL without any play, which means "no lower bound".
+ */
+internal fun StatsTimeRange.resolveBounds(
+    earliestEventStartMillis: Long?,
+    nowMillis: Long,
+    zoneId: ZoneId
+): Pair<Long?, Long> {
+    val nowInstant = Instant.ofEpochMilli(nowMillis)
+    return when (this) {
+        StatsTimeRange.DAY -> {
+            val start = nowInstant.atZone(zoneId).toLocalDate().atStartOfDay(zoneId).toInstant().toEpochMilli()
+            start to nowMillis
+        }
+        StatsTimeRange.WEEK -> {
+            val start = nowInstant.atZone(zoneId)
+                .toLocalDate()
+                .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                .atStartOfDay(zoneId)
+                .toInstant()
+                .toEpochMilli()
+            start to nowMillis
+        }
+        StatsTimeRange.MONTH -> {
+            val start = YearMonth.from(nowInstant.atZone(zoneId))
+                .atDay(1)
+                .atStartOfDay(zoneId)
+                .toInstant()
+                .toEpochMilli()
+            start to nowMillis
+        }
+        StatsTimeRange.YEAR -> {
+            val start = nowInstant.atZone(zoneId)
+                .toLocalDate()
+                .withDayOfYear(1)
+                .atStartOfDay(zoneId)
+                .toInstant()
+                .toEpochMilli()
+            start to nowMillis
+        }
+        StatsTimeRange.ALL -> {
+            earliestEventStartMillis to nowMillis
+        }
+    }
 }
 
 /** Listened time per local hour of the day (index 0 is midnight), splitting spans at hour edges. */
