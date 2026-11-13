@@ -2723,7 +2723,7 @@ private fun BackupSectionSelectableCard(
                     Text(
                         text = stringResource(section.descriptionRes),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
                     )
                     if (detail != null && detail.entryCount > 0) {
                         Text(
@@ -3298,7 +3298,7 @@ private fun PaletteRegenerateSongSheetContent(
         Text(
             text = stringResource(R.string.palette_force_regenerate_subtitle),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
         )
         OutlinedTextField(
             value = searchQuery,
