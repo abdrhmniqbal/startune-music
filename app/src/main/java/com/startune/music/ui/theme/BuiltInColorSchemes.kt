@@ -113,7 +113,7 @@ object BuiltInColorSchemes {
             secondary = "#1E66F5",
             tertiary = "#EA76CB",
             background = "#EFF1F5",
-            surface = "#CCD0DA",
+            surface = "#E6E9EF",
             error = "#D20F39",
             overrides = mapOf(
                 ColorRoleKeys.ON_SURFACE to "#4C4F69",
