@@ -48,9 +48,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.LoadingIndicator
@@ -104,6 +102,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Bluetooth
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.Cloud
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Speaker
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.startune.music.presentation.viewmodel.AudioBookmarksViewModel
@@ -328,6 +327,10 @@ fun FullPlayerContent(
         } else {
             showLyricsSheet = true
         }
+    }
+
+    val onMoreClick = {
+        showSongInfoBottomSheet = true
     }
 
     if (showFetchLyricsDialog) {
@@ -576,8 +579,7 @@ fun FullPlayerContent(
             isFavoriteProvider = isFavoriteProvider,
             onShuffleToggle = onShuffleToggle,
             onRepeatToggle = onRepeatToggle,
-            onFavoriteToggle = onFavoriteToggle,
-            onLyricsClick = onLyricsClick
+            onFavoriteToggle = onFavoriteToggle
         )
     }
 
@@ -592,8 +594,8 @@ fun FullPlayerContent(
             placeholderColor = placeholderColor,
             placeholderOnColor = placeholderOnColor,
             isLandscape = false,
-            isFavoriteProvider = isFavoriteProvider,
-            onFavoriteToggle = onFavoriteToggle,
+            onLyricsClick = onLyricsClick,
+            onMoreClick = onMoreClick,
             playerOnBaseColor = playerOnBaseColor,
             playerViewModel = playerViewModel,
             gradientEdgeColor = LocalMaterialTheme.current.primaryContainer,
@@ -616,8 +618,8 @@ fun FullPlayerContent(
             placeholderColor = placeholderColor,
             placeholderOnColor = placeholderOnColor,
             isLandscape = true,
-            isFavoriteProvider = isFavoriteProvider,
-            onFavoriteToggle = onFavoriteToggle,
+            onLyricsClick = onLyricsClick,
+            onMoreClick = onMoreClick,
             playerOnBaseColor = playerOnBaseColor,
             playerViewModel = playerViewModel,
             gradientEdgeColor = LocalMaterialTheme.current.primaryContainer,
@@ -1056,8 +1058,7 @@ private fun FullPlayerControlsSection(
     isFavoriteProvider: () -> Boolean,
     onShuffleToggle: () -> Unit,
     onRepeatToggle: () -> Unit,
-    onFavoriteToggle: () -> Unit,
-    onLyricsClick: () -> Unit
+    onFavoriteToggle: () -> Unit
 ) {
     val stableControlAnimationSpec = remember {
         tween<Float>(durationMillis = 240, easing = FastOutSlowInEasing)
@@ -1120,7 +1121,8 @@ private fun FullPlayerControlsSection(
                 repeatMode = repeatModeProvider(),
                 onShuffleToggle = onShuffleToggle,
                 onRepeatToggle = onRepeatToggle,
-                onLyricsClick = onLyricsClick
+                isFavoriteProvider = isFavoriteProvider,
+                onFavoriteToggle = onFavoriteToggle
             )
         }
     }
@@ -1244,8 +1246,8 @@ private fun FullPlayerSongMetadataSection(
     placeholderColor: Color,
     placeholderOnColor: Color,
     isLandscape: Boolean,
-    isFavoriteProvider: () -> Boolean,
-    onFavoriteToggle: () -> Unit,
+    onLyricsClick: () -> Unit,
+    onMoreClick: () -> Unit,
     playerOnBaseColor: Color,
     playerViewModel: PlayerViewModel,
     gradientEdgeColor: Color,
@@ -1277,7 +1279,7 @@ private fun FullPlayerSongMetadataSection(
                     expansionFractionProvider = expansionFractionProvider,
                     color = placeholderColor,
                     onColor = placeholderOnColor,
-                    showQueueButtons = isLandscape
+                    isLandscape = isLandscape
                 )
             }
         }
@@ -1285,8 +1287,8 @@ private fun FullPlayerSongMetadataSection(
         SongMetadataDisplaySection(
             modifier = Modifier
                 .padding(start = 0.dp),
-            isFavoriteProvider = isFavoriteProvider,
-            onFavoriteToggle = onFavoriteToggle,
+            onLyricsClick = onLyricsClick,
+            onMoreClick = onMoreClick,
             song = song,
             currentSongArtists = currentSongArtists,
             expansionFractionProvider = expansionFractionProvider,
@@ -1394,15 +1396,14 @@ private fun SongMetadataDisplaySection(
     playerViewModel: PlayerViewModel,
     chipColor: Color,
     chipContentColor: Color,
-    isFavoriteProvider: () -> Boolean,
-    onFavoriteToggle: () -> Unit,
+    onLyricsClick: () -> Unit,
+    onMoreClick: () -> Unit,
     showQueueButton: Boolean,
     onClickQueue: () -> Unit,
     onClickArtist: () -> Unit,
     modifier: Modifier = Modifier,
     isPlayingProvider: () -> Boolean = { true }
 ) {
-    val isFavorite = isFavoriteProvider()
     Row(
         modifier
             .fillMaxWidth()
@@ -1477,32 +1478,59 @@ private fun SongMetadataDisplaySection(
             }
         }
 
-        if (showQueueButton) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(height = 42.dp, width = 50.dp)
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = 50.dp,
-                                topEnd = 6.dp,
-                                bottomStart = 50.dp,
-                                bottomEnd = 6.dp
-                            )
+        // Lyrics and more travel as one group beside the title: lyrics opens
+        // the lyrics sheet, more opens the song info sheet. Both are actions,
+        // never toggles. Landscape keeps the queue chip after the group.
+        val moreChipShape = if (showQueueButton) {
+            RoundedCornerShape(6.dp)
+        } else {
+            RoundedCornerShape(
+                topStart = 6.dp,
+                topEnd = 50.dp,
+                bottomStart = 6.dp,
+                bottomEnd = 50.dp
+            )
+        }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(height = 42.dp, width = 50.dp)
+                    .clip(
+                        RoundedCornerShape(
+                            topStart = 50.dp,
+                            topEnd = 6.dp,
+                            bottomStart = 50.dp,
+                            bottomEnd = 6.dp
                         )
-                        .background(chipColor)
-                        .clickable { onFavoriteToggle() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(if (isFavorite) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24),
-                        contentDescription = stringResource(R.string.cd_favorite),
-                        tint = chipContentColor
                     )
-                }
+                    .background(chipColor)
+                    .clickable { onLyricsClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.rounded_lyrics_24),
+                    contentDescription = stringResource(R.string.presentation_batch_g_player_cd_lyrics),
+                    tint = chipContentColor
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .size(height = 42.dp, width = 50.dp)
+                    .clip(moreChipShape)
+                    .background(chipColor)
+                    .clickable { onMoreClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.MoreVert,
+                    contentDescription = stringResource(R.string.presentation_batch_g_selection_cd_more),
+                    tint = chipContentColor
+                )
+            }
+            if (showQueueButton) {
                 Box(
                     modifier = Modifier
                         .size(height = 42.dp, width = 50.dp)
@@ -1524,21 +1552,6 @@ private fun SongMetadataDisplaySection(
                         tint = chipContentColor
                     )
                 }
-            }
-        } else {
-            FilledIconButton(
-                modifier = Modifier
-                    .size(width = 48.dp, height = 48.dp),
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = chipColor,
-                    contentColor = chipContentColor
-                ),
-                onClick = onFavoriteToggle,
-            ) {
-                Icon(
-                    painter = painterResource(if (isFavorite) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24),
-                    contentDescription = stringResource(R.string.cd_favorite)
-                )
             }
         }
     }
@@ -2176,7 +2189,7 @@ private fun MetadataPlaceholder(
     expansionFractionProvider: () -> Float,
     color: Color,
     onColor: Color,
-    showQueueButtons: Boolean
+    isLandscape: Boolean
 ) {
     Row(
         modifier = Modifier
@@ -2212,7 +2225,41 @@ private fun MetadataPlaceholder(
             )
         }
 
-        if (showQueueButtons) {
+        if (isLandscape) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Surface(
+                    modifier = Modifier.size(height = 42.dp, width = 50.dp),
+                    shape = RoundedCornerShape(
+                        topStart = 50.dp,
+                        topEnd = 6.dp,
+                        bottomStart = 50.dp,
+                        bottomEnd = 6.dp
+                    ),
+                    color = onColor,
+                    tonalElevation = 0.dp
+                ) {}
+                Surface(
+                    modifier = Modifier.size(height = 42.dp, width = 50.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    color = onColor,
+                    tonalElevation = 0.dp
+                ) {}
+                Surface(
+                    modifier = Modifier.size(height = 42.dp, width = 50.dp),
+                    shape = RoundedCornerShape(
+                        topStart = 6.dp,
+                        topEnd = 50.dp,
+                        bottomStart = 6.dp,
+                        bottomEnd = 50.dp
+                    ),
+                    color = onColor,
+                    tonalElevation = 0.dp
+                ) {}
+            }
+        } else {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -2240,12 +2287,6 @@ private fun MetadataPlaceholder(
                     tonalElevation = 0.dp
                 ) {}
             }
-        } else {
-            PlaceholderBox(
-                modifier = Modifier.size(width = 48.dp, height = 48.dp),
-                cornerRadius = 24.dp,
-                color = onColor
-            )
         }
     }
 }
@@ -2448,9 +2489,10 @@ private fun BottomToggleRow(
     isShuffleEnabled: Boolean,
     isShuffleTransitionInProgress: Boolean,
     repeatMode: Int,
+    isFavoriteProvider: () -> Boolean,
     onShuffleToggle: () -> Unit,
     onRepeatToggle: () -> Unit,
-    onLyricsClick: () -> Unit
+    onFavoriteToggle: () -> Unit
 ) {
     val rowCorners = 60.dp
     // Inactive is a muted version of each button's own Fixed color. The old
@@ -2462,6 +2504,7 @@ private fun BottomToggleRow(
     // alpha stays visible on the dark bar and its on-color stays readable.
     // Each button keeps its own hue; alpha alone marks active vs inactive.
     val inactiveAlpha = 0.5f
+    val isFavorite = isFavoriteProvider()
 
 
     Box(
@@ -2514,20 +2557,6 @@ private fun BottomToggleRow(
                 iconId = R.drawable.rounded_shuffle_24,
                 contentDesc = stringResource(R.string.cd_shuffle)
             )
-            // Lyrics is an action, not a toggle: it never takes the active
-            // style, it just opens the lyrics sheet.
-            ToggleSegmentButton(
-                modifier = commonModifier,
-                active = false,
-                activeColor = LocalMaterialTheme.current.tertiaryFixed,
-                activeCornerRadius = rowCorners,
-                activeContentColor = LocalMaterialTheme.current.onTertiaryFixed,
-                inactiveColor = LocalMaterialTheme.current.tertiaryFixed.copy(alpha = inactiveAlpha),
-                inactiveContentColor = LocalMaterialTheme.current.onTertiaryFixed,
-                onClick = onLyricsClick,
-                iconId = R.drawable.rounded_lyrics_24,
-                contentDesc = stringResource(R.string.presentation_batch_g_player_cd_lyrics)
-            )
             val repeatActive = repeatMode != Player.REPEAT_MODE_OFF
             val repeatIcon = when (repeatMode) {
                 Player.REPEAT_MODE_ONE -> R.drawable.rounded_repeat_one_24
@@ -2545,6 +2574,20 @@ private fun BottomToggleRow(
                 onClick = onRepeatToggle,
                 iconId = repeatIcon,
                 contentDesc = stringResource(R.string.cd_repeat)
+            )
+            // Favorite is a toggle: active when the song is a favorite, with
+            // the filled heart; inactive shows the outline heart.
+            ToggleSegmentButton(
+                modifier = commonModifier,
+                active = isFavorite,
+                activeColor = LocalMaterialTheme.current.tertiaryFixed,
+                activeCornerRadius = rowCorners,
+                activeContentColor = LocalMaterialTheme.current.onTertiaryFixed,
+                inactiveColor = LocalMaterialTheme.current.tertiaryFixed.copy(alpha = inactiveAlpha),
+                inactiveContentColor = LocalMaterialTheme.current.onTertiaryFixed,
+                onClick = onFavoriteToggle,
+                iconId = if (isFavorite) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24,
+                contentDesc = stringResource(R.string.cd_favorite)
             )
         }
     }
