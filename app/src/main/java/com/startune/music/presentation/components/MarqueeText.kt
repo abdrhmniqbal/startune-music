@@ -178,7 +178,17 @@ fun AutoScrollingText(
         }
 
         val contentPlaceable = subcompose("content", content)[0].measure(constraints)
-        val targetWidth = constraints.maxWidth.takeIf { it != Constraints.Infinity } ?: contentPlaceable.width
+        // A fitting title wraps its text: taking the full width here made
+        // the title block full-width, so a parent that centers it (the
+        // expanded playlist header's bias-0 column) had nothing to center
+        // and the text landed at x=0 while the subtitle centered. An
+        // overflowing title still takes the full slot, which the marquee
+        // needs to scroll in.
+        val targetWidth = if (isOverflowing) {
+            constraints.maxWidth.takeIf { it != Constraints.Infinity } ?: contentPlaceable.width
+        } else {
+            contentPlaceable.width
+        }
 
         layout(targetWidth, contentPlaceable.height) {
             contentPlaceable.placeRelative(0, 0)
