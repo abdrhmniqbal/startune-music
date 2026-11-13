@@ -109,11 +109,10 @@
     <string name="recap_summary_title">My %1$d in music</string>
     <string name="recap_summary_title_so_far">My %1$d so far</string>
     <string name="recap_summary_minutes">Minutes listened</string>
-    <string name="recap_summary_top_artist">Top artist</string>
-    <string name="recap_summary_top_song">Top song</string>
+    <string name="recap_summary_top_artists">Top artists</string>
+    <string name="recap_summary_top_songs">Top songs</string>
     <string name="recap_summary_top_genre">Top genre</string>
-    <string name="recap_summary_top_album">Top album</string>
-    <string name="recap_summary_listening_style">Listening style</string>
+    <string name="recap_summary_footer">STARTUNE MUSIC</string>
     <string name="recap_share">Share</string>
     <string name="recap_share_chooser_title">Share your recap</string>
     <string name="recap_share_text">My %1$d in music, made with Startune Music</string>
