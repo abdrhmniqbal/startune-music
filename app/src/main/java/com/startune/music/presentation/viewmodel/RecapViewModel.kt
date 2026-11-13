@@ -4,10 +4,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.startune.music.data.model.Song
+import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.repository.ArtistImageRepository
 import com.startune.music.data.repository.MusicRepository
 import com.startune.music.data.stats.ListeningRecap
 import com.startune.music.data.stats.PlaybackStatsRepository
+import com.startune.music.data.stats.StatsTimeRange
 import com.startune.music.di.DispatcherProvider
 import com.startune.music.presentation.recap.RecapSchedule
 import com.startune.music.presentation.recap.RecapSlide
@@ -29,8 +31,10 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /**
- * Builds the recap story for the year in the `year` navigation argument. The story is a
- * snapshot: plays recorded while it is open do not reshuffle the slides under the reader.
+ * Builds the recap story for the Stats tab's range in the `range` navigation argument. YEAR
+ * also takes the `year` argument, so a previous year can be opened; the other ranges always
+ * cover the running period up to now. The story is a snapshot: plays recorded while it is
+ * open do not reshuffle the slides under the reader.
  */
 @HiltViewModel
 class RecapViewModel @Inject constructor(
@@ -38,9 +42,13 @@ class RecapViewModel @Inject constructor(
     private val playbackStatsRepository: PlaybackStatsRepository,
     private val musicRepository: MusicRepository,
     private val artistImageRepository: ArtistImageRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
+    val range: StatsTimeRange = savedStateHandle.get<String>(RANGE_ARG)
+        ?.let { runCatching { StatsTimeRange.valueOf(it) }.getOrNull() }
+        ?: StatsTimeRange.YEAR
     val year: Int = savedStateHandle.get<Int>(YEAR_ARG) ?: LocalDate.now().year
 
     private val _uiState = MutableStateFlow<RecapUiState>(RecapUiState.Loading)
@@ -58,8 +66,8 @@ class RecapViewModel @Inject constructor(
             } catch (cancellation: CancellationException) {
                 throw cancellation
             } catch (throwable: Exception) {
-                Timber.e(throwable, "Failed to build the %d recap", year)
-                _uiState.value = RecapUiState.NotEnoughData(year)
+                Timber.e(throwable, "Failed to build the %s recap", range)
+                _uiState.value = RecapUiState.NotEnoughData(range, year, LocalDate.now())
             }
         }
     }
@@ -70,22 +78,28 @@ class RecapViewModel @Inject constructor(
      */
     private suspend fun load() {
         val songs = withContext(dispatchers.io) { musicRepository.getAllSongsOnce() }
-        val recap = playbackStatsRepository.loadRecap(year, songs)
-        if (recap == null || recap.summary.totalDurationMs < RecapSchedule.MIN_RECAP_LISTENING_MS) {
-            _uiState.value = RecapUiState.NotEnoughData(year)
+        val recap = playbackStatsRepository.loadRecap(range, year, songs)
+        if (recap == null) {
+            _uiState.value = RecapUiState.NotEnoughData(range, year, LocalDate.now())
+            return
+        }
+        if (recap.summary.totalDurationMs < RecapSchedule.minListeningMs(range)) {
+            _uiState.value = RecapUiState.NotEnoughData(range, year, recap.endDate)
             return
         }
 
         val songsById = songs.associateBy { it.id }
         topSongsQueue = recap.summary.songs.mapNotNull { songsById[it.songId] }
 
-        // The recap ends today while the year is still running.
-        val lastDay = LocalDate.ofYearDay(year, recap.daysInRange)
-        val isSoFar = RecapSchedule.isSoFar(year, lastDay)
+        // The recap ends at its period's end (today while the period is still running).
+        val isSoFar = RecapSchedule.isSoFar(range, recap.endDate, LocalDate.now())
+        // Each build starts on the next palette, so the recap feels new; the rotation is
+        // advanced once per build, not per picture swap, so reopening it does not reshuffle.
+        val paletteRotation = userPreferencesRepository.nextRecapPaletteRotation()
         val covers = recap.summary.topArtists
             .mapNotNull { artist -> recap.mostPlayedCoverOf(artist.artist, songsById)?.let { artist.artist to it } }
             .toMap()
-        val model = buildModel(recap, isSoFar, covers)
+        val model = buildModel(recap, isSoFar, covers, paletteRotation)
         _uiState.value = RecapUiState.Ready(model)
 
         val shownArtists = model.slides
@@ -103,18 +117,19 @@ class RecapViewModel @Inject constructor(
             throw cancellation
         } catch (throwable: Exception) {
             // The story is already up with cover stand-ins; keep it rather than failing it.
-            Timber.w(throwable, "Failed to load artist pictures for the %d recap", year)
+            Timber.w(throwable, "Failed to load artist pictures for the %s recap", range)
             return
         }
         if (pictures.isNotEmpty()) {
-            _uiState.value = RecapUiState.Ready(buildModel(recap, isSoFar, covers + pictures))
+            _uiState.value = RecapUiState.Ready(buildModel(recap, isSoFar, covers + pictures, paletteRotation))
         }
     }
 
     private suspend fun buildModel(
         recap: ListeningRecap,
         isSoFar: Boolean,
-        artistImages: Map<String, String>
+        artistImages: Map<String, String>,
+        paletteRotation: Int
     ): RecapUiModel {
         val slides = withContext(dispatchers.default) {
             buildRecapSlides(
@@ -124,11 +139,21 @@ class RecapViewModel @Inject constructor(
                 canPlayTopSongs = topSongsQueue.isNotEmpty()
             )
         }
-        return RecapUiModel(year = year, isSoFar = isSoFar, slides = slides.toImmutableList())
+        return RecapUiModel(
+            range = recap.range,
+            year = recap.year,
+            endDate = recap.endDate,
+            isSoFar = isSoFar,
+            paletteRotation = paletteRotation,
+            slides = slides.toImmutableList()
+        )
     }
 
     companion object {
-        /** Navigation argument holding the recap's calendar year. */
+        /** Navigation argument holding the recap's Stats tab range (a StatsTimeRange name). */
+        const val RANGE_ARG = "range"
+
+        /** Navigation argument holding the recap's calendar year, for a YEAR recap. */
         const val YEAR_ARG = "year"
     }
 }

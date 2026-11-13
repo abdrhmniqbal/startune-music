@@ -5,15 +5,21 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 
 /**
- * One calendar year of listening, built from the same history and aggregation as the Stats
- * screen ([summary] is its year summary) plus the extra numbers the recap story shows.
+ * One period of listening, built from the same history and aggregation as the Stats screen
+ * ([summary] is that period's summary) plus the extra numbers the recap story shows. The
+ * period is a [StatsTimeRange] ending now ("to date"), except YEAR, which can also be a
+ * previous calendar year.
  */
 data class ListeningRecap(
+    val range: StatsTimeRange,
+    /** The calendar year the recap covers; for a previous-year recap, that year. */
     val year: Int,
-    /** False while [year] is still running; the recap then ends at the moment it was built. */
-    val isYearComplete: Boolean,
+    /** The date the recap ends: today for a running period, December 31 for a finished year. */
+    val endDate: LocalDate,
+    /** False while the period is still running; the recap then ends at the moment it was built. */
+    val isPeriodComplete: Boolean,
     val summary: PlaybackStatsSummary,
-    /** Calendar days from January 1 to the end of the recap, both included. */
+    /** Calendar days from the period start to [endDate], both included. */
     val daysInRange: Int,
     /** Distinct artists played, counting each artist of a multi-artist song. */
     val uniqueArtists: Int,
@@ -28,7 +34,7 @@ data class ListeningRecap(
     /** The date with the most listening, or null without any. */
     val biggestDay: LocalDate?,
     val biggestDayDurationMs: Long,
-    /** The earliest play of the year whose song is still in the library. */
+    /** The earliest play of the period whose song is still in the library. */
     val firstSong: RecapSong?,
     /** Start year of the release decade most of the tagged listening came from, e.g. 1990. */
     val topDecade: Int?,

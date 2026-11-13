@@ -91,9 +91,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.currentStateAsState
 import androidx.navigation.NavController
 import com.startune.music.R
+import com.startune.music.data.stats.StatsTimeRange
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.RecapViewModel
 import com.startune.music.ui.theme.ShapeCache
+import java.time.LocalDate
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 import kotlinx.collections.immutable.ImmutableList
@@ -147,11 +149,18 @@ fun RecapScreen(
         }
 
         is RecapUiState.NotEnoughData -> RecapStatusPage(onClose = onClose) {
-            RecapNotEnoughData(year = state.year, onClose = onClose)
+            RecapNotEnoughData(
+                range = state.range,
+                year = state.year,
+                endDate = state.endDate,
+                onClose = onClose
+            )
         }
 
         is RecapUiState.Ready -> {
-            val queueName = stringResource(R.string.recap_top_songs_queue_name, state.model.year)
+            val queueName = recapQueueName(state.model.range, state.model.year, state.model.endDate)
+            val shareText = recapShareText(state.model.range, state.model.year, state.model.endDate)
+            val shareFileStem = recapShareFileStem(state.model.range, state.model.year)
             val shareFailed = stringResource(R.string.recap_share_failed)
             val scope = rememberCoroutineScope()
             RecapStory(
@@ -161,11 +170,11 @@ fun RecapScreen(
                     scope.launch {
                         try {
                             if (!layer.hasContent) error("Summary card has not been drawn yet")
-                            shareRecapImage(context, layer, state.model.year)
+                            shareRecapImage(context, layer, shareFileStem, shareText)
                         } catch (cancellation: CancellationException) {
                             throw cancellation
                         } catch (throwable: Exception) {
-                            Timber.e(throwable, "Failed to share the %d recap", state.model.year)
+                            Timber.e(throwable, "Failed to share the %s recap", state.model.range)
                             Toast.makeText(context, shareFailed, Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -194,7 +203,7 @@ private fun RecapStory(
     val slides = model.slides
     val lastIndex = slides.lastIndex
     val pagerState = rememberPagerState { slides.size }
-    val palettes = rememberRecapPalettes()
+    val palettes = rememberRecapPalettes(model.paletteRotation)
     val scope = rememberCoroutineScope()
     val haptics = LocalHapticFeedback.current
 
@@ -476,7 +485,7 @@ private fun RecapStatusPage(onClose: () -> Unit, content: @Composable () -> Unit
 }
 
 @Composable
-private fun RecapNotEnoughData(year: Int, onClose: () -> Unit) {
+private fun RecapNotEnoughData(range: StatsTimeRange, year: Int, endDate: LocalDate, onClose: () -> Unit) {
     Column(
         modifier = Modifier.padding(horizontal = RecapGutter),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -504,7 +513,7 @@ private fun RecapNotEnoughData(year: Int, onClose: () -> Unit) {
             textAlign = TextAlign.Center
         )
         Text(
-            text = stringResource(R.string.recap_not_enough_subtitle, year),
+            text = stringResource(R.string.recap_not_enough_subtitle, recapPeriodNoun(range, year, endDate)),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center

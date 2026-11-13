@@ -83,6 +83,7 @@ import androidx.lifecycle.compose.currentStateAsState
 import com.startune.music.R
 import com.startune.music.data.model.Song
 import com.startune.music.data.preferences.CollagePattern
+import com.startune.music.data.stats.StatsTimeRange
 import com.startune.music.presentation.components.AlbumArtCollage
 import com.startune.music.presentation.components.BetaInfoBottomSheet
 import com.startune.music.presentation.components.ChangelogBottomSheet
@@ -400,7 +401,11 @@ fun HomeScreen(
                     ) {
                         RecapHomeCard(
                             entry = entry,
-                            onOpen = { navController.navigateSafely(Screen.Recap.createRoute(entry.year)) },
+                            onOpen = {
+                                navController.navigateSafely(
+                                    Screen.Recap.createRoute(StatsTimeRange.YEAR, entry.year)
+                                )
+                            },
                             onDismiss = { recapEntryViewModel.dismissHomeCard(entry.year) },
                             modifier = Modifier.animateItem()
                         )

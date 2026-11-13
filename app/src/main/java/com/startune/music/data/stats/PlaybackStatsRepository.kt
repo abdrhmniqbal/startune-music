@@ -231,7 +231,7 @@ class PlaybackStatsRepository @Inject constructor(
     ): List<SongPlaybackSummary> = withContext(Dispatchers.IO) {
         val zoneId = ZoneId.systemDefault()
         val allEvents = readEvents()
-        val (startBound, endBound) = range.resolveBounds(allEvents, nowMillis, zoneId)
+        val (startBound, endBound) = range.resolveBounds(allEvents.minOfOrNull { it.startMillis() }, nowMillis, zoneId)
         val songMap = songs.associateBy { it.id }
         allEvents
             .filter { event ->
@@ -270,7 +270,7 @@ class PlaybackStatsRepository @Inject constructor(
         zoneId: ZoneId = ZoneId.systemDefault(),
         rankingLimit: Int = TOP_RANKING_LIMIT
     ): PlaybackStatsSummary {
-        val (startBound, endBound) = range.resolveBounds(allEvents, nowMillis, zoneId)
+        val (startBound, endBound) = range.resolveBounds(allEvents.minOfOrNull { it.startMillis() }, nowMillis, zoneId)
         val filteredEvents = allEvents.mapNotNull { event ->
             val start = event.startMillis()
             val end = event.endMillis()
@@ -513,7 +513,13 @@ class PlaybackStatsRepository @Inject constructor(
         )
     }
 
+    /**
+     * The recap for [range]: YEAR takes [year] (a previous year ends on its December 31), the
+     * other ranges always cover the running period up to now. Null when there is nothing to
+     * cover (a year that has not started, or ALL with no plays at all).
+     */
     suspend fun loadRecap(
+        range: StatsTimeRange,
         year: Int,
         songs: List<Song>,
         nowMillis: Long = System.currentTimeMillis()
@@ -521,6 +527,7 @@ class PlaybackStatsRepository @Inject constructor(
         val allEvents = withContext(Dispatchers.IO) { readEvents() }
         return withContext(Dispatchers.Default) {
             buildRecapFromEvents(
+                range = range,
                 year = year,
                 songs = songs,
                 nowMillis = nowMillis,
@@ -531,17 +538,24 @@ class PlaybackStatsRepository @Inject constructor(
     }
 
     internal fun buildRecapFromEvents(
+        range: StatsTimeRange,
         year: Int,
         songs: List<Song>,
         nowMillis: Long,
         allEvents: List<PlaybackEvent>,
         zoneId: ZoneId = ZoneId.systemDefault()
     ): ListeningRecap? {
-        val bounds = recapYearBounds(year, zoneId, nowMillis) ?: return null
-        // With "now" at the recap's end, the year range is exactly this calendar year,
-        // twelve month buckets included.
+        val bounds = recapRangeBounds(
+            range = range,
+            year = year,
+            earliestEventStartMillis = allEvents.minOfOrNull { it.startMillis() },
+            zoneId = zoneId,
+            nowMillis = nowMillis
+        ) ?: return null
+        // With "now" at the recap's end, the range is exactly the period it covers: for YEAR
+        // the twelve month buckets, for the other ranges their own timeline.
         val summary = buildSummaryFromEvents(
-            range = StatsTimeRange.YEAR,
+            range = range,
             songs = songs,
             nowMillis = bounds.endMillis,
             allEvents = allEvents,
@@ -604,8 +618,10 @@ class PlaybackStatsRepository @Inject constructor(
         val decade = dominantDecade(listenedMsByReleaseYear, listenedMsBySong.values.sum())
 
         return ListeningRecap(
-            year = year,
-            isYearComplete = bounds.isYearComplete,
+            range = range,
+            year = bounds.endDate.year,
+            endDate = bounds.endDate,
+            isPeriodComplete = bounds.isPeriodComplete,
             summary = summary,
             daysInRange = bounds.daysInRange,
             uniqueArtists = uniqueArtists,
@@ -1259,50 +1275,6 @@ class PlaybackStatsRepository @Inject constructor(
                 endMillis = end.toEpochMilli(),
                 inclusiveEnd = false
             )
-        }
-    }
-
-    private fun StatsTimeRange.resolveBounds(
-        events: List<PlaybackEvent>,
-        nowMillis: Long,
-        zoneId: ZoneId
-    ): Pair<Long?, Long> {
-        val nowInstant = Instant.ofEpochMilli(nowMillis)
-        return when (this) {
-            StatsTimeRange.DAY -> {
-                val start = nowInstant.atZone(zoneId).toLocalDate().atStartOfDay(zoneId).toInstant().toEpochMilli()
-                start to nowMillis
-            }
-            StatsTimeRange.WEEK -> {
-                val start = nowInstant.atZone(zoneId)
-                    .toLocalDate()
-                    .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                    .atStartOfDay(zoneId)
-                    .toInstant()
-                    .toEpochMilli()
-                start to nowMillis
-            }
-            StatsTimeRange.MONTH -> {
-                val start = YearMonth.from(nowInstant.atZone(zoneId))
-                    .atDay(1)
-                    .atStartOfDay(zoneId)
-                    .toInstant()
-                    .toEpochMilli()
-                start to nowMillis
-            }
-            StatsTimeRange.YEAR -> {
-                val start = nowInstant.atZone(zoneId)
-                    .toLocalDate()
-                    .withDayOfYear(1)
-                    .atStartOfDay(zoneId)
-                    .toInstant()
-                    .toEpochMilli()
-                start to nowMillis
-            }
-            StatsTimeRange.ALL -> {
-                val start = events.minOfOrNull { it.startMillis() }
-                start to nowMillis
-            }
         }
     }
 

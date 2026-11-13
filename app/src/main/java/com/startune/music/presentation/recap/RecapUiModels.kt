@@ -5,6 +5,7 @@ import com.startune.music.data.stats.ListeningPersonality
 import com.startune.music.data.stats.ListeningRecap
 import com.startune.music.data.stats.PlaybackStatsRepository
 import com.startune.music.data.stats.PlaybackStatsRepository.SongPlaybackSummary
+import com.startune.music.data.stats.StatsTimeRange
 import com.startune.music.data.stats.peakIndex
 import com.startune.music.utils.GenreParser
 import java.time.DayOfWeek
@@ -19,16 +20,25 @@ internal const val RECAP_RANKING_SIZE = 5
 sealed interface RecapUiState {
     data object Loading : RecapUiState
 
-    /** The year has too little listening (or none) for a story. */
-    data class NotEnoughData(val year: Int) : RecapUiState
+    /** The period has too little listening (or none) for a story. */
+    data class NotEnoughData(
+        val range: StatsTimeRange,
+        val year: Int,
+        val endDate: LocalDate
+    ) : RecapUiState
 
     data class Ready(val model: RecapUiModel) : RecapUiState
 }
 
 @Immutable
 data class RecapUiModel(
+    val range: StatsTimeRange,
     val year: Int,
+    /** The date the recap ends: today for a running period, December 31 for a finished year. */
+    val endDate: LocalDate,
     val isSoFar: Boolean,
+    /** How far the palette list is rotated for this build, so each recap starts fresh. */
+    val paletteRotation: Int,
     val slides: ImmutableList<RecapSlide>
 )
 
@@ -73,12 +83,19 @@ data class RecapGenreItem(
 sealed interface RecapSlide {
     val key: String
 
-    data class Intro(val year: Int, val isSoFar: Boolean) : RecapSlide {
+    data class Intro(
+        val range: StatsTimeRange,
+        val year: Int,
+        val endDate: LocalDate,
+        val isSoFar: Boolean
+    ) : RecapSlide {
         override val key: String get() = "intro"
     }
 
     data class Minutes(
+        val range: StatsTimeRange,
         val year: Int,
+        val endDate: LocalDate,
         val totalMs: Long,
         val activeDays: Int,
         val averageDailyMs: Long
@@ -104,6 +121,7 @@ sealed interface RecapSlide {
     }
 
     data class Dedication(
+        val range: StatsTimeRange,
         val longestStreakDays: Int,
         val longestSessionMs: Long,
         val biggestDay: LocalDate,
@@ -143,7 +161,9 @@ sealed interface RecapSlide {
     }
 
     data class Summary(
+        val range: StatsTimeRange,
         val year: Int,
+        val endDate: LocalDate,
         val isSoFar: Boolean,
         val totalMs: Long,
         /** The top artists, leader first; at most [RECAP_RANKING_SIZE]. */
@@ -217,18 +237,30 @@ internal fun buildRecapSlides(
         .map { it.toRecapItem() }
 
     return buildList {
-        add(RecapSlide.Intro(year = recap.year, isSoFar = isSoFar))
+        add(
+            RecapSlide.Intro(
+                range = recap.range,
+                year = recap.year,
+                endDate = recap.endDate,
+                isSoFar = isSoFar
+            )
+        )
         add(
             RecapSlide.Minutes(
+                range = recap.range,
                 year = recap.year,
+                endDate = recap.endDate,
                 totalMs = totalMs,
                 activeDays = summary.activeDays,
-                // The Stats year view's own per-day figure, so the two screens agree.
+                // The Stats view's own per-day figure for this range, so the two screens agree.
                 averageDailyMs = summary.averageDailyDurationMs
             )
         )
-        peakIndex(recap.monthlyDurationsMs)?.let { peak ->
-            add(RecapSlide.Months(monthlyMs = recap.monthlyDurationsMs.toImmutableList(), peakMonthIndex = peak))
+        // Only a year has twelve month buckets; the other ranges show their own timeline in Stats.
+        if (recap.range == StatsTimeRange.YEAR) {
+            peakIndex(recap.monthlyDurationsMs)?.let { peak ->
+                add(RecapSlide.Months(monthlyMs = recap.monthlyDurationsMs.toImmutableList(), peakMonthIndex = peak))
+            }
         }
         if (recap.hourlyDurationsMs.any { it > 0L }) {
             add(
@@ -239,25 +271,29 @@ internal fun buildRecapSlides(
                 )
             )
         }
-        recap.biggestDay?.let { biggestDay ->
-            add(
-                RecapSlide.Dedication(
-                    longestStreakDays = summary.longestStreakDays,
-                    longestSessionMs = summary.longestSessionDurationMs,
-                    biggestDay = biggestDay,
-                    biggestDayMs = recap.biggestDayDurationMs,
-                    firstSong = recap.firstSong?.let { first ->
-                        RecapSongItem(
-                            songId = first.songId,
-                            title = first.title,
-                            artist = first.artist.displayableArtist(),
-                            artUri = first.albumArtUri,
-                            durationMs = 0L,
-                            playCount = 0
-                        )
-                    }
+        // A single day has no streak and its biggest day is today, so nothing to dedicate.
+        if (recap.range != StatsTimeRange.DAY) {
+            recap.biggestDay?.let { biggestDay ->
+                add(
+                    RecapSlide.Dedication(
+                        range = recap.range,
+                        longestStreakDays = summary.longestStreakDays,
+                        longestSessionMs = summary.longestSessionDurationMs,
+                        biggestDay = biggestDay,
+                        biggestDayMs = recap.biggestDayDurationMs,
+                        firstSong = recap.firstSong?.let { first ->
+                            RecapSongItem(
+                                songId = first.songId,
+                                title = first.title,
+                                artist = first.artist.displayableArtist(),
+                                artUri = first.albumArtUri,
+                                durationMs = 0L,
+                                playCount = 0
+                            )
+                        }
+                    )
                 )
-            )
+            }
         }
         if (genres.isNotEmpty()) add(RecapSlide.Genres(genres.toImmutableList()))
         recap.topDecade?.let { decade -> add(RecapSlide.Decade(decade = decade, share = recap.topDecadeShare)) }
@@ -272,7 +308,9 @@ internal fun buildRecapSlides(
         }
         add(
             RecapSlide.Summary(
+                range = recap.range,
                 year = recap.year,
+                endDate = recap.endDate,
                 isSoFar = isSoFar,
                 totalMs = totalMs,
                 topArtists = artists.toImmutableList(),

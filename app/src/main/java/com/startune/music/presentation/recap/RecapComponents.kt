@@ -89,6 +89,7 @@ import java.text.NumberFormat
 import kotlin.math.roundToLong
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.isActive
 
 /** How far apart, in reveal progress, consecutive elements of a slide start appearing. */
@@ -122,13 +123,17 @@ internal data class RecapPalette(
     val onAccent: Color
 )
 
+/**
+ * The recap palettes, rotated by [rotation] so each build starts on a different colour of the
+ * theme. The rotation is a count of builds, not a palette index, so it wraps on its own.
+ */
 @Composable
-internal fun rememberRecapPalettes(): ImmutableList<RecapPalette> {
+internal fun rememberRecapPalettes(rotation: Int = 0): ImmutableList<RecapPalette> {
     val scheme = MaterialTheme.colorScheme
-    return remember(scheme) {
+    return remember(scheme, rotation) {
         // Some schemes use translucent containers; flatten them so pages never show through.
         fun Color.opaque() = compositeOver(scheme.surface)
-        persistentListOf(
+        val base = persistentListOf(
             RecapPalette(scheme.primary.opaque(), scheme.onPrimary, scheme.primaryContainer.opaque(), scheme.onPrimaryContainer),
             RecapPalette(scheme.primaryContainer.opaque(), scheme.onPrimaryContainer, scheme.primary.opaque(), scheme.onPrimary),
             RecapPalette(scheme.tertiaryContainer.opaque(), scheme.onTertiaryContainer, scheme.tertiary.opaque(), scheme.onTertiary),
@@ -136,6 +141,8 @@ internal fun rememberRecapPalettes(): ImmutableList<RecapPalette> {
             RecapPalette(scheme.secondary.opaque(), scheme.onSecondary, scheme.secondaryContainer.opaque(), scheme.onSecondaryContainer),
             RecapPalette(scheme.tertiary.opaque(), scheme.onTertiary, scheme.tertiaryContainer.opaque(), scheme.onTertiaryContainer)
         )
+        val shift = rotation.mod(base.size)
+        (base.drop(shift) + base.take(shift)).toImmutableList()
     }
 }
 

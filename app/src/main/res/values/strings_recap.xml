@@ -5,6 +5,23 @@
     <string name="recap_card_title_so_far">Your %1$d so far</string>
     <string name="recap_card_subtitle">Relive your year in music</string>
     <string name="recap_card_subtitle_so_far">See how your year in music is shaping up</string>
+    <!-- %1$s is a month name, e.g. "November". -->
+    <string name="recap_card_title_month">Your %1$s Recap</string>
+    <string name="recap_card_title_month_so_far">Your %1$s so far</string>
+    <string name="recap_card_subtitle_month">Relive your month in music</string>
+    <string name="recap_card_subtitle_month_so_far">See how your month in music is shaping up</string>
+    <string name="recap_card_title_week">Your Week Recap</string>
+    <string name="recap_card_title_week_so_far">Your week so far</string>
+    <string name="recap_card_subtitle_week">Relive your week in music</string>
+    <string name="recap_card_subtitle_week_so_far">See how your week in music is shaping up</string>
+    <string name="recap_card_title_day">Your Day Recap</string>
+    <string name="recap_card_title_day_so_far">Your day so far</string>
+    <string name="recap_card_subtitle_day">Relive your day in music</string>
+    <string name="recap_card_subtitle_day_so_far">See how your day in music is shaping up</string>
+    <string name="recap_card_title_all">Your All-Time Recap</string>
+    <string name="recap_card_title_all_so_far">Your all-time listening so far</string>
+    <string name="recap_card_subtitle_all">Relive all your music</string>
+    <string name="recap_card_subtitle_all_so_far">See how your all-time listening is shaping up</string>
     <string name="recap_home_card_title" tools:ignore="PluralsCandidate">Your %1$d Recap is here</string>
     <string name="recap_home_card_subtitle">Relive the songs, artists and moments that defined your year.</string>
     <string name="recap_home_card_open">Open recap</string>
@@ -19,17 +36,40 @@
     <string name="recap_action_previous_slide">Previous slide</string>
     <string name="recap_close">Close</string>
     <string name="recap_not_enough_title">Not enough listening yet</string>
-    <string name="recap_not_enough_subtitle" tools:ignore="PluralsCandidate">Keep playing music and your %1$d recap will fill up.</string>
+    <!-- %1$s is the period, e.g. "2026", "November", "week", "day", "all-time". -->
+    <string name="recap_not_enough_subtitle">Keep playing music and your %1$s recap will fill up.</string>
+    <string name="recap_period_week">week</string>
+    <string name="recap_period_day">day</string>
+    <string name="recap_period_all">all-time</string>
 
     <!-- Intro -->
     <string name="recap_intro_kicker">Startune Recap</string>
     <string name="recap_intro_title">Your year in music</string>
     <string name="recap_intro_title_so_far">Your year so far</string>
+    <string name="recap_intro_title_month">Your month in music</string>
+    <string name="recap_intro_title_month_so_far">Your month so far</string>
+    <string name="recap_intro_title_week">Your week in music</string>
+    <string name="recap_intro_title_week_so_far">Your week so far</string>
+    <string name="recap_intro_title_day">Today in music</string>
+    <string name="recap_intro_title_all">All time in music</string>
     <string name="recap_intro_subtitle">A look back at the songs, artists and moments that soundtracked your year.</string>
+    <string name="recap_intro_subtitle_month">A look back at the songs, artists and moments that soundtracked your month.</string>
+    <string name="recap_intro_subtitle_week">A look back at the songs, artists and moments that soundtracked your week.</string>
+    <string name="recap_intro_subtitle_day">A look back at the songs, artists and moments that soundtracked your day.</string>
+    <string name="recap_intro_subtitle_all">A look back at the songs, artists and moments that soundtracked it all.</string>
+    <!-- Hero text in the intro blob. %1$d is the ISO week number. -->
+    <string name="recap_intro_hero_week">Week %1$d</string>
+    <string name="recap_intro_hero_day">Today</string>
+    <string name="recap_intro_hero_all">All time</string>
     <string name="recap_tap_hint">Tap to continue</string>
 
     <!-- Listening time -->
     <string name="recap_minutes_kicker" tools:ignore="PluralsCandidate">In %1$d you listened for</string>
+    <!-- %1$s is a month name, e.g. "November". -->
+    <string name="recap_minutes_kicker_month">In %1$s you listened for</string>
+    <string name="recap_minutes_kicker_week">This week you listened for</string>
+    <string name="recap_minutes_kicker_day">Today you listened for</string>
+    <string name="recap_minutes_kicker_all">All time you listened for</string>
     <!-- Unit shown under the big number of minutes; the number itself is not part of the text. -->
     <plurals name="recap_minutes_unit" tools:ignore="ImpliedQuantity">
         <item quantity="one">minute</item>
@@ -78,6 +118,9 @@
     <string name="recap_dedication_longest_session">Longest session</string>
     <string name="recap_dedication_biggest_day">Biggest day</string>
     <string name="recap_dedication_first_song">First song of the year</string>
+    <string name="recap_dedication_first_song_month">First song of the month</string>
+    <string name="recap_dedication_first_song_week">First song of the week</string>
+    <string name="recap_dedication_first_song_all">First song ever</string>
 
     <!-- Genres and decade. %1$s is a percentage, e.g. "38%". -->
     <string name="recap_genres_kicker">Your top genres</string>
@@ -106,8 +149,19 @@
 
     <!-- Summary -->
     <string name="recap_summary_kicker">Your year at a glance</string>
+    <string name="recap_summary_kicker_month">Your month at a glance</string>
+    <string name="recap_summary_kicker_week">Your week at a glance</string>
+    <string name="recap_summary_kicker_day">Your day at a glance</string>
+    <string name="recap_summary_kicker_all">All time at a glance</string>
     <string name="recap_summary_title">My %1$d in music</string>
     <string name="recap_summary_title_so_far">My %1$d so far</string>
+    <!-- %1$s is a month name, e.g. "November". -->
+    <string name="recap_summary_title_month">My %1$s in music</string>
+    <string name="recap_summary_title_month_so_far">My %1$s so far</string>
+    <string name="recap_summary_title_week">My week in music</string>
+    <string name="recap_summary_title_week_so_far">My week so far</string>
+    <string name="recap_summary_title_day">Today in music</string>
+    <string name="recap_summary_title_all">All time in music</string>
     <string name="recap_summary_minutes">Minutes listened</string>
     <string name="recap_summary_top_artists">Top artists</string>
     <string name="recap_summary_top_songs">Top songs</string>
@@ -116,8 +170,18 @@
     <string name="recap_share">Share</string>
     <string name="recap_share_chooser_title">Share your recap</string>
     <string name="recap_share_text">My %1$d in music, made with Startune Music</string>
+    <!-- %1$s is a month name, e.g. "November". -->
+    <string name="recap_share_text_month">My %1$s in music, made with Startune Music</string>
+    <string name="recap_share_text_week">My week in music, made with Startune Music</string>
+    <string name="recap_share_text_day">Today in music, made with Startune Music</string>
+    <string name="recap_share_text_all">All time in music, made with Startune Music</string>
     <string name="recap_share_failed">Couldn’t create the recap image</string>
     <string name="recap_play_top_songs">Play top songs</string>
     <string name="recap_top_songs_queue_name">Top songs of %1$d</string>
+    <!-- %1$s is a month name, e.g. "November". -->
+    <string name="recap_top_songs_queue_name_month">Top songs of %1$s</string>
+    <string name="recap_top_songs_queue_name_week">Top songs of the week</string>
+    <string name="recap_top_songs_queue_name_day">Top songs of today</string>
+    <string name="recap_top_songs_queue_name_all">Top songs of all time</string>
     <string name="recap_replay">Watch again</string>
 </resources>

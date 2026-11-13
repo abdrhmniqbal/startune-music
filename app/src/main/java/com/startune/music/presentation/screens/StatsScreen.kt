@@ -155,6 +155,7 @@ import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SmartImageCompactListTargetSize
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.navigation.navigateSafely
+import com.startune.music.presentation.recap.RecapSchedule
 import com.startune.music.presentation.recap.RecapStatsCard
 import com.startune.music.presentation.stats.displayNameRes
 import com.startune.music.presentation.viewmodel.PlayerViewModel
@@ -164,6 +165,7 @@ import com.startune.music.utils.formatListeningDurationCompact
 import com.startune.music.utils.shapes.RoundedStarShape
 import java.net.URLEncoder
 import java.text.NumberFormat
+import java.time.LocalDate
 import java.util.Locale
 import kotlin.math.roundToInt
 import kotlinx.collections.immutable.ImmutableList
@@ -299,7 +301,21 @@ fun StatsScreen(
     // The recap card usually arrives after the first items are laid out. The list keeps its
     // first visible item in place when something is inserted above it, so an untouched list
     // is moved back to the top to actually show the card.
-    val hasRecapEntries = recapEntries.isNotEmpty()
+    // On YEAR the card offers the year entries; on the other tabs it offers the recap for
+    // the selected range, when that range has enough listening.
+    val selectedRange = uiState.selectedRange
+    val rangeEntry = remember(selectedRange, summary) {
+        if (selectedRange == StatsTimeRange.YEAR) {
+            null
+        } else {
+            RecapSchedule.rangeEntry(selectedRange, LocalDate.now(), summary?.totalDurationMs ?: 0L)
+        }
+    }
+    val hasRecapEntries = if (selectedRange == StatsTimeRange.YEAR) {
+        recapEntries.isNotEmpty()
+    } else {
+        rangeEntry != null
+    }
     LaunchedEffect(hasRecapEntries) {
         if (hasRecapEntries &&
             lazyListState.firstVisibleItemIndex <= 1 &&
@@ -378,8 +394,14 @@ fun StatsScreen(
                     if (hasRecapEntries) {
                         item(key = "recap_entry", contentType = "recap_entry") {
                             RecapStatsCard(
-                                entries = recapEntries,
-                                onOpen = { year -> navController.navigateSafely(Screen.Recap.createRoute(year)) },
+                                selectedRange = selectedRange,
+                                yearEntries = recapEntries,
+                                rangeEntry = rangeEntry,
+                                onOpen = { entry ->
+                                    navController.navigateSafely(
+                                        Screen.Recap.createRoute(entry.range, entry.year)
+                                    )
+                                },
                                 modifier = Modifier
                                     .animateItem()
                                     .padding(horizontal = ScreenGutter)

@@ -170,7 +170,7 @@ private fun IntroSlide(
         ) {
             RecapMorphBlob(color = palette.accent, active = isActive, modifier = Modifier.fillMaxSize())
             RecapHeadline(
-                text = String.format(LocalConfiguration.current.locales[0], "%d", slide.year),
+                text = recapHeroLabel(slide.range, slide.year, slide.endDate),
                 color = palette.onAccent,
                 maxFontSize = 104.sp,
                 minFontSize = 48.sp,
@@ -182,16 +182,14 @@ private fun IntroSlide(
         }
         Spacer(Modifier.height(28.dp))
         RecapHeadline(
-            text = stringResource(
-                if (slide.isSoFar) R.string.recap_intro_title_so_far else R.string.recap_intro_title
-            ),
+            text = stringResource(recapIntroTitleRes(slide.range, slide.isSoFar)),
             color = palette.content,
             textAlign = TextAlign.Center,
             modifier = Modifier.recapReveal(reveal, order = 3)
         )
         Spacer(Modifier.height(12.dp))
         RecapBody(
-            text = stringResource(R.string.recap_intro_subtitle),
+            text = stringResource(recapIntroSubtitleRes(slide.range)),
             color = palette.content,
             textAlign = TextAlign.Center,
             modifier = Modifier.recapReveal(reveal, order = 4)
@@ -251,7 +249,7 @@ private fun MinutesSlide(
         )
         RecapSlideColumn(contentPadding = contentPadding, scrollState = scrollState) {
             RecapKicker(
-                text = stringResource(R.string.recap_minutes_kicker, slide.year),
+                text = recapMinutesKicker(slide.range, slide.year, slide.endDate),
                 color = palette.content,
                 modifier = Modifier.recapReveal(reveal, order = 0)
             )
@@ -709,7 +707,7 @@ private fun DedicationSlide(
                     )
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = stringResource(R.string.recap_dedication_first_song),
+                            text = stringResource(recapDedicationFirstSongRes(slide.range)),
                             style = MaterialTheme.typography.labelLarge,
                             color = palette.content.copy(alpha = 0.78f),
                             maxLines = 1,

@@ -407,7 +407,10 @@ fun AppNavigation(
             }
             composable(
                 route = Screen.Recap.route,
-                arguments = listOf(navArgument(com.startune.music.presentation.viewmodel.RecapViewModel.YEAR_ARG) { type = NavType.IntType }),
+                arguments = listOf(
+                    navArgument(com.startune.music.presentation.viewmodel.RecapViewModel.RANGE_ARG) { type = NavType.StringType },
+                    navArgument(com.startune.music.presentation.viewmodel.RecapViewModel.YEAR_ARG) { type = NavType.IntType }
+                ),
                 enterTransition = { enterTransition() },
                 exitTransition = { exitTransition() },
                 popEnterTransition = { popEnterTransition() },

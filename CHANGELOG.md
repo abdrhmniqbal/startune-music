@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- The recap now follows the selected Stats tab: Year to Date shows the year (as before), Month to Date shows the month, Week to Date the week, Today the day, and All Time the whole history. The Stats recap card offers the recap for the tab you are on, and the story's titles, kickers, hero and share text all name that period ("My November so far", "This week you listened for", "Top songs of today"). The twelve-month chart stays on the year recap only, and the dedication slide is skipped for a single day. A day needs only 10 minutes of listening for a recap; the other ranges keep the 30-minute bar.
+- Each recap build now starts on the next colour of the theme, so a recap never opens with the same colours twice in a row. The rotation is stored and advances once per build, and the colours always come from the theme's own palettes, so they never clash.
 - Last opened tab option in Default Tab settings: the app opens on the tab you last used (Home, Search, or Library).
 - Full theme customization: every color role can now be set explicitly in the theme editor (containers, surface levels, text colors, outline, fixed and inverse colors), with an Auto badge when a role is still derived. The color picker now has a full-spectrum rainbow picker (saturation/value square plus hue slider) alongside hex and presets; an override can be reset to Auto.
 - All eight built-in themes recreated from their official palettes: foreground, surface container ramp, primary container, muted text and outline now use the real theme values instead of the auto-derived guesses.

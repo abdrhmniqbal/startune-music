@@ -62,7 +62,7 @@ internal fun RecapSummarySlide(
     val cardLayer = rememberGraphicsLayer()
     RecapSlideColumn(contentPadding = contentPadding, scrollState = scrollState, horizontalAlignment = Alignment.CenterHorizontally) {
         RecapKicker(
-            text = stringResource(R.string.recap_summary_kicker),
+            text = stringResource(recapSummaryKickerRes(slide.range)),
             color = palette.content,
             textAlign = TextAlign.Center,
             modifier = Modifier.recapReveal(reveal, order = 0)
@@ -200,10 +200,7 @@ private fun RecapSummaryCard(slide: RecapSlide.Summary, palette: RecapPalette) {
                     )
                 }
                 RecapHeadline(
-                    text = stringResource(
-                        if (slide.isSoFar) R.string.recap_summary_title_so_far else R.string.recap_summary_title,
-                        slide.year
-                    ),
+                    text = recapSummaryTitle(slide.range, slide.year, slide.endDate, slide.isSoFar),
                     color = ink,
                     maxFontSize = 30.sp,
                     minFontSize = 20.sp,

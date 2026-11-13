@@ -2,7 +2,6 @@
 
 package com.startune.music.presentation.recap
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,24 +38,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.startune.music.R
+import com.startune.music.data.stats.StatsTimeRange
 import com.startune.music.ui.theme.ShapeCache
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 
-@StringRes
-private fun RecapEntry.titleRes(): Int =
-    if (isSoFar) R.string.recap_card_title_so_far else R.string.recap_card_title
-
 /**
- * Stats screen entry to the recaps in [entries] (most relevant first): the first one as the
- * card itself, a second one as a smaller link underneath.
+ * Stats screen entry to the recap for the selected tab. On YEAR it shows the year entries
+ * (most relevant first): the first one as the card itself, a second one as a smaller link
+ * underneath. On the other tabs it shows the single entry for that range, when it has enough
+ * listening; nothing when it does not.
  */
 @Composable
 fun RecapStatsCard(
-    entries: ImmutableList<RecapEntry>,
-    onOpen: (year: Int) -> Unit,
+    selectedRange: StatsTimeRange,
+    yearEntries: ImmutableList<RecapEntry>,
+    rangeEntry: RecapEntry?,
+    onOpen: (RecapEntry) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val entries = if (selectedRange == StatsTimeRange.YEAR) yearEntries else rangeEntry?.let { persistentListOf(it) }.orEmpty()
     val primary = entries.firstOrNull() ?: return
     val secondary = entries.getOrNull(1)
     val container = MaterialTheme.colorScheme.primaryContainer
@@ -71,7 +73,7 @@ fun RecapStatsCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onOpen(primary.year) }
+                .clickable { onOpen(primary) }
                 .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = if (secondary == null) 16.dp else 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp)
@@ -92,7 +94,7 @@ fun RecapStatsCard(
             }
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
-                    text = stringResource(primary.titleRes(), primary.year),
+                    text = recapCardTitle(primary),
                     style = MaterialTheme.typography.titleLarge,
                     fontFamily = rememberRecapFlexFont(weight = 760, width = 114f),
                     color = content,
@@ -100,9 +102,7 @@ fun RecapStatsCard(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = stringResource(
-                        if (primary.isSoFar) R.string.recap_card_subtitle_so_far else R.string.recap_card_subtitle
-                    ),
+                    text = recapCardSubtitle(primary),
                     style = MaterialTheme.typography.bodyMedium,
                     color = content.copy(alpha = 0.8f)
                 )
@@ -123,12 +123,12 @@ fun RecapStatsCard(
         }
         if (secondary != null) {
             TextButton(
-                onClick = { onOpen(secondary.year) },
+                onClick = { onOpen(secondary) },
                 colors = ButtonDefaults.textButtonColors(contentColor = content),
                 // Lines the label up with the title above (icon 56dp + gaps, minus button padding).
                 modifier = Modifier.padding(start = 74.dp, bottom = 8.dp)
             ) {
-                Text(text = stringResource(secondary.titleRes(), secondary.year))
+                Text(text = recapCardTitle(secondary))
                 Spacer(Modifier.size(6.dp))
                 Icon(
                     imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
