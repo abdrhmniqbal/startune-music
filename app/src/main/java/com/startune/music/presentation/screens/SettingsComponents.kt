@@ -134,7 +134,7 @@ fun SettingsItem(
                 Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
                 )
             }
 
@@ -189,8 +189,8 @@ fun SwitchSettingItem(
                         text = subtitle,
                         style = MaterialTheme.typography.bodyMedium,
                         color =
-                                if (enabled) MaterialTheme.colorScheme.onSurfaceVariant
-                                else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                if (enabled) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+                                else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
                 )
             }
 
@@ -276,7 +276,7 @@ fun ThemeSelectorItem(
                     Text(
                         text = description,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
                     )
                     
                     Spacer(modifier = Modifier.height(10.dp))
@@ -494,7 +494,7 @@ fun RefreshLibraryItem(
                     Text(
                             text = stringResource(R.string.presentation_batch_f_refresh_library_subtitle),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
                     )
                 }
             }
@@ -643,7 +643,7 @@ fun RefreshLyricsItem(
                     Text(
                             text = stringResource(R.string.presentation_batch_f_refresh_lyrics_subtitle),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
                     )
                 }
 
@@ -724,7 +724,7 @@ fun ActionSettingsItem(
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
                     )
                 }
             }
