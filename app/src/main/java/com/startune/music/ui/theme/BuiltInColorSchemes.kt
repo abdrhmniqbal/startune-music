@@ -151,12 +151,12 @@ object BuiltInColorSchemes {
             surface = "#DEDCCF",
             error = "#CB3A2A",
             overrides = mapOf(
-                ColorRoleKeys.ON_SURFACE to "#282A36",
-                ColorRoleKeys.ON_BACKGROUND to "#282A36",
-                ColorRoleKeys.ON_SURFACE_VARIANT to "#6272A4",
+                ColorRoleKeys.ON_SURFACE to "#1F1F1F",
+                ColorRoleKeys.ON_BACKGROUND to "#1F1F1F",
+                ColorRoleKeys.ON_SURFACE_VARIANT to "#6C664B",
                 ColorRoleKeys.OUTLINE to "#DEDCCF"
             ),
-            rainbow = listOf("#8BE9FD", "#50FA7B", "#FFB86C", "#FF79C6", "#BD93F9", "#FF5555", "#F1FA8C", "#6272A4")
+            rainbow = listOf("#CB3A2A", "#A34D14", "#846E15", "#14710A", "#036A96", "#644AC9", "#A3144D", "#6C664B")
         ),
         dark = SchemeRoles(
             primary = "#BD93F9",
@@ -221,12 +221,12 @@ object BuiltInColorSchemes {
             surface = "#BDC2D6",
             error = "#8C4351",
             overrides = mapOf(
-                ColorRoleKeys.ON_SURFACE to "#3760BF",
-                ColorRoleKeys.ON_BACKGROUND to "#3760BF",
-                ColorRoleKeys.ON_SURFACE_VARIANT to "#848CB5",
-                ColorRoleKeys.OUTLINE to "#B4B8D0"
+                ColorRoleKeys.ON_SURFACE to "#343B58",
+                ColorRoleKeys.ON_BACKGROUND to "#343B58",
+                ColorRoleKeys.ON_SURFACE_VARIANT to "#9699A3",
+                ColorRoleKeys.OUTLINE to "#B4B5B9"
             ),
-            rainbow = listOf("#2E7DE9", "#007197", "#587539", "#9854F1", "#F76E7A", "#F52A65", "#8C6C3E", "#7847BD")
+            rainbow = listOf("#2E7DE9", "#007197", "#587539", "#9854F1", "#FF4774", "#F52A65", "#8C6C3E", "#A463FF")
         ),
         dark = SchemeRoles(
             primary = "#7AA2F7",
@@ -294,7 +294,7 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.ON_SURFACE to "#5C6A72",
                 ColorRoleKeys.ON_BACKGROUND to "#5C6A72",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#829181",
-                ColorRoleKeys.OUTLINE to "#E8DFC8"
+                ColorRoleKeys.OUTLINE to "#E6E2CC"
             ),
             rainbow = listOf("#F85552", "#F57D26", "#DFA000", "#8DA101", "#35A77C", "#3A94C5", "#DF69BA", "#5C6A72")
         ),
@@ -309,7 +309,7 @@ object BuiltInColorSchemes {
                 ColorRoleKeys.ON_SURFACE to "#D3C6AA",
                 ColorRoleKeys.ON_BACKGROUND to "#D3C6AA",
                 ColorRoleKeys.ON_SURFACE_VARIANT to "#859289",
-                ColorRoleKeys.OUTLINE to "#445055"
+                ColorRoleKeys.OUTLINE to "#475258"
             ),
             rainbow = listOf("#E67E80", "#E69875", "#DBBC7F", "#A7C080", "#83C092", "#7FBBB3", "#D699B6", "#7A8478")
         )
@@ -323,15 +323,15 @@ object BuiltInColorSchemes {
             secondary = "#22A4E6",
             tertiary = "#86B300",
             background = "#FCFCFC",
-            surface = "#F8F9FA",
+            surface = "#FFFFFF",
             error = "#F07171",
             overrides = mapOf(
-                ColorRoleKeys.ON_SURFACE to "#5C6773",
-                ColorRoleKeys.ON_BACKGROUND to "#5C6773",
-                ColorRoleKeys.ON_SURFACE_VARIANT to "#828C99",
-                ColorRoleKeys.OUTLINE to "#E8E9EB"
+                ColorRoleKeys.ON_SURFACE to "#5C6166",
+                ColorRoleKeys.ON_BACKGROUND to "#5C6166",
+                ColorRoleKeys.ON_SURFACE_VARIANT to "#828E9F",
+                ColorRoleKeys.OUTLINE to "#ADAEB1"
             ),
-            rainbow = listOf("#F26D78", "#B8CC52", "#E6B450", "#39BAE6", "#D2A6FF", "#FF9940", "#F0719B", "#59C2FF")
+            rainbow = listOf("#F07171", "#F29718", "#EBA400", "#86B300", "#4CBF99", "#22A4E6", "#A37ACC", "#F2A191")
         ),
         dark = SchemeRoles(
             primary = "#E6B450",
@@ -341,12 +341,12 @@ object BuiltInColorSchemes {
             surface = "#161A24",
             error = "#F07178",
             overrides = mapOf(
-                ColorRoleKeys.ON_SURFACE to "#B3B1AD",
-                ColorRoleKeys.ON_BACKGROUND to "#B3B1AD",
-                ColorRoleKeys.ON_SURFACE_VARIANT to "#626A73",
-                ColorRoleKeys.OUTLINE to "#1C212E"
+                ColorRoleKeys.ON_SURFACE to "#BFBDB6",
+                ColorRoleKeys.ON_BACKGROUND to "#BFBDB6",
+                ColorRoleKeys.ON_SURFACE_VARIANT to "#5A6378",
+                ColorRoleKeys.OUTLINE to "#5A6673"
             ),
-            rainbow = listOf("#F26D78", "#B8CC52", "#E6B450", "#39BAE6", "#D2A6FF", "#FF9940", "#F0719B", "#59C2FF")
+            rainbow = listOf("#F07178", "#FF8F40", "#E6B450", "#AAD94C", "#95E6CB", "#39BAE6", "#D2A6FF", "#F26D78")
         )
     )
 
