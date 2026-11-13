@@ -461,6 +461,31 @@ class NavidromeApiService @Inject constructor(
     }
 
     /**
+     * Build a download URL for a song.
+     * This returns the original file via the Subsonic download endpoint, with no
+     * transcoding, so an offline copy is the same file the server stores.
+     *
+     * @param songId The song ID
+     */
+    fun getDownloadUrl(songId: String): String {
+        val cred = credentials ?: throw IllegalStateException("No credentials configured")
+
+        val urlBuilder = "${cred.normalizedServerUrl}/rest/download.view".toHttpUrl().newBuilder()
+            .addQueryParameter("u", cred.username)
+
+        subsonicAuthParams(cred.password, authMethod).forEach { (key, value) ->
+            urlBuilder.addQueryParameter(key, value)
+        }
+
+        return urlBuilder
+            .addQueryParameter("v", API_VERSION)
+            .addQueryParameter("c", cred.clientId.ifBlank { DEFAULT_CLIENT_ID })
+            .addQueryParameter("id", songId)
+            .build()
+            .toString()
+    }
+
+    /**
      * Build a cover art URL.
      *
      * @param coverArtId The cover art ID (usually same as song/album ID)

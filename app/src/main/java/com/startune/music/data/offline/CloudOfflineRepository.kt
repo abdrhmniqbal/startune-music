@@ -208,6 +208,7 @@ class CloudOfflineRepository @Inject constructor(
             sourceUri.substringBefore(':', "").lowercase(Locale.ROOT)
         ) {
             "jellyfin" -> "jellyfin"
+            "navidrome" -> "navidrome"
             else -> null
         }
 

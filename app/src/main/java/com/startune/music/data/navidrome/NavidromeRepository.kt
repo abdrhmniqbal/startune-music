@@ -713,6 +713,16 @@ class NavidromeRepository @Inject constructor(
     }
 
     /**
+     * Get the download URL for a song (original file, no transcoding).
+     *
+     * @param songId The Navidrome song ID
+     * @return The download URL
+     */
+    fun getDownloadUrl(songId: String): String {
+        return api.getDownloadUrl(songId)
+    }
+
+    /**
      * Get the cover art URL for a song/album/artist.
      *
      * @param coverArtId The cover art ID

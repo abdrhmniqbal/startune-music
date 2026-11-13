@@ -8,6 +8,7 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.startune.music.data.database.OfflineTrackDao
 import com.startune.music.data.jellyfin.JellyfinRepository
+import com.startune.music.data.navidrome.NavidromeRepository
 import com.startune.music.data.offline.CloudOfflineRepository
 import com.startune.music.data.offline.OfflineDownloadStatus
 import com.startune.music.data.preferences.UserPreferencesRepository
@@ -34,6 +35,7 @@ class CloudTrackDownloadWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val dao: OfflineTrackDao,
     private val jellyfinRepository: JellyfinRepository,
+    private val navidromeRepository: NavidromeRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
     baseOkHttpClient: OkHttpClient
 ) : CoroutineWorker(appContext, workerParams) {
@@ -222,6 +224,15 @@ class CloudTrackDownloadWorker @AssistedInject constructor(
                         ?.let { mapOf("Authorization" to it) }
                         .orEmpty(),
                     allowedHost = jellyfinRepository.serverUrl
+                )
+            }
+            "navidrome" -> {
+                if (!CloudStreamSecurity.validateNavidromeSongId(id)) {
+                    throw IOException("Invalid Navidrome track identifier")
+                }
+                DownloadSource(
+                    url = navidromeRepository.getDownloadUrl(id),
+                    allowedHost = navidromeRepository.serverUrl
                 )
             }
             else -> throw IOException("Unsupported cloud provider")
