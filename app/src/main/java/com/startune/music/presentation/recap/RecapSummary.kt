@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -31,12 +31,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -151,34 +151,9 @@ private fun RecapSummaryCard(slide: RecapSlide.Summary, palette: RecapPalette) {
         NumberFormat.getIntegerInstance(locale).format(recapListenedMinutes(slide.totalMs))
     }
     val ink = palette.onAccent
-    val cells = buildList {
-        slide.topArtist?.let { artist ->
-            add(
-                SummaryCellData(
-                    label = stringResource(R.string.recap_summary_top_artist),
-                    value = artist.name,
-                    artUri = artist.imageUri,
-                    monogramSource = artist.name,
-                    circularArt = true
-                )
-            )
-        }
-        slide.topSong?.let { song ->
-            add(SummaryCellData(label = stringResource(R.string.recap_summary_top_song), value = song.title, artUri = song.artUri))
-        }
-        slide.topGenre?.let { genre ->
-            add(SummaryCellData(label = stringResource(R.string.recap_summary_top_genre), value = genre))
-        }
-        slide.topAlbum?.let { album ->
-            add(SummaryCellData(label = stringResource(R.string.recap_summary_top_album), value = album.title, artUri = album.artUri))
-        }
-        add(
-            SummaryCellData(
-                label = stringResource(R.string.recap_summary_listening_style),
-                value = stringResource(slide.personality.titleRes)
-            )
-        )
-    }.take(4)
+    val topArtist = slide.topArtists.firstOrNull()
+    // The monogram fallback must stand out on the accent card, so it is drawn in the ink.
+    val heroPalette = remember(palette) { palette.copy(accent = palette.onAccent, onAccent = palette.accent) }
 
     Column(
         modifier = Modifier
@@ -186,35 +161,56 @@ private fun RecapSummaryCard(slide: RecapSlide.Summary, palette: RecapPalette) {
             .clip(RoundedCornerShape(32.dp))
             .background(palette.accent)
             .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(28.dp)
-                    .clip(MaterialShapes.Cookie9Sided.toShape())
-                    .background(ink),
-            )
-            Spacer(Modifier.size(10.dp))
-            Text(
-                text = stringResource(R.string.recap_intro_kicker),
-                style = MaterialTheme.typography.labelLarge,
-                fontFamily = rememberRecapFlexFont(weight = 680, width = 110f),
-                color = ink.copy(alpha = 0.85f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+        // Hero: the top artist's photo beside the title, big enough to anchor the poster.
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            if (topArtist != null) {
+                RecapArtwork(
+                    model = topArtist.imageUri,
+                    shape = MaterialShapes.Cookie9Sided.toShape(),
+                    palette = heroPalette,
+                    monogram = rememberMonogram(topArtist.name),
+                    targetSizePx = 256,
+                    modifier = Modifier.size(112.dp)
+                )
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clip(MaterialShapes.Cookie9Sided.toShape())
+                            .background(ink),
+                    )
+                    Spacer(Modifier.size(8.dp))
+                    Text(
+                        text = stringResource(R.string.recap_intro_kicker),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontFamily = rememberRecapFlexFont(weight = 680, width = 110f),
+                        color = ink.copy(alpha = 0.85f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                RecapHeadline(
+                    text = stringResource(
+                        if (slide.isSoFar) R.string.recap_summary_title_so_far else R.string.recap_summary_title,
+                        slide.year
+                    ),
+                    color = ink,
+                    maxFontSize = 30.sp,
+                    minFontSize = 20.sp,
+                    weight = 880
+                )
+            }
         }
-        RecapHeadline(
-            text = stringResource(
-                if (slide.isSoFar) R.string.recap_summary_title_so_far else R.string.recap_summary_title,
-                slide.year
-            ),
-            color = ink,
-            maxFontSize = 30.sp,
-            minFontSize = 20.sp,
-            weight = 880
-        )
         Column {
             Text(
                 text = stringResource(R.string.recap_summary_minutes),
@@ -230,64 +226,98 @@ private fun RecapSummaryCard(slide: RecapSlide.Summary, palette: RecapPalette) {
                 weight = 950
             )
         }
-        cells.chunked(2).forEach { pair ->
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                pair.forEach { cell ->
-                    SummaryCell(cell = cell, palette = palette, modifier = Modifier.weight(1f))
+        // Ranked lists, side by side so the card stays a poster: every row is a rank plus
+        // one line of name, so long names ellipsize instead of wrapping mid-word.
+        if (slide.topArtists.isNotEmpty() || slide.topSongs.isNotEmpty()) {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                if (slide.topArtists.isNotEmpty()) {
+                    SummaryRankColumn(
+                        heading = stringResource(R.string.recap_summary_top_artists),
+                        names = slide.topArtists.map { it.name },
+                        ink = ink,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
-                if (pair.size == 1) Spacer(Modifier.weight(1f))
+                if (slide.topSongs.isNotEmpty()) {
+                    SummaryRankColumn(
+                        heading = stringResource(R.string.recap_summary_top_songs),
+                        names = slide.topSongs.map { it.title },
+                        ink = ink,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
+        slide.topGenre?.let { genre ->
+            Column {
+                Text(
+                    text = stringResource(R.string.recap_summary_top_genre),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = ink.copy(alpha = 0.78f)
+                )
+                Text(
+                    text = genre,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontFamily = rememberRecapFlexFont(weight = 800, width = 108f),
+                    color = ink,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+        Text(
+            text = stringResource(R.string.recap_summary_footer),
+            style = MaterialTheme.typography.labelMedium,
+            fontFamily = rememberRecapFlexFont(weight = 700, width = 110f),
+            color = ink.copy(alpha = 0.6f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
-@Immutable
-private data class SummaryCellData(
-    val label: String,
-    val value: String,
-    val artUri: String? = null,
-    val monogramSource: String? = null,
-    val circularArt: Boolean = false
-)
-
+/** One ranked list on the summary poster: a heading plus rank-and-name rows, one line each. */
 @Composable
-private fun SummaryCell(cell: SummaryCellData, palette: RecapPalette, modifier: Modifier = Modifier) {
-    val ink = palette.onAccent
-    Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(18.dp))
-            .background(ink.copy(alpha = 0.1f))
-            .padding(10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        if (cell.artUri != null || cell.monogramSource != null) {
-            RecapArtwork(
-                model = cell.artUri,
-                shape = if (cell.circularArt) CircleShape else RoundedCornerShape(10.dp),
-                // Swapped so a monogram stands out on the accent-coloured card.
-                palette = palette.copy(accent = ink, onAccent = palette.accent),
-                monogram = cell.monogramSource?.let { rememberMonogram(it) },
-                targetSizePx = 160,
-                modifier = Modifier.size(40.dp)
-            )
-        }
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = cell.label,
-                style = MaterialTheme.typography.labelMedium,
-                color = ink.copy(alpha = 0.75f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = cell.value,
-                style = MaterialTheme.typography.titleSmall,
-                fontFamily = rememberRecapFlexFont(weight = 740, width = 104f),
-                color = ink,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+private fun SummaryRankColumn(
+    heading: String,
+    names: List<String>,
+    ink: Color,
+    modifier: Modifier = Modifier
+) {
+    val locale = LocalConfiguration.current.locales[0]
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(
+            text = heading,
+            style = MaterialTheme.typography.labelLarge,
+            color = ink.copy(alpha = 0.78f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        names.forEachIndexed { index, name ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = NumberFormat.getIntegerInstance(locale).format(index + 1),
+                    modifier = Modifier.widthIn(min = 16.dp),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontFamily = rememberRecapFlexFont(weight = 820, width = 110f),
+                    color = ink.copy(alpha = if (index == 0) 1f else 0.7f),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontFamily = rememberRecapFlexFont(weight = if (index == 0) 760 else 660, width = 104f),
+                    color = ink,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }

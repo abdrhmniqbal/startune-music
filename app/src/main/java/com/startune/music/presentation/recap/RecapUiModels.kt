@@ -146,11 +146,11 @@ sealed interface RecapSlide {
         val year: Int,
         val isSoFar: Boolean,
         val totalMs: Long,
-        val topArtist: RecapArtistItem?,
-        val topSong: RecapSongItem?,
+        /** The top artists, leader first; at most [RECAP_RANKING_SIZE]. */
+        val topArtists: ImmutableList<RecapArtistItem>,
+        /** The top songs, leader first; at most [RECAP_RANKING_SIZE]. */
+        val topSongs: ImmutableList<RecapSongItem>,
         val topGenre: String?,
-        val topAlbum: RecapAlbumItem?,
-        val personality: ListeningPersonality,
         val canPlayTopSongs: Boolean
     ) : RecapSlide {
         override val key: String get() = "summary"
@@ -275,11 +275,9 @@ internal fun buildRecapSlides(
                 year = recap.year,
                 isSoFar = isSoFar,
                 totalMs = totalMs,
-                topArtist = artists.firstOrNull(),
-                topSong = songs.firstOrNull(),
+                topArtists = artists.toImmutableList(),
+                topSongs = songs.toImmutableList(),
                 topGenre = genres.firstOrNull()?.name,
-                topAlbum = albums.firstOrNull(),
-                personality = recap.personality,
                 canPlayTopSongs = canPlayTopSongs
             )
         )
