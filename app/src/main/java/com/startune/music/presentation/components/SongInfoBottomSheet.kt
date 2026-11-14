@@ -256,6 +256,11 @@ fun SongInfoBottomSheet(
             cornerRadiusBL = evenCornerRadiusElems, smoothnessAsPercentTR = 60
         )
     }
+    val sheetState = rememberModalSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { true }
+    )
+
     val infoSegmentContainerShape = remember {
         RoundedCornerShape(20.dp)
     }
