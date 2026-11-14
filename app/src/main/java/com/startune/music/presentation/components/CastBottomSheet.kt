@@ -1423,7 +1423,10 @@ private fun ActiveDeviceHero(
                 }
                 val interactionSource = remember { MutableInteractionSource() }
                 Slider(
-                    value = sliderValue.coerceIn(device.volumeRange.start, device.volumeRange.endInclusive),
+                    state = rememberSyncedSliderState(
+                        value = sliderValue.coerceIn(device.volumeRange.start, device.volumeRange.endInclusive),
+                        valueRange = device.volumeRange
+                    ),
                     onValueChange = { newValue ->
                         sliderValue = newValue
                         val quantized = if (device.volumeRange.endInclusive <= 1f) {
@@ -1437,7 +1440,6 @@ private fun ActiveDeviceHero(
                         }
                         onVolumeChange(newValue)
                     },
-                    valueRange = device.volumeRange,
                     track = { sliderState ->
                         SliderDefaults.Track(
                             sliderState = sliderState,
@@ -1451,12 +1453,9 @@ private fun ActiveDeviceHero(
                             )
                         )
                     },
-                    thumb = { sliderState ->
+                    thumb = {
                         SliderDefaults.Thumb(
-                            modifier = Modifier
-                                .height(36.dp),
                             interactionSource = interactionSource,
-                            sliderState = sliderState,
                             colors = SliderDefaults.colors(thumbColor = MaterialTheme.colorScheme.onTertiaryContainer)
                         )
                     },
