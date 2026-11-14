@@ -2,6 +2,8 @@
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.rounded.DeveloperMode
 import androidx.compose.material.icons.rounded.GraphicEq
 import androidx.compose.material.icons.rounded.Info
@@ -41,13 +43,13 @@ enum class SettingsCategory(
         id = "notifications",
         titleRes = R.string.settings_category_notifications_title,
         subtitleRes = R.string.settings_category_notifications_subtitle,
-        iconRes = R.drawable.rounded_notifications_active_24
+        icon = Icons.Filled.NotificationsActive
     ),
     BEHAVIOR(
         id = "behavior",
         titleRes = R.string.settings_category_behavior_title,
         subtitleRes = R.string.settings_category_behavior_subtitle,
-        iconRes = R.drawable.rounded_touch_app_24
+        icon = Icons.Filled.TouchApp
     ),
     DATA_STORAGE(
         id = "data_storage",
