@@ -476,6 +476,10 @@ fun PlaylistDetailScreen(
                         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = solidAlpha),
                         expandedTitleStartPadding = 24.dp,
                         centerExpandedTitle = true,
+                        // Like the reference: the subtitle ("N Songs • duration")
+                        // stays visible in the collapsed bar instead of fading
+                        // out with the collapse.
+                        fadeSubtitleOnCollapse = false,
                         titleFontSizeRange = 30.sp to 18.sp,
                         maxLines = if (collapseFraction < 0.5f) Int.MAX_VALUE else 1,
                         containerHeightRange = 92.dp to 56.dp,

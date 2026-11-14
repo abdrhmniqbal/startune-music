@@ -168,7 +168,15 @@ fun ExpressiveTopBarContent(
                 modifier = Modifier
                     .align(BiasAlignment(horizontalBias = titleHorizontalBias, verticalBias = -1f))
                     .padding(top = titleTopPadding),
-                horizontalAlignment = if (centerExpandedTitle) Alignment.CenterHorizontally else Alignment.Start
+                // The centered axis is the expanded state only: once the bar
+                // is collapsing, the title and subtitle dock to the left like
+                // every other detail page. Centering them over the subtitle's
+                // width past halfway left a short title floating right of the
+                // left edge, because the subtitle ("N Songs • duration") is
+                // wider than the title and still sets the block's width even
+                // when faded. The 0.5 threshold matches the switch from the
+                // marquee title to the plain one-line title.
+                horizontalAlignment = if (centerExpandedTitle && clampedFraction < 0.5f) Alignment.CenterHorizontally else Alignment.Start
             ) {
                 if (titleContent != null) {
                     titleContent(resolvedTitleStyle)
