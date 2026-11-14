@@ -41,7 +41,10 @@ private val MoreMenuRowShape = RoundedCornerShape(20.dp)
 
 /**
  * One of the up-to-three equal cards in the action row: icon over label,
- * centered, on surfaceContainerHigh.
+ * centered, on surfaceContainerHighest. The sheet itself sits on
+ * surfaceContainerLow, one step below, so the card always stands out
+ * from it; the card used surfaceContainerHigh before, the same tone as
+ * the sheet's default container, and vanished into it.
  */
 @Composable
 fun MoreMenuActionCard(
@@ -56,7 +59,7 @@ fun MoreMenuActionCard(
         modifier = modifier
             .height(76.dp)
             .clip(MoreMenuCardShape)
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
             .clickable(enabled = enabled, onClick = onClick)
             .alpha(if (enabled) 1f else 0.38f)
             .padding(horizontal = 8.dp, vertical = 12.dp),
