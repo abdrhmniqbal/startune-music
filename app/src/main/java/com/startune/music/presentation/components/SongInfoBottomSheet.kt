@@ -135,6 +135,7 @@ fun SongInfoBottomSheet(
     var showEditSheet by remember { mutableStateOf(false) }
     var showArtistPicker by remember { mutableStateOf(false) }
     var showTonePickerDialog by remember { mutableStateOf(false) }
+    var showShareCard by remember { mutableStateOf(false) }
     var toneConfirmationTarget by remember { mutableStateOf<ToneTarget?>(null) }
     var pendingTonePermissionSong by remember { mutableStateOf<Song?>(null) }
     var pendingTonePermissionTarget by remember { mutableStateOf<ToneTarget?>(null) }
@@ -498,7 +499,7 @@ fun SongInfoBottomSheet(
                                                 MoreMenuListRow(
                                                     label = stringResource(R.string.share_sheet_title),
                                                     icon = Icons.Rounded.Share,
-                                                    onClick = { shareSong() }
+                                                    onClick = { showShareCard = true }
                                                 )
                                                 MoreMenuListRow(
                                                     label = stringResource(R.string.player_go_to_album),
@@ -771,6 +772,14 @@ fun SongInfoBottomSheet(
                 showTonePickerDialog = false
                 toneConfirmationTarget = target
             }
+        )
+    }
+
+    if (showShareCard) {
+        ShareBottomSheet(
+            song = song,
+            onDismiss = { showShareCard = false },
+            onShareAudioFile = { shareSong() }
         )
     }
 
