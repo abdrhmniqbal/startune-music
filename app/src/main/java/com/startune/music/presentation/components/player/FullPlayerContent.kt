@@ -2500,14 +2500,17 @@ private fun BottomToggleRow(
     onFavoriteToggle: () -> Unit
 ) {
     val rowCorners = 60.dp
-    // Inactive is a muted version of each button's own Fixed color. The old
+    // Inactive is a muted version of the shared Fixed color. The old
     // inactive pair (onSurface at 7% alpha + onPrimaryContainer) was invisible
     // in the album scheme: the pill showed the dark container through it and
     // onPrimaryContainer resolves to black here, so the icon was black on dark
     // (screenshot: icon #000000 on pill #2B414B). Fixed roles are light with a
     // dark on-color in both light and dark schemes, so a Fixed color at 50%
     // alpha stays visible on the dark bar and its on-color stays readable.
-    // Each button keeps its own hue; alpha alone marks active vs inactive.
+    // All three buttons share one hue, the SECONDARY Fixed color, not the
+    // primary: primary is the primary accent and must not be spread across
+    // every button. Only alpha marks active vs inactive, so the row reads as
+    // one control, not three colors.
     val inactiveAlpha = 0.5f
     val isFavorite = isFavoriteProvider()
 
@@ -2553,11 +2556,11 @@ private fun BottomToggleRow(
                 modifier = commonModifier,
                 active = isShuffleEnabled,
                 enabled = !isShuffleTransitionInProgress,
-                activeColor = LocalMaterialTheme.current.primaryFixed,
+                activeColor = LocalMaterialTheme.current.secondaryFixed,
                 activeCornerRadius = rowCorners,
-                activeContentColor = LocalMaterialTheme.current.onPrimaryFixed,
-                inactiveColor = LocalMaterialTheme.current.primaryFixed.copy(alpha = inactiveAlpha),
-                inactiveContentColor = LocalMaterialTheme.current.onPrimaryFixed,
+                activeContentColor = LocalMaterialTheme.current.onSecondaryFixed,
+                inactiveColor = LocalMaterialTheme.current.secondaryFixed.copy(alpha = inactiveAlpha),
+                inactiveContentColor = LocalMaterialTheme.current.onSecondaryFixed,
                 onClick = onShuffleToggle,
                 iconId = R.drawable.rounded_shuffle_24,
                 contentDesc = stringResource(R.string.cd_shuffle)
@@ -2585,11 +2588,11 @@ private fun BottomToggleRow(
             ToggleSegmentButton(
                 modifier = commonModifier,
                 active = isFavorite,
-                activeColor = LocalMaterialTheme.current.tertiaryFixed,
+                activeColor = LocalMaterialTheme.current.secondaryFixed,
                 activeCornerRadius = rowCorners,
-                activeContentColor = LocalMaterialTheme.current.onTertiaryFixed,
-                inactiveColor = LocalMaterialTheme.current.tertiaryFixed.copy(alpha = inactiveAlpha),
-                inactiveContentColor = LocalMaterialTheme.current.onTertiaryFixed,
+                activeContentColor = LocalMaterialTheme.current.onSecondaryFixed,
+                inactiveColor = LocalMaterialTheme.current.secondaryFixed.copy(alpha = inactiveAlpha),
+                inactiveContentColor = LocalMaterialTheme.current.onSecondaryFixed,
                 onClick = onFavoriteToggle,
                 iconId = if (isFavorite) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24,
                 contentDesc = stringResource(R.string.cd_favorite)
