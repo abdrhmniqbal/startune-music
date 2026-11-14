@@ -116,6 +116,12 @@ fun CollectionOptionsBottomSheet(
             CollectionOptionsHeader(target = target, songs = loadedSongs, playerViewModel = playerViewModel)
 
             // One row of three equal action cards, then full-width list rows.
+            // No `enabled = hasSongs` here, exactly like the song sheet: the
+            // flag made these cards and the two Add rows render with no
+            // background at all (flat on the sheet), while the song sheet's
+            // identical cards and rows keep their tones. Every tap handler
+            // below already returns early on a null or empty list, so an
+            // empty collection still does nothing on tap.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -124,7 +130,6 @@ fun CollectionOptionsBottomSheet(
                     label = stringResource(R.string.play_playback),
                     icon = Icons.Rounded.PlayArrow,
                     contentDescription = stringResource(R.string.play_playback),
-                    enabled = hasSongs,
                     modifier = Modifier.weight(1f),
                     onClick = {
                         val list = loadedSongs ?: return@MoreMenuActionCard
@@ -141,7 +146,6 @@ fun CollectionOptionsBottomSheet(
                     label = stringResource(R.string.shortcut_shuffle_short),
                     icon = Icons.Rounded.Shuffle,
                     contentDescription = stringResource(R.string.shortcut_shuffle_short),
-                    enabled = hasSongs,
                     modifier = Modifier.weight(1f),
                     onClick = {
                         val list = loadedSongs ?: return@MoreMenuActionCard
@@ -157,7 +161,6 @@ fun CollectionOptionsBottomSheet(
                     label = stringResource(R.string.detail_hero_play_next),
                     icon = Icons.Rounded.SkipNext,
                     contentDescription = stringResource(R.string.detail_hero_play_next),
-                    enabled = hasSongs,
                     modifier = Modifier.weight(1f),
                     onClick = {
                         val list = loadedSongs ?: return@MoreMenuActionCard
@@ -173,7 +176,6 @@ fun CollectionOptionsBottomSheet(
                 MoreMenuListRow(
                     label = stringResource(R.string.detail_hero_add_to_queue),
                     icon = Icons.AutoMirrored.Rounded.QueueMusic,
-                    enabled = hasSongs,
                     onClick = {
                         val list = loadedSongs ?: return@MoreMenuListRow
                         if (list.isEmpty()) return@MoreMenuListRow
@@ -185,7 +187,6 @@ fun CollectionOptionsBottomSheet(
                 MoreMenuListRow(
                     label = stringResource(R.string.detail_hero_add_to_playlist),
                     icon = Icons.AutoMirrored.Rounded.PlaylistAdd,
-                    enabled = hasSongs,
                     onClick = { showPlaylistBottomSheet = true }
                 )
 
