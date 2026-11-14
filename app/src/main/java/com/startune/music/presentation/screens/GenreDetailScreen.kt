@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -52,12 +53,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -69,9 +68,8 @@ import com.startune.music.data.model.SortOption
 import com.startune.music.data.model.Album
 import com.startune.music.data.model.Song
 import com.startune.music.data.preferences.AlbumArtPaletteStyle
-import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.ExpressiveTopBarContent
 import com.startune.music.presentation.components.carouselItemScale
-import com.startune.music.presentation.components.MediaDetailHero
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.RankedSongRow
 import kotlin.math.abs
@@ -87,7 +85,6 @@ import com.startune.music.utils.GenreParser
 import com.startune.music.presentation.viewmodel.UNKNOWN_GENRE_ID
 import com.startune.music.ui.theme.LocalStartuneDarkTheme
 import com.startune.music.ui.theme.onColorFor
-import com.startune.music.ui.theme.RoundedSans
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
@@ -98,7 +95,6 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import com.startune.music.presentation.utils.GenreIconProvider
-import com.startune.music.utils.formatSongCount
 import com.startune.music.presentation.components.ExpressiveEmptyState
 
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -127,8 +123,8 @@ fun GenreDetailScreen(
 
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val systemNavBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val minTopBarHeight = 64.dp + statusBarHeight
-    val maxTopBarHeight = 300.dp
+    val minTopBarHeight = 58.dp + statusBarHeight
+    val maxTopBarHeight = 200.dp
     val minTopBarHeightPx = with(density) { minTopBarHeight.toPx() }
     val maxTopBarHeightPx = with(density) { maxTopBarHeight.toPx() }
 
@@ -305,7 +301,6 @@ fun GenreDetailScreen(
                 .background(MaterialTheme.colorScheme.background)
         ) {
             val currentTopBarHeightDp = with(density) { topBarHeight.value.toDp() }
-            val solidAlpha = (collapseFraction * 2f).coerceIn(0f, 1f)
 
             LazyColumn(
                 state = lazyListState,
@@ -323,32 +318,6 @@ fun GenreDetailScreen(
                     },
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                item(key = "genre_hero") {
-                    MediaDetailHero(
-                        title = genreDisplayName,
-                        metaLine = formatSongCount(uiState.songs.size),
-                        onShuffle = {
-                            if (uiState.songs.isNotEmpty()) {
-                                playerViewModel.playSongsShuffled(
-                                    songsToPlay = uiState.songs,
-                                    queueName = genreDisplayName,
-                                    startAtZero = true
-                                )
-                            }
-                        },
-                        onPlay = {
-                            if (uiState.songs.isNotEmpty()) {
-                                playerViewModel.playSongs(
-                                    songsToPlay = uiState.songs,
-                                    startSong = uiState.songs.first(),
-                                    queueName = genreDisplayName
-                                )
-                            }
-                        },
-                        menuActions = persistentListOf(),
-                        enabled = uiState.songs.isNotEmpty()
-                    )
-                }
                 if (uiState.songs.isEmpty()) {
                     item(key = "genre_empty") {
                         GenreEmptyState()
@@ -428,69 +397,18 @@ fun GenreDetailScreen(
                     .height(currentTopBarHeightDp)
                     .clipToBounds()
             ) {
-                // The rainbow gradient stays as the header background, behind
-                // the shared top bar, fading out as the bar collapses.
-                val gradientAlpha = 0.8f * (1f - solidAlpha)
-                val verticalGradient = remember(startColor, gradientAlpha) {
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            startColor.copy(alpha = gradientAlpha),
-                            startColor.copy(alpha = 0f)
-                        )
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(verticalGradient)
-                )
-
-                // Genre illustration on the right, like the Library genre card:
-                // 90.dp, tinted with the max-contrast header color, bleeding
-                // off the corner, fading out as the bar collapses.
-                Box(
-                    modifier = Modifier
-                        .size(90.dp)
-                        .align(Alignment.BottomEnd)
-                        .offset(x = 16.dp, y = 16.dp)
-                        .alpha(0.55f * (1f - collapseFraction).coerceIn(0f, 1f))
-                ) {
-                    SmartImage(
-                        model = GenreIconProvider.getGenreImageResource(themeGenre?.name ?: decodedGenreId, customGenreIcons),
-                        contentDescription = stringResource(R.string.cd_genre_illustration),
-                        modifier = Modifier.fillMaxSize(),
-                        colorFilter = ColorFilter.tint(contentColor),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-
-                // The bar's own title only fades in as the header collapses,
-                // like the reference: expanded, the hero below carries the
-                // title; collapsed, the bar carries it.
-                CollapsibleCommonTopBar(
+                GenreCollapsibleTopBar(
                     title = genreDisplayName,
-                    subtitle = formatSongCount(uiState.songs.size),
                     collapseFraction = collapseFraction,
                     headerHeight = currentTopBarHeightDp,
-                    onBackClick = { navController.popBackStack() },
-                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = solidAlpha),
-                    collapsedTitleStartPadding = 68.dp,
-                    expandedTitleStartPadding = 24.dp,
-                    collapsedTitleEndPadding = 24.dp,
-                    expandedTitleEndPadding = 24.dp,
-                    containerHeightRange = 112.dp to 56.dp,
-                    titleStyle = MaterialTheme.typography.headlineMedium.copy(
-                        fontFamily = RoundedSans,
-                        fontWeight = FontWeight.SemiBold,
-                        textGeometricTransform = TextGeometricTransform(scaleX = 1.08f)
-                    ),
-                    titleScaleRange = 1f to 1f,
-                    titleFontSizeRange = 30.sp to 18.sp,
-                    maxLines = 1,
-                    contentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = solidAlpha),
-                    subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = solidAlpha),
-                    fadeSubtitleOnCollapse = false,
-                    syncStatusBarWithContainer = false
+                    onBackPressed = { navController.popBackStack() },
+                    startColor = startColor,
+                    contentColor = contentColor,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    collapsedContentColor = MaterialTheme.colorScheme.onSurface,
+                    titleColor = MaterialTheme.colorScheme.onBackground,
+                    genreName = themeGenre?.name ?: decodedGenreId,
+                    customIcons = customGenreIcons
                 )
             }
 
@@ -710,6 +628,117 @@ fun GenreDetailScreen(
         }
     }
 }
+
+@Composable
+fun GenreCollapsibleTopBar(
+    title: String,
+    collapseFraction: Float,
+    headerHeight: Dp,
+    onBackPressed: () -> Unit,
+    startColor: Color,
+    containerColor: Color,
+    contentColor: Color,
+    collapsedContentColor: Color,
+    titleColor: Color,
+    genreName: String,
+    customIcons: Map<String, Int> = emptyMap()
+) {
+    val solidAlpha = (collapseFraction * 2f).coerceIn(0f, 1f)
+    val animatedContentColor = androidx.compose.ui.graphics.lerp(
+        start = contentColor,
+        stop = collapsedContentColor,
+        fraction = solidAlpha
+    )
+    // The title sits at the bottom of the header, where the vertical
+    // gradient has faded to almost transparent, so it is drawn over the
+    // page background, not over the solid container color. Its color
+    // must therefore contrast with the background (titleColor). The
+    // back button and illustration sit at the top over the strong
+    // gradient; their color is the max-contrast color for that blend,
+    // passed in as contentColor, not the container's on-color.
+    val animatedTitleColor = androidx.compose.ui.graphics.lerp(
+        start = titleColor,
+        stop = collapsedContentColor,
+        fraction = solidAlpha
+    )
+
+    val gradientAlpha = 0.8f * (1f - solidAlpha)
+    
+    val verticalGradient = remember(startColor, gradientAlpha) {
+        Brush.verticalGradient(
+            colors = listOf(
+                startColor.copy(alpha = gradientAlpha),
+                startColor.copy(alpha = 0f)
+            )
+        )
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(headerHeight)
+            .zIndex(5f)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(containerColor.copy(alpha = solidAlpha)) 
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(verticalGradient)
+        )
+
+        // Genre illustration on the right, like the Library genre card:
+        // 90.dp, tinted with the header content color, bleeding off the
+        // corner, fading out as the bar collapses.
+        Box(
+            modifier = Modifier
+                .size(90.dp)
+                .align(Alignment.BottomEnd)
+                .offset(x = 16.dp, y = 16.dp)
+                .alpha(0.55f * (1f - collapseFraction).coerceIn(0f, 1f))
+        ) {
+            SmartImage(
+                model = GenreIconProvider.getGenreImageResource(genreName, customIcons),
+                contentDescription = stringResource(R.string.cd_genre_illustration),
+                modifier = Modifier.fillMaxSize(),
+                colorFilter = ColorFilter.tint(animatedContentColor),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        Box(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
+             FilledIconButton(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 12.dp, top = 4.dp)
+                    .zIndex(10f),
+                onClick = onBackPressed,
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = animatedContentColor.copy(alpha = 0.1f),
+                    contentColor = animatedContentColor
+                )
+            ) {
+                Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.auth_cd_back), tint = animatedContentColor)
+            }
+
+            ExpressiveTopBarContent(
+                title = title,
+                collapseFraction = collapseFraction,
+                modifier = Modifier.fillMaxSize(),
+                collapsedTitleStartPadding = 68.dp,
+                expandedTitleStartPadding = 20.dp,
+                expandedTitleEndPadding = 110.dp,
+                maxLines = if (collapseFraction < 0.5f) Int.MAX_VALUE else 1,
+                contentColor = animatedTitleColor
+            )
+        }
+    }
+}
+
+
 
 enum class GenreDetailView {
     Overview, Songs, Albums, Artists
