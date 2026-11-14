@@ -347,6 +347,12 @@
     <string name="share_action_copy_github_link">Copy App Link</string>
     <string name="share_card_saved">Card saved to Pictures</string>
     <string name="share_link_copied">Link copied to clipboard</string>
+    <string name="share_card_share_audio_file">Share audio file</string>
+    <string name="share_card_select_lyrics_hint">Select lyrics below to share</string>
+    <string name="share_card_select_lyrics_title">Tap to select lyrics (Max 5 lines)</string>
+    <string name="share_card_max_lines">Maximum 5 lines allowed</string>
+    <string name="share_card_capture_failed">Failed to capture card</string>
+    <string name="share_card_instagram_unavailable">Instagram not available</string>
     <string name="share_text_format">Now listening to \"%1$s\" by %2$s 🎵\n%3$s</string>
 
     <!-- Player Share / Options Menu -->
