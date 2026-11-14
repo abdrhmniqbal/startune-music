@@ -322,6 +322,7 @@ fun SongInfoBottomSheet(
             }
         },
         sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
         CompositionLocalProvider(
             LocalOverscrollFactory provides null
@@ -515,6 +516,24 @@ fun SongInfoBottomSheet(
                                                         }
                                                     }
                                                 )
+                                                if (!isCloudSong) {
+                                                    MoreMenuListRow(
+                                                        label = stringResource(R.string.song_info_choose_tone),
+                                                        painter = painterResource(R.drawable.rounded_notifications_active_24),
+                                                        onClick = { showTonePickerDialog = true }
+                                                    )
+                                                }
+                                                if (onRemoveFromList != null && removeFromListLabel != null) {
+                                                    MoreMenuListRow(
+                                                        label = removeFromListLabel,
+                                                        icon = Icons.Rounded.RemoveCircleOutline,
+                                                        destructive = true,
+                                                        onClick = {
+                                                            onRemoveFromList?.invoke()
+                                                            onDismiss()
+                                                        }
+                                                    )
+                                                }
                                                 MoreMenuListRow(
                                                     label = downloadLabel,
                                                     icon = downloadIcon,
@@ -538,24 +557,6 @@ fun SongInfoBottomSheet(
                                                         }
                                                     }
                                                 )
-                                                if (!isCloudSong) {
-                                                    MoreMenuListRow(
-                                                        label = stringResource(R.string.song_info_choose_tone),
-                                                        painter = painterResource(R.drawable.rounded_notifications_active_24),
-                                                        onClick = { showTonePickerDialog = true }
-                                                    )
-                                                }
-                                                if (onRemoveFromList != null && removeFromListLabel != null) {
-                                                    MoreMenuListRow(
-                                                        label = removeFromListLabel,
-                                                        icon = Icons.Rounded.RemoveCircleOutline,
-                                                        destructive = true,
-                                                        onClick = {
-                                                            onRemoveFromList?.invoke()
-                                                            onDismiss()
-                                                        }
-                                                    )
-                                                }
                                             }
                                         }
                                         item {
