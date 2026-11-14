@@ -103,7 +103,7 @@ import androidx.compose.material.icons.rounded.Bluetooth
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.Speaker
+import androidx.compose.material.icons.rounded.Cast
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.startune.music.presentation.viewmodel.AudioBookmarksViewModel
 import androidx.compose.material3.Slider
@@ -774,7 +774,7 @@ fun FullPlayerContent(
                             Box(
                                 modifier = Modifier
                                     .size(42.dp)
-                                    .clip(CircleShape)
+                                    .clip(RoundedCornerShape(14.dp))
                                     .background(playerOnAccentColor.copy(alpha = 0.7f))
                                     .clickable { showCastSheet = true },
                                 contentAlignment = Alignment.Center
@@ -783,7 +783,7 @@ fun FullPlayerContent(
                                     imageVector = if (bluetoothOutputName != null) {
                                         Icons.Rounded.Bluetooth
                                     } else {
-                                        Icons.Rounded.Speaker
+                                        Icons.Rounded.Cast
                                     },
                                     contentDescription = bluetoothOutputName
                                         ?: stringResource(R.string.player_audio_output_title),
@@ -793,7 +793,7 @@ fun FullPlayerContent(
                             Box(
                                 modifier = Modifier
                                     .size(42.dp)
-                                    .clip(CircleShape)
+                                    .clip(RoundedCornerShape(14.dp))
                                     .background(playerOnAccentColor.copy(alpha = 0.7f))
                                     .clickable { showSaveBookmarkDialog = true },
                                 contentAlignment = Alignment.Center
@@ -807,7 +807,7 @@ fun FullPlayerContent(
                             Box(
                                 modifier = Modifier
                                     .size(42.dp)
-                                    .clip(CircleShape)
+                                    .clip(RoundedCornerShape(14.dp))
                                     .background(playerOnAccentColor.copy(alpha = 0.7f))
                                     .clickable {
                                         onShowQueueClicked()
