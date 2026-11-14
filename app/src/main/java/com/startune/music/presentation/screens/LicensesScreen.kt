@@ -102,6 +102,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.startune.music.R
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.subcomps.SineWaveLine
 import com.startune.music.ui.theme.ExpTitleTypography
@@ -491,6 +492,19 @@ fun LicensesScreen(
                     }
                 }
             }
+        }
+
+        if (collapseFraction > 0.95f) {
+            ExpressiveScrollBar(
+                listState = lazyListState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = minTopBarHeight + 12.dp,
+                        bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp,
+                        end = 14.dp
+                    )
+            )
         }
 
         CollapsibleCommonTopBar(

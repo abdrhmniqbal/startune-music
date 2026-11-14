@@ -71,6 +71,7 @@ import com.startune.music.data.model.SortOption
 import com.startune.music.data.model.Album
 import com.startune.music.data.model.Song
 import com.startune.music.data.preferences.AlbumArtPaletteStyle
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.ExpressiveTopBarContent
 import com.startune.music.presentation.components.carouselItemScale
 import com.startune.music.presentation.components.MiniPlayerHeight
@@ -413,6 +414,19 @@ fun GenreDetailScreen(
                         }
                     }
                 }
+            }
+
+            if (collapseFraction > 0.95f) {
+                ExpressiveScrollBar(
+                    listState = lazyListState,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(
+                            top = minTopBarHeight + 12.dp,
+                            bottom = fabBottomPadding + 16.dp,
+                            end = 14.dp
+                        )
+                )
             }
 
             Box(

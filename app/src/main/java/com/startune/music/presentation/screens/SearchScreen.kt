@@ -89,6 +89,7 @@ import com.startune.music.data.model.SearchFilterType
 import com.startune.music.data.model.SearchHistoryItem
 import com.startune.music.data.model.SearchResultItem
 import com.startune.music.data.model.Song
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.SmartImageListTargetSize
@@ -1111,6 +1112,7 @@ fun SearchResultsList(
                 }
             }
         }
+
         sectionOrder.forEach { filterType ->
             val itemsForSection = groupedResults[filterType] ?: emptyList()
 
@@ -1301,6 +1303,16 @@ fun SearchResultsList(
             }
         }
     }
+        ExpressiveScrollBar(
+            listState = listState,
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(
+                    top = 12.dp,
+                    bottom = if (imePadding <= 8.dp) (MiniPlayerHeight + systemBarPaddingBottom) else imePadding,
+                    end = 14.dp
+                )
+        )
 
         SelectionCountPill(
             selectedCount = when (singleType) {

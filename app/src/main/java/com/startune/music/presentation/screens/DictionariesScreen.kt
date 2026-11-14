@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
@@ -50,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.startune.music.R
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.utils.getSegmentedItemShape
 import com.startune.music.presentation.viewmodel.DictionariesViewModel
@@ -63,6 +65,8 @@ fun DictionariesScreen(
     viewModel: DictionariesViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val lazyListState = rememberLazyListState()
 
     Scaffold(
         topBar = {
@@ -92,33 +96,46 @@ fun DictionariesScreen(
             )
         }
     ) { scaffoldPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            contentPadding = PaddingValues(
-                start = 16.dp,
-                top = scaffoldPadding.calculateTopPadding() + 12.dp,
-                end = 16.dp,
-                bottom = MiniPlayerHeight + 24.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(3.dp)
-        ) {
-            if (state.isLoading) {
-                item { DictionariesLoadingItem() }
-            } else if (state.packs.isEmpty()) {
-                item { DictionariesEmptyState() }
-            } else {
-                itemsIndexed(state.packs, key = { _, packState -> packState.pack.id }) { index, packState ->
-                    DictionaryPackCard(
-                        packState = packState,
-                        shape = getSegmentedItemShape(index, state.packs.size),
-                        onDownload = { viewModel.download(packState.pack) },
-                        onCancel = { viewModel.cancel(packState.pack.id) },
-                        onDelete = { viewModel.delete(packState.pack) }
-                    )
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                state = lazyListState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    top = scaffoldPadding.calculateTopPadding() + 12.dp,
+                    end = 16.dp,
+                    bottom = MiniPlayerHeight + 24.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                if (state.isLoading) {
+                    item { DictionariesLoadingItem() }
+                } else if (state.packs.isEmpty()) {
+                    item { DictionariesEmptyState() }
+                } else {
+                    itemsIndexed(state.packs, key = { _, packState -> packState.pack.id }) { index, packState ->
+                        DictionaryPackCard(
+                            packState = packState,
+                            shape = getSegmentedItemShape(index, state.packs.size),
+                            onDownload = { viewModel.download(packState.pack) },
+                            onCancel = { viewModel.cancel(packState.pack.id) },
+                            onDelete = { viewModel.delete(packState.pack) }
+                        )
+                    }
                 }
             }
+            ExpressiveScrollBar(
+                listState = lazyListState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = scaffoldPadding.calculateTopPadding() + 12.dp,
+                        bottom = MiniPlayerHeight + 24.dp,
+                        end = 14.dp
+                    )
+            )
         }
     }
 }

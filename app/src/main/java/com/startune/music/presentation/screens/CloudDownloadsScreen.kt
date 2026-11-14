@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -55,6 +56,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.startune.music.R
 import com.startune.music.data.offline.OfflineDownload
 import com.startune.music.data.offline.OfflineDownloadStatus
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.viewmodel.CloudDownloadsViewModel
 import com.startune.music.presentation.components.ExpressiveEmptyState
@@ -65,6 +67,8 @@ fun CloudDownloadsScreen(
     viewModel: CloudDownloadsViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val lazyListState = rememberLazyListState()
 
     Scaffold(
         topBar = {
@@ -94,69 +98,82 @@ fun CloudDownloadsScreen(
             )
         }
     ) { scaffoldPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            contentPadding = PaddingValues(
-                start = 16.dp,
-                top = scaffoldPadding.calculateTopPadding() + 12.dp,
-                end = 16.dp,
-                bottom = MiniPlayerHeight + 24.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                StorageSummaryCard(
-                    usedBytes = state.usedBytes,
-                    completedCount = state.completed.size,
-                    totalCount = state.totalCount
-                )
-            }
-
-            if (state.totalCount == 0) {
-                item { DownloadsEmptyState() }
-            }
-
-            if (state.active.isNotEmpty()) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                state = lazyListState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    top = scaffoldPadding.calculateTopPadding() + 12.dp,
+                    end = 16.dp,
+                    bottom = MiniPlayerHeight + 24.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 item {
-                    SectionHeader(
-                        title = stringResource(R.string.cloud_downloads_active_section),
-                        count = state.active.size
+                    StorageSummaryCard(
+                        usedBytes = state.usedBytes,
+                        completedCount = state.completed.size,
+                        totalCount = state.totalCount
                     )
                 }
-                items(state.active, key = OfflineDownload::downloadId) { download ->
-                    DownloadItemCard(download = download, onRemove = { viewModel.remove(download) })
-                }
-            }
 
-            if (state.failed.isNotEmpty()) {
-                item {
-                    SectionHeader(
-                        title = stringResource(R.string.cloud_downloads_failed_section),
-                        count = state.failed.size
-                    )
+                if (state.totalCount == 0) {
+                    item { DownloadsEmptyState() }
                 }
-                items(state.failed, key = OfflineDownload::downloadId) { download ->
-                    DownloadItemCard(
-                        download = download,
-                        onRemove = { viewModel.remove(download) },
-                        onRetry = { viewModel.retry(download) }
-                    )
-                }
-            }
 
-            if (state.completed.isNotEmpty()) {
-                item {
-                    SectionHeader(
-                        title = stringResource(R.string.cloud_downloads_completed_section),
-                        count = state.completed.size
-                    )
+                if (state.active.isNotEmpty()) {
+                    item {
+                        SectionHeader(
+                            title = stringResource(R.string.cloud_downloads_active_section),
+                            count = state.active.size
+                        )
+                    }
+                    items(state.active, key = OfflineDownload::downloadId) { download ->
+                        DownloadItemCard(download = download, onRemove = { viewModel.remove(download) })
+                    }
                 }
-                items(state.completed, key = OfflineDownload::downloadId) { download ->
-                    DownloadItemCard(download = download, onRemove = { viewModel.remove(download) })
+
+                if (state.failed.isNotEmpty()) {
+                    item {
+                        SectionHeader(
+                            title = stringResource(R.string.cloud_downloads_failed_section),
+                            count = state.failed.size
+                        )
+                    }
+                    items(state.failed, key = OfflineDownload::downloadId) { download ->
+                        DownloadItemCard(
+                            download = download,
+                            onRemove = { viewModel.remove(download) },
+                            onRetry = { viewModel.retry(download) }
+                        )
+                    }
+                }
+
+                if (state.completed.isNotEmpty()) {
+                    item {
+                        SectionHeader(
+                            title = stringResource(R.string.cloud_downloads_completed_section),
+                            count = state.completed.size
+                        )
+                    }
+                    items(state.completed, key = OfflineDownload::downloadId) { download ->
+                        DownloadItemCard(download = download, onRemove = { viewModel.remove(download) })
+                    }
                 }
             }
+            ExpressiveScrollBar(
+                listState = lazyListState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = scaffoldPadding.calculateTopPadding() + 12.dp,
+                        bottom = MiniPlayerHeight + 24.dp,
+                        end = 14.dp
+                    )
+            )
         }
     }
 }

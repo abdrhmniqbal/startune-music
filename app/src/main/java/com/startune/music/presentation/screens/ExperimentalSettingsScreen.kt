@@ -72,6 +72,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.rememberSyncedSliderState
 import com.startune.music.presentation.viewmodel.PlayerViewModel
@@ -794,6 +795,19 @@ fun ExperimentalSettingsScreen(
             item(key = "experimental_bottom_spacer") {
                 Spacer(modifier = Modifier.height(MiniPlayerHeight + 36.dp))
             }
+        }
+
+        if (collapseFraction > 0.95f) {
+            ExpressiveScrollBar(
+                listState = lazyListState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = minTopBarHeight + 12.dp,
+                        bottom = MiniPlayerHeight + 36.dp,
+                        end = 14.dp
+                    )
+            )
         }
 
         CollapsibleCommonTopBar(

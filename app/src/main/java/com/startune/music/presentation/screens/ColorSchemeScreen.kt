@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -74,6 +75,7 @@ import com.startune.music.data.preferences.AppColorScheme
 import com.startune.music.data.preferences.ColorSchemeIds
 import com.startune.music.data.preferences.ColorSchemeSort
 import com.startune.music.data.preferences.SchemeRoles
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.viewmodel.ColorSchemeImportResult
 import com.startune.music.presentation.viewmodel.ColorSchemeViewModel
@@ -200,6 +202,8 @@ fun ColorSchemeScreen(
         }
     }
 
+    val lazyListState = rememberLazyListState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -241,86 +245,99 @@ fun ColorSchemeScreen(
             )
         }
     ) { scaffoldPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            contentPadding = PaddingValues(
-                start = 16.dp,
-                top = scaffoldPadding.calculateTopPadding() + 12.dp,
-                end = 16.dp,
-                bottom = scaffoldPadding.calculateBottomPadding() + MiniPlayerHeight + 24.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    FilledTonalButton(
-                        onClick = { onEditTheme("new") },
-                        shape = RoundedCornerShape(26.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                        ),
-                        elevation = ButtonDefaults.buttonElevation(
-                            defaultElevation = 4.dp,
-                            pressedElevation = 6.dp
-                        ),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(42.dp)
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                state = lazyListState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    top = scaffoldPadding.calculateTopPadding() + 12.dp,
+                    end = 16.dp,
+                    bottom = scaffoldPadding.calculateBottomPadding() + MiniPlayerHeight + 24.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        FilledTonalButton(
+                            onClick = { onEditTheme("new") },
+                            shape = RoundedCornerShape(26.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 4.dp,
+                                pressedElevation = 6.dp
+                            ),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(42.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Rounded.PlaylistAdd,
+                                    contentDescription = stringResource(R.string.cd_create_new_playlist),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Text(
+                                    text = stringResource(R.string.library_action_new),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
+                        FilledTonalIconButton(
+                            onClick = { showSortSheet = true },
+                            shape = RoundedCornerShape(26.dp),
+                            modifier = Modifier.size(42.dp)
                         ) {
                             Icon(
-                                Icons.AutoMirrored.Rounded.PlaylistAdd,
-                                contentDescription = stringResource(R.string.cd_create_new_playlist),
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Text(
-                                text = stringResource(R.string.library_action_new),
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Medium
+                                Icons.AutoMirrored.Rounded.Sort,
+                                contentDescription = stringResource(R.string.cd_sort_options)
                             )
                         }
-                    }
-                    FilledTonalIconButton(
-                        onClick = { showSortSheet = true },
-                        shape = RoundedCornerShape(26.dp),
-                        modifier = Modifier.size(42.dp)
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Rounded.Sort,
-                            contentDescription = stringResource(R.string.cd_sort_options)
-                        )
                     }
                 }
+                items(displaySchemes, key = { it.id }) { entry ->
+                    ColorSchemeRow(
+                        name = entry.name,
+                        roles = entry.roles,
+                        selected = selectedId == entry.id,
+                        onClick = { viewModel.selectScheme(entry.id) },
+                        onEdit = entry.custom?.let { { onEditTheme(it.id) } },
+                        onExport = entry.custom?.let { scheme ->
+                            {
+                                exportScheme = scheme
+                                exportLauncher.launch("${scheme.name}.json")
+                            }
+                        },
+                        onDelete = entry.custom?.let { scheme -> { deleteScheme = scheme } },
+                        onCopy = if (entry.id == ColorSchemeIds.DYNAMIC) null
+                        else ({ onEditTheme("copy_${entry.id}") })
+                    )
+                }
             }
-            items(displaySchemes, key = { it.id }) { entry ->
-                ColorSchemeRow(
-                    name = entry.name,
-                    roles = entry.roles,
-                    selected = selectedId == entry.id,
-                    onClick = { viewModel.selectScheme(entry.id) },
-                    onEdit = entry.custom?.let { { onEditTheme(it.id) } },
-                    onExport = entry.custom?.let { scheme ->
-                        {
-                            exportScheme = scheme
-                            exportLauncher.launch("${scheme.name}.json")
-                        }
-                    },
-                    onDelete = entry.custom?.let { scheme -> { deleteScheme = scheme } },
-                    onCopy = if (entry.id == ColorSchemeIds.DYNAMIC) null
-                    else ({ onEditTheme("copy_${entry.id}") })
-                )
-            }
+            ExpressiveScrollBar(
+                listState = lazyListState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = scaffoldPadding.calculateTopPadding() + 12.dp,
+                        bottom = scaffoldPadding.calculateBottomPadding() + MiniPlayerHeight + 24.dp,
+                        end = 14.dp
+                    )
+            )
         }
     }
 

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ContainedLoadingIndicator
@@ -32,6 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.startune.music.R
 import com.startune.music.presentation.components.ExpressiveEmptyState
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.data.library.DuplicateFinder
 import com.startune.music.data.model.Song
 import com.startune.music.presentation.viewmodel.DuplicateSongsViewModel
@@ -46,6 +48,7 @@ fun DuplicateSongsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val duplicatesQueueName = stringResource(R.string.duplicates_title)
+    val lazyListState = rememberLazyListState()
 
     Scaffold(
         topBar = {
@@ -77,31 +80,44 @@ fun DuplicateSongsScreen(
             }
 
             else -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = padding,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    item {
-                        Text(
-                            text = stringResource(
-                                R.string.duplicates_summary,
-                                uiState.groups.size,
-                                uiState.totalDuplicates
-                            ),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                        )
+                Box(modifier = Modifier.fillMaxSize()) {
+                    LazyColumn(
+                        state = lazyListState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = padding,
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        item {
+                            Text(
+                                text = stringResource(
+                                    R.string.duplicates_summary,
+                                    uiState.groups.size,
+                                    uiState.totalDuplicates
+                                ),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            )
+                        }
+                        items(uiState.groups, key = { it.title + "|" + it.artist + "|" + it.songs.first().id }) { group ->
+                            DuplicateGroupCard(
+                                group = group,
+                                onSongClick = { song ->
+                                    playerViewModel.playSongs(group.songs, song, queueName = duplicatesQueueName)
+                                }
+                            )
+                        }
                     }
-                    items(uiState.groups, key = { it.title + "|" + it.artist + "|" + it.songs.first().id }) { group ->
-                        DuplicateGroupCard(
-                            group = group,
-                            onSongClick = { song ->
-                                playerViewModel.playSongs(group.songs, song, queueName = duplicatesQueueName)
-                            }
-                        )
-                    }
+                    ExpressiveScrollBar(
+                        listState = lazyListState,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(
+                                top = padding.calculateTopPadding() + 12.dp,
+                                bottom = padding.calculateBottomPadding() + 16.dp,
+                                end = 14.dp
+                            )
+                    )
                 }
             }
         }

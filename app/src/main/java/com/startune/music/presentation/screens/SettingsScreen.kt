@@ -90,6 +90,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.startune.music.R
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.ExpressiveTopBarContent
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.model.SettingsCategory
@@ -327,6 +328,19 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
+        if (collapseFraction > 0.95f) {
+            ExpressiveScrollBar(
+                listState = lazyListState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = minTopBarHeight + 12.dp,
+                        bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp,
+                        end = 14.dp
+                    )
+            )
+        }
+
         CollapsibleCommonTopBar(
                 title = stringResource(R.string.settings_top_bar_title),
                 collapseFraction = collapseFraction,

@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -82,6 +83,7 @@ import com.startune.music.R
 import com.startune.music.data.model.Curve
 import com.startune.music.data.model.TransitionMode
 import com.startune.music.data.model.TransitionSettings
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.rememberSyncedSliderState
 import com.startune.music.presentation.viewmodel.TransitionViewModel
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
@@ -121,6 +123,8 @@ fun EditTransitionScreen(
             snackbarHostState.showSnackbar(message = context.getString(messageRes))
         }
     }
+
+    val lazyListState = rememberLazyListState()
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -172,69 +176,82 @@ fun EditTransitionScreen(
                 ContainedLoadingIndicator()
             }
         } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = paddingValues.calculateTopPadding())
-                    .padding(horizontal = 16.dp),
-                contentPadding = PaddingValues(bottom = 100.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                item {
-                    Text(
-                        text = if (isPlaylistScope) {
-                            stringResource(R.string.presentation_batch_d_transition_intro_playlist)
-                        } else {
-                            stringResource(R.string.presentation_batch_d_transition_intro_global)
-                        },
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 4.dp)
-                    )
-                }
+            Box(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    state = lazyListState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = paddingValues.calculateTopPadding())
+                        .padding(horizontal = 16.dp),
+                    contentPadding = PaddingValues(bottom = 100.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    item {
+                        Text(
+                            text = if (isPlaylistScope) {
+                                stringResource(R.string.presentation_batch_d_transition_intro_playlist)
+                            } else {
+                                stringResource(R.string.presentation_batch_d_transition_intro_global)
+                            },
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        )
+                    }
 
-                item {
-                    TransitionSummaryCard(
-                        isPlaylistScope = isPlaylistScope,
-                        hasCustomRule = hasCustomRule,
-                        followingGlobal = uiState.useGlobalDefaults,
-                        onResetToGlobal = { viewModel.useGlobalDefaults() },
-                        onEnableOverride = { viewModel.enablePlaylistOverride() },
-                        enabled = isPlaylistScope
-                    )
-                }
+                    item {
+                        TransitionSummaryCard(
+                            isPlaylistScope = isPlaylistScope,
+                            hasCustomRule = hasCustomRule,
+                            followingGlobal = uiState.useGlobalDefaults,
+                            onResetToGlobal = { viewModel.useGlobalDefaults() },
+                            onEnableOverride = { viewModel.enablePlaylistOverride() },
+                            enabled = isPlaylistScope
+                        )
+                    }
 
-                item {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-                }
+                    item {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    }
 
-                item {
-                    TransitionModeSection(
-                        selected = displayedSettings.mode,
-                        onModeSelected = viewModel::updateMode
-                    )
-                }
+                    item {
+                        TransitionModeSection(
+                            selected = displayedSettings.mode,
+                            onModeSelected = viewModel::updateMode
+                        )
+                    }
 
-                item {
-                    AnimatedVisibility(
-                        visible = isCrossfadeEnabled,
-                        enter = expandVertically(tween(300)) + fadeIn(tween(300)),
-                        exit = shrinkVertically(tween(300)) + fadeOut(tween(300))
-                    ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                            TransitionDurationSection(
-                                settings = displayedSettings,
-                                onDurationChange = viewModel::updateDuration
-                            )
+                    item {
+                        AnimatedVisibility(
+                            visible = isCrossfadeEnabled,
+                            enter = expandVertically(tween(300)) + fadeIn(tween(300)),
+                            exit = shrinkVertically(tween(300)) + fadeOut(tween(300))
+                        ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                TransitionDurationSection(
+                                    settings = displayedSettings,
+                                    onDurationChange = viewModel::updateDuration
+                                )
 
-                            TransitionCurvesSection(
-                                settings = displayedSettings,
-                                onCurveInSelected = viewModel::updateCurveIn,
-                                onCurveOutSelected = viewModel::updateCurveOut
-                            )
+                                TransitionCurvesSection(
+                                    settings = displayedSettings,
+                                    onCurveInSelected = viewModel::updateCurveIn,
+                                    onCurveOutSelected = viewModel::updateCurveOut
+                                )
+                            }
                         }
                     }
                 }
+                ExpressiveScrollBar(
+                    listState = lazyListState,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(
+                            top = paddingValues.calculateTopPadding() + 12.dp,
+                            bottom = 100.dp,
+                            end = 14.dp
+                        )
+                )
             }
         }
     }

@@ -109,6 +109,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.util.lerp
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.utils.shapes.RoundedStarShape
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -353,6 +354,17 @@ fun RecentlyPlayedScreen(
                 }
             }
         }
+
+        ExpressiveScrollBar(
+            listState = lazyListState,
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(
+                    top = minTopBarHeight + 12.dp,
+                    bottom = if (currentSongId != null) MiniPlayerHeight + bottomBarHeightDp + 20.dp else bottomBarHeightDp + 16.dp,
+                    end = 14.dp
+                )
+        )
 
         Box(
             modifier = Modifier

@@ -145,6 +145,7 @@ import com.startune.music.data.model.Song
 import androidx.compose.material3.ModalBottomSheet
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.ScreenWrapper
 import com.startune.music.presentation.components.SmartImage
@@ -287,6 +288,17 @@ fun AudioBookmarksScreen(
                     Spacer(Modifier.height(30.dp))
                 }
             }
+
+            ExpressiveScrollBar(
+                listState = listState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = topBarHeight + 12.dp,
+                        bottom = 176.dp,
+                        end = 14.dp
+                    )
+            )
 
             BookmarkKeepSearchTopBar(
                 query = query,
@@ -455,6 +467,19 @@ fun AudioBookmarkFolderScreen(
                             )
                         }
                     }
+                }
+
+                if (topBarState.collapseFraction > 0.95f) {
+                    ExpressiveScrollBar(
+                        listState = topBarState.lazyListState,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(
+                                top = topBarState.headerHeight + 14.dp,
+                                bottom = 128.dp,
+                                end = 14.dp
+                            )
+                    )
                 }
 
                 BookmarkFolderTopBar(

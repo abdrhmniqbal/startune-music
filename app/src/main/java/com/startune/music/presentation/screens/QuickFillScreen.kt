@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.startune.music.data.model.Song
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.SongPickerList
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.utils.GenreIconProvider
@@ -314,82 +316,96 @@ fun GenreValidatorContent(
     val selectIconLabel = stringResource(R.string.presentation_batch_b_select_icon)
     val addLabel = stringResource(R.string.presentation_batch_b_add)
 
+    val gridState = rememberLazyGridState()
     val allGenres = remember(customGenres) {
         (GenreIconProvider.DEFAULT_GENRES + customGenres.toList()).sorted()
     }
 
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 140.dp),
-        contentPadding = PaddingValues(
-            start = 16.dp, 
-            end = 16.dp, 
-            top = 16.dp, 
-            bottom = contentPadding.calculateBottomPadding() + 16.dp
-        ),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxSize()
-    ) {
-        item {
-            Card(
-                onClick = { showCustomDialog = true },
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-                ),
-                shape = AbsoluteSmoothCornerShape(16.dp, 60),
-                modifier = Modifier.height(80.dp)
-            ) {
-                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                         Icon(Icons.Rounded.Add, addCustomCd, tint = MaterialTheme.colorScheme.primary)
-                         Text(newGenreLabel, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                     }
-                 }
-            }
-        }
-        
-        items(allGenres, key = { it }) { genre ->
-            val isSelected = selectedGenre == genre
-            val containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh
-            val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-            
-            Card(
-                onClick = { onGenreSelected(genre) },
-                colors = CardDefaults.cardColors(
-                    containerColor = containerColor,
-                    contentColor = contentColor
-                ),
-                shape = AbsoluteSmoothCornerShape(16.dp, 60),
-                modifier = Modifier.height(80.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxSize().padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyVerticalGrid(
+            state = gridState,
+            columns = GridCells.Adaptive(minSize = 140.dp),
+            contentPadding = PaddingValues(
+                start = 16.dp, 
+                end = 16.dp, 
+                top = 16.dp, 
+                bottom = contentPadding.calculateBottomPadding() + 16.dp
+            ),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            item {
+                Card(
+                    onClick = { showCustomDialog = true },
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                    ),
+                    shape = AbsoluteSmoothCornerShape(16.dp, 60),
+                    modifier = Modifier.height(80.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
+                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                             Icon(Icons.Rounded.Add, addCustomCd, tint = MaterialTheme.colorScheme.primary)
+                             Text(newGenreLabel, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                         }
+                     }
+                }
+            }
+        
+            items(allGenres, key = { it }) { genre ->
+                val isSelected = selectedGenre == genre
+                val containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh
+                val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+            
+                Card(
+                    onClick = { onGenreSelected(genre) },
+                    colors = CardDefaults.cardColors(
+                        containerColor = containerColor,
+                        contentColor = contentColor
+                    ),
+                    shape = AbsoluteSmoothCornerShape(16.dp, 60),
+                    modifier = Modifier.height(80.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxSize().padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        SmartImage(
-                            model = GenreIconProvider.getGenreImageResource(genre, customGenreIcons),
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize().padding(6.dp),
-                            colorFilter = ColorFilter.tint(if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface)
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
+                        ) {
+                            SmartImage(
+                                model = GenreIconProvider.getGenreImageResource(genre, customGenreIcons),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize().padding(6.dp),
+                                colorFilter = ColorFilter.tint(if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface)
+                            )
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = genre, 
+                            style = MaterialTheme.typography.bodyMedium, 
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = genre, 
-                        style = MaterialTheme.typography.bodyMedium, 
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
                 }
             }
         }
+        ExpressiveScrollBar(
+            gridState = gridState,
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(
+                    top = 16.dp + 12.dp,
+                    bottom = contentPadding.calculateBottomPadding() + 16.dp,
+                    end = 14.dp
+                )
+        )
     }
     
     if (showCustomDialog) {

@@ -94,6 +94,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.startune.music.R
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.viewmodel.AudioCapabilities
 import com.startune.music.presentation.viewmodel.AudioOutputCategory
@@ -199,6 +200,19 @@ fun DeviceCapabilitiesScreen(
                 lazyListState = lazyListState,
                 topPadding = currentTopBarHeightDp,
                 modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        if (collapseFraction > 0.95f) {
+            ExpressiveScrollBar(
+                listState = lazyListState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = minTopBarHeight + 12.dp,
+                        bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp,
+                        end = 14.dp
+                    )
             )
         }
 

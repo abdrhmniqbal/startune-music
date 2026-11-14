@@ -105,6 +105,7 @@ import coil.size.Size
 import com.startune.music.R
 import com.startune.music.data.updates.AppUpdateManager
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.navigation.Screen
@@ -445,6 +446,19 @@ fun AboutScreen(
             item(key = "bottom_spacer") {
                 Spacer(modifier = Modifier.height(24.dp))
             }
+        }
+
+        if (collapseFraction > 0.95f) {
+            ExpressiveScrollBar(
+                listState = lazyListState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = minTopBarHeight + 12.dp,
+                        bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp,
+                        end = 14.dp
+                    )
+            )
         }
 
         CollapsibleCommonTopBar(

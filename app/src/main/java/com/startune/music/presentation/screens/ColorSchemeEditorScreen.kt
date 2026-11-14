@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -54,6 +55,7 @@ import com.startune.music.R
 import com.startune.music.data.preferences.AppColorScheme
 import com.startune.music.data.preferences.ColorRoleKeys
 import com.startune.music.data.preferences.SchemeRoles
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.HsvColorPicker
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.utils.getSegmentedItemShape
@@ -301,6 +303,8 @@ fun ColorSchemeEditorScreen(
         onBack()
     }
 
+    val lazyListState = rememberLazyListState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -345,214 +349,227 @@ fun ColorSchemeEditorScreen(
             )
         }
     ) { scaffoldPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            contentPadding = PaddingValues(
-                start = 16.dp,
-                top = scaffoldPadding.calculateTopPadding() + 12.dp,
-                end = 16.dp,
-                bottom = MiniPlayerHeight + 24.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text(stringResource(R.string.color_scheme_name_label)) },
-                    placeholder = { Text(stringResource(R.string.color_scheme_name_placeholder)) },
-                    shape = RoundedCornerShape(16.dp),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                state = lazyListState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    top = scaffoldPadding.calculateTopPadding() + 12.dp,
+                    end = 16.dp,
+                    bottom = MiniPlayerHeight + 24.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text(stringResource(R.string.color_scheme_name_label)) },
+                        placeholder = { Text(stringResource(R.string.color_scheme_name_placeholder)) },
+                        shape = RoundedCornerShape(16.dp),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedBorderColor = Color.Transparent
+                        )
                     )
-                )
-            }
-            item {
-                Text(
-                    text = stringResource(R.string.color_scheme_preview),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 12.dp)
-                )
-            }
-            item {
-                val isDark = LocalStartuneDarkTheme.current
-                val draftRoles = if (isDark) dark else light
-                MaterialTheme(colorScheme = draftRoles.toColorScheme(dark = isDark)) {
-                    Surface(
-                        shape = RoundedCornerShape(28.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(16.dp).fillMaxWidth()
+                }
+                item {
+                    Text(
+                        text = stringResource(R.string.color_scheme_preview),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                }
+                item {
+                    val isDark = LocalStartuneDarkTheme.current
+                    val draftRoles = if (isDark) dark else light
+                    MaterialTheme(colorScheme = draftRoles.toColorScheme(dark = isDark)) {
+                        Surface(
+                            shape = RoundedCornerShape(28.dp),
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primary),
-                                contentAlignment = Alignment.Center
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(16.dp).fillMaxWidth()
                             ) {
-                                Icon(
-                                    Icons.Rounded.PlayArrow,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier.size(28.dp)
-                                )
-                            }
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(start = 16.dp)
-                            ) {
-                                Text(
-                                    text = name.ifBlank { stringResource(R.string.color_scheme_name_placeholder) },
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = stringResource(
-                                        if (isDark) R.string.color_scheme_dark
-                                        else R.string.color_scheme_light
-                                    ),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.primary),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        Icons.Rounded.PlayArrow,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(28.dp)
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(start = 16.dp)
+                                ) {
+                                    Text(
+                                        text = name.ifBlank { stringResource(R.string.color_scheme_name_placeholder) },
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = stringResource(
+                                            if (isDark) R.string.color_scheme_dark
+                                            else R.string.color_scheme_light
+                                        ),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            }
-            item {
-                Text(
-                    text = stringResource(R.string.color_scheme_light),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 12.dp)
-                )
-            }
-            item {
-                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    ColorRole.entries.forEachIndexed { index, role ->
-                        ColorRoleRow(
-                            label = stringResource(role.labelRes),
-                            hex = light.roleHex(role),
-                            shape = getSegmentedItemShape(index, ColorRole.entries.size),
-                            onClick = { pickerTarget = PickerTarget.Base(isDark = false, role = role, hex = light.roleHex(role)) }
-                        )
+                item {
+                    Text(
+                        text = stringResource(R.string.color_scheme_light),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                }
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        ColorRole.entries.forEachIndexed { index, role ->
+                            ColorRoleRow(
+                                label = stringResource(role.labelRes),
+                                hex = light.roleHex(role),
+                                shape = getSegmentedItemShape(index, ColorRole.entries.size),
+                                onClick = { pickerTarget = PickerTarget.Base(isDark = false, role = role, hex = light.roleHex(role)) }
+                            )
+                        }
                     }
                 }
-            }
-            item {
-                Text(
-                    text = stringResource(R.string.color_scheme_dark),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 12.dp)
-                )
-            }
-            item {
-                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    ColorRole.entries.forEachIndexed { index, role ->
-                        ColorRoleRow(
-                            label = stringResource(role.labelRes),
-                            hex = dark.roleHex(role),
-                            shape = getSegmentedItemShape(index, ColorRole.entries.size),
-                            onClick = { pickerTarget = PickerTarget.Base(isDark = true, role = role, hex = dark.roleHex(role)) }
-                        )
+                item {
+                    Text(
+                        text = stringResource(R.string.color_scheme_dark),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                }
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        ColorRole.entries.forEachIndexed { index, role ->
+                            ColorRoleRow(
+                                label = stringResource(role.labelRes),
+                                hex = dark.roleHex(role),
+                                shape = getSegmentedItemShape(index, ColorRole.entries.size),
+                                onClick = { pickerTarget = PickerTarget.Base(isDark = true, role = role, hex = dark.roleHex(role)) }
+                            )
+                        }
                     }
                 }
+                item {
+                    Text(
+                        text = stringResource(R.string.color_scheme_advanced),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                }
+                item {
+                    Text(
+                        text = stringResource(R.string.color_scheme_light),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                item {
+                    AdvancedRolesSection(
+                        roles = light,
+                        isDark = false,
+                        onPick = { key, labelRes, hex ->
+                            pickerTarget = PickerTarget.Override(isDark = false, key = key, labelRes = labelRes, hex = hex)
+                        }
+                    )
+                }
+                item {
+                    Text(
+                        text = stringResource(R.string.color_scheme_dark),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                item {
+                    AdvancedRolesSection(
+                        roles = dark,
+                        isDark = true,
+                        onPick = { key, labelRes, hex ->
+                            pickerTarget = PickerTarget.Override(isDark = true, key = key, labelRes = labelRes, hex = hex)
+                        }
+                    )
+                }
+                item {
+                    Text(
+                        text = stringResource(R.string.color_scheme_rainbow),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                }
+                item {
+                    Text(
+                        text = stringResource(R.string.color_scheme_light),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                item {
+                    RainbowSection(
+                        roles = light,
+                        isDark = false,
+                        onPick = { index, hex ->
+                            pickerTarget = PickerTarget.Rainbow(isDark = false, index = index, hex = hex)
+                        }
+                    )
+                }
+                item {
+                    Text(
+                        text = stringResource(R.string.color_scheme_dark),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                item {
+                    RainbowSection(
+                        roles = dark,
+                        isDark = true,
+                        onPick = { index, hex ->
+                            pickerTarget = PickerTarget.Rainbow(isDark = true, index = index, hex = hex)
+                        }
+                    )
+                }
             }
-            item {
-                Text(
-                    text = stringResource(R.string.color_scheme_advanced),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 12.dp)
-                )
-            }
-            item {
-                Text(
-                    text = stringResource(R.string.color_scheme_light),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            item {
-                AdvancedRolesSection(
-                    roles = light,
-                    isDark = false,
-                    onPick = { key, labelRes, hex ->
-                        pickerTarget = PickerTarget.Override(isDark = false, key = key, labelRes = labelRes, hex = hex)
-                    }
-                )
-            }
-            item {
-                Text(
-                    text = stringResource(R.string.color_scheme_dark),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            item {
-                AdvancedRolesSection(
-                    roles = dark,
-                    isDark = true,
-                    onPick = { key, labelRes, hex ->
-                        pickerTarget = PickerTarget.Override(isDark = true, key = key, labelRes = labelRes, hex = hex)
-                    }
-                )
-            }
-            item {
-                Text(
-                    text = stringResource(R.string.color_scheme_rainbow),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 12.dp)
-                )
-            }
-            item {
-                Text(
-                    text = stringResource(R.string.color_scheme_light),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            item {
-                RainbowSection(
-                    roles = light,
-                    isDark = false,
-                    onPick = { index, hex ->
-                        pickerTarget = PickerTarget.Rainbow(isDark = false, index = index, hex = hex)
-                    }
-                )
-            }
-            item {
-                Text(
-                    text = stringResource(R.string.color_scheme_dark),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            item {
-                RainbowSection(
-                    roles = dark,
-                    isDark = true,
-                    onPick = { index, hex ->
-                        pickerTarget = PickerTarget.Rainbow(isDark = true, index = index, hex = hex)
-                    }
-                )
-            }
+            ExpressiveScrollBar(
+                listState = lazyListState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = scaffoldPadding.calculateTopPadding() + 12.dp,
+                        bottom = MiniPlayerHeight + 24.dp,
+                        end = 14.dp
+                    )
+            )
         }
     }
 

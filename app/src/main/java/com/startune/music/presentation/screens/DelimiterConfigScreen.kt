@@ -77,6 +77,7 @@ import androidx.navigation.NavController
 import com.startune.music.R
 import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.ExpressiveTopBarContent
 import com.startune.music.presentation.viewmodel.ArtistSettingsViewModel
 import kotlinx.coroutines.launch
@@ -350,6 +351,19 @@ fun DelimiterConfigScreen(
                     }
                 }
             }
+        }
+
+        if (collapseFraction > 0.95f) {
+            ExpressiveScrollBar(
+                listState = lazyListState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = minTopBarHeight + 12.dp,
+                        bottom = 100.dp,
+                        end = 14.dp
+                    )
+            )
         }
 
         CollapsibleCommonTopBar(

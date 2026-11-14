@@ -89,6 +89,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.startune.music.R
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.RescanRequiredBanner
 import com.startune.music.presentation.components.ExpressiveTopBarContent
 import com.startune.music.presentation.settings.search.settingHighlight
@@ -474,6 +475,19 @@ fun ArtistSettingsScreen(
                 )
             }
         }
+        if (collapseFraction > 0.95f) {
+            ExpressiveScrollBar(
+                listState = lazyListState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = minTopBarHeight + 12.dp,
+                        bottom = 100.dp,
+                        end = 14.dp
+                    )
+            )
+        }
+
         CollapsibleCommonTopBar(
             title = stringResource(R.string.setcat_artists_title),
             collapseFraction = collapseFraction,

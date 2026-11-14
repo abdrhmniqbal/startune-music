@@ -150,6 +150,7 @@ import com.startune.music.data.stats.PlaybackStatsRepository
 import com.startune.music.data.stats.PlaybackStatsRepository.PlaybackStatsSummary
 import com.startune.music.data.stats.StatsTimeRange
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SmartImageCompactListTargetSize
@@ -457,6 +458,19 @@ fun StatsScreen(
                         }
                     }
                 }
+            }
+
+            if (collapseFraction > 0.95f) {
+                ExpressiveScrollBar(
+                    listState = lazyListState,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(
+                            top = minTopBarHeight + 12.dp,
+                            bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp,
+                            end = 14.dp
+                        )
+                )
             }
 
             Box(

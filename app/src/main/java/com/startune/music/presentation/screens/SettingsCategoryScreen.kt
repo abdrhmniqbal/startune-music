@@ -200,6 +200,7 @@ import com.startune.music.data.preferences.LyricsWordHighlightStyle
 import com.startune.music.data.preferences.MAX_LYRICS_FONT_SIZE_SP
 import com.startune.music.data.preferences.MIN_LYRICS_FONT_SIZE_SP
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.ExpressiveTopBarContent
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.model.SettingsCategory
@@ -1906,6 +1907,19 @@ fun SettingsCategoryScreen(
             item {
                 Spacer(Modifier.height(1.dp))
             }
+        }
+
+        if (collapseFraction > 0.95f) {
+            ExpressiveScrollBar(
+                listState = lazyListState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = minTopBarHeight + 12.dp,
+                        bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp,
+                        end = 14.dp
+                    )
+            )
         }
 
         CollapsibleCommonTopBar(

@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
@@ -49,6 +51,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.startune.music.R
 import com.startune.music.data.updates.AppUpdateManager
+import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.viewmodel.AppUpdateViewModel
 import kotlinx.coroutines.launch
@@ -89,6 +92,8 @@ fun UpdatesScreen(
         }
     }
 
+    val lazyListState = rememberLazyListState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -107,113 +112,116 @@ fun UpdatesScreen(
             )
         }
     ) { scaffoldPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            contentPadding = PaddingValues(
-                start = 16.dp,
-                top = scaffoldPadding.calculateTopPadding() + 12.dp,
-                end = 16.dp,
-                bottom = MiniPlayerHeight + 24.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item(key = "status") {
-                Surface(
-                    color = MaterialTheme.colorScheme.surfaceContainer,
-                    shape = RoundedCornerShape(24.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            Icon(
-                                Icons.Rounded.SystemUpdate,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(32.dp)
-                            )
-                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                Text(
-                                    text = stringResource(R.string.updates_installed_version, viewModel.currentVersion),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                state = lazyListState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    top = scaffoldPadding.calculateTopPadding() + 12.dp,
+                    end = 16.dp,
+                    bottom = MiniPlayerHeight + 24.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item(key = "status") {
+                    Surface(
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                        shape = RoundedCornerShape(24.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                Icon(
+                                    Icons.Rounded.SystemUpdate,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(32.dp)
                                 )
-                                Text(
-                                    text = stringResource(R.string.updates_source_github),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-
-                        val info = pendingUpdate
-                        Text(
-                            text = when {
-                                isChecking -> stringResource(R.string.updates_status_checking)
-                                downloadState is AppUpdateManager.DownloadState.Downloading -> {
-                                    val progress = (downloadState as AppUpdateManager.DownloadState.Downloading).progress
-                                    stringResource(
-                                        R.string.updates_status_downloading_progress,
-                                        info?.newVersion ?: "",
-                                        (progress * 100).toInt()
+                                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                    Text(
+                                        text = stringResource(R.string.updates_installed_version, viewModel.currentVersion),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.updates_source_github),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                downloadState is AppUpdateManager.DownloadState.Downloaded -> stringResource(
-                                    R.string.updates_status_downloaded,
-                                    info?.newVersion ?: ""
-                                )
-                                downloadState is AppUpdateManager.DownloadState.Failed -> stringResource(R.string.updates_status_download_failed)
-                                info != null -> stringResource(R.string.updates_status_available, info.newVersion)
-                                lastCheckFailed -> stringResource(R.string.update_check_failed)
-                                lastCheckUpToDate -> stringResource(R.string.update_up_to_date)
-                                else -> stringResource(R.string.updates_status_idle)
-                            },
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                            }
 
-                        when (val state = downloadState) {
-                            is AppUpdateManager.DownloadState.Downloading -> {
-                                LinearProgressIndicator(progress = { state.progress }, modifier = Modifier.fillMaxWidth())
-                            }
-                            is AppUpdateManager.DownloadState.Downloaded -> {
-                                Button(
-                                    onClick = { viewModel.installDownloadedApk(state.file) },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) { Text(stringResource(R.string.updates_action_install)) }
-                                OutlinedButton(
-                                    onClick = { viewModel.dismissPendingUpdate(false) },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) { Text(stringResource(R.string.updates_action_dismiss)) }
-                            }
-                            is AppUpdateManager.DownloadState.Failed -> {
-                                Button(onClick = ::checkNow, modifier = Modifier.fillMaxWidth()) {
-                                    Text(stringResource(R.string.updates_action_check_again))
+                            val info = pendingUpdate
+                            Text(
+                                text = when {
+                                    isChecking -> stringResource(R.string.updates_status_checking)
+                                    downloadState is AppUpdateManager.DownloadState.Downloading -> {
+                                        val progress = (downloadState as AppUpdateManager.DownloadState.Downloading).progress
+                                        stringResource(
+                                            R.string.updates_status_downloading_progress,
+                                            info?.newVersion ?: "",
+                                            (progress * 100).toInt()
+                                        )
+                                    }
+                                    downloadState is AppUpdateManager.DownloadState.Downloaded -> stringResource(
+                                        R.string.updates_status_downloaded,
+                                        info?.newVersion ?: ""
+                                    )
+                                    downloadState is AppUpdateManager.DownloadState.Failed -> stringResource(R.string.updates_status_download_failed)
+                                    info != null -> stringResource(R.string.updates_status_available, info.newVersion)
+                                    lastCheckFailed -> stringResource(R.string.update_check_failed)
+                                    lastCheckUpToDate -> stringResource(R.string.update_up_to_date)
+                                    else -> stringResource(R.string.updates_status_idle)
+                                },
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+
+                            when (val state = downloadState) {
+                                is AppUpdateManager.DownloadState.Downloading -> {
+                                    LinearProgressIndicator(progress = { state.progress }, modifier = Modifier.fillMaxWidth())
                                 }
-                                OutlinedButton(
-                                    onClick = { viewModel.dismissPendingUpdate(false) },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) { Text(stringResource(R.string.updates_action_dismiss)) }
-                            }
-                            AppUpdateManager.DownloadState.Idle -> {
-                                if (isChecking) {
-                                    LoadingIndicator(modifier = Modifier.size(28.dp))
-                                } else if (info != null) {
+                                is AppUpdateManager.DownloadState.Downloaded -> {
                                     Button(
-                                        onClick = { viewModel.enqueueDownload(info) },
+                                        onClick = { viewModel.installDownloadedApk(state.file) },
                                         modifier = Modifier.fillMaxWidth()
                                     ) { Text(stringResource(R.string.updates_action_install)) }
                                     OutlinedButton(
-                                        onClick = { openUrl(context, info.htmlUrl) },
+                                        onClick = { viewModel.dismissPendingUpdate(false) },
                                         modifier = Modifier.fillMaxWidth()
-                                    ) { Text(stringResource(R.string.updates_action_release_notes)) }
-                                } else {
+                                    ) { Text(stringResource(R.string.updates_action_dismiss)) }
+                                }
+                                is AppUpdateManager.DownloadState.Failed -> {
                                     Button(onClick = ::checkNow, modifier = Modifier.fillMaxWidth()) {
-                                        Text(
-                                            if (lastCheckUpToDate) stringResource(R.string.updates_action_check_again)
-                                            else stringResource(R.string.updates_action_check)
-                                        )
+                                        Text(stringResource(R.string.updates_action_check_again))
+                                    }
+                                    OutlinedButton(
+                                        onClick = { viewModel.dismissPendingUpdate(false) },
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) { Text(stringResource(R.string.updates_action_dismiss)) }
+                                }
+                                AppUpdateManager.DownloadState.Idle -> {
+                                    if (isChecking) {
+                                        LoadingIndicator(modifier = Modifier.size(28.dp))
+                                    } else if (info != null) {
+                                        Button(
+                                            onClick = { viewModel.enqueueDownload(info) },
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) { Text(stringResource(R.string.updates_action_install)) }
+                                        OutlinedButton(
+                                            onClick = { openUrl(context, info.htmlUrl) },
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) { Text(stringResource(R.string.updates_action_release_notes)) }
+                                    } else {
+                                        Button(onClick = ::checkNow, modifier = Modifier.fillMaxWidth()) {
+                                            Text(
+                                                if (lastCheckUpToDate) stringResource(R.string.updates_action_check_again)
+                                                else stringResource(R.string.updates_action_check)
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -221,6 +229,16 @@ fun UpdatesScreen(
                     }
                 }
             }
+            ExpressiveScrollBar(
+                listState = lazyListState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(
+                        top = scaffoldPadding.calculateTopPadding() + 12.dp,
+                        bottom = MiniPlayerHeight + 24.dp,
+                        end = 14.dp
+                    )
+            )
         }
     }
 }
