@@ -25,10 +25,13 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Sort
+import androidx.compose.material.icons.automirrored.rounded.ViewList
+import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -225,21 +228,25 @@ fun GenreDetailListScreen(
     val songsListState = rememberLazyListState()
     val albumsGridState = rememberLazyGridState()
     val artistsGridState = rememberLazyGridState()
-    val isGridView = view != GenreDetailView.Songs
-    val nestedScrollConnection = remember {
+    val albumsListState = rememberLazyListState()
+    val artistsListState = rememberLazyListState()
+    var showAsGrid by remember { mutableStateOf(true) }
+
+    val isGridView = view != GenreDetailView.Songs && showAsGrid
+    val nestedScrollConnection = remember(isGridView) {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val delta = available.y
                 val scrollingDown = delta < 0
                 val firstVisibleItemIndex = when (view) {
                     GenreDetailView.Songs -> songsListState.firstVisibleItemIndex
-                    GenreDetailView.Albums -> albumsGridState.firstVisibleItemIndex
-                    else -> artistsGridState.firstVisibleItemIndex
+                    GenreDetailView.Albums -> if (isGridView) albumsGridState.firstVisibleItemIndex else albumsListState.firstVisibleItemIndex
+                    else -> if (isGridView) artistsGridState.firstVisibleItemIndex else artistsListState.firstVisibleItemIndex
                 }
                 val firstVisibleItemScrollOffset = when (view) {
                     GenreDetailView.Songs -> songsListState.firstVisibleItemScrollOffset
-                    GenreDetailView.Albums -> albumsGridState.firstVisibleItemScrollOffset
-                    else -> artistsGridState.firstVisibleItemScrollOffset
+                    GenreDetailView.Albums -> if (isGridView) albumsGridState.firstVisibleItemScrollOffset else albumsListState.firstVisibleItemScrollOffset
+                    else -> if (isGridView) artistsGridState.firstVisibleItemScrollOffset else artistsListState.firstVisibleItemScrollOffset
                 }
                 if (!scrollingDown && (firstVisibleItemIndex > 0 || firstVisibleItemScrollOffset > 0)) {
                     return Offset.Zero
@@ -259,16 +266,16 @@ fun GenreDetailListScreen(
     }
     val isScrollInProgress = when (view) {
         GenreDetailView.Songs -> songsListState.isScrollInProgress
-        GenreDetailView.Albums -> albumsGridState.isScrollInProgress
-        else -> artistsGridState.isScrollInProgress
+        GenreDetailView.Albums -> if (isGridView) albumsGridState.isScrollInProgress else albumsListState.isScrollInProgress
+        else -> if (isGridView) artistsGridState.isScrollInProgress else artistsListState.isScrollInProgress
     }
-    LaunchedEffect(isScrollInProgress) {
+    LaunchedEffect(isScrollInProgress, isGridView) {
         if (!isScrollInProgress) {
             val shouldExpand = topBarHeight.value > (minTopBarHeightPx + maxTopBarHeightPx) / 2
             val canExpand = when (view) {
                 GenreDetailView.Songs -> songsListState.firstVisibleItemIndex == 0 && songsListState.firstVisibleItemScrollOffset == 0
-                GenreDetailView.Albums -> albumsGridState.firstVisibleItemIndex == 0 && albumsGridState.firstVisibleItemScrollOffset == 0
-                else -> artistsGridState.firstVisibleItemIndex == 0 && artistsGridState.firstVisibleItemScrollOffset == 0
+                GenreDetailView.Albums -> if (isGridView) albumsGridState.firstVisibleItemIndex == 0 && albumsGridState.firstVisibleItemScrollOffset == 0 else albumsListState.firstVisibleItemIndex == 0 && albumsListState.firstVisibleItemScrollOffset == 0
+                else -> if (isGridView) artistsGridState.firstVisibleItemIndex == 0 && artistsGridState.firstVisibleItemScrollOffset == 0 else artistsListState.firstVisibleItemIndex == 0 && artistsListState.firstVisibleItemScrollOffset == 0
             }
             val target = if (shouldExpand && canExpand) maxTopBarHeightPx else minTopBarHeightPx
             if (topBarHeight.value != target) {
@@ -279,12 +286,12 @@ fun GenreDetailListScreen(
         }
     }
 
-    val showScrollBar by remember {
+    val showScrollBar by remember(isGridView) {
         derivedStateOf {
             collapseFraction > 0.95f && when (view) {
                 GenreDetailView.Songs -> songsListState.canScrollForward || songsListState.canScrollBackward
-                GenreDetailView.Albums -> albumsGridState.canScrollForward || albumsGridState.canScrollBackward
-                else -> artistsGridState.canScrollForward || artistsGridState.canScrollBackward
+                GenreDetailView.Albums -> if (isGridView) albumsGridState.canScrollForward || albumsGridState.canScrollBackward else albumsListState.canScrollForward || albumsListState.canScrollBackward
+                else -> if (isGridView) artistsGridState.canScrollForward || artistsGridState.canScrollBackward else artistsListState.canScrollForward || artistsListState.canScrollBackward
             }
         }
     }
@@ -428,7 +435,8 @@ fun GenreDetailListScreen(
                             }
                         }
                     } else if (view == GenreDetailView.Albums) {
-                        LazyVerticalGrid(
+                        if (isGridView) {
+                            LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
                             state = albumsGridState,
                             modifier = Modifier.fillMaxSize(),
@@ -504,10 +512,87 @@ fun GenreDetailListScreen(
                                 )
                             }
                         }
+                        } else {
+                            LazyColumn(
+                                state = albumsListState,
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(
+                                    top = currentTopBarHeightDp + 8.dp,
+                                    start = 16.dp,
+                                    end = 16.dp,
+                                    bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
+                                ),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                if (isAlbumSelectionMode) {
+                                    item(key = "genre_albums_list_selection_row") {
+                                        SelectionActionRow(
+                                            selectedCount = selectedAlbums.size,
+                                            onSelectAll = {
+                                                multiSelectionState.clearSelection()
+                                                selectedAlbums = (selectedAlbums + uiState.albums.filterNot { selectedAlbumNames.contains(it.name) }).toImmutableList()
+                                            },
+                                            onDeselect = {
+                                                selectedAlbums = persistentListOf()
+                                                multiSelectionState.clearSelection()
+                                            },
+                                            onOptionsClick = {
+                                                val songs = selectedAlbums.flatMap { it.songs }.distinctBy { it.id }
+                                                if (songs.isNotEmpty()) {
+                                                    multiSelectionState.replaceSelection(songs)
+                                                    showMultiSelectionSheet = true
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
+                                if (sortedAlbums.isEmpty()) {
+                                    item(key = "genre_albums_list_empty") {
+                                        ExpressiveEmptyState(
+                                            iconRes = R.drawable.rounded_album_24,
+                                            titleRes = R.string.genre_albums_empty_title,
+                                            subtitleRes = R.string.genre_albums_empty_subtitle,
+                                            modifier = Modifier.padding(top = 48.dp)
+                                        )
+                                    }
+                                }
+                                items(
+                                    items = sortedAlbums,
+                                    key = { album -> "genre_list_album_${album.name}" }
+                                ) { album ->
+                                    val albumColorSchemeFlow = remember(album.artUri, useArtworkColorForDetails) {
+                                        if (useArtworkColorForDetails) playerViewModel.themeStateHolder.getAlbumColorSchemeFlow(album.artUri ?: "")
+                                        else MutableStateFlow<ColorSchemePair?>(null)
+                                    }
+                                    AlbumListItem(
+                                        album = albumModelFromAlbumData(album),
+                                        albumColorSchemePairFlow = albumColorSchemeFlow,
+                                        onClick = {
+                                            navController.navigateSafely(
+                                                Screen.AlbumDetail.createRoute(
+                                                    album.songs.firstOrNull()?.albumId ?: -1L
+                                                )
+                                            )
+                                        },
+                                        isSelectionMode = isAlbumSelectionMode,
+                                        isSelected = selectedAlbumNames.contains(album.name),
+                                        selectionIndex = if (isAlbumSelectionMode) {
+                                            selectedAlbums.indexOfFirst { it.name == album.name }.takeIf { it >= 0 }?.plus(1)
+                                        } else null,
+                                        onLongPress = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            toggleAlbumSelection(album)
+                                        },
+                                        onSelectionToggle = { toggleAlbumSelection(album) }
+                                    )
+                                }
+                            }
+                        }
                     } else {
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            state = artistsGridState,
+                        if (isGridView) {
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                state = artistsGridState,
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(
                                 top = currentTopBarHeightDp + 8.dp,
@@ -578,6 +663,79 @@ fun GenreDetailListScreen(
                                 )
                             }
                         }
+                        } else {
+                            LazyColumn(
+                                state = artistsListState,
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(
+                                    top = currentTopBarHeightDp + 8.dp,
+                                    start = 16.dp,
+                                    end = 16.dp,
+                                    bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
+                                ),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                if (isArtistSelectionMode) {
+                                    item(key = "genre_artists_list_selection_row") {
+                                        SelectionActionRow(
+                                            selectedCount = selectedArtists.size,
+                                            onSelectAll = {
+                                                multiSelectionState.clearSelection()
+                                                selectedArtists = (selectedArtists + uiState.artists.filterNot { selectedArtistIds.contains(it.id) }).toImmutableList()
+                                            },
+                                            onDeselect = {
+                                                selectedArtists = persistentListOf()
+                                                multiSelectionState.clearSelection()
+                                            },
+                                            onOptionsClick = {
+                                                val snapshot = selectedArtists.toList()
+                                                val snapshotIds = snapshot.map { it.id }
+                                                coroutineScope.launch {
+                                                    val songs = playerViewModel.resolveArtistSongsForBatchActions(snapshot)
+                                                    if (songs.isNotEmpty() && selectedArtists.map { it.id } == snapshotIds) {
+                                                        multiSelectionState.replaceSelection(songs)
+                                                        showMultiSelectionSheet = true
+                                                    }
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
+                                if (sortedArtists.isEmpty()) {
+                                    item(key = "genre_artists_list_empty") {
+                                        ExpressiveEmptyState(
+                                            iconRes = R.drawable.rounded_artist_24,
+                                            titleRes = R.string.genre_artists_empty_title,
+                                            subtitleRes = R.string.genre_artists_empty_subtitle,
+                                            modifier = Modifier.padding(top = 48.dp)
+                                        )
+                                    }
+                                }
+                                items(
+                                    items = sortedArtists,
+                                    key = { artist -> "genre_list_artist_${artist.id}_${artist.name}" }
+                                ) { artist ->
+                                    ArtistListItem(
+                                        artist = artist,
+                                        onClick = {
+                                            navController.navigateSafely(
+                                                Screen.ArtistDetail.createRoute(artist.id)
+                                            )
+                                        },
+                                        isSelectionMode = isArtistSelectionMode,
+                                        isSelected = selectedArtistIds.contains(artist.id),
+                                        selectionIndex = if (isArtistSelectionMode) {
+                                            selectedArtists.indexOfFirst { it.id == artist.id }.takeIf { it >= 0 }?.plus(1)
+                                        } else null,
+                                        onLongPress = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            toggleArtistSelection(artist)
+                                        },
+                                        onSelectionToggle = { toggleArtistSelection(artist) }
+                                    )
+                                }
+                            }
+                        }
                     }
 
                     Box(
@@ -600,6 +758,14 @@ fun GenreDetailListScreen(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
+                                        IconButton(
+                                            onClick = { showAsGrid = !showAsGrid }
+                                        ) {
+                                            Icon(
+                                                imageVector = if (showAsGrid) Icons.AutoMirrored.Rounded.ViewList else Icons.Rounded.GridView,
+                                                contentDescription = stringResource(if (showAsGrid) R.string.presentation_batch_d_view_list else R.string.presentation_batch_d_view_grid)
+                                            )
+                                        }
                                         IconButton(
                                             onClick = {
                                                 when (view) {
@@ -643,10 +809,14 @@ fun GenreDetailListScreen(
 
                     if (collapseFraction > 0.95f) {
                         ExpressiveScrollBar(
-                            listState = if (view == GenreDetailView.Songs) songsListState else null,
+                            listState = when (view) {
+                                GenreDetailView.Songs -> songsListState
+                                GenreDetailView.Albums -> if (isGridView) null else albumsListState
+                                else -> if (isGridView) null else artistsListState
+                            },
                             gridState = when (view) {
-                                GenreDetailView.Albums -> albumsGridState
-                                GenreDetailView.Artists -> artistsGridState
+                                GenreDetailView.Albums -> if (isGridView) albumsGridState else null
+                                GenreDetailView.Artists -> if (isGridView) artistsGridState else null
                                 else -> null
                             },
                             modifier = Modifier

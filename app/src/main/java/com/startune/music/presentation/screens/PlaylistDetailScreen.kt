@@ -50,7 +50,7 @@ import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.filled.MusicOff
 import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.rounded.Check
@@ -65,7 +65,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ButtonDefaults
@@ -469,9 +469,14 @@ fun PlaylistDetailScreen(
                         collapseFraction = collapseFraction,
                         headerHeight = currentTopBarHeightDp,
                         onBackClick = onBackClick,
+                        // Like the reference: the bar fills with the page's
+                        // own surface as it collapses, while the action chips
+                        // stay surfaceContainerLow, so the more chip keeps its
+                        // background instead of vanishing into the bar.
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = solidAlpha),
                         expandedTitleStartPadding = 24.dp,
                         centerExpandedTitle = true,
-                        titleFontSizeRange = 30.sp to 28.sp,
+                        titleFontSizeRange = 30.sp to 18.sp,
                         maxLines = if (collapseFraction < 0.5f) Int.MAX_VALUE else 1,
                         containerHeightRange = 92.dp to 56.dp,
                         actions = {
@@ -491,10 +496,9 @@ fun PlaylistDetailScreen(
                                     )
                                 }
                                 if (!isFolderPlaylist) {
-                                    FilledTonalIconButton(
+                                    FilledIconButton(
                                         colors = IconButtonDefaults.filledIconButtonColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                            contentColor = MaterialTheme.colorScheme.onSurface
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                                         ),
                                         onClick = {
                                             if (isReorderModeEnabled) {
@@ -509,7 +513,7 @@ fun PlaylistDetailScreen(
                                         if (isReorderModeEnabled || isRemoveModeEnabled) {
                                             Icon(Icons.Rounded.Check, confirmLabel)
                                         } else {
-                                            Icon(Icons.Filled.MoreVert, moreOptionsLabel)
+                                            Icon(Icons.Rounded.MoreVert, moreOptionsLabel)
                                         }
                                     }
                                 }
