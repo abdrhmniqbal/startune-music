@@ -127,20 +127,42 @@ private val ShareCardShape = AbsoluteSmoothCornerShape(
 )
 
 /**
- * Strips LRC metadata headers and timestamps, leaving the plain lyric lines.
- * A song with no usable lines simply has no Lyrics Card tab.
+ * Strips every timestamp and tag the app's own lyric parser knows, leaving
+ * plain lyric lines. A song with no usable lines simply has no Lyrics Card
+ * tab. One line is one entry: a line sung at several timestamps (or a
+ * word-synced line whose words each carry their own time) comes out as
+ * one unbroken line, not one fragment per timestamp.
  */
 object LyricCleaner {
+    // Line stamps: [mm:ss.xx], [mm:ss:xx], [mm:ss], [m:ss.xx], Kugou [startMs,durationMs]
+    private val lineTimestampRegex =
+        Regex("\\[\\d{1,2}:\\d{2}(?:[.:]\\d{1,3})?]|\\[\\d+,\\d+]")
+    // Word stamps: <mm:ss.xx>, <mm:ss:xx>, Kugou <startMs,durationMs,?>
+    private val wordTimestampRegex =
+        Regex("<\\d{2}:\\d{2}[.:]\\d{2,3}>|<\\d+,\\d+(?:,\\d+)?>")
+    // Any [key: value] tag: metadata ([ti:], [ar:], [offset:]), background
+    // vocals ([bg:]), and translations ([tr:]), inline or whole-line.
+    private val tagRegex = Regex("\\[[a-zA-Z]+:[^\\]]*]")
+    // Duet voice prefix, e.g. "v1: Hi".
+    private val voicePrefixRegex =
+        Regex("^\\s*v\\d{1,4}\\s*:\\s*", RegexOption.IGNORE_CASE)
+
     fun clean(rawLyrics: String?): List<String> {
         if (rawLyrics.isNullOrBlank()) return emptyList()
-        // Strip metadata headers like [ti:Title], [ar:Artist], or [offset:0]
-        val noMeta = rawLyrics.replace(Regex("(?m)^\\[[a-zA-Z]+:.*\\]\\r?\\n?"), "")
-        // Strip timestamp tags like [00:12.34], [01:23], [00:12.345] or empty brackets
-        val noTimestamps = noMeta.replace(Regex("\\[\\d{2}:\\d{2}(?:\\.\\d{1,3})?\\]"), "")
-        return noTimestamps.lines()
-            .map { it.trim() }
-            // Filter out blank lines and noise starting with bracket tags
-            .filter { it.isNotEmpty() && !it.startsWith("[") && !it.startsWith("(") }
+        val lines = mutableListOf<String>()
+        for (rawLine in rawLyrics.lines()) {
+            var line = tagRegex.replace(rawLine.trim(), "")
+            line = lineTimestampRegex.replace(line, "")
+            line = wordTimestampRegex.replace(line, "")
+            line = voicePrefixRegex.replace(line, "")
+            // A word stamp that sat between spaces leaves two; collapse them.
+            line = line.trim().replace(Regex("\\s+"), " ")
+            if (line.isEmpty()) continue
+            // Section labels and parenthetical noise, not lyric text.
+            if (line.startsWith("[") || line.startsWith("(")) continue
+            if (!lines.contains(line)) lines.add(line)
+        }
+        return lines
     }
 }
 
@@ -811,12 +833,17 @@ private fun ShareableCard(
                     SongMiniCard(song = song, cardScheme = cardScheme)
                 }
             } else {
-                // ── Lyrics Panel (solid primaryContainer) ───────────────
+                // ── Lyrics Panel ────────────────────────────────────────
+                // surfaceContainerHighest, not primaryContainer: the accent
+                // container can sit too close to the card's outer
+                // surfaceContainer in dark album schemes, so the panel read
+                // as see-through. The highest container is always one ramp
+                // step above the outer, so the panel reads as a solid slab.
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(0.92f)
                         .clip(RoundedCornerShape(18.dp))
-                        .background(cardScheme.primaryContainer)
+                        .background(cardScheme.surfaceContainerHighest)
                         .padding(14.dp)
                 ) {
                     LyricsPanel(song = song, selectedLyrics = selectedLyrics, cardScheme = cardScheme)
@@ -998,7 +1025,7 @@ private fun LyricsPanel(
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,
                     lineHeight = 15.sp,
-                    color = cardScheme.onPrimaryContainer,
+                    color = cardScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1008,7 +1035,7 @@ private fun LyricsPanel(
                     fontWeight = FontWeight.Medium,
                     fontSize = 10.sp,
                     lineHeight = 13.sp,
-                    color = cardScheme.onPrimaryContainer.copy(alpha = 0.55f),
+                    color = cardScheme.onSurface.copy(alpha = 0.55f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1017,7 +1044,7 @@ private fun LyricsPanel(
 
         Spacer(Modifier.height(10.dp))
         HorizontalDivider(
-            color = cardScheme.onPrimaryContainer.copy(alpha = 0.15f),
+            color = cardScheme.onSurface.copy(alpha = 0.15f),
             thickness = 1.dp
         )
         Spacer(Modifier.height(12.dp))
@@ -1029,7 +1056,7 @@ private fun LyricsPanel(
                 fontFamily = RoundedSans,
                 fontWeight = FontWeight.Medium,
                 fontSize = 13.sp,
-                color = cardScheme.onPrimaryContainer.copy(alpha = 0.38f),
+                color = cardScheme.onSurface.copy(alpha = 0.38f),
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1061,7 +1088,7 @@ private fun LyricsPanel(
                         fontWeight = FontWeight.Bold,
                         fontSize = fontSize,
                         lineHeight = lineHeight,
-                        color = cardScheme.onPrimaryContainer,
+                        color = cardScheme.onSurface,
                         textAlign = TextAlign.Start,
                         modifier = Modifier.fillMaxWidth()
                     )
