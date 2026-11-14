@@ -19,6 +19,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -77,6 +78,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -115,6 +117,14 @@ private const val INSTAGRAM_PACKAGE = "com.instagram.android"
 private const val STARTUNE_REPO_URL = "https://github.com/abdrhmniqbal/startune-music"
 private const val SHARE_CARD_CACHE_DIR = "share_cards"
 private const val MAX_SELECTED_LYRICS = 5
+
+/** The 24dp smooth-corner shape every share card uses. */
+private val ShareCardShape = AbsoluteSmoothCornerShape(
+    cornerRadiusTR = 24.dp, smoothnessAsPercentBR = 60,
+    cornerRadiusBR = 24.dp, smoothnessAsPercentTL = 60,
+    cornerRadiusTL = 24.dp, smoothnessAsPercentBL = 60,
+    cornerRadiusBL = 24.dp, smoothnessAsPercentTR = 60
+)
 
 /**
  * Strips LRC metadata headers and timestamps, leaving the plain lyric lines.
@@ -184,12 +194,7 @@ fun ShareBottomSheet(
 
     val primaryColor = MaterialTheme.colorScheme.primary
     val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
-    val cardShape = AbsoluteSmoothCornerShape(
-        cornerRadiusTR = 24.dp, smoothnessAsPercentBR = 60,
-        cornerRadiusBR = 24.dp, smoothnessAsPercentTL = 60,
-        cornerRadiusTL = 24.dp, smoothnessAsPercentBL = 60,
-        cornerRadiusBL = 24.dp, smoothnessAsPercentTR = 60
-    )
+    val cardShape = ShareCardShape
 
     // Record the card as drawn, centre it on a 9:16 story canvas, and hand
     // the finished PNG to the action. Runs on the UI scope so the layer read
@@ -198,7 +203,7 @@ fun ShareBottomSheet(
         isCapturing = true
         scope.launch {
             try {
-                val bitmap = captureStoryBitmap(cardLayer, cardScheme.surfaceContainerLowest)
+                val bitmap = captureStoryBitmap(cardLayer, cardScheme.surfaceContainer)
                 action(bitmap)
             } catch (e: Exception) {
                 Toast.makeText(
@@ -217,7 +222,10 @@ fun ShareBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        // The sheet draws its own handle inside the column below; the
+        // default one would show a second handle above it.
+        dragHandle = null
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(
@@ -407,7 +415,7 @@ fun ShareBottomSheet(
                                             context = context,
                                             imageUri = uri,
                                             topColorHex = cardScheme.primaryContainer.toInstagramHex(),
-                                            bottomColorHex = cardScheme.surfaceContainerLowest.toInstagramHex()
+                                            bottomColorHex = cardScheme.surfaceContainer.toInstagramHex()
                                         )
                                     }
                                 }
@@ -430,7 +438,7 @@ fun ShareBottomSheet(
                             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                             onClick = {
                                 captureAndShare { bitmap ->
-                                    val saved = saveCardToPictures(context, bitmap, song)
+                                    val saved = saveCardToPictures(context, bitmap, "Startune_${song.title.take(20)}")
                                     Toast.makeText(
                                         context,
                                         context.getString(
@@ -519,6 +527,241 @@ fun ShareBottomSheet(
     }
 }
 
+/**
+ * The same share-card sheet for a recap poster: the captured 9:16 bitmap, no
+ * tabs and no audio row, since a recap has neither lyrics nor a file. The
+ * story background is the poster's own colours (accent over background), so
+ * it never comes out black the way the old song card did.
+ */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun RecapShareBottomSheet(
+    bitmap: Bitmap,
+    title: String,
+    shareText: String,
+    fileStem: String,
+    topColor: Color,
+    bottomColor: Color,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalSheetState(skipPartiallyExpanded = true)
+    val instagramInstalled = remember { isPackageInstalled(context, INSTAGRAM_PACKAGE) }
+    var isWorking by remember { mutableStateOf(false) }
+
+    // The bitmap is already captured before the sheet opens, so this only
+    // covers the file and intent work.
+    fun runAction(action: suspend () -> Unit) {
+        if (isWorking) return
+        isWorking = true
+        scope.launch {
+            try {
+                action()
+            } finally {
+                isWorking = false
+            }
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        // The sheet draws its own handle inside the column below; the
+        // default one would show a second handle above it.
+        dragHandle = null
+    ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(bottom = 16.dp)
+            ) {
+                // Custom drag handle, in the column like the song sheet.
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp, bottom = 4.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(40.dp)
+                            .height(4.dp)
+                            .clip(CircleShape)
+                            .background(
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+                            )
+                    )
+                }
+                // ── Header ──────────────────────────────────────────────────
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.share_sheet_title),
+                    fontFamily = RoundedSans,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(Modifier.height(12.dp))
+
+                // ── 9:16 Poster Preview ─────────────────────────────────────
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth(0.70f)
+                            .aspectRatio(9f / 16f)
+                            .clip(ShareCardShape)
+                    )
+                }
+                Spacer(Modifier.height(12.dp))
+
+                // ── Share Actions ───────────────────────────────────────────
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
+                ) {
+                    // Instagram Story
+                    if (instagramInstalled) {
+                        item {
+                            ShareActionChip(
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_instagram),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(22.dp),
+                                        tint = Color.Unspecified
+                                    )
+                                },
+                                label = stringResource(R.string.share_action_instagram),
+                                containerColor = Color(0xFFE1306C).copy(alpha = 0.12f),
+                                contentColor = Color(0xFFE1306C),
+                                onClick = {
+                                    runAction {
+                                        val file = saveBitmapToCache(context, bitmap)
+                                        val uri = FileProvider.getUriForFile(
+                                            context,
+                                            "${context.packageName}.provider",
+                                            file
+                                        )
+                                        shareToInstagramStory(
+                                            context = context,
+                                            imageUri = uri,
+                                            topColorHex = topColor.toInstagramHex(),
+                                            bottomColorHex = bottomColor.toInstagramHex()
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
+
+                    // Save Card
+                    item {
+                        ShareActionChip(
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.Download,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            },
+                            label = stringResource(R.string.share_action_download_card),
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            onClick = {
+                                runAction {
+                                    val saved = saveCardToPictures(context, bitmap, fileStem)
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(
+                                            if (saved) R.string.share_card_saved
+                                            else R.string.share_card_capture_failed
+                                        ),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        )
+                    }
+
+                    // Share More
+                    item {
+                        ShareActionChip(
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.Share,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            },
+                            label = stringResource(R.string.share_action_more_apps),
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            onClick = {
+                                runAction {
+                                    val file = saveBitmapToCache(context, bitmap)
+                                    val uri = FileProvider.getUriForFile(
+                                        context,
+                                        "${context.packageName}.provider",
+                                        file
+                                    )
+                                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "image/png"
+                                        putExtra(Intent.EXTRA_STREAM, uri)
+                                        putExtra(Intent.EXTRA_TEXT, shareText)
+                                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                    }
+                                    context.startActivity(
+                                        Intent.createChooser(
+                                            shareIntent,
+                                            context.getString(R.string.recap_share_chooser_title)
+                                        )
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+
+                Spacer(modifier = Modifier.navigationBarsPadding())
+            }
+
+            // Working overlay: drawn inside the sheet, over its content.
+            if (isWorking) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
+            }
+        }
+    }
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // Shareable Card (9:16) — one solid look: the dark album scheme, no
 // gradients, no glass, no bloom, no vignette.
@@ -539,7 +782,12 @@ private fun ShareableCard(
             .aspectRatio(cardRatio)
             .shadow(elevation = 16.dp, shape = cardShape, clip = true)
             .clip(cardShape)
-            .background(cardScheme.surfaceContainerLowest)
+            // surfaceContainer, not surfaceContainerLowest: the lowest role is
+            // (near-)black in dark album schemes, so the story background
+            // would come out black. The container step is still darker than
+            // the primaryContainer panels, and the surfaceContainerHigh
+            // watermark pill stays visible on it.
+            .background(cardScheme.surfaceContainer)
     ) {
         // ── Foreground Content Column ───────────────────────────────────
         Column(
@@ -974,13 +1222,13 @@ private suspend fun saveBitmapToCache(context: Context, bitmap: Bitmap): File =
 private suspend fun saveCardToPictures(
     context: Context,
     bitmap: Bitmap,
-    song: Song
+    fileNamePrefix: String
 ): Boolean = withContext(Dispatchers.IO) {
     try {
         val values = ContentValues().apply {
             put(
                 MediaStore.MediaColumns.DISPLAY_NAME,
-                "Startune_${song.title.take(20)}_${System.currentTimeMillis()}.png"
+                "${fileNamePrefix}_${System.currentTimeMillis()}.png"
             )
             put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
             put(

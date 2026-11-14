@@ -5,6 +5,7 @@ package com.startune.music.presentation.recap
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.graphics.Bitmap
 import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
@@ -93,6 +94,7 @@ import androidx.lifecycle.compose.currentStateAsState
 import androidx.navigation.NavController
 import com.startune.music.R
 import com.startune.music.data.stats.StatsTimeRange
+import com.startune.music.presentation.components.RecapShareBottomSheet
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.RecapViewModel
 import com.startune.music.ui.theme.ShapeCache
@@ -162,16 +164,26 @@ fun RecapScreen(
             val queueName = recapQueueName(state.model.range, state.model.year, state.model.endDate)
             val shareText = recapShareText(state.model.range, state.model.year, state.model.endDate)
             val shareFileStem = recapShareFileStem(state.model.range, state.model.year)
+            val shareTitle = recapSummaryTitle(state.model.range, state.model.year, state.model.endDate, state.model.isSoFar)
             val shareFailed = stringResource(R.string.recap_share_failed)
             val scope = rememberCoroutineScope()
+            var recapShare by remember { mutableStateOf<RecapShareSheet?>(null) }
             RecapStory(
                 model = state.model,
                 onClose = onClose,
-                onShare = { layer, background ->
+                onShare = { layer, palette ->
                     scope.launch {
                         try {
                             if (!layer.hasContent) error("Summary card has not been drawn yet")
-                            shareRecapImage(context, layer, shareFileStem, shareText, background)
+                            val bitmap = captureRecapBitmap(layer, palette.background)
+                            recapShare = RecapShareSheet(
+                                bitmap = bitmap,
+                                title = shareTitle,
+                                shareText = shareText,
+                                fileStem = shareFileStem,
+                                topColor = palette.accent,
+                                bottomColor = palette.background
+                            )
                         } catch (cancellation: CancellationException) {
                             throw cancellation
                         } catch (throwable: Exception) {
@@ -190,15 +202,36 @@ fun RecapScreen(
                     }
                 }
             )
+            recapShare?.let { share ->
+                RecapShareBottomSheet(
+                    bitmap = share.bitmap,
+                    title = share.title,
+                    shareText = share.shareText,
+                    fileStem = share.fileStem,
+                    topColor = share.topColor,
+                    bottomColor = share.bottomColor,
+                    onDismiss = { recapShare = null }
+                )
+            }
         }
     }
 }
+
+/** The captured recap poster plus everything the share sheet needs for it. */
+private data class RecapShareSheet(
+    val bitmap: Bitmap,
+    val title: String,
+    val shareText: String,
+    val fileStem: String,
+    val topColor: Color,
+    val bottomColor: Color
+)
 
 @Composable
 private fun RecapStory(
     model: RecapUiModel,
     onClose: () -> Unit,
-    onShare: (GraphicsLayer, Color) -> Unit,
+    onShare: (GraphicsLayer, RecapPalette) -> Unit,
     onPlayTopSongs: () -> Unit
 ) {
     val slides = model.slides

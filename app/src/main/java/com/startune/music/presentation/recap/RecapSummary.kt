@@ -100,7 +100,7 @@ internal fun RecapSummarySlide(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Button(
-                onClick = { actions.onShare(cardLayer, palette.background) },
+                onClick = { actions.onShare(cardLayer, palette) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = palette.content,
                     contentColor = palette.background
