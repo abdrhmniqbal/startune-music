@@ -303,7 +303,13 @@ fun FullPlayerContent(
 
     val totalDurationValue = totalDurationProvider()
 
-    val playerOnBaseColor = LocalMaterialTheme.current.onPrimaryContainer
+    // Base text color for the expanded player. The text sits on
+    // playerAreaBackground (a dark lerp of background + primaryContainer),
+    // not on the primary container, so it takes onBackground. onPrimaryContainer
+    // is the on-color of a possibly light container, and for this song's
+    // scheme it resolves to black, which was black text on the dark
+    // background (title, artist, times, progress).
+    val playerOnBaseColor = LocalMaterialTheme.current.onBackground
     val playerAccentColor = LocalMaterialTheme.current.primary
     val playerOnAccentColor = LocalMaterialTheme.current.onPrimary
     val transportPlayPauseColors = expressivePlayPauseButtonColors(LocalMaterialTheme.current)
@@ -707,7 +713,7 @@ fun FullPlayerContent(
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
-                        titleContentColor = LocalMaterialTheme.current.onPrimaryContainer,
+                        titleContentColor = LocalMaterialTheme.current.onBackground,
                     ),
                     title = {
                         if (!isOutputConnecting) {
@@ -726,7 +732,7 @@ fun FullPlayerContent(
                                         Icon(
                                             imageVector = androidx.compose.material.icons.Icons.Rounded.Cloud,
                                             contentDescription = stringResource(R.string.presentation_batch_g_player_cd_cloud_stream),
-                                            tint = LocalMaterialTheme.current.onPrimaryContainer.copy(alpha = 0.6f),
+                                            tint = LocalMaterialTheme.current.onBackground.copy(alpha = 0.6f),
                                             modifier = Modifier.padding(start = 8.dp).size(16.dp)
                                         )
                                     }
@@ -1699,8 +1705,8 @@ private fun PlayerProgressBarSection(
 
     val shouldDelay = loadingTweaks?.let { it.delayAll || it.delayProgressBar } ?: false
 
-    val placeholderColor = LocalMaterialTheme.current.onPrimaryContainer.copy(alpha = 0.25f)
-    val placeholderOnColor = LocalMaterialTheme.current.onPrimaryContainer.copy(alpha = 0.2f)
+    val placeholderColor = LocalMaterialTheme.current.onBackground.copy(alpha = 0.25f)
+    val placeholderOnColor = LocalMaterialTheme.current.onBackground.copy(alpha = 0.2f)
 
     DelayedContent(
         shouldDelay = shouldDelay,
