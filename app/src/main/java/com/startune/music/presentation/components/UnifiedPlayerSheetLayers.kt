@@ -70,6 +70,7 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
     currentHorizontalPaddingStartPxProvider: () -> Float,
     currentHorizontalPaddingEndPxProvider: () -> Float,
     onShowQueueClicked: () -> Unit,
+    onShowSongInfoClick: (Song?) -> Unit,
     onQueueDragStart: () -> Unit,
     onQueueDrag: (Float) -> Unit,
     onQueueRelease: (Float, Float) -> Unit
@@ -248,6 +249,7 @@ internal fun BoxScope.UnifiedPlayerMiniAndFullLayers(
                         onPrevious = onPrevious,
                         onCollapse = onCollapse,
                         onShowQueueClicked = onShowQueueClicked,
+                        onShowSongInfoClick = onShowSongInfoClick,
                         onQueueDragStart = onQueueDragStart,
                         onQueueDrag = onQueueDrag,
                         onQueueRelease = onQueueRelease,
@@ -277,6 +279,7 @@ internal fun UnifiedPlayerPrewarmLayer(
     isOutputConnecting: Boolean,
     isFavorite: Boolean,
     onShowQueueClicked: () -> Unit,
+    onShowSongInfoClick: (Song?) -> Unit,
     onQueueDragStart: () -> Unit,
     onQueueDrag: (Float) -> Unit,
     onQueueRelease: (Float, Float) -> Unit
@@ -335,6 +338,7 @@ internal fun UnifiedPlayerPrewarmLayer(
                     isOutputConnecting = isOutputConnecting,
                     isFavoriteProvider = isFavoriteProvider,
                     onShowQueueClicked = onShowQueueClicked,
+                    onShowSongInfoClick = onShowSongInfoClick,
                     onQueueDragStart = onQueueDragStart,
                     onQueueDrag = onQueueDrag,
                     onQueueRelease = onQueueRelease,

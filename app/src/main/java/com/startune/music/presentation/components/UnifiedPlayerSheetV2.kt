@@ -755,6 +755,7 @@ fun UnifiedPlayerSheetV2(
                                 currentHorizontalPaddingStartPxProvider = currentHorizontalPaddingStartPxProvider,
                                 currentHorizontalPaddingEndPxProvider = currentHorizontalPaddingEndPxProvider,
                                 onShowQueueClicked = sheetActionHandlers.openQueueSheet,
+                                onShowSongInfoClick = sheetActionHandlers.onSelectedSongForInfoChange,
                                 onQueueDragStart = sheetActionHandlers.beginQueueDrag,
                                 onQueueDrag = sheetActionHandlers.dragQueueBy,
                                 onQueueRelease = sheetActionHandlers.endQueueDrag,
@@ -777,6 +778,7 @@ fun UnifiedPlayerSheetV2(
                     isOutputConnecting = isOutputConnecting,
                     isFavorite = isFavorite,
                     onShowQueueClicked = sheetActionHandlers.openQueueSheet,
+                    onShowSongInfoClick = sheetActionHandlers.onSelectedSongForInfoChange,
                     onQueueDragStart = sheetActionHandlers.beginQueueDrag,
                     onQueueDrag = sheetActionHandlers.dragQueueBy,
                     onQueueRelease = sheetActionHandlers.endQueueDrag
