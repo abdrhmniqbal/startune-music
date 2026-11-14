@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- The more button in Now Playing did nothing: it only set a state no sheet ever read. It now opens the song menu through the player overlay, so the menu uses the playing song's album colors (or the app theme when the player theme is Color Scheme), matching the queue. The menus opened from lists and detail pages were already correct and are untouched: each uses its own page's colors, album, artist, playlist, mix and genre pages following the artwork color setting, plain lists using the app theme.
+
 ### Changed
 - The per-item more menus (song and collection sheets) now share one layout: a header, one row of three equal action cards with the icon over the label, then full-width list rows with a circular icon. The song sheet's header keeps its 80dp artwork and now holds the favorite toggle and the edit button together in one pill (heart, divider, edit when the song is editable). Mixes keep their stacked artwork cluster in the more menu, exactly like the library mix card, and regular playlists keep the 2x2 collage the rows show.
 

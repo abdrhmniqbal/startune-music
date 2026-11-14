@@ -218,6 +218,7 @@ fun FullPlayerContent(
     onPrevious: () -> Unit,
     onCollapse: () -> Unit,
     onShowQueueClicked: () -> Unit,
+    onShowSongInfoClick: (Song?) -> Unit,
     onQueueDragStart: () -> Unit,
     onQueueDrag: (Float) -> Unit,
     onQueueRelease: (Float, Float) -> Unit,
@@ -233,7 +234,6 @@ fun FullPlayerContent(
     }
 
     val song = currentSong ?: retainedSong ?: return
-    var showSongInfoBottomSheet by remember { mutableStateOf(false) }
     var showLyricsSheet by remember { mutableStateOf(false) }
     var showArtistPicker by rememberSaveable { mutableStateOf(false) }
     var showSaveBookmarkDialog by rememberSaveable { mutableStateOf(false) }
@@ -330,7 +330,7 @@ fun FullPlayerContent(
     }
 
     val onMoreClick = {
-        showSongInfoBottomSheet = true
+        onShowSongInfoClick(song)
     }
 
     if (showFetchLyricsDialog) {
@@ -411,7 +411,6 @@ fun FullPlayerContent(
     }
 
     val onSongMetadataQueueClick = {
-        showSongInfoBottomSheet = true
         onShowQueueClicked()
     }
 
@@ -804,7 +803,6 @@ fun FullPlayerContent(
                                     .clip(CircleShape)
                                     .background(playerOnAccentColor.copy(alpha = 0.7f))
                                     .clickable {
-                                        showSongInfoBottomSheet = true
                                         onShowQueueClicked()
                                     },
                                 contentAlignment = Alignment.Center
