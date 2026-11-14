@@ -82,7 +82,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.material.icons.rounded.Schedule
-import com.startune.music.presentation.components.ContainedEmptyState
+import com.startune.music.presentation.components.ExpressiveEmptyState
 
 private const val RecentlyAddedScreenLimit = 50
 
@@ -410,10 +410,11 @@ fun RecentlyAddedScreen(
 private fun RecentlyAddedEmptyState(
     modifier: Modifier = Modifier
 ) {
-    ContainedEmptyState(
+    ExpressiveEmptyState(
         icon = Icons.Rounded.Schedule,
         title = stringResource(R.string.recently_added_empty_title),
         subtitle = stringResource(R.string.recently_added_empty_subtitle),
-        modifier = modifier
+        modifier = modifier,
+        contained = true
     )
 }

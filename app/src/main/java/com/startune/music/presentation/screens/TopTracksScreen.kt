@@ -98,7 +98,7 @@ import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.material.icons.rounded.BarChart
-import com.startune.music.presentation.components.ContainedEmptyState
+import com.startune.music.presentation.components.ExpressiveEmptyState
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -478,13 +478,14 @@ private fun TopTracksEmptyState(
     range: StatsTimeRange,
     modifier: Modifier = Modifier
 ) {
-    ContainedEmptyState(
+    ExpressiveEmptyState(
         icon = Icons.Rounded.BarChart,
         title = stringResource(
             R.string.top_songs_empty_title,
             range.displayName.lowercase()
         ),
         subtitle = stringResource(R.string.top_songs_empty_subtitle),
-        modifier = modifier
+        modifier = modifier,
+        contained = true
     )
 }

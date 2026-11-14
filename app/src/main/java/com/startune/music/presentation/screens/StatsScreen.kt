@@ -173,7 +173,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
-import com.startune.music.presentation.components.ContainedEmptyState
+import com.startune.music.presentation.components.ExpressiveEmptyState
 
 private const val PULL_TO_REFRESH_MIN_DURATION_MS = 3500L
 private const val HEAVY_ROTATION_LIMIT = 5
@@ -410,11 +410,12 @@ fun StatsScreen(
                     }
                     if (summary == null || !summary.hasListeningActivity()) {
                         item(key = "empty", contentType = "empty") {
-                            ContainedEmptyState(
+                            ExpressiveEmptyState(
                                 icon = Icons.Outlined.GraphicEq,
                                 title = stringResource(R.string.presentation_batch_g_stats_empty_no_timeline_title),
                                 subtitle = stringResource(R.string.presentation_batch_g_stats_empty_no_timeline_subtitle),
-                                modifier = Modifier.padding(horizontal = ScreenGutter)
+                                modifier = Modifier.padding(horizontal = ScreenGutter),
+                                contained = true
                             )
                         }
                     } else {
@@ -1222,10 +1223,11 @@ private fun ListeningTimelineSection(
         }
 
         if (!hasTimeline) {
-            ContainedEmptyState(
+            ExpressiveEmptyState(
                 icon = Icons.Outlined.PlayCircleOutline,
                 title = stringResource(R.string.presentation_batch_g_stats_empty_no_timeline_title),
-                subtitle = stringResource(R.string.presentation_batch_g_stats_empty_no_timeline_subtitle)
+                subtitle = stringResource(R.string.presentation_batch_g_stats_empty_no_timeline_subtitle),
+                contained = true
             )
         } else {
             val cardColor = when (range) {
@@ -1892,10 +1894,11 @@ private fun HeavyRotationSection(
                 buildRotationEntries(summary, dimension, artistImages)
             }
             if (entries.isEmpty()) {
-                ContainedEmptyState(
+                ExpressiveEmptyState(
                     icon = dimension.emptyIcon,
                     title = stringResource(dimension.emptyTitleRes),
-                    subtitle = stringResource(dimension.emptySubtitleRes)
+                    subtitle = stringResource(dimension.emptySubtitleRes),
+                    contained = true
                 )
             } else {
                 val leader = entries.first()
@@ -2360,10 +2363,11 @@ private fun ListeningVarietyCard(
         )
 
         if (slices.isEmpty()) {
-            ContainedEmptyState(
+            ExpressiveEmptyState(
                 icon = Icons.Outlined.AutoGraph,
                 title = stringResource(R.string.presentation_batch_g_stats_empty_no_concentration_title),
-                subtitle = stringResource(R.string.presentation_batch_g_stats_empty_no_concentration_subtitle)
+                subtitle = stringResource(R.string.presentation_batch_g_stats_empty_no_concentration_subtitle),
+                contained = true
             )
             return@Column
         }

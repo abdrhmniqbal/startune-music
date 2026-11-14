@@ -113,7 +113,7 @@ import com.startune.music.utils.shapes.RoundedStarShape
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.material.icons.rounded.History
-import com.startune.music.presentation.components.ContainedEmptyState
+import com.startune.music.presentation.components.ExpressiveEmptyState
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -588,14 +588,15 @@ private fun RecentlyPlayedEmptyState(
     range: StatsTimeRange,
     modifier: Modifier = Modifier
 ) {
-    ContainedEmptyState(
+    ExpressiveEmptyState(
         icon = Icons.Rounded.History,
         title = stringResource(
             R.string.presentation_batch_b_recent_empty_title,
             range.displayName.lowercase()
         ),
         subtitle = stringResource(R.string.presentation_batch_b_recent_empty_subtitle),
-        modifier = modifier
+        modifier = modifier,
+        contained = true
     )
 }
 

@@ -281,7 +281,7 @@ fun LibraryAlbumsTab(
         }
 
         albums.itemCount == 0 && refreshState is LoadState.NotLoading -> {
-            LibraryExpressiveEmptyState(
+            LibraryEmptyState(
                 tabId = LibraryTabId.ALBUMS,
                 storageFilter = storageFilter,
                 bottomBarHeight = bottomBarHeight
@@ -596,7 +596,7 @@ fun LibraryArtistsTab(
         }
 
         artists.itemCount == 0 && refreshState is LoadState.NotLoading -> {
-            LibraryExpressiveEmptyState(
+            LibraryEmptyState(
                 tabId = LibraryTabId.ARTISTS,
                 storageFilter = storageFilter,
                 bottomBarHeight = bottomBarHeight
@@ -811,7 +811,7 @@ fun LibraryMixesTab(
                 contentAlignment = Alignment.Center
             ) { ContainedLoadingIndicator() }
         } else if (filteredMixes.isEmpty()) {
-            LibraryExpressiveEmptyState(
+            LibraryEmptyState(
                 tabId = LibraryTabId.MIXES,
                 storageFilter = storageFilter,
                 bottomBarHeight = bottomBarHeight

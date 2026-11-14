@@ -147,10 +147,11 @@ fun FolderFilterContent(
         }
 
         if (folders.isEmpty()) {
-            ContainedEmptyState(
+            ExpressiveEmptyState(
                 icon = Icons.Rounded.Folder,
                 title = stringResource(R.string.manage_folders_empty_title),
-                subtitle = stringResource(R.string.manage_folders_empty_message)
+                subtitle = stringResource(R.string.manage_folders_empty_message),
+                contained = true
             )
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

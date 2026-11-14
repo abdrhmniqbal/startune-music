@@ -1,32 +1,19 @@
 ﻿package com.startune.music.presentation.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.startune.music.R
 import com.startune.music.data.model.LibraryTabId
 import com.startune.music.data.model.StorageFilter
+import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.MiniPlayerHeight
-import com.startune.music.ui.theme.RoundedSans
 
 private data class LibraryEmptySpec(
     val iconRes: Int,
@@ -137,8 +124,13 @@ private fun libraryEmptySpec(
     }
 }
 
+/**
+ * Library empty state: picks the icon/title/subtitle for the tab and clears
+ * the bottom bar. The visuals are the shared [ExpressiveEmptyState]; this
+ * only resolves the spec and positions it.
+ */
 @Composable
-internal fun LibraryExpressiveEmptyState(
+internal fun LibraryEmptyState(
     tabId: LibraryTabId,
     storageFilter: StorageFilter,
     bottomBarHeight: Dp,
@@ -149,54 +141,13 @@ internal fun LibraryExpressiveEmptyState(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(
-                start = 28.dp,
-                end = 28.dp,
-                bottom = bottomBarHeight + MiniPlayerHeight + 24.dp
-            ),
+            .padding(bottom = bottomBarHeight + MiniPlayerHeight + 24.dp),
         contentAlignment = Alignment.Center
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f),
-                tonalElevation = 2.dp
-            ) {
-                Box(
-                    modifier = Modifier.size(56.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = spec.iconRes),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Text(
-                    text = stringResource(spec.titleRes),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontFamily = RoundedSans,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center
-                )
-                Text(
-                    text = stringResource(spec.subtitleRes),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
+        ExpressiveEmptyState(
+            iconRes = spec.iconRes,
+            titleRes = spec.titleRes,
+            subtitleRes = spec.subtitleRes
+        )
     }
 }

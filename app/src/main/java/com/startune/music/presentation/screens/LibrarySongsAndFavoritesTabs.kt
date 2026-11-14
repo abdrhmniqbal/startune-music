@@ -199,7 +199,7 @@ fun LibraryFavoritesTab(
     }
 
     if (favoriteSongs.itemCount == 0 && favoriteSongs.loadState.refresh !is LoadState.Loading) {
-        LibraryExpressiveEmptyState(
+        LibraryEmptyState(
             tabId = LibraryTabId.LIKED,
             storageFilter = storageFilter,
             bottomBarHeight = bottomBarHeight
