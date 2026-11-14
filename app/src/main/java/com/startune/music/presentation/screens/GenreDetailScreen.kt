@@ -44,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -83,6 +84,7 @@ import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.utils.GenreParser
 import com.startune.music.presentation.viewmodel.UNKNOWN_GENRE_ID
 import com.startune.music.ui.theme.LocalStartuneDarkTheme
+import com.startune.music.ui.theme.onColorFor
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
@@ -199,7 +201,6 @@ fun GenreDetailScreen(
     }
     
     val startColor = themeColor.container
-    val contentColor = themeColor.onContainer
     
     val initialDisplayName = remember(decodedGenreId) {
         // Song info passes the song's whole genre value; the view model opens its first genre, or
@@ -281,6 +282,16 @@ fun GenreDetailScreen(
             paletteStyle = genrePaletteStyle
         )
     }
+
+    // The header is the rainbow container as a translucent gradient over
+    // the page background, so the back button and the illustration sit on
+    // the blended color, not on the opaque container. The fixed rainbow
+    // foreground (black in dark mode) is only correct on the opaque
+    // container itself, so here the foreground is the max-contrast color
+    // for the blend. The 0.8f matches the top bar's gradient alpha.
+    val contentColor = onColorFor(
+        startColor.copy(alpha = 0.8f).compositeOver(genreColorScheme.background)
+    )
 
     MaterialTheme(colorScheme = genreColorScheme) {
         Box(
@@ -641,9 +652,10 @@ fun GenreCollapsibleTopBar(
     // The title sits at the bottom of the header, where the vertical
     // gradient has faded to almost transparent, so it is drawn over the
     // page background, not over the solid container color. Its color
-    // must therefore contrast with the background (titleColor), while
-    // the back button and illustration sit at the top over the strong
-    // gradient, where the container's on-color is correct.
+    // must therefore contrast with the background (titleColor). The
+    // back button and illustration sit at the top over the strong
+    // gradient; their color is the max-contrast color for that blend,
+    // passed in as contentColor, not the container's on-color.
     val animatedTitleColor = androidx.compose.ui.graphics.lerp(
         start = titleColor,
         stop = collapsedContentColor,
