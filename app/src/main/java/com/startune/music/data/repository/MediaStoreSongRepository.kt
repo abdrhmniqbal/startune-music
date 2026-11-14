@@ -1,6 +1,5 @@
 ﻿package com.startune.music.data.repository
 
-import android.content.ContentUris
 import android.content.Context
 import android.provider.MediaStore
 import androidx.paging.Pager
@@ -18,6 +17,7 @@ import com.startune.music.utils.AlbumArtUtils
 import com.startune.music.utils.DirectoryRuleResolver
 import com.startune.music.utils.DirectoryFilterUtils
 import com.startune.music.utils.LogUtils
+import com.startune.music.utils.audioVolumeNames
 import com.startune.music.utils.buildLocalAudioSelection
 import com.startune.music.utils.normalizeMetadataText
 import com.startune.music.utils.normalizeMetadataTextOrEmpty
@@ -160,111 +160,113 @@ class MediaStoreSongRepository @Inject constructor(
         val songIdToGenreMap = getSongIdToGenreMap(context.contentResolver)
 
         try {
-            context.contentResolver.query(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                projection,
-                selection,
-                selectionArgs,
-                "${MediaStore.Audio.Media.TITLE} ASC"
-            )?.use { cursor ->
-                val idCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-                val titleCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
-                val artistCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
-                val artistIdCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID)
-                val albumCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
-                val albumIdCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
-                val pathCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-                val durationCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
-                val trackCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK)
-                val yearCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR)
-                val dateAddedCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
-                val dateModifiedCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED)
-                val mimeTypeCol = cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE)
-                val albumArtistCol = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ARTIST)
+            for (volumeName in audioVolumeNames(context)) {
+                context.contentResolver.query(
+                    MediaStore.Audio.Media.getContentUri(volumeName),
+                    projection,
+                    selection,
+                    selectionArgs,
+                    "${MediaStore.Audio.Media.TITLE} ASC"
+                )?.use { cursor ->
+                    val idCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
+                    val titleCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
+                    val artistCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+                    val artistIdCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID)
+                    val albumCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
+                    val albumIdCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
+                    val pathCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+                    val durationCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
+                    val trackCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK)
+                    val yearCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR)
+                    val dateAddedCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
+                    val dateModifiedCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED)
+                    val mimeTypeCol = cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE)
+                    val albumArtistCol = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ARTIST)
 
-                val resolver = DirectoryRuleResolver(
-                    allowedDirs.map(::normalizePath).toSet(),
-                    blockedDirs.map(::normalizePath).toSet()
-                )
-                val isFilterActive = blockedDirs.isNotEmpty()
-
-                while (cursor.moveToNext()) {
-                    val path = cursor.getString(pathCol)
-
-                    if (isFilterActive) {
-                        val lastSlashIndex = path.lastIndexOf('/')
-                        val parentPath = if (lastSlashIndex != -1) path.substring(0, lastSlashIndex) else ""
-                        if (resolver.isBlocked(parentPath)) {
-                            continue
-                        }
-                    }
-
-                    val id = cursor.getLong(idCol)
-                    val albumId = cursor.getLong(albumIdCol)
-
-                    val albumArtUriString = AlbumArtUtils.getAlbumArtUri(
-                        appContext = context,
-                        path = path,
-                        songId = id,
-                        forceRefresh = false
+                    val resolver = DirectoryRuleResolver(
+                        allowedDirs.map(::normalizePath).toSet(),
+                        blockedDirs.map(::normalizePath).toSet()
                     )
+                    val isFilterActive = blockedDirs.isNotEmpty()
 
-                    val rawArtist = cursor.getString(artistCol).normalizeMetadataTextOrEmpty()
-                    val rawTitle = cursor.getString(titleCol).normalizeMetadataTextOrEmpty()
+                    while (cursor.moveToNext()) {
+                        val path = cursor.getString(pathCol)
 
-                    val splitArtists = rawArtist.splitArtistsByDelimiters(artistDelimiters, wordDelimiters, unsplitArtists)
-                    val allArtistNames = splitArtists.toMutableList()
-
-                    val displayTitle: String
-                    if (extractFromTitle) {
-                        val (cleanedTitle, titleArtists) = rawTitle.extractArtistsFromTitle(artistDelimiters, wordDelimiters)
-                        displayTitle = cleanedTitle
-                        titleArtists.forEach { ta ->
-                            if (allArtistNames.none { it.equals(ta, ignoreCase = !caseSensitiveArtists) }) {
-                                allArtistNames.add(ta)
+                        if (isFilterActive) {
+                            val lastSlashIndex = path.lastIndexOf('/')
+                            val parentPath = if (lastSlashIndex != -1) path.substring(0, lastSlashIndex) else ""
+                            if (resolver.isBlocked(parentPath)) {
+                                continue
                             }
                         }
-                    } else {
-                        displayTitle = rawTitle
-                    }
 
-                    val normalizedArtists = if (allArtistNames.isNotEmpty()) allArtistNames else listOf(rawArtist)
-                    val primaryArtistName = normalizedArtists.firstOrNull().orEmpty()
+                        val id = cursor.getLong(idCol)
+                        val albumId = cursor.getLong(albumIdCol)
 
-                    val artistRefs = normalizedArtists.mapIndexed { index, name ->
-                        ArtistRef(
-                            id = if (index == 0) cursor.getLong(artistIdCol)
-                            else (name.hashCode().toLong() * -1L) - 10_000L,
-                            name = name,
-                            isPrimary = index == 0
+                        val albumArtUriString = AlbumArtUtils.getAlbumArtUri(
+                            appContext = context,
+                            path = path,
+                            songId = id,
+                            forceRefresh = false
                         )
-                    }
 
-                    val song = Song(
-                        id = id.toString(),
-                        title = displayTitle,
-                        artist = primaryArtistName,
-                        artistId = cursor.getLong(artistIdCol),
-                        artists = artistRefs,
-                        album = cursor.getString(albumCol).normalizeMetadataTextOrEmpty(),
-                        albumId = albumId,
-                        albumArtist = if (albumArtistCol != -1) cursor.getString(albumArtistCol).normalizeMetadataText() else null,
-                        path = path,
-                        contentUriString = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id).toString(),
-                        albumArtUriString = albumArtUriString,
-                        duration = cursor.getLong(durationCol),
-                        genre = songIdToGenreMap[id],
-                        lyrics = null,
-                        isFavorite = favoriteIds.contains(id),
-                        trackNumber = cursor.getInt(trackCol) % 1000,
-                        year = cursor.getInt(yearCol),
-                        dateAdded = cursor.getLong(dateAddedCol),
-                        dateModified = cursor.getLong(dateModifiedCol),
-                        mimeType = if (mimeTypeCol != -1) cursor.getString(mimeTypeCol) else null,
-                        bitrate = null,
-                        sampleRate = null
-                    )
-                    songs.add(song)
+                        val rawArtist = cursor.getString(artistCol).normalizeMetadataTextOrEmpty()
+                        val rawTitle = cursor.getString(titleCol).normalizeMetadataTextOrEmpty()
+
+                        val splitArtists = rawArtist.splitArtistsByDelimiters(artistDelimiters, wordDelimiters, unsplitArtists)
+                        val allArtistNames = splitArtists.toMutableList()
+
+                        val displayTitle: String
+                        if (extractFromTitle) {
+                            val (cleanedTitle, titleArtists) = rawTitle.extractArtistsFromTitle(artistDelimiters, wordDelimiters)
+                            displayTitle = cleanedTitle
+                            titleArtists.forEach { ta ->
+                                if (allArtistNames.none { it.equals(ta, ignoreCase = !caseSensitiveArtists) }) {
+                                    allArtistNames.add(ta)
+                                }
+                            }
+                        } else {
+                            displayTitle = rawTitle
+                        }
+
+                        val normalizedArtists = if (allArtistNames.isNotEmpty()) allArtistNames else listOf(rawArtist)
+                        val primaryArtistName = normalizedArtists.firstOrNull().orEmpty()
+
+                        val artistRefs = normalizedArtists.mapIndexed { index, name ->
+                            ArtistRef(
+                                id = if (index == 0) cursor.getLong(artistIdCol)
+                                else (name.hashCode().toLong() * -1L) - 10_000L,
+                                name = name,
+                                isPrimary = index == 0
+                            )
+                        }
+
+                        val song = Song(
+                            id = id.toString(),
+                            title = displayTitle,
+                            artist = primaryArtistName,
+                            artistId = cursor.getLong(artistIdCol),
+                            artists = artistRefs,
+                            album = cursor.getString(albumCol).normalizeMetadataTextOrEmpty(),
+                            albumId = albumId,
+                            albumArtist = if (albumArtistCol != -1) cursor.getString(albumArtistCol).normalizeMetadataText() else null,
+                            path = path,
+                            contentUriString = MediaStore.Audio.Media.getContentUri(volumeName, id).toString(),
+                            albumArtUriString = albumArtUriString,
+                            duration = cursor.getLong(durationCol),
+                            genre = songIdToGenreMap[id],
+                            lyrics = null,
+                            isFavorite = favoriteIds.contains(id),
+                            trackNumber = cursor.getInt(trackCol) % 1000,
+                            year = cursor.getInt(yearCol),
+                            dateAdded = cursor.getLong(dateAddedCol),
+                            dateModified = cursor.getLong(dateModifiedCol),
+                            mimeType = if (mimeTypeCol != -1) cursor.getString(mimeTypeCol) else null,
+                            bitrate = null,
+                            sampleRate = null
+                        )
+                        songs.add(song)
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -276,36 +278,37 @@ class MediaStoreSongRepository @Inject constructor(
     private fun getSongIdToGenreMap(contentResolver: android.content.ContentResolver): Map<Long, String> {
         val genreMap = mutableMapOf<Long, String>()
         try {
-            val genresUri = MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI
             val genresProjection = arrayOf(
                 MediaStore.Audio.Genres._ID,
                 MediaStore.Audio.Genres.NAME
             )
 
-            contentResolver.query(genresUri, genresProjection, null, null, null)?.use { genreCursor ->
-                val genreIdCol = genreCursor.getColumnIndexOrThrow(MediaStore.Audio.Genres._ID)
-                val genreNameCol = genreCursor.getColumnIndexOrThrow(MediaStore.Audio.Genres.NAME)
+            for (volumeName in audioVolumeNames(context)) {
+                contentResolver.query(MediaStore.Audio.Genres.getContentUri(volumeName), genresProjection, null, null, null)?.use { genreCursor ->
+                    val genreIdCol = genreCursor.getColumnIndexOrThrow(MediaStore.Audio.Genres._ID)
+                    val genreNameCol = genreCursor.getColumnIndexOrThrow(MediaStore.Audio.Genres.NAME)
 
-                while (genreCursor.moveToNext()) {
-                    val genreId = genreCursor.getLong(genreIdCol)
-                    val genreName = genreCursor.getString(genreNameCol).normalizeMetadataTextOrEmpty()
+                    while (genreCursor.moveToNext()) {
+                        val genreId = genreCursor.getLong(genreIdCol)
+                        val genreName = genreCursor.getString(genreNameCol).normalizeMetadataTextOrEmpty()
 
-                    if (genreName.isNotBlank() && genreName != "<unknown>") {
-                        val membersUri = MediaStore.Audio.Genres.Members.getContentUri("external", genreId)
-                        val membersProjection = arrayOf(MediaStore.Audio.Genres.Members.AUDIO_ID)
+                        if (genreName.isNotBlank() && genreName != "<unknown>") {
+                            val membersUri = MediaStore.Audio.Genres.Members.getContentUri(volumeName, genreId)
+                            val membersProjection = arrayOf(MediaStore.Audio.Genres.Members.AUDIO_ID)
 
-                        try {
-                            contentResolver.query(membersUri, membersProjection, null, null, null)?.use { membersCursor ->
-                                val audioIdCol = membersCursor.getColumnIndex(MediaStore.Audio.Genres.Members.AUDIO_ID)
-                                if (audioIdCol != -1) {
-                                    while (membersCursor.moveToNext()) {
-                                        val songId = membersCursor.getLong(audioIdCol)
-                                        genreMap[songId] = genreName
+                            try {
+                                contentResolver.query(membersUri, membersProjection, null, null, null)?.use { membersCursor ->
+                                    val audioIdCol = membersCursor.getColumnIndex(MediaStore.Audio.Genres.Members.AUDIO_ID)
+                                    if (audioIdCol != -1) {
+                                        while (membersCursor.moveToNext()) {
+                                            val songId = membersCursor.getLong(audioIdCol)
+                                            genreMap[songId] = genreName
+                                        }
                                     }
                                 }
+                            } catch (e: Exception) {
+                                Timber.tag("MediaStoreSongRepository").w(e, "Error querying members for genreId=$genreId")
                             }
-                        } catch (e: Exception) {
-                            Timber.tag("MediaStoreSongRepository").w(e, "Error querying members for genreId=$genreId")
                         }
                     }
                 }
@@ -405,34 +408,36 @@ class MediaStoreSongRepository @Inject constructor(
         val (selection, selectionArgs) = buildLocalAudioSelection(minDurationMs)
 
         try {
-            context.contentResolver.query(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                projection,
-                selection,
-                selectionArgs,
-                "${MediaStore.Audio.Media.TITLE} ASC"
-            )?.use { cursor ->
-                val idCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-                val pathCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+            for (volumeName in audioVolumeNames(context)) {
+                context.contentResolver.query(
+                    MediaStore.Audio.Media.getContentUri(volumeName),
+                    projection,
+                    selection,
+                    selectionArgs,
+                    "${MediaStore.Audio.Media.TITLE} ASC"
+                )?.use { cursor ->
+                    val idCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
+                    val pathCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
 
-                val resolver = DirectoryRuleResolver(
-                    allowedDirs.map(::normalizePath).toSet(),
-                    blockedDirs.map(::normalizePath).toSet()
-                )
-                val isFilterActive = blockedDirs.isNotEmpty()
+                    val resolver = DirectoryRuleResolver(
+                        allowedDirs.map(::normalizePath).toSet(),
+                        blockedDirs.map(::normalizePath).toSet()
+                    )
+                    val isFilterActive = blockedDirs.isNotEmpty()
 
-                while (cursor.moveToNext()) {
-                    val path = cursor.getString(pathCol)
-                    if (isFilterActive) {
+                    while (cursor.moveToNext()) {
+                        val path = cursor.getString(pathCol)
                         if (isFilterActive) {
-                            val lastSlashIndex = path.lastIndexOf('/')
-                            val parentPath = if (lastSlashIndex != -1) path.substring(0, lastSlashIndex) else ""
-                            if (resolver.isBlocked(parentPath)) {
-                                continue
+                            if (isFilterActive) {
+                                val lastSlashIndex = path.lastIndexOf('/')
+                                val parentPath = if (lastSlashIndex != -1) path.substring(0, lastSlashIndex) else ""
+                                if (resolver.isBlocked(parentPath)) {
+                                    continue
+                                }
                             }
                         }
+                        ids.add(cursor.getLong(idCol))
                     }
-                    ids.add(cursor.getLong(idCol))
                 }
             }
         } catch (e: Exception) {

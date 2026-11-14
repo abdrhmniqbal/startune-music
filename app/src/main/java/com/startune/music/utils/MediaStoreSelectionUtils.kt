@@ -1,6 +1,28 @@
 ﻿package com.startune.music.utils
 
+import android.content.Context
 import android.provider.MediaStore
+
+/**
+ * All MediaStore external volume names, primary first.
+ *
+ * A song's MediaStore _ID is unique across volumes (one `files` table, with a
+ * `volume_name` column), but its content URI is per-volume. So every
+ * MediaStore audio query must run once per volume and build the content URI
+ * with that volume's name, or songs on an SD card / USB volume are invisible
+ * to the library (the folders list showed internal storage only).
+ */
+fun audioVolumeNames(context: Context): List<String> {
+    val names = try {
+        MediaStore.getExternalVolumeNames(context)
+    } catch (e: Exception) {
+        emptySet()
+    }
+    val ordered = names.sortedWith(
+        compareBy<String> { it != MediaStore.VOLUME_EXTERNAL_PRIMARY }.thenBy { it }
+    )
+    return if (ordered.isEmpty()) listOf(MediaStore.VOLUME_EXTERNAL_PRIMARY) else ordered
+}
 
 private val MIDI_MIME_SELECTION_ARGS = arrayOf(
     "audio/midi",

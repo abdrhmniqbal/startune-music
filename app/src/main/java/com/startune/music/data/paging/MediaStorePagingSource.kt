@@ -1,11 +1,11 @@
 ﻿package com.startune.music.data.paging
 
-import android.content.ContentUris
 import android.content.Context
 import android.provider.MediaStore
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.startune.music.data.model.Song
+import com.startune.music.utils.audioVolumeNames
 import com.startune.music.utils.AlbumArtUtils
 import com.startune.music.utils.normalizeMetadataText
 import com.startune.music.utils.normalizeMetadataTextOrEmpty
@@ -102,63 +102,65 @@ class MediaStorePagingSource(
             MediaStore.Audio.Media.ALBUM_ARTIST
         )
 
-        context.contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            projection,
-            selection,
-            null,
-            null
-        )?.use { cursor ->
-            val idCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-            val titleCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
-            val artistCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
-            val artistIdCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID)
-            val albumCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
-            val albumIdCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
-            val pathCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-            val durationCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
-            val trackCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK)
-            val yearCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR)
-            val dateAddedCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
-            val dateModifiedCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED)
-            val albumArtistCol = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ARTIST)
+        for (volumeName in audioVolumeNames(context)) {
+            context.contentResolver.query(
+                MediaStore.Audio.Media.getContentUri(volumeName),
+                projection,
+                selection,
+                null,
+                null
+            )?.use { cursor ->
+                val idCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
+                val titleCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
+                val artistCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+                val artistIdCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID)
+                val albumCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
+                val albumIdCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
+                val pathCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+                val durationCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
+                val trackCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK)
+                val yearCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR)
+                val dateAddedCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
+                val dateModifiedCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED)
+                val albumArtistCol = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ARTIST)
 
-            while (cursor.moveToNext()) {
-                val id = cursor.getLong(idCol)
-                val albumId = cursor.getLong(albumIdCol)
-                val path = cursor.getString(pathCol)
-                val albumArtUriString = AlbumArtUtils.getAlbumArtUri(
-                    appContext = context,
-                    path = path,
-                    songId = id,
-                    forceRefresh = false
-                )
+                while (cursor.moveToNext()) {
+                    val id = cursor.getLong(idCol)
+                    val albumId = cursor.getLong(albumIdCol)
+                    val path = cursor.getString(pathCol)
+                    val albumArtUriString = AlbumArtUtils.getAlbumArtUri(
+                        appContext = context,
+                        path = path,
+                        songId = id,
+                        forceRefresh = false
+                    )
 
-                val song = Song(
-                    id = id.toString(),
-                    title = cursor.getString(titleCol).normalizeMetadataTextOrEmpty(),
-                    artist = cursor.getString(artistCol).normalizeMetadataTextOrEmpty(),
-                    artistId = cursor.getLong(artistIdCol),
-                    artists = emptyList(),
-                    album = cursor.getString(albumCol).normalizeMetadataTextOrEmpty(),
-                    albumId = albumId,
-                    albumArtist = if (albumArtistCol != -1) cursor.getString(albumArtistCol).normalizeMetadataText() else null,
-                    path = path,
-                    contentUriString = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id).toString(),
-                    albumArtUriString = albumArtUriString,
-                    duration = cursor.getLong(durationCol),
-                    genre = songIdToGenreMap[id],
-                    lyrics = null,
-                    isFavorite = false,
-                    trackNumber = cursor.getInt(trackCol) % 1000,
-                    year = cursor.getInt(yearCol),
-                    dateAdded = cursor.getLong(dateAddedCol),
-                    dateModified = cursor.getLong(dateModifiedCol),
-                    mimeType = null,
-                    bitrate = null,
-                    sampleRate = null
-                )
-                songs.add(song)
+                    val song = Song(
+                        id = id.toString(),
+                        title = cursor.getString(titleCol).normalizeMetadataTextOrEmpty(),
+                        artist = cursor.getString(artistCol).normalizeMetadataTextOrEmpty(),
+                        artistId = cursor.getLong(artistIdCol),
+                        artists = emptyList(),
+                        album = cursor.getString(albumCol).normalizeMetadataTextOrEmpty(),
+                        albumId = albumId,
+                        albumArtist = if (albumArtistCol != -1) cursor.getString(albumArtistCol).normalizeMetadataText() else null,
+                        path = path,
+                        contentUriString = MediaStore.Audio.Media.getContentUri(volumeName, id).toString(),
+                        albumArtUriString = albumArtUriString,
+                        duration = cursor.getLong(durationCol),
+                        genre = songIdToGenreMap[id],
+                        lyrics = null,
+                        isFavorite = false,
+                        trackNumber = cursor.getInt(trackCol) % 1000,
+                        year = cursor.getInt(yearCol),
+                        dateAdded = cursor.getLong(dateAddedCol),
+                        dateModified = cursor.getLong(dateModifiedCol),
+                        mimeType = null,
+                        bitrate = null,
+                        sampleRate = null
+                    )
+                    songs.add(song)
+                }
             }
         }
         return songs

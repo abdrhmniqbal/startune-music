@@ -48,6 +48,7 @@ import com.startune.music.utils.DirectoryFilterUtils
 import com.startune.music.utils.LogUtils
 import com.startune.music.utils.StorageType
 import com.startune.music.utils.StorageUtils
+import com.startune.music.utils.audioVolumeNames
 import com.startune.music.utils.toHexString
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -537,13 +538,15 @@ class MusicRepositoryImpl @Inject constructor(
             val directories = mutableSetOf<String>()
             val projection = arrayOf(MediaStore.Audio.Media.DATA)
             val selection = "(${MediaStore.Audio.Media.IS_MUSIC} != 0 OR ${MediaStore.Audio.Media.DATA} LIKE '%.m4a' OR ${MediaStore.Audio.Media.DATA} LIKE '%.flac')"
-            context.contentResolver.query(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                projection, selection, null, null
-            )?.use { c ->
-                val dataColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-                while (c.moveToNext()) {
-                    File(c.getString(dataColumn)).parent?.let { directories.add(it) }
+            for (volumeName in audioVolumeNames(context)) {
+                context.contentResolver.query(
+                    MediaStore.Audio.Media.getContentUri(volumeName),
+                    projection, selection, null, null
+                )?.use { c ->
+                    val dataColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+                    while (c.moveToNext()) {
+                        File(c.getString(dataColumn)).parent?.let { directories.add(it) }
+                    }
                 }
             }
             LogUtils.i(this, "Found ${directories.size} unique audio directories")

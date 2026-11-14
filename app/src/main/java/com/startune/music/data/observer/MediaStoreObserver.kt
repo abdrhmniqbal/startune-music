@@ -10,6 +10,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.hilt.android.qualifiers.ApplicationContext
+import com.startune.music.utils.audioVolumeNames
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -43,16 +44,20 @@ class MediaStoreObserver @Inject constructor(
 
     fun register() {
         if (isRegistered) return
-        context.contentResolver.registerContentObserver(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            true,
-            this
-        )
-        context.contentResolver.registerContentObserver(
-            MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL),
-            true,
-            this
-        )
+        // Observe every volume, not just the primary one, or a song added to
+        // the SD card never triggers a rescan.
+        for (volumeName in audioVolumeNames(context)) {
+            context.contentResolver.registerContentObserver(
+                MediaStore.Audio.Media.getContentUri(volumeName),
+                true,
+                this
+            )
+            context.contentResolver.registerContentObserver(
+                MediaStore.Files.getContentUri(volumeName),
+                true,
+                this
+            )
+        }
         isRegistered = true
     }
 

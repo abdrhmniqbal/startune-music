@@ -1,7 +1,6 @@
 ﻿package com.startune.music.data.worker
 
 import android.content.ContentResolver
-import android.content.ContentUris
 import android.content.Context
 import android.os.Build
 import android.provider.MediaStore
@@ -34,6 +33,7 @@ import com.startune.music.utils.AlbumArtUtils
 import com.startune.music.utils.AudioMetaUtils.getAudioMetadata
 import com.startune.music.utils.DirectoryRuleResolver
 import com.startune.music.utils.LocalArtworkUri
+import com.startune.music.utils.audioVolumeNames
 import com.startune.music.utils.buildLocalAudioSelection
 import com.startune.music.utils.normalizeMetadataTextOrEmpty
 import com.startune.music.utils.splitArtistsByDelimiters
@@ -801,6 +801,7 @@ constructor(
 
     /** Raw data extracted from cursor - lightweight class for fast iteration */
     private data class RawSongData(
+            val volumeName: String,
             val id: Long,
             val albumId: Long,
             val artistId: Long,
@@ -906,85 +907,89 @@ constructor(
 
         val rawDataList = mutableListOf<RawSongData>()
 
-        contentResolver.query(
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null
-                )
-                ?.use { cursor ->
-                    val totalCount = cursor.count
-                    onProgress(0, totalCount, SyncProgress.SyncPhase.FETCHING_MEDIASTORE.ordinal)
+        var fetchedTotal = 0
+        for (volumeName in audioVolumeNames(applicationContext)) {
+            contentResolver.query(
+                            MediaStore.Audio.Media.getContentUri(volumeName),
+                            projection,
+                            selection,
+                            selectionArgs,
+                            null
+                    )
+                    ?.use { cursor ->
+                        fetchedTotal += cursor.count
+                        onProgress(0, fetchedTotal, SyncProgress.SyncPhase.FETCHING_MEDIASTORE.ordinal)
 
-                    val idCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-                    val titleCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
-                    val artistCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
-                    val artistIdCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID)
-                    val albumCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
-                    val albumIdCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
-                    val albumArtistCol = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ARTIST)
-                    val durationCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
-                    val dataCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-                    val mimeTypeCol = cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE)
-                    val trackCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK)
-                    val yearCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR)
-                    val dateAddedCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
-                    val dateModifiedCol =
-                            cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED)
-                    val genreCol = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        cursor.getColumnIndex(MediaStore.Audio.Media.GENRE)
-                    } else -1
+                        val idCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
+                        val titleCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
+                        val artistCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+                        val artistIdCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID)
+                        val albumCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
+                        val albumIdCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
+                        val albumArtistCol = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ARTIST)
+                        val durationCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
+                        val dataCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+                        val mimeTypeCol = cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE)
+                        val trackCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK)
+                        val yearCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR)
+                        val dateAddedCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
+                        val dateModifiedCol =
+                                cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED)
+                        val genreCol = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            cursor.getColumnIndex(MediaStore.Audio.Media.GENRE)
+                        } else -1
 
-                    while (cursor.moveToNext()) {
-                        try {
-                            val data = cursor.getString(dataCol) ?: continue
-                            val lastSlash = data.lastIndexOf('/')
-                            if (lastSlash > 0) {
-                                val normalizedParent = data.substring(0, lastSlash)
-                                if (directoryResolver.isBlocked(normalizedParent)) {
-                                    continue
+                        while (cursor.moveToNext()) {
+                            try {
+                                val data = cursor.getString(dataCol) ?: continue
+                                val lastSlash = data.lastIndexOf('/')
+                                if (lastSlash > 0) {
+                                    val normalizedParent = data.substring(0, lastSlash)
+                                    if (directoryResolver.isBlocked(normalizedParent)) {
+                                        continue
+                                    }
                                 }
+                            } catch (e: Exception) {
                             }
-                        } catch (e: Exception) {
-                        }
 
-                        rawDataList.add(
-                                RawSongData(
-                                        id = cursor.getLong(idCol),
-                                        albumId = cursor.getLong(albumIdCol),
-                                        artistId = cursor.getLong(artistIdCol),
-                                        filePath = cursor.getString(dataCol) ?: "",
-                                        mimeType = if (mimeTypeCol >= 0) cursor.getString(mimeTypeCol) else null,
-                                        title =
-                                                cursor.getString(titleCol)
-                                                        .normalizeMetadataTextOrEmpty()
-                                                        .ifEmpty { "Unknown Title" },
-                                        artist =
-                                                cursor.getString(artistCol)
-                                                        .normalizeMetadataTextOrEmpty()
-                                                        .ifEmpty { "Unknown Artist" },
-                                        album =
-                                                cursor.getString(albumCol)
-                                                        .normalizeMetadataTextOrEmpty()
-                                                        .ifEmpty { "Unknown Album" },
-                                        albumArtist =
-                                                if (albumArtistCol >= 0)
-                                                        cursor.getString(albumArtistCol)
-                                                                ?.normalizeMetadataTextOrEmpty()
-                                                                ?.takeIf { it.isNotBlank() }
-                                                else null,
-                                        duration = cursor.getLong(durationCol),
-                                        trackNumber = cursor.getInt(trackCol) % 1000,
-                                        discNumber = (cursor.getInt(trackCol) / 1000).takeIf { it > 0 },
-                                        year = cursor.getInt(yearCol),
-                                        dateAdded = cursor.getLong(dateAddedCol),
-                                        dateModified = cursor.getLong(dateModifiedCol),
-                                        genre = if (genreCol >= 0) cursor.getString(genreCol) else null
-                                )
-                        )
+                            rawDataList.add(
+                                    RawSongData(
+                                            volumeName = volumeName,
+                                            id = cursor.getLong(idCol),
+                                            albumId = cursor.getLong(albumIdCol),
+                                            artistId = cursor.getLong(artistIdCol),
+                                            filePath = cursor.getString(dataCol) ?: "",
+                                            mimeType = if (mimeTypeCol >= 0) cursor.getString(mimeTypeCol) else null,
+                                            title =
+                                                    cursor.getString(titleCol)
+                                                            .normalizeMetadataTextOrEmpty()
+                                                            .ifEmpty { "Unknown Title" },
+                                            artist =
+                                                    cursor.getString(artistCol)
+                                                            .normalizeMetadataTextOrEmpty()
+                                                            .ifEmpty { "Unknown Artist" },
+                                            album =
+                                                    cursor.getString(albumCol)
+                                                            .normalizeMetadataTextOrEmpty()
+                                                            .ifEmpty { "Unknown Album" },
+                                            albumArtist =
+                                                    if (albumArtistCol >= 0)
+                                                            cursor.getString(albumArtistCol)
+                                                                    ?.normalizeMetadataTextOrEmpty()
+                                                                    ?.takeIf { it.isNotBlank() }
+                                                    else null,
+                                            duration = cursor.getLong(durationCol),
+                                            trackNumber = cursor.getInt(trackCol) % 1000,
+                                            discNumber = (cursor.getInt(trackCol) / 1000).takeIf { it > 0 },
+                                            year = cursor.getInt(yearCol),
+                                            dateAdded = cursor.getLong(dateAddedCol),
+                                            dateModified = cursor.getLong(dateModifiedCol),
+                                            genre = if (genreCol >= 0) cursor.getString(genreCol) else null
+                                    )
+                            )
+                        }
                     }
-                }
+        }
 
         if (rawDataList.isEmpty()) {
             Timber.tag(TAG).i("MediaStore cursor produced 0 raw songs after directory filtering")
@@ -1103,8 +1108,7 @@ constructor(
     ): ScannedSong {
         val parentDir = java.io.File(raw.filePath).parent ?: ""
         val contentUriString =
-                ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, raw.id)
-                        .toString()
+                MediaStore.Audio.Media.getContentUri(raw.volumeName, raw.id).toString()
 
         // Scan-time artwork resolution is intentionally lightweight: it never extracts
         // embedded art (that can allocate a multi-MB ByteArray per song). The stable lazy
@@ -1212,24 +1216,26 @@ constructor(
         val projection = arrayOf(MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DATA)
         val (selection, selectionArgs) = buildLocalAudioSelection(minSongDurationMs)
 
-        contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            projection,
-            selection,
-            selectionArgs,
-            null
-        )?.use { cursor ->
-            val idCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-            val dataCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-            while (cursor.moveToNext()) {
-                val data = cursor.getString(dataCol)
-                if (data != null) {
-                    val parentPath = File(data).parent
-                    if (parentPath != null && directoryResolver.isBlocked(File(parentPath).absolutePath)) {
-                        continue
+        for (volumeName in audioVolumeNames(applicationContext)) {
+            contentResolver.query(
+                MediaStore.Audio.Media.getContentUri(volumeName),
+                projection,
+                selection,
+                selectionArgs,
+                null
+            )?.use { cursor ->
+                val idCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
+                val dataCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+                while (cursor.moveToNext()) {
+                    val data = cursor.getString(dataCol)
+                    if (data != null) {
+                        val parentPath = File(data).parent
+                        if (parentPath != null && directoryResolver.isBlocked(File(parentPath).absolutePath)) {
+                            continue
+                        }
                     }
+                    ids.add(cursor.getLong(idCol))
                 }
-                ids.add(cursor.getLong(idCol))
             }
         }
         return ids
