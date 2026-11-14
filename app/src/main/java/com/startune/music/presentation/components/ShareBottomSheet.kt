@@ -100,6 +100,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import com.startune.music.R
 import com.startune.music.data.model.Song
+import com.startune.music.data.repository.MusicRepository
 import com.startune.music.presentation.recap.letterboxToStory
 import com.startune.music.presentation.viewmodel.ThemeStateHolder
 import com.startune.music.ui.theme.RoundedSans
@@ -198,7 +199,25 @@ fun ShareBottomSheet(
     // Card mode: 0 = Song Card, 1 = Lyrics Card
     var selectedCardMode by remember { mutableStateOf(0) }
 
-    val cleanedLyrics = remember(song.lyrics) { LyricCleaner.clean(song.lyrics) }
+    // Lyrics are resolved the same way the player resolves them. The song's
+    // own lyrics field is only the first of the stored places (the DB
+    // column), while the player reads through the repository's stored chain:
+    // the lyrics table, the JSON disk cache, and the in-memory cache of the
+    // lyrics it already loaded this session. A song whose lyrics live in one
+    // of those places shows its tabs here exactly like the player shows them.
+    // This never fetches: lyrics the app has not stored or loaded yet stay
+    // missing until the player loads them.
+    val musicRepository = entryPoint.musicRepository()
+    var storedLyrics by remember(song.id) { mutableStateOf<String?>(null) }
+    LaunchedEffect(song.id) {
+        if (song.lyrics.isNullOrBlank()) {
+            storedLyrics = withContext(Dispatchers.IO) {
+                musicRepository.getStoredLyrics(song)?.second
+            }
+        }
+    }
+    val effectiveRawLyrics = song.lyrics?.takeIf { it.isNotBlank() } ?: storedLyrics
+    val cleanedLyrics = remember(effectiveRawLyrics) { LyricCleaner.clean(effectiveRawLyrics) }
     val hasLyrics = remember(cleanedLyrics) { cleanedLyrics.isNotEmpty() }
     val selectedLyrics = remember { mutableStateListOf<String>() }
 
@@ -1333,4 +1352,5 @@ private fun shareToInstagramStory(
 @InstallIn(SingletonComponent::class)
 interface ShareBottomSheetEntryPoint {
     fun themeStateHolder(): ThemeStateHolder
+    fun musicRepository(): MusicRepository
 }
