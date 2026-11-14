@@ -453,15 +453,6 @@ class PlayerViewModel @Inject constructor(
     val routeVolume: StateFlow<Int> = castStateHolder.routeVolume
     val isRefreshingRoutes: StateFlow<Boolean> = castStateHolder.isRefreshingRoutes
 
-    // Connectivity state delegated to ConnectivityStateHolder
-    val isWifiEnabled: StateFlow<Boolean> = connectivityStateHolder.isWifiEnabled
-    val isWifiRadioOn: StateFlow<Boolean> = connectivityStateHolder.isWifiRadioOn
-    val wifiName: StateFlow<String?> = connectivityStateHolder.wifiName
-    val isBluetoothEnabled: StateFlow<Boolean> = connectivityStateHolder.isBluetoothEnabled
-    val bluetoothName: StateFlow<String?> = connectivityStateHolder.bluetoothName
-    val bluetoothAudioDeviceStates: StateFlow<List<BluetoothAudioDeviceState>> = connectivityStateHolder.bluetoothAudioDeviceStates
-    val bluetoothAudioDevices: StateFlow<List<String>> = connectivityStateHolder.bluetoothAudioDevices
-
     private val _trackVolume = MutableStateFlow(1.0f)
     val trackVolume: StateFlow<Float> = _trackVolume.asStateFlow()
 
