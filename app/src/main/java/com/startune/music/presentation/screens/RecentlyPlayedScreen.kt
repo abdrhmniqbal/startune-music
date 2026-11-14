@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -58,6 +59,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.startune.music.R
+import com.startune.music.ui.theme.onColorFor
 import com.startune.music.data.model.Song
 import com.startune.music.data.stats.StatsTimeRange
 import com.startune.music.presentation.components.MiniPlayerHeight
@@ -504,7 +506,12 @@ private fun RecentlyPlayedTimestampDivider(
     } else {
         colors.secondaryContainer.copy(alpha = 0.78f)
     }
-    val chipContent = if (isHourBucket) colors.onPrimaryContainer else colors.onSecondaryContainer
+    // The chip is drawn translucent over the page background, so its
+    // designed on-color does not apply: onSecondaryContainer is the same
+    // accent hue as the container, and the two come out nearly the same
+    // color (Gruvbox dark: ~1.3:1). Pick the max-contrast text color for
+    // the chip as actually drawn instead.
+    val chipContent = onColorFor(chipContainer.compositeOver(colors.background))
 
     Row(
         modifier = modifier
