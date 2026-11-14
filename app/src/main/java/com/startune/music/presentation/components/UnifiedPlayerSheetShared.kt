@@ -104,7 +104,7 @@ internal fun MiniPlayerContentInternal(
             if (isOutputConnecting) {
                 LoadingIndicator(
                     modifier = Modifier.size(24.dp),
-                    color = LocalMaterialTheme.current.onPrimaryContainer
+                    color = LocalMaterialTheme.current.onBackground
                 )
             } else if (isPreparingPlayback) {
                 CircularWavyProgressIndicator(modifier = Modifier.size(24.dp))
@@ -120,13 +120,13 @@ internal fun MiniPlayerContentInternal(
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = (-0.2).sp,
                 fontFamily = RoundedSans,
-                color = LocalMaterialTheme.current.onPrimaryContainer
+                color = LocalMaterialTheme.current.onBackground
             )
             val artistStyle = MaterialTheme.typography.bodySmall.copy(
                 fontSize = 13.sp,
                 letterSpacing = 0.sp,
                 fontFamily = RoundedSans,
-                color = LocalMaterialTheme.current.onPrimaryContainer.copy(alpha = 0.7f)
+                color = LocalMaterialTheme.current.onBackground.copy(alpha = 0.7f)
             )
 
             AutoScrollingText(
