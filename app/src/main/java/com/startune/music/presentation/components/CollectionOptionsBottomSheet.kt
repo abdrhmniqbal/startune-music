@@ -312,13 +312,17 @@ private fun CollectionOptionsHeader(
 private fun CollectionOptionsCover(target: ItemOptionsTarget, playerViewModel: PlayerViewModel) {
     when (target) {
         is ItemOptionsTarget.Album -> {
-            SmartImage(
-                model = target.album.albumArtUriString,
-                contentDescription = stringResource(R.string.cd_album_art_for_title, target.album.title),
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(RoundedCornerShape(14.dp))
+            // The album keeps its signature stacked cluster, exactly like a
+            // mix: the same cover three times, overlapped and rotated, instead
+            // of a single flat image. An album has one cover, so the stack is
+            // the cover itself repeated; with no cover at all the cluster
+            // falls back to its own placeholder.
+            val albumArt = target.album.albumArtUriString
+            MixThumbnailCluster(
+                artUrls = if (albumArt.isNullOrBlank()) emptyList() else listOf(albumArt, albumArt, albumArt),
+                centerSize = 56.dp,
+                overlap = 20.dp,
+                borderWidth = 2.dp
             )
         }
         is ItemOptionsTarget.Artist -> {
@@ -351,9 +355,11 @@ private fun CollectionOptionsCover(target: ItemOptionsTarget, playerViewModel: P
         }
         is ItemOptionsTarget.Playlist -> {
             // Mixes keep their signature stacked cluster, exactly like the
-            // library mix card; regular playlists keep the 2x2 collage the
-            // rows show, observed the same way (first 4 songs) so it is
-            // there from the first frame instead of a placeholder.
+            // library mix card. Regular playlists keep the same stacked
+            // cluster too, from their first distinct song arts, instead of
+            // the 2x2 collage. With no song art at all, the playlist's own
+            // cover stays (custom image, color + icon, or the placeholder),
+            // so a custom cover or an empty playlist is never hidden.
             if (target.playlist.isMix) {
                 val mixSongs by remember(target.playlist.songIds, playerViewModel) {
                     playerViewModel.observeSongs(target.playlist.songIds)
@@ -387,13 +393,28 @@ private fun CollectionOptionsCover(target: ItemOptionsTarget, playerViewModel: P
                         if (previewSongIds.isEmpty()) emptyList<Song>() else null
                     }
                 )
-                PlaylistCover(
-                    playlist = target.playlist,
-                    playlistSongs = remember(previewSongs) {
-                        (previewSongs ?: emptyList()).toImmutableList()
-                    },
-                    size = 56.dp
-                )
+                val clusterArts = remember(previewSongs) {
+                    (previewSongs ?: emptyList())
+                        .mapNotNull { it.albumArtUriString?.takeIf { uri -> uri.isNotBlank() } }
+                        .distinct()
+                        .take(3)
+                }
+                if (clusterArts.isEmpty()) {
+                    PlaylistCover(
+                        playlist = target.playlist,
+                        playlistSongs = remember(previewSongs) {
+                            (previewSongs ?: emptyList()).toImmutableList()
+                        },
+                        size = 56.dp
+                    )
+                } else {
+                    MixThumbnailCluster(
+                        artUrls = clusterArts,
+                        centerSize = 56.dp,
+                        overlap = 20.dp,
+                        borderWidth = 2.dp
+                    )
+                }
             }
         }
         is ItemOptionsTarget.Genre -> {
