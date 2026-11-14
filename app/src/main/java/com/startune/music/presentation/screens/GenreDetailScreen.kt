@@ -38,6 +38,7 @@ import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -45,6 +46,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -58,6 +60,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
@@ -82,6 +85,7 @@ import com.startune.music.presentation.viewmodel.AlbumData
 import com.startune.music.presentation.viewmodel.CloudDownloadsViewModel
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.utils.GenreParser
+import com.startune.music.utils.shapes.RoundedStarShape
 import com.startune.music.presentation.viewmodel.UNKNOWN_GENRE_ID
 import com.startune.music.ui.theme.LocalStartuneDarkTheme
 import com.startune.music.ui.theme.onColorFor
@@ -175,6 +179,26 @@ fun GenreDetailScreen(
                     }
                 }
                 return super.onPostFling(consumed, available)
+            }
+        }
+    }
+
+    // When the scroll settles, snap the header fully open or fully closed,
+    // like the album/artist detail pages. Without this, a slow scroll that
+    // ends without a fling leaves the header half-collapsed and the title
+    // hanging mid-header instead of docking into the top bar. The header
+    // only snapped after a fling (onPostFling above), so a normal scroll
+    // never finished the job.
+    LaunchedEffect(lazyListState.isScrollInProgress) {
+        if (!lazyListState.isScrollInProgress) {
+            val shouldExpand = topBarHeight.value > (minTopBarHeightPx + maxTopBarHeightPx) / 2
+            val canExpand = lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset == 0
+            val target = if (shouldExpand && canExpand) maxTopBarHeightPx else minTopBarHeightPx
+
+            if (topBarHeight.value != target) {
+                coroutineScope.launch {
+                    topBarHeight.animateTo(target, spring(stiffness = Spring.StiffnessMedium))
+                }
             }
         }
     }
@@ -408,7 +432,15 @@ fun GenreDetailScreen(
                     collapsedContentColor = MaterialTheme.colorScheme.onSurface,
                     titleColor = MaterialTheme.colorScheme.onBackground,
                     genreName = themeGenre?.name ?: decodedGenreId,
-                    customIcons = customGenreIcons
+                    customIcons = customGenreIcons,
+                    onShuffleClick = {
+                        playerViewModel.playSongsShuffled(
+                            songsToPlay = uiState.songs,
+                            queueName = genreDisplayName,
+                            startAtZero = true
+                        )
+                    },
+                    showShuffleButton = uiState.songs.isNotEmpty()
                 )
             }
 
@@ -641,7 +673,9 @@ fun GenreCollapsibleTopBar(
     collapsedContentColor: Color,
     titleColor: Color,
     genreName: String,
-    customIcons: Map<String, Int> = emptyMap()
+    customIcons: Map<String, Int> = emptyMap(),
+    onShuffleClick: () -> Unit,
+    showShuffleButton: Boolean
 ) {
     val solidAlpha = (collapseFraction * 2f).coerceIn(0f, 1f)
     val animatedContentColor = androidx.compose.ui.graphics.lerp(
@@ -690,14 +724,15 @@ fun GenreCollapsibleTopBar(
                 .background(verticalGradient)
         )
 
-        // Genre illustration on the right, like the Library genre card:
+        // Genre illustration at the top right, like the Library genre card:
         // 90.dp, tinted with the header content color, bleeding off the
-        // corner, fading out as the bar collapses.
+        // corner, fading out as the bar collapses. It moved up here so the
+        // shuffle button has the bottom right, next to the title.
         Box(
             modifier = Modifier
                 .size(90.dp)
-                .align(Alignment.BottomEnd)
-                .offset(x = 16.dp, y = 16.dp)
+                .align(Alignment.TopEnd)
+                .offset(x = 16.dp, y = -16.dp)
                 .alpha(0.55f * (1f - collapseFraction).coerceIn(0f, 1f))
         ) {
             SmartImage(
@@ -730,10 +765,34 @@ fun GenreCollapsibleTopBar(
                 modifier = Modifier.fillMaxSize(),
                 collapsedTitleStartPadding = 68.dp,
                 expandedTitleStartPadding = 20.dp,
-                expandedTitleEndPadding = 110.dp,
+                expandedTitleEndPadding = 136.dp,
                 maxLines = if (collapseFraction < 0.5f) Int.MAX_VALUE else 1,
                 contentColor = animatedTitleColor
             )
+        }
+
+        // Shuffle button to the right of the title, the same shape as
+        // Recently Played's (an 8-sided star, the "cookie"): it tracks the
+        // title's vertical position and fades out as the header collapses.
+        if (showShuffleButton) {
+            LargeExtendedFloatingActionButton(
+                onClick = onShuffleClick,
+                shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f),
+                modifier = Modifier
+                    .align(BiasAlignment(horizontalBias = 1f, verticalBias = lerp(1f, -1f, collapseFraction)))
+                    .padding(end = 16.dp)
+                    .graphicsLayer {
+                        val expandedContentAlpha = 1f - solidAlpha
+                        alpha = expandedContentAlpha
+                        scaleX = expandedContentAlpha
+                        scaleY = expandedContentAlpha
+                    }
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Shuffle,
+                    contentDescription = stringResource(R.string.shortcut_shuffle_short)
+                )
+            }
         }
     }
 }
