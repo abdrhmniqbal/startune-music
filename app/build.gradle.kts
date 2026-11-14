@@ -252,6 +252,8 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer.midi)
     implementation(libs.androidx.media3.transformer)
     implementation(libs.androidx.media)
+    implementation(libs.androidx.mediarouter)
+    implementation(libs.google.play.services.cast.framework)
     implementation(libs.coil.compose)
     implementation(libs.taglib)
     implementation(libs.jaudiotagger)

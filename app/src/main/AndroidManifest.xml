@@ -11,6 +11,7 @@
     <uses-permission
         android:name="android.permission.BLUETOOTH_SCAN"
         android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <!-- Request alongside READ_MEDIA_IMAGES to distinguish partial access on Android 14+. -->
@@ -46,6 +47,10 @@
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config"
         tools:targetApi="31">
+        <!-- Cast receiver selection (default media receiver) and session options. -->
+        <meta-data
+            android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
+            android:value="com.startune.music.data.service.cast.CastOptionsProvider" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
