@@ -23,6 +23,7 @@ import androidx.media3.session.MediaController
 import android.content.Context
 import android.content.Intent
 import androidx.mediarouter.media.MediaControlIntent
+import androidx.mediarouter.media.MediaRouter
 import com.google.android.gms.cast.framework.SessionManager
 import com.startune.music.data.service.http.MediaFileHttpServerService
 import com.startune.music.data.service.player.CastPlayer
@@ -441,6 +442,28 @@ class PlayerViewModel @Inject constructor(
     val isRemotePlaybackActive: StateFlow<Boolean> = castStateHolder.isRemotePlaybackActive
     val isCastConnecting: StateFlow<Boolean> = castStateHolder.isCastConnecting
     val remotePosition: StateFlow<Long> = castStateHolder.remotePosition
+
+    val castRoutes: StateFlow<List<MediaRouter.RouteInfo>> = castStateHolder.castRoutes
+    val selectedRoute: StateFlow<MediaRouter.RouteInfo?> = castStateHolder.selectedRoute
+    /** Pre-mapped so UI composables don't create a new Flow on every recomposition. */
+    val selectedRouteName: StateFlow<String?> = castStateHolder.selectedRoute
+        .map { it?.name }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    val routeVolume: StateFlow<Int> = castStateHolder.routeVolume
+    val isRefreshingRoutes: StateFlow<Boolean> = castStateHolder.isRefreshingRoutes
+
+    // Connectivity state delegated to ConnectivityStateHolder
+    val isWifiEnabled: StateFlow<Boolean> = connectivityStateHolder.isWifiEnabled
+    val isWifiRadioOn: StateFlow<Boolean> = connectivityStateHolder.isWifiRadioOn
+    val wifiName: StateFlow<String?> = connectivityStateHolder.wifiName
+    val isBluetoothEnabled: StateFlow<Boolean> = connectivityStateHolder.isBluetoothEnabled
+    val bluetoothName: StateFlow<String?> = connectivityStateHolder.bluetoothName
+    val bluetoothAudioDeviceStates: StateFlow<List<BluetoothAudioDeviceState>> = connectivityStateHolder.bluetoothAudioDeviceStates
+    val bluetoothAudioDevices: StateFlow<List<String>> = connectivityStateHolder.bluetoothAudioDevices
+
+    private val _trackVolume = MutableStateFlow(1.0f)
+    val trackVolume: StateFlow<Float> = _trackVolume.asStateFlow()
 
     private var castSongUiSyncJob: Job? = null
     private var lastCastSongUiSyncedId: String? = null
@@ -1551,6 +1574,24 @@ class PlayerViewModel @Inject constructor(
 
     fun setRouteVolume(volume: Int) {
         castRouteStateHolder.setRouteVolume(volume)
+    }
+
+    fun selectRoute(route: MediaRouter.RouteInfo) {
+        castRouteStateHolder.selectRoute(route) { message ->
+            viewModelScope.launch { _toastEvents.emit(message) }
+        }
+    }
+
+    fun setTrackVolume(volume: Float) {
+        mediaController?.let {
+            val clampedVolume = volume.coerceIn(0f, 1f)
+            it.volume = clampedVolume
+            _trackVolume.value = clampedVolume
+        }
+    }
+
+    fun refreshLocalConnectionInfo(refreshBluetoothDevices: Boolean = false) {
+        connectivityStateHolder.refreshLocalConnectionInfo(refreshBluetoothDevices)
     }
 
     fun refreshCastRoutes() {
@@ -2772,6 +2813,7 @@ class PlayerViewModel @Inject constructor(
 
     private fun setupMediaControllerListeners(): Unit = traceSection("PlayerViewModel.setupMediaControllerListeners") {
         val playerCtrl = mediaController ?: return
+        _trackVolume.value = playerCtrl.volume
         playbackStateHolder.updateStablePlayerState {
             it.copy(
                 isShuffleEnabled = it.isShuffleEnabled,
@@ -2829,6 +2871,10 @@ class PlayerViewModel @Inject constructor(
 
         mediaControllerPlaybackListener?.let(playerCtrl::removeListener)
         mediaControllerPlaybackListener = object : Player.Listener {
+            override fun onVolumeChanged(volume: Float) {
+                _trackVolume.value = volume
+            }
+
             override fun onPlayerError(error: PlaybackException) {
                 viewModelScope.launch {
                     _toastEvents.emit(context.getString(R.string.player_error_skipping))

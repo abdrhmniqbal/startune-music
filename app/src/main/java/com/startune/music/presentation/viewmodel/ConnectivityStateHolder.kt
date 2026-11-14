@@ -100,6 +100,16 @@ class ConnectivityStateHolder @Inject constructor(
     private val discoveredBluetoothAudioDevices = linkedMapOf<String, BluetoothAudioDeviceState>()
 
     /**
+     * Re-read the current Wi-Fi and Bluetooth state on demand, e.g. after the
+     * user grants the nearby-devices permission from the Connect device sheet.
+     */
+    fun refreshLocalConnectionInfo(refreshBluetoothDevices: Boolean = false) {
+        updateWifiRadioState()
+        updateWifiInfo()
+        updateAudioDevices()
+    }
+
+    /**
      * Initialize connectivity monitoring for the PlayerViewModel that owns [owner]. Monitoring
      * starts with the first owner and keeps running until the last one is cleared.
      */

@@ -120,6 +120,7 @@ import com.startune.music.data.preferences.CarouselStyle
 import com.startune.music.data.preferences.FullPlayerLoadingTweaks
 import com.startune.music.presentation.components.AlbumCarouselSection
 import com.startune.music.presentation.components.AutoScrollingTextOnDemand
+import com.startune.music.presentation.components.CastBottomSheet
 import com.startune.music.presentation.components.LocalMaterialTheme
 import com.startune.music.presentation.components.LyricsSheet
 import com.startune.music.presentation.components.scoped.rememberSmoothProgress
@@ -237,7 +238,7 @@ fun FullPlayerContent(
     var showLyricsSheet by remember { mutableStateOf(false) }
     var showArtistPicker by rememberSaveable { mutableStateOf(false) }
     var showSaveBookmarkDialog by rememberSaveable { mutableStateOf(false) }
-    var showAudioOutputSheet by rememberSaveable { mutableStateOf(false) }
+    var showCastSheet by rememberSaveable { mutableStateOf(false) }
     val bookmarksViewModel: AudioBookmarksViewModel = hiltViewModel()
     
     val lyricsSearchUiState by playerViewModel.lyricsSearchUiState.collectAsStateWithLifecycle()
@@ -769,7 +770,7 @@ fun FullPlayerContent(
                                     .size(42.dp)
                                     .clip(CircleShape)
                                     .background(playerOnAccentColor.copy(alpha = 0.7f))
-                                    .clickable { showAudioOutputSheet = true },
+                                    .clickable { showCastSheet = true },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -919,15 +920,15 @@ fun FullPlayerContent(
         }
     }
 
-    if (showAudioOutputSheet) {
+    if (showCastSheet) {
         MaterialTheme(
             colorScheme = LocalMaterialTheme.current,
             typography = MaterialTheme.typography,
             shapes = MaterialTheme.shapes
         ) {
-            AudioOutputBottomSheet(
-                sheetState = rememberModalSheetState(skipPartiallyExpanded = true),
-                onDismiss = { showAudioOutputSheet = false }
+            CastBottomSheet(
+                playerViewModel = playerViewModel,
+                onDismiss = { showCastSheet = false }
             )
         }
     }
