@@ -22,6 +22,10 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import android.content.Context
 import android.content.Intent
+import androidx.mediarouter.media.MediaControlIntent
+import com.google.android.gms.cast.framework.SessionManager
+import com.startune.music.data.service.http.MediaFileHttpServerService
+import com.startune.music.data.service.player.CastPlayer
 import android.os.Bundle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
@@ -282,6 +286,9 @@ class PlayerViewModel @Inject constructor(
     private val listeningStatsTracker: ListeningStatsTracker,
     private val dailyMixStateHolder: DailyMixStateHolder,
     private val lyricsStateHolder: LyricsStateHolder,
+    private val castStateHolder: CastStateHolder,
+    private val castRouteStateHolder: CastRouteStateHolder,
+    private val castTransferStateHolder: CastTransferStateHolder,
     private val queueStateHolder: QueueStateHolder,
     private val queueUndoStateHolder: QueueUndoStateHolder,
     private val playlistDismissUndoStateHolder: PlaylistDismissUndoStateHolder,
@@ -424,6 +431,19 @@ class PlayerViewModel @Inject constructor(
     val predictiveBackSwipeEdge: StateFlow<Int?> = _predictiveBackSwipeEdge.asStateFlow()
     private val _isQueueSheetVisible = MutableStateFlow(false)
     val isQueueSheetVisible: StateFlow<Boolean> = _isQueueSheetVisible.asStateFlow()
+
+    private val _isCastSheetVisible = MutableStateFlow(false)
+    val isCastSheetVisible: StateFlow<Boolean> = _isCastSheetVisible.asStateFlow()
+
+    // Cast state is managed by CastStateHolder
+    private val sessionManager: SessionManager? get() = castStateHolder.sessionManager
+
+    val isRemotePlaybackActive: StateFlow<Boolean> = castStateHolder.isRemotePlaybackActive
+    val isCastConnecting: StateFlow<Boolean> = castStateHolder.isCastConnecting
+    val remotePosition: StateFlow<Long> = castStateHolder.remotePosition
+
+    private var castSongUiSyncJob: Job? = null
+    private var lastCastSongUiSyncedId: String? = null
 
     val playerContentExpansionFraction = Animatable(0f)
 
@@ -1525,6 +1545,22 @@ class PlayerViewModel @Inject constructor(
         _isQueueSheetVisible.value = visible
     }
 
+    fun updateCastSheetVisibility(visible: Boolean) {
+        _isCastSheetVisible.value = visible
+    }
+
+    fun setRouteVolume(volume: Int) {
+        castRouteStateHolder.setRouteVolume(volume)
+    }
+
+    fun refreshCastRoutes() {
+        castRouteStateHolder.refreshCastRoutes(viewModelScope)
+    }
+
+    fun disconnect(resetConnecting: Boolean = true) {
+        castRouteStateHolder.disconnect(resetConnecting = resetConnecting)
+    }
+
     private fun resolveSortOption(
         optionKey: String?,
         allowed: Collection<SortOption>,
@@ -1569,6 +1605,71 @@ class PlayerViewModel @Inject constructor(
     init {
         traceSection("PlayerViewModel.init") {
             Timber.tag("PlayerViewModel").i("init started.")
+
+            // Cast initialization if already connected
+            val currentSession = sessionManager?.currentCastSession
+            if (currentSession != null) {
+                castStateHolder.setCastPlayer(CastPlayer(currentSession, context.contentResolver))
+                castStateHolder.setRemotePlaybackActive(true)
+            }
+
+            // Start Cast discovery
+            castStateHolder.startDiscovery()
+
+            // Observe selection for HTTP server management
+            viewModelScope.launch {
+                castStateHolder.selectedRoute.collect { route ->
+                    if (route != null && !route.isDefault && route.supportsControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)) {
+                        castTransferStateHolder.primeHttpServerStart()
+                    } else if (route?.isDefault == true) {
+                        val hasActiveRemoteSession = castStateHolder.castSession.value?.remoteMediaClient != null ||
+                            castStateHolder.isRemotePlaybackActive.value ||
+                            castStateHolder.isCastConnecting.value
+                        if (hasActiveRemoteSession) {
+                            return@collect
+                        }
+                        context.stopService(Intent(context, MediaFileHttpServerService::class.java))
+                    }
+                }
+            }
+
+            castTransferStateHolder.initialize(
+                scope = viewModelScope,
+                getCurrentQueue = { _playerUiState.value.currentPlaybackQueue },
+                updateQueue = { newQueue ->
+                    _playerUiState.update {
+                        it.copy(currentPlaybackQueue = newQueue.toPlaybackQueue())
+                    }
+                },
+                getSongsByIdMap = { libraryStateHolder.allSongsById.value },
+                onTransferBackComplete = { startProgressUpdates() },
+                onSheetVisible = { _isSheetVisible.value = true },
+                onDisconnect = { disconnect() },
+                onCastError = { message ->
+                    viewModelScope.launch { _toastEvents.emit(message) }
+                },
+                onSongChanged = { uriString ->
+                    castSongUiSyncJob?.cancel()
+                    castSongUiSyncJob = viewModelScope.launch {
+                        delay(PALETTE_NEIGHBOR_PRELOAD_DEBOUNCE_MS)
+                        val currentSongId = stablePlayerState.value.currentSong?.id
+                        if (currentSongId != null && currentSongId == lastCastSongUiSyncedId) {
+                            return@launch
+                        }
+                        loadLyricsForCurrentSong()
+                        uriString?.toUri()?.let { uri ->
+                            themeStateHolder.extractAndGenerateColorScheme(
+                                albumArtUriAsUri = uri,
+                                currentSongUriString = uriString
+                            )
+                        }
+                        if (currentSongId != null) {
+                            lastCastSongUiSyncedId = currentSongId
+                        }
+                    }
+                }
+            )
+
 
 
             viewModelScope.launch {
@@ -2609,7 +2710,14 @@ class PlayerViewModel @Inject constructor(
         return playbackStateHolder.currentPosition.value
     }
 
+    private fun isRemoteSessionControllingPlayback(): Boolean {
+        val remoteClient = castStateHolder.castSession.value?.remoteMediaClient
+        return remoteClient != null &&
+            (castStateHolder.isRemotePlaybackActive.value || castStateHolder.isCastConnecting.value)
+    }
+
     private fun syncDisplayedMediaItemIfChanged(player: Player) {
+        if (isRemoteSessionControllingPlayback()) return
 
         val mediaItem = player.currentMediaItem ?: return
         val currentSongId = playbackStateHolder.stablePlayerState.value.currentSong?.id
@@ -2828,19 +2936,21 @@ class PlayerViewModel @Inject constructor(
                             loadLyricsForCurrentSong()
                         }
                     } ?: run {
-                        lyricsStateHolder.cancelLoading()
-                        playbackStateHolder.updateStablePlayerState {
-                            it.copy(
-                                currentSong = null,
-                                isPlaying = false,
-                                playWhenReady = false,
-                                lyrics = null,
-                                isLoadingLyrics = false,
-                                totalDuration = 0L
-                            )
+                        if (!isCastConnecting.value && !isRemotePlaybackActive.value) {
+                            lyricsStateHolder.cancelLoading()
+                            playbackStateHolder.updateStablePlayerState {
+                                it.copy(
+                                    currentSong = null,
+                                    isPlaying = false,
+                                    playWhenReady = false,
+                                    lyrics = null,
+                                    isLoadingLyrics = false,
+                                    totalDuration = 0L
+                                )
+                            }
+                            playbackStateHolder.clearCurrentPositionHints()
+                            resetPlaybackAudioMetadata()
                         }
-                        playbackStateHolder.clearCurrentPositionHints()
-                        resetPlaybackAudioMetadata()
                     }
                 }
             }
@@ -2878,20 +2988,22 @@ class PlayerViewModel @Inject constructor(
                 }
                 if (playbackState == Player.STATE_IDLE && playerCtrl.mediaItemCount == 0) {
                     clearPreparingSongIfMatching()
-                    lyricsStateHolder.cancelLoading()
-                    playbackStateHolder.updateStablePlayerState {
-                        it.copy(
-                            currentSong = null,
-                            isPlaying = false,
-                            playWhenReady = false,
-                            lyrics = null,
-                            isLoadingLyrics = false,
-                            totalDuration = 0L
-                        )
+                    if (!isCastConnecting.value && !isRemotePlaybackActive.value) {
+                        lyricsStateHolder.cancelLoading()
+                        playbackStateHolder.updateStablePlayerState {
+                            it.copy(
+                                currentSong = null,
+                                isPlaying = false,
+                                playWhenReady = false,
+                                lyrics = null,
+                                isLoadingLyrics = false,
+                                totalDuration = 0L
+                            )
+                        }
+                        playbackStateHolder.clearCurrentPositionHints()
+                        playbackStateHolder.setCurrentPosition(0L)
+                        resetPlaybackAudioMetadata()
                     }
-                    playbackStateHolder.clearCurrentPositionHints()
-                    playbackStateHolder.setCurrentPosition(0L)
-                    resetPlaybackAudioMetadata()
                 }
             }
             override fun onTracksChanged(tracks: Tracks) {
@@ -4370,7 +4482,18 @@ class PlayerViewModel @Inject constructor(
             position = playbackStateHolder.currentPosition.value,
             getUiState = { _playerUiState.value },
             updateUiState = { mutation -> _playerUiState.update(mutation) },
-            disconnectRemoteIfNeeded = {},
+            disconnectRemoteIfNeeded = {
+                val hasCastSession = castStateHolder.castSession.value != null
+                val shouldDisconnectRemote = hasCastSession ||
+                    castStateHolder.isRemotePlaybackActive.value ||
+                    castStateHolder.isCastConnecting.value
+                if (shouldDisconnectRemote) {
+                    if (hasCastSession) {
+                        castTransferStateHolder.skipNextTransferBack()
+                    }
+                    disconnect()
+                }
+            },
             clearPlayback = {
                 mediaController?.stop()
                 mediaController?.clearMediaItems()

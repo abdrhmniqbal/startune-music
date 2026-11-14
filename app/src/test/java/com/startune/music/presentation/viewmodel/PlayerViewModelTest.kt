@@ -21,6 +21,8 @@ import com.startune.music.di.DispatcherProvider
 import io.mockk.*
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import androidx.mediarouter.media.MediaRouter
+import com.google.android.gms.cast.framework.CastSession
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import kotlinx.collections.immutable.ImmutableList
@@ -74,6 +76,9 @@ class PlayerViewModelTest {
     private val mockListeningStatsTracker: ListeningStatsTracker = mockk(relaxed = true)
     private val mockDailyMixStateHolder: DailyMixStateHolder = mockk(relaxed = true)
     private val mockLyricsStateHolder: LyricsStateHolder = mockk(relaxed = true)
+    private val mockCastStateHolder: CastStateHolder = mockk(relaxed = true)
+    private val mockCastRouteStateHolder: CastRouteStateHolder = mockk(relaxed = true)
+    private val mockCastTransferStateHolder: CastTransferStateHolder = mockk(relaxed = true)
     private val mockQueueStateHolder: QueueStateHolder = mockk(relaxed = true)
     private val mockQueueUndoStateHolder: QueueUndoStateHolder = mockk(relaxed = true)
     private val mockPlaylistDismissUndoStateHolder: PlaylistDismissUndoStateHolder = mockk(relaxed = true)
@@ -163,6 +168,14 @@ class PlayerViewModelTest {
 
         every { mockConnectivityStateHolder.initialize(any()) } just runs
 
+        // No Cast session in tests: the ViewModel must start in local playback.
+        every { mockCastStateHolder.sessionManager } returns null
+        every { mockCastStateHolder.castSession } returns MutableStateFlow<CastSession?>(null)
+        every { mockCastStateHolder.isRemotePlaybackActive } returns MutableStateFlow(false)
+        every { mockCastStateHolder.isCastConnecting } returns MutableStateFlow(false)
+        every { mockCastStateHolder.remotePosition } returns MutableStateFlow(0L)
+        every { mockCastStateHolder.selectedRoute } returns MutableStateFlow<MediaRouter.RouteInfo?>(null)
+
         _favoriteIdsFlow.value = emptySet()
         stablePlayerStateFlow = MutableStateFlow(StablePlayerState(currentSong = null))
         every { mockPlaybackStateHolder.stablePlayerState } returns stablePlayerStateFlow
@@ -223,6 +236,9 @@ class PlayerViewModelTest {
             mockListeningStatsTracker,
             mockDailyMixStateHolder,
             mockLyricsStateHolder,
+            mockCastStateHolder,
+            mockCastRouteStateHolder,
+            mockCastTransferStateHolder,
             mockQueueStateHolder,
             mockQueueUndoStateHolder,
             mockPlaylistDismissUndoStateHolder,
