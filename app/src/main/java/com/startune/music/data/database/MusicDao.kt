@@ -1400,12 +1400,36 @@ interface MusicDao {
      * Album-artist variant of [getArtistsPaginated], used when "Group by Album Artist" is on.
      * Collapses the Artists tab onto each song's effective album artist (songs.album_artist_id)
      * instead of every track-level artist, so featured/compilation artists stop cluttering the
-     * list. Counts are per-album-artist; sorting and source/directory filtering mirror the
+     * list. The list membership stays by album artist, but the count is the same song set the
+     * artist detail page shows (the [getSongsForArtistByAlbumArtist] union: album artist, track
+     * artist, cross-refs). Counting by album artist only undercounted by every compilation
+     * track: a song with artist aespa on a "Various Artists" album showed 43 on the Artists tab
+     * while the detail page showed 44. Sorting and source/directory filtering mirror the
      * track-artist query so toggling the preference only swaps which query backs the tab.
      */
     @Query("""
         SELECT artists.id, artists.name, artists.image_url, artists.custom_image_uri,
-               COUNT(DISTINCT songs.id) AS track_count
+               (
+                   SELECT COUNT(DISTINCT s.id)
+                   FROM songs s
+                   WHERE (
+                       s.album_artist_id = artists.id
+                       OR s.artist_id = artists.id
+                       OR s.id IN (SELECT song_id FROM song_artist_cross_ref WHERE artist_id = artists.id)
+                   )
+                   AND (:applyDirectoryFilter = 0 OR s.id < 0 OR s.parent_directory_path IN (:allowedParentDirs))
+                   AND (
+                       :filterMode = 0
+                       OR (
+                           :filterMode = 1
+                           AND s.source_type = 0
+                       )
+                       OR (
+                           :filterMode = 2
+                           AND s.source_type != 0
+                       )
+                   )
+               ) AS track_count
         FROM songs
         INNER JOIN artists ON artists.id = songs.album_artist_id
         WHERE (:applyDirectoryFilter = 0 OR songs.id < 0 OR songs.parent_directory_path IN (:allowedParentDirs))
@@ -1877,8 +1901,9 @@ interface MusicDao {
      * aespa's page even though the cross-refs name aespa as the primary artist. The union
      * mirrors [getLocalArtistDirectories]; the detail view model already partitions the result
      * into primary sections (album artist is the artist) and Featured On (anything else), so
-     * the compilation track lands in Featured On instead of vanishing. The Artists tab itself
-     * is unchanged: it still groups and counts by album artist only.
+     * the compilation track lands in Featured On instead of vanishing. The Artists tab groups
+     * by album artist only, but its count now uses this same union
+     * ([getArtistsPaginatedByAlbumArtist]), so the tab and the detail page agree.
      */
     @Query("""
         SELECT * FROM songs WHERE id IN (
