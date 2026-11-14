@@ -10,9 +10,7 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
@@ -220,6 +218,28 @@ fun SongInfoBottomSheet(
         }
     }
 
+    fun shareSong() {
+        try {
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "audio/*"
+                putExtra(Intent.EXTRA_STREAM, song.contentUriString.toUri())
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            context.startActivity(
+                Intent.createChooser(
+                    shareIntent,
+                    context.getString(R.string.song_info_share_chooser_title)
+                )
+            )
+        } catch (e: Exception) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.error_share_song_format, e.localizedMessage ?: ""),
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
     val evenCornerRadiusElems = 26.dp
 
     val listItemShape = remember {
@@ -234,38 +254,6 @@ fun SongInfoBottomSheet(
             cornerRadiusTR = evenCornerRadiusElems, smoothnessAsPercentBR = 60, cornerRadiusBR = evenCornerRadiusElems,
             smoothnessAsPercentTL = 60, cornerRadiusTL = evenCornerRadiusElems, smoothnessAsPercentBL = 60,
             cornerRadiusBL = evenCornerRadiusElems, smoothnessAsPercentTR = 60
-        )
-    }
-    val playButtonShape = remember(evenCornerRadiusElems) {
-        AbsoluteSmoothCornerShape(
-            cornerRadiusTR = evenCornerRadiusElems, smoothnessAsPercentBR = 60, cornerRadiusBR = evenCornerRadiusElems,
-            smoothnessAsPercentTL = 60, cornerRadiusTL = evenCornerRadiusElems, smoothnessAsPercentBL = 60,
-            cornerRadiusBL = evenCornerRadiusElems, smoothnessAsPercentTR = 60
-        )
-    }
-
-    val sheetState = rememberModalSheetState(
-        skipPartiallyExpanded = true,
-        confirmValueChange = { true }
-    )
-
-    val favoriteButtonCornerRadius by animateDpAsState(
-        targetValue = if (isFavorite) evenCornerRadiusElems else 60.dp,
-        animationSpec = tween(durationMillis = 300), label = "FavoriteCornerAnimation"
-    )
-    val favoriteButtonContainerColor by animateColorAsState(
-        targetValue = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-        animationSpec = tween(durationMillis = 300), label = "FavoriteContainerColorAnimation"
-    )
-    val favoriteButtonContentColor by animateColorAsState(
-        targetValue = if (isFavorite) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-        animationSpec = tween(durationMillis = 300), label = "FavoriteContentColorAnimation"
-    )
-    val favoriteButtonShape = remember(favoriteButtonCornerRadius) {
-        AbsoluteSmoothCornerShape(
-            cornerRadiusTR = favoriteButtonCornerRadius, smoothnessAsPercentBR = 60, cornerRadiusBR = favoriteButtonCornerRadius,
-            smoothnessAsPercentTL = 60, cornerRadiusTL = favoriteButtonCornerRadius, smoothnessAsPercentBL = 60,
-            cornerRadiusBL = favoriteButtonCornerRadius, smoothnessAsPercentTR = 60
         )
     }
     val infoSegmentContainerShape = remember {
@@ -372,22 +360,47 @@ fun SongInfoBottomSheet(
                                 )
                             }
                             val isEditable = remember(song) { songInfoViewModel.isSongEditable(song) }
-                            if (isEditable) {
-                                FilledTonalIconButton(
-                                    modifier = Modifier
-                                        .fillMaxHeight()
-                                        .padding(vertical = 6.dp),
-                                    colors = IconButtonDefaults.filledTonalIconButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceBright,
-                                        contentColor = MaterialTheme.colorScheme.onSurface
-                                    ),
-                                    onClick = { showEditSheet = true },
+                            Row(
+                                modifier = Modifier
+                                    .height(48.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                                    .padding(horizontal = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                IconButton(
+                                    onClick = onToggleFavorite,
+                                    modifier = Modifier.size(40.dp)
                                 ) {
                                     Icon(
-                                        modifier = Modifier.padding(horizontal = 8.dp),
-                                        imageVector = Icons.Rounded.Edit,
-                                        contentDescription = stringResource(R.string.cd_edit_song_metadata)
+                                        imageVector = if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                                        contentDescription = stringResource(
+                                            if (isFavorite) R.string.cd_remove_from_favorites else R.string.cd_add_to_favorites
+                                        ),
+                                        tint = if (isFavorite) {
+                                            MaterialTheme.colorScheme.primary
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurface
+                                        }
                                     )
+                                }
+                                if (isEditable) {
+                                    VerticalDivider(
+                                        modifier = Modifier
+                                            .height(24.dp)
+                                            .padding(horizontal = 4.dp),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                                    )
+                                    IconButton(
+                                        onClick = { showEditSheet = true },
+                                        modifier = Modifier.size(40.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Edit,
+                                            contentDescription = stringResource(R.string.cd_edit_song_metadata),
+                                            tint = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -418,6 +431,23 @@ fun SongInfoBottomSheet(
                         ) { page ->
                             when (page) {
                                 0 -> {
+                                    val downloadIcon = when (offlineDownload?.status) {
+                                        OfflineDownloadStatus.COMPLETE -> Icons.Rounded.CloudDone
+                                        else -> if (isCloudSong) Icons.Rounded.CloudDownload else Icons.Default.DeleteForever
+                                    }
+                                    val downloadLabel = when (offlineDownload?.status) {
+                                        OfflineDownloadStatus.QUEUED -> stringResource(R.string.cloud_download_queued)
+                                        OfflineDownloadStatus.DOWNLOADING -> offlineDownload?.progress
+                                            ?.let { stringResource(R.string.cloud_download_progress, (it * 100).toInt()) }
+                                            ?: stringResource(R.string.cloud_downloading)
+                                        OfflineDownloadStatus.COMPLETE -> stringResource(R.string.cloud_remove_download)
+                                        OfflineDownloadStatus.FAILED -> stringResource(R.string.cloud_download_retry)
+                                        null -> if (isCloudSong) {
+                                            stringResource(R.string.cloud_download_action)
+                                        } else {
+                                            stringResource(R.string.delete_action)
+                                        }
+                                    }
                                     LazyColumn(
                                         modifier = Modifier
                                             .fillMaxWidth(),
@@ -426,177 +456,64 @@ fun SongInfoBottomSheet(
                                     ) {
                                         item {
                                             Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .height(IntrinsicSize.Min),
-                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.fillMaxWidth(),
                                                 horizontalArrangement = Arrangement.spacedBy(10.dp)
                                             ) {
-                                                MediumExtendedFloatingActionButton(
-                                                    modifier = Modifier
-                                                        .weight(0.5f)
-                                                        .fillMaxHeight(),
-                                                    onClick = onPlaySong,
-                                                    elevation = FloatingActionButtonDefaults.elevation(0.dp),
-                                                    shape = playButtonShape,
-                                                    icon = {
-                                                        Icon(Icons.Rounded.PlayArrow, contentDescription = stringResource(R.string.cd_play_song_action))
-                                                    },
-                                                    text = {
-                                                        Text(
-                                                            modifier = Modifier.padding(end = 10.dp),
-                                                            text = stringResource(R.string.play_playback)
-                                                        )
+                                                MoreMenuActionCard(
+                                                    label = stringResource(R.string.play_playback),
+                                                    icon = Icons.Rounded.PlayArrow,
+                                                    contentDescription = stringResource(R.string.play_playback),
+                                                    modifier = Modifier.weight(1f),
+                                                    onClick = onPlaySong
+                                                )
+                                                MoreMenuActionCard(
+                                                    label = stringResource(R.string.action_queue_next),
+                                                    icon = Icons.AutoMirrored.Filled.QueueMusic,
+                                                    contentDescription = stringResource(R.string.cd_play_next_in_queue),
+                                                    modifier = Modifier.weight(1f),
+                                                    onClick = onAddNextToQueue
+                                                )
+                                                MoreMenuActionCard(
+                                                    label = stringResource(R.string.shortcut_playlist_short),
+                                                    icon = Icons.AutoMirrored.Rounded.PlaylistAdd,
+                                                    contentDescription = stringResource(R.string.cd_add_to_playlist),
+                                                    modifier = Modifier.weight(1f),
+                                                    onClick = onAddToPlayList
+                                                )
+                                            }
+                                        }
+                                        item {
+                                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                MoreMenuListRow(
+                                                    label = stringResource(R.string.action_add_to_queue),
+                                                    icon = Icons.AutoMirrored.Rounded.QueueMusic,
+                                                    onClick = onAddToQueue
+                                                )
+                                                MoreMenuListRow(
+                                                    label = stringResource(R.string.share_sheet_title),
+                                                    icon = Icons.Rounded.Share,
+                                                    onClick = { shareSong() }
+                                                )
+                                                MoreMenuListRow(
+                                                    label = stringResource(R.string.player_go_to_album),
+                                                    icon = Icons.Rounded.Album,
+                                                    onClick = onNavigateToAlbum
+                                                )
+                                                MoreMenuListRow(
+                                                    label = stringResource(R.string.player_go_to_artist),
+                                                    icon = Icons.Rounded.Person,
+                                                    onClick = {
+                                                        if (song.artists.size > 1) {
+                                                            showArtistPicker = true
+                                                        } else {
+                                                            onNavigateToArtist()
+                                                        }
                                                     }
                                                 )
-
-                                                FilledIconButton(
-                                                    modifier = Modifier
-                                                        .weight(0.25f)
-                                                        .fillMaxHeight(),
-                                                    onClick = onToggleFavorite,
-                                                    shape = favoriteButtonShape,
-                                                    colors = IconButtonDefaults.filledIconButtonColors(
-                                                        containerColor = favoriteButtonContainerColor,
-                                                        contentColor = favoriteButtonContentColor
-                                                    )
-                                                ) {
-                                                    Icon(
-                                                        modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize),
-                                                        imageVector = if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                                                        contentDescription = stringResource(
-                                                            if (isFavorite) R.string.cd_remove_from_favorites else R.string.cd_add_to_favorites
-                                                        )
-                                                    )
-                                                }
-
-                                                FilledTonalIconButton(
-                                                    modifier = Modifier
-                                                        .weight(0.25f)
-                                                        .fillMaxHeight(),
-                                                    onClick = {
-                                                        try {
-                                                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                                                                type = "audio/*"
-                                                                putExtra(Intent.EXTRA_STREAM, song.contentUriString.toUri())
-                                                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                                            }
-                                                            context.startActivity(
-                                                                Intent.createChooser(
-                                                                    shareIntent,
-                                                                    context.getString(R.string.song_info_share_chooser_title)
-                                                                )
-                                                            )
-                                                        } catch (e: Exception) {
-                                                            Toast.makeText(
-                                                            context,
-                                                            context.getString(R.string.error_share_song_format, e.localizedMessage ?: ""),
-                                                            Toast.LENGTH_LONG
-                                                        ).show()
-                                                        }
-                                                    },
-                                                    shape = CircleShape
-                                                ) {
-                                                    Icon(
-                                                        modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize),
-                                                        imageVector = Icons.Rounded.Share,
-                                                        contentDescription = stringResource(R.string.cd_share_song_file)
-                                                    )
-                                                }
-                                            }
-                                        }
-                                        item {
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .height(IntrinsicSize.Min),
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                                            ) {
-                                                FilledTonalButton(
-                                                    modifier = Modifier
-                                                        .weight(0.6f)
-                                                        .heightIn(min = 66.dp),
-                                                    colors = ButtonDefaults.filledTonalButtonColors(
-                                                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                                                    ),
-                                                    contentPadding = PaddingValues(horizontal = 0.dp),
-                                                    shape = CircleShape,
-                                                    onClick = onAddToQueue
-                                                ) {
-                                                    Icon(
-                                                        Icons.AutoMirrored.Rounded.QueueMusic,
-                                                        contentDescription = stringResource(R.string.cd_add_to_queue)
-                                                    )
-                                                    Spacer(Modifier.width(14.dp))
-                                                    Text(stringResource(R.string.action_add_to_queue))
-                                                }
-                                                FilledTonalButton(
-                                                    modifier = Modifier
-                                                        .weight(0.4f)
-                                                        .heightIn(min = 66.dp),
-                                                    colors = ButtonDefaults.filledTonalButtonColors(
-                                                        containerColor = MaterialTheme.colorScheme.tertiary,
-                                                        contentColor = MaterialTheme.colorScheme.onTertiary
-                                                    ),
-                                                    contentPadding = PaddingValues(horizontal = 0.dp),
-                                                    shape = CircleShape,
-                                                    onClick = onAddNextToQueue
-                                                ) {
-                                                    Icon(
-                                                        Icons.AutoMirrored.Filled.QueueMusic,
-                                                        contentDescription = stringResource(R.string.cd_play_next_in_queue)
-                                                    )
-                                                    Spacer(Modifier.width(8.dp))
-                                                    Text(stringResource(R.string.action_queue_next))
-                                                }
-                                            }
-                                        }
-
-                                        item {
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .height(IntrinsicSize.Min),
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                                            ) {
-                                                FilledTonalButton(
-                                                    modifier = Modifier
-                                                        .weight(0.5f)
-                                                        .heightIn(min = 66.dp),
-                                                    colors = ButtonDefaults.filledTonalButtonColors(
-                                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                                    ),
-                                                    shape = CircleShape,
-                                                    onClick = onAddToPlayList
-                                                ) {
-                                                    Icon(
-                                                        Icons.AutoMirrored.Rounded.PlaylistAdd,
-                                                        contentDescription = stringResource(R.string.cd_add_to_playlist)
-                                                    )
-                                                    Spacer(Modifier.width(8.dp))
-                                                    Text(stringResource(R.string.shortcut_playlist_short))
-                                                }
-
-                                                FilledTonalButton(
-                                                    modifier = Modifier
-                                                        .weight(0.5f)
-                                                        .heightIn(min = 66.dp),
-                                                    colors = if (isCloudSong) {
-                                                        ButtonDefaults.filledTonalButtonColors(
-                                                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                                        )
-                                                    } else {
-                                                        ButtonDefaults.filledTonalButtonColors(
-                                                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                                                            contentColor = MaterialTheme.colorScheme.onErrorContainer
-                                                        )
-                                                    },
-                                                    shape = CircleShape,
+                                                MoreMenuListRow(
+                                                    label = downloadLabel,
+                                                    icon = downloadIcon,
+                                                    destructive = !isCloudSong,
                                                     onClick = {
                                                         if (isCloudSong) {
                                                             when (offlineDownload?.status) {
@@ -615,76 +532,27 @@ fun SongInfoBottomSheet(
                                                             }
                                                         }
                                                     }
-                                                ) {
-                                                    Icon(
-                                                        when (offlineDownload?.status) {
-                                                            OfflineDownloadStatus.COMPLETE -> Icons.Rounded.CloudDone
-                                                            else -> if (isCloudSong) Icons.Rounded.CloudDownload else Icons.Default.DeleteForever
-                                                        },
-                                                        contentDescription = stringResource(
-                                                            if (isCloudSong) R.string.cloud_download_action else R.string.delete_action
-                                                        )
-                                                    )
-                                                    Spacer(Modifier.width(8.dp))
-                                                    Text(
-                                                        when (offlineDownload?.status) {
-                                                            OfflineDownloadStatus.QUEUED -> stringResource(R.string.cloud_download_queued)
-                                                            OfflineDownloadStatus.DOWNLOADING -> offlineDownload?.progress
-                                                                ?.let { stringResource(R.string.cloud_download_progress, (it * 100).toInt()) }
-                                                                ?: stringResource(R.string.cloud_downloading)
-                                                            OfflineDownloadStatus.COMPLETE -> stringResource(R.string.cloud_remove_download)
-                                                            OfflineDownloadStatus.FAILED -> stringResource(R.string.cloud_download_retry)
-                                                            null -> if (isCloudSong) {
-                                                                stringResource(R.string.cloud_download_action)
-                                                            } else {
-                                                                stringResource(R.string.delete_action)
-                                                            }
-                                                        },
-                                                        maxLines = 1,
-                                                        overflow = TextOverflow.Ellipsis
-                                                    )
-                                                }
-                                            }
-                                        }
-
-                                        if (onRemoveFromList != null && removeFromListLabel != null) {
-                                            item {
-                                                FilledTonalButton(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .heightIn(min = 66.dp),
-                                                    colors = ButtonDefaults.filledTonalButtonColors(
-                                                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                                                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                                                    ),
-                                                    shape = CircleShape,
-                                                    onClick = {
-                                                        onRemoveFromList?.invoke()
-                                                        onDismiss()
-                                                    }
-                                                ) {
-                                                    Icon(
-                                                        Icons.Rounded.RemoveCircleOutline,
-                                                        contentDescription = removeFromListLabel
-                                                    )
-                                                    Spacer(Modifier.width(8.dp))
-                                                    Text(removeFromListLabel)
-                                                }
-                                            }
-                                        }
-
-                                        if (!isCloudSong) {
-                                            item {
-                                                RingtoneActionButton(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .heightIn(min = 66.dp),
-                                                    showText = true,
-                                                    onClick = { showTonePickerDialog = true },
                                                 )
+                                                if (!isCloudSong) {
+                                                    MoreMenuListRow(
+                                                        label = stringResource(R.string.song_info_choose_tone),
+                                                        painter = painterResource(R.drawable.rounded_notifications_active_24),
+                                                        onClick = { showTonePickerDialog = true }
+                                                    )
+                                                }
+                                                if (onRemoveFromList != null && removeFromListLabel != null) {
+                                                    MoreMenuListRow(
+                                                        label = removeFromListLabel,
+                                                        icon = Icons.Rounded.RemoveCircleOutline,
+                                                        destructive = true,
+                                                        onClick = {
+                                                            onRemoveFromList?.invoke()
+                                                            onDismiss()
+                                                        }
+                                                    )
+                                                }
                                             }
                                         }
-
                                         item {
                                             Spacer(Modifier.height(80.dp))
                                         }

@@ -4,13 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,10 +26,8 @@ import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material.icons.rounded.SkipNext
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -64,8 +60,8 @@ import com.startune.music.presentation.screens.RenamePlaylistDialog
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.PlaylistViewModel
 import com.startune.music.utils.formatSongCount
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.map
 
 /**
  * The per-item more menu for a list row that is not a song. One sheet serves
@@ -116,89 +112,79 @@ fun CollectionOptionsBottomSheet(
                 .padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            CollectionOptionsHeader(target = target, songs = loadedSongs)
+            CollectionOptionsHeader(target = target, songs = loadedSongs, playerViewModel = playerViewModel)
 
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    CollectionActionButton(
-                        label = stringResource(R.string.play_playback),
-                        icon = Icons.Rounded.PlayArrow,
-                        contentDescription = stringResource(R.string.play_playback),
-                        enabled = hasSongs,
-                        primary = true,
-                        modifier = Modifier.weight(1f),
-                        onClick = {
-                            val list = loadedSongs ?: return@CollectionActionButton
-                            if (list.isEmpty()) return@CollectionActionButton
-                            playerViewModel.playSongs(
-                                songsToPlay = list,
-                                startSong = list.first(),
-                                queueName = target.queueName
-                            )
-                            onDismiss()
-                        }
-                    )
-                    CollectionActionButton(
-                        label = stringResource(R.string.shortcut_shuffle_short),
-                        icon = Icons.Rounded.Shuffle,
-                        contentDescription = stringResource(R.string.shortcut_shuffle_short),
-                        enabled = hasSongs,
-                        modifier = Modifier.weight(1f),
-                        onClick = {
-                            val list = loadedSongs ?: return@CollectionActionButton
-                            if (list.isEmpty()) return@CollectionActionButton
-                            playerViewModel.playSongsShuffled(
-                                songsToPlay = list,
-                                queueName = target.queueName
-                            )
-                            onDismiss()
-                        }
-                    )
-                }
+            // One row of three equal action cards, then full-width list rows.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                MoreMenuActionCard(
+                    label = stringResource(R.string.play_playback),
+                    icon = Icons.Rounded.PlayArrow,
+                    contentDescription = stringResource(R.string.play_playback),
+                    enabled = hasSongs,
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        val list = loadedSongs ?: return@MoreMenuActionCard
+                        if (list.isEmpty()) return@MoreMenuActionCard
+                        playerViewModel.playSongs(
+                            songsToPlay = list,
+                            startSong = list.first(),
+                            queueName = target.queueName
+                        )
+                        onDismiss()
+                    }
+                )
+                MoreMenuActionCard(
+                    label = stringResource(R.string.shortcut_shuffle_short),
+                    icon = Icons.Rounded.Shuffle,
+                    contentDescription = stringResource(R.string.shortcut_shuffle_short),
+                    enabled = hasSongs,
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        val list = loadedSongs ?: return@MoreMenuActionCard
+                        if (list.isEmpty()) return@MoreMenuActionCard
+                        playerViewModel.playSongsShuffled(
+                            songsToPlay = list,
+                            queueName = target.queueName
+                        )
+                        onDismiss()
+                    }
+                )
+                MoreMenuActionCard(
+                    label = stringResource(R.string.detail_hero_play_next),
+                    icon = Icons.Rounded.SkipNext,
+                    contentDescription = stringResource(R.string.detail_hero_play_next),
+                    enabled = hasSongs,
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        val list = loadedSongs ?: return@MoreMenuActionCard
+                        if (list.isEmpty()) return@MoreMenuActionCard
+                        playerViewModel.addSelectedAsNext(list)
+                        playerViewModel.sendToast(playingNextMessage)
+                        onDismiss()
+                    }
+                )
+            }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    CollectionActionButton(
-                        label = stringResource(R.string.detail_hero_play_next),
-                        icon = Icons.Rounded.SkipNext,
-                        contentDescription = stringResource(R.string.detail_hero_play_next),
-                        enabled = hasSongs,
-                        modifier = Modifier.weight(1f),
-                        onClick = {
-                            val list = loadedSongs ?: return@CollectionActionButton
-                            if (list.isEmpty()) return@CollectionActionButton
-                            playerViewModel.addSelectedAsNext(list)
-                            playerViewModel.sendToast(playingNextMessage)
-                            onDismiss()
-                        }
-                    )
-                    CollectionActionButton(
-                        label = stringResource(R.string.detail_hero_add_to_queue),
-                        icon = Icons.AutoMirrored.Rounded.QueueMusic,
-                        contentDescription = stringResource(R.string.detail_hero_add_to_queue),
-                        enabled = hasSongs,
-                        modifier = Modifier.weight(1f),
-                        onClick = {
-                            val list = loadedSongs ?: return@CollectionActionButton
-                            if (list.isEmpty()) return@CollectionActionButton
-                            playerViewModel.addSelectedToQueue(list)
-                            playerViewModel.sendToast(addedToQueueMessage)
-                            onDismiss()
-                        }
-                    )
-                }
-
-                CollectionActionButton(
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                MoreMenuListRow(
+                    label = stringResource(R.string.detail_hero_add_to_queue),
+                    icon = Icons.AutoMirrored.Rounded.QueueMusic,
+                    enabled = hasSongs,
+                    onClick = {
+                        val list = loadedSongs ?: return@MoreMenuListRow
+                        if (list.isEmpty()) return@MoreMenuListRow
+                        playerViewModel.addSelectedToQueue(list)
+                        playerViewModel.sendToast(addedToQueueMessage)
+                        onDismiss()
+                    }
+                )
+                MoreMenuListRow(
                     label = stringResource(R.string.detail_hero_add_to_playlist),
                     icon = Icons.AutoMirrored.Rounded.PlaylistAdd,
-                    contentDescription = stringResource(R.string.detail_hero_add_to_playlist),
                     enabled = hasSongs,
-                    modifier = Modifier.fillMaxWidth(),
                     onClick = { showPlaylistBottomSheet = true }
                 )
 
@@ -207,35 +193,24 @@ fun CollectionOptionsBottomSheet(
                     val isEditable = !playlist.isMix &&
                         !playlist.id.startsWith(PlaylistViewModel.FOLDER_PLAYLIST_PREFIX)
                     if (isEditable) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            CollectionActionButton(
-                                label = stringResource(R.string.action_rename),
-                                icon = Icons.Rounded.Edit,
-                                contentDescription = stringResource(R.string.action_rename),
-                                modifier = Modifier.weight(1f),
-                                onClick = { showRenameDialog = true }
-                            )
-                            CollectionActionButton(
-                                label = stringResource(R.string.action_delete),
-                                icon = Icons.Rounded.Delete,
-                                contentDescription = stringResource(R.string.action_delete),
-                                destructive = true,
-                                modifier = Modifier.weight(1f),
-                                onClick = { showDeleteDialog = true }
-                            )
-                        }
+                        MoreMenuListRow(
+                            label = stringResource(R.string.action_rename),
+                            icon = Icons.Rounded.Edit,
+                            onClick = { showRenameDialog = true }
+                        )
+                        MoreMenuListRow(
+                            label = stringResource(R.string.action_delete),
+                            icon = Icons.Rounded.Delete,
+                            destructive = true,
+                            onClick = { showDeleteDialog = true }
+                        )
                     }
                 }
 
                 if (target is ItemOptionsTarget.Folder && onOpenFolderAsPlaylist != null) {
-                    CollectionActionButton(
+                    MoreMenuListRow(
                         label = stringResource(R.string.item_options_open_as_playlist),
                         icon = Icons.AutoMirrored.Rounded.PlaylistPlay,
-                        contentDescription = stringResource(R.string.item_options_open_as_playlist),
-                        modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             onOpenFolderAsPlaylist(target.folder)
                             onDismiss()
@@ -287,7 +262,11 @@ fun CollectionOptionsBottomSheet(
 }
 
 @Composable
-private fun CollectionOptionsHeader(target: ItemOptionsTarget, songs: List<Song>?) {
+private fun CollectionOptionsHeader(
+    target: ItemOptionsTarget,
+    songs: List<Song>?,
+    playerViewModel: PlayerViewModel
+) {
     val songCount = songs?.size
     val subtitle: String? = when (target) {
         is ItemOptionsTarget.Album -> {
@@ -305,7 +284,7 @@ private fun CollectionOptionsHeader(target: ItemOptionsTarget, songs: List<Song>
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        CollectionOptionsCover(target = target, songs = songs)
+        CollectionOptionsCover(target = target, playerViewModel = playerViewModel)
         Spacer(Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -329,7 +308,7 @@ private fun CollectionOptionsHeader(target: ItemOptionsTarget, songs: List<Song>
 }
 
 @Composable
-private fun CollectionOptionsCover(target: ItemOptionsTarget, songs: List<Song>?) {
+private fun CollectionOptionsCover(target: ItemOptionsTarget, playerViewModel: PlayerViewModel) {
     when (target) {
         is ItemOptionsTarget.Album -> {
             SmartImage(
@@ -370,11 +349,51 @@ private fun CollectionOptionsCover(target: ItemOptionsTarget, songs: List<Song>?
             }
         }
         is ItemOptionsTarget.Playlist -> {
-            PlaylistCover(
-                playlist = target.playlist,
-                playlistSongs = songs?.toImmutableList() ?: persistentListOf(),
-                size = 56.dp
-            )
+            // Mixes keep their signature stacked cluster, exactly like the
+            // library mix card; regular playlists keep the 2x2 collage the
+            // rows show, observed the same way (first 4 songs) so it is
+            // there from the first frame instead of a placeholder.
+            if (target.playlist.isMix) {
+                val mixSongs by remember(target.playlist.songIds, playerViewModel) {
+                    playerViewModel.observeSongs(target.playlist.songIds)
+                        .map<List<Song>, List<Song>?> { it }
+                }.collectAsStateWithLifecycle(
+                    initialValue = remember(target.playlist.songIds) {
+                        if (target.playlist.songIds.isEmpty()) emptyList<Song>() else null
+                    }
+                )
+                val clusterArts = remember(mixSongs) {
+                    (mixSongs ?: emptyList())
+                        .mapNotNull { it.albumArtUriString }
+                        .distinct()
+                        .take(3)
+                }
+                MixThumbnailCluster(
+                    artUrls = clusterArts,
+                    centerSize = 56.dp,
+                    overlap = 20.dp,
+                    borderWidth = 2.dp
+                )
+            } else {
+                val previewSongIds = remember(target.playlist.songIds) {
+                    target.playlist.songIds.take(4)
+                }
+                val previewSongs by remember(previewSongIds, playerViewModel) {
+                    playerViewModel.observeSongs(previewSongIds)
+                        .map<List<Song>, List<Song>?> { it }
+                }.collectAsStateWithLifecycle(
+                    initialValue = remember(previewSongIds) {
+                        if (previewSongIds.isEmpty()) emptyList<Song>() else null
+                    }
+                )
+                PlaylistCover(
+                    playlist = target.playlist,
+                    playlistSongs = remember(previewSongs) {
+                        (previewSongs ?: emptyList()).toImmutableList()
+                    },
+                    size = 56.dp
+                )
+            }
         }
         is ItemOptionsTarget.Genre -> {
             val colorScheme = MaterialTheme.colorScheme
@@ -418,42 +437,6 @@ private fun CollectionOptionsCover(target: ItemOptionsTarget, songs: List<Song>?
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun CollectionActionButton(
-    label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    contentDescription: String,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    primary: Boolean = false,
-    destructive: Boolean = false,
-    onClick: () -> Unit
-) {
-    val colors = when {
-        destructive -> ButtonDefaults.filledTonalButtonColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer,
-            contentColor = MaterialTheme.colorScheme.onErrorContainer
-        )
-        primary -> ButtonDefaults.filledTonalButtonColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-        )
-        else -> ButtonDefaults.filledTonalButtonColors()
-    }
-    FilledTonalButton(
-        onClick = onClick,
-        enabled = enabled,
-        colors = colors,
-        shape = CircleShape,
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
-        modifier = modifier.heightIn(min = 56.dp)
-    ) {
-        Icon(icon, contentDescription = contentDescription, modifier = Modifier.size(22.dp))
-        Spacer(Modifier.width(8.dp))
-        Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 

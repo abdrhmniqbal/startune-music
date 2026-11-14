@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- The per-item more menus (song and collection sheets) now share one layout: a header, one row of three equal action cards with the icon over the label, then full-width list rows with a circular icon. The song sheet's header keeps its 80dp artwork and now holds the favorite toggle and the edit button together in one pill (heart, divider, edit when the song is editable). Mixes keep their stacked artwork cluster in the more menu, exactly like the library mix card, and regular playlists keep the 2x2 collage the rows show.
+
 ### Added
 - Every list row now has the same per-item more menu the track list has: albums, artists, playlists, genres, folders and mixes in the Library (list and grid), album, artist and playlist rows in Search, and every queue row. The menu opens one shared sheet with Play, Shuffle, Play next, Add to queue and Add to playlist for that item's songs; playlists add Rename and Delete (editable ones only), folders add Open as playlist. The button hides while a list is in selection mode. The queue already showed the button on every row, so there the change only removes the dead playlist-only condition.
 - The recap summary poster is more expressive now: the top genre sits beside the minutes listened instead of below the lists, three soft shapes float in the card background (drawn from the recap itself, so they stay put until the next build), and the shared image is exactly 9:16, padded with the page background, so it fills an Instagram story with no crop.
