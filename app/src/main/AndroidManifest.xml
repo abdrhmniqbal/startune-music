@@ -102,6 +102,11 @@
         </service>
 
         <service
+            android:name=".data.service.http.MediaFileHttpServerService"
+            android:foregroundServiceType="mediaPlayback"
+            android:exported="false" />
+
+        <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="dataSync"
             tools:node="merge" />
