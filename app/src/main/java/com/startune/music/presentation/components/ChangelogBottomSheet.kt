@@ -240,15 +240,24 @@ fun GitHubReleaseItem(release: GitHubRelease) {
             shape = RoundedCornerShape(22.dp),
             tonalElevation = 6.dp
         ) {
-            Text(
-                text = release.body?.takeIf { it.isNotBlank() }
-                    ?: stringResource(R.string.presentation_batch_g_changelog_no_release_notes),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 18.dp),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            val body = release.body?.takeIf { it.isNotBlank() }
+            if (body != null) {
+                ChangelogMarkdownBody(
+                    body = body,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 18.dp)
+                )
+            } else {
+                Text(
+                    text = stringResource(R.string.presentation_batch_g_changelog_no_release_notes),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 18.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
     }
 }
