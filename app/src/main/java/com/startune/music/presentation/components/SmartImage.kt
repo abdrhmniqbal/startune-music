@@ -204,9 +204,7 @@ fun SmartImage(
             alpha = alpha,
             placeholder = painterResource(placeholderResId),
             error = painterResource(errorResId),
-            onState = { state ->
-                if (state is AsyncImagePainter.State.Error) loadError = true
-            }
+            onError = { loadError = true }
         )
     }
 }

@@ -433,6 +433,7 @@ private fun LibraryTabId.iconRes(): Int = when (this) {
     LibraryTabId.Songs -> R.drawable.rounded_music_note_24
     LibraryTabId.Albums -> R.drawable.rounded_album_24
     LibraryTabId.Artists -> R.drawable.rounded_artist_24
+    LibraryTabId.AlbumArtists -> R.drawable.rounded_artist_24
     LibraryTabId.Playlists -> R.drawable.rounded_playlist_play_24
     LibraryTabId.Mixes -> R.drawable.rounded_instant_mix_24
     LibraryTabId.Folders -> R.drawable.rounded_folder_24

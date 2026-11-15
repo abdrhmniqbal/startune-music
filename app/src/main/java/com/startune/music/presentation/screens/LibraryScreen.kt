@@ -1231,7 +1231,7 @@ fun LibraryScreen(
                                             multiSelectionState.clearSelection()
                                             showMultiSelectionSheet = false
                                             val candidates = if (currentTabId == LibraryTabId.ALBUM_ARTISTS) {
-                                                albumArtistsLazyPagingItems.snapshot().items
+                                                albumArtistsLazyPagingItems.itemSnapshotList.items
                                             } else {
                                                 playerViewModel.artistsFlow.value
                                             }
@@ -2802,6 +2802,7 @@ private fun LibraryTabId.iconRes(): Int = when (this) {
     LibraryTabId.SONGS -> R.drawable.rounded_music_note_24
     LibraryTabId.ALBUMS -> R.drawable.rounded_album_24
     LibraryTabId.ARTISTS -> R.drawable.rounded_artist_24
+    LibraryTabId.ALBUM_ARTISTS -> R.drawable.rounded_artist_24
     LibraryTabId.PLAYLISTS -> R.drawable.rounded_playlist_play_24
     LibraryTabId.MIXES -> R.drawable.rounded_instant_mix_24
     LibraryTabId.FOLDERS -> R.drawable.rounded_folder_24
