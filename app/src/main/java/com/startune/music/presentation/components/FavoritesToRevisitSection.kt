@@ -66,7 +66,7 @@ fun FavoritesToRevisitSection(
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.favorites_to_revisit_title),
+                    text = stringResource(R.string.mix_rule_forgotten_favorites_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold
                 )

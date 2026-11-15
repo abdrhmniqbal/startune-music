@@ -405,7 +405,6 @@
     <string name="top_songs_empty_title">No top songs in %1$s</string>
     <string name="top_songs_empty_subtitle">Change the range or play more songs to fill this list.</string>
     <string name="recently_added_title">Recently Added</string>
-    <string name="favorites_to_revisit_title">Favorites to Revisit</string>
     <string name="favorites_to_revisit_subtitle">From your high-affinity rotation</string>
     <string name="fresh_finds_title">Fresh finds</string>
     <string name="fresh_finds_subtitle">Songs you rarely play</string>

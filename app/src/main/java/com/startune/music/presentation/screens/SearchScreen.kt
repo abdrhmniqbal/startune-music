@@ -211,7 +211,7 @@ fun SearchScreen(
     }
     val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
     val playbackHistory by playerViewModel.playbackHistory.collectAsStateWithLifecycle()
-    val queueFavoritesToRevisit = stringResource(R.string.presentation_batch_b_queue_favorites_to_revisit)
+    val queueFavoritesToRevisit = stringResource(R.string.mix_rule_forgotten_favorites_title)
     // Not favorites-only: the rule Iqbal gave was songs with a high play
     // count that have not been played in a long time, and he never said it
     // had to be the liked ones. The favorites-only filter was Babu's
