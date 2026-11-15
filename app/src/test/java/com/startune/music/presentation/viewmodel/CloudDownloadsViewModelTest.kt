@@ -82,7 +82,7 @@ class CloudDownloadsViewModelTest {
         viewModel.downloadSelected(listOf(navidrome, duplicate, jellyfin, local))
         advanceUntilIdle()
 
-        coVerify(exactly = 1) { repository.enqueueAll(listOf(jellyfin)) }
+        coVerify(exactly = 1) { repository.enqueueAll(listOf(navidrome, jellyfin)) }
     }
 
     @Test
