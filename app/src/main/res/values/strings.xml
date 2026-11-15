@@ -171,7 +171,9 @@
     <string name="backup_section_playlists_label">Playlists</string>
     <string name="backup_section_playlists_description">Your custom playlists and ordering preferences.</string>
     <string name="backup_section_global_settings_label">Global Settings</string>
-    <string name="backup_section_global_settings_description">Themes, behavior, playback, and app preferences.</string>
+    <string name="backup_section_global_settings_description">Behavior, playback, and app preferences.</string>
+    <string name="backup_section_custom_themes_label">Custom themes</string>
+    <string name="backup_section_custom_themes_description">Your custom color themes and the selected theme.</string>
     <string name="backup_section_favorites_label">Favorites</string>
     <string name="backup_section_favorites_description">Songs marked as favorite.</string>
     <string name="backup_section_lyrics_label">Saved Lyrics</string>

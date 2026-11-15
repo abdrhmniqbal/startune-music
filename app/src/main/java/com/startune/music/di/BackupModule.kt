@@ -7,6 +7,7 @@ import com.startune.music.data.backup.model.BackupSection
 import com.startune.music.data.backup.module.ArtistImagesModuleHandler
 import com.startune.music.data.backup.module.AudioBookmarksModuleHandler
 import com.startune.music.data.backup.module.BackupModuleHandler
+import com.startune.music.data.backup.module.CustomThemesModuleHandler
 import com.startune.music.data.backup.module.EngagementStatsModuleHandler
 import com.startune.music.data.backup.module.EqualizerModuleHandler
 import com.startune.music.data.backup.module.FavoritesModuleHandler
@@ -48,6 +49,7 @@ object BackupModule {
     fun provideModuleHandlers(
         playlistsHandler: PlaylistsModuleHandler,
         globalSettingsHandler: GlobalSettingsModuleHandler,
+        customThemesHandler: CustomThemesModuleHandler,
         favoritesHandler: FavoritesModuleHandler,
         lyricsHandler: LyricsModuleHandler,
         searchHistoryHandler: SearchHistoryModuleHandler,
@@ -62,6 +64,7 @@ object BackupModule {
         return mapOf(
             BackupSection.PLAYLISTS to playlistsHandler,
             BackupSection.GLOBAL_SETTINGS to globalSettingsHandler,
+            BackupSection.CUSTOM_THEMES to customThemesHandler,
             BackupSection.FAVORITES to favoritesHandler,
             BackupSection.LYRICS to lyricsHandler,
             BackupSection.SEARCH_HISTORY to searchHistoryHandler,

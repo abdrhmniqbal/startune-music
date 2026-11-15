@@ -22,6 +22,13 @@ enum class BackupSection(
         descriptionRes = R.string.backup_section_global_settings_description,
         iconRes = R.drawable.rounded_settings_24
     ),
+    CUSTOM_THEMES(
+        key = "custom_themes",
+        labelRes = R.string.backup_section_custom_themes_label,
+        descriptionRes = R.string.backup_section_custom_themes_description,
+        iconRes = R.drawable.rounded_palette_24,
+        sinceVersion = 5
+    ),
     FAVORITES(
         key = "favorites",
         labelRes = R.string.backup_section_favorites_label,

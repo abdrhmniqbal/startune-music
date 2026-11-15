@@ -39,7 +39,8 @@ class GlobalSettingsModuleHandler @Inject constructor(
         userPreferencesRepository.clearPreferencesExceptKeys(
             PlaylistsModuleHandler.PLAYLIST_KEYS +
             QuickFillModuleHandler.QUICK_FILL_KEYS +
-            EqualizerModuleHandler.EQUALIZER_KEYS
+            EqualizerModuleHandler.EQUALIZER_KEYS +
+            CustomThemesModuleHandler.CUSTOM_THEMES_KEYS
         )
         if (safeEntries.isNotEmpty()) {
             userPreferencesRepository.importPreferencesFromBackup(safeEntries, clearExisting = false)
@@ -52,6 +53,7 @@ class GlobalSettingsModuleHandler @Inject constructor(
         /** Keys managed by dedicated module handlers, excluded from global settings. */
         val EXCLUDED_KEYS = PlaylistsModuleHandler.PLAYLIST_KEYS +
             QuickFillModuleHandler.QUICK_FILL_KEYS +
-            EqualizerModuleHandler.EQUALIZER_KEYS
+            EqualizerModuleHandler.EQUALIZER_KEYS +
+            CustomThemesModuleHandler.CUSTOM_THEMES_KEYS
     }
 }
