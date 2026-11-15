@@ -41,7 +41,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.PlaylistPlay
 import androidx.compose.material.icons.rounded.Album
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.LibraryMusic
@@ -98,7 +97,6 @@ import com.startune.music.R
 import com.startune.music.data.model.Playlist
 import com.startune.music.data.model.Song
 import com.startune.music.data.model.SortOption
-import com.startune.music.presentation.components.subcomps.SineWaveLine
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.screens.PlayerSheetCollapsedCornerRadius
 import com.startune.music.presentation.viewmodel.PlayerViewModel
@@ -150,47 +148,19 @@ fun PlaylistContainer(
         }
 
         if (filteredPlaylists.isEmpty() && !playlistUiState.isLoading) {
+            // The only empty-state component in the app. The library tab
+            // routes through LibraryEmptyState before reaching here, so this
+            // branch only serves the add-to-playlist sheet, and it uses the
+            // same shared design (star badge, centered).
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                contentAlignment = Alignment.TopCenter
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                Column(
-                    modifier = Modifier.padding(top = 28.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    SineWaveLine(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(32.dp)
-                            .padding(horizontal = 8.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f),
-                        alpha = 0.95f,
-                        strokeWidth = 3.dp,
-                        amplitude = 4.dp,
-                        waves = 7.6f,
-                        phase = 0f
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    Icon(
-                        Icons.AutoMirrored.Rounded.PlaylistPlay,
-                        contentDescription = null,
-                        modifier = Modifier.size(48.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        stringResource(emptyTitleRes),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Spacer(Modifier.height(6.dp))
-                    Text(
-                        stringResource(emptyHintRes),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                ExpressiveEmptyState(
+                    iconRes = R.drawable.rounded_playlist_play_24,
+                    titleRes = emptyTitleRes,
+                    subtitleRes = emptyHintRes
+                )
             }
         } else {
             if (isAddingToPlaylist) {

@@ -70,16 +70,8 @@ fun GenreCategoriesGrid(
     onSelectionToggle: (Genre) -> Unit = {},
     onGenreMoreOptionsClick: ((Genre) -> Unit)? = null
 ) {
-    if (genres.isEmpty()) {
-        Box(
-            modifier = modifier.fillMaxSize().padding(16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(stringResource(R.string.no_genres_available), style = MaterialTheme.typography.bodyLarge)
-        }
-        return
-    }
-
+    // Empty is handled by the caller (LibraryScreen GENRES branch, shared
+    // LibraryEmptyState). Do NOT put a custom empty state here.
     val systemNavBarHeight = getNavigationBarHeight()
     val customGenreIcons = playerViewModel.customGenreIcons.collectAsStateWithLifecycle(
         initialValue = emptyMap(),

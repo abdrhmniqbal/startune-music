@@ -765,6 +765,7 @@ fun LibraryPlaylistsTab(
     isListView: Boolean,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
+    storageFilter: StorageFilter,
     isSelectionMode: Boolean = false,
     selectedPlaylistIds: Set<String> = emptySet(),
     onPlaylistLongPress: (com.startune.music.data.model.Playlist) -> Unit = {},
@@ -772,22 +773,40 @@ fun LibraryPlaylistsTab(
     onPlaylistOptionsClick: () -> Unit = {},
     onPlaylistMoreOptionsClick: ((com.startune.music.data.model.Playlist) -> Unit)? = null
 ) {
-    PlaylistContainer(
-        isListView = isListView,
-        playlistUiState = playlistUiState,
-        filteredPlaylists = filteredPlaylists,
-        currentSortOption = playlistUiState.currentPlaylistSortOption,
-        isRefreshing = isRefreshing,
-        onRefresh = onRefresh,
-        bottomBarHeight = bottomBarHeight,
-        navController = navController,
-        playerViewModel = playerViewModel,
-        isSelectionMode = isSelectionMode,
-        selectedPlaylistIds = selectedPlaylistIds,
-        onPlaylistLongPress = onPlaylistLongPress,
-        onPlaylistSelectionToggle = onPlaylistSelectionToggle,
-        onPlaylistMoreOptionsClick = onPlaylistMoreOptionsClick
-    )
+    // Empty state uses the same shared LibraryEmptyState as every other library
+    // tab (star badge, centered). Do NOT render a custom empty state here or
+    // inside PlaylistContainer; the tab's copy is lib_empty_playlists_*.
+    Column(modifier = Modifier.fillMaxSize()) {
+        if (playlistUiState.isLoading && filteredPlaylists.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) { ContainedLoadingIndicator() }
+        } else if (filteredPlaylists.isEmpty()) {
+            LibraryEmptyState(
+                tabId = LibraryTabId.PLAYLISTS,
+                storageFilter = storageFilter,
+                bottomBarHeight = bottomBarHeight
+            )
+        } else {
+            PlaylistContainer(
+                isListView = isListView,
+                playlistUiState = playlistUiState,
+                filteredPlaylists = filteredPlaylists,
+                currentSortOption = playlistUiState.currentPlaylistSortOption,
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+                bottomBarHeight = bottomBarHeight,
+                navController = navController,
+                playerViewModel = playerViewModel,
+                isSelectionMode = isSelectionMode,
+                selectedPlaylistIds = selectedPlaylistIds,
+                onPlaylistLongPress = onPlaylistLongPress,
+                onPlaylistSelectionToggle = onPlaylistSelectionToggle,
+                onPlaylistMoreOptionsClick = onPlaylistMoreOptionsClick
+            )
+        }
+    }
 }
 
 /** Mixes tab: expandable mix cards with a 3-song preview; no selection mode. */

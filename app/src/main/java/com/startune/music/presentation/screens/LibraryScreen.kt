@@ -1626,6 +1626,7 @@ fun LibraryScreen(
                                             isListView = playerUiState.isPlaylistsListView,
                                             isRefreshing = isRefreshing,
                                             onRefresh = onRefresh,
+                                            storageFilter = playerUiState.currentStorageFilter,
                                             isSelectionMode = isPlaylistSelectionMode,
                                             selectedPlaylistIds = selectedPlaylistIds,
                                             onPlaylistLongPress = onPlaylistLongPress,
@@ -1724,9 +1725,30 @@ fun LibraryScreen(
                                     }
 
                                     LibraryTabId.GENRES -> {
-                                        GenreCategoriesGrid(
-                                            onGenreMoreOptionsClick = { genre -> itemOptionsTarget = ItemOptionsTarget.Genre(genre) },
-                                            genres = genres,
+                                        // Genres had its own plain-text empty state (no icon, no
+                                        // star badge). Use the same shared LibraryEmptyState as
+                                        // every other library tab, with the same loading guard.
+                                        val isLoadingGenres = playerUiState.isLoadingLibraryCategories
+                                        when {
+                                            isLoadingGenres && genres.isEmpty() -> {
+                                                Box(
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    contentAlignment = Alignment.Center
+                                                ) { LoadingIndicator() }
+                                            }
+
+                                            genres.isEmpty() -> {
+                                                LibraryEmptyState(
+                                                    tabId = LibraryTabId.GENRES,
+                                                    storageFilter = playerUiState.currentStorageFilter,
+                                                    bottomBarHeight = bottomBarHeightDp
+                                                )
+                                            }
+
+                                            else -> {
+                                                GenreCategoriesGrid(
+                                                    onGenreMoreOptionsClick = { genre -> itemOptionsTarget = ItemOptionsTarget.Genre(genre) },
+                                                    genres = genres,
                                             onGenreClick = { genre ->
                                                 val encodedGenreId = java.net.URLEncoder.encode(genre.id, "UTF-8")
                                                 navController.navigateSafely(
@@ -1738,7 +1760,9 @@ fun LibraryScreen(
                                             isSelectionMode = isGenreSelectionMode,
                                             onLongPress = onGenreLongPress,
                                             onSelectionToggle = onGenreSelectionToggle
-                                        )
+                                                )
+                                            }
+                                        }
                                     }
 
                                     null -> Unit
