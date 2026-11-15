@@ -200,8 +200,6 @@
     <string name="about_project_title">Dự án PixelPlayerOSS</string>
     <string name="about_project_subtitle">Mã nguồn mở hoàn toàn theo giấy phép GPL.</string>
     <string name="about_link_source_title">Mã nguồn GitHub</string>
-    <string name="about_link_fdroid_title">F-Droid</string>
-    <string name="about_link_fdroid_subtitle">Tải bản phát hành trên F-Droid.</string>
     <string name="about_licenses_title">Giấy phép mã nguồn mở</string>
     <string name="about_licenses_subtitle">Các thư viện và thành phần bên thứ ba.</string>
     <string name="about_licenses_sheet_subtitle">Cảm ơn các dự án mã nguồn mở tuyệt vời.</string>

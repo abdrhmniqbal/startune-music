@@ -346,17 +346,6 @@
     <string name="updates_action_release_notes">Nhật ký thay đổi</string>
     <string name="updates_action_switch">Chuyển kênh</string>
     <string name="updates_action_dismiss">Bỏ qua</string>
-    <string name="updates_switch_dialog_title">Cần cài đặt lại</string>
-    <string name="updates_switch_dialog_body">Bản Ổn định phát hành trên F-Droid còn bản Alpha từ GitHub. Hai bản dùng chữ ký khác nhau nên Android không thể cập nhật đè. Gỡ cài đặt sẽ xóa sạch dữ liệu ứng dụng, hãy sao lưu trước.</string>
-    <string name="updates_switch_step_backup">1. Tạo bản sao lưu và lưu tệp ra bên ngoài ứng dụng.</string>
-    <string name="updates_switch_step_download_stable">2. Cài đặt F-Droid nếu chưa có, rồi mở PixelPlayerOSS tại đó.</string>
-    <string name="updates_switch_step_download_alpha">2. Tải xuống tệp APK %1$s.</string>
-    <string name="updates_switch_step_uninstall">3. Gỡ cài đặt ứng dụng này, cài bản mới và khôi phục bản sao lưu của bạn.</string>
-    <string name="updates_switch_action_backup">Sao lưu</string>
-    <string name="updates_switch_action_open_fdroid">Mở trang F-Droid</string>
-    <string name="updates_switch_action_download">Tải APK</string>
-    <string name="updates_switch_action_uninstall">Gỡ cài đặt</string>
-    <string name="updates_switch_action_close">Đóng</string>
     <string name="updates_notification_channel">Cập nhật PixelPlayerOSS</string>
     <string name="updates_notification_title">Đã có bản cập nhật mới</string>
     <string name="updates_notification_text">Phiên bản %1$s đã sẵn sàng để cài đặt.</string>

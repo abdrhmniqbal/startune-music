@@ -1,7 +1,7 @@
 # 🎵 Startune Music 6 App Store Icons
 
 Official 512×512 PNG app store icons and XML vector drawables for the **6 Startune Music launcher colorways**.
-All images are **100% opaque 512×512 PNGs** (no transparent corners, no black background) strictly following store guidelines for Google Play, F-Droid, IzzyOnDroid, Amazon Appstore, and GitHub Releases.
+All images are **100% opaque 512×512 PNGs** (no transparent corners, no black background) strictly following store guidelines for Google Play, IzzyOnDroid, Amazon Appstore, and GitHub Releases.
 
 ---
 

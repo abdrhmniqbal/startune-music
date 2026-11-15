@@ -1,6 +1,6 @@
 # Dependency License Review
 
-This is a review aid for F-Droid/app-store submission. It is not legal advice. Re-run it whenever `gradle/libs.versions.toml`, `app/build.gradle.kts`, or Android Gradle Plugin versions change.
+This is a review aid for dependency license review. It is not legal advice. Re-run it whenever `gradle/libs.versions.toml`, `app/build.gradle.kts`, or Android Gradle Plugin versions change.
 
 ## Regenerate The Runtime Graph
 

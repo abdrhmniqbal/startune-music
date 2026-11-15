@@ -544,8 +544,6 @@
     <string name="toast_download_cancelled">Download cancelled</string>
     <string name="toast_download_started">Download started</string>
     <string name="toast_removed_dislike">Removed dislike</string>
-    <string name="about_link_fdroid_subtitle">Available on the F-Droid catalog</string>
-    <string name="about_link_fdroid_title">F-Droid</string>
     <string name="about_link_source_subtitle" translatable="false">github.com/abdrhmniqbal/startune-music</string>
     <string name="about_link_translate_title">Help translate</string>
     <string name="about_link_translate_subtitle">Contribute translations on Crowdin</string>

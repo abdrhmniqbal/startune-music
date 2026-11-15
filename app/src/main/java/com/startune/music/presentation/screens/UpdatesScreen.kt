@@ -60,8 +60,7 @@ import kotlinx.coroutines.launch
  * Settings → Updates. A centralized view of the app's own update flow
  * (GitHub releases): check now, download, install, and the installed
  * version. There is no release-channel selector here: Startune only
- * ships GitHub releases, so the upstream STABLE (F-Droid) channel does
- * not apply. The prerelease choice lives in the existing
+ * ships GitHub releases. The prerelease choice lives in the existing
  * include-prereleases preference the manager already reads.
  */
 @Composable

@@ -162,7 +162,6 @@ private val AboutMaintainers = listOf(
 )
 
 private const val SourceRepoUrl = "https://github.com/abdrhmniqbal/startune-music"
-private const val FDroidUrl = "https://f-droid.org/packages/com.startune.music/"
 private const val CrowdinUrl = "https://crowdin.com/project/startune-music/"
 
 private data class ProjectLink(
@@ -199,13 +198,6 @@ fun AboutScreen(
             subtitle = stringResource(R.string.about_link_source_subtitle),
             iconRes = R.drawable.github,
             url = SourceRepoUrl,
-        ),
-        ProjectLink(
-            id = "fdroid",
-            title = stringResource(R.string.about_link_fdroid_title),
-            subtitle = stringResource(R.string.about_link_fdroid_subtitle),
-            iconRes = R.drawable.fdroid,
-            url = FDroidUrl,
         ),
         ProjectLink(
             id = "translate",

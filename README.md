@@ -71,7 +71,7 @@ Build one universal debug APK for local installation:
 JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew :app:assembleDebug -Pstartune.enableAbiSplits=false
 ```
 
-Build a universal unsigned release APK suitable for F-Droid verification:
+Build a universal unsigned release APK:
 
 ```sh
 JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew :app:assembleRelease -Pstartune.enableAbiSplits=false -Pstartune.disableReleaseSigning=true
@@ -99,19 +99,11 @@ https://github.com/abdrhmniqbal/startune-music/releases
 
 `v2.0.0-beta` is the upcoming first release from the `main` branch.
 
-F-Droid listing for `com.startune.music` is being prepared for the beta release:
-
-```text
-https://f-droid.org/packages/com.startune.music/
-```
-
 Obtainium app id:
 
 ```text
 com.startune.music
 ```
-
-> Note: F-Droid builds and signs its own APKs from source, so they may lag behind GitHub releases while the new version works through the F-Droid build cycle. F-Droid and GitHub APK signatures differ — switching between the two requires an uninstall/reinstall.
 
 ## Project Structure
 
@@ -156,8 +148,6 @@ JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew :app:testDebugUnitTest
 Translations are managed on Crowdin: https://crowdin.com/project/startune-music/
 
 Release process: [docs/RELEASE.md](docs/RELEASE.md)
-
-F-Droid notes: [docs/FDROID.md](docs/FDROID.md)
 
 Privacy policy: [docs/PRIVACY_POLICY.md](docs/PRIVACY_POLICY.md)
 

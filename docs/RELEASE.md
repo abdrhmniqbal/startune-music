@@ -94,7 +94,7 @@ commit them. The old `CI_KEYSTORE_B64` / `CI_KEYSTORE_PASSWORD`
 secrets were removed after the four `ANDROID_KEYSTORE_*` secrets were
 set (same key material, new names).
 
-For F-Droid-compatible unsigned verification builds, pass `-Pstartune.disableReleaseSigning=true` even when local signing files exist.
+For unsigned verification builds, pass `-Pstartune.disableReleaseSigning=true` even when local signing files exist.
 
 ## Device Smoke Test
 
@@ -120,11 +120,3 @@ Without Actions, the manual fallback is: create a tag
 `git push origin v<APP_VERSION_NAME>`, create a GitHub release from the
 tag, attach the APK artifacts, and paste the changelog section.
 
-## F-Droid Metadata
-
-Before submitting a tagged release to F-Droid-compatible app stores:
-
-1. Update `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt`.
-2. Verify the unsigned universal release build from [FDROID.md](FDROID.md).
-3. Check `docs/PRIVACY_POLICY.md` still matches the optional network services present in the app.
-4. Create source archives from git, not from the working tree, so ignored local artifacts are excluded.

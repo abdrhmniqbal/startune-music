@@ -83,4 +83,4 @@ The Jellyfin FFmpeg decoder bundled in distributed APKs is GPL-3.0, fully aligne
 | **Security & Cryptography** | Bouncy Castle Cryptography Provider, Apache Commons Lang, JDOM2, Jose4j | Permissive / Apache-2.0 |
 | **Testing Frameworks** | JUnit 4/5, AndroidX Test, MockK, Turbine, Truth, Room Test, Coroutines Test | Apache-2.0 / MIT / EPL (Test only) |
 
-All third-party components remain subject to their respective upstream licenses. Nothing in Startune Music alters or diminishes the rights granted under those licenses. For the full F-Droid dependency review breakdown, refer to [docs/DEPENDENCY_LICENSES.md](docs/DEPENDENCY_LICENSES.md).
+All third-party components remain subject to their respective upstream licenses. Nothing in Startune Music alters or diminishes the rights granted under those licenses. For the full dependency review breakdown, refer to [docs/DEPENDENCY_LICENSES.md](docs/DEPENDENCY_LICENSES.md).
