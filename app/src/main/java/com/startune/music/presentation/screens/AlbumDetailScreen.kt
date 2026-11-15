@@ -58,6 +58,9 @@ import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.CloudDone
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
+import androidx.compose.material.icons.automirrored.rounded.QueueMusic
+import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -174,6 +177,8 @@ fun AlbumDetailScreen(
     val completedOfflineUris by viewModel.completedOfflineUris.collectAsStateWithLifecycle()
     val allArtists by playerViewModel.artistsFlow.collectAsStateWithLifecycle()
     var showAlbumPlaylistSheet by remember { mutableStateOf(false) }
+    val toastAddedToQueue = stringResource(R.string.toast_added_to_queue)
+    val toastPlayingNext = stringResource(R.string.toast_playing_next)
 
     var showSongInfoBottomSheet by remember { mutableStateOf(false) }
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
@@ -731,7 +736,16 @@ fun AlbumDetailScreen(
                                         )
                                     }
                                 }
-                            }
+                            },
+                            onAddToQueueClick = {
+                                playerViewModel.addSelectedToQueue(immutableSongs)
+                                playerViewModel.sendToast(toastAddedToQueue)
+                            },
+                            onPlayNextClick = {
+                                playerViewModel.addSelectedAsNext(immutableSongs)
+                                playerViewModel.sendToast(toastPlayingNext)
+                            },
+                            onAddToPlaylistClick = { showAlbumPlaylistSheet = true }
                         )
                     } else {
                         CollapsingAlbumTopBar(
@@ -973,7 +987,10 @@ private fun SharedAlbumTopBarProbe(
     onDownloadClick: () -> Unit,
     onSortClick: () -> Unit,
     albumArtists: ImmutableList<Artist>,
-    onGoToArtistClick: () -> Unit
+    onGoToArtistClick: () -> Unit,
+    onAddToQueueClick: () -> Unit,
+    onPlayNextClick: () -> Unit,
+    onAddToPlaylistClick: () -> Unit
 ) {
     var showMoreMenu by remember { mutableStateOf(false) }
     val surfaceColor = MaterialTheme.colorScheme.surface
@@ -1088,6 +1105,21 @@ private fun SharedAlbumTopBarProbe(
                                 expanded = showMoreMenu,
                                 onDismissRequest = { showMoreMenu = false },
                                 actions = persistentListOf(
+                                    DetailHeroMenuAction(
+                                        label = stringResource(R.string.detail_hero_add_to_queue),
+                                        icon = Icons.AutoMirrored.Rounded.QueueMusic,
+                                        onClick = onAddToQueueClick
+                                    ),
+                                    DetailHeroMenuAction(
+                                        label = stringResource(R.string.detail_hero_play_next),
+                                        icon = Icons.Rounded.SkipNext,
+                                        onClick = onPlayNextClick
+                                    ),
+                                    DetailHeroMenuAction(
+                                        label = stringResource(R.string.detail_hero_add_to_playlist),
+                                        icon = Icons.AutoMirrored.Rounded.PlaylistAdd,
+                                        onClick = onAddToPlaylistClick
+                                    ),
                                     DetailHeroMenuAction(
                                         label = stringResource(R.string.player_go_to_artist),
                                         icon = Icons.Rounded.Person,
