@@ -959,7 +959,9 @@ private fun SongMiniCard(
                 lineHeight = 18.sp,
                 color = cardScheme.onPrimaryContainer,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
             // Artist
             Text(
@@ -970,7 +972,9 @@ private fun SongMiniCard(
                 lineHeight = 14.sp,
                 color = cardScheme.onPrimaryContainer.copy(alpha = 0.55f),
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
 
             // Thin Wavy Progress Bar + Timestamps (static 40% position)
@@ -1108,7 +1112,7 @@ private fun LyricsPanel(
                         fontSize = fontSize,
                         lineHeight = lineHeight,
                         color = cardScheme.onSurface,
-                        textAlign = TextAlign.Start,
+                        textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -1315,8 +1319,11 @@ private fun shareToInstagramStory(
     bottomColorHex: String? = null
 ) {
     val intent = Intent("com.instagram.share.ADD_TO_STORY").apply {
-        type = "image/png"
-        putExtra("interactive_asset_uri", imageUri)
+        // The card is the story background (a full 9:16 image), so it goes in
+        // the intent data. interactive_asset_uri is only the sticker overlay;
+        // passing the card there with no background data makes Instagram open
+        // and immediately return.
+        setDataAndType(imageUri, "image/png")
         putExtra("content_url", STARTUNE_REPO_URL)
         if (topColorHex != null) {
             putExtra("top_background_color", topColorHex)
