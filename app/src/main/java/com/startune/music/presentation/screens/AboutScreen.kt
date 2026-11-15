@@ -53,6 +53,7 @@ import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.SystemUpdate
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -89,6 +90,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -143,11 +145,11 @@ private val CoreMaintainer = Contributor(
     githubUrl = "https://github.com/abdrhmniqbal",
 )
 
-private val NonFossMaintainer = Contributor(
+private val OriginalAuthor = Contributor(
     id = "theovilardo",
     displayName = "@theovilardo",
-    role = "Author / Non-FOSS Maintainer",
-    detail = "Author and maintainer of the original Google Play / non-FOSS PixelPlayer release.",
+    role = "Author",
+    detail = "Author of the original PixelPlayer, including the open-source PixelPlayerOSS release.",
     badge = "Original app",
     avatarUrl = "https://github.com/theovilardo.png",
     iconRes = R.drawable.round_developer_board_24,
@@ -156,7 +158,7 @@ private val NonFossMaintainer = Contributor(
 
 private val AboutMaintainers = listOf(
     CoreMaintainer,
-    NonFossMaintainer,
+    OriginalAuthor,
 )
 
 private const val SourceRepoUrl = "https://github.com/abdrhmniqbal/startune-music"
@@ -173,6 +175,7 @@ private data class ProjectLink(
 )
 
 @androidx.annotation.OptIn(UnstableApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("UNUSED_PARAMETER")
 @Composable
 fun AboutScreen(
@@ -534,16 +537,14 @@ private fun AboutHeroCard(
                 ) {
                     Box(
                         modifier = Modifier.size(56.dp).clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Image(
-                            painter = painterResource(R.mipmap.ic_launcher_background),
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.splash_icon),
                             contentDescription = null,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                        Image(
-                            painter = painterResource(R.mipmap.ic_launcher_foreground),
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize()
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(80.dp)
                         )
                     }
 
