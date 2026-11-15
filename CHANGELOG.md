@@ -11,114 +11,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.0] - 2026-11-15
 - Removed the "How backup works" banner from Data & Storage.
-- Every detail page now has a more menu (artist Change photo and Reset to default, album Go to Artist, genre Add to queue, Play next, and Add to playlist).
-- The About screen app icon now uses the cookie shape.
 - Removed everything F-Droid related.
-- The bookmark moment sheet now uses the same action list rows as the other more menus (Rename, Copy cue, Delete).
+- Every detail page and list row now has one shared more menu (artist Change photo and Reset to default, album Go to Artist, genre Add to queue, Play next, and Add to playlist, plus Rename and Delete for playlists and Open as playlist for folders).
+- More menu icons now use the Set as sound style (secondaryContainer circle, secondary icons) with Delete keeping its error styling, and the sheets use surfaceContainerLow so the cards stand out.
+- The Now Playing more button now opens the song menu, Delete is the last row in the song more menu, and the collection more menu keeps its backgrounds.
+- Removed the Find on MusicBrainz entry from the song more menu (the backend stays for ListenBrainz).
 - The Bookmarks screen top bar now has a sort button instead of a dead bookmark icon, and the FAB is removed.
-- The Browse section is now called Forgotten Favorites.
-- Forgotten Favorites now covers every song with at least one play, not only liked songs.
-- The share card background is now the album's primaryContainer, flat with no darkening or gradient.
-- Library empty states now use the shared ExpressiveEmptyState design.
-- The "Group by album artist" setting is gone, replaced by an Album Artists tab (off by default, enabled in Edit tabs).
-- Playlist and mix thumbnails no longer repeat a cover.
-- Artwork that fails to load is now retried twice, 300 ms apart.
-- More menu icons are now all secondary, except Delete.
-- Settings main-list icons no longer use the rainbow.
-- Menu and list icons now use the Set as sound style (secondaryContainer circle) everywhere.
-- Now Playing button groups are now 2dp apart instead of 6dp.
-
-### Fixed
-- Now Playing text now uses onBackground so it stays readable on the dark player background.
-- Recently Played timeline labels now use the max-contrast color for the divider chip.
-- More-menu sheets now set their container to surfaceContainerLow so the action cards stand out.
-- Delete (and Download for cloud songs) is now the last row in the song more menu.
-- The genre detail back button now uses the max-contrast color for the header gradient.
-- The genre detail back button foreground is now measured at the button's vertical center so it stays readable on light genres.
-- Share card text is left-aligned again and the card itself is centred.
-- Collection more menu covers are back to the stacked cluster.
-- Detail top bars are now aligned to the album and artist detail reference.
-- Collection views now have a grid/list toggle next to Sort.
-- The Artists tab count now uses the same union as the detail page.
-- The playlist detail collapsed title and subtitle now dock to the left like the other detail pages.
-- The collection more menu action cards and rows now keep their backgrounds.
-- The Now Playing more button now opens the song menu through the player overlay.
-- All empty states now use the single ExpressiveEmptyState component.
-- Sharing a recap now opens the share-card sheet instead of jumping straight to the system chooser.
-- The song and lyrics share card background is now surfaceContainer instead of surfaceContainerLowest (black).
-- The lyrics card panel now uses surfaceContainerHighest so it reads as solid.
-- Lyrics card text is now cleaned of all timestamp stamps and voice tags.
-- The share sheet now resolves lyrics through the same stored chain the player uses.
-- The genre detail page is restored to its own design (200dp header, title at the bottom, GenreCollapsibleTopBar).
-- The genre detail header now has a shuffle button to the right of the title.
-- The genre detail title now snaps into the top bar on scroll settle.
-- The Notifications and Behavior Settings icons are now solid instead of outline.
-- The Now Playing bottom row now shares one secondary Fixed hue, with only alpha marking on vs off.
-- The Now Playing top-bar actions are now a button group of rounded squares, with the Cast icon for audio output.
-- The library now indexes songs on SD cards and USB volumes, not only internal storage.
-- Every scrollable page now uses the same ExpressiveScrollBar.
+- The Browse section is now called Forgotten Favorites and covers every song with at least one play, not only liked songs.
+- The About screen app icon now uses the cookie shape and the splash-screen mark so it follows the theme.
 - The Home changelog button now uses the NewReleases icon, and the About page gains a Changelog row.
 - Theo Vilardo is now listed as "Author" of the original PixelPlayer.
-- The About page app icon now uses the splash-screen mark so it follows the theme.
 - The themed launcher icon now has its own monochrome layer scaled inside the safe zone.
-- The Now Playing top-bar actions now use the same segmented shape as the lyrics and more chips.
-- Lyrics and song card text is now centered.
-- Genre detail now shows the song count as a subtitle under the title.
-- Now Playing and the mini player now use the PixelPlayerOSS primaryContainer at full opacity.
-- Tapping Instagram Story now sets the card as the story background instead of the sticker overlay.
-
-### Changed
-- The per-item more menus now share one layout (header, three action cards, full-width list rows).
-
-### Added
+- The "Group by album artist" setting is gone, replaced by an Album Artists tab (off by default, enabled in Edit tabs).
+- The library now indexes songs on SD cards and USB volumes, not only internal storage.
+- Library empty states now use the shared ExpressiveEmptyState design, and all empty states use the single ExpressiveEmptyState component.
+- Playlist and mix thumbnails no longer repeat a cover.
+- Artwork that fails to load is now retried twice, 300 ms apart.
+- The Artists tab count now uses the same union as the detail page, and artist detail pages show compilation tracks again.
+- Collection views now have a grid/list toggle next to Sort, and collection more menu covers are back to the stacked cluster.
+- Detail top bars are now aligned to the album and artist detail reference, and the genre detail page is restored to its own design.
+- The genre detail header now has a shuffle button, the title snaps into the top bar on scroll, and the song count shows as a subtitle.
+- The genre detail back button and title now use the max-contrast color for the header gradient so they stay readable.
+- The playlist detail collapsed title and subtitle now dock to the left, and the expanded title is centered under the cover.
 - The song menu Share row now opens a 9:16 share card (Song Card and Lyrics Card) instead of sharing the audio file directly.
-- Added the Cast support foundation (Google Cast framework, MediaRouter, NEARBY_WIFI_DEVICES permission, Cast options provider).
-- Added the Cast session layer (session security, CastPlayer wrapper, CastStateHolder).
-- Added the Cast media server and transfer (local Ktor HTTP server, CastTransferStateHolder, CastRouteStateHolder).
-- PlayerViewModel now wires Cast discovery, media server priming, and playback transfer.
-- The Connect device sheet is redesigned around Cast (permission gate, Controls and Devices tabs).
-- Every list row now has the per-item more menu (Library, Search, queue).
-- The recap summary poster is now more expressive (top genre beside minutes, floating shapes, exact 9:16).
+- The share card background is now the album's primaryContainer (flat) with the outer area in surfaceContainer, the lyrics panel uses surfaceContainerHighest, and the text is centered with the card itself centred.
+- Sharing a recap now opens the share-card sheet, and the recap summary is redesigned as a poster (top-5 lists, artist photo, minutes hero).
+- The recap now follows the selected Stats tab, and each build starts on the next colour of the theme.
+- Tapping Instagram Story now sets the card as the story background instead of the sticker overlay.
+- Lyrics card text is now cleaned of all timestamp stamps and voice tags, and the share sheet resolves lyrics through the same stored chain the player uses.
+- Now Playing and the mini player now use the PixelPlayerOSS primaryContainer at full opacity, with text in onBackground and onPrimaryContainer so it stays readable.
+- The Now Playing bottom row now shares one secondary Fixed hue (only alpha marks on vs off) with the inactive buttons visible again, and the top-bar actions are a segmented button group with the Cast icon.
+- Now Playing buttons are back where they were before the 2026-11-11 swap (lyrics and more chips beside the title), and the button groups are 2dp apart.
+- Cast support is added (framework, session layer, local media server with transfer, player wiring, and the redesigned Connect device sheet).
 - Navidrome songs can now be downloaded for offline playback, the same as Jellyfin.
-- The recap now follows the selected Stats tab (Year, Month, Week, Today, All Time).
-- Each recap build now starts on the next colour of the theme.
+- Full theme customization is now available (every color role settable, rainbow picker, reset to Auto), and theme export is a full theme (format v3).
+- All eight built-in themes are recreated from their official palettes, and the rainbow now follows the selected theme's official accents at one consistent level.
+- Low-emphasis text is readable again in every theme (search placeholder, bottom nav labels, bookmark icon, and Recently Played timeline labels).
+- Accent containers now sit correctly against the surface, mix cards are visible again, and the current song row is highlighted again.
+- The rainbow icon color is consistent now (one fixed foreground: black in dark mode, white in light mode), Settings main-list icons no longer use the rainbow, and the Notifications and Behavior icons are now solid.
+- The changelog now loads from the raw CHANGELOG.md file instead of the GitHub API, and the Home top bar shows the app name instead of "Stable" or "Debug".
+- Every scrollable page now uses the same ExpressiveScrollBar.
 - Added a "Last opened tab" option in Default Tab settings.
-- Full theme customization is now available (every color role settable, rainbow picker, reset to Auto).
-- All eight built-in themes are recreated from their official palettes.
-- Rainbow colors now follow the selected theme's official accent palette.
-- The rainbow palette is now consistent (official accents at one level).
-- Theme export is now a full theme (format v3, all 42 roles per variant defined explicitly).
-
-### Fixed
-- The changelog now loads from the raw CHANGELOG.md file instead of the GitHub API.
-- The Home top bar now shows the app name instead of "Stable" or "Debug".
-- Accent containers now sit correctly against the surface in every color scheme.
-- Empty states are unified into two shared patterns.
-- The collapsed playlist top bar title no longer runs under the Sort and More actions.
-- The expanded playlist title is now centered instead of left-aligned.
-- Mix cards are visible in every theme again (derived container ramp instead of too-close official values).
-- The current song row is highlighted again (primaryContainer derived by the mapper).
-- The Nord theme now follows the official Nord palette exactly.
-- Nord dark muted text now uses nord5, the official subtle-text color.
-- The Nord rainbow has no more duplicates (three new colors fill the eight slots).
-- Every built-in theme now uses only its official palette colors.
-- Now Playing bottom row inactive buttons are visible again.
-- Catppuccin light surface now uses mantle instead of surface0.
-- The genre detail page title is readable again.
-- Dracula dark low-emphasis text is readable again.
-- The Now Playing background is dark instead of vivid.
-- Tokyo Night low-emphasis text is readable again, in both variants.
-- Solarized low-emphasis text is readable again, in both variants.
-- The rainbow icon color is consistent now.
-- Everforest low-emphasis text is readable again, in both variants.
 - Settings sub-page descriptions match the main Settings page again.
-- Ayu low-emphasis text is readable again, in both variants.
-- The recap summary card is redesigned as a poster (top-5 lists, artist photo, minutes hero).
-- Now Playing buttons are back where they were before the 2026-11-11 swap (lyrics and more chips beside the title).
-- The expanded playlist title is centered under the cover again.
-- Artist detail pages show compilation tracks again when Group by Album Artist is on.
-- Removed the Find on MusicBrainz entry from the song more menu (backend stays for ListenBrainz).
-- Settings category icons and genre cards now use one fixed foreground on the rainbow (black in dark mode, white in light mode).
 ## [2.0.0-beta] - 2026-11-11
 
 First beta of the Kotlin rewrite: Startune Music rebuilt as a native Kotlin app, analytics-free.
