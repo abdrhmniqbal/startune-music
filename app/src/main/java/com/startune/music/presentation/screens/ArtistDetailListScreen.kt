@@ -31,8 +31,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.automirrored.rounded.ViewList
-import androidx.compose.material.icons.rounded.AddAPhoto
-import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.ContainedLoadingIndicator
@@ -78,8 +76,6 @@ import com.startune.music.presentation.viewmodel.ArtistAlbumSection
 import com.startune.music.data.model.Album
 import com.startune.music.data.model.SortOption
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
-import com.startune.music.presentation.components.DetailHeroMenuAction
-import com.startune.music.presentation.components.ExpressiveDropdownMenu
 import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.LibrarySortBottomSheet
@@ -609,26 +605,15 @@ fun ArtistDetailListScreen(
                                                 contentDescription = stringResource(R.string.presentation_batch_b_more_options)
                                             )
                                         }
-                                        ExpressiveDropdownMenu(
-                                            expanded = showMoreMenu,
-                                            onDismissRequest = { showMoreMenu = false },
-                                            actions = listOfNotNull(
-                                                DetailHeroMenuAction(
-                                                    label = stringResource(R.string.presentation_batch_d_change_photo),
-                                                    icon = Icons.Rounded.AddAPhoto,
-                                                    onClick = { showArtworkSheet = true }
-                                                ),
-                                                if (!artist.customImageUri.isNullOrBlank()) {
-                                                    DetailHeroMenuAction(
-                                                        label = stringResource(R.string.presentation_batch_d_reset_to_default),
-                                                        icon = Icons.Rounded.Delete,
-                                                        onClick = { viewModel.clearCustomImage() }
-                                                    )
-                                                } else {
-                                                    null
-                                                }
-                                            ).toImmutableList()
-                                        )
+                                        if (showMoreMenu) {
+                                            ArtistImageOptionsSheet(
+                                                artist = artist,
+                                                hasCustomImage = !artist.customImageUri.isNullOrBlank(),
+                                                onDismiss = { showMoreMenu = false },
+                                                onChangeImage = { showArtworkSheet = true },
+                                                onClearCustomImage = { viewModel.clearCustomImage() }
+                                            )
+                                        }
                                     }
                                 }
                             }
