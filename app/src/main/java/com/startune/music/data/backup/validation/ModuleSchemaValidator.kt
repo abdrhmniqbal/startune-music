@@ -73,6 +73,7 @@ class ModuleSchemaValidator @Inject constructor(
             BackupSection.ARTIST_IMAGES -> validateArtistImages(jsonElement.asJsonArray, errors)
             BackupSection.TRANSITIONS -> validateTransitions(jsonElement.asJsonArray, errors)
             BackupSection.GLOBAL_SETTINGS,
+            BackupSection.CUSTOM_THEMES,
             BackupSection.QUICK_FILL,
             BackupSection.EQUALIZER -> {
                 validatePreferenceEntries(jsonElement, section.key, errors)
