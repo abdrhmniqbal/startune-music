@@ -118,11 +118,21 @@ class StatsViewModel @Inject constructor(
             val (summary, topTracks) = try {
                 withContext(dispatchers.io) {
                     val songs = loadSongs()
-                    val topTracks = playbackStatsRepository.loadTopTracks(
-                        StatsTimeRange.DAY,
-                        songs,
-                        HOME_TOP_TRACKS_LIMIT
-                    )
+                    val topTracks = firstTopTracksWithActivity(
+                        listOf(
+                            StatsTimeRange.DAY,
+                            StatsTimeRange.WEEK,
+                            StatsTimeRange.MONTH,
+                            StatsTimeRange.YEAR,
+                            StatsTimeRange.ALL
+                        )
+                    ) { range ->
+                        playbackStatsRepository.loadTopTracks(
+                            range,
+                            songs,
+                            HOME_TOP_TRACKS_LIMIT
+                        )
+                    }
                     val summary = firstSummaryWithActivity(HomeOverviewRanges) { range ->
                         playbackStatsRepository.loadSummary(range, songs)
                     }
@@ -295,4 +305,21 @@ internal suspend fun firstSummaryWithActivity(
         if (summary.hasListeningActivity()) return summary
     }
     return null
+}
+
+/**
+ * Loads top tracks for [ranges] in order and returns the first non-empty list. Ranges after the
+ * first match are never loaded. Home defaults to today, but after a restore (or on a day with no
+ * plays yet) today is empty, so it falls back to the most recent range with activity instead of
+ * showing an empty Top Tracks section.
+ */
+internal suspend fun firstTopTracksWithActivity(
+    ranges: List<StatsTimeRange>,
+    load: suspend (StatsTimeRange) -> List<SongPlaybackSummary>
+): List<SongPlaybackSummary> {
+    for (range in ranges) {
+        val topTracks = load(range)
+        if (topTracks.isNotEmpty()) return topTracks
+    }
+    return emptyList()
 }

@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Home Top Tracks now falls back to the most recent range with plays when there are no plays today, so the section no longer stays empty after a restore.
 - Backup now has a separate Custom themes section, so custom themes are no longer buried inside Global settings.
 - Checking for updates now falls back to the changelog file when the GitHub API rate limit is hit, so it no longer fails with "Couldn't check update" on shared mobile IPs.
 
