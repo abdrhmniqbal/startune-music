@@ -138,17 +138,15 @@ internal fun rememberSheetThemeState(
 
     val miniReadyAlpha = miniAppearProgress.value
     val miniAppearScale = lerp(0.985f, 1f, miniAppearProgress.value)
-    // The player background was the scheme's primaryContainer at full
-    // opacity, a vivid color (this album: #670DE8) that felt too bright.
-    // The Library header uses the same primaryContainer at 40% alpha over
-    // the page background, a dark comfortable color. Composite the same
-    // 40% over the scheme's own background so the sheet stays opaque but
-    // dark, for every theme and album.
-    val playerAreaBackground = lerp(
-        miniPlayerScheme.background,
-        miniPlayerScheme.primaryContainer,
-        0.4f
-    )
+    // The player background is the scheme's primaryContainer at full
+    // opacity, the color derived from the artwork itself. It was briefly a
+    // 40% lerp toward the scheme background (a vivid purple album felt too
+    // bright at full strength), but that darkened every album: this green
+    // artwork's sheet measured #1A2C16, far from the artwork's bright green
+    // and from the reference the user holds (#265B1E, which is the full
+    // primaryContainer #285020 for this seed). A player that does not look
+    // like its artwork is the worse failure, so the lerp is gone.
+    val playerAreaBackground = miniPlayerScheme.primaryContainer
 
     return SheetThemeState(
         albumColorScheme = albumColorScheme,
