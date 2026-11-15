@@ -48,6 +48,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Balance
 import androidx.compose.material.icons.rounded.DeveloperBoard
+import androidx.compose.material.icons.rounded.NewReleases
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.rounded.Public
@@ -57,6 +58,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -104,10 +106,12 @@ import coil.request.ImageRequest
 import coil.size.Size
 import com.startune.music.R
 import com.startune.music.data.updates.AppUpdateManager
+import com.startune.music.presentation.components.ChangelogBottomSheet
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.SmartImage
+import com.startune.music.presentation.components.rememberModalSheetState
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.viewmodel.AppUpdateViewModel
@@ -228,6 +232,8 @@ fun AboutScreen(
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
+    var showChangelogBottomSheet by remember { mutableStateOf(false) }
+    val changelogSheetState = rememberModalSheetState()
 
     val statusBarHeight = WindowInsets.statusBars
         .asPaddingValues()
@@ -340,7 +346,7 @@ fun AboutScreen(
             ) { index, link ->
                 AboutLinkCard(
                     link = link,
-                    shape = expressiveListShape(index = index, count = projectLinks.size + 3),
+                    shape = expressiveListShape(index = index, count = projectLinks.size + 4),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
@@ -358,7 +364,7 @@ fun AboutScreen(
                         iconVector = Icons.Rounded.SystemUpdate,
                         url = "",
                     ),
-                    shape = expressiveListShape(index = projectLinks.size, count = projectLinks.size + 3),
+                    shape = expressiveListShape(index = projectLinks.size, count = projectLinks.size + 4),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
@@ -392,7 +398,7 @@ fun AboutScreen(
                         iconVector = Icons.Rounded.DeveloperBoard,
                         url = "",
                     ),
-                    shape = expressiveListShape(index = projectLinks.size + 1, count = projectLinks.size + 3),
+                    shape = expressiveListShape(index = projectLinks.size + 1, count = projectLinks.size + 4),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
@@ -410,12 +416,30 @@ fun AboutScreen(
                         iconVector = Icons.Rounded.Balance,
                         url = "",
                     ),
-                    shape = expressiveListShape(index = projectLinks.size + 2, count = projectLinks.size + 3),
+                    shape = expressiveListShape(index = projectLinks.size + 2, count = projectLinks.size + 4),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .padding(top = 3.dp),
                     onClick = { navController.navigateSafely(Screen.Licenses.route) },
+                )
+            }
+
+            item(key = "changelog") {
+                AboutLinkCard(
+                    link = ProjectLink(
+                        id = "changelog",
+                        title = stringResource(R.string.presentation_batch_g_changelog_title),
+                        subtitle = versionName,
+                        iconVector = Icons.Rounded.NewReleases,
+                        url = "",
+                    ),
+                    shape = expressiveListShape(index = projectLinks.size + 3, count = projectLinks.size + 4),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 3.dp),
+                    onClick = { showChangelogBottomSheet = true },
                 )
             }
 
@@ -469,6 +493,15 @@ fun AboutScreen(
             expandedTitleStartPadding = 20.dp,
             collapsedTitleStartPadding = 68.dp
         )
+    }
+
+    if (showChangelogBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showChangelogBottomSheet = false },
+            sheetState = changelogSheetState
+        ) {
+            ChangelogBottomSheet()
+        }
     }
 }
 

@@ -19,6 +19,7 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.rounded.Cloud
+import androidx.compose.material.icons.rounded.NewReleases
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LargeTopAppBar
@@ -168,7 +169,7 @@ fun HomeGradientTopBar(
                     onClick = onMoreOptionsClick
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.round_newspaper_24),
+                        imageVector = Icons.Rounded.NewReleases,
                         contentDescription = stringResource(R.string.presentation_batch_g_topbar_cd_changelog)
                     )
                 }
