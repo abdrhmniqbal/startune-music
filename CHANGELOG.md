@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- More menu icons are now all secondary, except Delete. The Play / Next / Playlist action cards and every list row (Add to queue, Share, Go to album, Go to artist, Set as sound, and the same rows on collection and share sheets) use MaterialTheme secondary for their icons; the header heart and edit pencil in the song sheet are secondary too. Delete keeps its error styling (onErrorContainer icon on an errorContainer circle). The labels stay onSurface, and the Set as sound dialog icons, the OPTIONS/INFO tab pills, and the collection header art are untouched.
+
 - Settings no longer uses the rainbow for its main-list icons. Every category and destination row now uses the same icon style as the About page's link rows: a primaryContainer circle with an onPrimaryContainer icon, 44dp (24dp icon with 10dp padding) instead of the 56dp rainbow circle with a black icon. The rainbow palette itself is untouched (genre cards, genre detail, and the theme editor still use it); only the Settings main list drops it. The now-unused rainbowIndex on the settings entries is removed. The nested settings rows were already a different style (a bare secondary icon, no circle) and are unchanged.
 
 

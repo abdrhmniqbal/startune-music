@@ -384,11 +384,7 @@ fun SongInfoBottomSheet(
                                         contentDescription = stringResource(
                                             if (isFavorite) R.string.cd_remove_from_favorites else R.string.cd_add_to_favorites
                                         ),
-                                        tint = if (isFavorite) {
-                                            MaterialTheme.colorScheme.primary
-                                        } else {
-                                            MaterialTheme.colorScheme.onSurface
-                                        }
+                                        tint = MaterialTheme.colorScheme.secondary
                                     )
                                 }
                                 if (isEditable) {
@@ -405,7 +401,7 @@ fun SongInfoBottomSheet(
                                         Icon(
                                             imageVector = Icons.Rounded.Edit,
                                             contentDescription = stringResource(R.string.cd_edit_song_metadata),
-                                            tint = MaterialTheme.colorScheme.onSurface
+                                            tint = MaterialTheme.colorScheme.secondary
                                         )
                                     }
                                 }

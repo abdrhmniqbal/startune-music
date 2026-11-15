@@ -69,7 +69,7 @@ fun MoreMenuActionCard(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = MaterialTheme.colorScheme.onSurface,
+            tint = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.size(24.dp)
         )
         Spacer(Modifier.height(6.dp))
@@ -110,7 +110,7 @@ fun MoreMenuListRow(
                 tint = if (destructive) {
                     MaterialTheme.colorScheme.onErrorContainer
                 } else {
-                    MaterialTheme.colorScheme.onSurface
+                    MaterialTheme.colorScheme.secondary
                 },
                 modifier = Modifier.size(22.dp)
             )
@@ -141,7 +141,7 @@ fun MoreMenuListRow(
                 tint = if (destructive) {
                     MaterialTheme.colorScheme.onErrorContainer
                 } else {
-                    MaterialTheme.colorScheme.onSurface
+                    MaterialTheme.colorScheme.secondary
                 },
                 modifier = Modifier.size(22.dp)
             )
