@@ -58,6 +58,7 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
@@ -121,7 +122,6 @@ import com.startune.music.presentation.viewmodel.PlayerViewModel
 import kotlinx.coroutines.launch
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 import kotlin.math.roundToInt
-import androidx.compose.foundation.shape.RoundedCornerShape
 
 private data class Contributor(
     val id: String,
@@ -528,7 +528,7 @@ private fun AboutHeroCard(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(
-                        modifier = Modifier.size(56.dp).clip(RoundedCornerShape(16.dp))
+                        modifier = Modifier.size(56.dp).clip(MaterialShapes.Cookie9Sided.toShape())
                             .background(MaterialTheme.colorScheme.primaryContainer),
                         contentAlignment = Alignment.Center
                     ) {
