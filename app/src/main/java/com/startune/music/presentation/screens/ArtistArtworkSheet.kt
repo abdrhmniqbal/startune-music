@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddAPhoto
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
-import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.BottomSheetDefaults
@@ -51,26 +49,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.startune.music.R
-import com.startune.music.data.model.Artist
 import com.startune.music.data.network.deezer.DeezerArtistCandidate
-import com.startune.music.presentation.components.MoreMenuListRow
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SmartImageListTargetSize
 import com.startune.music.presentation.viewmodel.ArtistArtworkController
-import com.startune.music.utils.formatSongCount
 import com.startune.music.ui.theme.RoundedSans
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -384,112 +376,6 @@ private fun ArtworkCandidateRow(
                     tint = contentColor,
                     modifier = Modifier.padding(start = 8.dp)
                 )
-            }
-        }
-    }
-}
-
-/**
- * The artist-detail more menu, as a bottom sheet like the library's
- * [CollectionOptionsBottomSheet]. The detail page used to open a dropdown
- * (ExpressiveDropdownMenu) for Change photo / Reset to default while the
- * library list opened a sheet for the same actions; both now open a sheet.
- *
- * Change photo opens the artwork picker ([ArtistArtworkSheet]) via
- * [onChangeImage]; Reset to default clears the custom image via
- * [onClearCustomImage]. Both dismiss this sheet.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ArtistImageOptionsSheet(
-    artist: Artist,
-    hasCustomImage: Boolean,
-    onDismiss: () -> Unit,
-    onChangeImage: () -> Unit,
-    onClearCustomImage: () -> Unit
-) {
-    val sheetState = rememberModalSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .padding(bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val imageUrl = artist.effectiveImageUrl
-                if (!imageUrl.isNullOrEmpty()) {
-                    SmartImage(
-                        model = imageUrl,
-                        contentDescription = artist.name,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(56.dp)
-                            .clip(CircleShape)
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .size(56.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.rounded_artist_24),
-                            contentDescription = stringResource(R.string.presentation_batch_d_cd_artist),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-                }
-                Spacer(Modifier.width(16.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = artist.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = formatSongCount(artist.songCount),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                MoreMenuListRow(
-                    label = stringResource(R.string.presentation_batch_d_change_photo),
-                    icon = Icons.Rounded.AddAPhoto,
-                    onClick = {
-                        onChangeImage()
-                        onDismiss()
-                    }
-                )
-                if (hasCustomImage) {
-                    MoreMenuListRow(
-                        label = stringResource(R.string.presentation_batch_d_reset_to_default),
-                        icon = Icons.Rounded.Delete,
-                        destructive = true,
-                        onClick = {
-                            onClearCustomImage()
-                            onDismiss()
-                        }
-                    )
-                }
             }
         }
     }

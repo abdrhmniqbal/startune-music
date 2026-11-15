@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- The artist detail more menu now opens a bottom sheet like the library list, instead of a dropdown, so Change photo and Reset to default use the same menu design everywhere.
 - Multiple-selection menus now use the same Expressive list rows as the single-item more menus, so songs, playlists, albums, and genres all share one menu design.
 - Home Top Tracks now falls back to the most recent range with plays when there are no plays today, so the section no longer stays empty after a restore.
 - Backup now has a separate Custom themes section, so custom themes are no longer buried inside Global settings.

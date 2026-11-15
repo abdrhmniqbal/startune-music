@@ -13,6 +13,8 @@ import com.startune.music.presentation.components.DetailHeroPinnedActionsHeight
 import com.startune.music.presentation.components.DetailSongsSummary
 import com.startune.music.presentation.components.HeroPlayState
 import com.startune.music.presentation.components.MediaDetailHero
+import com.startune.music.presentation.components.DetailHeroMenuAction
+import com.startune.music.presentation.components.ExpressiveDropdownMenu
 import com.startune.music.presentation.components.rememberDetailHeroDock
 import com.startune.music.presentation.components.rememberSongCollectionMenuActions
 import com.startune.music.presentation.utils.getSegmentedItemShape
@@ -44,7 +46,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.rounded.AddAPhoto
 import androidx.compose.material.icons.rounded.Album
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.Mic
@@ -990,15 +994,15 @@ private fun SharedArtistTopBarProbe(
                         )
                     }
 
-                    if (showMoreMenu) {
-                        ArtistImageOptionsSheet(
-                            artist = artist,
+                    ExpressiveDropdownMenu(
+                        expanded = showMoreMenu,
+                        onDismissRequest = { showMoreMenu = false },
+                        actions = artistImageMenuActions(
                             hasCustomImage = hasCustomImage,
-                            onDismiss = { showMoreMenu = false },
                             onChangeImage = onChangeImage,
                             onClearCustomImage = onClearCustomImage
                         )
-                    }
+                    )
                 }
             }
         )
@@ -1138,15 +1142,15 @@ private fun CustomCollapsingTopBar(
                         ) {
                             Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.presentation_batch_b_more_options))
                         }
-                        if (showMoreMenu) {
-                            ArtistImageOptionsSheet(
-                                artist = artist,
+                        ExpressiveDropdownMenu(
+                            expanded = showMoreMenu,
+                            onDismissRequest = { showMoreMenu = false },
+                            actions = artistImageMenuActions(
                                 hasCustomImage = hasCustomImage,
-                                onDismiss = { showMoreMenu = false },
                                 onChangeImage = onChangeImage,
                                 onClearCustomImage = onClearCustomImage
                             )
-                        }
+                        )
                     }
                 }
 
@@ -1450,5 +1454,25 @@ fun ArtistAlbumCard(
             onLongPress = onLongPress,
             onSelectionToggle = onSelectionToggle
         )
+    }
+}
+@Composable
+private fun artistImageMenuActions(
+    hasCustomImage: Boolean,
+    onChangeImage: () -> Unit,
+    onClearCustomImage: () -> Unit
+): ImmutableList<DetailHeroMenuAction> {
+    val changePhoto = stringResource(R.string.presentation_batch_d_change_photo)
+    val resetToDefault = stringResource(R.string.presentation_batch_d_reset_to_default)
+    return remember(hasCustomImage, changePhoto, resetToDefault, onChangeImage, onClearCustomImage) {
+        val changePhotoAction = DetailHeroMenuAction(changePhoto, Icons.Rounded.AddAPhoto, onChangeImage)
+        if (hasCustomImage) {
+            persistentListOf(
+                changePhotoAction,
+                DetailHeroMenuAction(resetToDefault, Icons.Rounded.Delete, onClearCustomImage)
+            )
+        } else {
+            persistentListOf(changePhotoAction)
+        }
     }
 }
