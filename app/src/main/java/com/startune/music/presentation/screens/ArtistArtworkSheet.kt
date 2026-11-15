@@ -21,6 +21,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
+import androidx.compose.material.icons.automirrored.rounded.QueueMusic
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Shuffle
+import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.AddAPhoto
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -405,6 +410,11 @@ fun ArtistImageOptionsSheet(
     artist: Artist,
     hasCustomImage: Boolean,
     onDismiss: () -> Unit,
+    onPlayClick: () -> Unit,
+    onShuffleClick: () -> Unit,
+    onPlayNextClick: () -> Unit,
+    onAddToQueueClick: () -> Unit,
+    onAddToPlaylistClick: () -> Unit,
     onChangeImage: () -> Unit,
     onClearCustomImage: () -> Unit
 ) {
@@ -471,6 +481,46 @@ fun ArtistImageOptionsSheet(
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                MoreMenuListRow(
+                    label = stringResource(R.string.play_playback),
+                    icon = Icons.Rounded.PlayArrow,
+                    onClick = {
+                        onPlayClick()
+                        onDismiss()
+                    }
+                )
+                MoreMenuListRow(
+                    label = stringResource(R.string.shortcut_shuffle_short),
+                    icon = Icons.Rounded.Shuffle,
+                    onClick = {
+                        onShuffleClick()
+                        onDismiss()
+                    }
+                )
+                MoreMenuListRow(
+                    label = stringResource(R.string.detail_hero_play_next),
+                    icon = Icons.Rounded.SkipNext,
+                    onClick = {
+                        onPlayNextClick()
+                        onDismiss()
+                    }
+                )
+                MoreMenuListRow(
+                    label = stringResource(R.string.detail_hero_add_to_queue),
+                    icon = Icons.AutoMirrored.Rounded.QueueMusic,
+                    onClick = {
+                        onAddToQueueClick()
+                        onDismiss()
+                    }
+                )
+                MoreMenuListRow(
+                    label = stringResource(R.string.detail_hero_add_to_playlist),
+                    icon = Icons.AutoMirrored.Rounded.PlaylistAdd,
+                    onClick = {
+                        onAddToPlaylistClick()
+                        onDismiss()
+                    }
+                )
                 MoreMenuListRow(
                     label = stringResource(R.string.presentation_batch_d_change_photo),
                     icon = Icons.Rounded.AddAPhoto,

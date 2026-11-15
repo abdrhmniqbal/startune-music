@@ -65,6 +65,7 @@ import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.automirrored.rounded.QueueMusic
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.Album
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -750,6 +751,16 @@ fun AlbumDetailScreen(
                                 playerViewModel.addSelectedAsNext(immutableSongs)
                                 playerViewModel.sendToast(toastPlayingNext)
                             },
+                            onPlayClick = {
+                                if (immutableSongs.isNotEmpty()) {
+                                    playerViewModel.playSongs(immutableSongs, immutableSongs.first(), queueName = album.title)
+                                }
+                            },
+                            onShuffleClick = {
+                                if (immutableSongs.isNotEmpty()) {
+                                    playerViewModel.playSongsShuffled(immutableSongs, album.title, startAtZero = true)
+                                }
+                            },
                             onAddToPlaylistClick = { showAlbumPlaylistSheet = true }
                         )
                     } else {
@@ -993,6 +1004,8 @@ private fun SharedAlbumTopBarProbe(
     onSortClick: () -> Unit,
     albumArtists: ImmutableList<Artist>,
     onGoToArtistClick: () -> Unit,
+    onPlayClick: () -> Unit,
+    onShuffleClick: () -> Unit,
     onAddToQueueClick: () -> Unit,
     onPlayNextClick: () -> Unit,
     onAddToPlaylistClick: () -> Unit
@@ -1110,6 +1123,8 @@ private fun SharedAlbumTopBarProbe(
                                 AlbumDetailOptionsSheet(
                                     album = album,
                                     onDismiss = { showMoreMenu = false },
+                                    onPlayClick = onPlayClick,
+                                    onShuffleClick = onShuffleClick,
                                     onAddToQueueClick = onAddToQueueClick,
                                     onPlayNextClick = onPlayNextClick,
                                     onAddToPlaylistClick = onAddToPlaylistClick,
@@ -1331,6 +1346,8 @@ private fun CollapsingAlbumTopBar(
 private fun AlbumDetailOptionsSheet(
     album: Album,
     onDismiss: () -> Unit,
+    onPlayClick: () -> Unit,
+    onShuffleClick: () -> Unit,
     onAddToQueueClick: () -> Unit,
     onPlayNextClick: () -> Unit,
     onAddToPlaylistClick: () -> Unit,
@@ -1401,6 +1418,22 @@ private fun AlbumDetailOptionsSheet(
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                MoreMenuListRow(
+                    label = stringResource(R.string.play_playback),
+                    icon = Icons.Rounded.PlayArrow,
+                    onClick = {
+                        onPlayClick()
+                        onDismiss()
+                    }
+                )
+                MoreMenuListRow(
+                    label = stringResource(R.string.shortcut_shuffle_short),
+                    icon = Icons.Rounded.Shuffle,
+                    onClick = {
+                        onShuffleClick()
+                        onDismiss()
+                    }
+                )
                 MoreMenuListRow(
                     label = stringResource(R.string.detail_hero_add_to_queue),
                     icon = Icons.AutoMirrored.Rounded.QueueMusic,

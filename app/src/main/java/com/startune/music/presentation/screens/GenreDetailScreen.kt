@@ -481,6 +481,20 @@ fun GenreDetailScreen(
                     } else {
                         persistentListOf(
                             DetailHeroMenuAction(
+                                label = stringResource(R.string.play_playback),
+                                icon = Icons.Rounded.PlayArrow,
+                                onClick = {
+                                    playerViewModel.playSongs(uiState.songs, uiState.songs.first(), queueName = genreDisplayName)
+                                }
+                            ),
+                            DetailHeroMenuAction(
+                                label = stringResource(R.string.shortcut_shuffle_short),
+                                icon = Icons.Rounded.Shuffle,
+                                onClick = {
+                                    playerViewModel.playSongsShuffled(uiState.songs, genreDisplayName, startAtZero = true)
+                                }
+                            ),
+                            DetailHeroMenuAction(
                                 label = stringResource(R.string.detail_hero_add_to_queue),
                                 icon = Icons.AutoMirrored.Rounded.QueueMusic,
                                 onClick = {

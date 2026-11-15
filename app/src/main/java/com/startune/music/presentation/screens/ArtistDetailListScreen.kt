@@ -126,6 +126,8 @@ fun ArtistDetailListScreen(
     var showMultiSelectionSheet by remember { mutableStateOf(false) }
     var showSongInfoBottomSheet by remember { mutableStateOf(false) }
     var showPlaylistBottomSheet by remember { mutableStateOf(false) }
+    val toastAddedToQueue = stringResource(R.string.toast_added_to_queue)
+    val toastPlayingNext = stringResource(R.string.toast_playing_next)
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
 
     var selectedAlbumSections by remember { mutableStateOf<ImmutableList<ArtistAlbumSection>>(persistentListOf()) }
@@ -610,6 +612,29 @@ fun ArtistDetailListScreen(
                                                 artist = artist,
                                                 hasCustomImage = !artist.customImageUri.isNullOrBlank(),
                                                 onDismiss = { showMoreMenu = false },
+                                                onPlayClick = {
+                                                    if (songs.isNotEmpty()) {
+                                                        playerViewModel.playSongs(songs, songs.first(), queueName = artist.name)
+                                                    }
+                                                },
+                                                onShuffleClick = {
+                                                    if (songs.isNotEmpty()) {
+                                                        playerViewModel.playSongsShuffled(songs, artist.name, startAtZero = true)
+                                                    }
+                                                },
+                                                onPlayNextClick = {
+                                                    if (songs.isNotEmpty()) {
+                                                        playerViewModel.addSelectedAsNext(songs)
+                                                        playerViewModel.sendToast(toastPlayingNext)
+                                                    }
+                                                },
+                                                onAddToQueueClick = {
+                                                    if (songs.isNotEmpty()) {
+                                                        playerViewModel.addSelectedToQueue(songs)
+                                                        playerViewModel.sendToast(toastAddedToQueue)
+                                                    }
+                                                },
+                                                onAddToPlaylistClick = { showPlaylistBottomSheet = true },
                                                 onChangeImage = { showArtworkSheet = true },
                                                 onClearCustomImage = { viewModel.clearCustomImage() }
                                             )

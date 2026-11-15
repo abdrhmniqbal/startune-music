@@ -171,6 +171,8 @@ fun ArtistDetailScreen(
 
     DisposableEffect(Unit) { onDispose { multiSelectionState.clearSelection() } }
     var showArtistPlaylistSheet by remember { mutableStateOf(false) }
+    val toastAddedToQueue = stringResource(R.string.toast_added_to_queue)
+    val toastPlayingNext = stringResource(R.string.toast_playing_next)
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
@@ -656,6 +658,29 @@ fun ArtistDetailScreen(
                             headerHeight = currentTopBarHeightDp,
                             hasCustomImage = !artist.customImageUri.isNullOrBlank(),
                             onBackPressed = { navController.popBackStack() },
+                            onPlayClick = {
+                                if (songs.isNotEmpty()) {
+                                    playerViewModel.playSongs(songs, songs.first(), queueName = artist.name)
+                                }
+                            },
+                            onShuffleClick = {
+                                if (songs.isNotEmpty()) {
+                                    playerViewModel.playSongsShuffled(songs, artist.name, startAtZero = true)
+                                }
+                            },
+                            onPlayNextClick = {
+                                if (songs.isNotEmpty()) {
+                                    playerViewModel.addSelectedAsNext(songs)
+                                    playerViewModel.sendToast(toastPlayingNext)
+                                }
+                            },
+                            onAddToQueueClick = {
+                                if (songs.isNotEmpty()) {
+                                    playerViewModel.addSelectedToQueue(songs)
+                                    playerViewModel.sendToast(toastAddedToQueue)
+                                }
+                            },
+                            onAddToPlaylistClick = { showArtistPlaylistSheet = true },
                             onChangeImage = { showArtworkSheet = true },
                             onClearCustomImage = { viewModel.clearCustomImage() }
                         )
@@ -670,7 +695,7 @@ fun ArtistDetailScreen(
                             onBackPressed = {
                                 navController.popBackStack()
                             },
-                            onPlayClick = {
+                            onPlayButtonClick = {
                                 if (songs.isNotEmpty()) {
                                     playerViewModel.playSongsShuffled(
                                         songs,
@@ -679,6 +704,29 @@ fun ArtistDetailScreen(
                                     )
                                 }
                             },
+                            onPlayClick = {
+                                if (songs.isNotEmpty()) {
+                                    playerViewModel.playSongs(songs, songs.first(), queueName = artist.name)
+                                }
+                            },
+                            onShuffleClick = {
+                                if (songs.isNotEmpty()) {
+                                    playerViewModel.playSongsShuffled(songs, artist.name, startAtZero = true)
+                                }
+                            },
+                            onPlayNextClick = {
+                                if (songs.isNotEmpty()) {
+                                    playerViewModel.addSelectedAsNext(songs)
+                                    playerViewModel.sendToast(toastPlayingNext)
+                                }
+                            },
+                            onAddToQueueClick = {
+                                if (songs.isNotEmpty()) {
+                                    playerViewModel.addSelectedToQueue(songs)
+                                    playerViewModel.sendToast(toastAddedToQueue)
+                                }
+                            },
+                            onAddToPlaylistClick = { showArtistPlaylistSheet = true },
                             hasCustomImage = !artist.customImageUri.isNullOrBlank(),
                             onChangeImage = { showArtworkSheet = true },
                             onClearCustomImage = { viewModel.clearCustomImage() }
@@ -910,6 +958,11 @@ private fun SharedArtistTopBarProbe(
     headerHeight: Dp,
     hasCustomImage: Boolean,
     onBackPressed: () -> Unit,
+    onPlayClick: () -> Unit,
+    onShuffleClick: () -> Unit,
+    onPlayNextClick: () -> Unit,
+    onAddToQueueClick: () -> Unit,
+    onAddToPlaylistClick: () -> Unit,
     onChangeImage: () -> Unit,
     onClearCustomImage: () -> Unit
 ) {
@@ -995,6 +1048,11 @@ private fun SharedArtistTopBarProbe(
                             artist = artist,
                             hasCustomImage = hasCustomImage,
                             onDismiss = { showMoreMenu = false },
+                            onPlayClick = onPlayClick,
+                            onShuffleClick = onShuffleClick,
+                            onPlayNextClick = onPlayNextClick,
+                            onAddToQueueClick = onAddToQueueClick,
+                            onAddToPlaylistClick = onAddToPlaylistClick,
                             onChangeImage = onChangeImage,
                             onClearCustomImage = onClearCustomImage
                         )
@@ -1016,7 +1074,12 @@ private fun CustomCollapsingTopBar(
     headerHeight: Dp,
     headerImageRequestSize: Size,
     onBackPressed: () -> Unit,
+    onPlayButtonClick: () -> Unit,
     onPlayClick: () -> Unit,
+    onShuffleClick: () -> Unit,
+    onPlayNextClick: () -> Unit,
+    onAddToQueueClick: () -> Unit,
+    onAddToPlaylistClick: () -> Unit,
     onChangeImage: () -> Unit,
     onClearCustomImage: () -> Unit
 ) {
@@ -1143,6 +1206,11 @@ private fun CustomCollapsingTopBar(
                                 artist = artist,
                                 hasCustomImage = hasCustomImage,
                                 onDismiss = { showMoreMenu = false },
+                                onPlayClick = onPlayClick,
+                                onShuffleClick = onShuffleClick,
+                                onPlayNextClick = onPlayNextClick,
+                                onAddToQueueClick = onAddToQueueClick,
+                                onAddToPlaylistClick = onAddToPlaylistClick,
                                 onChangeImage = onChangeImage,
                                 onClearCustomImage = onClearCustomImage
                             )
@@ -1190,7 +1258,7 @@ private fun CustomCollapsingTopBar(
                 }
 
                 LargeExtendedFloatingActionButton(
-                    onClick = onPlayClick,
+                    onClick = onPlayButtonClick,
                     shape = RoundedStarShape(sides = 8, curve = 0.05, rotation = 0f),
                     modifier = Modifier
                         .align(Alignment.BottomEnd)

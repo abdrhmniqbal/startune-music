@@ -18,6 +18,11 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
+import androidx.compose.material.icons.automirrored.rounded.QueueMusic
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Shuffle
+import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.foundation.layout.width
 import androidx.compose.animation.shrinkVertically
@@ -208,6 +213,9 @@ fun MixDetailScreen(
     val systemNavBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val bottomBarHeightDp = resolveNavBarOccupiedHeight(systemNavBarInset, navBarCompactMode)
     var showPlaylistBottomSheet by remember { mutableStateOf(false) }
+    var showAddAllToPlaylistSheet by remember { mutableStateOf(false) }
+    val toastAddedToQueue = stringResource(R.string.toast_added_to_queue)
+    val toastPlayingNext = stringResource(R.string.toast_playing_next)
     val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
 
@@ -390,6 +398,17 @@ fun MixDetailScreen(
                     playlistUiState = playlistUiState,
                     songs = persistentListOf(song),
                     onDismiss = { showPlaylistBottomSheet = false },
+                    bottomBarHeight = bottomBarHeightDp,
+                    playerViewModel = playerViewModel,
+                )
+            }
+            if (showAddAllToPlaylistSheet && mixSongs.isNotEmpty()) {
+                val playlistUiState by playlistViewModel.uiState.collectAsStateWithLifecycle()
+
+                PlaylistBottomSheet(
+                    playlistUiState = playlistUiState,
+                    songs = mixSongs,
+                    onDismiss = { showAddAllToPlaylistSheet = false },
                     bottomBarHeight = bottomBarHeightDp,
                     playerViewModel = playerViewModel,
                 )
@@ -703,6 +722,56 @@ fun MixDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp, vertical = 8.dp)
+                    )
+                    MixOptionsItem(
+                        icon = rememberVectorPainter(Icons.Rounded.PlayArrow),
+                        label = stringResource(R.string.play_playback),
+                        onClick = {
+                            showMixOptionsSheet = false
+                            if (mixSongs.isNotEmpty()) {
+                                playerViewModel.playSongs(mixSongs, mixSongs.first(), queueName = mixTitle)
+                            }
+                        }
+                    )
+                    MixOptionsItem(
+                        icon = rememberVectorPainter(Icons.Rounded.Shuffle),
+                        label = stringResource(R.string.shortcut_shuffle_short),
+                        onClick = {
+                            showMixOptionsSheet = false
+                            if (mixSongs.isNotEmpty()) {
+                                playerViewModel.playSongsShuffled(mixSongs, mixTitle, startAtZero = true)
+                            }
+                        }
+                    )
+                    MixOptionsItem(
+                        icon = rememberVectorPainter(Icons.Rounded.SkipNext),
+                        label = stringResource(R.string.detail_hero_play_next),
+                        onClick = {
+                            showMixOptionsSheet = false
+                            if (mixSongs.isNotEmpty()) {
+                                playerViewModel.addSelectedAsNext(mixSongs)
+                                playerViewModel.sendToast(toastPlayingNext)
+                            }
+                        }
+                    )
+                    MixOptionsItem(
+                        icon = rememberVectorPainter(Icons.AutoMirrored.Rounded.QueueMusic),
+                        label = stringResource(R.string.detail_hero_add_to_queue),
+                        onClick = {
+                            showMixOptionsSheet = false
+                            if (mixSongs.isNotEmpty()) {
+                                playerViewModel.addSelectedToQueue(mixSongs)
+                                playerViewModel.sendToast(toastAddedToQueue)
+                            }
+                        }
+                    )
+                    MixOptionsItem(
+                        icon = rememberVectorPainter(Icons.AutoMirrored.Rounded.PlaylistAdd),
+                        label = stringResource(R.string.detail_hero_add_to_playlist),
+                        onClick = {
+                            showMixOptionsSheet = false
+                            showAddAllToPlaylistSheet = true
+                        }
                     )
                     MixOptionsItem(
                         icon = painterResource(R.drawable.rounded_edit_24),

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Artist, album, and genre detail more menus now open a bottom sheet with the same design as the library list, each holding only the actions its page does not already show as buttons.
+- Artist, album, genre, playlist, and mix detail more menus now open a bottom sheet with the same design as the library list and include the playback actions (Play, Shuffle, Play next, Add to queue, Add to playlist) alongside each page's own actions, so the detail and library menus no longer miss what the other has.
 - Multiple-selection menus now use the same Expressive list rows as the single-item more menus, so songs, playlists, albums, and genres all share one menu design.
 - Home Top Tracks now falls back to the most recent range with plays when there are no plays today, so the section no longer stays empty after a restore.
 - Backup now has a separate Custom themes section, so custom themes are no longer buried inside Global settings.

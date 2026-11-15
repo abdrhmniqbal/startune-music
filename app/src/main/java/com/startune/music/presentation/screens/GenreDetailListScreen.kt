@@ -33,6 +33,7 @@ import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.automirrored.rounded.ViewList
 import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.automirrored.rounded.QueueMusic
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.MoreVert
@@ -811,6 +812,20 @@ fun GenreDetailListScreen(
                                                     onContainerColor = genreColorScheme.onPrimaryContainer,
                                                     onDismiss = { showMoreMenu = false },
                                                     actions = persistentListOf(
+                                                        DetailHeroMenuAction(
+                                                            label = stringResource(R.string.play_playback),
+                                                            icon = Icons.Rounded.PlayArrow,
+                                                            onClick = {
+                                                                playerViewModel.playSongs(uiState.rankedSongs, uiState.rankedSongs.first(), queueName = genreDisplayName)
+                                                            }
+                                                        ),
+                                                        DetailHeroMenuAction(
+                                                            label = stringResource(R.string.shortcut_shuffle_short),
+                                                            icon = Icons.Rounded.Shuffle,
+                                                            onClick = {
+                                                                playerViewModel.playSongsShuffled(uiState.rankedSongs, genreDisplayName, startAtZero = true)
+                                                            }
+                                                        ),
                                                         DetailHeroMenuAction(
                                                             label = stringResource(R.string.detail_hero_add_to_queue),
                                                             icon = Icons.AutoMirrored.Rounded.QueueMusic,

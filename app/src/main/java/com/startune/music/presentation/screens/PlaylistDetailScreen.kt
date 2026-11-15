@@ -255,6 +255,7 @@ fun PlaylistDetailScreen(
     val navBarCompactMode by playerViewModel.navBarCompactMode.collectAsStateWithLifecycle()
     val bottomBarHeightDp = resolveNavBarOccupiedHeight(systemNavBarInset, navBarCompactMode)
     var showPlaylistBottomSheet by remember { mutableStateOf(false) }
+    var showAddAllToPlaylistSheet by remember { mutableStateOf(false) }
 
     val multiSelectionState = playerViewModel.multiSelectionStateHolder
     val selectedSongs by multiSelectionState.selectedSongs.collectAsStateWithLifecycle()
@@ -911,8 +912,9 @@ fun PlaylistDetailScreen(
                     }
                     // One segmented group: 4dp apart, only the group's outer corners round.
                     // Our sheet adds Add / Remove / Reorder above upstream's actions.
+                    val playbackCount = 5
                     val editableCount = if (isEditablePlaylist) 3 else 0
-                    val optionCount = editableCount + 3 +
+                    val optionCount = playbackCount + editableCount + 3 +
                         (if (cloudSongsInPlaylist.isNotEmpty()) 1 else 0) + 1
                     Column(
                         modifier = Modifier
@@ -920,11 +922,74 @@ fun PlaylistDetailScreen(
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
+                    PlaylistActionItem(
+                        icon = rememberVectorPainter(Icons.Rounded.PlayArrow),
+                        label = stringResource(R.string.play_playback),
+                        shape = getSegmentedItemShape(0, optionCount),
+                        onClick = {
+                            showPlaylistOptionsSheet = false
+                            if (localReorderableSongs.isNotEmpty()) {
+                                playerViewModel.playSongs(
+                                    localReorderableSongs,
+                                    localReorderableSongs.first(),
+                                    queueName = currentPlaylist?.name ?: fallbackPlaylistName
+                                )
+                            }
+                        }
+                    )
+                    PlaylistActionItem(
+                        icon = rememberVectorPainter(Icons.Rounded.Shuffle),
+                        label = stringResource(R.string.shortcut_shuffle_short),
+                        shape = getSegmentedItemShape(1, optionCount),
+                        onClick = {
+                            showPlaylistOptionsSheet = false
+                            if (localReorderableSongs.isNotEmpty()) {
+                                playerViewModel.playSongsShuffled(
+                                    localReorderableSongs,
+                                    currentPlaylist?.name ?: fallbackPlaylistName,
+                                    startAtZero = true
+                                )
+                            }
+                        }
+                    )
+                    PlaylistActionItem(
+                        icon = rememberVectorPainter(Icons.Rounded.SkipNext),
+                        label = stringResource(R.string.detail_hero_play_next),
+                        shape = getSegmentedItemShape(2, optionCount),
+                        onClick = {
+                            showPlaylistOptionsSheet = false
+                            if (localReorderableSongs.isNotEmpty()) {
+                                playerViewModel.addSelectedAsNext(localReorderableSongs)
+                                playerViewModel.sendToast(toastPlayingNext)
+                            }
+                        }
+                    )
+                    PlaylistActionItem(
+                        icon = rememberVectorPainter(Icons.AutoMirrored.Rounded.QueueMusic),
+                        label = stringResource(R.string.detail_hero_add_to_queue),
+                        shape = getSegmentedItemShape(3, optionCount),
+                        onClick = {
+                            showPlaylistOptionsSheet = false
+                            if (localReorderableSongs.isNotEmpty()) {
+                                playerViewModel.addSelectedToQueue(localReorderableSongs)
+                                playerViewModel.sendToast(toastAddedToQueue)
+                            }
+                        }
+                    )
+                    PlaylistActionItem(
+                        icon = rememberVectorPainter(Icons.AutoMirrored.Rounded.PlaylistAdd),
+                        label = stringResource(R.string.detail_hero_add_to_playlist),
+                        shape = getSegmentedItemShape(4, optionCount),
+                        onClick = {
+                            showPlaylistOptionsSheet = false
+                            showAddAllToPlaylistSheet = true
+                        }
+                    )
                     if (isEditablePlaylist) {
                         PlaylistActionItem(
                             icon = rememberVectorPainter(Icons.Rounded.Add),
                             label = addSongsCd,
-                            shape = getSegmentedItemShape(0, optionCount),
+                            shape = getSegmentedItemShape(playbackCount, optionCount),
                             onClick = {
                                 showPlaylistOptionsSheet = false
                                 showAddSongsSheet = true
@@ -933,7 +998,7 @@ fun PlaylistDetailScreen(
                         PlaylistActionItem(
                             icon = rememberVectorPainter(Icons.Filled.RemoveCircleOutline),
                             label = removeSongsCd,
-                            shape = getSegmentedItemShape(1, optionCount),
+                            shape = getSegmentedItemShape(playbackCount + 1, optionCount),
                             selected = isRemoveModeEnabled,
                             onClick = {
                                 showPlaylistOptionsSheet = false
@@ -943,7 +1008,7 @@ fun PlaylistDetailScreen(
                         PlaylistActionItem(
                             icon = painterResource(R.drawable.drag_order_icon),
                             label = reorderSongsCd,
-                            shape = getSegmentedItemShape(2, optionCount),
+                            shape = getSegmentedItemShape(playbackCount + 2, optionCount),
                             onClick = {
                                 showPlaylistOptionsSheet = false
                                 // Reorder never multi-selects: clear any selection
@@ -958,7 +1023,7 @@ fun PlaylistDetailScreen(
                     PlaylistActionItem(
                         icon = painterResource(R.drawable.rounded_edit_24),
                         label = editPlaylistLabel,
-                        shape = getSegmentedItemShape(editableCount, optionCount),
+                        shape = getSegmentedItemShape(playbackCount + editableCount, optionCount),
                         onClick = {
                             showPlaylistOptionsSheet = false
                             showEditPlaylistDialog = true
@@ -967,7 +1032,7 @@ fun PlaylistDetailScreen(
                     PlaylistActionItem(
                         icon = painterResource(R.drawable.rounded_delete_24),
                         label = deletePlaylistLabel,
-                        shape = getSegmentedItemShape(editableCount + 1, optionCount),
+                        shape = getSegmentedItemShape(playbackCount + editableCount + 1, optionCount),
                         onClick = {
                             showPlaylistOptionsSheet = false
                             showDeleteConfirmation = true
@@ -976,7 +1041,7 @@ fun PlaylistDetailScreen(
                     PlaylistActionItem(
                         icon = painterResource(R.drawable.outline_graph_1_24),
                         label = setDefaultTransitionLabel,
-                        shape = getSegmentedItemShape(editableCount + 2, optionCount),
+                        shape = getSegmentedItemShape(playbackCount + editableCount + 2, optionCount),
                         onClick = {
                             showPlaylistOptionsSheet = false
                             navController.navigateSafely(Screen.EditTransition.createRoute(playlistId))
@@ -986,7 +1051,7 @@ fun PlaylistDetailScreen(
                         PlaylistActionItem(
                             icon = rememberVectorPainter(Icons.Rounded.CloudDownload),
                             label = downloadPlaylistLabel,
-                        shape = getSegmentedItemShape(editableCount + 3, optionCount),
+                        shape = getSegmentedItemShape(playbackCount + editableCount + 3, optionCount),
                             onClick = {
                                 showPlaylistOptionsSheet = false
                                 cloudDownloadsViewModel.downloadSelected(cloudSongsInPlaylist)
@@ -1186,6 +1251,20 @@ fun PlaylistDetailScreen(
                         songs = persistentListOf(currentSong),
                         onDismiss = {
                             showPlaylistBottomSheet = false
+                        },
+                        currentPlaylistId = playlistId,
+                        bottomBarHeight = bottomBarHeightDp,
+                        playerViewModel = playerViewModel,
+                    )
+                }
+                if (showAddAllToPlaylistSheet && localReorderableSongs.isNotEmpty()) {
+                    val playlistUiState by playlistViewModel.uiState.collectAsStateWithLifecycle()
+
+                    PlaylistBottomSheet(
+                        playlistUiState = playlistUiState,
+                        songs = localReorderableSongs.toImmutableList(),
+                        onDismiss = {
+                            showAddAllToPlaylistSheet = false
                         },
                         currentPlaylistId = playlistId,
                         bottomBarHeight = bottomBarHeightDp,
