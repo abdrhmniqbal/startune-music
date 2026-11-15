@@ -314,9 +314,20 @@ fun GenreDetailScreen(
     // the blended color, not on the opaque container. The fixed rainbow
     // foreground (black in dark mode) is only correct on the opaque
     // container itself, so here the foreground is the max-contrast color
-    // for the blend. The 0.8f matches the top bar's gradient alpha.
+    // for the blend. The blend is taken at the back button's vertical
+    // center, not at the top of the gradient: the button sits below the
+    // top (status bar + 4dp padding + half the 40dp button), so the
+    // gradient under it is weaker than the 0.8f at the top. A light
+    // container can read black at the top yet white under the button
+    // (Afro-Beat: the top blend is a light mauve where black wins, but
+    // under the button it is a mid mauve where white wins 5.3:1 against
+    // 4.0:1 for black), so 0.8f left the arrow black and unreadable.
+    val backButtonCenterFraction =
+        ((statusBarHeight + 24.dp) / maxTopBarHeight).coerceIn(0f, 1f)
+    val headerAlphaAtBackButton = 0.8f * (1f - backButtonCenterFraction)
     val contentColor = onColorFor(
-        startColor.copy(alpha = 0.8f).compositeOver(genreColorScheme.background)
+        startColor.copy(alpha = headerAlphaAtBackButton)
+            .compositeOver(genreColorScheme.background)
     )
 
     MaterialTheme(colorScheme = genreColorScheme) {
