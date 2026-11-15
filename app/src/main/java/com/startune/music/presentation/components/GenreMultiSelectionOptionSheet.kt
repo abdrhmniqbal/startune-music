@@ -154,3 +154,57 @@ fun GenreMultiSelectionOptionSheet(
 }
 
 @Composable
+private fun StackedGenrePreviews(
+    genres: ImmutableList<Genre>,
+    modifier: Modifier = Modifier
+) {
+    val imageSize = 64.dp
+    val overlap = 30.dp
+    val borderWidth = 3.dp
+    val borderColor = MaterialTheme.colorScheme.surfaceContainerLow
+
+    val numGenres = genres.size
+    val totalWidth = if (numGenres == 0) 0.dp else imageSize + (imageSize - overlap) * (numGenres - 1)
+
+    Box(
+        modifier = modifier.width(totalWidth),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        genres.forEachIndexed { index, genre ->
+            val offsetX = index * (imageSize.value - overlap.value)
+            val colorScheme = MaterialTheme.colorScheme
+            val rainbowPalette = com.startune.music.ui.theme.LocalRainbowPalette.current
+            val themeColor = remember(genre, colorScheme, rainbowPalette) {
+                GenreThemeUtils.getGenreThemeColor(
+                    genre = genre,
+                    scheme = colorScheme,
+                    fallbackGenreId = genre.id,
+                    storedPalette = rainbowPalette
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .offset { IntOffset(offsetX.dp.roundToPx(), 0) }
+                    .zIndex((numGenres - index).toFloat())
+                    .size(imageSize)
+                    .background(borderColor, CircleShape)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(borderWidth)
+                        .clip(CircleShape)
+                        .background(themeColor.container),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Album,
+                        contentDescription = null,
+                        tint = themeColor.onContainer,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+            }
+        }
+    }
+}

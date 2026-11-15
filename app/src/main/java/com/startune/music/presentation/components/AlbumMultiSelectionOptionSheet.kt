@@ -148,3 +148,47 @@ fun AlbumMultiSelectionOptionSheet(
 }
 
 @Composable
+private fun StackedAlbumCovers(
+    albums: ImmutableList<Album>,
+    modifier: Modifier = Modifier
+) {
+    val imageSize = 64.dp
+    val overlap = 30.dp
+    val borderWidth = 3.dp
+    val borderColor = MaterialTheme.colorScheme.surfaceContainerLow
+
+    val numAlbums = albums.size
+    val totalWidth = if (numAlbums == 0) 0.dp else imageSize + (imageSize - overlap) * (numAlbums - 1)
+
+    Box(
+        modifier = modifier.width(totalWidth),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        albums.forEachIndexed { index, album ->
+            val offsetX = index * (imageSize.value - overlap.value)
+            Box(
+                modifier = Modifier
+                    .offset { IntOffset(offsetX.dp.roundToPx(), 0) }
+                    .zIndex((numAlbums - index).toFloat())
+                    .size(imageSize)
+                    .background(borderColor, CircleShape)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(borderWidth)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    SmartImage(
+                        model = album.albumArtUriString,
+                        contentDescription = album.title,
+                        shape = CircleShape,
+                        targetSize = Size(160, 160),
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+        }
+    }
+}
