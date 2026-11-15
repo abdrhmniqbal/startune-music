@@ -50,7 +50,6 @@
     <string name="cd_open">Abrir</string>
     <string name="cd_select_all">Selecionar tudo</string>
     <string name="cd_clear_selection">Limpar seleção</string>
-    <string name="cd_close_notice">Aviso de encerramento</string>
     <string name="setcat_library_structure">Estrutura da Biblioteca</string>
     <string name="setcat_excluded_directories_title">Diretórios excluídos</string>
     <string name="setcat_excluded_directories_subtitle">As pastas aqui serão ignoradas durante a digitalização da sua biblioteca.</string>
@@ -273,8 +272,6 @@ Prompt: %2$s | Saída: %3$s | Pensei: %4$s</string>
     <string name="backup_summary_none">Nenhuma seção selecionada.</string>
     <string name="backup_summary_all">Todas as seções selecionadas.</string>
     <string name="backup_summary_partial">%1$d selecionado das seções %2$d.</string>
-    <string name="backup_how_title">Como funciona o backup</string>
-    <string name="backup_how_body">Escolha seções, exporte um arquivo .starbk e importe-o mais tarde. A restauração substitui apenas as seções selecionadas.</string>
     <string name="backup_dialog_supporting_export">Escolha exatamente o que você deseja incluir no pacote de backup.</string>
     <string name="backup_confirm_export_pxpl">Exportar .starbk</string>
     <string name="backup_sections_selected_format">%1$d das seções %2$d selecionadas</string>

@@ -63,7 +63,6 @@
     <string name="cd_open">Open</string>
     <string name="cd_select_all">Select all</string>
     <string name="cd_clear_selection">Clear selection</string>
-    <string name="cd_close_notice">Close notice</string>
 
     <!-- Library category -->
     <string name="setcat_library_structure">Library Structure</string>
@@ -467,8 +466,6 @@
     <string name="backup_summary_none">No sections selected.</string>
     <string name="backup_summary_all">All sections selected.</string>
     <string name="backup_summary_partial">Selected %1$d of %2$d sections.</string>
-    <string name="backup_how_title">How backup works</string>
-    <string name="backup_how_body">Choose sections, export a .starbk file, and import it later. Restore only replaces the sections you select.</string>
     <string name="backup_dialog_supporting_export">Choose exactly what you want to include in the backup package.</string>
     <string name="backup_confirm_export_pxpl">Export .starbk</string>
     <string name="backup_sections_selected_format">%1$d of %2$d sections selected</string>

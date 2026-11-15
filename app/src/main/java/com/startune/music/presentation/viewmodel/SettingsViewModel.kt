@@ -136,7 +136,6 @@ data class SettingsUiState(
     val useAnimatedLyrics: Boolean = false,
     val animatedLyricsBlurEnabled: Boolean = true,
     val animatedLyricsBlurStrength: Float = 2.5f,
-    val backupInfoDismissed: Boolean = false,
     val isDataTransferInProgress: Boolean = false,
     val restorePlan: RestorePlan? = null,
     val backupHistory: ImmutableList<BackupHistoryEntry> = persistentListOf(),
@@ -605,11 +604,6 @@ class SettingsViewModel @Inject constructor(
             }
         }
 
-        viewModelScope.launch {
-            userPreferencesRepository.backupInfoDismissedFlow.collect { dismissed ->
-                _uiState.update { it.copy(backupInfoDismissed = dismissed) }
-            }
-        }
 
         viewModelScope.launch {
             fileExplorerStateHolder.isLoading.collect { loading ->
@@ -1376,11 +1370,6 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun setBackupInfoDismissed(dismissed: Boolean) {
-        viewModelScope.launch {
-            userPreferencesRepository.setBackupInfoDismissed(dismissed)
-        }
-    }
 
     fun exportAppData(uri: Uri, sections: Set<BackupSection>, passphrase: String? = null) {
         if (sections.isEmpty() || _uiState.value.isDataTransferInProgress) return

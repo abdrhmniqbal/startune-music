@@ -19,8 +19,6 @@
     <string name="backup_entries_will_replace">%1$d öge · Mevcut verilerin yerine geçecek</string>
     <string name="backup_exporting">Dışa aktarılıyor</string>
     <string name="backup_history_modules_line">%1$d modül · v%2$s · şema v%3$d</string>
-    <string name="backup_how_body">Bölümleri seçin, bir .starbk dosyası olarak dışa aktarın ve daha sonra içe aktarın. Geri yükleme işlemi yalnızca seçtiğiniz bölümleri değiştirir.</string>
-    <string name="backup_how_title">Yedekleme nasıl çalışır?</string>
     <string name="backup_importing">İçe aktarılıyor</string>
     <string name="backup_password_confirm_hint">Şifreyi onaylayın</string>
     <string name="backup_password_hint">Yedek şifresi</string>
@@ -36,7 +34,6 @@
     <string name="backup_wrong_password">Şifre yanlış. Tekrar deneyin.</string>
     <string name="cd_clear_search">Aramayı temizle</string>
     <string name="cd_clear_selection">Seçimi temizle</string>
-    <string name="cd_close_notice">Bildirimi kapat</string>
     <string name="cd_open">Aç</string>
     <string name="cd_remove_from_history">Geçmişten kaldır</string>
     <string name="cd_select_all">Tümünü seç</string>

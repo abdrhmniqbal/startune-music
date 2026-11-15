@@ -35,7 +35,6 @@
     <string name="cd_open">Открыть</string>
     <string name="cd_select_all">Выбрать все</string>
     <string name="cd_clear_selection">Очистить выбор</string>
-    <string name="cd_close_notice">Закрыть уведомление</string>
 
     <!-- Library category -->
     <string name="setcat_library_structure">Структура фонотеки</string>
@@ -229,8 +228,6 @@
     <string name="backup_summary_none">Разделы не выбраны.</string>
     <string name="backup_summary_all">Все разделы выбраны.</string>
     <string name="backup_summary_partial">Выбрано %1$d из %2$d разделов.</string>
-    <string name="backup_how_title">Как работает бэкап</string>
-    <string name="backup_how_body">Выберите разделы, экспортируйте файл .starbk и импортируйте его позже. Восстановление заменит только выбранные разделы.</string>
     <string name="backup_dialog_supporting_export">Выберите точно, что вы хотите включить в пакет бэкапа.</string>
     <string name="backup_confirm_export_pxpl">Экспорт .starbk</string>
     <string name="backup_sections_selected_format">Выбрано разделов: %1$d из %2$d</string>

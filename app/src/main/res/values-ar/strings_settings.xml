@@ -11,8 +11,6 @@
     <string name="backup_entries_will_replace">إدخالات عدد %1$d · ستستبدل البيانات الحالية بالكامل</string>
     <string name="backup_exporting">جاري التصدير</string>
     <string name="backup_history_modules_line">وحدات عدد %1$d · إصدار %2$s · إصدار المخطط البرمجي %3$d</string>
-    <string name="backup_how_body">اختر الأقسام، وقم بتصدير ملف بصيغة .starbk، واستورده لاحقاً. الاستعادة ستقوم فقط باستبدال الأقسام التي تحددها بنفسك.</string>
-    <string name="backup_how_title">كيفية عمل النسخ الاحتياطي</string>
     <string name="backup_importing">جاري الاستيراد</string>
     <string name="backup_password_confirm_hint">تأكيد كلمة المرور</string>
     <string name="backup_password_hint">كلمة مرور النسخة الاحتياطية</string>
@@ -28,7 +26,6 @@
     <string name="backup_wrong_password">كلمة المرور غير صحيحة. حاول مرة أخرى.</string>
     <string name="cd_clear_search">مسح البحث</string>
     <string name="cd_clear_selection">مسح التحديد</string>
-    <string name="cd_close_notice">إغلاق التنويه</string>
     <string name="cd_open">فتح</string>
     <string name="cd_remove_from_history">إزالة من السجل</string>
     <string name="cd_select_all">تحديد الكل</string>

@@ -40,7 +40,6 @@
     <string name="cd_open">Mở</string>
     <string name="cd_select_all">Chọn tất cả</string>
     <string name="cd_clear_selection">Xóa lựa chọn</string>
-    <string name="cd_close_notice">Đóng thông báo</string>
     <string name="setcat_library_structure">Cấu trúc thư viện</string>
     <string name="setcat_excluded_directories_title">Thư mục loại trừ</string>
     <string name="setcat_excluded_directories_subtitle">Quản lý danh sách thư mục bị bỏ qua khi quét</string>
@@ -236,8 +235,6 @@
     <string name="backup_summary_none">Chưa chọn mục nào</string>
     <string name="backup_summary_all">Tất cả các mục</string>
     <string name="backup_summary_partial">Đã chọn %1$d trên %2$d mục.</string>
-    <string name="backup_how_title">Sao lưu hoạt động thế nào?</string>
-    <string name="backup_how_body">Tệp sao lưu chứa danh sách phát, bài hát yêu thích, thống kê và cấu hình của bạn. Tệp nhạc không nằm trong bản sao lưu này.</string>
     <string name="backup_dialog_supporting_export">Chọn chính xác những mục bạn muốn đưa vào gói sao lưu.</string>
     <string name="backup_confirm_export_pxpl">Xuất tệp sao lưu .pxpl</string>
     <string name="backup_sections_selected_format">%1$d / %2$d mục đã chọn</string>

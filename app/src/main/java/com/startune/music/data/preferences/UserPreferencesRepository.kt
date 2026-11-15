@@ -239,7 +239,6 @@ constructor(
         val BASS_BOOST_DISMISSED = booleanPreferencesKey("bass_boost_dismissed")
         val VIRTUALIZER_DISMISSED = booleanPreferencesKey("virtualizer_dismissed")
         val LOUDNESS_DISMISSED = booleanPreferencesKey("loudness_dismissed")
-        val BACKUP_INFO_DISMISSED = booleanPreferencesKey("backup_info_dismissed")
 
         val VIEW_MODE = stringPreferencesKey("equalizer_view_mode")
 
@@ -365,14 +364,6 @@ constructor(
             preferences[PreferencesKeys.AUDIO_OUTPUT_MODE] = mode.storageKey
             preferences.remove(PreferencesKeys.HI_FI_MODE_ENABLED)
         }
-    }
-
-    val backupInfoDismissedFlow: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[PreferencesKeys.BACKUP_INFO_DISMISSED] ?: false
-    }
-
-    suspend fun setBackupInfoDismissed(dismissed: Boolean) {
-        dataStore.edit { preferences -> preferences[PreferencesKeys.BACKUP_INFO_DISMISSED] = dismissed }
     }
 
     enum class EqualizerViewMode {

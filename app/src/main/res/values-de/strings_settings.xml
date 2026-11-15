@@ -35,7 +35,6 @@
     <string name="cd_open">Öffnen</string>
     <string name="cd_select_all">Alle auswählen</string>
     <string name="cd_clear_selection">Auswahl aufheben</string>
-    <string name="cd_close_notice">Hinweis schließen</string>
 
     <!-- Library category -->
     <string name="setcat_library_structure">Bibliotheksstruktur</string>
@@ -228,8 +227,6 @@
     <string name="backup_summary_none">Keine Bereiche ausgewählt.</string>
     <string name="backup_summary_all">Alle Bereiche ausgewählt.</string>
     <string name="backup_summary_partial">%1$d von %2$d Bereichen ausgewählt.</string>
-    <string name="backup_how_title">So funktioniert Backup</string>
-    <string name="backup_how_body">Bereiche auswählen, als .starbk exportieren und später importieren. Nur die gewählten Bereiche werden überschrieben.</string>
     <string name="backup_dialog_supporting_export">Auswählen, was ins Backup soll.</string>
     <string name="backup_confirm_export_pxpl">.starbk exportieren</string>
     <string name="backup_sections_selected_format">%1$d von %2$d Bereichen ausgewählt</string>

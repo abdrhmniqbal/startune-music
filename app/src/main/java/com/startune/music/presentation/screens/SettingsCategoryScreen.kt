@@ -1609,13 +1609,6 @@ fun SettingsCategoryScreen(
                             )
                             Spacer(modifier = Modifier.height(10.dp))
 
-                            if (!uiState.backupInfoDismissed) {
-                                BackupInfoNoticeCard(
-                                    onDismiss = { settingsViewModel.setBackupInfoDismissed(true) }
-                                )
-                                Spacer(modifier = Modifier.height(10.dp))
-                            }
-
                             SettingsSubsection(title = stringResource(R.string.setcat_create_backup)) {
                                 ActionSettingsItem(
                                     title = stringResource(R.string.setcat_export_backup_title),
@@ -2328,64 +2321,6 @@ private fun buildBackupSelectionSummary(context: Context, selected: Set<BackupSe
 private fun backupSectionIconRes(section: BackupSection): Int {
     return section.iconRes
 }
-
-@Composable
-private fun BackupInfoNoticeCard(
-    onDismiss: () -> Unit
-) {
-    Surface(
-        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f),
-        shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.rounded_upload_file_24),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier
-                    .padding(top = 2.dp)
-                    .size(20.dp)
-            )
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.backup_how_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = stringResource(R.string.backup_how_body),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.9f)
-                )
-            }
-
-            IconButton(
-                onClick = onDismiss,
-                modifier = Modifier.size(28.dp)
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.rounded_close_24),
-                    contentDescription = stringResource(R.string.cd_close_notice),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-        }
-    }
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable

@@ -35,7 +35,6 @@
     <string name="cd_open">Åpne</string>
     <string name="cd_select_all">Velg alle</string>
     <string name="cd_clear_selection">Tøm valg</string>
-    <string name="cd_close_notice">Lukk varsel</string>
 
     <!-- Library category -->
     <string name="setcat_library_structure">Bibliotekstruktur</string>
@@ -228,8 +227,6 @@
     <string name="backup_summary_none">Ingen seksjoner valgt.</string>
     <string name="backup_summary_all">Alle seksjoner valgt.</string>
     <string name="backup_summary_partial">Valgt %1$d av %2$d seksjoner.</string>
-    <string name="backup_how_title">Hvordan sikkerhetskopi fungerer</string>
-    <string name="backup_how_body">Velg seksjoner, eksporter en .starbk-fil, og importer den senere. Gjenoppretting erstatter bare de valgte seksjonene.</string>
     <string name="backup_dialog_supporting_export">Velg nøyaktig hva du vil inkludere i sikkerhetskopien.</string>
     <string name="backup_confirm_export_pxpl">Eksporter .starbk</string>
     <string name="backup_sections_selected_format">%1$d av %2$d seksjoner valgt</string>

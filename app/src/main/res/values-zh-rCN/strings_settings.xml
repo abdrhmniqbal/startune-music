@@ -35,7 +35,6 @@
     <string name="cd_open">打开</string>
     <string name="cd_select_all">全选</string>
     <string name="cd_clear_selection">清除选择</string>
-    <string name="cd_close_notice">关闭提示</string>
 
     <!-- Library category -->
     <string name="setcat_library_structure">媒体库结构</string>
@@ -228,8 +227,6 @@
     <string name="backup_summary_none">未选择任何部分。</string>
     <string name="backup_summary_all">已选择全部部分。</string>
     <string name="backup_summary_partial">已选择 %1$d/%2$d 个部分。</string>
-    <string name="backup_how_title">备份如何工作</string>
-    <string name="backup_how_body">选择要备份的部分，导出 .starbk 文件，稍后再导入。恢复时只会替换你所选的部分。</string>
     <string name="backup_dialog_supporting_export">精确选择你想包含在备份包中的内容。</string>
     <string name="backup_confirm_export_pxpl">导出 .starbk</string>
     <string name="backup_sections_selected_format">已选择 %1$d/%2$d 个部分</string>
