@@ -12,12 +12,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -69,7 +66,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -141,6 +137,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.ExpressiveScrollBar
+import com.startune.music.presentation.components.MoreMenuListRow
 import com.startune.music.presentation.components.ScreenWrapper
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.rememberModalSheetState
@@ -1525,226 +1522,28 @@ private fun BookmarkMomentActionsBottomSheet(
                 }
             }
 
-            BookmarkMomentPrimaryActions(
-                onRename = onRename,
-                onCopyCue = onCopyCue
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            BookmarkMomentDeleteAction(onDelete = onDelete)
+            // The action list matches the other more menus: full-width list
+            // rows with a circular icon, 8.dp apart. Delete is destructive,
+            // like the other menus.
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                MoreMenuListRow(
+                    label = stringResource(R.string.action_rename),
+                    icon = Icons.Rounded.Edit,
+                    onClick = onRename
+                )
+                MoreMenuListRow(
+                    label = stringResource(R.string.bookmark_copy_cue),
+                    icon = Icons.Rounded.ContentCopy,
+                    onClick = onCopyCue
+                )
+                MoreMenuListRow(
+                    label = stringResource(R.string.action_delete),
+                    icon = Icons.Rounded.Delete,
+                    onClick = onDelete,
+                    destructive = true
+                )
+            }
             Spacer(modifier = Modifier.height(14.dp))
-        }
-    }
-}
-
-@Composable
-private fun BookmarkMomentPrimaryActions(
-    onRename: () -> Unit,
-    onCopyCue: () -> Unit
-) {
-    val coroutineScope = rememberCoroutineScope()
-    var clickPending by remember { mutableStateOf(false) }
-
-    val renameInteractionSource = remember { MutableInteractionSource() }
-    val isRenamePressed by renameInteractionSource.collectIsPressedAsState()
-    var renameVisualPressed by remember { mutableStateOf(false) }
-    LaunchedEffect(isRenamePressed) {
-        if (isRenamePressed) {
-            renameVisualPressed = true
-        } else {
-            delay(180)
-            renameVisualPressed = false
-        }
-    }
-
-    val copyInteractionSource = remember { MutableInteractionSource() }
-    val isCopyPressed by copyInteractionSource.collectIsPressedAsState()
-    var copyVisualPressed by remember { mutableStateOf(false) }
-    LaunchedEffect(isCopyPressed) {
-        if (isCopyPressed) {
-            copyVisualPressed = true
-        } else {
-            delay(180)
-            copyVisualPressed = false
-        }
-    }
-
-    val pressSpec = spring<Float>(
-        dampingRatio = 0.8f,
-        stiffness = 300f
-    )
-    val renamePressFraction by animateFloatAsState(
-        targetValue = if (renameVisualPressed) 1f else 0f,
-        animationSpec = pressSpec,
-        label = "BookmarkRenamePressFraction"
-    )
-    val copyPressFraction by animateFloatAsState(
-        targetValue = if (copyVisualPressed) 1f else 0f,
-        animationSpec = pressSpec,
-        label = "BookmarkCopyPressFraction"
-    )
-
-    val renameWeight = (0.5f + 0.08f * renamePressFraction - 0.08f * copyPressFraction).coerceAtLeast(0.1f)
-    val copyWeight = (0.5f + 0.08f * copyPressFraction - 0.08f * renamePressFraction).coerceAtLeast(0.1f)
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        BookmarkMomentExpressiveActionButton(
-            modifier = Modifier
-                .weight(renameWeight)
-                .fillMaxHeight(),
-            icon = Icons.Rounded.Edit,
-            label = stringResource(R.string.action_rename),
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            interactionSource = renameInteractionSource,
-            onClick = {
-                if (clickPending) return@BookmarkMomentExpressiveActionButton
-                clickPending = true
-                renameVisualPressed = true
-                coroutineScope.launch {
-                    delay(180)
-                    renameVisualPressed = false
-                    clickPending = false
-                    onRename()
-                }
-            }
-        )
-        BookmarkMomentExpressiveActionButton(
-            modifier = Modifier
-                .weight(copyWeight)
-                .fillMaxHeight(),
-            icon = Icons.Rounded.ContentCopy,
-            label = "Copy cue",
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            interactionSource = copyInteractionSource,
-            onClick = {
-                if (clickPending) return@BookmarkMomentExpressiveActionButton
-                clickPending = true
-                copyVisualPressed = true
-                coroutineScope.launch {
-                    delay(180)
-                    copyVisualPressed = false
-                    clickPending = false
-                    onCopyCue()
-                }
-            }
-        )
-    }
-}
-
-@Composable
-private fun BookmarkMomentDeleteAction(
-    onDelete: () -> Unit
-) {
-    val coroutineScope = rememberCoroutineScope()
-    var clickPending by remember { mutableStateOf(false) }
-    val deleteInteractionSource = remember { MutableInteractionSource() }
-    val isDeletePressed by deleteInteractionSource.collectIsPressedAsState()
-    var deleteVisualPressed by remember { mutableStateOf(false) }
-
-    LaunchedEffect(isDeletePressed) {
-        if (isDeletePressed) {
-            deleteVisualPressed = true
-        } else {
-            delay(180)
-            deleteVisualPressed = false
-        }
-    }
-    val deletePressFraction by animateFloatAsState(
-        targetValue = if (deleteVisualPressed) 1f else 0f,
-        animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f),
-        label = "BookmarkDeletePressFraction"
-    )
-    val deleteContainerColor = lerpColor(
-        MaterialTheme.colorScheme.errorContainer,
-        MaterialTheme.colorScheme.error,
-        deletePressFraction * 0.18f
-    )
-
-    FilledTonalButton(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 66.dp),
-        colors = ButtonDefaults.filledTonalButtonColors(
-            containerColor = deleteContainerColor,
-            contentColor = MaterialTheme.colorScheme.onErrorContainer
-        ),
-        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
-        shape = CircleShape,
-        interactionSource = deleteInteractionSource,
-        onClick = {
-            if (clickPending) return@FilledTonalButton
-            clickPending = true
-            deleteVisualPressed = true
-            coroutineScope.launch {
-                delay(180)
-                deleteVisualPressed = false
-                clickPending = false
-                onDelete()
-            }
-        }
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.Delete,
-            contentDescription = stringResource(R.string.bookmark_delete_cd),
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = stringResource(R.string.action_delete),
-            style = MaterialTheme.typography.titleMedium,
-            fontFamily = RoundedSans,
-            fontWeight = FontWeight.Bold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
-
-@Composable
-private fun BookmarkMomentExpressiveActionButton(
-    modifier: Modifier,
-    icon: ImageVector,
-    label: String,
-    containerColor: Color,
-    contentColor: Color,
-    interactionSource: MutableInteractionSource,
-    onClick: () -> Unit
-) {
-    FilledTonalButton(
-        modifier = modifier.heightIn(min = 92.dp),
-        colors = ButtonDefaults.filledTonalButtonColors(
-            containerColor = containerColor,
-            contentColor = contentColor
-        ),
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
-        shape = CircleShape,
-        interactionSource = interactionSource,
-        onClick = onClick
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                modifier = Modifier.size(30.dp)
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.titleMedium,
-                fontFamily = RoundedSans,
-                fontWeight = FontWeight.Bold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
         }
     }
 }

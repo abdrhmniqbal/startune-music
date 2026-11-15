@@ -46,6 +46,7 @@
     <string name="bookmark_empty_folder_title">No moments in this folder</string>
     <string name="bookmark_empty_folder_subtitle">Bookmarks for this track may have been deleted.</string>
     <string name="bookmark_search_clear_cd">Clear bookmark search</string>
+    <string name="bookmark_copy_cue">Copy cue</string>
     <string name="bookmark_search_cd">Bookmarks</string>
     <string name="bookmark_actions_close_cd">Close bookmark actions</string>
     <string name="bookmark_actions_open_cd">Open bookmark actions</string>
