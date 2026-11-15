@@ -82,7 +82,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -191,14 +190,14 @@ fun ShareBottomSheet(
     // The card is always the dark album scheme; the app theme is the fallback
     // when the album has no extracted colors yet.
     val cardScheme = albumColorSchemeState?.dark ?: MaterialTheme.colorScheme
-    // The card background is the album color itself, not a neutral: the
-    // player background is the scheme's primaryContainer at full strength,
-    // and the card used surfaceContainer, a dark neutral that read
-    // black/greyish beside it. A deep tint of the primaryContainer (40%
-    // toward the scheme surface) keeps the panel, a full primaryContainer
-    // slab, standing out as the lighter element while the card reads as
-    // the album color.
-    val cardBackground = lerp(cardScheme.primaryContainer, cardScheme.surface, 0.4f)
+    // The card background is the album color itself, flat: the player
+    // background is the scheme's primaryContainer at full strength, and
+    // the card used surfaceContainer, a dark neutral that read
+    // black/greyish beside it. No darkening and no gradient to dark, so
+    // the card is the same color as the player background. The song panel
+    // is the same primaryContainer, so it reads as one flat album-color
+    // card; the art, the text and the watermark pill still stand out.
+    val cardBackground = cardScheme.primaryContainer
 
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
@@ -833,10 +832,9 @@ private fun ShareableCard(
             .aspectRatio(cardRatio)
             .shadow(elevation = 16.dp, shape = cardShape, clip = true)
             .clip(cardShape)
-            // The deep tint of the album primaryContainer (see cardBackground
-            // above), not surfaceContainer: the neutral read black/greyish
-            // beside the player background. The full-primaryContainer panel
-            // and the surfaceContainerHigh watermark pill stay visible on it.
+            // The album primaryContainer itself (see cardBackground above),
+            // not surfaceContainer: the neutral read black/greyish beside
+            // the player background. Flat, no gradient to dark.
             .background(cardBackground)
     ) {
         // ── Foreground Content Column ───────────────────────────────────
