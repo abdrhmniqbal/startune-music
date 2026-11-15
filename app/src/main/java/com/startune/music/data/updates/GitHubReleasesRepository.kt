@@ -49,10 +49,11 @@ data class AppUpdateInfo(
  * limit. The changelog starts at v2.0.0: older releases (the old Expo app)
  * are excluded, and so are pre-releases, except the installed version's
  * own notes: a beta user must see their own version's changelog, otherwise
- * the list is empty until the first stable release. Update checks still
- * use the API: they need release metadata and APK asset URLs, which only
- * the API provides. Update checks pick the newest release newer than the
- * installed version, with the APK asset matching this device's ABI.
+ * the list is empty until the first stable release. Update checks try the
+ * API first (it gives the real APK asset URLs), but fall back to the
+ * changelog when the API fails: the changelog names the newest version and
+ * the APK download URL follows the release naming pattern, so the check
+ * works even when the shared-IP rate limit is exhausted.
  */
 @Singleton
 class GitHubReleasesRepository @Inject constructor(
@@ -119,17 +120,48 @@ class GitHubReleasesRepository @Inject constructor(
         currentVersion: String,
         includePrereleases: Boolean
     ): AppUpdateInfo? {
-        val eligible = fetchReleases()
+        return try {
+            val latest = newestEligible(fetchReleases(), currentVersion, includePrereleases)
+                ?: return null
+            toUpdateInfo(latest, currentVersion)
+        } catch (e: IOException) {
+            // The API is rate-limited to 60 unauthenticated requests per hour
+            // per IP, and a shared mobile IP exhausts that fast. Fall back to
+            // the changelog (raw file, served from a CDN with no such limit)
+            // and build the APK download URL from the release naming pattern.
+            Timber.w(e, "GitHub API update check failed, falling back to changelog")
+            val latest = newestEligible(
+                parseChangelog(fetchChangelogMarkdown()),
+                currentVersion,
+                includePrereleases
+            ) ?: return null
+            toUpdateInfoFromChangelog(
+                latest,
+                currentVersion,
+                Build.SUPPORTED_ABIS.firstOrNull() ?: "arm64-v8a"
+            )
+        }
+    }
+
+    /**
+     * The newest release newer than the installed version, honouring the
+     * pre-release opt-in. Shared by the API path and the changelog fallback.
+     */
+    internal fun newestEligible(
+        releases: List<GitHubRelease>,
+        currentVersion: String,
+        includePrereleases: Boolean
+    ): GitHubRelease? {
+        return releases
             .filter { it.draft != true }
             .filter { it.prerelease != true || includePrereleases }
             .filter {
                 !it.tag_name.isNullOrBlank() &&
                     VersionCompare.isNewerVersion(it.tag_name!!, currentVersion)
             }
-        val latest = eligible.maxWithOrNull { left, right ->
-            VersionCompare.compareVersions(left.tag_name ?: "", right.tag_name ?: "")
-        } ?: return null
-        return toUpdateInfo(latest, currentVersion)
+            .maxWithOrNull { left, right ->
+                VersionCompare.compareVersions(left.tag_name ?: "", right.tag_name ?: "")
+            }
     }
 
     private fun toUpdateInfo(release: GitHubRelease, currentVersion: String): AppUpdateInfo {
@@ -144,6 +176,33 @@ class GitHubReleasesRepository @Inject constructor(
             downloadUrl = asset?.browser_download_url ?: "",
             apkFileName = asset?.name?.takeIf { it.isNotBlank() }
                 ?: "startune-music-$tag.apk",
+            prerelease = release.prerelease == true
+        )
+    }
+
+    /**
+     * Builds the update info from a changelog entry, without the API. The
+     * release workflow names APK assets `startune-music-<version>-<abi>.apk`
+     * and serves them from the release download URL, so the URL is built
+     * from that pattern. The ABI is passed in so this stays a pure function
+     * (Build.SUPPORTED_ABIS is not available in unit tests).
+     */
+    internal fun toUpdateInfoFromChangelog(
+        release: GitHubRelease,
+        currentVersion: String,
+        abi: String
+    ): AppUpdateInfo {
+        val tag = release.tag_name ?: ""
+        val version = tag.removePrefix("v")
+        val apkFileName = "startune-music-$version-$abi.apk"
+        return AppUpdateInfo(
+            currentVersion = currentVersion,
+            newVersion = tag,
+            releaseName = release.name?.takeIf { it.isNotBlank() } ?: tag,
+            body = release.body ?: "",
+            htmlUrl = release.html_url ?: "",
+            downloadUrl = "https://github.com/abdrhmniqbal/startune-music/releases/download/$tag/$apkFileName",
+            apkFileName = apkFileName,
             prerelease = release.prerelease == true
         )
     }
