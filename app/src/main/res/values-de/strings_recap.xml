@@ -16,7 +16,7 @@
     <string name="recap_action_previous_slide">Vorherige Folie</string>
     <string name="recap_close">Schließen</string>
     <string name="recap_not_enough_title">Noch nicht genug gehört</string>
-    <string name="recap_not_enough_subtitle">Hör weiter Musik, dann füllt sich dein Rückblick %1$d.</string>
+    <string name="recap_not_enough_subtitle">Hör weiter Musik, dann füllt sich dein Rückblick %1$s.</string>
     <string name="recap_intro_kicker">PixelPlayerOSS Rückblick</string>
     <string name="recap_intro_title">Dein Jahr in Musik</string>
     <string name="recap_intro_title_so_far">Dein Jahr bisher</string>

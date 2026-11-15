@@ -16,7 +16,7 @@
     <string name="recap_action_previous_slide">Slide precedente</string>
     <string name="recap_close">Chiudi</string>
     <string name="recap_not_enough_title">Non hai ancora ascoltato abbastanza</string>
-    <string name="recap_not_enough_subtitle">Continua ad ascoltare musica e il tuo recap del %1$d si riempirà.</string>
+    <string name="recap_not_enough_subtitle">Continua ad ascoltare musica e il tuo recap del %1$s si riempirà.</string>
     <string name="recap_intro_kicker">Recap di PixelPlayerOSS</string>
     <string name="recap_intro_title">Il tuo anno in musica</string>
     <string name="recap_intro_title_so_far">Il tuo anno finora</string>

@@ -16,7 +16,7 @@
     <string name="recap_action_previous_slide">Slide sebelumnya</string>
     <string name="recap_close">Tutup</string>
     <string name="recap_not_enough_title">Belum cukup banyak mendengarkan</string>
-    <string name="recap_not_enough_subtitle">Terus putar musik dan rekap %1$d kamu akan terisi.</string>
+    <string name="recap_not_enough_subtitle">Terus putar musik dan rekap %1$s kamu akan terisi.</string>
     <string name="recap_intro_kicker">Rekap PixelPlayerOSS</string>
     <string name="recap_intro_title">Tahunmu dalam musik</string>
     <string name="recap_intro_title_so_far">Tahunmu sejauh ini</string>

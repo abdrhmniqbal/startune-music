@@ -16,7 +16,7 @@
     <string name="recap_action_previous_slide">上一页</string>
     <string name="recap_close">关闭</string>
     <string name="recap_not_enough_title">收听记录还不够</string>
-    <string name="recap_not_enough_subtitle">继续听歌，你的 %1$d 年度回顾就会逐渐丰富起来。</string>
+    <string name="recap_not_enough_subtitle">继续听歌，你的 %1$s 年度回顾就会逐渐丰富起来。</string>
     <string name="recap_intro_kicker">PixelPlayerOSS 年度回顾</string>
     <string name="recap_intro_title">你的音乐一年</string>
     <string name="recap_intro_title_so_far">你的一年，至今</string>

@@ -16,7 +16,7 @@
     <string name="recap_action_previous_slide">이전 슬라이드</string>
     <string name="recap_close">닫기</string>
     <string name="recap_not_enough_title">아직 감상 기록이 부족해요</string>
-    <string name="recap_not_enough_subtitle">음악을 계속 들으면 %1$d 리캡이 채워져요.</string>
+    <string name="recap_not_enough_subtitle">음악을 계속 들으면 %1$s 리캡이 채워져요.</string>
     <string name="recap_intro_kicker">PixelPlayerOSS 리캡</string>
     <string name="recap_intro_title">음악으로 본 나의 한 해</string>
     <string name="recap_intro_title_so_far">지금까지의 한 해</string>

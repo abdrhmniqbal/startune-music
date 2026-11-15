@@ -16,7 +16,7 @@
     <string name="recap_action_previous_slide">Предыдущий слайд</string>
     <string name="recap_close">Закрыть</string>
     <string name="recap_not_enough_title">Пока недостаточно прослушиваний</string>
-    <string name="recap_not_enough_subtitle">Продолжайте слушать музыку, и ваши итоги %1$d года наполнятся.</string>
+    <string name="recap_not_enough_subtitle">Продолжайте слушать музыку, и ваши итоги %1$s года наполнятся.</string>
     <string name="recap_intro_kicker">Итоги PixelPlayerOSS</string>
     <string name="recap_intro_title">Ваш год в музыке</string>
     <string name="recap_intro_title_so_far">Ваш год на данный момент</string>

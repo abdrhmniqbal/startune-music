@@ -16,7 +16,7 @@
     <string name="recap_action_previous_slide">الشريحة السابقة</string>
     <string name="recap_close">إغلاق</string>
     <string name="recap_not_enough_title">لا يوجد استماع كافٍ بعد</string>
-    <string name="recap_not_enough_subtitle">واصل الاستماع إلى الموسيقى وسيمتلئ ملخّص %1$d الخاص بك.</string>
+    <string name="recap_not_enough_subtitle">واصل الاستماع إلى الموسيقى وسيمتلئ ملخّص %1$s الخاص بك.</string>
     <string name="recap_intro_kicker">ملخّص PixelPlayerOSS</string>
     <string name="recap_intro_title">عامك في الموسيقى</string>
     <string name="recap_intro_title_so_far">عامك حتى الآن</string>

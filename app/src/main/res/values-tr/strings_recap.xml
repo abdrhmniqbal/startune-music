@@ -16,7 +16,7 @@
     <string name="recap_action_previous_slide">Önceki slayt</string>
     <string name="recap_close">Kapat</string>
     <string name="recap_not_enough_title">Henüz yeterince dinleme yok</string>
-    <string name="recap_not_enough_subtitle">Müzik dinlemeye devam et, %1$d özetin dolacak.</string>
+    <string name="recap_not_enough_subtitle">Müzik dinlemeye devam et, %1$s özetin dolacak.</string>
     <string name="recap_intro_kicker">PixelPlayerOSS Özeti</string>
     <string name="recap_intro_title">Müzikle geçen yılın</string>
     <string name="recap_intro_title_so_far">Şimdiye kadarki yılın</string>

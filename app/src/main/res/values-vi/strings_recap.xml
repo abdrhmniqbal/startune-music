@@ -16,7 +16,7 @@
     <string name="recap_action_previous_slide">Trang trước</string>
     <string name="recap_close">Đóng</string>
     <string name="recap_not_enough_title">Chưa đủ dữ liệu nghe nhạc</string>
-    <string name="recap_not_enough_subtitle">Tiếp tục nghe nhạc và bản nhìn lại năm %1$d của bạn sẽ được hoàn thiện.</string>
+    <string name="recap_not_enough_subtitle">Tiếp tục nghe nhạc và bản nhìn lại năm %1$s của bạn sẽ được hoàn thiện.</string>
     <string name="recap_intro_kicker">PixelPlayerOSS Recap</string>
     <string name="recap_intro_title">Năm âm nhạc của bạn</string>
     <string name="recap_intro_title_so_far">Năm nay của bạn đến nay</string>

@@ -10,8 +10,10 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.core.net.toUri
 import androidx.media3.common.MimeTypes
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.decoder.ffmpeg.FfmpegLibrary
 import com.google.android.gms.cast.MediaInfo
 import com.google.android.gms.cast.MediaMetadata
@@ -977,6 +979,7 @@ class CastPlayer(
         return isMimeTypeDecoderSupported("audio/flac")
     }
 
+    @OptIn(UnstableApi::class)
     private fun isFfmpegAlacTranscodeSupported(): Boolean {
         return runCatching {
             FfmpegLibrary.supportsFormat(MimeTypes.AUDIO_ALAC)

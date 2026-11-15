@@ -16,7 +16,7 @@
     <string name="recap_action_previous_slide">Forrige lysbilde</string>
     <string name="recap_close">Lukk</string>
     <string name="recap_not_enough_title">Ikke nok lytting ennå</string>
-    <string name="recap_not_enough_subtitle">Fortsett å spille musikk, så fylles %1$d-oppsummeringen din opp.</string>
+    <string name="recap_not_enough_subtitle">Fortsett å spille musikk, så fylles %1$s-oppsummeringen din opp.</string>
     <string name="recap_intro_kicker">PixelPlayerOSS-oppsummering</string>
     <string name="recap_intro_title">Året ditt i musikk</string>
     <string name="recap_intro_title_so_far">Året ditt så langt</string>
