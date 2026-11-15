@@ -212,12 +212,15 @@ fun SearchScreen(
     val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
     val playbackHistory by playerViewModel.playbackHistory.collectAsStateWithLifecycle()
     val queueFavoritesToRevisit = stringResource(R.string.presentation_batch_b_queue_favorites_to_revisit)
-    val favoritesToRevisitSongs = remember(allSongs, favoriteSongIds, playbackHistory) {
-        val byId = allSongs.associateBy { it.id }
+    // Not favorites-only: the rule Iqbal gave was songs with a high play
+    // count that have not been played in a long time, and he never said it
+    // had to be the liked ones. The favorites-only filter was Babu's
+    // addition, so it is gone: every song in the library qualifies.
+    val favoritesToRevisitSongs = remember(allSongs, playbackHistory) {
         val playCounts = playbackHistory.groupingBy { it.songId }.eachCount()
         val lastPlayed = playbackHistory.groupBy { it.songId }
             .mapValues { (_, entries) -> entries.maxOf { it.timestamp } }
-        favoriteSongIds.mapNotNull { id -> byId[id]?.let { song -> song to (playCounts[id] ?: 0) } }
+        allSongs.map { song -> song to (playCounts[song.id] ?: 0) }
             .filter { (_, playCount) -> playCount > 0 }
             .sortedByDescending { (_, playCount) -> playCount }
             .take(SearchFavoritesToRevisitPoolLimit)
