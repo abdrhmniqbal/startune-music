@@ -86,6 +86,7 @@ import com.startune.music.presentation.viewmodel.AlbumData
 import com.startune.music.presentation.viewmodel.CloudDownloadsViewModel
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.utils.GenreParser
+import com.startune.music.utils.formatSongCount
 import com.startune.music.utils.shapes.RoundedStarShape
 import com.startune.music.presentation.viewmodel.UNKNOWN_GENRE_ID
 import com.startune.music.ui.theme.LocalStartuneDarkTheme
@@ -437,6 +438,7 @@ fun GenreDetailScreen(
             ) {
                 GenreCollapsibleTopBar(
                     title = genreDisplayName,
+                    subtitle = formatSongCount(uiState.songs.size),
                     collapseFraction = collapseFraction,
                     headerHeight = currentTopBarHeightDp,
                     onBackPressed = { navController.popBackStack() },
@@ -678,6 +680,7 @@ fun GenreDetailScreen(
 @Composable
 fun GenreCollapsibleTopBar(
     title: String,
+    subtitle: String? = null,
     collapseFraction: Float,
     headerHeight: Dp,
     onBackPressed: () -> Unit,
@@ -775,13 +778,16 @@ fun GenreCollapsibleTopBar(
 
             ExpressiveTopBarContent(
                 title = title,
+                subtitle = subtitle,
                 collapseFraction = collapseFraction,
                 modifier = Modifier.fillMaxSize(),
                 collapsedTitleStartPadding = 68.dp,
                 expandedTitleStartPadding = 20.dp,
                 expandedTitleEndPadding = 136.dp,
                 maxLines = if (collapseFraction < 0.5f) Int.MAX_VALUE else 1,
-                contentColor = animatedTitleColor
+                contentColor = animatedTitleColor,
+                subtitleColor = animatedTitleColor.copy(alpha = 0.75f),
+                fadeSubtitleOnCollapse = false
             )
         }
 
