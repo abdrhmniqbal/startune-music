@@ -86,6 +86,7 @@
     <string name="lib_empty_genres_subtitle">Genres from your library will appear here.</string>
     <string name="library_tab_albums">Albums</string>
     <string name="library_tab_artists">Artists</string>
+    <string name="library_tab_album_artists">Album Artists</string>
     <string name="library_tab_folders">Folders</string>
     <string name="library_tab_genres">Genres</string>
     <string name="library_tab_liked">Liked</string>

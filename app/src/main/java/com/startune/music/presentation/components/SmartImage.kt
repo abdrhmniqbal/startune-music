@@ -9,9 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.alpha
@@ -93,9 +96,24 @@ fun SmartImage(
     }
 
     val artworkModel = rememberArtworkModelWithCacheVersion(model)
+
+    // A failed load used to stick on the gray placeholder until the user left
+    // and re-entered the screen. Retry a failed load twice (300 ms apart) by
+    // rebuilding the request, so a transient failure heals in place.
+    var retryAttempt by remember(artworkModel) { mutableIntStateOf(0) }
+    var loadError by remember(artworkModel) { mutableStateOf(false) }
+    LaunchedEffect(loadError, retryAttempt) {
+        if (loadError && retryAttempt < 2) {
+            delay(300)
+            loadError = false
+            retryAttempt++
+        }
+    }
+
     val request = remember(
         context,
         artworkModel,
+        retryAttempt,
         crossfadeDurationMillis,
         useDiskCache,
         useMemoryCache,
@@ -136,6 +154,7 @@ fun SmartImage(
             val state = painter.state
             LaunchedEffect(state) {
                 onState?.invoke(state)
+                if (state is AsyncImagePainter.State.Error) loadError = true
             }
 
             when (state) {
@@ -184,7 +203,10 @@ fun SmartImage(
             colorFilter = colorFilter,
             alpha = alpha,
             placeholder = painterResource(placeholderResId),
-            error = painterResource(errorResId)
+            error = painterResource(errorResId),
+            onState = { state ->
+                if (state is AsyncImagePainter.State.Error) loadError = true
+            }
         )
     }
 }

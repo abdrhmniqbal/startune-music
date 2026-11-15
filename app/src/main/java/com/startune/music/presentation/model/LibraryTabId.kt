@@ -54,6 +54,16 @@ enum class LibraryTabId(
             SortOption.ArtistNumSongsAsc
         )
     ),
+    AlbumArtists(
+        stableKey = "ALBUM_ARTIST",
+        labelRes = R.string.library_tab_album_artists,
+        sortOptions = listOf(
+            SortOption.ArtistNameAZ,
+            SortOption.ArtistNameZA,
+            SortOption.ArtistNumSongsDesc,
+            SortOption.ArtistNumSongsAsc
+        )
+    ),
     Playlists(
         stableKey = "PLAYLISTS",
         labelRes = R.string.library_tab_playlists,

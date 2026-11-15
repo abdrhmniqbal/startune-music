@@ -1397,7 +1397,7 @@ interface MusicDao {
     ): PagingSource<Int, ArtistEntity>
 
     /**
-     * Album-artist variant of [getArtistsPaginated], used when "Group by Album Artist" is on.
+     * Album-artist variant of [getArtistsPaginated], used by the Album Artists tab.
      * Collapses the Artists tab onto each song's effective album artist (songs.album_artist_id)
      * instead of every track-level artist, so featured/compilation artists stop cluttering the
      * list. The list membership stays by album artist, but the count is the same song set the
@@ -1657,7 +1657,7 @@ interface MusicDao {
      * — the songs FK is declared ON DELETE SET NULL but the column is NOT NULL, so deleting an
      * artist a song still points at would abort with a constraint error instead of nulling. The
      * album_artist_id check keeps album-artist-only rows (e.g. "Various Artists", which never
-     * appear as a track artist and so have no cross-ref) alive for the "Group by Album Artist" tab.
+     * appear as a track artist and so have no cross-ref) alive for the Album Artists tab.
      */
     @Query("""
         DELETE FROM artists
@@ -1901,8 +1901,8 @@ interface MusicDao {
      * aespa's page even though the cross-refs name aespa as the primary artist. The union
      * mirrors [getLocalArtistDirectories]; the detail view model already partitions the result
      * into primary sections (album artist is the artist) and Featured On (anything else), so
-     * the compilation track lands in Featured On instead of vanishing. The Artists tab groups
-     * by album artist only, but its count now uses this same union
+     * the compilation track lands in Featured On instead of vanishing. The Album Artists tab
+     * groups by album artist only, but its count now uses this same union
      * ([getArtistsPaginatedByAlbumArtist]), so the tab and the detail page agree.
      */
     @Query("""

@@ -595,10 +595,8 @@ class JellyfinRepository @Inject constructor(
      * its rows, which reloads the app's whole song list.
      */
     suspend fun syncUnifiedLibrarySongsFromJellyfinIfChanged() = songCacheMutex.withLock {
-        val groupByAlbumArtist = userPreferencesRepository.groupByAlbumArtistFlow.first()
         val currentState = unifiedJellyfinLibraryState(
             songCacheRevision = songCacheRevision,
-            groupByAlbumArtist = groupByAlbumArtist,
             appBuild = APP_BUILD,
             unifiedSongCount = musicDao.getJellyfinSongCount()
         )
@@ -616,18 +614,16 @@ class JellyfinRepository @Inject constructor(
     private suspend fun rebuildAndSaveState() {
         // Under the lock no cache write is under way, so this revision describes the rows read.
         val revision = songCacheRevision
-        val groupByAlbumArtist = userPreferencesRepository.groupByAlbumArtistFlow.first()
-        rebuildUnifiedLibrary(groupByAlbumArtist)
+        rebuildUnifiedLibrary()
         val state = unifiedJellyfinLibraryState(
             songCacheRevision = revision,
-            groupByAlbumArtist = groupByAlbumArtist,
             appBuild = APP_BUILD,
             unifiedSongCount = musicDao.getJellyfinSongCount()
         )
         prefs.edit().putString(KEY_UNIFIED_LIBRARY_STATE, state).apply()
     }
 
-    private suspend fun rebuildUnifiedLibrary(groupByAlbumArtist: Boolean) {
+    private suspend fun rebuildUnifiedLibrary() {
         val jellyfinSongs = dao.getDistinctJellyfinSongs(LIBRARY_PLAYLIST_ID)
         val existingUnifiedIds = musicDao.getAllJellyfinSongIds()
 
@@ -668,8 +664,8 @@ class JellyfinRepository @Inject constructor(
                     imageUrl = null
                 )
             )
-            val albumDisplayArtistName = if (groupByAlbumArtist) effectiveAlbumArtistName else primaryArtistName
-            val albumDisplayArtistId = if (groupByAlbumArtist) albumArtistId else primaryArtistId
+            val albumDisplayArtistName = primaryArtistName
+            val albumDisplayArtistId = primaryArtistId
 
             artistNames.forEachIndexed { index, artistName ->
                 val artistId = toUnifiedArtistId(artistName, caseSensitiveArtists)
@@ -850,10 +846,9 @@ private val APP_BUILD = "${BuildConfig.VERSION_CODE}-${BuildConfig.VERSION_NAME}
  */
 internal fun unifiedJellyfinLibraryState(
     songCacheRevision: Long,
-    groupByAlbumArtist: Boolean,
     appBuild: String,
     unifiedSongCount: Int
-): String = "$songCacheRevision|$groupByAlbumArtist|$appBuild|$unifiedSongCount"
+): String = "$songCacheRevision|$appBuild|$unifiedSongCount"
 
 /**
  * Whether opening the Jellyfin dashboard should sync again. A full sync of a large library

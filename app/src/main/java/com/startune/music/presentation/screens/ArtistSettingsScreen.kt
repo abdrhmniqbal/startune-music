@@ -425,21 +425,6 @@ fun ArtistSettingsScreen(
                 ) {
                     Column(modifier = Modifier.clip(shape = RoundedCornerShape(24.dp))) {
                         SwitchSettingItem(
-                            title = stringResource(R.string.presentation_batch_g_artist_group_by_album_artist),
-                            subtitle = stringResource(R.string.presentation_batch_g_artist_group_by_album_artist_sub),
-                            checked = uiState.groupByAlbumArtist,
-                            onCheckedChange = { viewModel.setGroupByAlbumArtist(it) },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Rounded.Album,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.secondary
-                                )
-                            },
-                            modifier = Modifier.settingHighlight("item_artist_group_by_album_artist", highlightKey)
-                        )
-
-                        SwitchSettingItem(
                             title = stringResource(R.string.presentation_batch_g_artist_case_sensitive),
                             subtitle = stringResource(R.string.presentation_batch_g_artist_case_sensitive_sub),
                             checked = uiState.caseSensitiveArtists,

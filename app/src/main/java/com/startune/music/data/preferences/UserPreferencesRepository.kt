@@ -216,7 +216,6 @@ constructor(
         val UNSPLIT_ARTISTS = stringPreferencesKey("unsplit_artists")
         val UNSPLIT_GENRES = stringPreferencesKey("unsplit_genres")
         val EXTRACT_ARTISTS_FROM_TITLE = booleanPreferencesKey("extract_artists_from_title")
-        val GROUP_BY_ALBUM_ARTIST = booleanPreferencesKey("group_by_album_artist")
         val CASE_SENSITIVE_ARTISTS = booleanPreferencesKey("case_sensitive_artists")
         val ARTIST_SETTINGS_RESCAN_REQUIRED =
                 booleanPreferencesKey("artist_settings_rescan_required")
@@ -682,18 +681,6 @@ constructor(
     suspend fun setExtractArtistsFromTitle(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.EXTRACT_ARTISTS_FROM_TITLE] = enabled
-            preferences[PreferencesKeys.ARTIST_SETTINGS_RESCAN_REQUIRED] = true
-        }
-    }
-
-    val groupByAlbumArtistFlow: Flow<Boolean> =
-            dataStore.data.map { preferences ->
-                preferences[PreferencesKeys.GROUP_BY_ALBUM_ARTIST] ?: false
-            }
-
-    suspend fun setGroupByAlbumArtist(enabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.GROUP_BY_ALBUM_ARTIST] = enabled
             preferences[PreferencesKeys.ARTIST_SETTINGS_RESCAN_REQUIRED] = true
         }
     }

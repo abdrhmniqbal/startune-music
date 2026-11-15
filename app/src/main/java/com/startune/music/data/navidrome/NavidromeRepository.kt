@@ -776,8 +776,6 @@ class NavidromeRepository @Inject constructor(
             return
         }
 
-        val groupByAlbumArtist = userPreferencesRepository.groupByAlbumArtistFlow.first()
-
         val songs = ArrayList<SongEntity>(navidromeSongs.size)
         val artists = LinkedHashMap<Long, ArtistEntity>()
         val albums = LinkedHashMap<Long, AlbumEntity>()
@@ -803,8 +801,8 @@ class NavidromeRepository @Inject constructor(
                     imageUrl = null
                 )
             )
-            val albumDisplayArtistName = if (groupByAlbumArtist) effectiveAlbumArtistName else primaryArtistName
-            val albumDisplayArtistId = if (groupByAlbumArtist) albumArtistId else primaryArtistId
+            val albumDisplayArtistName = primaryArtistName
+            val albumDisplayArtistId = primaryArtistId
 
             artistNames.forEachIndexed { index, artistName ->
                 val artistId = toUnifiedArtistId(artistName)

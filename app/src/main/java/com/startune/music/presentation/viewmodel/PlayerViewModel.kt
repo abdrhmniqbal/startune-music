@@ -1078,8 +1078,11 @@ class PlayerViewModel @Inject constructor(
         }
         // The stored order *is* the visible list: a missing key means the user hid
         // that tab, so it must not be re-added here. New tabs are backfilled once
-        // by migrateTabOrder instead.
-        val known = defaultLibraryTabs.toSet()
+        // by migrateTabOrder instead. The known set is every key the LibraryTabId
+        // enum defines, not defaultLibraryTabs: a tab that is off by default
+        // (Album Artists) must still survive here once the user enables it in
+        // Edit tabs, or it would be silently filtered out every launch.
+        val known = LibraryTabId.entries.map { it.storageKey }.toSet()
         return stored.filter { it in known }.toImmutableList().ifEmpty { defaultLibraryTabs }
     }
 
@@ -1107,6 +1110,7 @@ class PlayerViewModel @Inject constructor(
                     LibraryTabId.SONGS -> SortOption.SONGS
                     LibraryTabId.ALBUMS -> SortOption.ALBUMS
                     LibraryTabId.ARTISTS -> SortOption.ARTISTS
+                    LibraryTabId.ALBUM_ARTISTS -> SortOption.ARTISTS
                     LibraryTabId.PLAYLISTS -> SortOption.PLAYLISTS
                     LibraryTabId.MIXES -> SortOption.PLAYLISTS
                     LibraryTabId.FOLDERS -> SortOption.FOLDERS

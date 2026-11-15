@@ -40,11 +40,7 @@ fun MixCover(
     songs: ImmutableList<Song>,
     modifier: Modifier = Modifier,
 ) {
-    val covers = remember(songs) {
-        songs.mapNotNull { song ->
-            song.albumArtUriString?.takeIf { it.isNotBlank() }?.let { it to song.title }
-        }.distinctBy { it.first }
-    }
+    val covers = remember(songs) { distinctAlbumCovers(songs) }
     val cookieShape = ShapeCache.expressiveAvatar
     if (covers.isEmpty()) {
         Box(

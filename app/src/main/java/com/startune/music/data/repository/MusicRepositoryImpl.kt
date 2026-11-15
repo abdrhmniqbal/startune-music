@@ -240,11 +240,10 @@ class MusicRepositoryImpl @Inject constructor(
     ): Flow<PagingData<Artist>> {
         return combine(
             userPreferencesRepository.allowedDirectoriesFlow,
-            userPreferencesRepository.blockedDirectoriesFlow,
-            userPreferencesRepository.groupByAlbumArtistFlow
-        ) { allowedDirs, blockedDirs, groupByAlbumArtist ->
-            Triple(allowedDirs, blockedDirs, groupByAlbumArtist)
-        }.flatMapLatest { (allowedDirs, blockedDirs, groupByAlbumArtist) ->
+            userPreferencesRepository.blockedDirectoriesFlow
+        ) { allowedDirs, blockedDirs ->
+            allowedDirs to blockedDirs
+        }.flatMapLatest { (allowedDirs, blockedDirs) ->
             flow {
                 val (allowedParentDirs, applyDirectoryFilter) =
                     computeAllowedDirs(allowedDirs, blockedDirs)
@@ -252,21 +251,45 @@ class MusicRepositoryImpl @Inject constructor(
                     Pager(
                         config = defaultLibraryPagingConfig,
                         pagingSourceFactory = {
-                            if (groupByAlbumArtist) {
-                                musicDao.getArtistsPaginatedByAlbumArtist(
-                                    allowedParentDirs = allowedParentDirs,
-                                    applyDirectoryFilter = applyDirectoryFilter,
-                                    filterMode = storageFilter.toFilterMode(),
-                                    sortOrder = sortOption.storageKey
-                                )
-                            } else {
-                                musicDao.getArtistsPaginated(
-                                    allowedParentDirs = allowedParentDirs,
-                                    applyDirectoryFilter = applyDirectoryFilter,
-                                    filterMode = storageFilter.toFilterMode(),
-                                    sortOrder = sortOption.storageKey
-                                )
-                            }
+                            musicDao.getArtistsPaginated(
+                                allowedParentDirs = allowedParentDirs,
+                                applyDirectoryFilter = applyDirectoryFilter,
+                                filterMode = storageFilter.toFilterMode(),
+                                sortOrder = sortOption.storageKey
+                            )
+                        }
+                    ).flow
+                )
+            }.flatMapLatest { it }
+        }.map { pagingData ->
+            pagingData.map { entity -> entity.toArtist().withFolderArtwork() }
+        }.flowOn(Dispatchers.IO)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun getPaginatedAlbumArtists(
+        sortOption: SortOption,
+        storageFilter: StorageFilter
+    ): Flow<PagingData<Artist>> {
+        return combine(
+            userPreferencesRepository.allowedDirectoriesFlow,
+            userPreferencesRepository.blockedDirectoriesFlow
+        ) { allowedDirs, blockedDirs ->
+            allowedDirs to blockedDirs
+        }.flatMapLatest { (allowedDirs, blockedDirs) ->
+            flow {
+                val (allowedParentDirs, applyDirectoryFilter) =
+                    computeAllowedDirs(allowedDirs, blockedDirs)
+                emit(
+                    Pager(
+                        config = defaultLibraryPagingConfig,
+                        pagingSourceFactory = {
+                            musicDao.getArtistsPaginatedByAlbumArtist(
+                                allowedParentDirs = allowedParentDirs,
+                                applyDirectoryFilter = applyDirectoryFilter,
+                                filterMode = storageFilter.toFilterMode(),
+                                sortOrder = sortOption.storageKey
+                            )
                         }
                     ).flow
                 )
@@ -521,13 +544,7 @@ class MusicRepositoryImpl @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun getSongsForArtist(artistId: Long): Flow<List<Song>> {
-        return userPreferencesRepository.groupByAlbumArtistFlow.flatMapLatest { groupByAlbumArtist ->
-            if (groupByAlbumArtist) {
-                musicDao.getSongsForArtistByAlbumArtist(artistId)
-            } else {
-                musicDao.getSongsForArtist(artistId)
-            }
-        }.map { entities ->
+        return musicDao.getSongsForArtist(artistId).map { entities ->
             entities.map { it.toSong() }
         }.flowOn(Dispatchers.IO)
     }

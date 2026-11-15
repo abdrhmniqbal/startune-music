@@ -66,16 +66,6 @@ object SettingsRegistry {
                 type = SettingType.NAVIGABLE_CARD,
                 keywordsStatic = listOf("feat in title", "featured artists", "extract artists", "song title")
             ),
-            SettingSpec(
-                id = "artist_group_by_album_artist",
-                itemKey = "item_artist_group_by_album_artist",
-                titleRes = R.string.presentation_batch_g_artist_group_by_album_artist,
-                subtitleRes = R.string.presentation_batch_g_artist_group_by_album_artist_sub,
-                category = SettingsCategory.LIBRARY,
-                subscreenRoute = Screen.ArtistSettings.createRoute(),
-                type = SettingType.NAVIGABLE_CARD,
-                keywordsStatic = listOf("album artist", "group albums", "collaborations", "compilation", "organize")
-            ),
             // An action because the stats route declares no highlightKey argument to append.
             SettingSpec(
                 id = "listening_stats",

@@ -44,6 +44,17 @@ interface MusicRepository {
     ): Flow<PagingData<Artist>>
 
     /**
+     * Returns paginated album artists for the Album Artists tab: artists grouped
+     * by album artist instead of track artist. This replaced the old global
+     * "Group by album artist" setting, which is gone; the Artists tab stays
+     * grouped by track artist and this tab is opt-in.
+     */
+    fun getPaginatedAlbumArtists(
+        sortOption: com.startune.music.data.model.SortOption,
+        storageFilter: com.startune.music.data.model.StorageFilter = com.startune.music.data.model.StorageFilter.ALL
+    ): Flow<PagingData<Artist>>
+
+    /**
      * Returns paginated favorite songs for efficient display.
      * @return Flow of PagingData<Song> for use with LazyPagingItems.
      */

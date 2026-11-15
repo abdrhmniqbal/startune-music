@@ -26,20 +26,17 @@ import kotlinx.collections.immutable.ImmutableList
 
 /**
  * Playlist cover collage: a 2x2 grid of square album artworks, mirroring the
- * old Startune playlist artwork. Up to 4 distinct covers are used, repeated
- * cyclically when the playlist has fewer.
+ * old Startune playlist artwork. The covers are distinct albums first (see
+ * [distinctAlbumCovers]); when the playlist has fewer than 4 distinct albums
+ * the layout adapts instead of repeating a cover, so no artwork ever appears
+ * twice.
  */
 @Composable
 fun PlaylistArtCollage(
     songs: ImmutableList<Song>,
     modifier: Modifier = Modifier,
 ) {
-    val covers = remember(songs) {
-        val distinct = songs.mapNotNull { song ->
-            song.albumArtUriString?.takeIf { it.isNotBlank() }?.let { it to song.title }
-        }.distinctBy { it.first }
-        if (distinct.isEmpty()) emptyList() else List(4) { index -> distinct[index % distinct.size] }
-    }
+    val covers = remember(songs) { distinctAlbumCovers(songs) }
     if (covers.isEmpty()) {
         Box(
             modifier = modifier
@@ -55,6 +52,47 @@ fun PlaylistArtCollage(
                     .padding(12.dp),
                 tint = MaterialTheme.colorScheme.onSecondaryContainer
             )
+        }
+    } else if (covers.size == 1) {
+        SmartImage(
+            model = covers[0].first,
+            contentDescription = covers[0].second,
+            contentScale = ContentScale.Crop,
+            targetSize = Size(256, 256),
+            modifier = modifier.aspectRatio(1f)
+        )
+    } else if (covers.size == 2) {
+        Row(modifier = modifier.aspectRatio(1f)) {
+            covers.take(2).forEach { cover ->
+                SmartImage(
+                    model = cover.first,
+                    contentDescription = cover.second,
+                    contentScale = ContentScale.Crop,
+                    targetSize = Size(128, 128),
+                    modifier = Modifier.weight(1f).fillMaxHeight()
+                )
+            }
+        }
+    } else if (covers.size == 3) {
+        Column(modifier = modifier.aspectRatio(1f)) {
+            SmartImage(
+                model = covers[0].first,
+                contentDescription = covers[0].second,
+                contentScale = ContentScale.Crop,
+                targetSize = Size(256, 128),
+                modifier = Modifier.weight(1f).fillMaxWidth()
+            )
+            Row(modifier = Modifier.weight(1f)) {
+                covers.drop(1).take(2).forEach { cover ->
+                    SmartImage(
+                        model = cover.first,
+                        contentDescription = cover.second,
+                        contentScale = ContentScale.Crop,
+                        targetSize = Size(128, 128),
+                        modifier = Modifier.weight(1f).fillMaxHeight()
+                    )
+                }
+            }
         }
     } else {
         Column(modifier = modifier.aspectRatio(1f)) {

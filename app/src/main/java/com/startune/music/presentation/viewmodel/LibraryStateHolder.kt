@@ -144,6 +144,20 @@ class LibraryStateHolder @Inject constructor(
         }
         .flowOn(Dispatchers.IO)
 
+    /**
+     * Album Artists tab: same artist sort and storage filter as the Artists tab,
+     * but grouped by album artist. Shares _currentArtistSortOption so the two
+     * artist tabs sort the same way.
+     */
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    val albumArtistsPagingFlow: kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Artist>> =
+        kotlinx.coroutines.flow.combine(_currentArtistSortOption, effectiveStorageFilter) { sort, filter ->
+            sort to filter
+        }.flatMapLatest { (sortOption, filter) ->
+            musicRepository.getPaginatedAlbumArtists(sortOption, filter)
+        }
+        .flowOn(Dispatchers.IO)
+
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     val favoritesPagingFlow: kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Song>> =
         kotlinx.coroutines.flow.combine(_currentFavoriteSortOption, effectiveStorageFilter) { sort, filter ->

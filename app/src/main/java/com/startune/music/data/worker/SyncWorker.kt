@@ -173,8 +173,6 @@ constructor(
                     val unsplitArtists = userPreferencesRepository.unsplitArtistsFlow.first()
                     val extractArtistsFromTitle = userPreferencesRepository.extractArtistsFromTitleFlow.first()
                     val caseSensitiveArtists = userPreferencesRepository.caseSensitiveArtistsFlow.first()
-                    val groupByAlbumArtist =
-                            userPreferencesRepository.groupByAlbumArtistFlow.first()
                     val albumArtistSplitFixApplied =
                             userPreferencesRepository.albumArtistSplitFixAppliedFlow.first()
                     val rescanRequired =
@@ -206,7 +204,7 @@ constructor(
 
                     Timber.tag(TAG)
                         .d(
-                            "Artist delimiters=$artistDelimiters, groupByAlbumArtist=$groupByAlbumArtist, " +
+                            "Artist delimiters=$artistDelimiters, " +
                                 "rescanRequired=$rescanRequired, directoryRulesChanged=$directoryRulesChanged " +
                                 "(current=$directoryRulesVersion, applied=$lastAppliedDirectoryRulesVersion), " +
                                 "metadataCharsetRepairPending=$metadataCharsetRepairPending"
@@ -331,7 +329,6 @@ constructor(
                                         unsplitArtists = unsplitArtists,
                                         extractFromTitle = extractArtistsFromTitle,
                                         caseSensitiveArtists = caseSensitiveArtists,
-                                        groupByAlbumArtist = groupByAlbumArtist,
                                         existingArtistMetadata = existingArtistMetadata,
                                         existingAlbums = allExistingAlbums,
                                         existingArtistIdMap = existingArtistIdMap,
@@ -536,7 +533,6 @@ constructor(
             unsplitArtists: List<String> = emptyList(),
             extractFromTitle: Boolean = true,
             caseSensitiveArtists: Boolean = false,
-            groupByAlbumArtist: Boolean,
             existingArtistMetadata: Map<Long, Pair<String?, String?>>,
             existingAlbums: List<AlbumEntity>,
             existingArtistIdMap: MutableMap<String, Long>,
@@ -658,7 +654,7 @@ constructor(
              val representativeAlbumArt = songsInAlbum.firstNotNullOfOrNull { it.albumArtUriString }
              val determinedAlbumArtist = chooseAlbumDisplayArtist(
                  songs = songsInAlbum,
-                 preferAlbumArtist = groupByAlbumArtist
+                 preferAlbumArtist = false
              )
              val determinedAlbumArtistId = resolveAlbumDisplayArtistId(
                  displayArtist = determinedAlbumArtist,

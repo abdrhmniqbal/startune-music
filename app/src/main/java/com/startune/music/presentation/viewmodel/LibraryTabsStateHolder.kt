@@ -51,6 +51,7 @@ class LibraryTabsStateHolder @Inject constructor() {
                     LibraryTabId.SONGS -> loadSongs()
                     LibraryTabId.ALBUMS -> loadAlbums()
                     LibraryTabId.ARTISTS -> loadArtists()
+                    LibraryTabId.ALBUM_ARTISTS -> loadArtists()
                     LibraryTabId.FOLDERS -> loadFolders()
                     else -> Unit
                 }

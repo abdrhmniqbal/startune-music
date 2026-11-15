@@ -732,7 +732,8 @@ fun LibraryScreen(
         LibraryTabId.SONGS,
         LibraryTabId.LIKED,
         LibraryTabId.FOLDERS -> isSelectionMode
-        LibraryTabId.ARTISTS -> isArtistSelectionMode
+        LibraryTabId.ARTISTS,
+        LibraryTabId.ALBUM_ARTISTS -> isArtistSelectionMode
         LibraryTabId.GENRES -> isGenreSelectionMode
         LibraryTabId.MIXES -> false
     }
@@ -769,6 +770,12 @@ fun LibraryScreen(
                     }
 
                     LibraryTabId.ARTISTS -> {
+                        selectedArtists = persistentListOf()
+                        multiSelectionState.clearSelection()
+                        showMultiSelectionSheet = false
+                    }
+
+                    LibraryTabId.ALBUM_ARTISTS -> {
                         selectedArtists = persistentListOf()
                         multiSelectionState.clearSelection()
                         showMultiSelectionSheet = false
@@ -1118,6 +1125,7 @@ fun LibraryScreen(
                         val allSongsLazyPagingItems = libraryViewModel.songsPagingFlow.collectAsLazyPagingItems()
                         val albumsLazyPagingItems = libraryViewModel.albumsPagingFlow.collectAsLazyPagingItems()
                         val artistsLazyPagingItems = libraryViewModel.artistsPagingFlow.collectAsLazyPagingItems()
+                        val albumArtistsLazyPagingItems = libraryViewModel.albumArtistsPagingFlow.collectAsLazyPagingItems()
                         val favoritePagingItems = libraryViewModel.favoritesPagingFlow.collectAsLazyPagingItems()
                         val isLibraryLoading by libraryViewModel.isLoadingLibrary.collectAsStateWithLifecycle()
                         val hasCurrentSong by remember(playerViewModel) {
@@ -1135,6 +1143,7 @@ fun LibraryScreen(
                             LibraryTabId.SONGS -> playerUiState.currentSongSortOption
                             LibraryTabId.ALBUMS -> playerUiState.currentAlbumSortOption
                             LibraryTabId.ARTISTS -> playerUiState.currentArtistSortOption
+                            LibraryTabId.ALBUM_ARTISTS -> playerUiState.currentArtistSortOption
                             LibraryTabId.PLAYLISTS -> playlistUiState.currentPlaylistSortOption
                             LibraryTabId.MIXES -> playlistUiState.currentPlaylistSortOption
                             LibraryTabId.LIKED -> playerUiState.currentFavoriteSortOption
@@ -1161,6 +1170,7 @@ fun LibraryScreen(
                                     LibraryTabId.SONGS -> playerViewModel.sortSongs(option)
                                     LibraryTabId.ALBUMS -> playerViewModel.sortAlbums(option)
                                     LibraryTabId.ARTISTS -> playerViewModel.sortArtists(option)
+                                    LibraryTabId.ALBUM_ARTISTS -> playerViewModel.sortArtists(option)
                                     LibraryTabId.PLAYLISTS -> playlistViewModel.sortPlaylists(option)
                                     LibraryTabId.MIXES -> playlistViewModel.sortPlaylists(option)
                                     LibraryTabId.LIKED -> playerViewModel.sortFavoriteSongs(option)
@@ -1214,15 +1224,20 @@ fun LibraryScreen(
                                         },
                                         onOptionsClick = openSelectedAlbumActions
                                     )
-                                } else if (currentTabId == LibraryTabId.ARTISTS && isArtistSelectionMode) {
+                                } else if ((currentTabId == LibraryTabId.ARTISTS || currentTabId == LibraryTabId.ALBUM_ARTISTS) && isArtistSelectionMode) {
                                     SelectionActionRow(
                                         selectedCount = selectedArtists.size,
                                         onSelectAll = {
                                             multiSelectionState.clearSelection()
                                             showMultiSelectionSheet = false
+                                            val candidates = if (currentTabId == LibraryTabId.ALBUM_ARTISTS) {
+                                                albumArtistsLazyPagingItems.snapshot().items
+                                            } else {
+                                                playerViewModel.artistsFlow.value
+                                            }
                                             selectedArtists = appendDistinctSelection(
                                                 current = selectedArtists,
-                                                candidates = playerViewModel.artistsFlow.value,
+                                                candidates = candidates,
                                                 keyOf = Artist::id
                                             ).toImmutableList()
                                         },
@@ -1300,6 +1315,7 @@ fun LibraryScreen(
                                             LibraryTabId.LIKED -> playerViewModel.shuffleFavoriteSongs()
                                             LibraryTabId.ALBUMS -> playerViewModel.playRandomAlbum()
                                             LibraryTabId.ARTISTS -> playerViewModel.shuffleRandomArtist()
+                                            LibraryTabId.ALBUM_ARTISTS -> playerViewModel.shuffleRandomArtist()
                                             else -> playerViewModel.shuffleAllSongs()
                                         }
                                     },
@@ -1322,11 +1338,13 @@ fun LibraryScreen(
                                     isShuffleEnabled = isShuffleEnabled,
                                     showViewToggleButton = currentTabId == LibraryTabId.ALBUMS ||
                                             currentTabId == LibraryTabId.ARTISTS ||
+                                            currentTabId == LibraryTabId.ALBUM_ARTISTS ||
                                             currentTabId == LibraryTabId.PLAYLISTS ||
                                             currentTabId == LibraryTabId.GENRES,
                                     isCurrentViewList = when (currentTabId) {
                                         LibraryTabId.ALBUMS -> playerUiState.isAlbumsListView
                                         LibraryTabId.ARTISTS -> playerUiState.isArtistsListView
+                                        LibraryTabId.ALBUM_ARTISTS -> playerUiState.isArtistsListView
                                         LibraryTabId.PLAYLISTS -> playerUiState.isPlaylistsListView
                                         LibraryTabId.GENRES -> !isGenreGridView
                                         else -> false
@@ -1335,6 +1353,7 @@ fun LibraryScreen(
                                         when (currentTabId) {
                                             LibraryTabId.ALBUMS -> playerViewModel.setAlbumsListView(!playerUiState.isAlbumsListView)
                                             LibraryTabId.ARTISTS -> playerViewModel.setArtistsListView(!playerUiState.isArtistsListView)
+                                            LibraryTabId.ALBUM_ARTISTS -> playerViewModel.setArtistsListView(!playerUiState.isArtistsListView)
                                             LibraryTabId.PLAYLISTS -> playerViewModel.setPlaylistsListView(!playerUiState.isPlaylistsListView)
                                             LibraryTabId.GENRES -> playerViewModel.toggleGenreViewMode()
                                             else -> Unit
@@ -1568,6 +1587,34 @@ fun LibraryScreen(
                                         )
                                     }
 
+                                    LibraryTabId.ALBUM_ARTISTS -> {
+                                        val isLoading = playerUiState.isLoadingLibraryCategories
+
+                                        LibraryArtistsTab(
+                                            onArtistMoreOptionsClick = { artist -> itemOptionsTarget = ItemOptionsTarget.Artist(artist) },
+                                            artists = albumArtistsLazyPagingItems,
+                                            isLoading = isLoading,
+                                            playerViewModel = playerViewModel,
+                                            bottomBarHeight = bottomBarHeightDp,
+                                            isListView = playerUiState.isArtistsListView,
+                                            currentArtistSortOption = playerUiState.currentArtistSortOption,
+                                            onArtistClick = { artistId ->
+                                                navController.navigateSafelyReplacing(
+                                                    route = Screen.ArtistDetail.createRoute(artistId),
+                                                    patternToPop = Screen.ArtistDetail.route
+                                                )
+                                            },
+                                            isRefreshing = isRefreshing,
+                                            onRefresh = onRefresh,
+                                            isSelectionMode = isArtistSelectionMode,
+                                            selectedArtistIds = selectedArtistIds,
+                                            onArtistLongPress = onArtistLongPress,
+                                            onArtistSelectionToggle = onArtistSelectionToggle,
+                                            getSelectionIndex = getArtistSelectionIndex,
+                                            storageFilter = playerUiState.currentStorageFilter
+                                        )
+                                    }
+
                                     LibraryTabId.PLAYLISTS -> {
                                         LibraryPlaylistsTab(
                                             onPlaylistMoreOptionsClick = { playlist -> itemOptionsTarget = ItemOptionsTarget.Playlist(playlist) },
@@ -1703,6 +1750,7 @@ fun LibraryScreen(
                                 LibraryTabId.MIXES -> 0
                                 LibraryTabId.ALBUMS -> selectedAlbums.size.takeIf { isAlbumSelectionMode } ?: 0
                                 LibraryTabId.ARTISTS -> selectedArtists.size.takeIf { isArtistSelectionMode } ?: 0
+                                LibraryTabId.ALBUM_ARTISTS -> selectedArtists.size.takeIf { isArtistSelectionMode } ?: 0
                                 LibraryTabId.SONGS,
                                 LibraryTabId.LIKED,
                                 LibraryTabId.FOLDERS -> selectedSongs.size
