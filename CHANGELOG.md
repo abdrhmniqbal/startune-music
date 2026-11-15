@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The menu and list icons now use the Set as sound style everywhere: a secondaryContainer circle with an onSecondaryContainer icon. The more menu list rows, the Settings main list (categories and destinations) and the About link rows all use it, so the three surfaces match the ringtone dialog instead of mixing primaryContainer, surfaceContainerHighest and bare secondary. The more menu Play / Next / Playlist cards keep their layout and only change the icon tint to onSecondaryContainer. Delete keeps its error styling. The About app logo header is untouched.
 
+- The Now Playing button groups sit tighter: the gap between the three top-bar actions (Cast, Bookmark, Queue) and between the Lyrics and More chips is now 2dp instead of 6dp, so each group reads as one joined segmented control. The button sizes and corner shapes are unchanged.
+
 
 ### Fixed
 - Now Playing text was black on the dark player background for some songs: the title, artist, times, progress bar and the "Now Playing" header were drawn in onPrimaryContainer, the on-color of a possibly light container, while the text sits on the dark player background. They now use onBackground, the role meant for text on the background, so they stay readable in both dark and light schemes. The mini player had the same problem and is fixed the same way: its title, artist and connecting indicator now use onBackground too. The theme itself and the rainbow are untouched.
