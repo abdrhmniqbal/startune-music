@@ -63,9 +63,10 @@ class ChangelogMarkdownTest {
     fun `inline bold and code are parsed`() {
         val annotated = parseInlineMarkdown("Use **bold** and `code` here.")
         assertEquals("Use bold and code here.", annotated.text)
-        val bold = annotated.getSpanStyles(4, 8)
+        // "bold" is at 4..8, "code" is at 13..17 in the plain text.
+        val bold = annotated.spanStyles.filter { it.start == 4 && it.end == 8 }
         assertTrue(bold.isNotEmpty())
-        val code = annotated.getSpanStyles(13, 17)
+        val code = annotated.spanStyles.filter { it.start == 13 && it.end == 17 }
         assertTrue(code.isNotEmpty())
     }
 
