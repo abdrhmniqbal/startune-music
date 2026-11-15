@@ -87,7 +87,6 @@ import com.startune.music.data.model.Song
 import com.startune.music.data.model.SortOption
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.DetailHeroMenuAction
-import com.startune.music.presentation.components.ExpressiveDropdownMenu
 import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.LibrarySortBottomSheet
@@ -112,6 +111,7 @@ import com.startune.music.presentation.viewmodel.CloudDownloadsViewModel
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.PlaylistViewModel
 import com.startune.music.ui.theme.LocalStartuneDarkTheme
+import com.startune.music.utils.formatSongCount
 import com.startune.music.utils.shapes.RoundedStarShape
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -803,33 +803,38 @@ fun GenreDetailListScreen(
                                                     contentDescription = stringResource(R.string.presentation_batch_b_more_options)
                                                 )
                                             }
-                                            ExpressiveDropdownMenu(
-                                                expanded = showMoreMenu,
-                                                onDismissRequest = { showMoreMenu = false },
-                                                actions = persistentListOf(
-                                                    DetailHeroMenuAction(
-                                                        label = stringResource(R.string.detail_hero_add_to_queue),
-                                                        icon = Icons.AutoMirrored.Rounded.QueueMusic,
-                                                        onClick = {
-                                                            playerViewModel.addSelectedToQueue(uiState.rankedSongs)
-                                                            playerViewModel.sendToast(toastAddedToQueue)
-                                                        }
-                                                    ),
-                                                    DetailHeroMenuAction(
-                                                        label = stringResource(R.string.detail_hero_play_next),
-                                                        icon = Icons.Rounded.SkipNext,
-                                                        onClick = {
-                                                            playerViewModel.addSelectedAsNext(uiState.rankedSongs)
-                                                            playerViewModel.sendToast(toastPlayingNext)
-                                                        }
-                                                    ),
-                                                    DetailHeroMenuAction(
-                                                        label = stringResource(R.string.detail_hero_add_to_playlist),
-                                                        icon = Icons.AutoMirrored.Rounded.PlaylistAdd,
-                                                        onClick = { showGenrePlaylistSheet = true }
+                                            if (showMoreMenu) {
+                                                GenreDetailOptionsSheet(
+                                                    title = genreDisplayName,
+                                                    subtitle = formatSongCount(uiState.rankedSongs.size),
+                                                    containerColor = genreColorScheme.primaryContainer,
+                                                    onContainerColor = genreColorScheme.onPrimaryContainer,
+                                                    onDismiss = { showMoreMenu = false },
+                                                    actions = persistentListOf(
+                                                        DetailHeroMenuAction(
+                                                            label = stringResource(R.string.detail_hero_add_to_queue),
+                                                            icon = Icons.AutoMirrored.Rounded.QueueMusic,
+                                                            onClick = {
+                                                                playerViewModel.addSelectedToQueue(uiState.rankedSongs)
+                                                                playerViewModel.sendToast(toastAddedToQueue)
+                                                            }
+                                                        ),
+                                                        DetailHeroMenuAction(
+                                                            label = stringResource(R.string.detail_hero_play_next),
+                                                            icon = Icons.Rounded.SkipNext,
+                                                            onClick = {
+                                                                playerViewModel.addSelectedAsNext(uiState.rankedSongs)
+                                                                playerViewModel.sendToast(toastPlayingNext)
+                                                            }
+                                                        ),
+                                                        DetailHeroMenuAction(
+                                                            label = stringResource(R.string.detail_hero_add_to_playlist),
+                                                            icon = Icons.AutoMirrored.Rounded.PlaylistAdd,
+                                                            onClick = { showGenrePlaylistSheet = true }
+                                                        )
                                                     )
                                                 )
-                                            )
+                                            }
                                         }
                                     }
                                 }

@@ -2,6 +2,7 @@
 
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.data.offline.CloudOfflineRepository
+import com.startune.music.presentation.components.MoreMenuListRow
 import com.startune.music.presentation.components.EditMultipleSongsSheet
 import com.startune.music.presentation.components.PlayerSheetAwareBackHandler
 import com.startune.music.presentation.components.SongMultiSelectionHost
@@ -74,7 +75,6 @@ import com.startune.music.data.model.Album
 import com.startune.music.data.model.Song
 import com.startune.music.data.preferences.AlbumArtPaletteStyle
 import com.startune.music.presentation.components.DetailHeroMenuAction
-import com.startune.music.presentation.components.ExpressiveDropdownMenu
 import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.ExpressiveTopBarContent
 import com.startune.music.presentation.components.carouselItemScale
@@ -460,6 +460,7 @@ fun GenreDetailScreen(
                     headerHeight = currentTopBarHeightDp,
                     onBackPressed = { navController.popBackStack() },
                     startColor = startColor,
+                    onContainerColor = themeColor.onContainer,
                     contentColor = contentColor,
                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
                     collapsedContentColor = MaterialTheme.colorScheme.onSurface,
@@ -739,6 +740,7 @@ fun GenreCollapsibleTopBar(
     headerHeight: Dp,
     onBackPressed: () -> Unit,
     startColor: Color,
+    onContainerColor: Color,
     containerColor: Color,
     contentColor: Color,
     collapsedContentColor: Color,
@@ -855,11 +857,16 @@ fun GenreCollapsibleTopBar(
                             tint = animatedContentColor
                         )
                     }
-                    ExpressiveDropdownMenu(
-                        expanded = showMoreMenu,
-                        onDismissRequest = { showMoreMenu = false },
-                        actions = menuActions
-                    )
+                    if (showMoreMenu) {
+                        GenreDetailOptionsSheet(
+                            title = title,
+                            subtitle = subtitle,
+                            containerColor = startColor,
+                            onContainerColor = onContainerColor,
+                            onDismiss = { showMoreMenu = false },
+                            actions = menuActions
+                        )
+                    }
                 }
             }
 
@@ -1148,6 +1155,91 @@ private fun GenreArtistsSection(
                     ArtistGridItem(
                         artist = artist,
                         onClick = { onArtistClick(artist) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * The genre-detail more menu, as a bottom sheet with the same design as the
+ * library list. The detail page already shows Play and Shuffle as buttons,
+ * so this sheet holds only the queue actions (Add to queue, Play next, Add
+ * to playlist) that the page does not offer. The library list keeps Play and
+ * Shuffle in its own sheet. [actions] are rendered as MoreMenuListRow items.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GenreDetailOptionsSheet(
+    title: String,
+    subtitle: String?,
+    containerColor: Color,
+    onContainerColor: Color,
+    onDismiss: () -> Unit,
+    actions: ImmutableList<DetailHeroMenuAction>
+) {
+    val sheetState = rememberModalSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(containerColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.MusicNote,
+                        contentDescription = null,
+                        tint = onContainerColor,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+                Spacer(Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (subtitle != null) {
+                        Text(
+                            text = subtitle,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                actions.forEach { action ->
+                    MoreMenuListRow(
+                        label = action.label,
+                        icon = action.icon,
+                        onClick = {
+                            action.onClick()
+                            onDismiss()
+                        }
                     )
                 }
             }

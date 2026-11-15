@@ -7,13 +7,12 @@ import com.startune.music.presentation.navigation.navigateSafelyReplacing
 import com.startune.music.presentation.components.DetailHeroArtistChip
 import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.DetailHeroFloatingLayer
-import com.startune.music.presentation.components.DetailHeroMenuAction
-import com.startune.music.presentation.components.ExpressiveDropdownMenu
 import com.startune.music.presentation.components.DetailHeroPinnedActionsHeight
 import com.startune.music.presentation.components.DetailSongsSummary
 import com.startune.music.presentation.components.HeroPlayState
 import com.startune.music.presentation.components.MediaDetailHero
 import com.startune.music.presentation.components.rememberDetailHeroDock
+import com.startune.music.presentation.components.MoreMenuListRow
 import com.startune.music.presentation.components.rememberModalSheetState
 import com.startune.music.presentation.components.rememberSongCollectionMenuActions
 import com.startune.music.presentation.components.player.PlayerArtistPickerBottomSheet
@@ -29,6 +28,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.background
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -61,6 +61,7 @@ import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.automirrored.rounded.QueueMusic
 import androidx.compose.material.icons.rounded.SkipNext
+import androidx.compose.material.icons.rounded.Album
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -1101,32 +1102,16 @@ private fun SharedAlbumTopBarProbe(
                                     contentDescription = stringResource(R.string.presentation_batch_b_more_options)
                                 )
                             }
-                            ExpressiveDropdownMenu(
-                                expanded = showMoreMenu,
-                                onDismissRequest = { showMoreMenu = false },
-                                actions = persistentListOf(
-                                    DetailHeroMenuAction(
-                                        label = stringResource(R.string.detail_hero_add_to_queue),
-                                        icon = Icons.AutoMirrored.Rounded.QueueMusic,
-                                        onClick = onAddToQueueClick
-                                    ),
-                                    DetailHeroMenuAction(
-                                        label = stringResource(R.string.detail_hero_play_next),
-                                        icon = Icons.Rounded.SkipNext,
-                                        onClick = onPlayNextClick
-                                    ),
-                                    DetailHeroMenuAction(
-                                        label = stringResource(R.string.detail_hero_add_to_playlist),
-                                        icon = Icons.AutoMirrored.Rounded.PlaylistAdd,
-                                        onClick = onAddToPlaylistClick
-                                    ),
-                                    DetailHeroMenuAction(
-                                        label = stringResource(R.string.player_go_to_artist),
-                                        icon = Icons.Rounded.Person,
-                                        onClick = onGoToArtistClick
-                                    )
+                            if (showMoreMenu) {
+                                AlbumDetailOptionsSheet(
+                                    album = album,
+                                    onDismiss = { showMoreMenu = false },
+                                    onAddToQueueClick = onAddToQueueClick,
+                                    onPlayNextClick = onPlayNextClick,
+                                    onAddToPlaylistClick = onAddToPlaylistClick,
+                                    onGoToArtistClick = onGoToArtistClick
                                 )
-                            )
+                            }
                         }
                     }
                 }
@@ -1325,6 +1310,125 @@ private fun CollapsingAlbumTopBar(
                 ) {
                     Icon(Icons.Rounded.Shuffle, contentDescription = stringResource(R.string.cd_shuffle_play_album))
                 }
+            }
+        }
+    }
+}
+
+/**
+ * The album-detail more menu, as a bottom sheet with the same design as the
+ * library list. The detail page already shows Play and Shuffle as buttons,
+ * so this sheet holds only what the page does not offer: queueing the whole
+ * album (Add to queue, Play next, Add to playlist) and Go to Artist. The
+ * library list keeps Play and Shuffle in its own sheet.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AlbumDetailOptionsSheet(
+    album: Album,
+    onDismiss: () -> Unit,
+    onAddToQueueClick: () -> Unit,
+    onPlayNextClick: () -> Unit,
+    onAddToPlaylistClick: () -> Unit,
+    onGoToArtistClick: () -> Unit
+) {
+    val sheetState = rememberModalSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val imageUrl = album.albumArtUriString
+                if (!imageUrl.isNullOrBlank()) {
+                    SmartImage(
+                        model = imageUrl,
+                        contentDescription = album.title,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Album,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+                Spacer(Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = album.title,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    val artist = album.artist.takeIf { it.isNotBlank() }
+                    val count = formatSongCount(album.songCount)
+                    Text(
+                        text = if (artist != null) "$artist • $count" else count,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                MoreMenuListRow(
+                    label = stringResource(R.string.detail_hero_add_to_queue),
+                    icon = Icons.AutoMirrored.Rounded.QueueMusic,
+                    onClick = {
+                        onAddToQueueClick()
+                        onDismiss()
+                    }
+                )
+                MoreMenuListRow(
+                    label = stringResource(R.string.detail_hero_play_next),
+                    icon = Icons.Rounded.SkipNext,
+                    onClick = {
+                        onPlayNextClick()
+                        onDismiss()
+                    }
+                )
+                MoreMenuListRow(
+                    label = stringResource(R.string.detail_hero_add_to_playlist),
+                    icon = Icons.AutoMirrored.Rounded.PlaylistAdd,
+                    onClick = {
+                        onAddToPlaylistClick()
+                        onDismiss()
+                    }
+                )
+                MoreMenuListRow(
+                    label = stringResource(R.string.player_go_to_artist),
+                    icon = Icons.Rounded.Person,
+                    onClick = {
+                        onGoToArtistClick()
+                        onDismiss()
+                    }
+                )
             }
         }
     }
