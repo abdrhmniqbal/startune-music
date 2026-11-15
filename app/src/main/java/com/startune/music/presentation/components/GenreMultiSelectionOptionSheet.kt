@@ -6,15 +6,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,13 +20,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.automirrored.rounded.QueueMusic
-import androidx.compose.material.icons.rounded.Album
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -50,7 +43,6 @@ import androidx.compose.ui.zIndex
 import com.startune.music.R
 import com.startune.music.data.model.Genre
 import com.startune.music.presentation.components.subcomps.AutoSizingTextToFill
-import com.startune.music.presentation.components.subcomps.TightWrapText
 import com.startune.music.ui.theme.GenreThemeUtils
 import com.startune.music.ui.theme.LocalStartuneDarkTheme
 import com.startune.music.ui.theme.RoundedSans
@@ -121,105 +113,38 @@ fun GenreMultiSelectionOptionSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Min),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                GenreSelectionActionButton(
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                MoreMenuListRow(
+                    label = stringResource(R.string.play_playback),
+                    icon = Icons.Rounded.PlayArrow,
                     onClick = {
                         onPlay()
                         onDismiss()
-                    },
-                    modifier = Modifier
-                        .weight(0.5f)
-                        .fillMaxHeight(),
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    ),
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Rounded.PlayArrow,
-                            contentDescription = stringResource(R.string.cd_play_all)
-                        )
-                    },
-                    text = stringResource(R.string.play_playback)
+                    }
                 )
-
-                GenreSelectionActionButton(
+                MoreMenuListRow(
+                    label = stringResource(R.string.shortcut_playlist_short),
+                    icon = Icons.AutoMirrored.Rounded.PlaylistAdd,
                     onClick = {
                         onAddToPlaylist()
                         onDismiss()
-                    },
-                    modifier = Modifier
-                        .weight(0.5f)
-                        .fillMaxHeight(),
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                    ),
-                    icon = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.PlaylistAdd,
-                            contentDescription = stringResource(R.string.cd_add_to_playlist)
-                        )
-                    },
-                    text = stringResource(R.string.shortcut_playlist_short)
+                    }
                 )
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Min),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                GenreSelectionActionButton(
+                MoreMenuListRow(
+                    label = stringResource(R.string.action_queue_next),
+                    icon = Icons.AutoMirrored.Filled.QueueMusic,
                     onClick = {
                         onPlayNext()
                         onDismiss()
-                    },
-                    modifier = Modifier
-                        .weight(0.4f)
-                        .fillMaxHeight(),
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = MaterialTheme.colorScheme.tertiary,
-                        contentColor = MaterialTheme.colorScheme.onTertiary
-                    ),
-                    icon = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.QueueMusic,
-                            contentDescription = stringResource(R.string.cd_play_next_in_queue)
-                        )
-                    },
-                    text = stringResource(R.string.action_queue_next)
+                    }
                 )
-
-                GenreSelectionActionButton(
+                MoreMenuListRow(
+                    label = stringResource(R.string.action_add_to_queue),
+                    icon = Icons.AutoMirrored.Rounded.QueueMusic,
                     onClick = {
                         onAddToQueue()
                         onDismiss()
-                    },
-                    modifier = Modifier
-                        .weight(0.6f)
-                        .fillMaxHeight(),
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                    ),
-                    icon = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.QueueMusic,
-                            contentDescription = stringResource(R.string.cd_add_all_to_queue)
-                        )
-                    },
-                    text = stringResource(R.string.action_add_to_queue)
+                    }
                 )
             }
 
@@ -229,84 +154,3 @@ fun GenreMultiSelectionOptionSheet(
 }
 
 @Composable
-private fun GenreSelectionActionButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    colors: ButtonColors,
-    icon: @Composable () -> Unit,
-    text: String
-) {
-    FilledTonalButton(
-        onClick = onClick,
-        modifier = modifier.heightIn(min = 66.dp),
-        contentPadding = PaddingValues(horizontal = 10.dp),
-        colors = colors,
-        shape = CircleShape
-    ) {
-        icon()
-        Spacer(modifier = Modifier.width(6.dp))
-        TightWrapText(
-            text = text,
-            modifier = Modifier.padding(end = 4.dp),
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 2,
-            lineHeight = 20.sp,
-        )
-    }
-}
-
-@Composable
-private fun StackedGenrePreviews(
-    genres: ImmutableList<Genre>,
-    modifier: Modifier = Modifier
-) {
-    val imageSize = 64.dp
-    val overlap = 30.dp
-    val borderWidth = 3.dp
-    val borderColor = MaterialTheme.colorScheme.surfaceContainerLow
-
-    val numGenres = genres.size
-    val totalWidth = if (numGenres == 0) 0.dp else imageSize + (imageSize - overlap) * (numGenres - 1)
-
-    Box(
-        modifier = modifier.width(totalWidth),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        genres.forEachIndexed { index, genre ->
-            val offsetX = index * (imageSize.value - overlap.value)
-            val colorScheme = MaterialTheme.colorScheme
-            val rainbowPalette = com.startune.music.ui.theme.LocalRainbowPalette.current
-            val themeColor = remember(genre, colorScheme, rainbowPalette) {
-                GenreThemeUtils.getGenreThemeColor(
-                    genre = genre,
-                    scheme = colorScheme,
-                    fallbackGenreId = genre.id,
-                    storedPalette = rainbowPalette
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .offset { IntOffset(offsetX.dp.roundToPx(), 0) }
-                    .zIndex((numGenres - index).toFloat())
-                    .size(imageSize)
-                    .background(borderColor, CircleShape)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(borderWidth)
-                        .clip(CircleShape)
-                        .background(themeColor.container),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Album,
-                        contentDescription = null,
-                        tint = themeColor.onContainer,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-            }
-        }
-    }
-}

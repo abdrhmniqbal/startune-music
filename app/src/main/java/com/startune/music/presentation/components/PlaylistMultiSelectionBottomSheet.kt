@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,10 +35,8 @@ import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Piano
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Speaker
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -59,7 +56,6 @@ import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import com.startune.music.data.model.Playlist
 import com.startune.music.presentation.components.subcomps.AutoSizingTextToFill
-import com.startune.music.presentation.components.subcomps.TightWrapText
 import com.startune.music.ui.theme.RoundedSans
 import com.startune.music.utils.resolvePlaylistCoverContentColor
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
@@ -163,142 +159,48 @@ fun PlaylistMultiSelectionBottomSheet(
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
                     contentPadding = PaddingValues(bottom = 32.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(IntrinsicSize.Min),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            FilledTonalButton(
-                                modifier = Modifier
-                                    .weight(0.5f)
-                                    .heightIn(min = 66.dp),
-                                colors = ButtonDefaults.filledTonalButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                                    contentColor = MaterialTheme.colorScheme.onErrorContainer
-                                ),
-                                contentPadding = PaddingValues(horizontal = 10.dp),
-                                shape = CircleShape,
-                                onClick = {
-                                    onDeleteAll()
-                                    onDismiss()
-                                }
-                            ) {
-                                Icon(
-                                    Icons.Rounded.Delete,
-                                    contentDescription = stringResource(R.string.cd_delete_all_songs)
-                                )
-                                Spacer(Modifier.width(6.dp))
-                                TightWrapText(
-                                    text = stringResource(R.string.delete_action),
-                                    modifier = Modifier.padding(end = 4.dp),
-                                    overflow = TextOverflow.Ellipsis,
-                                    maxLines = 2,
-                                    lineHeight = 22.sp,
-                                )
+                        MoreMenuListRow(
+                            label = stringResource(R.string.delete_action),
+                            icon = Icons.Rounded.Delete,
+                            destructive = true,
+                            onClick = {
+                                onDeleteAll()
+                                onDismiss()
                             }
-
-                            FilledTonalButton(
-                                modifier = Modifier
-                                    .weight(0.5f)
-                                    .heightIn(min = 66.dp),
-                                colors = ButtonDefaults.filledTonalButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                                ),
-                                contentPadding = PaddingValues(horizontal = 10.dp),
-                                shape = CircleShape,
-                                onClick = {
-                                    onExportAll()
-                                    onDismiss()
-                                }
-                            ) {
-                                Icon(
-                                    Icons.Rounded.FileDownload,
-                                    contentDescription = stringResource(R.string.cd_export_all)
-                                )
-                                Spacer(Modifier.width(6.dp))
-                                TightWrapText(
-                                    text = stringResource(R.string.action_export),
-                                    modifier = Modifier.padding(end = 4.dp),
-                                    overflow = TextOverflow.Ellipsis,
-                                    maxLines = 2,
-                                    lineHeight = 22.sp,
-                                )
-                            }
-                        }
+                        )
                     }
-
                     item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(IntrinsicSize.Min),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            FilledTonalButton(
-                                modifier = Modifier
-                                    .weight(0.5f)
-                                    .heightIn(min = 66.dp),
-                                colors = ButtonDefaults.filledTonalButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                ),
-                                contentPadding = PaddingValues(horizontal = 10.dp),
-                                shape = CircleShape,
-                                onClick = {
-                                    onMergeAll()
-                                    onDismiss()
-                                }
-                            ) {
-                                Icon(
-                                    Icons.Rounded.Merge,
-                                    contentDescription = stringResource(R.string.cd_merge_all)
-                                )
-                                Spacer(Modifier.width(6.dp))
-                                TightWrapText(
-                                    text = stringResource(R.string.action_merge),
-                                    modifier = Modifier.padding(end = 4.dp),
-                                    overflow = TextOverflow.Ellipsis,
-                                    maxLines = 2,
-                                    lineHeight = 22.sp,
-                                )
+                        MoreMenuListRow(
+                            label = stringResource(R.string.action_export),
+                            icon = Icons.Rounded.FileDownload,
+                            onClick = {
+                                onExportAll()
+                                onDismiss()
                             }
-
-                            FilledTonalButton(
-                                modifier = Modifier
-                                    .weight(0.5f)
-                                    .heightIn(min = 66.dp),
-                                colors = ButtonDefaults.filledTonalButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                ),
-                                contentPadding = PaddingValues(horizontal = 10.dp),
-                                shape = CircleShape,
-                                onClick = {
-                                    onShareAll()
-                                    onDismiss()
-                                }
-                            ) {
-                                Icon(
-                                    Icons.Rounded.Share,
-                                    contentDescription = stringResource(R.string.cd_share_all)
-                                )
-                                Spacer(Modifier.width(6.dp))
-                                TightWrapText(
-                                    text = stringResource(R.string.action_share),
-                                    modifier = Modifier.padding(end = 4.dp),
-                                    overflow = TextOverflow.Ellipsis,
-                                    maxLines = 2,
-                                    lineHeight = 22.sp,
-                                )
+                        )
+                    }
+                    item {
+                        MoreMenuListRow(
+                            label = stringResource(R.string.action_merge),
+                            icon = Icons.Rounded.Merge,
+                            onClick = {
+                                onMergeAll()
+                                onDismiss()
                             }
-                        }
+                        )
+                    }
+                    item {
+                        MoreMenuListRow(
+                            label = stringResource(R.string.action_share),
+                            icon = Icons.Rounded.Share,
+                            onClick = {
+                                onShareAll()
+                                onDismiss()
+                            }
+                        )
                     }
                 }
             }
