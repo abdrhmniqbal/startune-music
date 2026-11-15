@@ -47,7 +47,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.LocalContentColor
@@ -831,15 +830,16 @@ private fun ShareableCard(
             .background(cardScheme.surfaceContainer)
     ) {
         // ── Foreground Content Column ───────────────────────────────────
+        // The panel and the watermark are centred as a group: the top
+        // weight spacer used to push them to the bottom of the 9:16 card,
+        // so on the shared story they sat at the bottom of the screen.
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 20.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.Top,
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.weight(1f))
-
             if (!isLyricsMode) {
                 // ── Song Mini Card (solid primaryContainer) ─────────────
                 Card(
@@ -959,9 +959,7 @@ private fun SongMiniCard(
                 lineHeight = 18.sp,
                 color = cardScheme.onPrimaryContainer,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                overflow = TextOverflow.Ellipsis
             )
             // Artist
             Text(
@@ -972,9 +970,7 @@ private fun SongMiniCard(
                 lineHeight = 14.sp,
                 color = cardScheme.onPrimaryContainer.copy(alpha = 0.55f),
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                overflow = TextOverflow.Ellipsis
             )
 
             // Thin Wavy Progress Bar + Timestamps (static 40% position)
@@ -1066,10 +1062,6 @@ private fun LyricsPanel(
         }
 
         Spacer(Modifier.height(10.dp))
-        HorizontalDivider(
-            color = cardScheme.onSurface.copy(alpha = 0.15f),
-            thickness = 1.dp
-        )
         Spacer(Modifier.height(12.dp))
 
         // Lyric lines — dynamic font size shrinks as more lines are selected
@@ -1080,7 +1072,7 @@ private fun LyricsPanel(
                 fontWeight = FontWeight.Medium,
                 fontSize = 13.sp,
                 color = cardScheme.onSurface.copy(alpha = 0.38f),
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Start,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 20.dp)
@@ -1112,7 +1104,7 @@ private fun LyricsPanel(
                         fontSize = fontSize,
                         lineHeight = lineHeight,
                         color = cardScheme.onSurface,
-                        textAlign = TextAlign.Center,
+                        textAlign = TextAlign.Start,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

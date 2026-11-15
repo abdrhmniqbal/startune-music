@@ -310,7 +310,7 @@ fun SettingsScreen(
                                 title = stringResource(entry.titleRes),
                                 subtitle = stringResource(entry.subtitleRes),
                                 icon = entry.icon,
-                                colors = MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer,
+                                colors = MaterialTheme.colorScheme.secondaryContainer to MaterialTheme.colorScheme.onSecondaryContainer,
                                 onClick = { navController.navigateSafely(entry.route) },
                                 shape = shape
                             )
@@ -534,20 +534,20 @@ fun ExpressiveCategoryItem(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
-                    .background(customColors?.first ?: MaterialTheme.colorScheme.primaryContainer)
+                    .background(customColors?.first ?: MaterialTheme.colorScheme.secondaryContainer)
             ) {
                 if (category.icon != null) {
                     Icon(
                         imageVector = category.icon,
                         contentDescription = null,
-                        tint = customColors?.second ?: MaterialTheme.colorScheme.onPrimaryContainer,
+                        tint = customColors?.second ?: MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier.size(24.dp)
                     )
                 } else if (category.iconRes != null) {
                     Icon(
                         painter = painterResource(id = category.iconRes),
                         contentDescription = null,
-                        tint = customColors?.second ?: MaterialTheme.colorScheme.onPrimaryContainer,
+                        tint = customColors?.second ?: MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier.size(24.dp)
                     )
                 }

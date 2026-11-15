@@ -699,13 +699,13 @@ private fun AboutLinkCard(
         ) {
             Surface(
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer,
+                color = MaterialTheme.colorScheme.secondaryContainer,
             ) {
                 if (link.iconVector != null) {
                     Icon(
                         imageVector = link.iconVector,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier
                             .padding(10.dp)
                             .size(24.dp),
@@ -714,7 +714,7 @@ private fun AboutLinkCard(
                     Icon(
                         painter = painterResource(link.iconRes),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier
                             .padding(10.dp)
                             .size(24.dp),
