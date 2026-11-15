@@ -82,6 +82,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -190,6 +191,14 @@ fun ShareBottomSheet(
     // The card is always the dark album scheme; the app theme is the fallback
     // when the album has no extracted colors yet.
     val cardScheme = albumColorSchemeState?.dark ?: MaterialTheme.colorScheme
+    // The card background is the album color itself, not a neutral: the
+    // player background is the scheme's primaryContainer at full strength,
+    // and the card used surfaceContainer, a dark neutral that read
+    // black/greyish beside it. A deep tint of the primaryContainer (40%
+    // toward the scheme surface) keeps the panel, a full primaryContainer
+    // slab, standing out as the lighter element while the card reads as
+    // the album color.
+    val cardBackground = lerp(cardScheme.primaryContainer, cardScheme.surface, 0.4f)
 
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
@@ -243,7 +252,7 @@ fun ShareBottomSheet(
         isCapturing = true
         scope.launch {
             try {
-                val bitmap = captureStoryBitmap(cardLayer, cardScheme.surfaceContainer)
+                val bitmap = captureStoryBitmap(cardLayer, cardBackground)
                 action(bitmap)
             } catch (e: Exception) {
                 Toast.makeText(
@@ -394,6 +403,7 @@ fun ShareBottomSheet(
                             isLyricsMode = mode == 1,
                             selectedLyrics = lyricsList,
                             cardScheme = cardScheme,
+                            cardBackground = cardBackground,
                             cardShape = cardShape
                         )
                     }
@@ -455,7 +465,7 @@ fun ShareBottomSheet(
                                             context = context,
                                             imageUri = uri,
                                             topColorHex = cardScheme.primaryContainer.toInstagramHex(),
-                                            bottomColorHex = cardScheme.surfaceContainer.toInstagramHex()
+                                            bottomColorHex = cardBackground.toInstagramHex()
                                         )
                                     }
                                 }
@@ -813,6 +823,7 @@ private fun ShareableCard(
     isLyricsMode: Boolean,
     selectedLyrics: List<String>,
     cardScheme: ColorScheme,
+    cardBackground: Color,
     cardShape: Shape
 ) {
     val cardRatio = 9f / 16f
@@ -822,12 +833,11 @@ private fun ShareableCard(
             .aspectRatio(cardRatio)
             .shadow(elevation = 16.dp, shape = cardShape, clip = true)
             .clip(cardShape)
-            // surfaceContainer, not surfaceContainerLowest: the lowest role is
-            // (near-)black in dark album schemes, so the story background
-            // would come out black. The container step is still darker than
-            // the primaryContainer panels, and the surfaceContainerHigh
-            // watermark pill stays visible on it.
-            .background(cardScheme.surfaceContainer)
+            // The deep tint of the album primaryContainer (see cardBackground
+            // above), not surfaceContainer: the neutral read black/greyish
+            // beside the player background. The full-primaryContainer panel
+            // and the surfaceContainerHigh watermark pill stay visible on it.
+            .background(cardBackground)
     ) {
         // ── Foreground Content Column ───────────────────────────────────
         // The panel and the watermark are centred as a group: the top
