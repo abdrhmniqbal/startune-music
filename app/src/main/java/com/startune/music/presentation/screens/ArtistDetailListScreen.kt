@@ -780,11 +780,12 @@ fun ArtistDetailListScreen(
                     )
                 }
 
-                if (showArtworkSheet) {
+                if (showArtworkSheet && uiState.artist != null) {
+                    val sheetArtist = uiState.artist!!
                     ArtistArtworkSheet(
-                        artistName = artist.name,
-                        currentArtworkUrl = artist.effectiveImageUrl,
-                        hasCustomImage = !artist.customImageUri.isNullOrBlank(),
+                        artistName = sheetArtist.name,
+                        currentArtworkUrl = sheetArtist.effectiveImageUrl,
+                        hasCustomImage = !sheetArtist.customImageUri.isNullOrBlank(),
                         viewModel = viewModel,
                         onDismiss = { showArtworkSheet = false },
                         onPickCustomPhoto = { imagePickerLauncher.launch("image/*") }
