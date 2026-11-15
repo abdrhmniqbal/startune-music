@@ -774,7 +774,14 @@ fun FullPlayerContent(
                             Box(
                                 modifier = Modifier
                                     .size(42.dp)
-                                    .clip(RoundedCornerShape(14.dp))
+                                    .clip(
+                                        RoundedCornerShape(
+                                            topStart = 50.dp,
+                                            topEnd = 6.dp,
+                                            bottomStart = 50.dp,
+                                            bottomEnd = 6.dp
+                                        )
+                                    )
                                     .background(playerOnAccentColor.copy(alpha = 0.7f))
                                     .clickable { showCastSheet = true },
                                 contentAlignment = Alignment.Center
@@ -793,7 +800,7 @@ fun FullPlayerContent(
                             Box(
                                 modifier = Modifier
                                     .size(42.dp)
-                                    .clip(RoundedCornerShape(14.dp))
+                                    .clip(RoundedCornerShape(6.dp))
                                     .background(playerOnAccentColor.copy(alpha = 0.7f))
                                     .clickable { showSaveBookmarkDialog = true },
                                 contentAlignment = Alignment.Center
@@ -807,7 +814,14 @@ fun FullPlayerContent(
                             Box(
                                 modifier = Modifier
                                     .size(42.dp)
-                                    .clip(RoundedCornerShape(14.dp))
+                                    .clip(
+                                        RoundedCornerShape(
+                                            topStart = 6.dp,
+                                            topEnd = 50.dp,
+                                            bottomStart = 6.dp,
+                                            bottomEnd = 50.dp
+                                        )
+                                    )
                                     .background(playerOnAccentColor.copy(alpha = 0.7f))
                                     .clickable {
                                         onShowQueueClicked()
