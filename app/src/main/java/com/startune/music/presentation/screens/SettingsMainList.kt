@@ -46,17 +46,12 @@ internal val SettingsCategory.iconTone: SettingsIconTone
 /** A row of the main Settings list. */
 internal sealed interface MainSettingsEntry {
     val iconTone: SettingsIconTone
-    /** Index into the theme-derived rainbow palette (ui.theme.rainbowColor). */
-    val rainbowIndex: Int
     val route: String
 
     /** A row drawn from the category's own title, subtitle and icon. */
     data class Category(val category: SettingsCategory) : MainSettingsEntry {
         override val iconTone: SettingsIconTone
             get() = category.iconTone
-
-        override val rainbowIndex: Int
-            get() = category.ordinal
 
         override val route: String
             get() = when (category) {
@@ -72,7 +67,6 @@ internal sealed interface MainSettingsEntry {
         @StringRes val subtitleRes: Int,
         val icon: ImageVector,
         override val iconTone: SettingsIconTone,
-        override val rainbowIndex: Int,
         override val route: String
     ) : MainSettingsEntry {
         ACCOUNTS(
@@ -80,7 +74,6 @@ internal sealed interface MainSettingsEntry {
             subtitleRes = R.string.settings_accounts_row_subtitle,
             icon = Icons.Rounded.AccountCircle,
             iconTone = SettingsIconTone.PRIMARY,
-            rainbowIndex = SettingsCategory.entries.size,
             route = Screen.Accounts.createRoute()
         )
     }

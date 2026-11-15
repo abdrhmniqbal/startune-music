@@ -296,17 +296,13 @@ fun SettingsScreen(
             }
 
             item {
-                val colorScheme = MaterialTheme.colorScheme
                 ExpressiveSettingsGroup {
                     mainSettingsEntries.forEachIndexed { index, entry ->
                         val shape = settingsGroupItemShape(index, mainSettingsEntries.size)
-                        val rainbow = com.startune.music.ui.theme.activeRainbowColor(entry.rainbowIndex)
-                        val colors = rainbow.container to rainbow.onContainer
 
                         when (entry) {
                             is MainSettingsEntry.Category -> ExpressiveCategoryItem(
                                 category = entry.category,
-                                customColors = colors,
                                 onClick = { navController.navigateSafely(entry.route) },
                                 shape = shape
                             )
@@ -314,7 +310,7 @@ fun SettingsScreen(
                                 title = stringResource(entry.titleRes),
                                 subtitle = stringResource(entry.subtitleRes),
                                 icon = entry.icon,
-                                colors = colors,
+                                colors = MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer,
                                 onClick = { navController.navigateSafely(entry.route) },
                                 shape = shape
                             )
@@ -481,7 +477,7 @@ fun ExpressiveNavigationItem(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(56.dp)
+                    .size(44.dp)
                     .clip(CircleShape)
                     .background(colors.first)
             ) {
@@ -536,7 +532,7 @@ fun ExpressiveCategoryItem(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(56.dp)
+                    .size(44.dp)
                     .clip(CircleShape)
                     .background(customColors?.first ?: MaterialTheme.colorScheme.primaryContainer)
             ) {

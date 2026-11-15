@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Settings no longer uses the rainbow for its main-list icons. Every category and destination row now uses the same icon style as the About page's link rows: a primaryContainer circle with an onPrimaryContainer icon, 44dp (24dp icon with 10dp padding) instead of the 56dp rainbow circle with a black icon. The rainbow palette itself is untouched (genre cards, genre detail, and the theme editor still use it); only the Settings main list drops it. The now-unused rainbowIndex on the settings entries is removed. The nested settings rows were already a different style (a bare secondary icon, no circle) and are unchanged.
+
 
 ### Fixed
 - Now Playing text was black on the dark player background for some songs: the title, artist, times, progress bar and the "Now Playing" header were drawn in onPrimaryContainer, the on-color of a possibly light container, while the text sits on the dark player background. They now use onBackground, the role meant for text on the background, so they stay readable in both dark and light schemes. The mini player had the same problem and is fixed the same way: its title, artist and connecting indicator now use onBackground too. The theme itself and the rainbow are untouched.
