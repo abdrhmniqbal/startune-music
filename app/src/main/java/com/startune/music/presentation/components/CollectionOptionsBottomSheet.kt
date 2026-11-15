@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.automirrored.rounded.PlaylistPlay
 import androidx.compose.material.icons.automirrored.rounded.QueueMusic
+import androidx.compose.material.icons.rounded.AddAPhoto
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.MoreVert
@@ -32,6 +33,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,6 +60,8 @@ import com.startune.music.data.model.MusicFolder
 import com.startune.music.data.model.Song
 import com.startune.music.data.model.isMix
 import com.startune.music.presentation.screens.RenamePlaylistDialog
+import com.startune.music.presentation.screens.ArtistArtworkSheet
+import com.startune.music.presentation.viewmodel.ArtistArtworkViewModel
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.PlaylistViewModel
 import com.startune.music.utils.formatSongCount
@@ -96,6 +101,13 @@ fun CollectionOptionsBottomSheet(
     var showPlaylistBottomSheet by remember(target) { mutableStateOf(false) }
     var showRenameDialog by remember(target) { mutableStateOf(false) }
     var showDeleteDialog by remember(target) { mutableStateOf(false) }
+    var showArtworkSheet by remember(target) { mutableStateOf(false) }
+    val artworkViewModel: ArtistArtworkViewModel = hiltViewModel()
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) artworkViewModel.setCustomImage(uri)
+    }
 
     val addedToQueueMessage = stringResource(R.string.toast_added_to_queue)
     val playingNextMessage = stringResource(R.string.toast_playing_next)
@@ -190,6 +202,29 @@ fun CollectionOptionsBottomSheet(
                     onClick = { showPlaylistBottomSheet = true }
                 )
 
+                if (target is ItemOptionsTarget.Artist) {
+                    val artist = target.artist
+                    MoreMenuListRow(
+                        label = stringResource(R.string.presentation_batch_d_change_photo),
+                        icon = Icons.Rounded.AddAPhoto,
+                        onClick = {
+                            artworkViewModel.bind(artist)
+                            showArtworkSheet = true
+                        }
+                    )
+                    if (!artist.customImageUri.isNullOrBlank()) {
+                        MoreMenuListRow(
+                            label = stringResource(R.string.presentation_batch_d_reset_to_default),
+                            icon = Icons.Rounded.Delete,
+                            onClick = {
+                                artworkViewModel.bind(artist)
+                                artworkViewModel.clearCustomImage()
+                                onDismiss()
+                            }
+                        )
+                    }
+                }
+
                 if (target is ItemOptionsTarget.Playlist) {
                     val playlist = target.playlist
                     val isEditable = !playlist.isMix &&
@@ -221,6 +256,18 @@ fun CollectionOptionsBottomSheet(
                 }
             }
         }
+    }
+
+    if (showArtworkSheet && target is ItemOptionsTarget.Artist) {
+        val artist = target.artist
+        ArtistArtworkSheet(
+            artistName = artist.name,
+            currentArtworkUrl = artist.effectiveImageUrl,
+            hasCustomImage = !artist.customImageUri.isNullOrBlank(),
+            viewModel = artworkViewModel,
+            onDismiss = { showArtworkSheet = false },
+            onPickCustomPhoto = { imagePickerLauncher.launch("image/*") }
+        )
     }
 
     if (showPlaylistBottomSheet && hasSongs) {

@@ -7,12 +7,16 @@ import com.startune.music.presentation.navigation.navigateSafelyReplacing
 import com.startune.music.presentation.components.DetailHeroArtistChip
 import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.DetailHeroFloatingLayer
+import com.startune.music.presentation.components.DetailHeroMenuAction
+import com.startune.music.presentation.components.ExpressiveDropdownMenu
 import com.startune.music.presentation.components.DetailHeroPinnedActionsHeight
 import com.startune.music.presentation.components.DetailSongsSummary
 import com.startune.music.presentation.components.HeroPlayState
 import com.startune.music.presentation.components.MediaDetailHero
 import com.startune.music.presentation.components.rememberDetailHeroDock
+import com.startune.music.presentation.components.rememberModalSheetState
 import com.startune.music.presentation.components.rememberSongCollectionMenuActions
+import com.startune.music.presentation.components.player.PlayerArtistPickerBottomSheet
 import com.startune.music.presentation.screens.search.components.GenreTypography
 import com.startune.music.presentation.utils.getSegmentedItemShape
 
@@ -53,6 +57,8 @@ import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.CloudDone
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -115,6 +121,8 @@ import coil.compose.AsyncImagePainter
 import coil.size.Size
 import com.startune.music.R
 import com.startune.music.data.model.Album
+import com.startune.music.data.model.Artist
+import com.startune.music.data.model.Song
 import com.startune.music.data.model.SortOption
 import com.startune.music.data.offline.CloudOfflineRepository
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
@@ -140,6 +148,7 @@ import com.startune.music.utils.shapes.RoundedStarShape
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.ui.res.stringResource
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
@@ -262,6 +271,8 @@ fun AlbumDetailScreen(
                 }
                 var sortOption by remember { mutableStateOf<SortOption>(SortOption.SongDefaultOrder) }
                 var showSortSheet by remember { mutableStateOf(false) }
+                var showArtistPicker by remember { mutableStateOf(false) }
+                val artistPickerSheetState = rememberModalSheetState(skipPartiallyExpanded = true)
                 val isDefaultOrder = sortOption == SortOption.SongDefaultOrder
                 val displaySongs = remember(songs, sortOption) {
                     when (sortOption) {
@@ -273,6 +284,17 @@ fun AlbumDetailScreen(
                 val albumArtist = remember(songs, allArtists) {
                     val artistId = songs.firstOrNull()?.artistId
                     allArtists.firstOrNull { it.id == artistId }
+                }
+                // Distinct artists across the album's songs, for Go to Artist.
+                // A song with no split-artist data falls back to its primary
+                // artist, so a collab album still yields both names.
+                val albumArtists = remember(songs, allArtists, albumArtist) {
+                    val refs = songs.flatMap { song ->
+                        if (song.artists.isNotEmpty()) song.artists else listOf(song.primaryArtist)
+                    }.distinctBy { it.id }
+                    val matched = refs.mapNotNull { ref -> allArtists.firstOrNull { it.id == ref.id } }
+                    if (matched.isNotEmpty()) matched.toImmutableList()
+                    else listOfNotNull(albumArtist).toImmutableList()
                 }
                 // The genre most tracks share, split so "House; Electronic" counts as both.
                 val albumGenre = remember(songs) {
@@ -696,7 +718,20 @@ fun AlbumDetailScreen(
                                 if (allCloudSongsDownloaded) viewModel.removeAlbumDownloads(cloudSongs)
                                 else viewModel.downloadAlbum(cloudSongs)
                             },
-                            onSortClick = { showSortSheet = true }
+                            onSortClick = { showSortSheet = true },
+                            albumArtists = albumArtists,
+                            onGoToArtistClick = {
+                                if (albumArtists.size > 1) {
+                                    showArtistPicker = true
+                                } else {
+                                    albumArtists.firstOrNull()?.let { artist ->
+                                        navController.navigateSafelyReplacing(
+                                            route = Screen.ArtistDetail.createRoute(artist.id),
+                                            patternToPop = Screen.ArtistDetail.route
+                                        )
+                                    }
+                                }
+                            }
                         )
                     } else {
                         CollapsingAlbumTopBar(
@@ -746,6 +781,22 @@ fun AlbumDetailScreen(
                         onDismiss = { showAlbumPlaylistSheet = false },
                         bottomBarHeight = bottomBarHeightDp,
                         playerViewModel = playerViewModel
+                    )
+                }
+
+                if (showArtistPicker && albumArtists.isNotEmpty()) {
+                    PlayerArtistPickerBottomSheet(
+                        song = songs.firstOrNull() ?: Song.emptySong(),
+                        artists = albumArtists,
+                        sheetState = artistPickerSheetState,
+                        onDismiss = { showArtistPicker = false },
+                        onArtistClick = { artist ->
+                            showArtistPicker = false
+                            navController.navigateSafelyReplacing(
+                                route = Screen.ArtistDetail.createRoute(artist.id),
+                                patternToPop = Screen.ArtistDetail.route
+                            )
+                        }
                     )
                 }
             }
@@ -920,8 +971,11 @@ private fun SharedAlbumTopBarProbe(
     showDownloadAction: Boolean,
     allDownloaded: Boolean,
     onDownloadClick: () -> Unit,
-    onSortClick: () -> Unit
+    onSortClick: () -> Unit,
+    albumArtists: ImmutableList<Artist>,
+    onGoToArtistClick: () -> Unit
 ) {
+    var showMoreMenu by remember { mutableStateOf(false) }
     val surfaceColor = MaterialTheme.colorScheme.surface
     val statusBarColor =
         if (LocalStartuneDarkTheme.current) Color.Black.copy(alpha = 0.6f)
@@ -951,7 +1005,14 @@ private fun SharedAlbumTopBarProbe(
                 .align(Alignment.TopCenter)
         )
 
-        val titleEndPadding = if (showDownloadAction) 88.dp else 24.dp
+        // Sort 48 + 12 end + 8 gap = 68; each extra chip (download, more)
+        // adds 48 + 8. The bar's own title must end before the actions row.
+        val titleEndPadding = when {
+            showDownloadAction && albumArtists.isNotEmpty() -> 180.dp
+            showDownloadAction -> 124.dp
+            albumArtists.isNotEmpty() -> 124.dp
+            else -> 68.dp
+        }
         CollapsibleCommonTopBar(
             title = album.title,
             subtitle = "${album.artist} • ${formatSongCount(songsCount)}",
@@ -984,8 +1045,18 @@ private fun SharedAlbumTopBarProbe(
             fadeSubtitleOnCollapse = false,
             syncStatusBarWithContainer = false,
             actions = {
-                if (showDownloadAction) {
-                    Box(modifier = Modifier.padding(end = 12.dp, top = 4.dp)) {
+                Row(
+                    modifier = Modifier.padding(end = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    IconButton(onClick = onSortClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.Sort,
+                            contentDescription = stringResource(R.string.presentation_batch_d_sort_by)
+                        )
+                    }
+                    if (showDownloadAction) {
                         FilledIconButton(
                             onClick = onDownloadClick,
                             colors = IconButtonDefaults.filledIconButtonColors(
@@ -1000,25 +1071,35 @@ private fun SharedAlbumTopBarProbe(
                             )
                         }
                     }
+                    if (albumArtists.isNotEmpty()) {
+                        Box {
+                            FilledIconButton(
+                                onClick = { showMoreMenu = true },
+                                colors = IconButtonDefaults.filledIconButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.MoreVert,
+                                    contentDescription = stringResource(R.string.presentation_batch_b_more_options)
+                                )
+                            }
+                            ExpressiveDropdownMenu(
+                                expanded = showMoreMenu,
+                                onDismissRequest = { showMoreMenu = false },
+                                actions = persistentListOf(
+                                    DetailHeroMenuAction(
+                                        label = stringResource(R.string.player_go_to_artist),
+                                        icon = Icons.Rounded.Person,
+                                        onClick = onGoToArtistClick
+                                    )
+                                )
+                            )
+                        }
+                    }
                 }
             }
         )
-
-        Row(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .statusBarsPadding()
-                .padding(end = 12.dp, top = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onSortClick) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.Sort,
-                    contentDescription = stringResource(R.string.presentation_batch_d_sort_by)
-                )
-            }
-        }
     }
 }
 

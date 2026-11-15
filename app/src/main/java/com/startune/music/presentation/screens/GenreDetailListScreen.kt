@@ -32,12 +32,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.automirrored.rounded.ViewList
 import androidx.compose.material.icons.rounded.GridView
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LargeExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -80,6 +83,8 @@ import com.startune.music.data.model.Artist
 import com.startune.music.data.model.Song
 import com.startune.music.data.model.SortOption
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.DetailHeroMenuAction
+import com.startune.music.presentation.components.ExpressiveDropdownMenu
 import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.LibrarySortBottomSheet
@@ -152,6 +157,8 @@ fun GenreDetailListScreen(
     val context = LocalContext.current
     var showSongOptionsSheet by remember { mutableStateOf<Song?>(null) }
     var showPlaylistBottomSheet by remember { mutableStateOf(false) }
+    var showMoreMenu by remember { mutableStateOf(false) }
+    var showGenrePlaylistSheet by remember { mutableStateOf(false) }
     val toastAddedToQueue = stringResource(R.string.toast_added_to_queue)
     val toastPlayingNext = stringResource(R.string.toast_playing_next)
 
@@ -749,15 +756,15 @@ fun GenreDetailListScreen(
                             collapseFraction = collapseFraction,
                             headerHeight = currentTopBarHeightDp,
                             onBackClick = { navController.popBackStack() },
-                            expandedTitleEndPadding = 136.dp,
-                            collapsedTitleEndPadding = 136.dp,
+                            expandedTitleEndPadding = if (view != GenreDetailView.Songs) 180.dp else 68.dp,
+                            collapsedTitleEndPadding = if (view != GenreDetailView.Songs) 180.dp else 68.dp,
                             actions = {
-                                if (view != GenreDetailView.Songs) {
-                                    Row(
-                                        modifier = Modifier.padding(end = 12.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
+                                Row(
+                                    modifier = Modifier.padding(end = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    if (view != GenreDetailView.Songs) {
                                         IconButton(
                                             onClick = { showAsGrid = !showAsGrid }
                                         ) {
@@ -777,6 +784,48 @@ fun GenreDetailListScreen(
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Rounded.Sort,
                                                 contentDescription = stringResource(R.string.presentation_batch_d_sort_by)
+                                            )
+                                        }
+                                    }
+                                    if (uiState.rankedSongs.isNotEmpty()) {
+                                        Box {
+                                            FilledIconButton(
+                                                onClick = { showMoreMenu = true },
+                                                colors = IconButtonDefaults.filledIconButtonColors(
+                                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                                                )
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Rounded.MoreVert,
+                                                    contentDescription = stringResource(R.string.presentation_batch_b_more_options)
+                                                )
+                                            }
+                                            ExpressiveDropdownMenu(
+                                                expanded = showMoreMenu,
+                                                onDismissRequest = { showMoreMenu = false },
+                                                actions = persistentListOf(
+                                                    DetailHeroMenuAction(
+                                                        label = stringResource(R.string.detail_hero_add_to_queue),
+                                                        icon = Icons.AutoMirrored.Rounded.QueueMusic,
+                                                        onClick = {
+                                                            playerViewModel.addSelectedToQueue(uiState.rankedSongs)
+                                                            playerViewModel.sendToast(toastAddedToQueue)
+                                                        }
+                                                    ),
+                                                    DetailHeroMenuAction(
+                                                        label = stringResource(R.string.detail_hero_play_next),
+                                                        icon = Icons.Rounded.SkipNext,
+                                                        onClick = {
+                                                            playerViewModel.addSelectedAsNext(uiState.rankedSongs)
+                                                            playerViewModel.sendToast(toastPlayingNext)
+                                                        }
+                                                    ),
+                                                    DetailHeroMenuAction(
+                                                        label = stringResource(R.string.detail_hero_add_to_playlist),
+                                                        icon = Icons.AutoMirrored.Rounded.PlaylistAdd,
+                                                        onClick = { showGenrePlaylistSheet = true }
+                                                    )
+                                                )
                                             )
                                         }
                                     }
@@ -959,6 +1008,16 @@ fun GenreDetailListScreen(
                     playerViewModel = playerViewModel
                 )
             }
+        }
+
+        if (showGenrePlaylistSheet && uiState.rankedSongs.isNotEmpty()) {
+            PlaylistBottomSheet(
+                playlistUiState = playlistUiState,
+                songs = remember(uiState.rankedSongs) { uiState.rankedSongs.toImmutableList() },
+                onDismiss = { showGenrePlaylistSheet = false },
+                bottomBarHeight = 0.dp,
+                playerViewModel = playerViewModel
+            )
         }
 
         SongMultiSelectionHost(

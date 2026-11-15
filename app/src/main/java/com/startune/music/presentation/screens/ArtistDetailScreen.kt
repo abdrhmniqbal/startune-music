@@ -49,7 +49,7 @@ import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.rounded.AddAPhoto
 import androidx.compose.material.icons.rounded.Album
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.MusicNote
@@ -917,7 +917,7 @@ private fun SharedArtistTopBarProbe(
     onChangeImage: () -> Unit,
     onClearCustomImage: () -> Unit
 ) {
-    var showImageMenu by remember { mutableStateOf(false) }
+    var showMoreMenu by remember { mutableStateOf(false) }
     val surfaceColor = MaterialTheme.colorScheme.surface
     val statusBarColor =
         if (LocalStartuneDarkTheme.current) Color.Black.copy(alpha = 0.6f)
@@ -983,20 +983,20 @@ private fun SharedArtistTopBarProbe(
                     modifier = Modifier.padding(end = 12.dp, top = 4.dp)
                 ) {
                     FilledIconButton(
-                        onClick = { showImageMenu = true },
+                        onClick = { showMoreMenu = true },
                         colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                         )
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Edit,
-                            contentDescription = stringResource(R.string.presentation_batch_d_edit_artist_image_cd)
+                            imageVector = Icons.Rounded.MoreVert,
+                            contentDescription = stringResource(R.string.presentation_batch_b_more_options)
                         )
                     }
 
                     ExpressiveDropdownMenu(
-                        expanded = showImageMenu,
-                        onDismissRequest = { showImageMenu = false },
+                        expanded = showMoreMenu,
+                        onDismissRequest = { showMoreMenu = false },
                         actions = artistImageMenuActions(
                             hasCustomImage = hasCustomImage,
                             onChangeImage = onChangeImage,
@@ -1024,7 +1024,7 @@ private fun CustomCollapsingTopBar(
     onChangeImage: () -> Unit,
     onClearCustomImage: () -> Unit
 ) {
-    var showImageMenu by remember { mutableStateOf(false) }
+    var showMoreMenu by remember { mutableStateOf(false) }
     val surfaceColor = MaterialTheme.colorScheme.surface
     val statusBarColor = if (LocalStartuneDarkTheme.current) Color.Black.copy(alpha = 0.6f) else Color.White.copy(alpha = 0.4f)
 
@@ -1136,15 +1136,15 @@ private fun CustomCollapsingTopBar(
                             .graphicsLayer { alpha = 1f - (collapseFraction * 4).coerceAtMost(1f) }
                     ) {
                         SmallFloatingActionButton(
-                            onClick = { showImageMenu = true },
+                            onClick = { showMoreMenu = true },
                             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                             contentColor = MaterialTheme.colorScheme.onSurface
                         ) {
-                            Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.presentation_batch_d_edit_artist_image_cd))
+                            Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.presentation_batch_b_more_options))
                         }
                         ExpressiveDropdownMenu(
-                            expanded = showImageMenu,
-                            onDismissRequest = { showImageMenu = false },
+                            expanded = showMoreMenu,
+                            onDismissRequest = { showMoreMenu = false },
                             actions = artistImageMenuActions(
                                 hasCustomImage = hasCustomImage,
                                 onChangeImage = onChangeImage,

@@ -68,7 +68,7 @@ class ArtistDetailViewModel @Inject constructor(
     private val playbackStatsRepository: PlaybackStatsRepository,
     val themeStateHolder: ThemeStateHolder,
     savedStateHandle: SavedStateHandle
-) : ViewModel() {
+) : ViewModel(), ArtistArtworkController {
 
     private val _uiState = MutableStateFlow(ArtistDetailUiState())
     val uiState: StateFlow<ArtistDetailUiState> = _uiState.asStateFlow()
@@ -245,20 +245,20 @@ class ArtistDetailViewModel @Inject constructor(
     }
 
     private val _artworkSearchQuery = MutableStateFlow("")
-    val artworkSearchQuery: StateFlow<String> = _artworkSearchQuery.asStateFlow()
+    override val artworkSearchQuery: StateFlow<String> = _artworkSearchQuery.asStateFlow()
 
     private val _artworkCandidates = MutableStateFlow<List<DeezerArtistCandidate>>(emptyList())
-    val artworkCandidates: StateFlow<List<DeezerArtistCandidate>> = _artworkCandidates.asStateFlow()
+    override val artworkCandidates: StateFlow<List<DeezerArtistCandidate>> = _artworkCandidates.asStateFlow()
 
     private val _isSearchingArtwork = MutableStateFlow(false)
-    val isSearchingArtwork: StateFlow<Boolean> = _isSearchingArtwork.asStateFlow()
+    override val isSearchingArtwork: StateFlow<Boolean> = _isSearchingArtwork.asStateFlow()
 
     private var artworkSearchJob: Job? = null
 
     /**
      * Open the artwork picker: search Deezer right away for the artist name.
      */
-    fun openArtworkSearch(artistName: String) {
+    override fun openArtworkSearch(artistName: String) {
         _artworkSearchQuery.value = artistName
         artworkSearchJob?.cancel()
         searchArtworkNow(artistName)
@@ -268,7 +268,7 @@ class ArtistDetailViewModel @Inject constructor(
      * Update the picker search query; the search runs 350 ms after the last
      * keystroke, like old Startune's debounced sheet search.
      */
-    fun setArtworkSearchQuery(query: String) {
+    override fun setArtworkSearchQuery(query: String) {
         _artworkSearchQuery.value = query
         artworkSearchJob?.cancel()
         if (query.isBlank()) {
@@ -282,7 +282,7 @@ class ArtistDetailViewModel @Inject constructor(
         }
     }
 
-    fun closeArtworkSearch() {
+    override fun closeArtworkSearch() {
         artworkSearchJob?.cancel()
         artworkSearchJob = null
     }
@@ -314,7 +314,7 @@ class ArtistDetailViewModel @Inject constructor(
      * downloaded and stored as the custom image, so it sticks until Reset to
      * default. Returns false when the download or save failed.
      */
-    suspend fun applyDeezerArtwork(pictureUrl: String): Boolean {
+    override suspend fun applyDeezerArtwork(pictureUrl: String): Boolean {
         val artistId = _uiState.value.artist?.id ?: return false
         return try {
             val internalPath = artistImageRepository.setCustomArtistImageFromUrl(context, artistId, pictureUrl)
@@ -354,7 +354,7 @@ class ArtistDetailViewModel @Inject constructor(
         }
     }
 
-    fun setCustomImage(sourceUri: Uri) {
+    override fun setCustomImage(sourceUri: Uri) {
         val artistId = _uiState.value.artist?.id ?: return
         viewModelScope.launch {
             try {
@@ -371,7 +371,7 @@ class ArtistDetailViewModel @Inject constructor(
     /**
      * Called when the user wants to revert to the Deezer-sourced image.
      */
-    fun clearCustomImage() {
+    override fun clearCustomImage() {
         val artist = _uiState.value.artist ?: return
         viewModelScope.launch {
             try {

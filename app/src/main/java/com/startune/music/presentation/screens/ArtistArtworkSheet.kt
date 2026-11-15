@@ -62,7 +62,7 @@ import com.startune.music.R
 import com.startune.music.data.network.deezer.DeezerArtistCandidate
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SmartImageListTargetSize
-import com.startune.music.presentation.viewmodel.ArtistDetailViewModel
+import com.startune.music.presentation.viewmodel.ArtistArtworkController
 import com.startune.music.ui.theme.RoundedSans
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -79,7 +79,7 @@ fun ArtistArtworkSheet(
     artistName: String,
     currentArtworkUrl: String?,
     hasCustomImage: Boolean,
-    viewModel: ArtistDetailViewModel,
+    viewModel: ArtistArtworkController,
     onDismiss: () -> Unit,
     onPickCustomPhoto: () -> Unit
 ) {

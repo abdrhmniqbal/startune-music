@@ -31,12 +31,17 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.automirrored.rounded.ViewList
+import androidx.compose.material.icons.rounded.AddAPhoto
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.GridView
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,6 +50,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -71,6 +78,8 @@ import com.startune.music.presentation.viewmodel.ArtistAlbumSection
 import com.startune.music.data.model.Album
 import com.startune.music.data.model.SortOption
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
+import com.startune.music.presentation.components.DetailHeroMenuAction
+import com.startune.music.presentation.components.ExpressiveDropdownMenu
 import com.startune.music.presentation.components.ExpressiveEmptyState
 import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.LibrarySortBottomSheet
@@ -129,6 +138,11 @@ fun ArtistDetailListScreen(
 
     var trackSortOption by remember { mutableStateOf<SortOption>(SortOption.SongTitleAZ) }
     var showSortSheet by remember { mutableStateOf(false) }
+    var showMoreMenu by remember { mutableStateOf(false) }
+    var showArtworkSheet by remember { mutableStateOf(false) }
+    val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) viewModel.setCustomImage(uri)
+    }
     var albumSortOption by remember { mutableStateOf<SortOption>(SortOption.AlbumReleaseYear) }
     var showAlbumSortSheet by remember { mutableStateOf(false) }
 
@@ -555,8 +569,8 @@ fun ArtistDetailListScreen(
                             collapseFraction = collapseFraction,
                             headerHeight = currentTopBarHeightDp,
                             onBackClick = { navController.popBackStack() },
-                            expandedTitleEndPadding = 136.dp,
-                            collapsedTitleEndPadding = 136.dp,
+                            expandedTitleEndPadding = if (view != ArtistDetailView.Tracks) 180.dp else 124.dp,
+                            collapsedTitleEndPadding = if (view != ArtistDetailView.Tracks) 180.dp else 124.dp,
                             actions = {
                                 Row(
                                     modifier = Modifier.padding(end = 12.dp),
@@ -581,6 +595,39 @@ fun ArtistDetailListScreen(
                                         Icon(
                                             imageVector = Icons.AutoMirrored.Rounded.Sort,
                                             contentDescription = stringResource(R.string.presentation_batch_d_sort_by)
+                                        )
+                                    }
+                                    Box {
+                                        FilledIconButton(
+                                            onClick = { showMoreMenu = true },
+                                            colors = IconButtonDefaults.filledIconButtonColors(
+                                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                                            )
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Rounded.MoreVert,
+                                                contentDescription = stringResource(R.string.presentation_batch_b_more_options)
+                                            )
+                                        }
+                                        ExpressiveDropdownMenu(
+                                            expanded = showMoreMenu,
+                                            onDismissRequest = { showMoreMenu = false },
+                                            actions = listOfNotNull(
+                                                DetailHeroMenuAction(
+                                                    label = stringResource(R.string.presentation_batch_d_change_photo),
+                                                    icon = Icons.Rounded.AddAPhoto,
+                                                    onClick = { showArtworkSheet = true }
+                                                ),
+                                                if (!artist.customImageUri.isNullOrBlank()) {
+                                                    DetailHeroMenuAction(
+                                                        label = stringResource(R.string.presentation_batch_d_reset_to_default),
+                                                        icon = Icons.Rounded.Delete,
+                                                        onClick = { viewModel.clearCustomImage() }
+                                                    )
+                                                } else {
+                                                    null
+                                                }
+                                            ).toImmutableList()
                                         )
                                     }
                                 }
@@ -730,6 +777,17 @@ fun ArtistDetailListScreen(
                         onDismiss = { showPlaylistBottomSheet = false },
                         bottomBarHeight = bottomBarHeightDp,
                         playerViewModel = playerViewModel,
+                    )
+                }
+
+                if (showArtworkSheet) {
+                    ArtistArtworkSheet(
+                        artistName = artist.name,
+                        currentArtworkUrl = artist.effectiveImageUrl,
+                        hasCustomImage = !artist.customImageUri.isNullOrBlank(),
+                        viewModel = viewModel,
+                        onDismiss = { showArtworkSheet = false },
+                        onPickCustomPhoto = { imagePickerLauncher.launch("image/*") }
                     )
                 }
             }

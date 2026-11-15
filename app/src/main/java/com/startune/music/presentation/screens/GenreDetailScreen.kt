@@ -33,6 +33,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
+import androidx.compose.material.icons.automirrored.rounded.QueueMusic
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme
@@ -71,6 +73,8 @@ import com.startune.music.data.model.SortOption
 import com.startune.music.data.model.Album
 import com.startune.music.data.model.Song
 import com.startune.music.data.preferences.AlbumArtPaletteStyle
+import com.startune.music.presentation.components.DetailHeroMenuAction
+import com.startune.music.presentation.components.ExpressiveDropdownMenu
 import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.ExpressiveTopBarContent
 import com.startune.music.presentation.components.carouselItemScale
@@ -91,6 +95,7 @@ import com.startune.music.utils.shapes.RoundedStarShape
 import com.startune.music.presentation.viewmodel.UNKNOWN_GENRE_ID
 import com.startune.music.ui.theme.LocalStartuneDarkTheme
 import com.startune.music.ui.theme.onColorFor
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
@@ -245,6 +250,7 @@ fun GenreDetailScreen(
 
     var showSongOptionsSheet by remember { mutableStateOf<Song?>(null) }
     var showPlaylistBottomSheet by remember { mutableStateOf(false) }
+    var showGenrePlaylistSheet by remember { mutableStateOf(false) }
 
     val multiSelectionState = playerViewModel.multiSelectionStateHolder
     val selectedSongs by multiSelectionState.selectedSongs.collectAsStateWithLifecycle()
@@ -467,7 +473,34 @@ fun GenreDetailScreen(
                             startAtZero = true
                         )
                     },
-                    showShuffleButton = uiState.songs.isNotEmpty()
+                    showShuffleButton = uiState.songs.isNotEmpty(),
+                    menuActions = if (uiState.songs.isEmpty()) {
+                        persistentListOf()
+                    } else {
+                        persistentListOf(
+                            DetailHeroMenuAction(
+                                label = stringResource(R.string.detail_hero_add_to_queue),
+                                icon = Icons.AutoMirrored.Rounded.QueueMusic,
+                                onClick = {
+                                    playerViewModel.addSelectedToQueue(uiState.songs)
+                                    playerViewModel.sendToast(toastAddedToQueue)
+                                }
+                            ),
+                            DetailHeroMenuAction(
+                                label = stringResource(R.string.detail_hero_play_next),
+                                icon = Icons.Rounded.SkipNext,
+                                onClick = {
+                                    playerViewModel.addSelectedAsNext(uiState.songs)
+                                    playerViewModel.sendToast(toastPlayingNext)
+                                }
+                            ),
+                            DetailHeroMenuAction(
+                                label = stringResource(R.string.detail_hero_add_to_playlist),
+                                icon = Icons.AutoMirrored.Rounded.PlaylistAdd,
+                                onClick = { showGenrePlaylistSheet = true }
+                            )
+                        )
+                    }
                 )
             }
 
@@ -628,6 +661,16 @@ fun GenreDetailScreen(
                 }
             }
 
+        if (showGenrePlaylistSheet && uiState.songs.isNotEmpty()) {
+            com.startune.music.presentation.components.PlaylistBottomSheet(
+                playlistUiState = playlistUiState,
+                songs = remember(uiState.songs) { uiState.songs.toImmutableList() },
+                onDismiss = { showGenrePlaylistSheet = false },
+                bottomBarHeight = 0.dp,
+                playerViewModel = playerViewModel
+            )
+        }
+
         SongMultiSelectionHost(
             playerViewModel = playerViewModel,
             multiSelectionState = multiSelectionState,
@@ -703,8 +746,10 @@ fun GenreCollapsibleTopBar(
     genreName: String,
     customIcons: Map<String, Int> = emptyMap(),
     onShuffleClick: () -> Unit,
-    showShuffleButton: Boolean
+    showShuffleButton: Boolean,
+    menuActions: ImmutableList<DetailHeroMenuAction> = persistentListOf()
 ) {
+    var showMoreMenu by remember { mutableStateOf(false) }
     val solidAlpha = (collapseFraction * 2f).coerceIn(0f, 1f)
     val animatedContentColor = androidx.compose.ui.graphics.lerp(
         start = contentColor,
@@ -785,6 +830,37 @@ fun GenreCollapsibleTopBar(
                 )
             ) {
                 Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.auth_cd_back), tint = animatedContentColor)
+            }
+
+            // More menu at the top right, same scroll-lerped background as
+            // the back button, so it stays readable over the illustration
+            // when expanded and over the solid bar when collapsed.
+            if (menuActions.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(end = 12.dp, top = 4.dp)
+                        .zIndex(10f)
+                ) {
+                    FilledIconButton(
+                        onClick = { showMoreMenu = true },
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = animatedContentColor.copy(alpha = 0.1f),
+                            contentColor = animatedContentColor
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.MoreVert,
+                            contentDescription = stringResource(R.string.presentation_batch_b_more_options),
+                            tint = animatedContentColor
+                        )
+                    }
+                    ExpressiveDropdownMenu(
+                        expanded = showMoreMenu,
+                        onDismissRequest = { showMoreMenu = false },
+                        actions = menuActions
+                    )
+                }
             }
 
             ExpressiveTopBarContent(
