@@ -3,11 +3,9 @@
 package com.startune.music.presentation.screens
 
 import android.content.ClipData
-import androidx.activity.compose.BackHandler
 import android.widget.Toast
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
@@ -45,6 +43,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.Sort
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.Bookmark
@@ -55,9 +55,7 @@ import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.FilterAlt
-import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.Sort
 import androidx.compose.material.icons.rounded.SortByAlpha
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.AlertDialog
@@ -65,12 +63,13 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.FloatingActionButtonMenu
-import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -81,9 +80,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.ToggleFloatingActionButton
-import androidx.compose.material3.ToggleFloatingActionButtonDefaults
-import androidx.compose.material3.animateFloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.annotation.StringRes
 import androidx.compose.runtime.LaunchedEffect
@@ -132,7 +128,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
@@ -146,7 +141,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.ExpressiveScrollBar
-import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.ScreenWrapper
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.rememberModalSheetState
@@ -192,22 +186,13 @@ fun AudioBookmarksScreen(
     // A bookmark loses its song when the file is re-indexed under a new id, or when a backup is
     // restored before the library was scanned; move those onto the song's current id.
     LaunchedEffect(Unit) { bookmarksViewModel.relinkOrphanedBookmarks() }
-    val stablePlayerState by playerViewModel.stablePlayerState.collectAsStateWithLifecycle()
-    val isMiniplayerVisible = stablePlayerState.currentSong != null
 
     ScreenWrapper(
         navController = navController,
         playerViewModel = playerViewModel
     ) {
         val listState = rememberLazyListState()
-        val coroutineScope = rememberCoroutineScope()
         val motionScheme = remember { MotionScheme.expressive() }
-        var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
-        val floatingControlsBottomPadding by animateDpAsState(
-            targetValue = if (isMiniplayerVisible) MiniPlayerHeight + 14.dp else 14.dp,
-            animationSpec = motionScheme.defaultSpatialSpec(),
-            label = "BookmarkFloatingControlsBottomPadding"
-        )
         val statusBarTopInset = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
         val topBarHeight = statusBarTopInset + 78.dp
         val isListScrolled = listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0
@@ -229,11 +214,6 @@ fun AudioBookmarksScreen(
             if (listState.firstVisibleItemIndex != 0 || listState.firstVisibleItemScrollOffset != 0) {
                 listState.scrollToItem(0)
             }
-        }
-
-        // Back collapses the FAB menu before leaving the screen.
-        BackHandler(enabled = fabMenuExpanded) {
-            fabMenuExpanded = false
         }
 
         Box(
@@ -306,50 +286,13 @@ fun AudioBookmarksScreen(
                 surfaceFraction = topBarSurfaceFraction,
                 onNavigationClick = { navController.popBackStack() },
                 onClearQuery = { query = "" },
+                sortMode = sortMode,
+                onSortModeChange = { selectedMode -> sortMode = selectedMode },
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .height(topBarHeight)
             )
 
-            if (fabMenuExpanded) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .zIndex(10f)
-                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.42f))
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            fabMenuExpanded = false
-                        }
-                )
-            }
-
-            BookmarkActionFabMenu(
-                expanded = fabMenuExpanded,
-                sortMode = sortMode,
-                hasQuery = query.isNotBlank(),
-                canScrollToTop = isListScrolled,
-                onExpandedChange = { fabMenuExpanded = it },
-                onSortModeChange = { selectedMode ->
-                    sortMode = selectedMode
-                    fabMenuExpanded = false
-                },
-                onClearFilter = {
-                    query = ""
-                    fabMenuExpanded = false
-                },
-                onScrollToTop = {
-                    fabMenuExpanded = false
-                    coroutineScope.launch { listState.animateScrollToItem(0) }
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .zIndex(11f)
-                    .navigationBarsPadding()
-                    .padding(end = 20.dp, bottom = floatingControlsBottomPadding)
-            )
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -990,9 +933,12 @@ private fun BookmarkKeepSearchTopBar(
     surfaceFraction: Float,
     onNavigationClick: () -> Unit,
     onClearQuery: () -> Unit,
+    sortMode: BookmarkFolderSortMode,
+    onSortModeChange: (BookmarkFolderSortMode) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
+    var sortMenuExpanded by remember { mutableStateOf(false) }
     val containerColor = lerpColor(
         MaterialTheme.colorScheme.background.copy(alpha = 0.82f),
         MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -1101,198 +1047,64 @@ private fun BookmarkKeepSearchTopBar(
                 }
             }
 
-            Surface(
-                modifier = Modifier
-                    .size(42.dp)
-                    .then(
-                        if (query.isNotBlank()) {
-                            Modifier.clickable(onClick = onClearQuery)
-                        } else {
-                            Modifier
+            // Sort follows the top-bar pattern on the detail pages: a plain
+            // IconButton with no background. The old Bookmark icon here had no
+            // onClick at all when the query was empty, so it was a dead button.
+            Box {
+                if (query.isNotBlank()) {
+                    Surface(
+                        modifier = Modifier
+                            .size(42.dp)
+                            .clickable(onClick = onClearQuery),
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Close,
+                                contentDescription = stringResource(R.string.bookmark_search_clear_cd),
+                                modifier = Modifier.size(22.dp)
+                            )
                         }
-                    ),
-                shape = CircleShape,
-                color = if (query.isNotBlank()) {
-                    MaterialTheme.colorScheme.secondaryContainer
+                    }
                 } else {
-                    MaterialTheme.colorScheme.surfaceContainerLow
-                },
-                contentColor = if (query.isNotBlank()) {
-                    MaterialTheme.colorScheme.onSecondaryContainer
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-                //border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.18f + surfaceFraction * 0.12f))
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    IconButton(
+                        onClick = { sortMenuExpanded = true },
+                        modifier = Modifier.size(42.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.Sort,
+                            contentDescription = stringResource(R.string.presentation_batch_d_sort_by),
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
+                DropdownMenu(
+                    expanded = sortMenuExpanded,
+                    onDismissRequest = { sortMenuExpanded = false }
                 ) {
-                    Icon(
-                        imageVector = if (query.isNotBlank()) Icons.Rounded.Close else Icons.Rounded.Bookmark,
-                        contentDescription = if (query.isNotBlank()) stringResource(R.string.bookmark_search_clear_cd) else stringResource(R.string.bookmark_search_cd),
-                        modifier = Modifier.size(22.dp)
-                    )
+                    BookmarkFolderSortMode.entries.forEach { mode ->
+                        DropdownMenuItem(
+                            text = { Text(stringResource(mode.labelRes)) },
+                            onClick = {
+                                onSortModeChange(mode)
+                                sortMenuExpanded = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = if (sortMode == mode) Icons.Rounded.Check else mode.icon,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun BookmarkActionFabMenu(
-    expanded: Boolean,
-    sortMode: BookmarkFolderSortMode,
-    hasQuery: Boolean,
-    canScrollToTop: Boolean,
-    onExpandedChange: (Boolean) -> Unit,
-    onSortModeChange: (BookmarkFolderSortMode) -> Unit,
-    onClearFilter: () -> Unit,
-    onScrollToTop: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val fabClosedContainer = MaterialTheme.colorScheme.primary
-    val fabOpenContainer = MaterialTheme.colorScheme.primaryContainer
-    val fabClosedContent = MaterialTheme.colorScheme.onPrimary
-    val fabOpenContent = MaterialTheme.colorScheme.onPrimaryContainer
-    val disabledActionContainer = MaterialTheme.colorScheme.surfaceContainerHigh
-    val disabledActionContent = MaterialTheme.colorScheme.onSurfaceVariant
-
-    FloatingActionButtonMenu(
-        modifier = modifier,
-        expanded = expanded,
-        horizontalAlignment = Alignment.End,
-        button = {
-            ToggleFloatingActionButton(
-                checked = expanded,
-                onCheckedChange = onExpandedChange,
-                containerSize = ToggleFloatingActionButtonDefaults.containerSize(86.dp),
-                containerColor = { progress ->
-                    lerpColor(fabClosedContainer, fabOpenContainer, progress)
-                },
-                modifier = Modifier.animateFloatingActionButton(
-                    visible = true,
-                    alignment = Alignment.BottomEnd
-                )
-            ) {
-                Icon(
-                    imageVector = if (expanded) Icons.Rounded.Close else Icons.Rounded.Sort,
-                    contentDescription = if (expanded) stringResource(R.string.bookmark_actions_close_cd) else stringResource(R.string.bookmark_actions_open_cd),
-                    tint = lerpColor(fabClosedContent, fabOpenContent, checkedProgress)
-                )
-            }
-        }
-    ) {
-        FloatingActionButtonMenuItem(
-            onClick = { onSortModeChange(BookmarkFolderSortMode.MostMoments) },
-            icon = {
-                Icon(
-                    imageVector = if (sortMode == BookmarkFolderSortMode.MostMoments) {
-                        Icons.Rounded.Check
-                    } else {
-                        BookmarkFolderSortMode.MostMoments.icon
-                    },
-                    contentDescription = null
-                )
-            },
-            text = { Text(stringResource(BookmarkFolderSortMode.MostMoments.labelRes)) },
-            containerColor = if (sortMode == BookmarkFolderSortMode.MostMoments) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceContainerHigh
-            },
-            contentColor = if (sortMode == BookmarkFolderSortMode.MostMoments) {
-                MaterialTheme.colorScheme.onPrimaryContainer
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            }
-        )
-        FloatingActionButtonMenuItem(
-            onClick = { onSortModeChange(BookmarkFolderSortMode.Recent) },
-            icon = {
-                Icon(
-                    imageVector = if (sortMode == BookmarkFolderSortMode.Recent) {
-                        Icons.Rounded.Check
-                    } else {
-                        BookmarkFolderSortMode.Recent.icon
-                    },
-                    contentDescription = null
-                )
-            },
-            text = { Text(stringResource(BookmarkFolderSortMode.Recent.labelRes)) },
-            containerColor = if (sortMode == BookmarkFolderSortMode.Recent) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceContainerHigh
-            },
-            contentColor = if (sortMode == BookmarkFolderSortMode.Recent) {
-                MaterialTheme.colorScheme.onPrimaryContainer
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            }
-        )
-        FloatingActionButtonMenuItem(
-            onClick = { onSortModeChange(BookmarkFolderSortMode.Title) },
-            icon = {
-                Icon(
-                    imageVector = if (sortMode == BookmarkFolderSortMode.Title) {
-                        Icons.Rounded.Check
-                    } else {
-                        BookmarkFolderSortMode.Title.icon
-                    },
-                    contentDescription = null
-                )
-            },
-            text = { Text(stringResource(BookmarkFolderSortMode.Title.labelRes)) },
-            containerColor = if (sortMode == BookmarkFolderSortMode.Title) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceContainerHigh
-            },
-            contentColor = if (sortMode == BookmarkFolderSortMode.Title) {
-                MaterialTheme.colorScheme.onPrimaryContainer
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            }
-        )
-        FloatingActionButtonMenuItem(
-            onClick = {
-                if (hasQuery) {
-                    onClearFilter()
-                }
-            },
-            icon = { Icon(Icons.Rounded.Close, contentDescription = null) },
-            text = { Text(stringResource(R.string.audio_bookmarks_clear_filter)) },
-            containerColor = if (hasQuery) {
-                MaterialTheme.colorScheme.tertiaryContainer
-            } else {
-                disabledActionContainer
-            },
-            contentColor = if (hasQuery) {
-                MaterialTheme.colorScheme.onTertiaryContainer
-            } else {
-                disabledActionContent
-            }
-        )
-        FloatingActionButtonMenuItem(
-            onClick = {
-                if (canScrollToTop) {
-                    onScrollToTop()
-                }
-            },
-            icon = { Icon(Icons.Rounded.KeyboardArrowUp, contentDescription = null) },
-            text = { Text(stringResource(R.string.audio_bookmarks_back_to_top)) },
-            containerColor = if (canScrollToTop) {
-                MaterialTheme.colorScheme.secondaryContainer
-            } else {
-                disabledActionContainer
-            },
-            contentColor = if (canScrollToTop) {
-                MaterialTheme.colorScheme.onSecondaryContainer
-            } else {
-                disabledActionContent
-            }
-        )
     }
 }
 
@@ -1329,15 +1141,6 @@ private fun BookmarkFolderCard(
         width = 94f,
         grade = 30
     )
-    val backgroundBrush = remember(songScheme) {
-        Brush.linearGradient(
-            listOf(
-                songScheme.primaryContainer,
-                songScheme.surfaceContainerLow,
-                songScheme.tertiaryContainer
-            )
-        )
-    }
 
     MaterialTheme(colorScheme = songScheme) {
         Surface(
@@ -1351,11 +1154,13 @@ private fun BookmarkFolderCard(
             tonalElevation = 1.dp,
             border = BorderStroke(1.dp, songScheme.outlineVariant.copy(alpha = 0.28f))
         ) {
+            // Flat album primaryContainer, no gradient, same as the share
+            // card background.
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(containerShape)
-                    .background(backgroundBrush)
+                    .background(songScheme.primaryContainer)
             ) {
 //                Text(
 //                    text = folder.bookmarkCount.toString().padStart(2, '0'),
