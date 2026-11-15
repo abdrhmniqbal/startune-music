@@ -82,6 +82,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -826,6 +827,12 @@ private fun ShareableCard(
     cardShape: Shape
 ) {
     val cardRatio = 9f / 16f
+    // The panel is toned down from the primaryContainer so it reads as a
+    // distinct slab on the flat primaryContainer card background; the same
+    // primaryContainer for both would make the panel disappear into the
+    // background. A muted album color, not a neutral, so it never reads
+    // black or greyish.
+    val panelColor = lerp(cardScheme.primaryContainer, cardScheme.surface, 0.35f)
 
     Box(
         modifier = modifier
@@ -854,23 +861,21 @@ private fun ShareableCard(
                     modifier = Modifier.fillMaxWidth(0.88f),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = cardScheme.primaryContainer
+                        containerColor = panelColor
                     )
                 ) {
                     SongMiniCard(song = song, cardScheme = cardScheme)
                 }
             } else {
                 // ── Lyrics Panel ────────────────────────────────────────
-                // surfaceContainerHighest, not primaryContainer: the accent
-                // container can sit too close to the card's outer
-                // surfaceContainer in dark album schemes, so the panel read
-                // as see-through. The highest container is always one ramp
-                // step above the outer, so the panel reads as a solid slab.
+                // The same toned-down primaryContainer as the song panel,
+                // so both card modes read the same: a muted album-color slab
+                // on the flat primaryContainer background.
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(0.92f)
                         .clip(RoundedCornerShape(18.dp))
-                        .background(cardScheme.surfaceContainerHighest)
+                        .background(panelColor)
                         .padding(14.dp)
                 ) {
                     LyricsPanel(song = song, selectedLyrics = selectedLyrics, cardScheme = cardScheme)
