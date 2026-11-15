@@ -60,8 +60,6 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -646,6 +644,52 @@ private enum class BookmarkFolderSortMode(
         entries[(ordinal + 1) % entries.size]
 }
 
+/**
+ * Sort picker for the bookmark folders, as a bottom sheet like every other
+ * sort and more menu in the app. The selected mode shows a check instead of
+ * its icon, the same as the dropdown it replaces.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BookmarkSortBottomSheet(
+    sortMode: BookmarkFolderSortMode,
+    onDismiss: () -> Unit,
+    onSortModeChange: (BookmarkFolderSortMode) -> Unit
+) {
+    val sheetState = rememberModalSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.presentation_batch_d_sort_by),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                BookmarkFolderSortMode.entries.forEach { mode ->
+                    MoreMenuListRow(
+                        label = stringResource(mode.labelRes),
+                        icon = if (sortMode == mode) Icons.Rounded.Check else mode.icon,
+                        onClick = {
+                            onSortModeChange(mode)
+                            onDismiss()
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
 private fun sortAudioBookmarkFolders(
     folders: List<AudioBookmarkFolder>,
     sortMode: BookmarkFolderSortMode
@@ -935,7 +979,7 @@ private fun BookmarkKeepSearchTopBar(
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
-    var sortMenuExpanded by remember { mutableStateOf(false) }
+    var showSortSheet by remember { mutableStateOf(false) }
     val containerColor = lerpColor(
         MaterialTheme.colorScheme.background.copy(alpha = 0.82f),
         MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -1070,7 +1114,7 @@ private fun BookmarkKeepSearchTopBar(
                     }
                 } else {
                     IconButton(
-                        onClick = { sortMenuExpanded = true },
+                        onClick = { showSortSheet = true },
                         modifier = Modifier.size(42.dp)
                     ) {
                         Icon(
@@ -1080,25 +1124,12 @@ private fun BookmarkKeepSearchTopBar(
                         )
                     }
                 }
-                DropdownMenu(
-                    expanded = sortMenuExpanded,
-                    onDismissRequest = { sortMenuExpanded = false }
-                ) {
-                    BookmarkFolderSortMode.entries.forEach { mode ->
-                        DropdownMenuItem(
-                            text = { Text(stringResource(mode.labelRes)) },
-                            onClick = {
-                                onSortModeChange(mode)
-                                sortMenuExpanded = false
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = if (sortMode == mode) Icons.Rounded.Check else mode.icon,
-                                    contentDescription = null
-                                )
-                            }
-                        )
-                    }
+                if (showSortSheet) {
+                    BookmarkSortBottomSheet(
+                        sortMode = sortMode,
+                        onDismiss = { showSortSheet = false },
+                        onSortModeChange = onSortModeChange
+                    )
                 }
             }
         }

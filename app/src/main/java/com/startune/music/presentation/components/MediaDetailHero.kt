@@ -1,6 +1,7 @@
 package com.startune.music.presentation.components
 
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ButtonGroupDefaults
@@ -754,16 +755,62 @@ private fun HeroActionGroup(
                             modifier = Modifier.graphicsLayer { rotationZ = rotation }
                         )
                     }
-                    ExpressiveDropdownMenu(
-                        expanded = showMenu,
-                        onDismissRequest = { showMenu = false },
-                        actions = menuActions,
-                        vibrant = true
-                    )
+                    if (showMenu) {
+                        HeroAddOptionsSheet(
+                            actions = menuActions,
+                            onDismiss = { showMenu = false }
+                        )
+                    }
                 }
             },
             menuContent = {}
         )
+    }
+}
+
+/**
+ * The hero "+" button's menu, as a bottom sheet like every other menu in the
+ * app. It holds the add actions (Add to playlist, Play next, Add to queue)
+ * that the detail top-bar sheet also offers; the hero already has Play and
+ * Shuffle as buttons, so this sheet keeps only the add actions.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HeroAddOptionsSheet(
+    actions: ImmutableList<DetailHeroMenuAction>,
+    onDismiss: () -> Unit
+) {
+    val sheetState = rememberModalSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.detail_hero_more_actions),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                actions.forEach { action ->
+                    MoreMenuListRow(
+                        label = action.label,
+                        icon = action.icon,
+                        onClick = {
+                            action.onClick()
+                            onDismiss()
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 

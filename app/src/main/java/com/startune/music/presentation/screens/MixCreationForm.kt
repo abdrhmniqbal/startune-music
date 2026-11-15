@@ -29,11 +29,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.Category
@@ -49,9 +51,6 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.ExposedDropdownMenu
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -59,7 +58,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumExtendedFloatingActionButton
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -94,6 +92,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import com.startune.music.R
 import com.startune.music.data.model.Artist
+import com.startune.music.presentation.components.MoreMenuListRow
+import com.startune.music.presentation.components.rememberModalSheetState
 import com.startune.music.presentation.components.SmartImage
 import com.startune.music.presentation.components.SmartImageListTargetSize
 import com.startune.music.utils.formatSongCount
@@ -155,6 +155,98 @@ private fun mixRuleIcon(rule: MixRule): ImageVector =
         MixRule.ARTISTS -> Icons.Rounded.Person
         MixRule.GENRES -> Icons.Rounded.Category
     }
+
+/**
+ * Generation-mode picker for the create-mix form, as a bottom sheet like
+ * every other menu in the app. Each mode shows its icon, title, and the
+ * subtitle that explains it, with a check on the selected mode.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MixRulePickerSheet(
+    selectedRule: MixRule,
+    onRuleSelected: (MixRule) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val sheetState = rememberModalSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.mix_generation_mode_label),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                generationModeOrder.forEach { rule ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 60.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                            .clickable {
+                                onRuleSelected(rule)
+                                onDismiss()
+                            }
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.secondaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = mixRuleIcon(rule),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                        Spacer(Modifier.width(16.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = mixRuleTitle(rule),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = mixRuleSubtitle(rule),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        if (selectedRule == rule) {
+                            Spacer(Modifier.width(12.dp))
+                            Icon(
+                                imageVector = Icons.Rounded.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 /**
  * Create-mix form, full screen like the playlist form: a name (required,
@@ -278,7 +370,7 @@ private fun CreateMixFormContent(
     var showArtistPicker by remember { mutableStateOf(false) }
     var genreInput by remember { mutableStateOf("") }
     var selectedGenres by remember { mutableStateOf<List<String>>(initial.genres) }
-    var modeExpanded by remember { mutableStateOf(false) }
+    var showRuleSheet by remember { mutableStateOf(false) }
     val libraryGenres by playerViewModel.genres.collectAsStateWithLifecycle()
     val onGenreInputChange: (String) -> Unit = { newText ->
         val (resolved, remaining) = resolveGenreInput(newText, libraryGenres)
@@ -495,9 +587,7 @@ private fun CreateMixFormContent(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 if (!isForYouMix) {
-                ExposedDropdownMenuBox(
-                    expanded = modeExpanded,
-                    onExpandedChange = { modeExpanded = it },
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 22.dp)
@@ -507,11 +597,11 @@ private fun CreateMixFormContent(
                         onValueChange = {},
                         readOnly = true,
                         label = { Text(stringResource(R.string.mix_generation_mode_label)) },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = modeExpanded) },
+                        trailingIcon = { Icon(Icons.Rounded.ArrowDropDown, contentDescription = null) },
                         shape = RoundedCornerShape(28.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                            .clickable { showRuleSheet = true },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                             unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -520,33 +610,13 @@ private fun CreateMixFormContent(
                             unfocusedBorderColor = Color.Transparent
                         )
                     )
-                    ExposedDropdownMenu(
-                        expanded = modeExpanded,
-                        onDismissRequest = { modeExpanded = false },
-                        shape = RoundedCornerShape(28.dp)
-                    ) {
-                        generationModeOrder.forEach { rule ->
-                            DropdownMenuItem(
-                                text = {
-                                    Column {
-                                        Text(text = mixRuleTitle(rule), style = MaterialTheme.typography.bodyMedium)
-                                        Text(
-                                            text = mixRuleSubtitle(rule),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                },
-                                leadingIcon = { Icon(mixRuleIcon(rule), contentDescription = null) },
-                                onClick = { selectedRule = rule; modeExpanded = false },
-                                trailingIcon = {
-                                    if (selectedRule == rule) {
-                                        Icon(Icons.Rounded.Check, contentDescription = null)
-                                    }
-                                }
-                            )
-                        }
-                    }
+                }
+                if (showRuleSheet) {
+                    MixRulePickerSheet(
+                        selectedRule = selectedRule,
+                        onRuleSelected = { selectedRule = it },
+                        onDismiss = { showRuleSheet = false }
+                    )
                 }
                 }
 

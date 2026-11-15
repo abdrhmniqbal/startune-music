@@ -38,8 +38,6 @@ import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Upload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
@@ -75,6 +73,8 @@ import com.startune.music.data.preferences.AppColorScheme
 import com.startune.music.data.preferences.ColorSchemeIds
 import com.startune.music.data.preferences.ColorSchemeSort
 import com.startune.music.data.preferences.SchemeRoles
+import com.startune.music.presentation.components.MoreMenuListRow
+import com.startune.music.presentation.components.rememberModalSheetState
 import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.viewmodel.ColorSchemeImportResult
@@ -390,7 +390,7 @@ private fun ColorSchemeRow(
     onDelete: (() -> Unit)? = null,
     onCopy: (() -> Unit)? = null
 ) {
-    var menuExpanded by remember { mutableStateOf(false) }
+    var showOptionsSheet by remember { mutableStateOf(false) }
     val containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer
     else MaterialTheme.colorScheme.surfaceContainer
     val contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer
@@ -451,7 +451,7 @@ private fun ColorSchemeRow(
             if (onEdit != null || onCopy != null || onExport != null || onDelete != null) {
                 Box {
                     FilledIconButton(
-                        onClick = { menuExpanded = true },
+                        onClick = { showOptionsSheet = true },
                         colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer
                             else MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -462,51 +462,93 @@ private fun ColorSchemeRow(
                     ) {
                         Icon(Icons.Rounded.MoreVert, contentDescription = null)
                     }
-                    DropdownMenu(
-                        expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false }
-                    ) {
-                        if (onEdit != null) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.color_scheme_edit)) },
-                                leadingIcon = { Icon(Icons.Rounded.Edit, contentDescription = null) },
-                                onClick = {
-                                    menuExpanded = false
-                                    onEdit()
-                                }
-                            )
-                        }
-                        if (onCopy != null) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.color_scheme_copy)) },
-                                leadingIcon = { Icon(Icons.Rounded.ContentCopy, contentDescription = null) },
-                                onClick = {
-                                    menuExpanded = false
-                                    onCopy()
-                                }
-                            )
-                        }
-                        if (onExport != null) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.color_scheme_export)) },
-                                leadingIcon = { Icon(Icons.Rounded.Upload, contentDescription = null) },
-                                onClick = {
-                                    menuExpanded = false
-                                    onExport()
-                                }
-                            )
-                        }
-                        if (onDelete != null) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.color_scheme_delete)) },
-                                leadingIcon = { Icon(Icons.Rounded.Delete, contentDescription = null) },
-                                onClick = {
-                                    menuExpanded = false
-                                    onDelete()
-                                }
-                            )
-                        }
+                    if (showOptionsSheet) {
+                        ColorSchemeRowOptionsSheet(
+                            name = name,
+                            onDismiss = { showOptionsSheet = false },
+                            onEdit = onEdit,
+                            onCopy = onCopy,
+                            onExport = onExport,
+                            onDelete = onDelete
+                        )
                     }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ColorSchemeRowOptionsSheet(
+    name: String,
+    onDismiss: () -> Unit,
+    onEdit: (() -> Unit)?,
+    onCopy: (() -> Unit)?,
+    onExport: (() -> Unit)?,
+    onDelete: (() -> Unit)?
+) {
+    val sheetState = rememberModalSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = name,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (onEdit != null) {
+                    MoreMenuListRow(
+                        label = stringResource(R.string.color_scheme_edit),
+                        icon = Icons.Rounded.Edit,
+                        onClick = {
+                            onDismiss()
+                            onEdit()
+                        }
+                    )
+                }
+                if (onCopy != null) {
+                    MoreMenuListRow(
+                        label = stringResource(R.string.color_scheme_copy),
+                        icon = Icons.Rounded.ContentCopy,
+                        onClick = {
+                            onDismiss()
+                            onCopy()
+                        }
+                    )
+                }
+                if (onExport != null) {
+                    MoreMenuListRow(
+                        label = stringResource(R.string.color_scheme_export),
+                        icon = Icons.Rounded.Upload,
+                        onClick = {
+                            onDismiss()
+                            onExport()
+                        }
+                    )
+                }
+                if (onDelete != null) {
+                    MoreMenuListRow(
+                        label = stringResource(R.string.color_scheme_delete),
+                        icon = Icons.Rounded.Delete,
+                        destructive = true,
+                        onClick = {
+                            onDismiss()
+                            onDelete()
+                        }
+                    )
                 }
             }
         }
