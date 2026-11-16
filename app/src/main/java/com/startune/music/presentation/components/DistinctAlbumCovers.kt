@@ -9,8 +9,11 @@ import com.startune.music.data.model.Song
  * when its songs carry different artwork URIs (per-file embedded art), and
  * two different albums sharing one cover image still collapse to one cell.
  * Songs with no album id fall back to the artwork URI alone.
+ * Stops once [maxCovers] distinct covers are found, because the collage
+ * never shows more than that; callers must pass enough songs for the scan
+ * to reach distinct artwork instead of only the first few.
  */
-internal fun distinctAlbumCovers(songs: List<Song>): List<Pair<String, String>> {
+internal fun distinctAlbumCovers(songs: List<Song>, maxCovers: Int = 4): List<Pair<String, String>> {
     val seenAlbumIds = HashSet<Long>()
     val seenUris = HashSet<String>()
     val out = ArrayList<Pair<String, String>>()
@@ -23,6 +26,7 @@ internal fun distinctAlbumCovers(songs: List<Song>): List<Pair<String, String>> 
         if (albumId > 0) seenAlbumIds.add(albumId)
         seenUris.add(uri)
         out.add(uri to song.title)
+        if (out.size >= maxCovers) break
     }
     return out
 }

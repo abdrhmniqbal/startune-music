@@ -431,7 +431,7 @@ private fun CollectionOptionsCover(target: ItemOptionsTarget, playerViewModel: P
                 )
             } else {
                 val previewSongIds = remember(target.playlist.songIds) {
-                    target.playlist.songIds.take(4)
+                    target.playlist.songIds.take(16)
                 }
                 val previewSongs by remember(previewSongIds, playerViewModel) {
                     playerViewModel.observeSongs(previewSongIds)

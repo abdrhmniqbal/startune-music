@@ -427,7 +427,7 @@ fun PlaylistItem(
     onMoreOptionsClick: (() -> Unit)? = null
 ) {
     val playlistPreviewSongIds = remember(playlist.songIds) {
-        playlist.songIds.take(4)
+        playlist.songIds.take(16)
     }
     val playlistSongsInitialValue = remember(playlistPreviewSongIds) {
         if (playlistPreviewSongIds.isEmpty()) emptyList<Song>() else null

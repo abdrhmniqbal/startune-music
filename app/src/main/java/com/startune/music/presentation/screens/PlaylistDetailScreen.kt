@@ -345,10 +345,15 @@ fun PlaylistDetailScreen(
     // 318.dp + status bar = nav row (62.dp + status bar) + cover + 12.dp
     // gap + title block + 16.dp below the subtitle.
     val maxTopBarHeight = if (hasRoomForCover) 318.dp + statusBarHeight else 200.dp
-    // The same first songs the library thumbnail uses, so the collage matches it.
+    // The playlist-ordered songs, so the collage can scan past the first
+    // few songs until it finds 4 different artworks. Taking only the first
+    // 4 songs starved the distinct-artwork scan: when those 4 spanned only
+    // 3 albums, or two of them shared one artwork, the cover showed 3
+    // tiles even though the playlist has more albums further in.
     val coverSongs = remember(currentPlaylist?.songIds, songsInPlaylist) {
-        currentPlaylist?.songIds.orEmpty().take(4)
-            .mapNotNull { id -> songsInPlaylist.firstOrNull { it.id == id } }
+        val byId = songsInPlaylist.associateBy { it.id }
+        currentPlaylist?.songIds.orEmpty()
+            .mapNotNull { byId[it] }
             .toImmutableList()
     }
 
