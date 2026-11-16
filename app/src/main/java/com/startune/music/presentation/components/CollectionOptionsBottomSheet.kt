@@ -216,6 +216,7 @@ fun CollectionOptionsBottomSheet(
                         MoreMenuListRow(
                             label = stringResource(R.string.presentation_batch_d_reset_to_default),
                             icon = Icons.Rounded.Delete,
+                            destructive = true,
                             onClick = {
                                 artworkViewModel.bind(artist)
                                 artworkViewModel.clearCustomImage()
