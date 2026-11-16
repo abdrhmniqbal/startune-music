@@ -36,7 +36,7 @@ internal fun LibraryPlaybackAwareSongItem(
     selectionIndex: Int? = null,
     isSelectionMode: Boolean = false,
     onLongPress: () -> Unit = {},
-    onMoreOptionsClick: (Song) -> Unit,
+    onMoreOptionsClick: ((Song) -> Unit)? = null,
     onClick: () -> Unit
 ) {
     val playbackUiState by remember(song.id, playerViewModel) {
@@ -63,8 +63,9 @@ internal fun LibraryPlaybackAwareSongItem(
         isSelected = isSelected,
         selectionIndex = selectionIndex,
         isSelectionMode = isSelectionMode,
+        showMoreOptionsButton = onMoreOptionsClick != null,
         onLongPress = onLongPress,
-        onMoreOptionsClick = onMoreOptionsClick,
+        onMoreOptionsClick = onMoreOptionsClick ?: {},
         onClick = onClick
     )
 }

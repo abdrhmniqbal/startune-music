@@ -97,7 +97,6 @@ import com.startune.music.presentation.components.subcomps.SelectionActionRow
 import com.startune.music.presentation.selection.dragToSelect
 import com.startune.music.presentation.selection.rememberDragToSelectState
 import com.startune.music.presentation.components.subcomps.SelectionCountPill
-import com.startune.music.presentation.components.SongInfoBottomSheet
 import com.startune.music.data.offline.CloudOfflineRepository
 import com.startune.music.data.preferences.AlbumArtPaletteStyle
 import com.startune.music.presentation.components.EditMultipleSongsSheet
@@ -159,8 +158,6 @@ fun GenreDetailListScreen(
     var showMultiSelectionSheet by remember { mutableStateOf(false) }
     var showBatchEditSheet by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    var showSongOptionsSheet by remember { mutableStateOf<Song?>(null) }
-    var showPlaylistBottomSheet by remember { mutableStateOf(false) }
     var showMoreMenu by remember { mutableStateOf(false) }
     var showGenrePlaylistSheet by remember { mutableStateOf(false) }
     val toastAddedToQueue = stringResource(R.string.toast_added_to_queue)
@@ -433,7 +430,6 @@ fun GenreDetailListScreen(
                                             multiSelectionState.toggleSelection(song)
                                             dragSelectState.onItemLongPressed(song)
                                         },
-                                        onMoreOptionsClick = { showSongOptionsSheet = it },
                                         onClick = {
                                             if (isSelectionMode) {
                                                 multiSelectionState.toggleSelection(song)
@@ -943,94 +939,6 @@ fun GenreDetailListScreen(
                     showArtistsSortSheet = false
                 }
             )
-        }
-
-        showSongOptionsSheet?.let { song ->
-            val isFavorite = favoriteSongIds.contains(song.id)
-            SongInfoBottomSheet(
-                song = song,
-                isFavorite = isFavorite,
-                onToggleFavorite = {
-                    playerViewModel.toggleFavoriteSpecificSong(song)
-                },
-                onDismiss = { showSongOptionsSheet = null },
-                onPlaySong = {
-                    playerViewModel.showAndPlaySong(song, uiState.rankedSongs, genreDisplayName)
-                    showSongOptionsSheet = null
-                },
-                onAddToQueue = {
-                    playerViewModel.addSongToQueue(song)
-                    showSongOptionsSheet = null
-                    playerViewModel.sendToast(toastAddedToQueue)
-                },
-                onAddNextToQueue = {
-                    playerViewModel.addSongNextToQueue(song)
-                    showSongOptionsSheet = null
-                    playerViewModel.sendToast(toastPlayingNext)
-                },
-                onAddToPlayList = {
-                    showPlaylistBottomSheet = true
-                },
-                onDeleteFromDevice = playerViewModel::deleteFromDevice,
-                onNavigateToAlbum = {
-                    navController.navigateSafelyReplacing(
-                        route = Screen.AlbumDetail.createRoute(song.albumId),
-                        patternToPop = Screen.AlbumDetail.route
-                    )
-                    showSongOptionsSheet = null
-                },
-                onNavigateToArtist = {
-                    navController.navigateSafelyReplacing(
-                        route = Screen.ArtistDetail.createRoute(song.artistId),
-                        patternToPop = Screen.ArtistDetail.route
-                    )
-                    showSongOptionsSheet = null
-                },
-                onNavigateToArtistById = { artistId ->
-                    navController.navigateSafelyReplacing(
-                        route = Screen.ArtistDetail.createRoute(artistId),
-                        patternToPop = Screen.ArtistDetail.route
-                    )
-                    showSongOptionsSheet = null
-                },
-                onNavigateToGenre = {
-                    song.genre?.let {
-                        navController.navigateSafelyReplacing(
-                            route = Screen.GenreDetail.createRoute(java.net.URLEncoder.encode(it, "UTF-8")),
-                            patternToPop = Screen.GenreDetail.route
-                        )
-                    }
-                    showSongOptionsSheet = null
-                },
-                onEditSong = { newTitle, newArtist, newAlbum, newAlbumArtist, newComposer, newGenre, newLyrics, newTrackNumber, newDiscNumber, replayGainTrackGainDb, replayGainAlbumGainDb, coverArtUpdate, customMetadataChanges ->
-                    playerViewModel.editSongMetadata(
-                        song,
-                        newTitle,
-                        newArtist,
-                        newAlbum,
-                        newAlbumArtist,
-                        newComposer,
-                        newGenre,
-                        newLyrics,
-                        newTrackNumber,
-                        newDiscNumber,
-                        replayGainTrackGainDb,
-                        replayGainAlbumGainDb,
-                        coverArtUpdate,
-                        customMetadataChanges
-                    )
-                },
-                removeFromListTrigger = {}
-            )
-            if (showPlaylistBottomSheet) {
-                PlaylistBottomSheet(
-                    playlistUiState = playlistUiState,
-                    songs = persistentListOf(song),
-                    onDismiss = { showPlaylistBottomSheet = false },
-                    bottomBarHeight = 0.dp,
-                    playerViewModel = playerViewModel
-                )
-            }
         }
 
         if (showGenrePlaylistSheet && uiState.rankedSongs.isNotEmpty()) {
