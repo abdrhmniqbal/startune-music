@@ -29,7 +29,6 @@
     <string name="presentation_batch_d_library_tabs_sheet_subtitle">Lompat langsung ke tab mana pun atau urutkan ulang.</string>
     <string name="presentation_batch_d_reorder_tabs_label">Urutkan ulang tab</string>
     <string name="presentation_batch_d_cd_folder">Folder</string>
-
     <!-- LibraryScreen — watch transfer dialog -->
     <string name="presentation_batch_d_watch_sending_title">Mengirim ke Jam Tangan</string>
     <string name="presentation_batch_d_watch_starting_transfer">Memulai transfer…</string>
@@ -40,13 +39,11 @@
     <string name="presentation_batch_d_watch_status_preparing">Menyiapkan</string>
     <string name="presentation_batch_d_watch_preparing_transfer">Menyiapkan transfer…</string>
     <string name="presentation_batch_d_watch_cancel_transfer">Batalkan transfer</string>
-
     <!-- LibraryScreen — merge playlists -->
     <string name="presentation_batch_d_merge_playlists_title">Gabungkan Playlist</string>
     <string name="presentation_batch_d_merge_playlists_prompt">Masukkan nama untuk playlist gabungan:</string>
     <string name="presentation_batch_d_merge_playlists_placeholder">Playlist Gabungan</string>
     <string name="presentation_batch_d_merge_playlists_body">Ini akan menggabungkan %1$d playlist terpilih menjadi satu.</string>
-
     <!-- MashupScreen -->
     <string name="presentation_batch_d_mashup_title">Ruang DJ</string>
     <string name="presentation_batch_d_loading">Memuat…</string>
@@ -61,7 +58,6 @@
     <string name="presentation_batch_d_mashup_deck_1">Dek 1</string>
     <string name="presentation_batch_d_mashup_deck_2">Dek 2</string>
     <string name="presentation_batch_d_mashup_select_song_title">Pilih sebuah lagu</string>
-
     <!-- EqualizerScreen -->
     <string name="presentation_batch_d_eq_change_view_mode_cd">Ubah mode tampilan</string>
     <string name="presentation_batch_d_eq_disable_cd">Nonaktifkan equalizer</string>
@@ -87,7 +83,6 @@
     <string name="presentation_batch_d_eq_band_mid_high">Mid / High</string>
     <string name="presentation_batch_d_eq_page_n">Halaman %1$d</string>
     <string name="presentation_batch_d_eq_reset_duration_cd">Reset durasi</string>
-
     <!-- EditTransitionScreen -->
     <string name="presentation_batch_d_transition_snackbar_using_global">Menggunakan default global</string>
     <string name="presentation_batch_d_transition_snackbar_saved">Perubahan berhasil disimpan</string>
@@ -117,7 +112,6 @@
     <string name="presentation_batch_d_transition_curves_subtitle">Sempurnakan kemiringan audio</string>
     <string name="presentation_batch_d_transition_fade_out">Fade Out</string>
     <string name="presentation_batch_d_transition_fade_in">Fade In</string>
-
     <!-- ArtistDetailScreen -->
     <string name="presentation_batch_d_cd_play_title">Putar %1$s</string>
     <string name="presentation_batch_d_cd_collapse_title">Ciutkan %1$s</string>
@@ -125,6 +119,16 @@
     <string name="presentation_batch_d_edit_artist_image_cd">Edit gambar artis</string>
     <string name="presentation_batch_d_change_photo">Ubah foto</string>
     <string name="presentation_batch_d_reset_to_default">Reset ke default</string>
+    <string name="presentation_batch_d_select_artwork">Select artwork</string>
+    <string name="presentation_batch_d_search_deezer_hint">Search artist on Deezer...</string>
+    <string name="presentation_batch_d_choose_from_device">Choose from device</string>
+    <string name="presentation_batch_d_no_artwork_found">No artist images found on Deezer</string>
+    <string name="presentation_batch_d_artwork_updated">Artist artwork updated</string>
+    <string name="presentation_batch_d_artwork_update_failed">Failed to update artwork</string>
+    <string name="presentation_batch_d_artwork_removed">Artist artwork removed</string>
+    <string name="presentation_batch_d_artwork_remove_failed">Failed to remove artwork</string>
+    <string name="presentation_batch_d_fans">%1$s fans</string>
+    <string name="presentation_batch_d_albums">%1$d albums</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">Putar acak artis</string>
     <string name="presentation_batch_d_cd_artist">Artis</string>
 </resources>

@@ -11,7 +11,6 @@
     <string name="widget_preview_artist">Артист</string>
     <string name="cd_repeat">Повтор</string>
     <string name="widget_wavy_progress_bar_desc">Прогресс, %1$d процентов</string>
-
     <!-- Lyrics more bottom sheet -->
     <string name="lyrics_more_appearance">Внешний вид</string>
     <string name="lyrics_more_alignment">Выравнивание</string>
@@ -27,13 +26,11 @@
     <string name="cd_lyrics_align_left">По левому краю</string>
     <string name="cd_lyrics_align_center">По центру</string>
     <string name="cd_lyrics_align_right">По правому краю</string>
-
     <!-- No internet -->
     <string name="no_internet_dialog_title">Нет интернета</string>
     <string name="no_internet_dialog_message">Для этого контента нужно подключение к интернету. Проверьте сеть и попробуйте снова.</string>
     <string name="offline_screen_title">Вы офлайн</string>
     <string name="offline_screen_message">Пожалуйста, проверьте подключение к интернету.</string>
-
     <!-- Equalizer preset dialogs -->
     <string name="equalizer_save_custom_preset_title">Сохранить пресет</string>
     <string name="equalizer_save_custom_preset_body">Введите название для вашего пресета.</string>
@@ -42,7 +39,6 @@
     <string name="error_name_empty">Имя не может быть пустым</string>
     <string name="action_save">Сохранить</string>
     <string name="action_rename">Переименовать</string>
-
     <!-- AI metadata sheet -->
     <string name="ai_metadata_headline_success">Тэги обновлены!</string>
     <string name="ai_metadata_headline_default">ИИ Метаданные</string>
@@ -51,10 +47,11 @@
     <string name="song_field_title">Название</string>
     <string name="song_field_artist">Артист</string>
     <string name="song_field_album">Альбом</string>
+    <string name="song_field_album_artist">Исполнитель альбома</string>
     <string name="song_field_genre">Жанр</string>
+    <string name="song_field_composer">Композитор</string>
     <string name="action_try_again">Еще раз</string>
     <string name="action_apply_changes">Применить</string>
-
     <!-- Edit song metadata sheet -->
     <string name="edit_song_info_dialog_title">Правка метаданных</string>
     <string name="edit_song_info_dialog_body">Изменение метаданных может повлиять на организацию фонотеки. Это необратимо.</string>
@@ -85,7 +82,6 @@
     <string name="edit_song_crop_dialog_hint">Используйте жесты для кадрирования.</string>
     <string name="edit_song_apply_cover_art">Применить</string>
     <string name="edit_song_unable_to_load_image">Не удалось загрузить изображение</string>
-
     <!-- Song info bottom sheet -->
     <string name="song_info_share_chooser_title">Поделиться файлом через</string>
     <string name="cd_play_song_action">Играть песню</string>
@@ -120,10 +116,11 @@
     <string name="song_info_tab_details">Детали</string>
     <string name="song_info_tab_info_badge">ИНФО</string>
     <string name="cd_details_tab">Детали</string>
-
     <!-- Multi-selection bottom sheet -->
     <string name="multi_selection_songs_count_upper">ПЕСЕН: %1$d</string>
     <string name="multi_selection_selected">выбрано</string>
+    <string name="multi_selection_genres_count_upper">%1$d GENRES</string>
+    <string name="multi_selection_genres_queue_hint">Perform batch operations on all songs within these genres.</string>
     <string name="cd_play_all">Играть все</string>
     <string name="action_play_all">Играть все</string>
     <string name="cd_like_all">Лайкнуть все</string>
@@ -132,7 +129,6 @@
     <string name="cd_add_all_to_queue">Добавить все в очередь</string>
     <string name="cd_delete_all_songs">Удалить все</string>
     <string name="action_delete_all">Удалить все</string>
-
     <string name="playlist_dismissed_message">Плейлист убран</string>
     <string name="action_undo">Отмена</string>
     <string name="home_option_dj_mashup">DJ Mashup</string>
@@ -143,14 +139,12 @@
     <string name="playlist_picker_add_songs_title">Добавить треки (%1$d) в…</string>
     <string name="playlist_picker_select_playlists">Выберите плейлисты</string>
     <string name="search_playlists_hint">Поиск плейлистов…</string>
-
     <string name="multi_selection_playlists_count_upper">ПЛЕЙЛИСТОВ: %1$d</string>
     <string name="cd_export_all">Экспортировать все</string>
     <string name="cd_merge_all">Объединить все</string>
     <string name="cd_share_all">Поделиться всеми</string>
     <string name="action_export">Экспорт</string>
     <string name="action_merge">Объединить</string>
-
     <string name="reorder_tabs_sheet_title">Порядок вкладок</string>
     <string name="reorder_tabs_reset_dialog_title">Сброс порядка</string>
     <string name="reorder_tabs_reset_dialog_body">Вернуть вкладки по умолчанию?</string>
@@ -162,20 +156,50 @@
     <string name="cd_drag_handle">Ручка перетаскивания</string>
     <string name="cd_reset">Сброс</string>
     <string name="action_done">Готово</string>
-
-    <!-- Backfilled translations -->
-    <string name="song_field_album_artist">Исполнитель альбома</string>
-    <string name="song_field_composer">Композитор</string>
-    <string name="song_info_tone_picker_body">Выберите, куда PixelPlayerOSS должен установить этот звук.</string>
-    <string name="song_info_ringtone_permission_prompt">Включите «Изменение системных настроек», затем вернитесь в PixelPlayerOSS, чтобы завершить установку автоматически.</string>
-    <string name="edit_song_custom_metadata_heading">Дополнительные метаданные</string>
-    <string name="edit_song_custom_metadata_description">Укажите оценку от 0 до 5 или добавьте текстовые поля, например MOOD, COMMENT, YEAR или BPM.</string>
-    <string name="edit_song_rating">Оценка (0–5)</string>
-    <string name="edit_song_rating_not_set">Не задана</string>
+    <string name="cd_add_selected_albums_to_queue">Add selected albums to queue</string>
+    <string name="cd_album_art_of">Album art of %1$s</string>
+    <string name="cd_album_art_placeholder">%1$s placeholder</string>
+    <string name="cd_choose_song_tone">Choose how to use this song as a system sound</string>
+    <string name="cd_cover_art">Cover art</string>
+    <string name="cd_play_selected_albums">Play selected albums</string>
+    <string name="cd_play_selected_albums_next">Play selected albums next</string>
+    <string name="cd_show_controls">Show controls</string>
+    <string name="edit_song_add_custom_field">Добавить поле метаданных</string>
     <string name="edit_song_custom_field_name">Название поля</string>
     <string name="edit_song_custom_field_value">Значение</string>
-    <string name="edit_song_add_custom_field">Добавить поле метаданных</string>
-    <string name="edit_song_remove_custom_field">Удалить поле</string>
+    <string name="edit_song_custom_metadata_description">Укажите оценку от 0 до 5 или добавьте текстовые поля, например MOOD, COMMENT, YEAR или BPM.</string>
     <string name="edit_song_custom_metadata_formats">Оценку и пользовательские поля можно записывать в файлы MP3, WAV, AIFF, FLAC, OGG, Opus, M4A, M4B и MP4.</string>
+    <string name="edit_song_custom_metadata_heading">Дополнительные метаданные</string>
     <string name="edit_song_custom_metadata_invalid">Проверьте дополнительные поля метаданных.</string>
+    <string name="edit_song_rating">Оценка (0–5)</string>
+    <string name="edit_song_rating_not_set">Не задана</string>
+    <string name="edit_song_remove_custom_field">Удалить поле</string>
+    <string name="equalizer_action_save_new">Save New</string>
+    <string name="folder_state_excluded">Excluded</string>
+    <string name="folder_state_included">Included</string>
+    <string name="playlist_created_songs_added_toast">Playlist created and songs added</string>
+    <string name="playlist_saved_toast">Saved</string>
+    <string name="playlist_songs_added_toast">Songs added to playlists</string>
+    <string name="song_info_choose_tone">Set as sound</string>
+    <string name="song_info_ringtone_failed">Couldn\'t set ringtone: %1$s</string>
+    <string name="song_info_ringtone_local_only">Only local songs can be used as ringtones.</string>
+    <string name="song_info_ringtone_missing_file">Couldn\'t prepare this audio file for ringtone.</string>
+    <string name="song_info_ringtone_permission_missing">Modify system settings was not enabled.</string>
+    <string name="song_info_ringtone_permission_prompt">Включите «Изменение системных настроек», затем вернитесь в PixelPlayerOSS, чтобы завершить установку автоматически.</string>
+    <string name="song_info_set_as_short">Set as</string>
+    <string name="song_info_tone_alarm_label">alarm sound</string>
+    <string name="song_info_tone_alarm_subtitle">Clock alarms</string>
+    <string name="song_info_tone_alarm_title">Alarm sound</string>
+    <string name="song_info_tone_confirm_action">Set sound</string>
+    <string name="song_info_tone_confirm_body">Set \"%1$s\" as your %2$s?</string>
+    <string name="song_info_tone_confirm_title">Confirm sound change</string>
+    <string name="song_info_tone_notification_label">notification sound</string>
+    <string name="song_info_tone_notification_subtitle">Messages and app alerts</string>
+    <string name="song_info_tone_notification_title">Notification sound</string>
+    <string name="song_info_tone_picker_body">Выберите, куда PixelPlayerOSS должен установить этот звук.</string>
+    <string name="song_info_tone_picker_title">Use this song as</string>
+    <string name="song_info_tone_ringtone_label">ringtone</string>
+    <string name="song_info_tone_ringtone_subtitle">Incoming calls</string>
+    <string name="song_info_tone_ringtone_title">Phone ringtone</string>
+    <string name="song_info_tone_success">Set \"%1$s\" as your %2$s</string>
 </resources>

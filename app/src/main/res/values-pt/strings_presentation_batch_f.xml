@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- SettingsComponents -->
     <string name="presentation_batch_f_cd_selected">Selecionado</string>
     <string name="presentation_batch_f_refresh_library_title">Atualizar Biblioteca</string>
     <string name="presentation_batch_f_refresh_library_subtitle">Digitalize toda a biblioteca em busca de arquivos novos e modificados.</string>
@@ -37,6 +38,7 @@
     <string name="presentation_batch_f_ai_preset_sonic_enthusiast_prompt">Você é um analista audiófilo focado na complexidade da produção e na instrumentação. Priorize faixas caracterizadas por alta faixa dinâmica, polirritmos complexos e qualidade de som superior. Dê preferência a peças de escuta ativa que recompensem o ouvinte por prestar atenção à fidelidade técnica e aos detalhes do arranjo.</string>
     <string name="presentation_batch_f_ai_preset_energy_catalyst_name">Catalisador de Energia</string>
     <string name="presentation_batch_f_ai_preset_energy_catalyst_prompt">Você é um gerador de ritmo de alto impulso. Sua filosofia gira em torno de linhas de baixo fortes, intensidade percussiva e grooves contagiantes. Priorize a compatibilidade de clubes de alto BPM, energia sincopada e tensão rítmica contínua para manter a frequência cardíaca e a motivação do ouvinte no nível máximo.</string>
+    <!-- Create playlist -->
     <string name="presentation_batch_f_new_playlist">Nova playlist</string>
     <string name="presentation_batch_f_add_songs">Adicionar músicas</string>
     <string name="presentation_batch_f_cd_back_or_cancel">Voltar ou Cancelar</string>
@@ -72,6 +74,11 @@
     <string name="mix_rule_forgotten_favorites_subtitle">Faixas favoritas que você não toca há algum tempo.</string>
     <string name="mix_rule_new_gems_title">Novas joias</string>
     <string name="mix_rule_new_gems_subtitle">Faixas adicionadas recentemente com contagens baixas de reprodução.</string>
+    <string name="mix_rule_artists_title">By Artists</string>
+    <string name="mix_rule_artists_subtitle">Songs from artists you pick.</string>
+    <string name="mix_rule_genres_title">By Genres</string>
+    <string name="mix_rule_genres_subtitle">Songs from genres you pick.</string>
+    <!-- Palette style -->
     <string name="presentation_batch_f_palette_style_heading">Estilo de paleta</string>
     <string name="presentation_batch_f_palette_style_subtitle">Escolha as cores do álbum para a interface do player.</string>
     <string name="presentation_batch_f_colors_title">Cores</string>
@@ -92,6 +99,7 @@
     <string name="presentation_batch_f_accuracy_summary_subtle">%1$d • Sutil</string>
     <string name="presentation_batch_f_accuracy_summary_balanced">%1$d • Balanceado</string>
     <string name="presentation_batch_f_accuracy_summary_precise">%1$d • Preciso</string>
+    <!-- Experimental settings -->
     <string name="presentation_batch_f_exp_player_ui_tweaks_section">Ajustes no carregamento do PlayerUI</string>
     <string name="presentation_batch_f_exp_animated_lyrics_title">Letras animadas (dispositivos de última geração)</string>
     <string name="presentation_batch_f_exp_animated_lyrics_subtitle">Usa animações de primavera e efeitos visuais para letras. Pode causar quedas de quadros em dispositivos de baixo custo.</string>
@@ -140,6 +148,7 @@
     <string name="presentation_batch_f_album_art_quality_medium_line">Médio (512px) - Equilibrado</string>
     <string name="presentation_batch_f_album_art_quality_high_line">Alta (800px) - Melhor qualidade</string>
     <string name="presentation_batch_f_album_art_quality_original_line">Original - Máxima qualidade</string>
+    <!-- Settings category screen (composables) -->
     <string name="presentation_batch_f_percent">%1$d%%</string>
     <string name="presentation_batch_f_status_bullet_step">%1$s • %2$s</string>
     <string name="presentation_batch_f_dot_space_suffix">· %1$s</string>
@@ -178,6 +187,7 @@
     <string name="presentation_batch_f_add_channel_button">Adicionar canal</string>
     <string name="presentation_batch_f_never_synced">Nunca sincronizado</string>
     <string name="presentation_batch_f_synced_relative">%1$s sincronizado</string>
+    <!-- Telegram channel search -->
     <string name="presentation_batch_f_add_channel_sheet_title">Adicionar canal</string>
     <string name="presentation_batch_f_channel_search_placeholder">\@nome do canal ou link</string>
     <string name="presentation_batch_f_cd_search">Pesquisar</string>
@@ -194,4 +204,28 @@ para sincronizar seus arquivos de áudio</string>
         <item quantity="one">%d tópico</item>
         <item quantity="other">%d tópicos</item>
     </plurals>
+    <string name="presentation_batch_f_adjust_cover_hint">Use pinch and drag gestures to find the perfect framing</string>
+    <string name="presentation_batch_f_adjust_cover_title">Adjust your cover art</string>
+    <string name="presentation_batch_f_change">Change</string>
+    <string name="presentation_batch_f_edit_cover_title">Edit Cover</string>
+    <string name="presentation_batch_f_remove">Remove</string>
+    <string name="mix_create_title">New mix</string>
+    <string name="mix_name_label">Mix name</string>
+    <string name="mix_name_placeholder">My mix</string>
+    <string name="mix_preset_label">Preset</string>
+    <string name="mix_generation_mode_label">Generation Mode</string>
+    <string name="mix_playlist_size_title">Playlist size</string>
+    <string name="mix_playlist_size_subtitle">Number of songs to generate</string>
+    <string name="mix_artists_label">Artists</string>
+    <string name="mix_artists_hint">Choose one or more artists for this mix.</string>
+    <string name="mix_artists_add">Add artists</string>
+    <string name="mix_artists_search_placeholder">Search artists</string>
+    <string name="mix_artists_empty">No artists in your library yet.</string>
+    <string name="mix_genres_label">Genres</string>
+    <string name="mix_genres_placeholder">Rock, K-Pop, Jazz</string>
+    <string name="mix_genres_hint">Separate genres with commas. Recognized genres become chips.</string>
+    <string name="mix_empty_title">No mixes yet</string>
+    <string name="mix_empty_hint">Create your first mix to get started.</string>
+    <string name="mix_cover_cd">Mix</string>
+    <string name="mix_see_all">See all</string>
 </resources>

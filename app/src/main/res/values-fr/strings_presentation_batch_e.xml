@@ -2,20 +2,24 @@
 <resources>
     <!-- QueueBottomSheet -->
     <string name="presentation_batch_e_queue_empty">La file d\'attente est vide.</string>
+    <string name="queue_empty_subtitle">Songs you play will appear here.</string>
     <string name="presentation_batch_e_cd_queue_actions">Actions de la file d\'attente</string>
     <string name="presentation_batch_e_action_clear_queue">Vider la file d\'attente</string>
     <string name="presentation_batch_e_action_save_as_playlist">Enregistrer comme liste de lecture</string>
+    <string name="presentation_batch_e_action_locate_current_song">Localiser la chanson actuelle</string>
     <string name="presentation_batch_e_queue_named_suffix">File d\'attente %1$s</string>
     <string name="presentation_batch_e_queue_current">File d\'attente actuelle</string>
     <string name="presentation_batch_e_removed">supprimé</string>
     <string name="presentation_batch_e_clear_queue_dialog_title">Vider la file d\'attente</string>
     <string name="presentation_batch_e_clear_queue_dialog_message">Voulez-vous vraiment supprimer toutes les chansons de la file d\'attente, sauf l\'actuelle ?</string>
     <string name="presentation_batch_e_next_up">À suivre</string>
+    <string name="autoplay">Lecture automatique</string>
     <string name="presentation_batch_e_queue_subtitle_empty">La file d\'attente est vide pour le moment.</string>
     <string name="presentation_batch_e_queue_source_fallback">File d\'attente</string>
     <string name="presentation_batch_e_cd_toggle_shuffle">Activer/désactiver l\'aléatoire</string>
     <string name="presentation_batch_e_cd_toggle_repeat">Activer/désactiver la répétition</string>
     <string name="presentation_batch_e_cd_sleep_timer">Minuteur de mise en veille</string>
+    <string name="presentation_batch_e_cd_speed">Playback speed</string>
     <string name="presentation_batch_e_save_as_playlist_sheet_title">Enregistrer comme liste de lecture</string>
     <string name="presentation_batch_e_deselect_all">Tout désélectionner</string>
     <string name="presentation_batch_e_playlist_name_label">Nom de la liste de lecture</string>
@@ -26,7 +30,6 @@
     <string name="presentation_batch_e_cd_dismiss_song">Ignorer la chanson</string>
     <string name="presentation_batch_e_cd_remove_from_playlist">Retirer de la liste de lecture</string>
     <string name="presentation_batch_e_more_options_for_song">Plus d\'options pour %1$s</string>
-
     <plurals name="presentation_batch_e_queue_tracks_lined_up">
         <item quantity="one">%d piste en attente.</item>
         <item quantity="other">%d pistes en attente.</item>
@@ -35,12 +38,15 @@
         <item quantity="one">%d chanson sélectionnée</item>
         <item quantity="other">%d chansons sélectionnées</item>
     </plurals>
-
+    <!-- PlaylistContainer -->
+    <string name="presentation_batch_e_no_playlist_created">Aucune playlist n\'a été créée.</string>
+    <string name="presentation_batch_e_new_playlist_hint">Appuyez sur le bouton \'Nouvelle liste de lecture\' pour démarrer.</string>
     <!-- PlaylistCreationDialogs: create flow -->
     <string name="presentation_batch_e_create_playlist_title">Créer une liste de lecture</string>
     <string name="presentation_batch_e_create_playlist_subtitle">Choisissez le mode de création.</string>
+    <string name="presentation_batch_e_creation_mode_manual">Manual</string>
+    <string name="presentation_batch_e_creation_mode_manual_subtitle">Design artwork, icon, shape and pick songs yourself.</string>
     <string name="presentation_batch_e_setup_api_key">Configurer la clé API</string>
-
     <!-- AI playlist lab -->
     <string name="presentation_batch_e_ai_playlist_lab_title">Labo de listes de lecture IA</string>
     <string name="presentation_batch_e_ai_reset">Réinitialiser</string>
@@ -81,7 +87,6 @@
     <string name="presentation_batch_e_ai_custom_chip">Personnalisé…</string>
     <string name="presentation_batch_e_ai_enter_custom_title">Entrer une valeur personnalisée</string>
     <string name="presentation_batch_e_ai_enter_custom_label">Entrez votre valeur personnalisée</string>
-
     <!-- AI prompt assembly (sent to model; localized for consistency with UI) -->
     <string name="presentation_batch_e_ai_era_any">Toutes époques</string>
     <string name="presentation_batch_e_ai_prompt_core_request">Requête principale : %1$s.</string>
@@ -96,7 +101,6 @@
     <string name="presentation_batch_e_ai_prompt_prioritize_favorites">Prioriser les chansons proches des favoris de l\'auditeur si possible.</string>
     <string name="presentation_batch_e_ai_prompt_avoid_explicit">Éviter les paroles explicites lorsque des alternatives existent.</string>
     <string name="presentation_batch_e_ai_prompt_smooth_transitions">Garder des transitions fluides et éviter le regroupement répétitif d\'artistes.</string>
-
     <string-array name="presentation_batch_e_ai_mood_options">
         <item>Détendu</item>
         <item>Énergique</item>
@@ -122,7 +126,6 @@
         <item>Années 2010</item>
         <item>Années 2020</item>
     </string-array>
-
     <!-- ReorderPresetsSheet -->
     <string name="presentation_batch_e_reset_presets_title">Réinitialiser les préréglages</string>
     <string name="presentation_batch_e_reset_presets_message">Cela restaurera l\'ordre et la visibilité par défaut des préréglages. Continuer ?</string>
@@ -131,7 +134,6 @@
     <string name="presentation_batch_e_cd_reset_presets_default">Réinitialiser par défaut</string>
     <string name="presentation_batch_e_cd_visible">Visible</string>
     <string name="presentation_batch_e_cd_hidden">Masqué</string>
-
     <!-- DailyMixMenu -->
     <string name="presentation_batch_e_daily_mix_how_title">Comment votre Daily Mix est construit</string>
     <string name="presentation_batch_e_daily_mix_how_body">Votre Daily Mix est construit à partir de vos chansons préférées et les plus écoutées. Nous ajoutons également des pistes d\'artistes et de genres que vous aimez pour vous faire découvrir de nouvelles musiques.</string>
@@ -139,10 +141,4 @@
     <string name="presentation_batch_e_daily_mix_cost_hint">Nous utilisons un petit échantillon pour maintenir les coûts bas</string>
     <string name="presentation_batch_e_daily_mix_updating">Mise à jour…</string>
     <string name="presentation_batch_e_daily_mix_update">Mettre à jour le Daily Mix</string>
-
-    <!-- Backfilled translations -->
-    <string name="presentation_batch_e_action_locate_current_song">Localiser la chanson actuelle</string>
-    <string name="autoplay">Lecture automatique</string>
-    <string name="presentation_batch_e_no_playlist_created">Aucune playlist n\'a été créée.</string>
-    <string name="presentation_batch_e_new_playlist_hint">Appuyez sur le bouton \'Nouvelle liste de lecture\' pour démarrer.</string>
 </resources>

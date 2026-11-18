@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- QueueBottomSheet -->
     <string name="presentation_batch_e_queue_empty">A fila está vazia.</string>
+    <string name="queue_empty_subtitle">Songs you play will appear here.</string>
     <string name="presentation_batch_e_cd_queue_actions">Ações de fila</string>
     <string name="presentation_batch_e_action_clear_queue">Limpar fila</string>
     <string name="presentation_batch_e_action_save_as_playlist">Salvar como lista de reprodução</string>
@@ -17,6 +19,7 @@
     <string name="presentation_batch_e_cd_toggle_shuffle">Alternar ordem aleatória</string>
     <string name="presentation_batch_e_cd_toggle_repeat">Alternar repetição</string>
     <string name="presentation_batch_e_cd_sleep_timer">Temporizador</string>
+    <string name="presentation_batch_e_cd_speed">Playback speed</string>
     <string name="presentation_batch_e_save_as_playlist_sheet_title">Salvar como lista de reprodução</string>
     <string name="presentation_batch_e_deselect_all">Desmarcar tudo</string>
     <string name="presentation_batch_e_playlist_name_label">Nome da lista de reprodução</string>
@@ -27,11 +30,24 @@
     <string name="presentation_batch_e_cd_dismiss_song">Dispensar música</string>
     <string name="presentation_batch_e_cd_remove_from_playlist">Remover da lista de reprodução</string>
     <string name="presentation_batch_e_more_options_for_song">Mais opções para %1$s</string>
+    <plurals name="presentation_batch_e_queue_tracks_lined_up">
+        <item quantity="one">%d faixa na fila</item>
+        <item quantity="other">%d faixas na fila</item>
+    </plurals>
+    <plurals name="presentation_batch_e_n_songs_selected">
+        <item quantity="one">%d música selecionada</item>
+        <item quantity="other">%d músicas selecionadas</item>
+    </plurals>
+    <!-- PlaylistContainer -->
     <string name="presentation_batch_e_no_playlist_created">Nenhuma lista de reprodução foi criada.</string>
     <string name="presentation_batch_e_new_playlist_hint">Toque no botão \'Nova Playlist\' para iniciar.</string>
+    <!-- PlaylistCreationDialogs: create flow -->
     <string name="presentation_batch_e_create_playlist_title">Criar lista de reprodução</string>
     <string name="presentation_batch_e_create_playlist_subtitle">Escolha o fluxo de criação.</string>
+    <string name="presentation_batch_e_creation_mode_manual">Manual</string>
+    <string name="presentation_batch_e_creation_mode_manual_subtitle">Design artwork, icon, shape and pick songs yourself.</string>
     <string name="presentation_batch_e_setup_api_key">Configurar chave API</string>
+    <!-- AI playlist lab -->
     <string name="presentation_batch_e_ai_playlist_lab_title">Laboratório de lista de reprodução de IA</string>
     <string name="presentation_batch_e_ai_reset">Redefinir</string>
     <string name="presentation_batch_e_ai_generating">Gerando…</string>
@@ -71,6 +87,7 @@
     <string name="presentation_batch_e_ai_custom_chip">Personalizado…</string>
     <string name="presentation_batch_e_ai_enter_custom_title">Insira o valor personalizado</string>
     <string name="presentation_batch_e_ai_enter_custom_label">Insira seu valor personalizado</string>
+    <!-- AI prompt assembly (sent to model; localized for consistency with UI) -->
     <string name="presentation_batch_e_ai_era_any">Qualquer época</string>
     <string name="presentation_batch_e_ai_prompt_core_request">Solicitação principal: %1$s.</string>
     <string name="presentation_batch_e_ai_prompt_mood">Alvo de humor: %1$s.</string>
@@ -84,19 +101,6 @@
     <string name="presentation_batch_e_ai_prompt_prioritize_favorites">Priorize músicas mais próximas das favoritas do ouvinte, quando possível.</string>
     <string name="presentation_batch_e_ai_prompt_avoid_explicit">Evite letras explícitas sempre que existirem alternativas.</string>
     <string name="presentation_batch_e_ai_prompt_smooth_transitions">Mantenha as transições suaves e evite agrupamentos repetitivos de artistas.</string>
-    <string name="presentation_batch_e_reset_presets_title">Redefinir predefinições</string>
-    <string name="presentation_batch_e_reset_presets_message">Isso restaurará a ordem e a visibilidade predefinidas padrão. Continuar?</string>
-    <string name="presentation_batch_e_manage_presets_title">Gerenciar predefinições</string>
-    <string name="presentation_batch_e_presets_drag_hint">Arraste para reordenar • Toque no olho para mostrar ou ocultar</string>
-    <string name="presentation_batch_e_cd_reset_presets_default">Redefinir para o padrão</string>
-    <string name="presentation_batch_e_cd_visible">Visível</string>
-    <string name="presentation_batch_e_cd_hidden">Oculto</string>
-    <string name="presentation_batch_e_daily_mix_how_title">Como é construído o seu Daily Mix</string>
-    <string name="presentation_batch_e_daily_mix_how_body">Seu Daily Mix é criado a partir de suas músicas favoritas e mais tocadas. Também adicionamos faixas de artistas e gêneros que você gosta para que você possa descobrir novas músicas.</string>
-    <string name="presentation_batch_e_daily_mix_prompt_label">Diga à IA o que você quer ouvir hoje</string>
-    <string name="presentation_batch_e_daily_mix_cost_hint">Usamos uma pequena amostra para manter os custos baixos</string>
-    <string name="presentation_batch_e_daily_mix_updating">Atualizando…</string>
-    <string name="presentation_batch_e_daily_mix_update">Atualizar mix diário</string>
     <string-array name="presentation_batch_e_ai_mood_options">
         <item>Descontraído</item>
         <item>Energético</item>
@@ -122,12 +126,19 @@
         <item>Anos 2010</item>
         <item>Anos 2020</item>
     </string-array>
-    <plurals name="presentation_batch_e_queue_tracks_lined_up">
-        <item quantity="one">%d faixa na fila</item>
-        <item quantity="other">%d faixas na fila</item>
-    </plurals>
-    <plurals name="presentation_batch_e_n_songs_selected">
-        <item quantity="one">%d música selecionada</item>
-        <item quantity="other">%d músicas selecionadas</item>
-    </plurals>
+    <!-- ReorderPresetsSheet -->
+    <string name="presentation_batch_e_reset_presets_title">Redefinir predefinições</string>
+    <string name="presentation_batch_e_reset_presets_message">Isso restaurará a ordem e a visibilidade predefinidas padrão. Continuar?</string>
+    <string name="presentation_batch_e_manage_presets_title">Gerenciar predefinições</string>
+    <string name="presentation_batch_e_presets_drag_hint">Arraste para reordenar • Toque no olho para mostrar ou ocultar</string>
+    <string name="presentation_batch_e_cd_reset_presets_default">Redefinir para o padrão</string>
+    <string name="presentation_batch_e_cd_visible">Visível</string>
+    <string name="presentation_batch_e_cd_hidden">Oculto</string>
+    <!-- DailyMixMenu -->
+    <string name="presentation_batch_e_daily_mix_how_title">Como é construído o seu Daily Mix</string>
+    <string name="presentation_batch_e_daily_mix_how_body">Seu Daily Mix é criado a partir de suas músicas favoritas e mais tocadas. Também adicionamos faixas de artistas e gêneros que você gosta para que você possa descobrir novas músicas.</string>
+    <string name="presentation_batch_e_daily_mix_prompt_label">Diga à IA o que você quer ouvir hoje</string>
+    <string name="presentation_batch_e_daily_mix_cost_hint">Usamos uma pequena amostra para manter os custos baixos</string>
+    <string name="presentation_batch_e_daily_mix_updating">Atualizando…</string>
+    <string name="presentation_batch_e_daily_mix_update">Atualizar mix diário</string>
 </resources>

@@ -2,6 +2,7 @@
 <resources>
     <!-- QueueBottomSheet -->
     <string name="presentation_batch_e_queue_empty">Antrean kosong.</string>
+    <string name="queue_empty_subtitle">Songs you play will appear here.</string>
     <string name="presentation_batch_e_cd_queue_actions">Tindakan antrean</string>
     <string name="presentation_batch_e_action_clear_queue">Bersihkan antrean</string>
     <string name="presentation_batch_e_action_save_as_playlist">Simpan sebagai playlist</string>
@@ -12,11 +13,13 @@
     <string name="presentation_batch_e_clear_queue_dialog_title">Bersihkan antrean</string>
     <string name="presentation_batch_e_clear_queue_dialog_message">Apakah Anda yakin ingin menghapus semua lagu dari antrean kecuali yang sedang diputar?</string>
     <string name="presentation_batch_e_next_up">Berikutnya</string>
+    <string name="autoplay">Putar otomatis</string>
     <string name="presentation_batch_e_queue_subtitle_empty">Antrean saat ini kosong.</string>
     <string name="presentation_batch_e_queue_source_fallback">Antrean</string>
     <string name="presentation_batch_e_cd_toggle_shuffle">Alihkan acak</string>
     <string name="presentation_batch_e_cd_toggle_repeat">Alihkan ulangi</string>
     <string name="presentation_batch_e_cd_sleep_timer">Sleep timer</string>
+    <string name="presentation_batch_e_cd_speed">Playback speed</string>
     <string name="presentation_batch_e_save_as_playlist_sheet_title">Simpan sebagai playlist</string>
     <string name="presentation_batch_e_deselect_all">Batalkan pilihan semua</string>
     <string name="presentation_batch_e_playlist_name_label">Nama playlist</string>
@@ -27,25 +30,21 @@
     <string name="presentation_batch_e_cd_dismiss_song">Tutup lagu</string>
     <string name="presentation_batch_e_cd_remove_from_playlist">Hapus dari playlist</string>
     <string name="presentation_batch_e_more_options_for_song">Opsi lainnya untuk %1$s</string>
-
     <plurals name="presentation_batch_e_queue_tracks_lined_up">
-        <item quantity="one">1 trek telah siap.</item>
         <item quantity="other">%d trek telah siap.</item>
     </plurals>
     <plurals name="presentation_batch_e_n_songs_selected">
-        <item quantity="one">%d lagu terpilih</item>
         <item quantity="other">%d lagu terpilih</item>
     </plurals>
-
     <!-- PlaylistContainer -->
     <string name="presentation_batch_e_no_playlist_created">Belum ada playlist yang dibuat.</string>
     <string name="presentation_batch_e_new_playlist_hint">Sentuh tombol \'Playlist Baru\' untuk memulai.</string>
-
     <!-- PlaylistCreationDialogs: create flow -->
     <string name="presentation_batch_e_create_playlist_title">Buat playlist</string>
     <string name="presentation_batch_e_create_playlist_subtitle">Pilih alur pembuatan.</string>
+    <string name="presentation_batch_e_creation_mode_manual">Manual</string>
+    <string name="presentation_batch_e_creation_mode_manual_subtitle">Design artwork, icon, shape and pick songs yourself.</string>
     <string name="presentation_batch_e_setup_api_key">Siapkan API key</string>
-
     <!-- AI playlist lab -->
     <string name="presentation_batch_e_ai_playlist_lab_title">Lab Playlist AI</string>
     <string name="presentation_batch_e_ai_reset">Reset</string>
@@ -86,7 +85,6 @@
     <string name="presentation_batch_e_ai_custom_chip">Kustom…</string>
     <string name="presentation_batch_e_ai_enter_custom_title">Masukkan nilai kustom</string>
     <string name="presentation_batch_e_ai_enter_custom_label">Masukkan nilai kustom Anda</string>
-
     <!-- AI prompt assembly (sent to model; localized for consistency with UI) -->
     <string name="presentation_batch_e_ai_era_any">Era apa pun</string>
     <string name="presentation_batch_e_ai_prompt_core_request">Permintaan utama: %1$s.</string>
@@ -101,7 +99,6 @@
     <string name="presentation_batch_e_ai_prompt_prioritize_favorites">Prioritaskan lagu yang mendekati favorit pendengar jika memungkinkan.</string>
     <string name="presentation_batch_e_ai_prompt_avoid_explicit">Hindari lirik eksplisit jika ada alternatif.</string>
     <string name="presentation_batch_e_ai_prompt_smooth_transitions">Jaga transisi tetap mulus dan hindari pengelompokan artis yang berulang.</string>
-
     <string-array name="presentation_batch_e_ai_mood_options">
         <item>Santai</item>
         <item>Energik</item>
@@ -127,7 +124,6 @@
         <item>2010-an</item>
         <item>2020-an</item>
     </string-array>
-
     <!-- ReorderPresetsSheet -->
     <string name="presentation_batch_e_reset_presets_title">Reset preset</string>
     <string name="presentation_batch_e_reset_presets_message">Ini akan mengembalikan urutan preset dan visibilitas default. Lanjutkan?</string>
@@ -136,7 +132,6 @@
     <string name="presentation_batch_e_cd_reset_presets_default">Reset ke default</string>
     <string name="presentation_batch_e_cd_visible">Terlihat</string>
     <string name="presentation_batch_e_cd_hidden">Tersembunyi</string>
-
     <!-- DailyMixMenu -->
     <string name="presentation_batch_e_daily_mix_how_title">Bagaimana Daily Mix Anda dibuat</string>
     <string name="presentation_batch_e_daily_mix_how_body">Daily Mix Anda dibuat dari lagu-lagu favorit dan yang paling sering Anda putar. Kami juga menambahkan lagu dari artis dan genre yang Anda suka supaya Anda bisa menemukan musik baru.</string>
@@ -144,7 +139,4 @@
     <string name="presentation_batch_e_daily_mix_cost_hint">Kami menggunakan sampel kecil untuk menjaga biaya tetap rendah</string>
     <string name="presentation_batch_e_daily_mix_updating">Memperbarui…</string>
     <string name="presentation_batch_e_daily_mix_update">Perbarui Daily Mix</string>
-
-    <!-- Backfilled translations -->
-    <string name="autoplay">Putar otomatis</string>
 </resources>

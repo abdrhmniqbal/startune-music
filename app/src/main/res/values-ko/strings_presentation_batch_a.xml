@@ -3,5 +3,4 @@
     <!-- Web login security notes (QQ / NetEase) -->
     <string name="auth_web_login_security_note_qq">보안 참고 사항: 비밀번호는 QQ Music 웹 페이지에만 입력됩니다. Startune Music는 라이브러리 동기화를 위해 세션 쿠키를 저장합니다.</string>
     <string name="auth_error_read_qq_cookies_failed">QQ Music 쿠키 읽기 실패: %1$s</string>
-
 </resources>

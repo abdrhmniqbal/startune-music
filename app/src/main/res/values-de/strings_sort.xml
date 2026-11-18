@@ -7,6 +7,7 @@
     <string name="sort_method_album">Album</string>
     <string name="sort_method_date_added">Hinzufügedatum</string>
     <string name="sort_method_duration">Dauer</string>
+    <string name="sort_method_play_count">Play Count</string>
     <string name="sort_method_release_year">Erscheinungsjahr</string>
     <string name="sort_method_song_count">Song-Anzahl</string>
     <string name="sort_method_name">Name</string>

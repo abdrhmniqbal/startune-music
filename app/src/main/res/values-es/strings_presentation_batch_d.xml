@@ -29,7 +29,6 @@
     <string name="presentation_batch_d_library_tabs_sheet_subtitle">Salta a cualquier pestaña o reordénalas.</string>
     <string name="presentation_batch_d_reorder_tabs_label">Reordenar pestañas</string>
     <string name="presentation_batch_d_cd_folder">Carpeta</string>
-
     <!-- LibraryScreen — watch transfer dialog -->
     <string name="presentation_batch_d_watch_sending_title">Enviando al reloj</string>
     <string name="presentation_batch_d_watch_starting_transfer">Iniciando transferencia…</string>
@@ -40,13 +39,11 @@
     <string name="presentation_batch_d_watch_status_preparing">Preparando</string>
     <string name="presentation_batch_d_watch_preparing_transfer">Preparando transferencia…</string>
     <string name="presentation_batch_d_watch_cancel_transfer">Cancelar transferencia</string>
-
     <!-- LibraryScreen — merge playlists -->
     <string name="presentation_batch_d_merge_playlists_title">Fusionar listas</string>
     <string name="presentation_batch_d_merge_playlists_prompt">Introduce un nombre para la lista fusionada:</string>
     <string name="presentation_batch_d_merge_playlists_placeholder">Lista fusionada</string>
     <string name="presentation_batch_d_merge_playlists_body">Esto fusionará %1$d listas seleccionadas en una.</string>
-
     <!-- MashupScreen -->
     <string name="presentation_batch_d_mashup_title">Espacio DJ</string>
     <string name="presentation_batch_d_loading">Cargando…</string>
@@ -61,7 +58,6 @@
     <string name="presentation_batch_d_mashup_deck_1">Plato 1</string>
     <string name="presentation_batch_d_mashup_deck_2">Plato 2</string>
     <string name="presentation_batch_d_mashup_select_song_title">Elegir una canción</string>
-
     <!-- EqualizerScreen -->
     <string name="presentation_batch_d_eq_change_view_mode_cd">Cambiar modo de vista</string>
     <string name="presentation_batch_d_eq_disable_cd">Desactivar ecualizador</string>
@@ -87,7 +83,6 @@
     <string name="presentation_batch_d_eq_band_mid_high">Medios / agudos</string>
     <string name="presentation_batch_d_eq_page_n">Página %1$d</string>
     <string name="presentation_batch_d_eq_reset_duration_cd">Restablecer duración</string>
-
     <!-- EditTransitionScreen -->
     <string name="presentation_batch_d_transition_snackbar_using_global">Usando valores globales</string>
     <string name="presentation_batch_d_transition_snackbar_saved">Cambios guardados</string>
@@ -117,7 +112,6 @@
     <string name="presentation_batch_d_transition_curves_subtitle">Ajusta la pendiente del audio</string>
     <string name="presentation_batch_d_transition_fade_out">Fade out</string>
     <string name="presentation_batch_d_transition_fade_in">Fade in</string>
-
     <!-- ArtistDetailScreen -->
     <string name="presentation_batch_d_cd_play_title">Reproducir %1$s</string>
     <string name="presentation_batch_d_cd_collapse_title">Contraer %1$s</string>
@@ -125,6 +119,16 @@
     <string name="presentation_batch_d_edit_artist_image_cd">Editar imagen del artista</string>
     <string name="presentation_batch_d_change_photo">Cambiar foto</string>
     <string name="presentation_batch_d_reset_to_default">Restablecer predeterminado</string>
+    <string name="presentation_batch_d_select_artwork">Select artwork</string>
+    <string name="presentation_batch_d_search_deezer_hint">Search artist on Deezer...</string>
+    <string name="presentation_batch_d_choose_from_device">Choose from device</string>
+    <string name="presentation_batch_d_no_artwork_found">No artist images found on Deezer</string>
+    <string name="presentation_batch_d_artwork_updated">Artist artwork updated</string>
+    <string name="presentation_batch_d_artwork_update_failed">Failed to update artwork</string>
+    <string name="presentation_batch_d_artwork_removed">Artist artwork removed</string>
+    <string name="presentation_batch_d_artwork_remove_failed">Failed to remove artwork</string>
+    <string name="presentation_batch_d_fans">%1$s fans</string>
+    <string name="presentation_batch_d_albums">%1$d albums</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">Aleatorio del artista</string>
     <string name="presentation_batch_d_cd_artist">Artista</string>
 </resources>

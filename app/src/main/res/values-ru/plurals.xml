@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <plurals name="delete_playlists_confirmation_title">
+        <item quantity="one">Delete %d playlist?</item>
+        <item quantity="few">Delete %d playlists?</item>
+        <item quantity="many">Delete %d playlists?</item>
+        <item quantity="other">Delete %d playlists?</item>
+    </plurals>
+    <plurals name="delete_playlists_confirmation_body">
+        <item quantity="one">Are you sure you want to delete %d playlist?</item>
+        <item quantity="few">Are you sure you want to delete %d playlists?</item>
+        <item quantity="many">Are you sure you want to delete %d playlists?</item>
+        <item quantity="other">Are you sure you want to delete %d playlists?</item>
+    </plurals>
     <plurals name="sharing_playlists_message">
         <item quantity="one">Отправка %d плейлиста</item>
         <item quantity="few">Отправка %d плейлистов</item>
@@ -72,10 +84,34 @@
         <item quantity="many">%d дней</item>
         <item quantity="other">%d дня</item>
     </plurals>
+    <plurals name="stats_plays_count">
+        <item quantity="one">%d play</item>
+        <item quantity="few">%d plays</item>
+        <item quantity="many">%d plays</item>
+        <item quantity="other">%d plays</item>
+    </plurals>
     <plurals name="stats_sessions_count">
         <item quantity="one">%d сеанс</item>
         <item quantity="few">%d сеанса</item>
         <item quantity="many">%d сеансов</item>
         <item quantity="other">%d сеанса</item>
+    </plurals>
+    <plurals name="stats_tracks_count">
+        <item quantity="one">%d track</item>
+        <item quantity="few">%d tracks</item>
+        <item quantity="many">%d tracks</item>
+        <item quantity="other">%d tracks</item>
+    </plurals>
+    <plurals name="song_count">
+        <item quantity="one">%d Song</item>
+        <item quantity="few">%d Songs</item>
+        <item quantity="many">%d Songs</item>
+        <item quantity="other">%d Songs</item>
+    </plurals>
+    <plurals name="bookmark_moment_count">
+        <item quantity="one">%d moment</item>
+        <item quantity="few">%d moments</item>
+        <item quantity="many">%d moments</item>
+        <item quantity="other">%d moments</item>
     </plurals>
 </resources>
