@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.1-beta] - 2026-11-18
 
-- The Reset to default row in the library artist menu now shows the danger color like every other destructive action. It was the one destructive row missing it, while the same action in the artist detail sheet already had it.
-- A playlist cover no longer sticks at 3 tiles when the playlist has more albums: the cover now scans past the first few songs until it finds 4 different artworks, so bulk-adding an artist's songs gives the full 2x2 grid. The same fix applies when several of the first songs share one artwork.
-- The nested detail lists no longer show a more menu on every song: the All Songs list from an artist or a genre has no per-song button now, so the rows are clean. The top-bar menu for the whole list stays, and the detail pages themselves keep their per-song menus.
+- The Reset to default row in the library artist menu now shows the danger color like every other destructive action.
+- A playlist cover no longer sticks at 3 tiles when the playlist has more albums or several of the first songs share one artwork: the cover now scans past the first few songs until it finds 4 different artworks.
+- The nested detail lists no longer show a more menu on every song, so the rows are clean.
 - The changelog now renders its markdown instead of showing it as raw text, so bullets are proper list rows and the beta install warning shows as a highlighted quote.
 - Dropdown menus are gone everywhere: the bookmark sort, the theme card menu, the detail hero "+" menu, and the create-mix generation-mode picker all open a bottom sheet now, so no screen uses a dropdown menu anymore.
 - Artist, album, genre, playlist, and mix detail more menus now open a bottom sheet with the same design as the library list and include the playback actions (Play, Shuffle, Play next, Add to queue, Add to playlist) alongside each page's own actions, so the detail and library menus no longer miss what the other has.
