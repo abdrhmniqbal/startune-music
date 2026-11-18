@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - The Search browse page no longer hides its bottom section behind the miniplayer and the bottom bar: it now has the same bottom clearance as Home, and it scrolls so every section stays reachable. The search history list got the same clearance.
+- The playlist multi-select sheet now shows each selected playlist's real cover in its header instead of an initial letter.
+- Delete moved to the very bottom of the playlist multi-select sheet, below Export, Merge, and Share.
 
 ## [2.0.1-beta] - 2026-11-18
 

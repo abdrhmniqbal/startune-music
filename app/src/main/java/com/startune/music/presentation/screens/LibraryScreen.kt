@@ -2070,6 +2070,7 @@ fun LibraryScreen(
 
         PlaylistMultiSelectionBottomSheet(
             selectedPlaylists = selectedPlaylists,
+            playerViewModel = playerViewModel,
             onDismiss = {
                 showPlaylistMultiSelectionSheet = false
             },

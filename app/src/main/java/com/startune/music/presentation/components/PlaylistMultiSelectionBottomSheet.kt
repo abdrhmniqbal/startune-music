@@ -22,48 +22,40 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.QueueMusic
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.rounded.Album
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.FileDownload
-import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.Merge
-import androidx.compose.material.icons.rounded.MicExternalOn
-import androidx.compose.material.icons.rounded.MusicNote
-import androidx.compose.material.icons.rounded.Piano
 import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material.icons.rounded.Speaker
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import coil.compose.AsyncImage
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.startune.music.data.model.Playlist
+import com.startune.music.data.model.Song
 import com.startune.music.presentation.components.subcomps.AutoSizingTextToFill
+import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.ui.theme.RoundedSans
-import com.startune.music.utils.resolvePlaylistCoverContentColor
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 import androidx.compose.ui.res.stringResource
 import com.startune.music.R
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import androidx.compose.runtime.remember
+import kotlinx.coroutines.flow.map
 
 /**
  * Bottom sheet for batch operations on multiple selected playlists.
@@ -80,6 +72,7 @@ import androidx.compose.runtime.remember
 @Composable
 fun PlaylistMultiSelectionBottomSheet(
     selectedPlaylists: ImmutableList<Playlist>,
+    playerViewModel: PlayerViewModel,
     onDismiss: () -> Unit,
     onDeleteAll: () -> Unit,
     onExportAll: () -> Unit,
@@ -124,6 +117,7 @@ fun PlaylistMultiSelectionBottomSheet(
 
                     StackedPlaylistCovers(
                         playlists = remember(selectedPlaylists) { selectedPlaylists.take(4).toImmutableList() },
+                        playerViewModel = playerViewModel,
                         modifier = Modifier
                             .height(74.dp)
                             .width(stackedWidth)
@@ -163,17 +157,6 @@ fun PlaylistMultiSelectionBottomSheet(
                 ) {
                     item {
                         MoreMenuListRow(
-                            label = stringResource(R.string.delete_action),
-                            icon = Icons.Rounded.Delete,
-                            destructive = true,
-                            onClick = {
-                                onDeleteAll()
-                                onDismiss()
-                            }
-                        )
-                    }
-                    item {
-                        MoreMenuListRow(
                             label = stringResource(R.string.action_export),
                             icon = Icons.Rounded.FileDownload,
                             onClick = {
@@ -202,6 +185,19 @@ fun PlaylistMultiSelectionBottomSheet(
                             }
                         )
                     }
+                    // Destructive actions always go last, so they sit at the
+                    // very bottom of the sheet.
+                    item {
+                        MoreMenuListRow(
+                            label = stringResource(R.string.delete_action),
+                            icon = Icons.Rounded.Delete,
+                            destructive = true,
+                            onClick = {
+                                onDeleteAll()
+                                onDismiss()
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -215,6 +211,7 @@ fun PlaylistMultiSelectionBottomSheet(
 @Composable
 private fun StackedPlaylistCovers(
     playlists: ImmutableList<Playlist>,
+    playerViewModel: PlayerViewModel,
     modifier: Modifier = Modifier
 ) {
     val imageSize = 66.dp
@@ -241,74 +238,48 @@ private fun StackedPlaylistCovers(
                         .matchParentSize()
                         .padding(borderWidth)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
                 ) {
-                    if (playlist.coverImageUri != null) {
-                        AsyncImage(
-                            model = playlist.coverImageUri,
-                            contentDescription = playlist.name,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.matchParentSize()
-                        )
-                    } else if (playlist.coverColorArgb != null) {
-                        Box(
-                            modifier = Modifier
-                                .matchParentSize()
-                                .background(Color(playlist.coverColorArgb)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            val contentColor = resolvePlaylistCoverContentColor(
-                                playlist.coverColorArgb,
-                                MaterialTheme.colorScheme
-                            )
-                            
-                            if (playlist.coverIconName != null) {
-                                Icon(
-                                    imageVector = getPlaylistIconByName(playlist.coverIconName) ?: androidx.compose.material.icons.Icons.Filled.MusicNote,
-                                    contentDescription = null,
-                                    tint = contentColor,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            } else {
-                                Text(
-                                    text = playlist.name.firstOrNull()?.toString()?.uppercase() ?: "P",
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = contentColor
-                                )
-                            }
-                        }
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .matchParentSize()
-                                .background(MaterialTheme.colorScheme.secondaryContainer),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = playlist.name.firstOrNull()?.toString()?.uppercase() ?: "P",
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        }
-                    }
+                    // The real cover: a custom image, a custom color, or the
+                    // auto collage from the playlist's songs. A playlist with
+                    // no custom cover used to fall back to its initial letter
+                    // here even though the list row shows its collage.
+                    StackedPlaylistCoverImage(
+                        playlist = playlist,
+                        playerViewModel = playerViewModel,
+                        size = imageSize - borderWidth * 2,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
         }
     }
 }
 
-private fun getPlaylistIconByName(name: String?): androidx.compose.ui.graphics.vector.ImageVector? {
-    return when (name) {
-        "MusicNote" -> Icons.Rounded.MusicNote
-        "Headphones" -> Icons.Rounded.Headphones
-        "Album" -> Icons.Rounded.Album
-        "Mic" -> Icons.Rounded.MicExternalOn
-        "Speaker" -> Icons.Rounded.Speaker
-        "Favorite" -> Icons.Rounded.Favorite
-        "Piano" -> Icons.Rounded.Piano
-        "Queue" -> Icons.AutoMirrored.Rounded.QueueMusic
-        else -> Icons.Rounded.MusicNote
+/**
+ * One playlist's real cover for the stacked header. Loads the playlist's
+ * songs (first 16, like the list row) so PlaylistCover can build the auto
+ * collage when the playlist has no custom cover or color.
+ */
+@Composable
+private fun StackedPlaylistCoverImage(
+    playlist: Playlist,
+    playerViewModel: PlayerViewModel,
+    size: Dp,
+    modifier: Modifier = Modifier
+) {
+    val previewSongIds = remember(playlist.songIds) { playlist.songIds.take(16) }
+    val initialValue = remember(previewSongIds) {
+        if (previewSongIds.isEmpty()) emptyList<Song>() else null
     }
+    val playlistSongs by remember(previewSongIds, playerViewModel) {
+        playerViewModel.observeSongs(previewSongIds).map<List<Song>, List<Song>?> { it }
+    }.collectAsStateWithLifecycle(initialValue = initialValue)
+
+    PlaylistCover(
+        playlist = playlist,
+        playlistSongs = remember(playlistSongs) { (playlistSongs ?: emptyList()).toImmutableList() },
+        size = size,
+        applyCoverShape = false,
+        modifier = modifier
+    )
 }

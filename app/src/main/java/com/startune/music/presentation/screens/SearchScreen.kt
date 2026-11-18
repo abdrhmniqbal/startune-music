@@ -1359,6 +1359,7 @@ fun SearchResultsList(
         val activity = LocalContext.current as? android.app.Activity
         PlaylistMultiSelectionBottomSheet(
             selectedPlaylists = selectedPlaylists,
+            playerViewModel = playerViewModel,
             onDismiss = { showPlaylistMultiSelectionSheet = false },
             onDeleteAll = {
                 playlistViewModel.deletePlaylistsInBatch(selectedPlaylistIds.toList())
