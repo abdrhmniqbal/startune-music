@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1-preview] - 2026-11-18
+
 - The Reset to default row in the library artist menu now shows the danger color like every other destructive action. It was the one destructive row missing it, while the same action in the artist detail sheet already had it.
 - A playlist cover no longer sticks at 3 tiles when the playlist has more albums: the cover now scans past the first few songs until it finds 4 different artworks, so bulk-adding an artist's songs gives the full 2x2 grid. The same fix applies when several of the first songs share one artwork.
 - The nested detail lists no longer show a more menu on every song: the All Songs list from an artist or a genre has no per-song button now, so the rows are clean. The top-bar menu for the whole list stays, and the detail pages themselves keep their per-song menus.
