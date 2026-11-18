@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- The Search browse page no longer hides its bottom section behind the miniplayer and the bottom bar: it now has the same bottom clearance as Home, and it scrolls so every section stays reachable. The search history list got the same clearance.
+
 ## [2.0.1-beta] - 2026-11-18
 
 - The Reset to default row in the library artist menu now shows the danger color like every other destructive action.

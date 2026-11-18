@@ -16,6 +16,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -201,6 +203,12 @@ fun SearchScreen(
     }.collectAsStateWithLifecycle(initialValue = SearchUiSlice())
     val currentFilter = searchUiState.selectedSearchFilter
     val stablePlayerState by playerViewModel.stablePlayerState.collectAsStateWithLifecycle()
+    // Bottom clearance for the browse page and the search history: the
+    // Scaffold nav bar, plus the floating miniplayer when a song is
+    // playing, plus breathing room. The miniplayer is an overlay, so the
+    // Scaffold padding alone does not clear it. Same formula as HomeScreen.
+    val searchBottomPadding = paddingValues.calculateBottomPadding() + 38.dp +
+        if (stablePlayerState.currentSong != null) MiniPlayerHeight else 0.dp
     val allSongs by playerViewModel.allSongsFlow.collectAsStateWithLifecycle()
     val queueRecentlyAdded = stringResource(R.string.presentation_batch_b_queue_recently_added)
     val recentlyAddedSongs = remember(allSongs) {
@@ -443,7 +451,9 @@ fun SearchScreen(
             ) { isBrowseMode ->
                 if (isBrowseMode) {
                     Column(
-                        modifier = Modifier.fillMaxSize().padding(top = 16.dp),
+                        modifier = Modifier.fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(top = 16.dp, bottom = searchBottomPadding),
                         verticalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
                         if (recentlyAddedSongs.isNotEmpty()) {
@@ -560,7 +570,8 @@ fun SearchScreen(
                                 playerViewModel.onSearchQuerySubmitted(query)
                             },
                             onHistoryDelete = { playerViewModel.deleteSearchHistoryItem(it) },
-                            onClearAllHistory = { playerViewModel.clearSearchHistory() }
+                            onClearAllHistory = { playerViewModel.clearSearchHistory() },
+                            bottomPadding = searchBottomPadding
                         )
                     } else if (isEmpty) {
                         EmptySearchResults(
@@ -725,7 +736,8 @@ fun SearchHistoryList(
     historyItems: ImmutableList<SearchHistoryItem>,
     onHistoryClick: (String) -> Unit,
     onHistoryDelete: (String) -> Unit,
-    onClearAllHistory: () -> Unit
+    onClearAllHistory: () -> Unit,
+    bottomPadding: Dp = 0.dp
 ) {
     val localDensity = LocalDensity.current
     Column {
@@ -752,6 +764,7 @@ fun SearchHistoryList(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(
                 top = 8.dp,
+                bottom = bottomPadding,
             )
         ) {
             items(historyItems, key = { "history_${it.id ?: it.query}" }, contentType = { "search_history" }) { item ->
