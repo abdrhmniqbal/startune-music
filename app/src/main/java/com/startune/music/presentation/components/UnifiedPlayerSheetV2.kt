@@ -67,6 +67,7 @@ import com.startune.music.presentation.components.scoped.PlayerSheetPredictiveBa
 import com.startune.music.presentation.components.scoped.QueuePredictiveBackHandler
 import com.startune.music.presentation.components.scoped.QueueSheetRuntimeEffects
 import com.startune.music.presentation.components.scoped.SheetMotionController
+import com.startune.music.presentation.components.scoped.computeShouldRenderQueueHost
 import com.startune.music.presentation.components.scoped.miniPlayerHorizontalGesture
 import com.startune.music.presentation.components.scoped.playerContentOffsetXPx
 import com.startune.music.presentation.components.scoped.playerContentWidthPx
@@ -519,11 +520,11 @@ fun UnifiedPlayerSheetV2(
         }
     }
 
-    val shouldRenderQueueHost by remember(internalIsKeyboardVisible, selectedSongForInfo) {
-        derivedStateOf {
-            !internalIsKeyboardVisible || selectedSongForInfo != null
-        }
-    }
+    val shouldRenderQueueHost = computeShouldRenderQueueHost(
+        isKeyboardVisible = internalIsKeyboardVisible,
+        isQueueShown = showQueueSheet,
+        isSongInfoShown = selectedSongForInfo != null
+    )
     val isQueueTelemetryActive = showQueueSheet
 
     LaunchedEffect(showQueueSheet) {

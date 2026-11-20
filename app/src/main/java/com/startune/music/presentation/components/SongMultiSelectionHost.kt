@@ -40,7 +40,8 @@ fun SongMultiSelectionHost(
     onRemoveFromList: (() -> Unit)? = null,
     removeFromListLabel: String? = null,
     onBatchEdit: (() -> Unit)? = null,
-    onDownloadAll: (() -> Unit)? = null
+    onDownloadAll: (() -> Unit)? = null,
+    onSelectBetween: (() -> Unit)? = null
 ) {
     val selectedSongs by multiSelectionState.selectedSongs.collectAsStateWithLifecycle()
     val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
@@ -105,7 +106,8 @@ fun SongMultiSelectionHost(
             },
             removeFromListLabel = removeFromListLabel,
             onBatchEdit = onBatchEdit,
-            onDownloadAll = onDownloadAll
+            onDownloadAll = onDownloadAll,
+            onSelectBetween = onSelectBetween
         )
     }
 

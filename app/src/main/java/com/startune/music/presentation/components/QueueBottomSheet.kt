@@ -198,6 +198,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import java.util.RandomAccess
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
 import kotlin.math.abs
 import kotlinx.collections.immutable.ImmutableList
@@ -2026,6 +2028,11 @@ fun QueuePlaylistSongItem(
                 }
                 .padding(horizontal = 12.dp)
                 .clip(itemShape)
+                .then(
+                    if (isSelectionMode) {
+                        Modifier.semantics { selected = isSelected }
+                    } else Modifier
+                )
                 .combinedClickable(
                     enabled = currentOffsetPx == 0f,
                     onClick = { if (isSelectionMode) onSelectionToggle() else onClick() },
@@ -2135,7 +2142,7 @@ fun QueuePlaylistSongItem(
                         )
                     }
 
-                    if (isCurrentSong) {
+                    if (isCurrentSong && !isSelectionMode) {
                         if (isPlaying != null) {
                             PlayingEqIcon(
                                 modifier = Modifier

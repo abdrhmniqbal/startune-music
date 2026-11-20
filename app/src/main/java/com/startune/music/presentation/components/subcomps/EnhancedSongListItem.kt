@@ -50,6 +50,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,6 +68,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.painterResource
 import com.startune.music.R
 import com.startune.music.presentation.components.SmartImage
+import com.startune.music.presentation.components.SwipeToQueueBox
 import com.startune.music.presentation.utils.HighlightMorphShape
 
 @Immutable
@@ -92,6 +94,7 @@ private fun lerpFloat(start: Float, stop: Float, fraction: Float): Float {
  * @param isSelected Whether this item is selected in multi-selection mode
  * @param isSelectionMode Whether multi-selection mode is active
  * @param onLongPress Callback for long press gesture (activates selection)
+ * @param onSwipeToQueue Called when the row is swiped towards the end edge; null disables the swipe
  * @param onMoreOptionsClick Callback for more options button
  * @param onClick Callback for tap gesture
  */
@@ -112,6 +115,7 @@ fun EnhancedSongListItem(
     isSelectionMode: Boolean = false,
     showMoreOptionsButton: Boolean = true,
     onLongPress: () -> Unit = {},
+    onSwipeToQueue: (() -> Unit)? = null,
     onMoreOptionsClick: (Song) -> Unit,
     onClick: () -> Unit,
     onRemoveClick: (() -> Unit)? = null,
@@ -254,9 +258,13 @@ fun EnhancedSongListItem(
                 )
             }
         }
-    } else {
+    } else SwipeToQueueBox(
+        // A swipe would fight the selection gestures.
+        onSwipe = onSwipeToQueue?.takeUnless { isSelectionMode },
+        modifier = modifier
+    ) { rowModifier ->
         Surface(
-            modifier = modifier
+            modifier = rowModifier
                 .fillMaxWidth()
                 .scale(selectionScale)
                 .clip(surfaceShape)
@@ -273,6 +281,7 @@ fun EnhancedSongListItem(
                 )
                 .semantics(mergeDescendants = true) {
                     role = Role.Button
+                    if (isSelectionMode) selected = isSelected
                     onClick {
                         if (isSelectionMode) {
                             onLongPress()

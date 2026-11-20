@@ -1,6 +1,9 @@
 ﻿package com.startune.music.presentation.screens
 
 import android.text.format.Formatter
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +30,7 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material.icons.rounded.HourglassTop
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.SaveAlt
 import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -34,14 +38,22 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -67,6 +79,39 @@ fun CloudDownloadsScreen(
     viewModel: CloudDownloadsViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val exportFolder by viewModel.exportFolder.collectAsStateWithLifecycle(initialValue = null)
+    val queueingAll by viewModel.queueingAll.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    var confirmDownloadAll by rememberSaveable { mutableStateOf(false) }
+    val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        uri?.let(viewModel::selectExportFolder)
+    }
+    LaunchedEffect(viewModel, context) {
+        viewModel.feedback.collect { feedback ->
+            val text = feedback.count?.let { context.getString(feedback.message, it) }
+                ?: context.getString(feedback.message)
+            Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    if (confirmDownloadAll) {
+        AlertDialog(
+            onDismissRequest = { confirmDownloadAll = false },
+            title = { Text(stringResource(R.string.cloud_download_all_title)) },
+            text = { Text(stringResource(R.string.cloud_download_all_description)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmDownloadAll = false
+                    viewModel.downloadAll()
+                }) { Text(stringResource(R.string.cloud_download_all_action)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmDownloadAll = false }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            }
+        )
+    }
 
     val lazyListState = rememberLazyListState()
 
@@ -120,6 +165,31 @@ fun CloudDownloadsScreen(
                     )
                 }
 
+                item {
+                    Button(
+                        onClick = { confirmDownloadAll = true },
+                        enabled = !queueingAll,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Rounded.CloudDownload, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            stringResource(
+                                if (queueingAll) R.string.cloud_download_queueing
+                                else R.string.cloud_download_all_action
+                            )
+                        )
+                    }
+                }
+
+                item {
+                    ExportFolderCard(
+                        folderName = exportFolder?.name,
+                        onChoose = { folderPicker.launch(exportFolder?.uri) },
+                        onClear = viewModel::clearExportFolder
+                    )
+                }
+
                 if (state.totalCount == 0) {
                     item { DownloadsEmptyState() }
                 }
@@ -160,7 +230,13 @@ fun CloudDownloadsScreen(
                         )
                     }
                     items(state.completed, key = OfflineDownload::downloadId) { download ->
-                        DownloadItemCard(download = download, onRemove = { viewModel.remove(download) })
+                        DownloadItemCard(
+                            download = download,
+                            onRemove = { viewModel.remove(download) },
+                            onExport = if (exportFolder != null && download.localPath != null) {
+                                { viewModel.export(download) }
+                            } else null
+                        )
                     }
                 }
             }
@@ -246,7 +322,8 @@ private fun SectionHeader(title: String, count: Int) {
 private fun DownloadItemCard(
     download: OfflineDownload,
     onRemove: () -> Unit,
-    onRetry: (() -> Unit)? = null
+    onRetry: (() -> Unit)? = null,
+    onExport: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val visual = download.status.visual()
@@ -324,6 +401,14 @@ private fun DownloadItemCard(
                     )
                 }
             }
+            onExport?.let {
+                IconButton(onClick = it) {
+                    Icon(
+                        Icons.Rounded.SaveAlt,
+                        contentDescription = stringResource(R.string.cloud_download_export_copy)
+                    )
+                }
+            }
             IconButton(onClick = onRemove) {
                 Icon(
                     Icons.Rounded.Delete,
@@ -390,3 +475,48 @@ private fun statusText(download: OfflineDownload, context: android.content.Conte
             ?.takeIf(String::isNotBlank)
             ?: context.getString(R.string.cloud_downloads_failed_fallback)
     }
+
+@Composable
+private fun ExportFolderCard(
+    folderName: String?,
+    onChoose: () -> Unit,
+    onClear: () -> Unit
+) {
+    ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(28.dp)) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                stringResource(R.string.cloud_download_export_folder_title),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                stringResource(R.string.cloud_download_export_folder_description),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (folderName != null) {
+                Text(
+                    stringResource(R.string.cloud_download_export_folder_selected, folderName),
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            OutlinedButton(onClick = onChoose) {
+                Text(
+                    stringResource(
+                        if (folderName == null) R.string.cloud_download_export_choose_folder
+                        else R.string.cloud_download_export_change_folder
+                    )
+                )
+            }
+            if (folderName != null) {
+                TextButton(onClick = onClear) {
+                    Text(stringResource(R.string.cloud_download_export_disable))
+                }
+            }
+        }
+    }
+}

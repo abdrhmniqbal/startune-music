@@ -138,6 +138,16 @@ interface MusicRepository {
     ): List<Artist>
 
     /**
+     * Album-artist variant of [getArtistsPage], backing the Album Artists tab.
+     */
+    suspend fun getAlbumArtistsPage(
+        limit: Int,
+        offset: Int,
+        sortOption: com.startune.music.data.model.SortOption = com.startune.music.data.model.SortOption.ArtistNameAZ,
+        storageFilter: com.startune.music.data.model.StorageFilter = com.startune.music.data.model.StorageFilter.ALL
+    ): List<Artist>
+
+    /**
      * Returns a single playable song without materializing the entire library.
      * Useful for startup and fallback playback paths.
      */

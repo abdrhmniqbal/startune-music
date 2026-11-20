@@ -83,6 +83,7 @@ import com.startune.music.presentation.components.SongInfoBottomSheet
 import com.startune.music.presentation.components.SongMultiSelectionHost
 import com.startune.music.presentation.components.resolveNavBarOccupiedHeight
 import com.startune.music.presentation.navigation.Screen
+import com.startune.music.presentation.components.rememberSwipeToQueue
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.navigation.navigateSafelyReplacing
 import com.startune.music.presentation.viewmodel.ArtistDetailViewModel
@@ -110,6 +111,7 @@ fun ArtistDetailListScreen(
     val useArtworkColorForDetails by playerViewModel.useArtworkColorForDetails.collectAsStateWithLifecycle()
     val favoriteIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
     val navBarCompactMode by playerViewModel.navBarCompactMode.collectAsStateWithLifecycle()
+    val swipeToQueue = rememberSwipeToQueue(playerViewModel)
     val systemNavBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val bottomBarHeightDp = resolveNavBarOccupiedHeight(systemNavBarInset, navBarCompactMode)
 
@@ -343,6 +345,7 @@ fun ArtistDetailListScreen(
                                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                             multiSelectionState.toggleSelection(song)
                                         },
+                                        onSwipeToQueue = swipeToQueue?.let { { it(song) } },
                                         onMoreOptionsClick = {
                                             playerViewModel.selectSongForInfo(song)
                                             showSongInfoBottomSheet = true
@@ -736,12 +739,31 @@ fun ArtistDetailListScreen(
             }
         }
 
+        // Range selection (upstream 5f021a39, adapted to our shared holder):
+        // select every track between the first and last selected positions.
+        // Tracks view only; the Albums/Featured On views select albums, not songs.
+        val selectBetweenSongs = remember(
+            uiState.songs, trackSortOption, uiState.playCounts, selectedSongIds
+        ) {
+            if (view != ArtistDetailView.Tracks) {
+                null
+            } else {
+                val sorted = sortArtistSongs(uiState.songs, trackSortOption, uiState.playCounts)
+                val indices = sorted.mapIndexedNotNull { index, song ->
+                    index.takeIf { song.id in selectedSongIds }
+                }
+                if (indices.size >= 2) sorted.subList(indices.first(), indices.last() + 1) else null
+            }
+        }
         SongMultiSelectionHost(
             playerViewModel = playerViewModel,
             multiSelectionState = multiSelectionState,
             showSheet = showMultiSelectionSheet,
             onDismiss = { showMultiSelectionSheet = false },
-            onActionTaken = { selectedAlbumSections = persistentListOf() }
+            onActionTaken = { selectedAlbumSections = persistentListOf() },
+            onSelectBetween = selectBetweenSongs?.let { songs ->
+                { multiSelectionState.selectAll(songs) }
+            }
         )
     }
 }

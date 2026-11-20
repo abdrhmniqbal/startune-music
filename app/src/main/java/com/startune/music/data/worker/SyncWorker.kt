@@ -86,6 +86,22 @@ internal fun shouldReadEmbeddedMetadata(
         isDefaultMetadata(rawAlbum)
 }
 
+/**
+ * Embedded MusicBrainz tags win; otherwise IDs stored earlier (a previous scan or a manual
+ * lookup) survive a rescan that did not read tags. The three IDs move together so a recording
+ * is never paired with another match's release or artist.
+ */
+internal fun SongEntity.withMusicBrainzIdsFallback(stored: SongEntity): SongEntity =
+    if (mbRecordingId != null) {
+        this
+    } else {
+        copy(
+            mbRecordingId = stored.mbRecordingId,
+            mbReleaseId = stored.mbReleaseId,
+            mbArtistId = stored.mbArtistId
+        )
+    }
+
 private fun isDefaultMetadata(value: String): Boolean {
     val lower = value.trim().lowercase(Locale.ROOT)
     return lower.isEmpty() ||
@@ -198,6 +214,8 @@ constructor(
                     val metadataCharsetRepairPending =
                         userPreferencesRepository.getMetadataCharsetRepairVersion() <
                             CURRENT_METADATA_CHARSET_REPAIR_VERSION
+                    val embeddedTagScanRequired =
+                        userPreferencesRepository.getEmbeddedTagScanVersion() < CURRENT_EMBEDDED_TAG_SCAN_VERSION
 
                     minSongDurationMs = userPreferencesRepository.getMinSongDuration()
                     minTracksPerAlbum = userPreferencesRepository.minTracksPerAlbumFlow.first()
@@ -245,7 +263,8 @@ constructor(
                         requestedRunMaintenance = requestedRunMaintenance,
                         rescanRequired = rescanRequired,
                         directoryRulesChanged = directoryRulesChanged,
-                        isFreshInstall = isFreshInstall
+                        isFreshInstall = isFreshInstall,
+                        embeddedTagScanRequired = embeddedTagScanRequired
                     )
 
                     // Newly visible files can retain timestamps older than the last sync.
@@ -282,6 +301,7 @@ constructor(
                         syncPlan.forceProcessAll,
                         syncPlan.resetExistingLocalData,
                         metadataCharsetRepairPending,
+                        embeddedTagScanRequired,
                         progressBatchSize
                     ) { current, total, phaseOrdinal ->
                         setProgress(
@@ -403,6 +423,9 @@ constructor(
                             CURRENT_METADATA_CHARSET_REPAIR_VERSION
                         )
                     }
+                    if (embeddedTagScanRequired) {
+                        userPreferencesRepository.setEmbeddedTagScanVersion(CURRENT_EMBEDDED_TAG_SCAN_VERSION)
+                    }
 
                     val endTime = System.currentTimeMillis()
                     Timber.tag(TAG)
@@ -427,7 +450,7 @@ constructor(
                         var totalScannedCount = 0
 
                         mediaStoreSongIds.chunked(1000).forEach { idBatch ->
-                            val batchEntities = musicDao.getSongsByIdsListSimple(idBatch)
+                            val batchEntities = musicDao.getSongsByIdsForSync(idBatch)
                             val batchSongs =
                                     batchEntities.map { entity ->
                                         Song(
@@ -519,7 +542,8 @@ constructor(
      */
     private data class ScannedSong(
         val entity: SongEntity,
-        val artistValues: List<String>
+        val artistValues: List<String>,
+        val readEmbeddedTags: Boolean
     )
 
     /**
@@ -857,6 +881,7 @@ constructor(
             forceProcessAll: Boolean,
             resetExistingLocalData: Boolean,
             metadataCharsetRepairPending: Boolean,
+            embeddedTagScanRequired: Boolean,
             progressBatchSize: Int,
             onProgress: suspend (current: Int, total: Int, phaseOrdinal: Int) -> Unit
     ): List<ScannedSong> = traceAsyncSection("SyncWorker.fetchMusicFromMediaStore") {
@@ -1030,7 +1055,7 @@ constructor(
         val songs = mutableListOf<ScannedSong>()
         for (batch in songsToProcess.chunked(200)) {
             val ids = batch.map { it.id }
-            val existingMap = if (resetExistingLocalData) emptyMap() else musicDao.getSongsByIdsListSimple(ids).associateBy { it.id }
+            val existingMap = if (resetExistingLocalData) emptyMap() else musicDao.getSongsByIdsForSync(ids).associateBy { it.id }
             val batchResults = coroutineScope {
                 batch.map { raw ->
                     async {
@@ -1041,6 +1066,7 @@ constructor(
                                     raw = raw,
                                     genreMap = genreMap,
                                     deepScan = deepScan,
+                                    forceEmbeddedTagRead = embeddedTagScanRequired,
                                     forceAlbumArtRefresh = deepScan || localSong != null
                                 )
 
@@ -1054,7 +1080,11 @@ constructor(
                                     } else {
                                         scannedMediaStoreSong.entity.dateAdded
                                     },
-                                    lyrics = localSong.lyrics,
+                                    lyrics = if (scannedMediaStoreSong.readEmbeddedTags) {
+                                        scannedMediaStoreSong.entity.lyrics
+                                    } else {
+                                        localSong.lyrics
+                                    },
                                     title = if (localSong.titleUserEdited) localSong.title else scannedMediaStoreSong.entity.title,
                                     artistName = if (localSong.artistUserEdited) localSong.artistName else scannedMediaStoreSong.entity.artistName,
                                     albumName = if (localSong.albumUserEdited) localSong.albumName else scannedMediaStoreSong.entity.albumName,
@@ -1066,7 +1096,7 @@ constructor(
                                     artistUserEdited = localSong.artistUserEdited,
                                     albumUserEdited = localSong.albumUserEdited,
                                     genreUserEdited = localSong.genreUserEdited
-                                )
+                                ).withMusicBrainzIdsFallback(localSong)
                             } else {
                                 scannedMediaStoreSong.entity
                             }
@@ -1081,7 +1111,7 @@ constructor(
                             if (count % progressBatchSize == 0 || count == totalCount) {
                                 onProgress(count, totalCount, SyncProgress.SyncPhase.PROCESSING_FILES.ordinal)
                             }
-                            ScannedSong(entity = song, artistValues = artistValues)
+                            scannedMediaStoreSong.copy(entity = song, artistValues = artistValues)
                         }
                     }
                 }.awaitAll()
@@ -1100,6 +1130,7 @@ constructor(
             raw: RawSongData,
             genreMap: Map<Long, String>,
             deepScan: Boolean,
+            forceEmbeddedTagRead: Boolean,
             forceAlbumArtRefresh: Boolean
     ): ScannedSong {
         val parentDir = java.io.File(raw.filePath).parent ?: ""
@@ -1130,10 +1161,15 @@ constructor(
         var discNumber = raw.discNumber
         var year = raw.year
         var genre: String? = genreMap[raw.id] ?: raw.genre
+        var embeddedLyrics: String? = null
+        var readEmbeddedTags = false
+        var mbRecordingId: String? = null
+        var mbReleaseId: String? = null
+        var mbArtistId: String? = null
 
         val shouldAugmentMetadata = shouldReadEmbeddedMetadata(
             filePath = raw.filePath,
-            deepScan = deepScan,
+            deepScan = deepScan || forceEmbeddedTagRead,
             rawArtist = raw.artist,
             rawAlbum = raw.album
         )
@@ -1143,6 +1179,8 @@ constructor(
             if (file.exists()) {
                 try {
                     AudioMetadataReader.read(file, readArtwork = false)?.let { meta ->
+                        readEmbeddedTags = true
+                        embeddedLyrics = meta.lyrics
                         if (!meta.title.isNullOrBlank()) title = meta.title
                         if (meta.artists.isNotEmpty()) {
                             artist = meta.artists.first()
@@ -1163,6 +1201,11 @@ constructor(
                         if (meta.trackNumber != null) trackNumber = meta.trackNumber
                         if (meta.discNumber != null) discNumber = meta.discNumber
                         if (meta.year != null) year = meta.year
+                        if (meta.mbRecordingId != null) {
+                            mbRecordingId = meta.mbRecordingId
+                            mbReleaseId = meta.mbReleaseId
+                            mbArtistId = meta.mbArtistId
+                        }
                     }
                 } catch (e: Exception) {
                     Timber.tag(TAG).w(e, "Failed to read metadata via TagLib for ${raw.filePath}")
@@ -1183,6 +1226,7 @@ constructor(
                 albumArtUriString = albumArtUriString,
                 duration = raw.duration,
                 genre = genre,
+                lyrics = embeddedLyrics,
                 filePath = raw.filePath,
                 parentDirectoryPath = parentDir,
                 trackNumber = trackNumber,
@@ -1198,9 +1242,13 @@ constructor(
                 bitrate = audioMetadata?.bitrate,
                 sourceType = SourceType.LOCAL,
                 mediaStoreDateAdded = raw.dateAdded,
-                mediaStoreDateModified = raw.dateModified
+                mediaStoreDateModified = raw.dateModified,
+                mbRecordingId = mbRecordingId,
+                mbReleaseId = mbReleaseId,
+                mbArtistId = mbArtistId
             ),
-            artistValues = artistValues
+            artistValues = artistValues,
+            readEmbeddedTags = readEmbeddedTags
         )
     }
 
@@ -1259,6 +1307,7 @@ constructor(
         internal const val MAX_PLAYBACK_DEFERRALS = 5
         /** See [UserPreferencesRepository.getMetadataCharsetRepairVersion]. */
         const val CURRENT_METADATA_CHARSET_REPAIR_VERSION = 1
+        const val CURRENT_EMBEDDED_TAG_SCAN_VERSION = 1
 
         const val PROGRESS_CURRENT = "progress_current"
         const val PROGRESS_TOTAL = "progress_total"

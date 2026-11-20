@@ -351,6 +351,7 @@ private fun DailyMixSongList(
                 isCurrentSong = stablePlayerState.currentSong?.id == song.id,
                 isPlaying = stablePlayerState.isPlaying && stablePlayerState.currentSong?.id == song.id,
                 containerColorOverride = itemContainerColor,
+                onLongPress = { onMoreOptionsClick(song) },
                 onMoreOptionsClick = onMoreOptionsClick,
                 customShape = getSegmentedItemShape(index, songs.size),
                 showAlbumArt = false,

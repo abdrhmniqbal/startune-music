@@ -190,6 +190,7 @@ import com.startune.music.data.preferences.ColorSchemeIds
 import com.startune.music.data.preferences.CollagePattern
 import com.startune.music.data.preferences.CarouselStyle
 import com.startune.music.data.preferences.PreviousButtonBehavior
+import com.startune.music.data.preferences.SwipeToQueueAction
 import com.startune.music.data.preferences.LaunchTab
 import com.startune.music.data.preferences.LibraryNavigationMode
 import com.startune.music.data.preferences.NavBarStyle
@@ -267,6 +268,9 @@ fun SettingsCategoryScreen(
     }
     var minTracksPerAlbumDraft by remember(uiState.minTracksPerAlbum) {
         mutableStateOf(uiState.minTracksPerAlbum.toFloat())
+    }
+    var minTracksPerArtistDraft by remember(uiState.minTracksPerArtist) {
+        mutableStateOf(uiState.minTracksPerArtist.toFloat())
     }
     var albumArtCacheLimitDraft by remember(uiState.albumArtCacheLimitMb) {
         mutableStateOf(uiState.albumArtCacheLimitMb.toFloat())
@@ -543,6 +547,21 @@ fun SettingsCategoryScreen(
                                     },
                                     valueText = { value -> "${value.toInt()}" },
                                     modifier = Modifier.settingHighlight("item_library_min_tracks", highlightKey)
+                                )
+                                SliderSettingsItem(
+                                    label = stringResource(R.string.setcat_min_tracks_per_artist),
+                                    value = minTracksPerArtistDraft,
+                                    valueRange = 1f..5f,
+                                    steps = 3,
+                                    onValueChange = { minTracksPerArtistDraft = it },
+                                    onValueChangeFinished = {
+                                        val selectedTracks = minTracksPerArtistDraft.roundToInt()
+                                        if (selectedTracks != uiState.minTracksPerArtist) {
+                                            settingsViewModel.setMinTracksPerArtist(selectedTracks)
+                                        }
+                                    },
+                                    valueText = { value -> "${value.roundToInt()}" },
+                                    modifier = Modifier.settingHighlight("item_library_min_artist_tracks", highlightKey)
                                 )
                                 SliderSettingsItem(
                                     label = stringResource(R.string.setcat_album_art_cache_limit),
@@ -1493,6 +1512,38 @@ fun SettingsCategoryScreen(
                                     onCheckedChange = { settingsViewModel.setMiniPlayerSwipeToSkip(it) },
                                     leadingIcon = { Icon(painterResource(R.drawable.rounded_skip_next_24), null, tint = MaterialTheme.colorScheme.secondary) },
                                     modifier = Modifier.settingHighlight("item_behavior_mini_swipe_skip", highlightKey)
+                                )
+                            }
+                            SettingsSubsection(
+                                title = stringResource(R.string.setcat_song_lists)
+                            ) {
+                                ThemeSelectorItem(
+                                    label = stringResource(R.string.setcat_swipe_to_queue_title),
+                                    description = stringResource(R.string.setcat_swipe_to_queue_description),
+                                    options = linkedMapOf(
+                                        SwipeToQueueAction.ADD_TO_QUEUE.storageKey to
+                                            stringResource(R.string.setcat_swipe_to_queue_add),
+                                        SwipeToQueueAction.PLAY_NEXT.storageKey to
+                                            stringResource(R.string.setcat_swipe_to_queue_next),
+                                        SwipeToQueueAction.OFF.storageKey to
+                                            stringResource(R.string.setcat_swipe_to_queue_off)
+                                    ),
+                                    optionDescriptions = mapOf(
+                                        SwipeToQueueAction.ADD_TO_QUEUE.storageKey to
+                                            stringResource(R.string.setcat_swipe_to_queue_add_description),
+                                        SwipeToQueueAction.PLAY_NEXT.storageKey to
+                                            stringResource(R.string.setcat_swipe_to_queue_next_description),
+                                        SwipeToQueueAction.OFF.storageKey to
+                                            stringResource(R.string.setcat_swipe_to_queue_off_description)
+                                    ),
+                                    selectedKey = uiState.swipeToQueueAction.storageKey,
+                                    onSelectionChanged = { key ->
+                                        settingsViewModel.setSwipeToQueueAction(
+                                            SwipeToQueueAction.fromStorageKey(key)
+                                        )
+                                    },
+                                    leadingIcon = { Icon(painterResource(R.drawable.rounded_queue_music_24), null, tint = MaterialTheme.colorScheme.secondary) },
+                                    modifier = Modifier.settingHighlight("item_behavior_swipe_to_queue", highlightKey)
                                 )
                             }
                             SettingsSubsection(

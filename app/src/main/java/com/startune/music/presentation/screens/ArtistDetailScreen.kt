@@ -2,6 +2,7 @@
 
 package com.startune.music.presentation.screens
 
+import com.startune.music.presentation.components.rememberSwipeToQueue
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.navigation.navigateSafelyReplacing
 import kotlinx.collections.immutable.ImmutableList
@@ -156,6 +157,7 @@ fun ArtistDetailScreen(
     val lazyListState = rememberLazyListState()
     val favoriteIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
     val navBarCompactMode by playerViewModel.navBarCompactMode.collectAsStateWithLifecycle()
+    val swipeToQueue = rememberSwipeToQueue(playerViewModel)
     var showSongInfoBottomSheet by remember { mutableStateOf(false) }
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
     val systemNavBarInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -511,6 +513,7 @@ fun ArtistDetailScreen(
                                         playerViewModel = playerViewModel,
                                         customShape = getSegmentedItemShape(index, popularTracks.size),
                                         showAlbumArt = true,
+                                        onSwipeToQueue = swipeToQueue?.let { { it(song) } },
                                         onMoreOptionsClick = {
                                             playerViewModel.selectSongForInfo(song)
                                             showSongInfoBottomSheet = true

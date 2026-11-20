@@ -97,6 +97,7 @@ class MusicRepositoryImplTest {
             playlistPreferencesRepository = mockPlaylistPreferencesRepository,
             searchHistoryDao = mockSearchHistoryDao,
             musicDao = mockMusicDao,
+            database = mockk(relaxed = true),
             lyricsRepository = mockLyricsRepository,
             songRepository = mockSongRepository,
 

@@ -555,6 +555,7 @@ fun SearchScreen(
                     SearchFilterChip(SearchFilterType.ALBUMS, currentFilter, playerViewModel)
                     SearchFilterChip(SearchFilterType.ARTISTS, currentFilter, playerViewModel)
                     SearchFilterChip(SearchFilterType.PLAYLISTS, currentFilter, playerViewModel)
+                    SearchFilterChip(SearchFilterType.LYRICS, currentFilter, playerViewModel)
                 }
                 Crossfade(
                     targetState = searchResults.isEmpty(),
@@ -1834,4 +1835,5 @@ private fun searchFilterLabelRes(filterType: SearchFilterType): Int = when (filt
     SearchFilterType.ALBUMS -> R.string.library_tab_albums
     SearchFilterType.ARTISTS -> R.string.library_tab_artists
     SearchFilterType.PLAYLISTS -> R.string.library_tab_playlists
+    SearchFilterType.LYRICS -> R.string.lyrics
 }

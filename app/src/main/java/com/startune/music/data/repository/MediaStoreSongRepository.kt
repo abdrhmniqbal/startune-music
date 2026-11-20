@@ -471,10 +471,11 @@ class MediaStoreSongRepository @Inject constructor(
     override fun getPaginatedSongs(sortOption: com.startune.music.data.model.SortOption, storageFilter: com.startune.music.data.model.StorageFilter): Flow<PagingData<Song>> {
         return combine(
             userPreferencesRepository.allowedDirectoriesFlow,
-            userPreferencesRepository.blockedDirectoriesFlow
-        ) { allowedDirs, blockedDirs ->
-            allowedDirs to blockedDirs
-        }.flatMapLatest { (allowedDirs, blockedDirs) ->
+            userPreferencesRepository.blockedDirectoriesFlow,
+            userPreferencesRepository.songsSecondarySortOptionFlow
+        ) { allowedDirs, blockedDirs, secondarySort ->
+            Triple(allowedDirs, blockedDirs, sortOption.resolveSecondarySongSort(secondarySort))
+        }.distinctUntilChanged().flatMapLatest { (allowedDirs, blockedDirs, secondarySort) ->
             kotlinx.coroutines.flow.flow {
                 val (allowedParentDirs, applyDirectoryFilter) =
                     computeAllowedDirs(allowedDirs, blockedDirs)
@@ -486,7 +487,8 @@ class MediaStoreSongRepository @Inject constructor(
                                 allowedParentDirs = allowedParentDirs,
                                 applyDirectoryFilter = applyDirectoryFilter,
                                 sortOrder = sortOption.storageKey,
-                                filterMode = storageFilter.value
+                                filterMode = storageFilter.value,
+                                secondarySortOrder = secondarySort?.storageKey
                             )
                         }
                     ).flow

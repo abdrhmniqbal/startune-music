@@ -21,6 +21,7 @@ import com.startune.music.data.model.Song
 import com.startune.music.data.navidrome.model.NavidromeAuthMethod
 import com.startune.music.data.navidrome.model.NavidromeCredentials
 import com.startune.music.data.navidrome.model.NavidromeMusicFolder
+import com.startune.music.data.navidrome.NavidromeSongUri
 import com.startune.music.data.navidrome.model.NavidromeSong
 import com.startune.music.data.network.navidrome.NavidromeApiService
 import com.startune.music.data.network.navidrome.NavidromeResponseParser
@@ -852,7 +853,7 @@ class NavidromeRepository @Inject constructor(
                     albumArtistId = albumArtistId,
                     albumName = albumName,
                     albumId = albumId,
-                    contentUriString = "navidrome://${navidromeSong.navidromeId}",
+                    contentUriString = NavidromeSongUri.build(navidromeSong.navidromeId),
                     albumArtUriString = navidromeSong.coverArtId?.takeIf { it.isNotBlank() }
                         ?.let { "navidrome_cover://$it" },
                     duration = navidromeSong.duration,
@@ -1053,7 +1054,7 @@ fun NavidromeSong.toSong(): Song {
         album = album,
         albumId = -1L,
         path = path,
-        contentUriString = "navidrome://$id",
+        contentUriString = NavidromeSongUri.build(id),
         albumArtUriString = coverArt?.let { "navidrome_cover://$it" },
         duration = duration,
         genre = genre,

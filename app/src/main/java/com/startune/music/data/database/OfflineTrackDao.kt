@@ -11,6 +11,12 @@ interface OfflineTrackDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entity: OfflineTrackEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(entities: List<OfflineTrackEntity>)
+
+    @Query("SELECT * FROM offline_tracks WHERE source_uri IN (:sourceUris)")
+    suspend fun getBySourceUris(sourceUris: List<String>): List<OfflineTrackEntity>
+
     @Query("SELECT * FROM offline_tracks WHERE source_uri = :sourceUri LIMIT 1")
     fun observeBySourceUri(sourceUri: String): Flow<OfflineTrackEntity?>
 

@@ -1,5 +1,6 @@
 ﻿package com.startune.music.presentation.screens
 
+import com.startune.music.presentation.components.rememberSwipeToQueue
 import com.startune.music.presentation.navigation.navigateSafely
 
 import com.startune.music.utils.traceSection
@@ -134,6 +135,7 @@ fun RecentlyPlayedScreen(
         playerViewModel.stablePlayerState.map { it.isPlaying }.distinctUntilChanged()
     }.collectAsStateWithLifecycle(initialValue = false)
     val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
+    val swipeToQueue = rememberSwipeToQueue(playerViewModel)
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
     val playlistUiState by playlistViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -333,6 +335,7 @@ fun RecentlyPlayedScreen(
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     multiSelectionState.toggleSelection(item.song)
                                 },
+                                onSwipeToQueue = swipeToQueue?.let { { it(item.song) } },
                                 onClick = {
                                     if (isSelectionMode) {
                                         multiSelectionState.toggleSelection(item.song)

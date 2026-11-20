@@ -39,6 +39,12 @@ enum class SettingsCategory(
         subtitleRes = R.string.settings_category_playback_subtitle,
         icon = Icons.Rounded.MusicNote
     ),
+    EQUALIZER(
+        id = "equalizer",
+        titleRes = R.string.settings_category_equalizer_title,
+        subtitleRes = R.string.settings_category_equalizer_subtitle,
+        icon = Icons.Rounded.GraphicEq
+    ),
     NOTIFICATIONS(
         id = "notifications",
         titleRes = R.string.settings_category_notifications_title,
@@ -62,12 +68,6 @@ enum class SettingsCategory(
         titleRes = R.string.settings_category_developer_title,
         subtitleRes = R.string.settings_category_developer_subtitle,
         icon = Icons.Rounded.DeveloperMode
-    ),
-    EQUALIZER(
-        id = "equalizer",
-        titleRes = R.string.settings_category_equalizer_title,
-        subtitleRes = R.string.settings_category_equalizer_subtitle,
-        icon = Icons.Rounded.GraphicEq
     ),
     ABOUT(
         id = "about",

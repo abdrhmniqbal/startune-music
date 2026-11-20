@@ -5,6 +5,8 @@ import com.startune.music.presentation.components.PlaylistCover
 import com.startune.music.presentation.components.AutoScrollingText
 import androidx.compose.ui.platform.LocalWindowInfo
 import android.widget.Toast
+import com.startune.music.presentation.components.SwipeToQueueBox
+import com.startune.music.presentation.components.rememberSwipeToQueue
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.navigation.navigateSafelyReplacing
 
@@ -248,6 +250,7 @@ fun PlaylistDetailScreen(
 
     val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
     val favoriteIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
+    val swipeToQueue = rememberSwipeToQueue(playerViewModel)
     val stableOnMoreOptionsClick: (Song) -> Unit = remember {
         { song ->
             playerViewModel.selectSongForInfo(song)
@@ -765,9 +768,16 @@ fun PlaylistDetailScreen(
                                             label = "scale"
                                         )
 
-                                        QueuePlaylistSongItem(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
+                                        SwipeToQueueBox(
+                                            // Swipes would fight selection, reordering and removal.
+                                            onSwipe = swipeToQueue
+                                                ?.takeUnless { isSelectionMode || isReorderModeEnabled || isRemoveModeEnabled }
+                                                ?.let { { it(song) } },
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) { rowModifier ->
+                                            QueuePlaylistSongItem(
+                                                modifier = rowModifier
+                                                    .fillMaxWidth()
                                                 .padding(horizontal = 0.dp)
                                                 .graphicsLayer {
                                                     scaleX = scale
@@ -846,6 +856,7 @@ fun PlaylistDetailScreen(
                                                 }
                                             }
                                         )
+                                        }
                                     }
                                 }
                             }
@@ -1305,6 +1316,8 @@ fun PlaylistDetailScreen(
                 SortOption.SongAlbumDesc,
                 SortOption.SongDateAdded,
                 SortOption.SongDateAddedAsc,
+                SortOption.SongDateModified,
+                SortOption.SongDateModifiedAsc,
                 SortOption.SongDuration,
                 SortOption.SongDurationAsc,
                 SortOption.SongPlayCount,
@@ -1335,11 +1348,22 @@ fun PlaylistDetailScreen(
             )
         }
 
+        // Range selection (upstream 5f021a39, adapted to our shared holder):
+        // select every song between the first and last selected positions.
+        val selectBetweenRange = remember(selectedSongIds, localReorderableSongs) {
+            val indices = localReorderableSongs.mapIndexedNotNull { index, song ->
+                index.takeIf { song.id in selectedSongIds }
+            }
+            if (indices.size >= 2) indices.first() to indices.last() else null
+        }
         SongMultiSelectionHost(
             playerViewModel = playerViewModel,
             multiSelectionState = multiSelectionState,
             showSheet = showMultiSelectionSheet,
             onDismiss = { showMultiSelectionSheet = false },
+            onSelectBetween = selectBetweenRange?.let { (first, last) ->
+                { multiSelectionState.selectAll(localReorderableSongs.subList(first, last + 1)) }
+            },
             onRemoveFromList = {
                 playlistViewModel.removeSongsFromPlaylist(playlistId, selectedSongIds.toList())
             },

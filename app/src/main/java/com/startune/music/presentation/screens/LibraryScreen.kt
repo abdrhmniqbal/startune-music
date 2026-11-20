@@ -1053,6 +1053,8 @@ fun LibraryScreen(
                 playerViewModel.playerUiState.value.toLibraryScreenProjection()
             }
         )
+        val configuredSecondarySongSort by playerViewModel.secondarySongSortOption.collectAsStateWithLifecycle()
+        val secondarySongSort = playerUiState.currentSongSortOption.resolveSecondarySongSort(configuredSecondarySongSort)
         // Logging out of the last provider while "Cloud only" is on would
         // strand the Library on an empty online-only view with the toggle
         // hidden, so the filter is switched off with it.
@@ -1228,18 +1230,28 @@ fun LibraryScreen(
                                     SelectionActionRow(
                                         selectedCount = selectedArtists.size,
                                         onSelectAll = {
-                                            multiSelectionState.clearSelection()
-                                            showMultiSelectionSheet = false
-                                            val candidates = if (currentTabId == LibraryTabId.ALBUM_ARTISTS) {
-                                                albumArtistsLazyPagingItems.itemSnapshotList.items
-                                            } else {
-                                                playerViewModel.artistsFlow.value
+                                            scope.launch {
+                                                runCatching {
+                                                    if (currentTabId == LibraryTabId.ALBUM_ARTISTS) {
+                                                        playerViewModel.getAlbumArtistsForCurrentLibrarySelection()
+                                                    } else {
+                                                        playerViewModel.getArtistsForCurrentLibrarySelection()
+                                                    }
+                                                }.onSuccess { artists ->
+                                                    if (latestSelectedArtists.isNotEmpty()) {
+                                                        multiSelectionState.clearSelection()
+                                                        showMultiSelectionSheet = false
+                                                        selectedArtists = appendDistinctSelection(
+                                                            current = latestSelectedArtists,
+                                                            candidates = artists,
+                                                            keyOf = Artist::id
+                                                        ).toImmutableList()
+                                                    }
+                                                }.onFailure { error ->
+                                                    if (error is CancellationException) throw error
+                                                    Timber.tag("LibrarySelection").e(error, "Unable to select all artists")
+                                                }
                                             }
-                                            selectedArtists = appendDistinctSelection(
-                                                current = selectedArtists,
-                                                candidates = candidates,
-                                                keyOf = Artist::id
-                                            ).toImmutableList()
                                         },
                                         onDeselect = {
                                             selectedArtists = persistentListOf()
@@ -1379,6 +1391,12 @@ fun LibraryScreen(
                                 ?: sanitizedSortOptions.first()
 
 
+                            val isSongsTab = currentTabId == LibraryTabId.SONGS
+                            val songSecondaryOptions = remember(selectedOptionForSheet.methodKey) {
+                                SortOption.SONG_SECONDARY.filterNot {
+                                    it.methodKey == selectedOptionForSheet.methodKey
+                                }.toImmutableList()
+                            }
                             val isFoldersTab = currentTabId == LibraryTabId.FOLDERS
                             // Playlist view opens folders as playlists, which sort their own songs.
                             val showsFolderSongs = isFoldersTab &&
@@ -1396,18 +1414,35 @@ fun LibraryScreen(
                                 onDirectionToggle = { option ->
                                     onSortOptionChanged(option)
                                 },
-                                secondaryOptions = if (showsFolderSongs) folderSongSortOptions else persistentListOf(),
-                                secondarySelectedOption = playerUiState.currentFolderSongSortOption,
+                                secondaryOptions = when {
+                                    showsFolderSongs -> folderSongSortOptions
+                                    isSongsTab && secondarySongSort != null -> songSecondaryOptions
+                                    else -> persistentListOf()
+                                },
+                                secondarySelectedOption = if (isSongsTab) secondarySongSort else playerUiState.currentFolderSongSortOption,
                                 onSecondaryOptionSelected = { option ->
-                                    playerViewModel.sortFolderSongs(option)
+                                    if (isSongsTab) playerViewModel.setSecondarySongSortOption(option)
+                                    else playerViewModel.sortFolderSongs(option)
                                     playerViewModel.hideSortingSheet()
                                 },
                                 onSecondaryDirectionToggle = { option ->
-                                    playerViewModel.sortFolderSongs(option)
+                                    if (isSongsTab) playerViewModel.setSecondarySongSortOption(option)
+                                    else playerViewModel.sortFolderSongs(option)
                                 },
-                                primaryTargetLabel = stringResource(R.string.library_tab_folders),
-                                secondaryTargetLabel = stringResource(R.string.library_tab_songs),
-                                initiallyShowSecondary = playerUiState.currentFolder?.songs?.isNotEmpty() == true,
+                                primaryTargetLabel = stringResource(
+                                    if (isSongsTab) R.string.sort_primary else R.string.library_tab_folders
+                                ),
+                                secondaryTargetLabel = stringResource(
+                                    if (isSongsTab) R.string.sort_secondary else R.string.library_tab_songs
+                                ),
+                                initiallyShowSecondary = showsFolderSongs &&
+                                    playerUiState.currentFolder?.songs?.isNotEmpty() == true,
+                                advancedSortingEnabled = if (isSongsTab) secondarySongSort != null else null,
+                                onAdvancedSortingChange = { enabled ->
+                                    playerViewModel.setSecondarySongSortOption(
+                                        if (enabled) songSecondaryOptions.firstOrNull() else null
+                                    )
+                                },
                                 showViewToggle = isFoldersTab,
                                 viewSectionTitle = stringResource(R.string.presentation_batch_d_view_section_view),
                                 viewToggleLabel = stringResource(R.string.presentation_batch_d_playlist_view),
@@ -1524,6 +1559,7 @@ fun LibraryScreen(
                                             onLocateCurrentSongVisibilityChanged = { songsShowLocateButton = it },
                                             onRegisterLocateCurrentSongAction = { songsLocateAction = it },
                                             sortOption = playerUiState.currentSongSortOption,
+                                            secondarySortOption = secondarySongSort,
                                             storageFilter = playerUiState.currentStorageFilter,
                                             hasCurrentSong = hasCurrentSong
                                         )

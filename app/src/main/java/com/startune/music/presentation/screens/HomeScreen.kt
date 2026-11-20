@@ -114,6 +114,7 @@ import com.startune.music.presentation.viewmodel.SettingsViewModel
 import com.startune.music.presentation.viewmodel.StreamingProviderLoginViewModel
 import com.startune.music.presentation.viewmodel.StatsViewModel
 import com.startune.music.ui.theme.ExpTitleTypography
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
@@ -129,6 +130,13 @@ import com.startune.music.presentation.components.rememberModalSheetState
 
 private const val HomeLoadingPlaceholderMinDurationMillis = 1200L
 private const val HomeScrollRestoreGraceMillis = 1_500L
+
+/** A Home song a long press opened options for, with the queue that playing it from there uses. */
+private data class HomeSongOptions(
+    val song: Song,
+    val queueSongs: ImmutableList<Song>,
+    val queueName: String
+)
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -244,7 +252,7 @@ fun HomeScreen(
         yourMixSongs.isNotEmpty() || hasHomeLoadingMinimumElapsed || isBenchmarkMode
     }
 
-    var recentSongForOptions by remember { mutableStateOf<Song?>(null) }
+    var songForOptions by remember { mutableStateOf<HomeSongOptions?>(null) }
 
     val yourMixSubtitle = stringResource(R.string.home_your_mix_subtitle)
     val recentlyPlayedQueueName = stringResource(R.string.presentation_batch_b_queue_recently_played)
@@ -488,6 +496,9 @@ fun HomeScreen(
                                     } else {
                                         playerViewModel.showAndPlaySong(song, yourMixSongs, "For You Mix")
                                     }
+                                },
+                                onSongLongClick = { song ->
+                                    songForOptions = HomeSongOptions(song, yourMixSongs, "For You Mix")
                                 }
                             )
                         }
@@ -509,7 +520,9 @@ fun HomeScreen(
                                         queueName = topTracksQueueName
                                     )
                                 },
-                                onMoreOptionsClick = { song -> recentSongForOptions = song },
+                                onMoreOptionsClick = { song ->
+                                    songForOptions = HomeSongOptions(song, topTrackSongs, topTracksQueueName)
+                                },
                                 onOpenAllClick = {
                                     navController.navigateSafely(Screen.TopTracks.route)
                                 }
@@ -534,7 +547,7 @@ fun HomeScreen(
                                     }
                                 },
                                 onSongLongClick = { song ->
-                                    recentSongForOptions = song
+                                    songForOptions = HomeSongOptions(song, recentlyPlayedQueue, recentlyPlayedQueueName)
                                 },
                                 onOpenAllClick = {
                                     navController.navigateSafely(Screen.RecentlyPlayed.route)
@@ -588,13 +601,13 @@ fun HomeScreen(
 
         }
     }
-    recentSongForOptions?.let { song ->
+    songForOptions?.let { (song, queueSongs, queueName) ->
         RecentlyPlayedSongOptionsSheet(
             song = song,
-            queueSongs = recentlyPlayedQueue,
-            queueName = recentlyPlayedQueueName,
+            queueSongs = queueSongs,
+            queueName = queueName,
             playerViewModel = playerViewModel,
-            onDismiss = { recentSongForOptions = null },
+            onDismiss = { songForOptions = null },
             onSongDeleted = { deletedSong ->
                 recentlyPlayedSongs = recentlyPlayedSongs.withoutSong(deletedSong.id)
             },

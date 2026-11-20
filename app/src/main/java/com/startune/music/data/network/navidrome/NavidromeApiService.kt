@@ -506,7 +506,9 @@ class NavidromeApiService @Inject constructor(
             .addQueryParameter("v", API_VERSION)
             .addQueryParameter("c", cred.clientId.ifBlank { DEFAULT_CLIENT_ID })
             .addQueryParameter("id", coverArtId)
-            .addQueryParameter("size", size.toString())
+            .apply {
+                if (size > 0) addQueryParameter("size", size.toString())
+            }
             .build()
             .toString()
     }

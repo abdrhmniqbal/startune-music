@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.startune.music.data.media.AudioMetadataReader
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -46,6 +47,8 @@ object AlbumArtUtils {
     private const val MAX_EXTERNAL_ART_BYTES = 20L * 1024 * 1024
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val artworkWarmupDispatcher = Dispatchers.IO.limitedParallelism(1)
+    private val artworkWarmups = ConcurrentHashMap.newKeySet<Long>()
     private val _artworkCacheVersion = MutableStateFlow(0L)
     val artworkCacheVersion = _artworkCacheVersion.asStateFlow()
 
@@ -235,6 +238,38 @@ object AlbumArtUtils {
         songId: Long
     ): Boolean {
         return getCachedAlbumArtFile(appContext, songId).exists()
+    }
+
+    internal fun getOrWarmCachedAlbumArtFile(
+        appContext: Context,
+        songId: Long,
+        scheduleWarmup: (Context, Long) -> Unit = ::scheduleAlbumArtCacheWarmup
+    ): File? {
+        val file = getCachedAlbumArtFile(appContext, songId)
+        if (file.isFile && file.canRead() && file.length() > 0L) {
+            file.setLastModified(System.currentTimeMillis())
+            scheduleOversizedArtworkShrink(file)
+            return file
+        }
+        if (!noArtMarkerFile(appContext, songId).exists()) {
+            scheduleWarmup(appContext, songId)
+        }
+        return null
+    }
+
+    private fun scheduleAlbumArtCacheWarmup(appContext: Context, songId: Long) {
+        if (!artworkWarmups.add(songId)) return
+        appScope.launch(artworkWarmupDispatcher) {
+            try {
+                ensureAlbumArtCachedFile(appContext, songId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Timber.tag("AlbumArtUtils").w(e, "Failed to warm local artwork cache")
+            } finally {
+                artworkWarmups.remove(songId)
+            }
+        }
     }
 
     /**

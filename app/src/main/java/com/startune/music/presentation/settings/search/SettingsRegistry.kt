@@ -98,6 +98,15 @@ object SettingsRegistry {
                 keywordsStatic = listOf("tracks", "album", "filter", "singles")
             ),
             SettingSpec(
+                id = "library_min_artist_tracks",
+                itemKey = "item_library_min_artist_tracks",
+                titleRes = R.string.setcat_min_tracks_per_artist,
+                category = SettingsCategory.LIBRARY,
+                subscreenRoute = Screen.SettingsCategory.createRoute("library"),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf("tracks", "artist", "filter", "songs")
+            ),
+            SettingSpec(
                 id = "library_album_art_cache",
                 itemKey = "item_library_album_art_cache",
                 titleRes = R.string.setcat_album_art_cache_limit,
@@ -921,6 +930,18 @@ object SettingsRegistry {
                 ),
                 getValue = { it.autoplayOnSkip },
                 onToggle = { viewModel, checked -> viewModel.setAutoplayOnSkip(checked) }
+            ),
+            SettingSpec(
+                id = "behavior_swipe_to_queue",
+                itemKey = "item_behavior_swipe_to_queue",
+                titleRes = R.string.setcat_swipe_to_queue_title,
+                subtitleRes = R.string.setcat_swipe_to_queue_description,
+                category = SettingsCategory.BEHAVIOR,
+                subscreenRoute = Screen.SettingsCategory.createRoute("behavior"),
+                type = SettingType.NAVIGABLE_CARD,
+                keywordsStatic = listOf(
+                    "swipe", "gesture", "queue", "add to queue", "play next", "song list", "playlist"
+                )
             ),
             SettingSpec(
                 id = "behavior_haptics",

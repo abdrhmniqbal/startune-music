@@ -88,6 +88,22 @@ sealed class SortOption(
         methodKey = "song_date_added",
         direction = SortDirection.Ascending
     )
+    object SongDateModified : SortOption(
+        storageKey = "song_date_modified",
+        displayName = "Date Modified",
+        methodLabel = "Date Modified",
+        methodLabelRes = R.string.sort_method_date_modified,
+        methodKey = "song_date_modified",
+        direction = SortDirection.Descending
+    )
+    object SongDateModifiedAsc : SortOption(
+        storageKey = "song_date_modified_asc",
+        displayName = "Date Modified (Oldest First)",
+        methodLabel = "Date Modified",
+        methodLabelRes = R.string.sort_method_date_modified,
+        methodKey = "song_date_modified",
+        direction = SortDirection.Ascending
+    )
     object SongDuration : SortOption(
         storageKey = "song_duration",
         displayName = "Duration",
@@ -408,6 +424,22 @@ sealed class SortOption(
         methodKey = "folder_song_title",
         direction = SortDirection.Descending
     )
+    object FolderSongFilenameAZ : SortOption(
+        storageKey = "folder_song_filename_az",
+        displayName = "Filename (A-Z)",
+        methodLabel = "Filename",
+        methodLabelRes = R.string.sort_method_filename,
+        methodKey = "folder_song_filename",
+        direction = SortDirection.Ascending
+    )
+    object FolderSongFilenameZA : SortOption(
+        storageKey = "folder_song_filename_za",
+        displayName = "Filename (Z-A)",
+        methodLabel = "Filename",
+        methodLabelRes = R.string.sort_method_filename,
+        methodKey = "folder_song_filename",
+        direction = SortDirection.Descending
+    )
     object FolderSongArtist : SortOption(
         storageKey = "folder_song_artist",
         displayName = "Artist",
@@ -472,6 +504,22 @@ sealed class SortOption(
         methodKey = "folder_song_date_added",
         direction = SortDirection.Ascending
     )
+    object FolderSongDateModified : SortOption(
+        storageKey = "folder_song_date_modified",
+        displayName = "Date Modified",
+        methodLabel = "Date Modified",
+        methodLabelRes = R.string.sort_method_date_modified,
+        methodKey = "folder_song_date_modified",
+        direction = SortDirection.Descending
+    )
+    object FolderSongDateModifiedAsc : SortOption(
+        storageKey = "folder_song_date_modified_asc",
+        displayName = "Date Modified (Oldest First)",
+        methodLabel = "Date Modified",
+        methodLabelRes = R.string.sort_method_date_modified,
+        methodKey = "folder_song_date_modified",
+        direction = SortDirection.Ascending
+    )
     object FolderSongDuration : SortOption(
         storageKey = "folder_song_duration",
         displayName = "Duration",
@@ -511,6 +559,12 @@ sealed class SortOption(
         return resolveForDirection(targetDirection)
     }
 
+    fun resolveSecondarySongSort(configured: SortOption?): SortOption? {
+        if (configured == null || configured !in SONG_SECONDARY) return null
+        return configured.takeUnless { it.methodKey == methodKey }
+            ?: SONG_SECONDARY.first { it.methodKey != methodKey }
+    }
+
     companion object {
 
         val SONGS: List<SortOption> by lazy {
@@ -524,12 +578,16 @@ sealed class SortOption(
                 SongAlbumDesc,
                 SongDateAdded,
                 SongDateAddedAsc,
+                SongDateModified,
+                SongDateModifiedAsc,
                 SongDuration,
                 SongDurationAsc,
                 SongPlayCount,
                 SongPlayCountAsc
             )
         }
+
+        val SONG_SECONDARY: List<SortOption> by lazy { SONGS.filter { it.direction != null } }
 
         val ALBUMS: List<SortOption> by lazy {
             listOf(
@@ -578,6 +636,8 @@ sealed class SortOption(
             listOf(
                 FolderSongTitleAZ,
                 FolderSongTitleZA,
+                FolderSongFilenameAZ,
+                FolderSongFilenameZA,
                 FolderSongArtist,
                 FolderSongArtistDesc,
                 FolderSongAlbum,
@@ -586,6 +646,8 @@ sealed class SortOption(
                 FolderSongAlbumArtistDesc,
                 FolderSongDateAdded,
                 FolderSongDateAddedAsc,
+                FolderSongDateModified,
+                FolderSongDateModifiedAsc,
                 FolderSongDuration,
                 FolderSongDurationAsc
             )

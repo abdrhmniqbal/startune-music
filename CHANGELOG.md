@@ -18,6 +18,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Playing a song in the middle of a list now fills the queue with the whole list, with the songs before it moved to the bottom.
 - The Last.fm login timeout is now 30 seconds, and a failed login now names the actual reason instead of only saying network error.
 - Fixed Last.fm login failing with a server error in release builds by pinning the login request field names against R8 renaming.
+- The Daily Mix now rotates from day to day.
+- Clearing the queue now uses range removals instead of removing one song at a time.
+- The exact speed dialog now stays open while its keyboard shows.
+- A saved custom equalizer preset now applies when playback starts.
+- Opus files are now labeled Opus in format compatibility.
+- The fade-out now reports a pause as soon as the fade starts.
+- Previous and next controls stay left-to-right in RTL layouts, and the seek bar thumb stays on its progress.
+- MusicBrainz IDs are now read from embedded track tags.
+- Literal plus signs in artist names are now preserved, and indexed track tags refresh when rescanned.
+- Songs can now be sorted by date modified.
+- Filename sorting and secondary song ordering are now available in library sorting.
+- Artists can now be filtered by their visible track count.
+- The metadata editor now keeps its actions visible after the keyboard is dismissed.
+- Embedded audio source links can now be opened from the song info sheet.
+- Navidrome covers now honor the selected cover quality.
+- Expanded playback now fits landscape windows.
+- External local artwork reads no longer block the UI.
+- Navidrome songs with non-alphanumeric IDs now play.
+- Song search now also matches artist credits and lyrics.
+- Brazilian Portuguese, Czech, and Slovak translations were added.
+- Artist and playlist tracks now support range selection between two selected songs.
+- Songs can now be swiped to add them to the queue or play them next, and Home mixes open song options on long-press.
+- Whole cloud libraries can now be queued for offline download, and completed downloads can be exported to a chosen folder.
+- Interrupted exports from completed cloud downloads now resume instead of starting over.
 
 ## [2.0.1-beta] - 2026-11-18
 

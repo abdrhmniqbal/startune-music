@@ -2,6 +2,7 @@
 
 package com.startune.music.presentation.screens
 
+import com.startune.music.presentation.components.rememberSwipeToQueue
 import com.startune.music.presentation.navigation.navigateSafely
 import com.startune.music.presentation.navigation.navigateSafelyReplacing
 import com.startune.music.presentation.components.DetailHeroArtistChip
@@ -177,6 +178,7 @@ fun AlbumDetailScreen(
     }
     val favoriteIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
     val navBarCompactMode by playerViewModel.navBarCompactMode.collectAsStateWithLifecycle()
+    val swipeToQueue = rememberSwipeToQueue(playerViewModel)
     val completedOfflineUris by viewModel.completedOfflineUris.collectAsStateWithLifecycle()
     val allArtists by playerViewModel.artistsFlow.collectAsStateWithLifecycle()
     var showAlbumPlaylistSheet by remember { mutableStateOf(false) }
@@ -628,6 +630,7 @@ fun AlbumDetailScreen(
                                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                             multiSelectionState.toggleSelection(song)
                                         },
+                                        onSwipeToQueue = swipeToQueue?.let { { it(song) } },
                                         onMoreOptionsClick = {
                                             playerViewModel.selectSongForInfo(song)
                                             showSongInfoBottomSheet = true
@@ -661,6 +664,7 @@ fun AlbumDetailScreen(
                                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                             multiSelectionState.toggleSelection(song)
                                         },
+                                        onSwipeToQueue = swipeToQueue?.let { { it(song) } },
                                         onMoreOptionsClick = {
                                             playerViewModel.selectSongForInfo(song)
                                             showSongInfoBottomSheet = true

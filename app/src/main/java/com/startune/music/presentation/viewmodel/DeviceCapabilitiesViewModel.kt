@@ -28,6 +28,7 @@ import com.startune.music.data.service.player.ActiveDecoderInfo
 import com.startune.music.data.service.player.DualPlayerEngine
 import com.startune.music.data.service.player.HiFiCapabilityChecker
 import com.startune.music.utils.AppFolders
+import com.startune.music.utils.AudioMetaUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
@@ -416,7 +417,7 @@ class DeviceCapabilitiesViewModel @Inject constructor(
         val unsupportedFormats = linkedSetOf<String>()
 
         rows.forEach { row ->
-            val mimeType = row.mimeType?.let(::normalizeMimeType)
+            val mimeType = row.codecMimeType()
             when {
                 mimeType.isNullOrBlank() -> unknownCount += 1
                 isMimeTypeSupported(mimeType, supportedTypes) -> supportedCount += 1
@@ -457,7 +458,7 @@ class DeviceCapabilitiesViewModel @Inject constructor(
             .toSet()
         val offloadFormats = audioCapabilities.offloadSupportedFormats.toSet()
         val libraryCountsByMime = rows
-            .mapNotNull { it.mimeType?.let(::normalizeMimeType) }
+            .mapNotNull { it.codecMimeType() }
             .groupingBy { it }
             .eachCount()
 
@@ -666,6 +667,9 @@ private fun audioFormatCandidates(): List<AudioFormatCandidate> {
         add(AudioFormatCandidate("IMA-ADPCM", "audio/x-ima-adpcm", null))
     }
 }
+
+private fun DeviceCapabilitySongRow.codecMimeType(): String? =
+    AudioMetaUtils.resolveCodecMimeType(mimeType, filePath)?.let(::normalizeMimeType)
 
 private fun normalizeMimeType(mimeType: String): String {
     return when (val mime = mimeType.lowercase(Locale.US).substringBefore(";").trim()) {

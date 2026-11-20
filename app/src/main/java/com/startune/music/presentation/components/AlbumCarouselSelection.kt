@@ -16,6 +16,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import coil.size.Size
+import com.startune.music.data.image.withNavidromeCoverSize
 import com.startune.music.data.model.Song
 import com.startune.music.data.preferences.CarouselStyle
 import com.startune.music.presentation.components.scoped.PrefetchAlbumNeighbors
@@ -79,7 +80,8 @@ fun AlbumCarouselSection(
         queue = queue,
         radius = 1,
         targetSize = targetSize,
-        anchorIndex = effectiveTargetIndex
+        anchorIndex = effectiveTargetIndex,
+        navidromeCoverSizePx = albumArtQuality.maxSize
     )
     // Scrolls this section runs itself: skips, and the snap when the queue shifts around the
     // playing song. A counter rather than a flag, because a cancelled scroll's cleanup can run
@@ -175,6 +177,9 @@ fun AlbumCarouselSection(
             itemKey = { index -> carouselItemKeys.getOrNull(index) ?: "queue_item_$index" },
             content = { index ->
                 val song = queue[index]
+                val coverUri = remember(song.albumArtUriString, albumArtQuality) {
+                    song.albumArtUriString?.withNavidromeCoverSize(albumArtQuality.maxSize)
+                }
                 val isFocusedItem = pagerState.currentPage == index
                 Box(
                     Modifier
@@ -188,7 +193,7 @@ fun AlbumCarouselSection(
                         )
                 ) {
                     OptimizedAlbumArt(
-                        uri = song.albumArtUriString,
+                        uri = coverUri,
                         title = song.title,
                         modifier = Modifier.fillMaxSize(),
                         targetSize = targetSize

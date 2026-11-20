@@ -16,6 +16,7 @@ import androidx.lifecycle.viewModelScope
 import com.startune.music.R
 import com.startune.music.data.database.MusicDao
 import com.startune.music.data.database.toArtist
+import com.startune.music.data.media.AudioMetadataReader
 import com.startune.music.data.model.Artist
 import com.startune.music.data.model.Song
 import com.startune.music.data.offline.CloudOfflineRepository
@@ -117,6 +118,21 @@ class SongInfoBottomSheetViewModel @Inject constructor(
                     ?: Artist(id = ref.id, name = ref.name, songCount = 0)
             }
             _resolvedArtists.value = resolved.toImmutableList()
+        }
+    }
+
+    suspend fun readSourceUrl(song: Song, offlineFilePath: String?): String? = withContext(Dispatchers.IO) {
+        val isCloudSong = CloudOfflineRepository.isCloudSong(song)
+        val path = if (isCloudSong) offlineFilePath else song.path
+        path?.takeIf { it.isNotBlank() }?.let(::File)?.takeIf(File::isFile)?.let { file ->
+            return@withContext AudioMetadataReader.readSourceUrl(appContext, Uri.fromFile(file))
+        }
+        if (isCloudSong) return@withContext null
+        val uri = song.contentUriString.toUri()
+        if (uri.scheme == "content" || uri.scheme == "file") {
+            AudioMetadataReader.readSourceUrl(appContext, uri)
+        } else {
+            null
         }
     }
 

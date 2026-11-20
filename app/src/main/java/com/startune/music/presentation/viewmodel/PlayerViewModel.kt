@@ -67,6 +67,7 @@ import com.startune.music.data.preferences.ThemePreferencesRepository
 import com.startune.music.data.preferences.restartsAtPosition
 import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.preferences.AlbumArtQuality
+import com.startune.music.data.preferences.SwipeToQueueAction
 import com.startune.music.data.preferences.ThemePreference
 import com.startune.music.data.repository.LyricsSearchResult
 import com.startune.music.data.repository.MusicRepository
@@ -253,7 +254,8 @@ private data class PendingBatchMetadataEdit(
     val discNumber: Int?,
     val replayGainTrackGainDb: String?,
     val replayGainAlbumGainDb: String?,
-    val coverArtUpdate: CoverArtUpdate?
+    val coverArtUpdate: CoverArtUpdate?,
+    val onSelectionFinished: () -> Unit
 )
 
 private data class PendingLyricsSave(
@@ -380,6 +382,15 @@ class PlayerViewModel @Inject constructor(
     val paginatedSongs: Flow<PagingData<Song>> = libraryStateHolder.songsPagingFlow
         .cachedIn(viewModelScope)
 
+    val secondarySongSortOption = userPreferencesRepository.songsSecondarySortOptionFlow
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    fun setSecondarySongSortOption(option: SortOption?) {
+        viewModelScope.launch {
+            userPreferencesRepository.setSongsSecondarySortOption(option)
+        }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val playlistPickerFavoriteSongs: Flow<PagingData<Song>> = combine(
         libraryStateHolder.currentSongSortOption,
@@ -496,6 +507,13 @@ class PlayerViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = false
+        )
+
+    val swipeToQueueAction: StateFlow<SwipeToQueueAction> = userPreferencesRepository.swipeToQueueActionFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = SwipeToQueueAction.OFF
         )
 
     val navBarCompactMode: StateFlow<Boolean> = userPreferencesRepository.navBarCompactModeFlow
@@ -738,6 +756,26 @@ class PlayerViewModel @Inject constructor(
             currentEffectiveLibraryStorageFilter(state),
         )
         return resolvePlaybackQueueFromSortedIds(sortedIds)
+    }
+
+    suspend fun getArtistsForCurrentLibrarySelection(): List<Artist> {
+        val state = playerUiState.value
+        return musicRepository.getArtistsPage(
+            limit = -1,
+            offset = 0,
+            sortOption = state.currentArtistSortOption,
+            storageFilter = currentEffectiveLibraryStorageFilter(state),
+        )
+    }
+
+    suspend fun getAlbumArtistsForCurrentLibrarySelection(): List<Artist> {
+        val state = playerUiState.value
+        return musicRepository.getAlbumArtistsPage(
+            limit = -1,
+            offset = 0,
+            sortOption = state.currentArtistSortOption,
+            storageFilter = currentEffectiveLibraryStorageFilter(state),
+        )
     }
 
     suspend fun getSongsForCurrentFavoriteSelection(): List<Song> {
@@ -3536,6 +3574,21 @@ class PlayerViewModel @Inject constructor(
         return uri.takeIf { it.scheme == "file" }?.path?.takeIf { it.isNotBlank() }
     }
 
+    /** Queues [song] the way the swipe-to-queue setting says, and confirms it with a toast. */
+    fun queueSongFromSwipe(song: Song) {
+        when (swipeToQueueAction.value) {
+            SwipeToQueueAction.OFF -> return
+            SwipeToQueueAction.ADD_TO_QUEUE -> {
+                addSongToQueue(song)
+                sendToast(context.getString(R.string.toast_added_to_queue))
+            }
+            SwipeToQueueAction.PLAY_NEXT -> {
+                addSongNextToQueue(song)
+                sendToast(context.getString(R.string.toast_playing_next))
+            }
+        }
+    }
+
     fun addSongToQueue(song: Song) {
         mediaController?.let { controller ->
             val mediaItem = buildPlaybackMediaItem(song)
@@ -3604,17 +3657,23 @@ class PlayerViewModel @Inject constructor(
      * Plays all selected songs, preserving their selection order.
      * Clears selection after starting playback.
      */
-    fun playSelectedSongs(songs: List<Song>) {
+    fun playSelectedSongs(
+        songs: List<Song>,
+        onSelectionFinished: () -> Unit = multiSelectionStateHolder::clearSelection
+    ) {
         if (songs.isEmpty()) return
         playSongs(songs, songs.first(), context.getString(R.string.queue_name_selected_songs))
-        multiSelectionStateHolder.clearSelection()
+        onSelectionFinished()
     }
 
     /**
      * Adds all selected songs to the end of the queue.
      * Clears selection after adding.
      */
-    fun addSelectedToQueue(songs: List<Song>) {
+    fun addSelectedToQueue(
+        songs: List<Song>,
+        onSelectionFinished: () -> Unit = multiSelectionStateHolder::clearSelection
+    ) {
         songs.forEach { addSongToQueue(it) }
         viewModelScope.launch {
             val n = songs.size
@@ -3622,7 +3681,7 @@ class PlayerViewModel @Inject constructor(
                 context.resources.getQuantityString(R.plurals.n_songs_added_to_queue, n, n),
             )
         }
-        multiSelectionStateHolder.clearSelection()
+        onSelectionFinished()
     }
 
     /**
@@ -3630,7 +3689,10 @@ class PlayerViewModel @Inject constructor(
      * Songs are inserted in reverse order so they play in the correct sequence.
      * Clears selection after adding.
      */
-    fun addSelectedAsNext(songs: List<Song>) {
+    fun addSelectedAsNext(
+        songs: List<Song>,
+        onSelectionFinished: () -> Unit = multiSelectionStateHolder::clearSelection
+    ) {
         songs.reversed().forEach { addSongNextToQueue(it) }
         viewModelScope.launch {
             val n = songs.size
@@ -3638,7 +3700,7 @@ class PlayerViewModel @Inject constructor(
                 context.resources.getQuantityString(R.plurals.n_songs_will_play_next, n, n),
             )
         }
-        multiSelectionStateHolder.clearSelection()
+        onSelectionFinished()
     }
 
     suspend fun getSongsForGenres(genres: List<Genre>): List<Song> {
@@ -3804,7 +3866,10 @@ class PlayerViewModel @Inject constructor(
      * Adds all selected songs to favorites.
      * Clears selection after liking.
      */
-    fun likeSelectedSongs(songs: List<Song>) {
+    fun likeSelectedSongs(
+        songs: List<Song>,
+        onSelectionFinished: () -> Unit = multiSelectionStateHolder::clearSelection
+    ) {
         viewModelScope.launch {
             val favIds = favoriteSongIds.value.toMutableSet()
             var likedCount = 0
@@ -3822,7 +3887,7 @@ class PlayerViewModel @Inject constructor(
             } else {
                 _toastEvents.emit(context.getString(R.string.player_all_songs_already_in_favorites))
             }
-            multiSelectionStateHolder.clearSelection()
+            onSelectionFinished()
         }
     }
 
@@ -3830,7 +3895,10 @@ class PlayerViewModel @Inject constructor(
      * Removes all selected songs from favorites.
      * Clears selection after unliking.
      */
-    fun unlikeSelectedSongs(songs: List<Song>) {
+    fun unlikeSelectedSongs(
+        songs: List<Song>,
+        onSelectionFinished: () -> Unit = multiSelectionStateHolder::clearSelection
+    ) {
         viewModelScope.launch {
             val favIds = favoriteSongIds.value.toMutableSet()
             var unlikedCount = 0
@@ -3852,7 +3920,7 @@ class PlayerViewModel @Inject constructor(
             } else {
                 _toastEvents.emit(context.getString(R.string.player_no_songs_were_in_favorites))
             }
-            multiSelectionStateHolder.clearSelection()
+            onSelectionFinished()
         }
     }
 
@@ -3860,14 +3928,17 @@ class PlayerViewModel @Inject constructor(
      * Shares all selected songs as a ZIP file.
      * Clears selection after initiating share.
      */
-    fun shareSelectedAsZip(songs: List<Song>) {
+    fun shareSelectedAsZip(
+        songs: List<Song>,
+        onSelectionFinished: () -> Unit = multiSelectionStateHolder::clearSelection
+    ) {
         viewModelScope.launch {
             _toastEvents.emit(context.getString(R.string.player_creating_zip))
 
             val result = ZipShareHelper.createAndShareZip(context, songs)
 
             result.onSuccess {
-                multiSelectionStateHolder.clearSelection()
+                onSelectionFinished()
             }.onFailure { error ->
                 _toastEvents.emit(
                     context.getString(R.string.player_share_zip_failed_format, error.localizedMessage ?: ""),
@@ -3970,7 +4041,12 @@ class PlayerViewModel @Inject constructor(
     private var pendingBatchDeleteSkippedCount: Int = 0
     private var pendingBatchDeleteOnComplete: (() -> Unit)? = null
 
-    fun deleteSelectedFromDevice(activity: Activity, songs: List<Song>, onComplete: () -> Unit) {
+    fun deleteSelectedFromDevice(
+        activity: Activity,
+        songs: List<Song>,
+        onSelectionFinished: () -> Unit = multiSelectionStateHolder::clearSelection,
+        onComplete: () -> Unit
+    ) {
         viewModelScope.launch {
             val currentSongId = playbackStateHolder.stablePlayerState.value.currentSong?.id
             val deletableSongs = songs.filter { it.id != currentSongId }
@@ -4008,7 +4084,10 @@ class PlayerViewModel @Inject constructor(
 
                         pendingBatchDeleteSongs = acceptedSongs
                         pendingBatchDeleteSkippedCount = skippedCount + invalidRequestCount
-                        pendingBatchDeleteOnComplete = onComplete
+                        pendingBatchDeleteOnComplete = {
+                            onSelectionFinished()
+                            onComplete()
+                        }
                         _deletePermissionRequest.emit(deleteRequest.intentSender)
                         return@launch
                     }
@@ -4056,7 +4135,7 @@ class PlayerViewModel @Inject constructor(
                     _toastEvents.emit(context.getString(R.string.player_delete_files_failed))
             }
 
-            multiSelectionStateHolder.clearSelection()
+            onSelectionFinished()
             onComplete()
         }
     }
@@ -4179,7 +4258,6 @@ class PlayerViewModel @Inject constructor(
                 } else {
                     _toastEvents.emit(context.getString(R.string.player_deletion_cancelled))
                 }
-                multiSelectionStateHolder.clearSelection()
                 onComplete?.invoke()
             }
             return
@@ -4450,16 +4528,18 @@ class PlayerViewModel @Inject constructor(
     }
 
     fun clearQueueExceptCurrent() {
-        mediaController?.let { controller ->
-            val currentSongIndex = controller.currentMediaItemIndex
-            if (currentSongIndex == C.INDEX_UNSET) return@let
-            val indicesToRemove = (0 until controller.mediaItemCount)
-                .filter { it != currentSongIndex }
-                .sortedDescending()
+        val controller = mediaController ?: return
+        val currentSongIndex = controller.currentMediaItemIndex
+        if (currentSongIndex == C.INDEX_UNSET) return
+        val totalCount = controller.mediaItemCount
+        if (totalCount <= 1) return
 
-            for (index in indicesToRemove) {
-                controller.removeMediaItem(index)
-            }
+        if (currentSongIndex + 1 < totalCount) {
+            controller.removeMediaItems(currentSongIndex + 1, totalCount)
+        }
+
+        if (currentSongIndex > 0) {
+            controller.removeMediaItems(0, currentSongIndex)
         }
     }
 
@@ -4651,7 +4731,8 @@ class PlayerViewModel @Inject constructor(
         discNumber: Int?,
         replayGainTrackGainDb: String?,
         replayGainAlbumGainDb: String?,
-        coverArtUpdate: CoverArtUpdate?
+        coverArtUpdate: CoverArtUpdate?,
+        onSelectionFinished: () -> Unit = multiSelectionStateHolder::clearSelection
     ) {
         viewModelScope.launch {
             val localSongsNeedingPermission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
@@ -4688,7 +4769,8 @@ class PlayerViewModel @Inject constructor(
                             discNumber = discNumber,
                             replayGainTrackGainDb = replayGainTrackGainDb,
                             replayGainAlbumGainDb = replayGainAlbumGainDb,
-                            coverArtUpdate = coverArtUpdate
+                            coverArtUpdate = coverArtUpdate,
+                            onSelectionFinished = onSelectionFinished
                         )
                         _writePermissionRequest.emit(intentSender)
                         return@launch
@@ -4698,7 +4780,8 @@ class PlayerViewModel @Inject constructor(
 
             performBatchMetadataEdit(
                 songs, title, artist, album, albumArtist, composer, genre, lyrics,
-                trackNumber, discNumber, replayGainTrackGainDb, replayGainAlbumGainDb, coverArtUpdate
+                trackNumber, discNumber, replayGainTrackGainDb, replayGainAlbumGainDb, coverArtUpdate,
+                onSelectionFinished
             )
         }
     }
@@ -4716,7 +4799,8 @@ class PlayerViewModel @Inject constructor(
         discNumber: Int?,
         replayGainTrackGainDb: String?,
         replayGainAlbumGainDb: String?,
-        coverArtUpdate: CoverArtUpdate?
+        coverArtUpdate: CoverArtUpdate?,
+        onSelectionFinished: () -> Unit = multiSelectionStateHolder::clearSelection
     ) {
         var successCount = 0
         var failureCount = 0
@@ -4809,7 +4893,7 @@ class PlayerViewModel @Inject constructor(
             }
         }
 
-        multiSelectionStateHolder.clearSelection()
+        onSelectionFinished()
 
         val message = when {
             failureCount == 0 -> context.getString(R.string.batch_edit_success, successCount)
@@ -4948,7 +5032,8 @@ class PlayerViewModel @Inject constructor(
                     batchMetadata.discNumber,
                     batchMetadata.replayGainTrackGainDb,
                     batchMetadata.replayGainAlbumGainDb,
-                    batchMetadata.coverArtUpdate
+                    batchMetadata.coverArtUpdate,
+                    batchMetadata.onSelectionFinished
                 )
             }
             return

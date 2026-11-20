@@ -76,6 +76,7 @@ fun LibrarySongsTab(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     sortOption: SortOption,
+    secondarySortOption: SortOption? = null,
     isSelectionMode: Boolean = false,
     selectedSongIds: Set<String> = emptySet(),
     onSongLongPress: (Song) -> Unit = {},
@@ -160,7 +161,7 @@ fun LibrarySongsTab(
     }
 
     ResetScrollOnSortChange(
-        sortKey = sortOption.storageKey,
+        sortKey = "${sortOption.storageKey}|${secondarySortOption?.storageKey.orEmpty()}",
         items = songs,
         scrollToTop = { listState.scrollToItem(0) }
     )

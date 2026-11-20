@@ -20,6 +20,7 @@ import com.startune.music.data.backup.model.ValidationError
 import com.startune.music.data.model.AudioOutputMode
 import com.startune.music.data.preferences.AppLanguage
 import com.startune.music.data.preferences.PreviousButtonBehavior
+import com.startune.music.data.preferences.SwipeToQueueAction
 import com.startune.music.data.preferences.AppThemeMode
 import com.startune.music.data.preferences.CarouselStyle
 import com.startune.music.data.preferences.LibraryNavigationMode
@@ -70,6 +71,7 @@ data class SettingsUiState(
     val autoplayOnSkip: Boolean = true,
     val miniPlayerSwipeToSkip: Boolean = false,
     val previousButtonBehavior: PreviousButtonBehavior = PreviousButtonBehavior.DEFAULT,
+    val swipeToQueueAction: SwipeToQueueAction = SwipeToQueueAction.DEFAULT,
     val playerThemePreference: String = ThemePreference.ALBUM_ART,
     val albumArtPaletteStyle: AlbumArtPaletteStyle = AlbumArtPaletteStyle.default,
     val albumArtColorAccuracy: Int = AlbumArtColorAccuracy.DEFAULT,
@@ -148,6 +150,7 @@ data class SettingsUiState(
     val collageAutoRotate: Boolean = false,
     val minSongDuration: Int = 10000,
     val minTracksPerAlbum: Int = 1,
+    val minTracksPerArtist: Int = 1,
     val replayGainEnabled: Boolean = false,
     val replayGainUseAlbumGain: Boolean = false
 )
@@ -327,6 +330,12 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferencesRepository.previousButtonBehaviorFlow.collect { behavior ->
                 _uiState.update { it.copy(previousButtonBehavior = behavior) }
+            }
+        }
+
+        viewModelScope.launch {
+            userPreferencesRepository.swipeToQueueActionFlow.collect { action ->
+                _uiState.update { it.copy(swipeToQueueAction = action) }
             }
         }
 
@@ -638,6 +647,12 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferencesRepository.minTracksPerAlbumFlow.collect { minTracks ->
                 _uiState.update { it.copy(minTracksPerAlbum = minTracks) }
+            }
+        }
+
+        viewModelScope.launch {
+            userPreferencesRepository.minTracksPerArtistFlow.collect { minTracks ->
+                _uiState.update { it.copy(minTracksPerArtist = minTracks) }
             }
         }
 
@@ -1258,6 +1273,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setMinTracksPerArtist(minTracks: Int) {
+        viewModelScope.launch {
+            userPreferencesRepository.setMinTracksPerArtist(minTracks)
+        }
+    }
+
     fun setReplayGainEnabled(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setReplayGainEnabled(enabled)
@@ -1355,6 +1376,12 @@ class SettingsViewModel @Inject constructor(
     fun setUseSmoothCorners(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setUseSmoothCorners(enabled)
+        }
+    }
+
+    fun setSwipeToQueueAction(action: SwipeToQueueAction) {
+        viewModelScope.launch {
+            userPreferencesRepository.setSwipeToQueueAction(action)
         }
     }
 
