@@ -575,6 +575,11 @@
     <string name="lastfm_password">Password</string>
     <string name="lastfm_logging_in">Logging in…</string>
     <string name="lastfm_login_failed">Login failed: %1$s</string>
+    <string name="lastfm_login_error_invalid_credentials">invalid username or password</string>
+    <string name="lastfm_login_error_timeout">connection timed out</string>
+    <string name="lastfm_login_error_no_connection">no internet connection</string>
+    <string name="lastfm_login_error_server">server error (HTTP %1$d)</string>
+    <string name="lastfm_login_error_network">network error, try again</string>
     <string name="lastfm_login_success">Logged in successfully!</string>
     <string name="lastfm_logged_in_as">Logged in as %1$s</string>
     <string name="lastfm_login_dialog_title">Link Last.fm Account</string>

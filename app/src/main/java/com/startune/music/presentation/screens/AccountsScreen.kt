@@ -99,6 +99,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.startune.music.R
+import com.startune.music.data.lastfm.LastFmLoginResult
 import com.startune.music.data.listenbrainz.ListenBrainzProfileStats
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.ExpressiveScrollBar
@@ -1309,10 +1310,18 @@ private fun LastFmLoginDialog(
                     Text(
                         text = stringResource(
                             R.string.lastfm_login_failed,
-                            if (failedState.invalidCredentials) {
-                                "invalid username or password"
-                            } else {
-                                "network error, try again"
+                            when (val result = failedState.result) {
+                                LastFmLoginResult.InvalidCredentials ->
+                                    stringResource(R.string.lastfm_login_error_invalid_credentials)
+                                LastFmLoginResult.Timeout ->
+                                    stringResource(R.string.lastfm_login_error_timeout)
+                                LastFmLoginResult.NoConnection ->
+                                    stringResource(R.string.lastfm_login_error_no_connection)
+                                is LastFmLoginResult.ServerError ->
+                                    stringResource(R.string.lastfm_login_error_server, result.httpCode)
+                                LastFmLoginResult.TransientError ->
+                                    stringResource(R.string.lastfm_login_error_network)
+                                is LastFmLoginResult.Success -> ""
                             }
                         ),
                         style = MaterialTheme.typography.bodySmall,

@@ -89,7 +89,7 @@ sealed interface LastFmConnectState {
     data object Idle : LastFmConnectState
     data object Connecting : LastFmConnectState
     data object Success : LastFmConnectState
-    data class Failed(val invalidCredentials: Boolean = false) : LastFmConnectState
+    data class Failed(val result: LastFmLoginResult) : LastFmConnectState
 }
 
 data class AccountsUiState(
@@ -358,10 +358,9 @@ class AccountsViewModel @Inject constructor(
         if (_lastFmConnectState.value == LastFmConnectState.Connecting) return
         viewModelScope.launch {
             _lastFmConnectState.value = LastFmConnectState.Connecting
-            _lastFmConnectState.value = when (lastFmRepository.login(username, password)) {
+            _lastFmConnectState.value = when (val result = lastFmRepository.login(username, password)) {
                 is LastFmLoginResult.Success -> LastFmConnectState.Success
-                LastFmLoginResult.InvalidCredentials -> LastFmConnectState.Failed(invalidCredentials = true)
-                LastFmLoginResult.TransientError -> LastFmConnectState.Failed(invalidCredentials = false)
+                else -> LastFmConnectState.Failed(result)
             }
         }
     }

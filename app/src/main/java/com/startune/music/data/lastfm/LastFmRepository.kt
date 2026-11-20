@@ -18,6 +18,10 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import retrofit2.Response
 import timber.log.Timber
+import java.io.IOException
+import java.net.ConnectException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -116,15 +120,20 @@ class LastFmRepository @Inject constructor(
         return try {
             val response = api.createSession(LastFmSessionRequest(username, password))
             if (!response.isSuccessful) {
-                return if (response.code() == 403) {
+                val code = response.code()
+                Timber.w("$TAG: Login failed with HTTP $code")
+                return if (code == 403) {
                     LastFmLoginResult.InvalidCredentials
                 } else {
-                    LastFmLoginResult.TransientError
+                    LastFmLoginResult.ServerError(code)
                 }
             }
             val session = response.body()?.session
             val key = session?.key
-            if (key.isNullOrBlank()) return LastFmLoginResult.TransientError
+            if (key.isNullOrBlank()) {
+                Timber.w("$TAG: Login response has no session key")
+                return LastFmLoginResult.TransientError
+            }
             val name = session.name?.takeIf { it.isNotBlank() } ?: username
             cachedSessionKey = key
             prefs.edit {
@@ -138,8 +147,20 @@ class LastFmRepository @Inject constructor(
                 needsReauth = false
             )
             LastFmLoginResult.Success(name)
+        } catch (e: SocketTimeoutException) {
+            Timber.w(e, "$TAG: Login timed out")
+            LastFmLoginResult.Timeout
+        } catch (e: UnknownHostException) {
+            Timber.w(e, "$TAG: Login failed, no network")
+            LastFmLoginResult.NoConnection
+        } catch (e: ConnectException) {
+            Timber.w(e, "$TAG: Login failed, could not connect")
+            LastFmLoginResult.NoConnection
+        } catch (e: IOException) {
+            Timber.w(e, "$TAG: Login failed with network error")
+            LastFmLoginResult.TransientError
         } catch (e: Exception) {
-            Timber.d(e, "$TAG: Login failed, will retry")
+            Timber.w(e, "$TAG: Login failed")
             LastFmLoginResult.TransientError
         }
     }

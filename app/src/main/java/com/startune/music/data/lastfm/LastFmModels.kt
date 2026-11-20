@@ -14,63 +14,63 @@ object LastFmEndpoint {
 }
 
 data class LastFmSessionRequest(
-    val username: String,
-    val password: String
+    @SerializedName("username") val username: String,
+    @SerializedName("password") val password: String
 )
 
 data class LastFmSessionResponse(
-    val session: LastFmSession? = null
+    @SerializedName("session") val session: LastFmSession? = null
 )
 
 data class LastFmSession(
-    val name: String? = null,
-    val key: String? = null
+    @SerializedName("name") val name: String? = null,
+    @SerializedName("key") val key: String? = null
 )
 
 data class LastFmNowPlayingRequest(
-    val sessionKey: String,
-    val artist: String,
-    val track: String,
-    val album: String? = null,
+    @SerializedName("sessionKey") val sessionKey: String,
+    @SerializedName("artist") val artist: String,
+    @SerializedName("track") val track: String,
+    @SerializedName("album") val album: String? = null,
     /** Track duration in seconds. */
-    val duration: Int? = null
+    @SerializedName("duration") val duration: Int? = null
 )
 
 data class LastFmScrobbleRequest(
-    val sessionKey: String,
-    val artist: String,
-    val track: String,
+    @SerializedName("sessionKey") val sessionKey: String,
+    @SerializedName("artist") val artist: String,
+    @SerializedName("track") val track: String,
     /** Epoch seconds of when the listen started. */
-    val timestamp: Long,
-    val album: String? = null
+    @SerializedName("timestamp") val timestamp: Long,
+    @SerializedName("album") val album: String? = null
 )
 
 data class LastFmArtistInfoRequest(
-    val artist: String,
-    val lang: String? = null,
-    val username: String? = null
+    @SerializedName("artist") val artist: String,
+    @SerializedName("lang") val lang: String? = null,
+    @SerializedName("username") val username: String? = null
 )
 
 data class LastFmArtistInfoResponse(
-    val artist: LastFmArtistInfo? = null
+    @SerializedName("artist") val artist: LastFmArtistInfo? = null
 )
 
 data class LastFmArtistInfo(
-    val name: String? = null,
-    val mbid: String? = null,
-    val url: String? = null,
-    val image: List<LastFmImage> = emptyList(),
-    val bio: LastFmBio? = null
+    @SerializedName("name") val name: String? = null,
+    @SerializedName("mbid") val mbid: String? = null,
+    @SerializedName("url") val url: String? = null,
+    @SerializedName("image") val image: List<LastFmImage> = emptyList(),
+    @SerializedName("bio") val bio: LastFmBio? = null
 )
 
 data class LastFmImage(
     @SerializedName("#text") val text: String? = null,
-    val size: String? = null
+    @SerializedName("size") val size: String? = null
 )
 
 data class LastFmBio(
-    val summary: String? = null,
-    val content: String? = null
+    @SerializedName("summary") val summary: String? = null,
+    @SerializedName("content") val content: String? = null
 )
 
 /** Scrobble configuration, mirroring the old Startune defaults. */
@@ -103,6 +103,9 @@ sealed interface LastFmSubmitResult {
 sealed interface LastFmLoginResult {
     data class Success(val userName: String) : LastFmLoginResult
     data object InvalidCredentials : LastFmLoginResult
+    data object Timeout : LastFmLoginResult
+    data object NoConnection : LastFmLoginResult
+    data class ServerError(val httpCode: Int) : LastFmLoginResult
     data object TransientError : LastFmLoginResult
 }
 

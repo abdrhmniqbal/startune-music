@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed the shuffle button from the genre top songs list.
 - The artist all songs list now defaults to sorting by play count, matching the top songs on the artist page.
 - Playing a song in the middle of a list now fills the queue with the whole list, with the songs before it moved to the bottom.
+- The Last.fm login timeout is now 30 seconds, and a failed login now names the actual reason instead of only saying network error.
+- Fixed Last.fm login failing with a server error in release builds by pinning the login request field names against R8 renaming.
 
 ## [2.0.1-beta] - 2026-11-18
 
