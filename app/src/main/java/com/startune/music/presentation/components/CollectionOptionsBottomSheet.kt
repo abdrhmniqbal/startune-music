@@ -228,7 +228,7 @@ fun CollectionOptionsBottomSheet(
 
                 if (target is ItemOptionsTarget.Playlist) {
                     val playlist = target.playlist
-                    val isEditable = !playlist.isMix &&
+                    val isEditable =
                         !playlist.id.startsWith(PlaylistViewModel.FOLDER_PLAYLIST_PREFIX)
                     if (isEditable) {
                         MoreMenuListRow(

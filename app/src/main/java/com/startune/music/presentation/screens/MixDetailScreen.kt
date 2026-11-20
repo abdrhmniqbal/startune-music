@@ -715,14 +715,23 @@ fun MixDetailScreen(
                         .fillMaxWidth()
                         .padding(vertical = 12.dp)
                 ) {
-                    Text(
-                        text = mixTitle,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 8.dp)
-                    )
+                            .padding(horizontal = 24.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.presentation_batch_b_mix_options_title),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = mixTitle,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                     MixOptionsItem(
                         icon = rememberVectorPainter(Icons.Rounded.PlayArrow),
                         label = stringResource(R.string.play_playback),

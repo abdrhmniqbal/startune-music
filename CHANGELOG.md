@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Search browse page and the search history list now have the same bottom clearance as Home, and the browse page scrolls so every section stays reachable.
 - The playlist multi-select sheet now shows each selected playlist's real cover in its header instead of an initial letter.
 - Delete moved to the very bottom of the playlist multi-select sheet, below Export, Merge, and Share.
+- Removed the header more menu from the artist and genre nested lists, and restored the per-song more menu on their song rows.
+- Mixes now show Rename and Delete in their library more menu, like regular playlists.
+- Detail more menus now share one header design: an options title and the item name, with no artwork.
+- Removed the shuffle button from the genre top songs list.
+- The artist all songs list now defaults to sorting by play count, matching the top songs on the artist page.
+- Playing a song in the middle of a list now fills the queue with the whole list, with the songs before it moved to the bottom.
 
 ## [2.0.1-beta] - 2026-11-18
 

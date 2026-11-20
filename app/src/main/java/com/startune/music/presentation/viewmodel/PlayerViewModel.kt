@@ -3118,7 +3118,10 @@ class PlayerViewModel @Inject constructor(
                     )
                 }
             } else {
-                validSongs
+                // Rotate so the start song is first and the songs before it
+                // move to the bottom, so the whole list is in the queue.
+                val startIndex = validSongs.indexOfFirst { it.id == validStartSong.id }.coerceAtLeast(0)
+                if (startIndex == 0) validSongs else validSongs.drop(startIndex) + validSongs.take(startIndex)
             }
             throwIfDirectPlaybackRequestIsStale(requestToken)
 
