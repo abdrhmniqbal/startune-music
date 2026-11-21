@@ -295,6 +295,18 @@ val MIGRATION_12_13 = object : Migration(12, 13) {
     }
 }
 
+/**
+ * v13 -> v14: pin the Last.fm artist identity once resolved, so a bio fetch
+ * for a shared name (BIBI) can ask Last.fm by MusicBrainz ID instead of by
+ * name. Null until resolved: from the songs' MusicBrainz artist tags, or
+ * from the user's pick when the name is ambiguous.
+ */
+val MIGRATION_13_14 = object : Migration(13, 14) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `artists` ADD COLUMN `lastfm_mbid` TEXT")
+    }
+}
+
 val MIGRATION_6_7 = object : Migration(6, 7) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("DELETE FROM song_artist_cross_ref WHERE song_id IN (SELECT id FROM songs WHERE source_type = 5)")

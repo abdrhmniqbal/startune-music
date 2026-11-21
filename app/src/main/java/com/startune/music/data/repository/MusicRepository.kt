@@ -311,8 +311,22 @@ interface MusicRepository {
     fun getArtistById(artistId: Long): Flow<Artist?>
 
     /** Persists a Last.fm bio (+ artwork when the artist has none) for the cached artist. */
-    suspend fun updateArtistBio(artistId: Long, bio: String?, imageUrl: String?)
+    suspend fun updateArtistBio(
+        artistId: Long,
+        bio: String?,
+        imageUrl: String?,
+        replaceImage: Boolean = false
+    )
     suspend fun getArtistIdByName(name: String): Long?
+
+    /**
+     * Distinct MusicBrainz artist IDs from this artist's songs' tags.
+     * Empty when no song is tagged; more than one means the tags disagree.
+     */
+    suspend fun getMbArtistIdsForArtist(artistId: Long): List<String>
+
+    /** Pins the resolved Last.fm artist identity (MusicBrainz ID) for the cached artist. */
+    suspend fun updateArtistMbid(artistId: Long, mbid: String)
 
     /**
      * DB-only lookup of an artist's effective image (custom image first, else the

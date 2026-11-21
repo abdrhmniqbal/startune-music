@@ -31,6 +31,8 @@
     <string name="presentation_batch_b_playlist_empty_add_hint">Tap More options to add songs.</string>
     <string name="presentation_batch_b_playlist_options_title">Playlist options</string>
     <string name="presentation_batch_b_artist_options_title">Artist options</string>
+    <string name="artist_choose_artist">Choose artist</string>
+    <string name="artist_choose_artist_empty">No matching artists found</string>
     <string name="presentation_batch_b_album_options_title">Album options</string>
     <string name="presentation_batch_b_genre_options_title">Genre options</string>
     <string name="presentation_batch_b_mix_options_title">Mix options</string>

@@ -8,8 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.startune.music.R
 import com.startune.music.data.lastfm.LastFmRepository
+import com.startune.music.data.lastfm.isDisambiguationBio
 import com.startune.music.data.model.Artist
 import com.startune.music.data.model.Song
+import com.startune.music.data.musicbrainz.MusicBrainzArtist
+import com.startune.music.data.musicbrainz.MusicBrainzRepository
 import com.startune.music.data.network.deezer.DeezerArtistCandidate
 import com.startune.music.data.repository.ArtistImageRepository
 import com.startune.music.data.repository.MusicRepository
@@ -64,6 +67,7 @@ class ArtistDetailViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val musicRepository: MusicRepository,
     private val lastFmRepository: LastFmRepository,
+    private val musicBrainzRepository: MusicBrainzRepository,
     private val artistImageRepository: ArtistImageRepository,
     private val playbackStatsRepository: PlaybackStatsRepository,
     val themeStateHolder: ThemeStateHolder,
@@ -106,6 +110,21 @@ class ArtistDetailViewModel @Inject constructor(
     private var loadedArtistId: Long? = null
     private val bioFetchAttempted = mutableSetOf<Long>()
     private val bioParagraphRefetchAttempted = mutableSetOf<Long>()
+    private val bioDisambiguationAttempted = mutableSetOf<Long>()
+
+    /** Candidates for the "choose artist" picker, shown when a name is shared. */
+    private val _artistCandidates = MutableStateFlow<List<MusicBrainzArtist>>(emptyList())
+    val artistCandidates: StateFlow<List<MusicBrainzArtist>> = _artistCandidates.asStateFlow()
+
+    private val _isResolvingArtist = MutableStateFlow(false)
+    val isResolvingArtist: StateFlow<Boolean> = _isResolvingArtist.asStateFlow()
+
+    /** True while the "choose artist" picker sheet is open. */
+    private val _showArtistPicker = MutableStateFlow(false)
+    val showArtistPicker: StateFlow<Boolean> = _showArtistPicker.asStateFlow()
+
+    /** Artist waiting on a picker choice; set when the picker opens. */
+    private var pendingArtistForPicker: Artist? = null
 
     private fun loadArtistData(id: Long) {
         loadedArtistId = id
@@ -214,6 +233,8 @@ class ArtistDetailViewModel @Inject constructor(
      * Fetches the artist bio from Last.fm once, when the cached bio is missing.
      * Bios cached before the paragraph fix were flattened to one block, so a
      * bio without paragraph breaks is re-fetched once for the fixed text.
+     * A cached disambiguation bio is re-fetched once too: it means the name
+     * is shared, and the resolution below pins the right artist.
      * The result is stored in Room, so repeat views cost no proxy usage; the
      * artist flow re-emits with the bio once it is saved.
      */
@@ -221,18 +242,94 @@ class ArtistDetailViewModel @Inject constructor(
         val bio = artist.bio
         val needsFetch = when {
             bio.isNullOrBlank() -> bioFetchAttempted.add(artist.id)
+            isDisambiguationBio(bio) -> bioDisambiguationAttempted.add(artist.id)
             !bio.contains("\n\n") -> bioParagraphRefetchAttempted.add(artist.id)
             else -> false
         }
         if (!needsFetch) return
-        viewModelScope.launch {
-            val fetched = lastFmRepository.fetchArtistBio(artist.name) ?: return@launch
-            runCatching {
-                musicRepository.updateArtistBio(artist.id, fetched.bio, fetched.imageUrl)
-            }.onFailure {
-                Timber.tag("ArtistDebug").w("Failed to save Last.fm bio: ${it.message}")
-            }
+        viewModelScope.launch { resolveArtistBio(artist) }
+    }
+
+    /**
+     * Pins the artist's identity before fetching the bio, best evidence first:
+     * the stored MusicBrainz ID override, then a single distinct ID from the
+     * songs' MusicBrainz tags, then a name lookup. A disambiguation bio from
+     * the name lookup means the name is shared, so the picker is opened and
+     * the user chooses; the wrong text is never saved. Nothing is guessed
+     * from search score: the top MusicBrainz hit for BIBI is a fictitious
+     * character, not the singer.
+     */
+    private suspend fun resolveArtistBio(artist: Artist) {
+        // A cached disambiguation bio means the name fetch also saved the
+        // wrong artist's image, so the re-fetch replaces the image too.
+        val hadDisambiguationBio = artist.bio?.let(::isDisambiguationBio) == true
+        artist.lastFmMbid?.takeIf { it.isNotBlank() }?.let { mbid ->
+            fetchAndSaveBio(artist, mbid, replaceImage = hadDisambiguationBio)
+            return
         }
+        val tagMbids = runCatching { musicRepository.getMbArtistIdsForArtist(artist.id) }
+            .getOrDefault(emptyList())
+        if (tagMbids.size == 1) {
+            val mbid = tagMbids.first()
+            runCatching { musicRepository.updateArtistMbid(artist.id, mbid) }
+            fetchAndSaveBio(artist, mbid, replaceImage = hadDisambiguationBio)
+            return
+        }
+        val fetched = lastFmRepository.fetchArtistBio(artist.name) ?: return
+        if (isDisambiguationBio(fetched.bio)) {
+            openArtistPicker(artist)
+            return
+        }
+        runCatching {
+            musicRepository.updateArtistBio(artist.id, fetched.bio, fetched.imageUrl)
+        }.onFailure {
+            Timber.tag("ArtistDebug").w("Failed to save Last.fm bio: ${it.message}")
+        }
+    }
+
+    private suspend fun fetchAndSaveBio(artist: Artist, mbid: String, replaceImage: Boolean) {
+        val fetched = lastFmRepository.fetchArtistBio(artist.name, mbid) ?: return
+        runCatching {
+            musicRepository.updateArtistBio(artist.id, fetched.bio, fetched.imageUrl, replaceImage)
+        }.onFailure {
+            Timber.tag("ArtistDebug").w("Failed to save Last.fm bio: ${it.message}")
+        }
+    }
+
+    /**
+     * Opens the "choose artist" picker: searches MusicBrainz for real
+     * performers with this name. No candidates means the search failed;
+     * the bio stays empty rather than showing the wrong artist.
+     */
+    fun openArtistPicker(artist: Artist) {
+        pendingArtistForPicker = artist
+        _showArtistPicker.value = true
+        viewModelScope.launch {
+            _isResolvingArtist.value = true
+            _artistCandidates.value = musicBrainzRepository.searchArtists(artist.name)
+            _isResolvingArtist.value = false
+        }
+    }
+
+    /** Saves the picked identity and re-fetches the bio (and image) for it. */
+    fun selectArtistCandidate(candidate: MusicBrainzArtist) {
+        val artist = pendingArtistForPicker ?: return
+        pendingArtistForPicker = null
+        _artistCandidates.value = emptyList()
+        _showArtistPicker.value = false
+        viewModelScope.launch {
+            runCatching { musicRepository.updateArtistMbid(artist.id, candidate.mbid) }
+                .onFailure {
+                    Timber.tag("ArtistDebug").w("Failed to save artist MBID: ${it.message}")
+                }
+            fetchAndSaveBio(artist, candidate.mbid, replaceImage = true)
+        }
+    }
+
+    fun closeArtistPicker() {
+        pendingArtistForPicker = null
+        _artistCandidates.value = emptyList()
+        _showArtistPicker.value = false
     }
 
     /**

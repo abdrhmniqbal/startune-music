@@ -27,6 +27,18 @@ data class MusicBrainzMatch(
     val disambiguation: String?
 )
 
+data class MusicBrainzArtist(
+    /** MusicBrainz ID, the key Last.fm's artist.getInfo accepts instead of a name. */
+    val mbid: String,
+    val name: String,
+    /** Person, Group, Orchestra, Choir, Character, Other, or null. */
+    val type: String?,
+    val country: String?,
+    /** Short distinguisher, e.g. "South Korean singer". */
+    val disambiguation: String?,
+    val score: Int
+)
+
 @Singleton
 class MusicBrainzApiService @Inject constructor(
     baseClient: OkHttpClient
@@ -83,6 +95,34 @@ class MusicBrainzApiService @Inject constructor(
         }
     }
 
+    /**
+     * Searches artists by name, for pinning a shared name (BIBI) to one
+     * identity. Shares the recording search's throttle and User-Agent.
+     * Returns raw candidates; the repository filters to real performers.
+     */
+    suspend fun searchArtists(name: String): List<MusicBrainzArtist> = requestMutex.withLock {
+        val elapsed = SystemClock.elapsedRealtime() - lastRequestStartedAt
+        if (elapsed in 0 until MIN_REQUEST_INTERVAL_MS) {
+            delay(MIN_REQUEST_INTERVAL_MS - elapsed)
+        }
+        lastRequestStartedAt = SystemClock.elapsedRealtime()
+
+        val url = API_ROOT.toHttpUrl().newBuilder()
+            .addPathSegment("artist")
+            .addQueryParameter("query", "artist:\"${escapeLucene(name)}\"")
+            .addQueryParameter("fmt", "json")
+            .addQueryParameter("limit", MAX_RESULTS.toString())
+            .build()
+        val request = Request.Builder().url(url).get().build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw IOException("MusicBrainz returned HTTP ${response.code}")
+            }
+            parseArtistSearchResponse(JSONObject(response.body.string()))
+        }
+    }
+
     companion object {
         private const val API_ROOT = "https://musicbrainz.org/ws/2/"
         private const val MAX_RESULTS = 8
@@ -108,6 +148,25 @@ class MusicBrainzApiService @Inject constructor(
         private val LUCENE_SPECIAL_CHARS = setOf(
             '+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', '\\', '/'
         )
+
+        internal fun parseArtistSearchResponse(json: JSONObject): List<MusicBrainzArtist> {
+            val artists = json.optJSONArray("artists") ?: JSONArray()
+            return (0 until artists.length()).mapNotNull { index ->
+                val artist = artists.optJSONObject(index) ?: return@mapNotNull null
+                val mbid = artist.optString("id").takeIf { it.isNotBlank() }
+                    ?: return@mapNotNull null
+                val name = artist.optString("name").takeIf { it.isNotBlank() }
+                    ?: return@mapNotNull null
+                MusicBrainzArtist(
+                    mbid = mbid,
+                    name = name,
+                    type = artist.optString("type").takeIf { it.isNotBlank() },
+                    country = artist.optString("country").takeIf { it.isNotBlank() },
+                    disambiguation = artist.optString("disambiguation").takeIf { it.isNotBlank() },
+                    score = artist.optInt("score", 0)
+                )
+            }
+        }
 
         internal fun parseSearchResponse(
             json: JSONObject,

@@ -46,7 +46,10 @@ data class LastFmScrobbleRequest(
 )
 
 data class LastFmArtistInfoRequest(
-    @SerializedName("artist") val artist: String,
+    /** Artist name. Omitted when [mbid] pins the identity instead. */
+    @SerializedName("artist") val artist: String? = null,
+    /** MusicBrainz ID. When set, Last.fm answers for this artist even when the name is shared. */
+    @SerializedName("mbid") val mbid: String? = null,
     @SerializedName("lang") val lang: String? = null,
     @SerializedName("username") val username: String? = null
 )
