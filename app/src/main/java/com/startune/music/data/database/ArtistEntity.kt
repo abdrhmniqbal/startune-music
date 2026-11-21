@@ -19,7 +19,13 @@ data class ArtistEntity(
     @ColumnInfo(name = "custom_image_uri") val customImageUri: String? = null,
     /** Artist bio from Last.fm, cached so repeat views cost no proxy usage. */
     @ColumnInfo(name = "bio") val bio: String? = null,
-    @ColumnInfo(name = "bio_updated_at_ms") val bioUpdatedAtMs: Long? = null
+    @ColumnInfo(name = "bio_updated_at_ms") val bioUpdatedAtMs: Long? = null,
+    /**
+     * MusicBrainz ID of the Last.fm artist this row refers to, once resolved.
+     * Null until the bio fetch pins the identity: from the songs' MusicBrainz
+     * artist tags, or from the user's pick when the name is ambiguous.
+     */
+    @ColumnInfo(name = "lastfm_mbid") val lastFmMbid: String? = null
 )
 
 fun ArtistEntity.toArtist(): Artist {
@@ -30,7 +36,8 @@ fun ArtistEntity.toArtist(): Artist {
         imageUrl = this.imageUrl,
         customImageUri = this.customImageUri,
         bio = this.bio,
-        bioUpdatedAtMs = this.bioUpdatedAtMs
+        bioUpdatedAtMs = this.bioUpdatedAtMs,
+        lastFmMbid = this.lastFmMbid
     )
 }
 
@@ -46,6 +53,7 @@ fun Artist.toEntity(): ArtistEntity {
         imageUrl = this.imageUrl,
         customImageUri = this.customImageUri,
         bio = this.bio,
-        bioUpdatedAtMs = this.bioUpdatedAtMs
+        bioUpdatedAtMs = this.bioUpdatedAtMs,
+        lastFmMbid = this.lastFmMbid
     )
 }

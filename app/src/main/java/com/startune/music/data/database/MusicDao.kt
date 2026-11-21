@@ -226,6 +226,20 @@ interface MusicDao {
     @Query("SELECT * FROM artists WHERE id IN (:artistIds)")
     suspend fun getArtistsByIds(artistIds: List<Long>): List<ArtistEntity>
 
+    /**
+     * Distinct MusicBrainz artist IDs carried by this artist's songs' tags.
+     * Zero rows means no song is tagged; more than one means the tags disagree.
+     */
+    @Query(
+        """
+        SELECT DISTINCT songs.mb_artist_id FROM songs
+        INNER JOIN song_artist_cross_ref ON song_artist_cross_ref.song_id = songs.id
+        WHERE song_artist_cross_ref.artist_id = :artistId
+        AND songs.mb_artist_id IS NOT NULL AND songs.mb_artist_id != ''
+        """
+    )
+    suspend fun getMbArtistIdsForArtist(artistId: Long): List<String>
+
     @Transaction
     suspend fun insertSongs(songs: List<SongEntity>) {
         if (songs.isEmpty()) return
@@ -271,7 +285,8 @@ interface MusicDao {
                         imageUrl = incoming.imageUrl ?: existing.imageUrl,
                         customImageUri = incoming.customImageUri ?: existing.customImageUri,
                         bio = incoming.bio ?: existing.bio,
-                        bioUpdatedAtMs = incoming.bioUpdatedAtMs ?: existing.bioUpdatedAtMs
+                        bioUpdatedAtMs = incoming.bioUpdatedAtMs ?: existing.bioUpdatedAtMs,
+                        lastFmMbid = incoming.lastFmMbid ?: existing.lastFmMbid
                     )
                 }
             }

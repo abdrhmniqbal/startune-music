@@ -29,6 +29,7 @@ import androidx.compose.material.icons.rounded.AddAPhoto
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.BottomSheetDefaults
@@ -412,7 +413,8 @@ fun ArtistImageOptionsSheet(
     onAddToQueueClick: () -> Unit,
     onAddToPlaylistClick: () -> Unit,
     onChangeImage: () -> Unit,
-    onClearCustomImage: () -> Unit
+    onClearCustomImage: () -> Unit,
+    onChooseArtist: () -> Unit
 ) {
     val sheetState = rememberModalSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
@@ -491,6 +493,14 @@ fun ArtistImageOptionsSheet(
                     icon = Icons.Rounded.AddAPhoto,
                     onClick = {
                         onChangeImage()
+                        onDismiss()
+                    }
+                )
+                MoreMenuListRow(
+                    label = stringResource(R.string.artist_choose_artist),
+                    icon = Icons.Rounded.Person,
+                    onClick = {
+                        onChooseArtist()
                         onDismiss()
                     }
                 )

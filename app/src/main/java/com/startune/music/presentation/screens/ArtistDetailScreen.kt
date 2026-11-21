@@ -685,7 +685,8 @@ fun ArtistDetailScreen(
                             },
                             onAddToPlaylistClick = { showArtistPlaylistSheet = true },
                             onChangeImage = { showArtworkSheet = true },
-                            onClearCustomImage = { viewModel.clearCustomImage() }
+                            onClearCustomImage = { viewModel.clearCustomImage() },
+                            onChooseArtist = { viewModel.openArtistPicker(artist) }
                         )
                     } else {
                         CustomCollapsingTopBar(
@@ -732,7 +733,8 @@ fun ArtistDetailScreen(
                             onAddToPlaylistClick = { showArtistPlaylistSheet = true },
                             hasCustomImage = !artist.customImageUri.isNullOrBlank(),
                             onChangeImage = { showArtworkSheet = true },
-                            onClearCustomImage = { viewModel.clearCustomImage() }
+                            onClearCustomImage = { viewModel.clearCustomImage() },
+                            onChooseArtist = { viewModel.openArtistPicker(artist) }
                         )
                     }
 
@@ -759,6 +761,19 @@ fun ArtistDetailScreen(
                     .zIndex(1f)
             )
         }
+    }
+
+    val showArtistPicker by viewModel.showArtistPicker.collectAsStateWithLifecycle()
+    val artistCandidates by viewModel.artistCandidates.collectAsStateWithLifecycle()
+    val isResolvingArtist by viewModel.isResolvingArtist.collectAsStateWithLifecycle()
+    if (showArtistPicker) {
+        ArtistIdentitySheet(
+            artistName = uiState.artist?.name ?: "",
+            candidates = artistCandidates,
+            isResolving = isResolvingArtist,
+            onSelect = { viewModel.selectArtistCandidate(it) },
+            onDismiss = { viewModel.closeArtistPicker() }
+        )
     }
 
     if (showArtworkSheet) {
@@ -967,7 +982,8 @@ private fun SharedArtistTopBarProbe(
     onAddToQueueClick: () -> Unit,
     onAddToPlaylistClick: () -> Unit,
     onChangeImage: () -> Unit,
-    onClearCustomImage: () -> Unit
+    onClearCustomImage: () -> Unit,
+    onChooseArtist: () -> Unit
 ) {
     var showMoreMenu by remember { mutableStateOf(false) }
     val surfaceColor = MaterialTheme.colorScheme.surface
@@ -1057,7 +1073,8 @@ private fun SharedArtistTopBarProbe(
                             onAddToQueueClick = onAddToQueueClick,
                             onAddToPlaylistClick = onAddToPlaylistClick,
                             onChangeImage = onChangeImage,
-                            onClearCustomImage = onClearCustomImage
+                            onClearCustomImage = onClearCustomImage,
+                            onChooseArtist = onChooseArtist
                         )
                     }
                 }
@@ -1084,7 +1101,8 @@ private fun CustomCollapsingTopBar(
     onAddToQueueClick: () -> Unit,
     onAddToPlaylistClick: () -> Unit,
     onChangeImage: () -> Unit,
-    onClearCustomImage: () -> Unit
+    onClearCustomImage: () -> Unit,
+    onChooseArtist: () -> Unit
 ) {
     var showMoreMenu by remember { mutableStateOf(false) }
     val surfaceColor = MaterialTheme.colorScheme.surface
@@ -1215,7 +1233,8 @@ private fun CustomCollapsingTopBar(
                                 onAddToQueueClick = onAddToQueueClick,
                                 onAddToPlaylistClick = onAddToPlaylistClick,
                                 onChangeImage = onChangeImage,
-                                onClearCustomImage = onClearCustomImage
+                                onClearCustomImage = onClearCustomImage,
+                                onChooseArtist = onChooseArtist
                             )
                         }
                     }

@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Artist bios now resolve shared names by MusicBrainz ID, with a picker when the name belongs to more than one artist.
 - The Search browse page and the search history list now have the same bottom clearance as Home, and the browse page scrolls so every section stays reachable.
 - The playlist multi-select sheet now shows each selected playlist's real cover in its header instead of an initial letter.
 - Delete moved to the very bottom of the playlist multi-select sheet, below Export, Merge, and Share.

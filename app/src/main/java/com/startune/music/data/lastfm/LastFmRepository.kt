@@ -264,10 +264,18 @@ class LastFmRepository @Inject constructor(
     /**
      * Fetches artist bio + artwork through the proxy. The caller caches the result in
      * Room so repeated artist views cost no proxy usage.
+     *
+     * When [mbid] is given, Last.fm answers for that exact artist even when the
+     * name is shared (BIBI); otherwise the name is used, as before.
      */
-    suspend fun fetchArtistBio(artistName: String): LastFmArtistBio? {
+    suspend fun fetchArtistBio(artistName: String, mbid: String? = null): LastFmArtistBio? {
         return try {
-            val response = api.getArtistInfo(LastFmArtistInfoRequest(artist = artistName))
+            val request = if (!mbid.isNullOrBlank()) {
+                LastFmArtistInfoRequest(mbid = mbid)
+            } else {
+                LastFmArtistInfoRequest(artist = artistName)
+            }
+            val response = api.getArtistInfo(request)
             if (!response.isSuccessful) return null
             val artist = response.body()?.artist ?: return null
             val rawBio = artist.bio?.content?.takeIf { it.isNotBlank() }
@@ -335,4 +343,14 @@ class LastFmRepository @Inject constructor(
             .trim()
         return cleaned.takeIf { it.isNotBlank() }
     }
+}
+
+/**
+ * True when a cleaned Last.fm bio is a disambiguation page ("There are
+ * multiple artists called ...") rather than one artist's biography.
+ * The bio language is English unless a lang is requested, so the template
+ * is stable; the check is case-insensitive and ignores leading whitespace.
+ */
+internal fun isDisambiguationBio(bio: String): Boolean {
+    return bio.trimStart().startsWith("There are multiple artists called", ignoreCase = true)
 }

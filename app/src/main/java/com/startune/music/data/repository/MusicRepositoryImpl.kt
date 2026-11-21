@@ -527,20 +527,36 @@ class MusicRepositoryImpl @Inject constructor(
         ) { entity, _ -> entity?.toArtist()?.withFolderArtwork() }.flowOn(Dispatchers.IO)
     }
 
-    override suspend fun updateArtistBio(artistId: Long, bio: String?, imageUrl: String?) {
+    override suspend fun updateArtistBio(
+        artistId: Long,
+        bio: String?,
+        imageUrl: String?,
+        replaceImage: Boolean
+    ) {
         withContext(Dispatchers.IO) {
             val entity = musicDao.getArtistsByIds(listOf(artistId)).firstOrNull()
                 ?: return@withContext
             val updated = entity.copy(
                 bio = bio ?: entity.bio,
                 bioUpdatedAtMs = if (bio != null) System.currentTimeMillis() else entity.bioUpdatedAtMs,
-                imageUrl = if (!imageUrl.isNullOrBlank() && entity.imageUrl.isNullOrBlank()) {
+                imageUrl = if (!imageUrl.isNullOrBlank() && (replaceImage || entity.imageUrl.isNullOrBlank())) {
                     imageUrl
                 } else {
                     entity.imageUrl
                 }
             )
             musicDao.updateArtists(listOf(updated))
+        }
+    }
+
+    override suspend fun getMbArtistIdsForArtist(artistId: Long): List<String> =
+        withContext(Dispatchers.IO) { musicDao.getMbArtistIdsForArtist(artistId) }
+
+    override suspend fun updateArtistMbid(artistId: Long, mbid: String) {
+        withContext(Dispatchers.IO) {
+            val entity = musicDao.getArtistsByIds(listOf(artistId)).firstOrNull()
+                ?: return@withContext
+            musicDao.updateArtists(listOf(entity.copy(lastFmMbid = mbid)))
         }
     }
 
