@@ -213,6 +213,14 @@ fun ArtistDetailListScreen(
         }
     }
 
+    LaunchedEffect(trackSortOption) {
+        lazyListState.scrollToItem(0)
+    }
+    LaunchedEffect(albumSortOption) {
+        albumsGridState.scrollToItem(0)
+        albumsListState.scrollToItem(0)
+    }
+
     val showScrollBar by remember(isGridView) {
         derivedStateOf {
             collapseFraction > 0.95f && when {
@@ -292,7 +300,7 @@ fun ArtistDetailListScreen(
                                 top = currentTopBarHeightDp + 8.dp,
                                 start = 16.dp,
                                 end = if (showScrollBar) 24.dp else 16.dp,
-                                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp
+                                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + ListExtraBottomGap
                             ),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
@@ -370,7 +378,7 @@ fun ArtistDetailListScreen(
                                 top = currentTopBarHeightDp + 8.dp,
                                 start = 16.dp,
                                 end = 16.dp,
-                                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp
+                                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + ListExtraBottomGap
                             ),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -455,7 +463,7 @@ fun ArtistDetailListScreen(
                                 top = currentTopBarHeightDp + 8.dp,
                                 start = 16.dp,
                                 end = if (showScrollBar) 24.dp else 16.dp,
-                                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp
+                                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + ListExtraBottomGap
                             ),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {

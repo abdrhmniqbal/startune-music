@@ -256,7 +256,7 @@ fun ColorSchemeScreen(
                     start = 16.dp,
                     top = scaffoldPadding.calculateTopPadding() + 12.dp,
                     end = 16.dp,
-                    bottom = scaffoldPadding.calculateBottomPadding() + MiniPlayerHeight + 24.dp
+                    bottom = scaffoldPadding.calculateBottomPadding() + MiniPlayerHeight + ListExtraBottomGap
                 ),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {

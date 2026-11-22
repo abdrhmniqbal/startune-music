@@ -241,7 +241,7 @@ private fun DeviceCapabilitiesContent(
             top = topPadding + 8.dp,
             start = 16.dp,
             end = 16.dp,
-            bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
+            bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + ListExtraBottomGap
         ),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = modifier

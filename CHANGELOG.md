@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Last.fm and ListenBrainz now receive only the first artist instead of the combined artist tag.
 - Accounts now lists connected services as segmented rows like the other settings screens instead of large cards.
 - Last.fm hides the Now Playing option while scrobbling is disabled.
+- All lists now use the same 30dp bottom clearance as the Library lists.
+- Changing the sort in artist and genre detail lists now returns to the top instead of jumping mid-list.
 - The Daily Mix now rotates from day to day.
 - Clearing the queue now uses range removals instead of removing one song at a time.
 - The exact speed dialog now stays open while its keyboard shows.

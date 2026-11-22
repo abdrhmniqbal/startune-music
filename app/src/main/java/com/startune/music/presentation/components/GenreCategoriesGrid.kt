@@ -98,7 +98,7 @@ fun GenreCategoriesGrid(
             )),
         contentPadding = PaddingValues(
             top = 8.dp,
-            bottom = 28.dp + resolveNavBarOccupiedHeight(systemNavBarHeight, navBarCompactMode) + MiniPlayerHeight
+            bottom = 30.dp + resolveNavBarOccupiedHeight(systemNavBarHeight, navBarCompactMode) + MiniPlayerHeight
         ),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)

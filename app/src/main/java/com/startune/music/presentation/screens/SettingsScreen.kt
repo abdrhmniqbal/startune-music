@@ -257,7 +257,7 @@ fun SettingsScreen(
                     top = currentTopBarHeightDp + 8.dp,
                     start = 16.dp,
                     end = 16.dp,
-                    bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp
+                    bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + ListExtraBottomGap
                 ),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxSize()
@@ -424,7 +424,7 @@ fun SettingsScreen(
                         navController = navController,
                         contentPadding = PaddingValues(
                             top = 16.dp,
-                            bottom = 16.dp + MiniPlayerHeight,
+                            bottom = ListExtraBottomGap + MiniPlayerHeight,
                             start = 16.dp,
                             end = 16.dp
                         ),

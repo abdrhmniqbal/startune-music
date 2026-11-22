@@ -399,7 +399,7 @@ fun HomeScreen(
                     contentPadding = PaddingValues(
                         top = innerPadding.calculateTopPadding(),
                         bottom = paddingValuesParent.calculateBottomPadding()
-                                + 38.dp + bottomPadding
+                                + ListExtraBottomGap + bottomPadding
                     ),
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
