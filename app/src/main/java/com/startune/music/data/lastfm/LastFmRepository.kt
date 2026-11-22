@@ -47,8 +47,6 @@ class LastFmRepository @Inject constructor(
         private const val KEY_AUTH_INVALID = "auth_invalid"
         private const val KEY_SCROBBLE_ENABLED = "scrobble_enabled"
         private const val KEY_NOW_PLAYING_ENABLED = "now_playing_enabled"
-        private const val KEY_MIN_DURATION_S = "min_duration_s"
-        private const val KEY_MAX_DELAY_S = "max_delay_s"
         private const val MAX_QUEUE_SIZE = 3000
     }
 
@@ -62,15 +60,7 @@ class LastFmRepository @Inject constructor(
 
     private fun readConfig(): LastFmScrobbleConfig = LastFmScrobbleConfig(
         isEnabled = prefs.getBoolean(KEY_SCROBBLE_ENABLED, false),
-        nowPlayingEnabled = prefs.getBoolean(KEY_NOW_PLAYING_ENABLED, true),
-        minimumTrackDurationSeconds = prefs.getInt(
-            KEY_MIN_DURATION_S,
-            LastFmScrobbleConfig.DEFAULT_MIN_TRACK_DURATION_SECONDS
-        ),
-        maxScrobbleDelaySeconds = prefs.getInt(
-            KEY_MAX_DELAY_S,
-            LastFmScrobbleConfig.DEFAULT_MAX_SCROBBLE_DELAY_SECONDS
-        )
+        nowPlayingEnabled = prefs.getBoolean(KEY_NOW_PLAYING_ENABLED, true)
     )
 
     private val _accountState = MutableStateFlow(
@@ -189,17 +179,6 @@ class LastFmRepository @Inject constructor(
 
     fun setNowPlayingEnabled(enabled: Boolean) {
         prefs.edit { putBoolean(KEY_NOW_PLAYING_ENABLED, enabled) }
-        _accountState.value = _accountState.value.copy(config = readConfig())
-    }
-
-    fun setScrobbleThresholds(
-        minimumTrackDurationSeconds: Int,
-        maxScrobbleDelaySeconds: Int
-    ) {
-        prefs.edit {
-            putInt(KEY_MIN_DURATION_S, minimumTrackDurationSeconds.coerceIn(0, 600))
-            putInt(KEY_MAX_DELAY_S, maxScrobbleDelaySeconds.coerceIn(30, 1800))
-        }
         _accountState.value = _accountState.value.copy(config = readConfig())
     }
 

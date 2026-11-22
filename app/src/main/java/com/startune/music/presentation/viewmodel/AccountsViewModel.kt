@@ -80,9 +80,7 @@ data class LastFmUiModel(
     val pendingCount: Int,
     val needsReauth: Boolean,
     val scrobbleEnabled: Boolean,
-    val nowPlayingEnabled: Boolean,
-    val minimumTrackDurationSeconds: Int,
-    val maxScrobbleDelaySeconds: Int
+    val nowPlayingEnabled: Boolean
 )
 
 sealed interface LastFmConnectState {
@@ -192,9 +190,7 @@ class AccountsViewModel @Inject constructor(
                 pendingCount = pendingCount,
                 needsReauth = account.needsReauth,
                 scrobbleEnabled = account.config.isEnabled,
-                nowPlayingEnabled = account.config.nowPlayingEnabled,
-                minimumTrackDurationSeconds = account.config.minimumTrackDurationSeconds,
-                maxScrobbleDelaySeconds = account.config.maxScrobbleDelaySeconds
+                nowPlayingEnabled = account.config.nowPlayingEnabled
             )
         } else {
             null
@@ -375,16 +371,6 @@ class AccountsViewModel @Inject constructor(
 
     fun setLastFmNowPlayingEnabled(enabled: Boolean) {
         lastFmRepository.setNowPlayingEnabled(enabled)
-    }
-
-    fun setLastFmScrobbleThresholds(
-        minimumTrackDurationSeconds: Int,
-        maxScrobbleDelaySeconds: Int
-    ) {
-        lastFmRepository.setScrobbleThresholds(
-            minimumTrackDurationSeconds,
-            maxScrobbleDelaySeconds
-        )
     }
 
     fun setListenBrainzScrobbleLocal(enabled: Boolean) {

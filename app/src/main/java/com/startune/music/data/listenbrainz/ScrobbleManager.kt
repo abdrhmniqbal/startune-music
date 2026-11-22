@@ -6,6 +6,7 @@ import com.startune.music.data.database.ListenBrainzPendingListenEntity
 import com.startune.music.data.database.ListenBrainzSource
 import com.startune.music.data.database.MusicDao
 import com.startune.music.data.database.SongEntity
+import com.startune.music.data.database.primaryArtistName
 import com.startune.music.data.preferences.ListenBrainzPreferencesRepository
 import com.startune.music.di.AppScope
 import kotlinx.coroutines.CoroutineScope
@@ -76,7 +77,7 @@ class ScrobbleManager @Inject constructor(
                 val song = resolveAdmittedSong(songId) ?: return@launch
                 listenBrainzRepository.submitPlayingNow(
                     trackName = song.title,
-                    artistName = song.artistName,
+                    artistName = song.primaryArtistName(),
                     releaseName = song.albumName.takeIf { it.isNotBlank() },
                     durationMs = song.duration.takeIf { it > 0 },
                     recordingMbid = song.mbRecordingId
@@ -91,7 +92,7 @@ class ScrobbleManager @Inject constructor(
             ListenBrainzPendingListenEntity(
                 listenedAtMs = startedAtEpochMs,
                 trackName = song.title,
-                artistName = song.artistName,
+                artistName = song.primaryArtistName(),
                 releaseName = song.albumName.takeIf { it.isNotBlank() },
                 durationMs = song.duration.takeIf { it > 0 },
                 recordingMbid = song.mbRecordingId,

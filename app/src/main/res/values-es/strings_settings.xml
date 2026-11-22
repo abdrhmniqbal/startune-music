@@ -389,9 +389,6 @@
     <string name="lastfm_enable_scrobbling_desc">Scrobble reprodujo canciones en tu perfil de Last.fm</string>
     <string name="lastfm_now_playing">Actualizar Reproduciendo ahora</string>
     <string name="lastfm_now_playing_desc">Actualiza tu estado de Last.fm con la pista actual</string>
-    <string name="lastfm_scrobbling_configuration">Configuración de scrobbling</string>
-    <string name="lastfm_scrobble_min_track_duration">Duración mínima de la pista: %1$ds</string>
-    <string name="lastfm_scrobble_delay_seconds">Duración máxima del umbral de Scrobble: %1$ds</string>
     <string name="lastfm_username">Nombre de usuario</string>
     <string name="lastfm_password">Contraseña</string>
     <string name="lastfm_logging_in">Iniciando sesión…</string>

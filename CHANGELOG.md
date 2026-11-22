@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Playing a song in the middle of a list now fills the queue with the whole list, with the songs before it moved to the bottom.
 - The Last.fm login timeout is now 30 seconds, and a failed login now names the actual reason instead of only saying network error.
 - Fixed Last.fm login failing with a server error in release builds by pinning the login request field names against R8 renaming.
+- Removed the Last.fm scrobbling configuration sliders; a track now scrobbles when it counts as played.
+- Last.fm and ListenBrainz now receive only the first artist instead of the combined artist tag.
 - The Daily Mix now rotates from day to day.
 - Clearing the queue now uses range removals instead of removing one song at a time.
 - The exact speed dialog now stays open while its keyboard shows.

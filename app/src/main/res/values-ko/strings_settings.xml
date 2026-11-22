@@ -389,9 +389,6 @@
     <string name="lastfm_enable_scrobbling_desc">Scrobble이 Last.fm 프로필에서 노래를 재생했습니다</string>
     <string name="lastfm_now_playing">업데이트 지금 재생 중</string>
     <string name="lastfm_now_playing_desc">현재 트랙으로 Last.fm 상태를 업데이트하세요</string>
-    <string name="lastfm_scrobbling_configuration">스크로블링 구성</string>
-    <string name="lastfm_scrobble_min_track_duration">최소 트랙 기간: %1$ds</string>
-    <string name="lastfm_scrobble_delay_seconds">최대 스크러블 임계값 기간: %1$ds</string>
     <string name="lastfm_username">사용자 이름</string>
     <string name="lastfm_password">비밀번호</string>
     <string name="lastfm_logging_in">로그인 중…</string>

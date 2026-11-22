@@ -146,6 +146,20 @@ fun SongEntity.toSong(): Song {
 }
 
 /**
+ * The single artist to report to scrobbling services: the primary artist from
+ * the stored artist list, falling back to [SongEntity.artistName] when no list
+ * was stored (cloud songs). [SongEntity.artistName] itself can hold the raw
+ * combined tag ("A & B") while [SongEntity.artistsJson] holds the split list,
+ * so sending it as-is reports every artist.
+ */
+fun SongEntity.primaryArtistName(): String {
+    val artists = parseArtistsJson(artistsJson)
+    return artists.firstOrNull { it.isPrimary }?.name?.takeIf { it.isNotBlank() }
+        ?: artists.firstOrNull()?.name?.takeIf { it.isNotBlank() }
+        ?: artistName
+}
+
+/**
  * Parses the artists_json column back into a list of ArtistRef.
  */
 private fun parseArtistsJson(json: String?): List<ArtistRef> {

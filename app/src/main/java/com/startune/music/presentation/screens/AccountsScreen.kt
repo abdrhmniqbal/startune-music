@@ -54,7 +54,6 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Slider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -293,7 +292,6 @@ fun AccountsScreen(
                                             model = lastFm,
                                             onToggleScrobble = viewModel::setLastFmScrobbleEnabled,
                                             onToggleNowPlaying = viewModel::setLastFmNowPlayingEnabled,
-                                            onThresholdsChanged = viewModel::setLastFmScrobbleThresholds,
                                             onReconnect = { showLastFmDialog = true }
                                         )
                                     }
@@ -1165,7 +1163,6 @@ private fun LastFmCardExtras(
     model: LastFmUiModel,
     onToggleScrobble: (Boolean) -> Unit,
     onToggleNowPlaying: (Boolean) -> Unit,
-    onThresholdsChanged: (Int, Int) -> Unit,
     onReconnect: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1209,62 +1206,6 @@ private fun LastFmCardExtras(
             text = stringResource(R.string.lastfm_now_playing_desc),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = stringResource(R.string.lastfm_scrobbling_configuration),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        LastFmThresholdSlider(
-            label = stringResource(
-                R.string.lastfm_scrobble_min_track_duration,
-                model.minimumTrackDurationSeconds
-            ),
-            value = model.minimumTrackDurationSeconds,
-            valueRange = 0f..120f,
-            steps = 23,
-            onValueChangeFinished = {
-                onThresholdsChanged(it, model.maxScrobbleDelaySeconds)
-            }
-        )
-        LastFmThresholdSlider(
-            label = stringResource(
-                R.string.lastfm_scrobble_delay_seconds,
-                model.maxScrobbleDelaySeconds
-            ),
-            value = model.maxScrobbleDelaySeconds,
-            valueRange = 30f..600f,
-            steps = 18,
-            onValueChangeFinished = {
-                onThresholdsChanged(model.minimumTrackDurationSeconds, it)
-            }
-        )
-    }
-}
-
-@Composable
-private fun LastFmThresholdSlider(
-    label: String,
-    value: Int,
-    valueRange: ClosedFloatingPointRange<Float>,
-    steps: Int,
-    onValueChangeFinished: (Int) -> Unit
-) {
-    var sliderValue by remember(value) { mutableStateOf(value.toFloat()) }
-    Column {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Slider(
-            value = sliderValue,
-            onValueChange = { sliderValue = it },
-            valueRange = valueRange,
-            steps = steps,
-            onValueChangeFinished = { onValueChangeFinished(sliderValue.roundToInt()) },
-            modifier = Modifier.fillMaxWidth()
         )
     }
 }

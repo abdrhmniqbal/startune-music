@@ -5,6 +5,7 @@ import com.startune.music.data.database.LastFmDao
 import com.startune.music.data.database.LastFmPendingScrobbleEntity
 import com.startune.music.data.database.MusicDao
 import com.startune.music.data.database.SongEntity
+import com.startune.music.data.database.primaryArtistName
 import com.startune.music.data.preferences.DEFAULT_PLAYED_THRESHOLD_PERCENT
 import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.di.AppScope
@@ -21,12 +22,9 @@ import javax.inject.Singleton
  * threshold is evaluated synchronously (cheap math, safe inside the tracker's synchronized
  * finalize), everything else — song resolution, toggle check, queue insert — runs on [scope].
  *
- * The rule mirrors the old Startune scrobbler, except the percentage is not its own
- * setting: a track counts once the listened time reaches the counted-as-played
- * percentage of its duration, capped by [LastFmScrobbleConfig.maxScrobbleDelaySeconds],
- * and tracks shorter than [LastFmScrobbleConfig.minimumTrackDurationSeconds] never count.
- * The percentage and the 5s floor are the same as the played threshold, so a track
- * scrobbles at exactly the moment it counts as played.
+ * A track scrobbles at exactly the moment it counts as played: the listened time
+ * reaches the counted-as-played percentage of its duration, with the same 5s floor
+ * as the played threshold. There is no separate scrobble configuration.
  */
 @Singleton
 class LastFmScrobbleManager @Inject constructor(
@@ -63,9 +61,8 @@ class LastFmScrobbleManager @Inject constructor(
         trackDurationMs: Long
     ) {
         if (!lastFmRepository.hasSession()) return
-        val config = lastFmRepository.accountState.value.config
-        if (!config.isEnabled) return
-        if (!meetsScrobbleThreshold(listenedMs, trackDurationMs, playedThresholdPercent, config)) return
+        if (!lastFmRepository.accountState.value.config.isEnabled) return
+        if (!meetsScrobbleThreshold(listenedMs, trackDurationMs, playedThresholdPercent)) return
         scope.launch {
             runCatching { enqueueScrobble(songId, startedAtEpochMs) }
                 .onFailure { Timber.e(it, "Failed to enqueue Last.fm scrobble for song=%s", songId) }
@@ -88,7 +85,7 @@ class LastFmScrobbleManager @Inject constructor(
                 val song = resolveAdmittedSong(songId) ?: return@launch
                 lastFmRepository.submitNowPlaying(
                     trackName = song.title,
-                    artistName = song.artistName,
+                    artistName = song.primaryArtistName(),
                     releaseName = song.albumName.takeIf { it.isNotBlank() },
                     durationMs = song.duration.takeIf { it > 0 }
                 )
@@ -102,7 +99,7 @@ class LastFmScrobbleManager @Inject constructor(
             LastFmPendingScrobbleEntity(
                 listenedAtMs = startedAtEpochMs,
                 trackName = song.title,
-                artistName = song.artistName,
+                artistName = song.primaryArtistName(),
                 releaseName = song.albumName.takeIf { it.isNotBlank() },
                 durationMs = song.duration.takeIf { it > 0 },
                 createdAtMs = System.currentTimeMillis()
@@ -132,15 +129,11 @@ class LastFmScrobbleManager @Inject constructor(
         fun meetsScrobbleThreshold(
             listenedMs: Long,
             trackDurationMs: Long,
-            scrobbleDelayPercent: Int,
-            config: LastFmScrobbleConfig
+            scrobbleDelayPercent: Int
         ): Boolean {
             if (trackDurationMs <= 0L) return false
-            val minDurationMs = config.minimumTrackDurationSeconds * 1000L
-            if (trackDurationMs < minDurationMs) return false
             val percentThresholdMs = trackDurationMs * scrobbleDelayPercent / 100
-            val maxThresholdMs = config.maxScrobbleDelaySeconds * 1000L
-            val required = minOf(maxOf(percentThresholdMs, MIN_SCROBBLE_LISTEN_MS), maxThresholdMs)
+            val required = maxOf(percentThresholdMs, MIN_SCROBBLE_LISTEN_MS)
             return listenedMs >= required
         }
     }
