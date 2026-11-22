@@ -161,7 +161,7 @@ internal fun LibraryEmptyState(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(bottom = bottomBarHeight + MiniPlayerHeight + 24.dp),
+            .padding(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap),
         contentAlignment = Alignment.Center
     ) {
         ExpressiveEmptyState(

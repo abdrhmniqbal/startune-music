@@ -793,7 +793,7 @@ fun ExperimentalSettingsScreen(
             }
 
             item(key = "experimental_bottom_spacer") {
-                Spacer(modifier = Modifier.height(MiniPlayerHeight + 36.dp))
+                Spacer(modifier = Modifier.height(MiniPlayerHeight + ListExtraBottomGap))
             }
         }
 

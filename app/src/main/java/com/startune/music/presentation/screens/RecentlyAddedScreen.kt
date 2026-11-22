@@ -199,7 +199,7 @@ fun RecentlyAddedScreen(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
                 top = currentTopBarHeightDp + 8.dp,
-                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
+                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + ListExtraBottomGap
             ),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {

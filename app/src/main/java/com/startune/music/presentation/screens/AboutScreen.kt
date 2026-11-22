@@ -311,7 +311,7 @@ fun AboutScreen(
                 bottom = MiniPlayerHeight +
                     WindowInsets.navigationBars
                         .asPaddingValues()
-                        .calculateBottomPadding() + 12.dp,
+                        .calculateBottomPadding() + ListExtraBottomGap,
             ),
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,

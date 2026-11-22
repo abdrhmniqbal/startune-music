@@ -237,7 +237,7 @@ fun LibraryAlbumsTab(
                             )
                         )
                         .fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap + 4.dp),
+                    contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(8, key = { "skeleton_album_list_$it" }) { index ->
@@ -264,7 +264,7 @@ fun LibraryAlbumsTab(
                         )
                         .fillMaxSize(),
                     columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap + 4.dp),
+                    contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                     horizontalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
@@ -318,7 +318,7 @@ fun LibraryAlbumsTab(
                                         )
                                     ),
                                 state = activeAlbumListState,
-                                contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap + 4.dp),
+                                contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 items(
@@ -394,7 +394,7 @@ fun LibraryAlbumsTab(
                                     ),
                                 state = activeAlbumGridState,
                                 columns = GridCells.Fixed(2),
-                                contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap + 4.dp),
+                                contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
@@ -580,7 +580,7 @@ fun LibraryArtistsTab(
                         )
                         .fillMaxSize(),
                     columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap + 4.dp),
+                    contentPadding = PaddingValues(bottom = bottomBarHeight + MiniPlayerHeight + ListExtraBottomGap),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                     horizontalArrangement = Arrangement.spacedBy(14.dp)
                 ) {

@@ -106,7 +106,7 @@ fun DictionariesScreen(
                     start = 16.dp,
                     top = scaffoldPadding.calculateTopPadding() + 12.dp,
                     end = 16.dp,
-                    bottom = MiniPlayerHeight + 24.dp
+                    bottom = MiniPlayerHeight + ListExtraBottomGap
                 ),
                 verticalArrangement = Arrangement.spacedBy(3.dp)
             ) {

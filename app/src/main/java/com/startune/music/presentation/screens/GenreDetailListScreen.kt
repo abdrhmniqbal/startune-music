@@ -276,6 +276,15 @@ fun GenreDetailListScreen(
         }
     }
 
+    LaunchedEffect(albumsSortOption) {
+        albumsGridState.scrollToItem(0)
+        albumsListState.scrollToItem(0)
+    }
+    LaunchedEffect(artistsSortOption) {
+        artistsGridState.scrollToItem(0)
+        artistsListState.scrollToItem(0)
+    }
+
     val showScrollBar by remember(isGridView) {
         derivedStateOf {
             collapseFraction > 0.95f && when (view) {
@@ -363,7 +372,7 @@ fun GenreDetailListScreen(
                                 top = currentTopBarHeightDp + 8.dp,
                                 start = 16.dp,
                                 end = 16.dp,
-                                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
+                                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + ListExtraBottomGap
                             ),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
@@ -434,7 +443,7 @@ fun GenreDetailListScreen(
                                 top = currentTopBarHeightDp + 8.dp,
                                 start = 16.dp,
                                 end = 16.dp,
-                                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
+                                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + ListExtraBottomGap
                             ),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -510,7 +519,7 @@ fun GenreDetailListScreen(
                                     top = currentTopBarHeightDp + 8.dp,
                                     start = 16.dp,
                                     end = 16.dp,
-                                    bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
+                                    bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + ListExtraBottomGap
                                 ),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
@@ -588,7 +597,7 @@ fun GenreDetailListScreen(
                                 top = currentTopBarHeightDp + 8.dp,
                                 start = 16.dp,
                                 end = 16.dp,
-                                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
+                                bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + ListExtraBottomGap
                             ),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -661,7 +670,7 @@ fun GenreDetailListScreen(
                                     top = currentTopBarHeightDp + 8.dp,
                                     start = 16.dp,
                                     end = 16.dp,
-                                    bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
+                                    bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + ListExtraBottomGap
                                 ),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {

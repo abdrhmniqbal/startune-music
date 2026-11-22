@@ -435,7 +435,7 @@ fun ArtistDetailScreen(
                             // Fixed, so the hero never shifts; only album cards make room for
                             // the scrollbar (scrollbarInset).
                             end = 16.dp,
-                            bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp
+                            bottom = MiniPlayerHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + ListExtraBottomGap
                         ),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {

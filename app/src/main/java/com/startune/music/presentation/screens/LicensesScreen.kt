@@ -309,7 +309,7 @@ fun LicensesScreen(
                     bottom = MiniPlayerHeight +
                         WindowInsets.navigationBars
                             .asPaddingValues()
-                            .calculateBottomPadding() + 24.dp,
+                            .calculateBottomPadding() + ListExtraBottomGap,
                 ),
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
