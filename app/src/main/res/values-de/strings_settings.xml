@@ -385,9 +385,6 @@
     <string name="lastfm_enable_scrobbling_desc">Scrobble hat Songs in Ihrem Last.fm-Profil abgespielt</string>
     <string name="lastfm_now_playing">Update wird gerade abgespielt</string>
     <string name="lastfm_now_playing_desc">Aktualisieren Sie Ihren Last.fm-Status mit dem aktuellen Titel</string>
-    <string name="lastfm_scrobbling_configuration">Scrobbling-Konfiguration</string>
-    <string name="lastfm_scrobble_min_track_duration">Mindesttiteldauer: %1$ds</string>
-    <string name="lastfm_scrobble_delay_seconds">Maximale Dauer des Scrobble-Schwellenwerts: %1$ds</string>
     <string name="lastfm_username">Benutzername</string>
     <string name="lastfm_password">Passwort</string>
     <string name="lastfm_logging_in">Anmelden…</string>

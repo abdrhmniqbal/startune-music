@@ -73,18 +73,15 @@ data class LastFmBio(
     @SerializedName("content") val content: String? = null
 )
 
-/** Scrobble configuration, mirroring the old Startune defaults. */
+/**
+ * Scrobble configuration. There is no separate scrobble threshold: a track
+ * scrobbles at exactly the moment it counts as played, using the played
+ * threshold percentage from Settings.
+ */
 data class LastFmScrobbleConfig(
     val isEnabled: Boolean = false,
-    val nowPlayingEnabled: Boolean = true,
-    val minimumTrackDurationSeconds: Int = DEFAULT_MIN_TRACK_DURATION_SECONDS,
-    val maxScrobbleDelaySeconds: Int = DEFAULT_MAX_SCROBBLE_DELAY_SECONDS
-) {
-    companion object {
-        const val DEFAULT_MIN_TRACK_DURATION_SECONDS = 30
-        const val DEFAULT_MAX_SCROBBLE_DELAY_SECONDS = 240
-    }
-}
+    val nowPlayingEnabled: Boolean = true
+)
 
 data class LastFmAccountState(
     val isConnected: Boolean = false,
