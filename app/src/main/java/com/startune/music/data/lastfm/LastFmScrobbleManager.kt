@@ -71,6 +71,7 @@ class LastFmScrobbleManager @Inject constructor(
 
     fun onPlayingNow(songId: String) {
         if (!lastFmRepository.isAuthorized()) return
+        if (!lastFmRepository.accountState.value.config.isEnabled) return
         if (!lastFmRepository.accountState.value.config.nowPlayingEnabled) return
         val now = SystemClock.elapsedRealtime()
         synchronized(this) {
