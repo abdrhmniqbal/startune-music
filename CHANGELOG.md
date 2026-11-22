@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed Last.fm login failing with a server error in release builds by pinning the login request field names against R8 renaming.
 - Removed the Last.fm scrobbling configuration sliders; a track now scrobbles when it counts as played.
 - Last.fm and ListenBrainz now receive only the first artist instead of the combined artist tag.
+- Accounts now lists connected services as segmented rows like the other settings screens instead of large cards.
+- Last.fm hides the Now Playing option while scrobbling is disabled.
 - The Daily Mix now rotates from day to day.
 - Clearing the queue now uses range removals instead of removing one song at a time.
 - The exact speed dialog now stays open while its keyboard shows.

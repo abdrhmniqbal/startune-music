@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -16,7 +17,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,18 +47,12 @@ import androidx.compose.material.icons.rounded.CloudQueue
 import androidx.compose.material.icons.rounded.GraphicEq
 import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -106,6 +100,8 @@ import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.ProviderRow
 import com.startune.music.presentation.jellyfin.auth.JellyfinLoginActivity
 import com.startune.music.presentation.navidrome.auth.NavidromeLoginActivity
+import com.startune.music.presentation.utils.SegmentedItemShapeDefaults
+import com.startune.music.presentation.utils.getSegmentedItemShape
 import com.startune.music.presentation.viewmodel.AccountsViewModel
 import com.startune.music.presentation.viewmodel.ExternalAccountUiModel
 import com.startune.music.presentation.viewmodel.ExternalServiceAccount
@@ -272,32 +268,24 @@ fun AccountsScreen(
                         painter = if (account.service == ExternalServiceAccount.JELLYFIN) {
                             painterResource(R.drawable.ic_jellyfin)
                         } else null,
-                        extraContent = when (account.service) {
-                            ExternalServiceAccount.LISTENBRAINZ -> {
-                                {
-                                    uiState.listenBrainz?.let { listenBrainz ->
-                                        ListenBrainzCardExtras(
-                                            model = listenBrainz,
-                                            onToggleLocal = viewModel::setListenBrainzScrobbleLocal,
-                                            onToggleJellyfin = viewModel::setListenBrainzScrobbleJellyfin,
-                                            onReconnect = { showListenBrainzDialog = true }
-                                        )
-                                    }
-                                }
-                            }
-                            ExternalServiceAccount.LASTFM -> {
-                                {
-                                    uiState.lastFm?.let { lastFm ->
-                                        LastFmCardExtras(
-                                            model = lastFm,
-                                            onToggleScrobble = viewModel::setLastFmScrobbleEnabled,
-                                            onToggleNowPlaying = viewModel::setLastFmNowPlayingEnabled,
-                                            onReconnect = { showLastFmDialog = true }
-                                        )
-                                    }
-                                }
-                            }
-                            else -> null
+                        extraRows = when (account.service) {
+                            ExternalServiceAccount.LISTENBRAINZ -> uiState.listenBrainz?.let { listenBrainz ->
+                                listenBrainzAccountRows(
+                                    model = listenBrainz,
+                                    onToggleLocal = viewModel::setListenBrainzScrobbleLocal,
+                                    onToggleJellyfin = viewModel::setListenBrainzScrobbleJellyfin,
+                                    onReconnect = { showListenBrainzDialog = true }
+                                )
+                            } ?: emptyList()
+                            ExternalServiceAccount.LASTFM -> uiState.lastFm?.let { lastFm ->
+                                lastFmAccountRows(
+                                    model = lastFm,
+                                    onToggleScrobble = viewModel::setLastFmScrobbleEnabled,
+                                    onToggleNowPlaying = viewModel::setLastFmNowPlayingEnabled,
+                                    onReconnect = { showLastFmDialog = true }
+                                )
+                            } ?: emptyList()
+                            else -> emptyList()
                         }
                     )
                 }
@@ -407,107 +395,127 @@ private fun StatTile(
 }
 
 @Composable
+private fun SegmentedAccountGroup(rows: List<AccountCardRow>) {
+    Column(
+        modifier = Modifier.animateContentSize(),
+        verticalArrangement = Arrangement.spacedBy(3.dp)
+    ) {
+        rows.forEachIndexed { index, row ->
+            Surface(
+                onClick = row.onClick ?: {},
+                enabled = row.onClick != null,
+                shape = getSegmentedItemShape(
+                    index = index,
+                    count = rows.size,
+                    outerRadius = SegmentedItemShapeDefaults.CardOuterCornerRadius
+                ),
+                color = row.containerColor,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                row.content()
+            }
+        }
+    }
+}
+
+/**
+ * One row of a connected account's segmented group. [containerColor] is
+ * [Color.Transparent] for footnote text rows; [onClick] is null for rows
+ * that are not interactive.
+ */
+private data class AccountCardRow(
+    val containerColor: Color,
+    val onClick: (() -> Unit)? = null,
+    val content: @Composable () -> Unit
+)
+
+@Composable
 private fun ConnectedAccountCard(
     account: ExternalAccountUiModel,
     onManage: () -> Unit,
     onLogout: () -> Unit,
     painter: androidx.compose.ui.graphics.painter.Painter? = null,
-    extraContent: (@Composable () -> Unit)? = null
+    extraRows: List<AccountCardRow> = emptyList()
 ) {
     val statusConnected = stringResource(R.string.presentation_batch_b_accounts_status_connected)
     val openService = stringResource(R.string.presentation_batch_b_accounts_open_service)
     val loggingOut = stringResource(R.string.presentation_batch_b_accounts_logging_out)
     val logOut = stringResource(R.string.cd_logout)
     val palette = servicePalette(account.service)
-    val cardShape = AbsoluteSmoothCornerShape(28.dp, 60)
+    val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
 
-    Card(
-        shape = cardShape,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Row(
-    modifier = Modifier.fillMaxWidth(),
-    verticalAlignment = Alignment.CenterVertically
-) {
-        Surface(
-            shape = AbsoluteSmoothCornerShape(16.dp, 60),
-            color = palette.iconContainer
-        ) {
-            if (painter != null) {
-                Icon(
-                    painter = painter,
-                    contentDescription = null,
-                    tint = palette.iconTint,
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .size(20.dp)
-                )
-            } else {
-                ServiceIcon(
-                    service = account.service,
-                    tint = palette.iconTint,
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .size(20.dp)
-                )
-            }
-        }
-
-    Spacer(Modifier.size(12.dp))
-
-    Column(modifier = Modifier.weight(1f)) {
-        Text(
-            text = account.title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-        Text(
-            text = account.accountLabel,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-
-    Surface(
-        shape = AbsoluteSmoothCornerShape(12.dp, 60),
-        color = palette.statusContainer
-    ) {
-        Text(
-            text = statusConnected,
-            style = MaterialTheme.typography.labelMedium,
-            color = palette.statusTint,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-        )
-    }
-}
-
-            Surface(
-                shape = AbsoluteSmoothCornerShape(14.dp, 60),
-                color = MaterialTheme.colorScheme.surfaceContainerLow
-            ) {
+    val rows = buildList {
+        add(
+            AccountCardRow(surfaceContainer) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        shape = AbsoluteSmoothCornerShape(16.dp, 60),
+                        color = palette.iconContainer
+                    ) {
+                        if (painter != null) {
+                            Icon(
+                                painter = painter,
+                                contentDescription = null,
+                                tint = palette.iconTint,
+                                modifier = Modifier.padding(10.dp).size(20.dp)
+                            )
+                        } else {
+                            ServiceIcon(
+                                service = account.service,
+                                tint = palette.iconTint,
+                                modifier = Modifier.padding(10.dp).size(20.dp)
+                            )
+                        }
+                    }
+                    Spacer(Modifier.size(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = account.title,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = account.accountLabel,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    Surface(
+                        shape = AbsoluteSmoothCornerShape(12.dp, 60),
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        Text(
+                            text = statusConnected,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                        )
+                    }
+                }
+            }
+        )
+        add(
+            AccountCardRow(surfaceContainer) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Sync,
                         contentDescription = null,
-                        tint = palette.iconTint,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp)
                     )
-                    Spacer(modifier = Modifier.size(8.dp))
+                    Spacer(Modifier.size(8.dp))
                     Text(
                         text = account.syncedContentLabel,
                         style = MaterialTheme.typography.bodyMedium,
@@ -515,59 +523,65 @@ private fun ConnectedAccountCard(
                     )
                 }
             }
-
-            extraContent?.invoke()
-
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.28f))
-
-            FilledTonalButton(
-                onClick = onManage,
-                enabled = !account.isLoggingOut,
-                shape = AbsoluteSmoothCornerShape(18.dp, 60),
-                colors = androidx.compose.material3.ButtonDefaults.filledTonalButtonColors(
-                    containerColor = palette.primaryActionContainer,
-                    contentColor = palette.primaryActionTint,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                modifier = Modifier.fillMaxWidth().height(48.dp)
+        )
+        addAll(extraRows)
+        add(
+            AccountCardRow(
+                containerColor = surfaceContainer,
+                onClick = { if (!account.isLoggingOut) onManage() }
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
-                    contentDescription = null
-                )
-                Spacer(modifier = Modifier.size(8.dp))
-                Text(
-                    text = openService,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-
-            OutlinedButton(
-                onClick = onLogout,
-                enabled = !account.isLoggingOut,
-                shape = AbsoluteSmoothCornerShape(18.dp, 60),
-                border = BorderStroke(1.dp, palette.primaryActionTint.copy(alpha = 0.45f)),
-                modifier = Modifier.fillMaxWidth().height(48.dp)
-            ) {
-                if (account.isLoggingOut) {
-                    LoadingIndicator(
-                        modifier = Modifier.size(16.dp)
-                    )
-                } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.Logout,
-                        contentDescription = null
+                        imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.size(12.dp))
+                    Text(
+                        text = openService,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
-                Spacer(modifier = Modifier.size(8.dp))
-                Text(
-                    text = if (account.isLoggingOut) loggingOut else logOut,
-                    fontWeight = FontWeight.SemiBold
-                )
             }
-        }
+        )
+        add(
+            AccountCardRow(
+                containerColor = surfaceContainer,
+                onClick = { if (!account.isLoggingOut) onLogout() }
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (account.isLoggingOut) {
+                        LoadingIndicator(modifier = Modifier.size(20.dp))
+                    } else {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.Logout,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(Modifier.size(12.dp))
+                    Text(
+                        text = if (account.isLoggingOut) loggingOut else logOut,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+        )
     }
+
+    SegmentedAccountGroup(rows = rows)
 }
 
 @Composable
@@ -577,42 +591,32 @@ private fun EmptyAccountsCard(
 ) {
     val noLinkedTitle = stringResource(R.string.presentation_batch_b_accounts_no_linked_title)
     val noLinkedBody = stringResource(R.string.presentation_batch_b_accounts_no_linked_body)
-    Card(
-        shape = AbsoluteSmoothCornerShape(28.dp, 60),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                text = noLinkedTitle,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = noLinkedBody,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            AvailableServicesList(
-                disconnectedServices = disconnectedServices,
-                onConnect = onConnect
-            )
-        }
+        Text(
+            text = noLinkedTitle,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(start = 4.dp)
+        )
+        Text(
+            text = noLinkedBody,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 4.dp)
+        )
+        AvailableServicesList(
+            disconnectedServices = disconnectedServices,
+            onConnect = onConnect
+        )
     }
 }
 
 private data class ServicePalette(
     val iconContainer: Color,
-    val iconTint: Color,
-    val statusContainer: Color,
-    val statusTint: Color,
-    val primaryActionContainer: Color,
-    val primaryActionTint: Color
+    val iconTint: Color
 )
 
 @Composable
@@ -620,35 +624,19 @@ private fun servicePalette(service: ExternalServiceAccount): ServicePalette {
     return when (service) {
         ExternalServiceAccount.JELLYFIN -> ServicePalette(
             iconContainer = Color(0xFF00A4DC),
-            iconTint = Color.White,
-            statusContainer = Color(0xFFE1F5FE),
-            statusTint = Color(0xFF0277BD),
-            primaryActionContainer = Color(0xFFE3F2FD),
-            primaryActionTint = Color(0xFF1565C0)
+            iconTint = Color.White
         )
         ExternalServiceAccount.NAVIDROME -> ServicePalette(
             iconContainer = Color(0xFF1A9E75),
-            iconTint = Color.White,
-            statusContainer = Color(0xFFDFF2EB),
-            statusTint = Color(0xFF0E7A5C),
-            primaryActionContainer = Color(0xFFE3F2EC),
-            primaryActionTint = Color(0xFF0E7A5C)
+            iconTint = Color.White
         )
         ExternalServiceAccount.LISTENBRAINZ -> ServicePalette(
             iconContainer = Color(0xFFEB743B),
-            iconTint = Color.White,
-            statusContainer = Color(0xFFFFE8DC),
-            statusTint = Color(0xFFA84A17),
-            primaryActionContainer = Color(0xFFFFE3D3),
-            primaryActionTint = Color(0xFFA84A17)
+            iconTint = Color.White
         )
         ExternalServiceAccount.LASTFM -> ServicePalette(
             iconContainer = Color(0xFFB90000),
-            iconTint = Color.White,
-            statusContainer = Color(0xFFFDE8E8),
-            statusTint = Color(0xFF8F0000),
-            primaryActionContainer = Color(0xFFFDECEC),
-            primaryActionTint = Color(0xFF8F0000)
+            iconTint = Color.White
         )
     }
 }
@@ -811,66 +799,91 @@ private fun serviceConnectSubtitle(service: ExternalServiceAccount): String = wh
 }
 
 @Composable
-private fun ListenBrainzCardExtras(
+private fun listenBrainzAccountRows(
     model: ListenBrainzUiModel,
     onToggleLocal: (Boolean) -> Unit,
     onToggleJellyfin: (Boolean) -> Unit,
     onReconnect: () -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+): List<AccountCardRow> {
+    val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
+    return buildList {
         if (model.statsState != ListenBrainzStatsUiState.Unavailable) {
-            Crossfade(targetState = model.statsState, label = "listenBrainzStats") { state ->
-                when (state) {
-                    ListenBrainzStatsUiState.Loading -> ListenBrainzStatsSkeleton()
-                    is ListenBrainzStatsUiState.Loaded -> ListenBrainzStatsContent(
-                        stats = state.stats,
-                        pendingCount = model.pendingCount
-                    )
-                    ListenBrainzStatsUiState.Unavailable -> {}
-                }
-            }
-        }
-        if (model.needsReauth) {
-            Surface(
-                shape = AbsoluteSmoothCornerShape(14.dp, 60),
-                color = MaterialTheme.colorScheme.errorContainer,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
-                    Text(
-                        text = stringResource(R.string.accounts_listenbrainz_needs_reauth),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onErrorContainer
-                    )
-                    TextButton(onClick = onReconnect) {
-                        Text(
-                            text = stringResource(R.string.accounts_listenbrainz_reconnect),
-                            fontWeight = FontWeight.SemiBold
-                        )
+            add(
+                AccountCardRow(surfaceContainer) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Crossfade(targetState = model.statsState, label = "listenBrainzStats") { state ->
+                            when (state) {
+                                ListenBrainzStatsUiState.Loading -> ListenBrainzStatsSkeleton()
+                                is ListenBrainzStatsUiState.Loaded -> ListenBrainzStatsContent(
+                                    stats = state.stats,
+                                    pendingCount = model.pendingCount
+                                )
+                                ListenBrainzStatsUiState.Unavailable -> {}
+                            }
+                        }
                     }
                 }
-            }
+            )
         }
-        ScrobbleSourceToggleRow(
-            label = stringResource(R.string.accounts_listenbrainz_scrobble_local),
-            checked = model.scrobbleLocal,
-            onCheckedChange = onToggleLocal
+        if (model.needsReauth) {
+            add(
+                AccountCardRow(MaterialTheme.colorScheme.errorContainer) {
+                    Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
+                        Text(
+                            text = stringResource(R.string.accounts_listenbrainz_needs_reauth),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        TextButton(onClick = onReconnect) {
+                            Text(
+                                text = stringResource(R.string.accounts_listenbrainz_reconnect),
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                }
+            )
+        }
+        add(
+            AccountCardRow(surfaceContainer) {
+                SwitchSettingItem(
+                    title = stringResource(R.string.accounts_listenbrainz_scrobble_local),
+                    subtitle = "",
+                    checked = model.scrobbleLocal,
+                    onCheckedChange = onToggleLocal
+                )
+            }
         )
-        ScrobbleSourceToggleRow(
-            label = stringResource(R.string.accounts_listenbrainz_scrobble_jellyfin),
-            checked = model.scrobbleJellyfin,
-            onCheckedChange = onToggleJellyfin
+        add(
+            AccountCardRow(surfaceContainer) {
+                SwitchSettingItem(
+                    title = stringResource(R.string.accounts_listenbrainz_scrobble_jellyfin),
+                    subtitle = "",
+                    checked = model.scrobbleJellyfin,
+                    onCheckedChange = onToggleJellyfin
+                )
+            }
         )
-        Text(
-            text = stringResource(R.string.accounts_listenbrainz_toggle_hint),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+        add(
+            AccountCardRow(Color.Transparent) {
+                Text(
+                    text = stringResource(R.string.accounts_listenbrainz_toggle_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                )
+            }
         )
         model.serverUrl?.let { serverUrl ->
-            Text(
-                text = stringResource(R.string.accounts_listenbrainz_custom_server, serverUrl),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            add(
+                AccountCardRow(Color.Transparent) {
+                    Text(
+                        text = stringResource(R.string.accounts_listenbrainz_custom_server, serverUrl),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
+                }
             )
         }
     }
@@ -1046,28 +1059,6 @@ private fun ListenBrainzNowPlayingRow(
     }
 }
 
-@Composable
-private fun ScrobbleSourceToggleRow(
-    label: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f)
-        )
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange
-        )
-    }
-}
 
 @Composable
 private fun ListenBrainzTokenDialog(
@@ -1159,54 +1150,55 @@ private fun ListenBrainzTokenDialog(
 
 
 @Composable
-private fun LastFmCardExtras(
+private fun lastFmAccountRows(
     model: LastFmUiModel,
     onToggleScrobble: (Boolean) -> Unit,
     onToggleNowPlaying: (Boolean) -> Unit,
     onReconnect: () -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+): List<AccountCardRow> {
+    val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
+    return buildList {
         if (model.needsReauth) {
-            Surface(
-                shape = AbsoluteSmoothCornerShape(14.dp, 60),
-                color = MaterialTheme.colorScheme.errorContainer,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
-                    Text(
-                        text = stringResource(R.string.lastfm_not_logged_in),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onErrorContainer
-                    )
-                    TextButton(onClick = onReconnect) {
+            add(
+                AccountCardRow(MaterialTheme.colorScheme.errorContainer) {
+                    Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
                         Text(
-                            text = stringResource(R.string.lastfm_action_login),
-                            fontWeight = FontWeight.SemiBold
+                            text = stringResource(R.string.lastfm_not_logged_in),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer
                         )
+                        TextButton(onClick = onReconnect) {
+                            Text(
+                                text = stringResource(R.string.lastfm_action_login),
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
                 }
-            }
+            )
         }
-        ScrobbleSourceToggleRow(
-            label = stringResource(R.string.lastfm_enable_scrobbling),
-            checked = model.scrobbleEnabled,
-            onCheckedChange = onToggleScrobble
+        add(
+            AccountCardRow(surfaceContainer) {
+                SwitchSettingItem(
+                    title = stringResource(R.string.lastfm_enable_scrobbling),
+                    subtitle = stringResource(R.string.lastfm_enable_scrobbling_desc),
+                    checked = model.scrobbleEnabled,
+                    onCheckedChange = onToggleScrobble
+                )
+            }
         )
-        Text(
-            text = stringResource(R.string.lastfm_enable_scrobbling_desc),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        ScrobbleSourceToggleRow(
-            label = stringResource(R.string.lastfm_now_playing),
-            checked = model.nowPlayingEnabled,
-            onCheckedChange = onToggleNowPlaying
-        )
-        Text(
-            text = stringResource(R.string.lastfm_now_playing_desc),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        if (model.scrobbleEnabled) {
+            add(
+                AccountCardRow(surfaceContainer) {
+                    SwitchSettingItem(
+                        title = stringResource(R.string.lastfm_now_playing),
+                        subtitle = stringResource(R.string.lastfm_now_playing_desc),
+                        checked = model.nowPlayingEnabled,
+                        onCheckedChange = onToggleNowPlaying
+                    )
+                }
+            )
+        }
     }
 }
 
