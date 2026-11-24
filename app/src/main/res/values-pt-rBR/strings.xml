@@ -24,7 +24,6 @@
     <string name="accounts_listenbrainz_needs_reauth">Seu token não é mais válido. Conecte-se novamente para retomar o envio dos registros de audição. As audições que estão na fila serão mantidas.</string>
     <string name="accounts_listenbrainz_reconnect">Conectar novamente</string>
     <string name="accounts_listenbrainz_scrobble_local">Registrar audições de arquivos locais</string>
-    <string name="accounts_listenbrainz_scrobble_navidrome">Registrar audições do streaming Subsonic</string>
     <string name="accounts_listenbrainz_scrobble_jellyfin">Registrar audições do streaming do Jellyfin</string>
     <string name="accounts_listenbrainz_toggle_hint">Se o seu servidor já envia registros de audição ao ListenBrainz, desative essa origem aqui para evitar registros duplicados.</string>
     <string name="accounts_listenbrainz_stat_listens">Total de audições</string>
@@ -239,8 +238,6 @@
     <string name="batch_edit_multiple_covers">(Várias capas diferentes)</string>
 
     <string name="player_error_skipping">Não foi possível reproduzir esta faixa. Pulando para a próxima.</string>
-    <string name="player_unsupported_format">Não é possível reproduzir %1$s: este dispositivo não tem um decodificador para %2$s</string>
-    <string name="player_unsupported_format_unknown">este formato</string>
     <string name="sync_failed_toast">Falha ao sincronizar a biblioteca. Puxe a tela para baixo para atualizar e tente novamente.</string>
 
     <string name="a11y_toggle_on">Ativado</string>
@@ -280,22 +277,12 @@
     <string name="cloud_downloads_empty_subtitle">As músicas da nuvem que você baixar aparecerão aqui.</string>
     <string name="cloud_download_selected">Baixar músicas selecionadas da nuvem</string>
     <string name="cloud_download_selected_count">Baixar %1$d músicas da nuvem</string>
-    <string name="musicbrainz_lookup">Pesquisar no MusicBrainz</string>
-    <string name="musicbrainz_searching">Procurando gravações correspondentes…</string>
-    <string name="musicbrainz_lookup_failed">Falha ao consultar o MusicBrainz</string>
-    <string name="musicbrainz_search_failed_fallback">Falha na pesquisa do MusicBrainz</string>
-    <string name="musicbrainz_save_failed_fallback">Não foi possível salvar os metadados do MusicBrainz</string>
-    <string name="musicbrainz_choose_match">Escolher um resultado do MusicBrainz</string>
-    <string name="musicbrainz_no_results">Nenhuma gravação adequada foi encontrada.</string>
-    <string name="musicbrainz_match_score">Confiabilidade da correspondência: %1$d%%</string>
-    <string name="musicbrainz_applied">Identificadores do MusicBrainz salvos. O ano que faltava e os nomes genéricos foram preenchidos.</string>
 
     <string name="setup_gate_preparing">Preparando a configuração…</string>
     <string name="song_info_label_provider">Provedor</string>
     <string name="song_info_label_path">Caminho</string>
     <string name="cd_playlist_artwork">Capa da playlist</string>
     <string name="home_your_mix_subtitle">Seu mix de hoje</string>
-    <string name="home_your_mix_queue_name">Seu mix</string>
     <string name="queue_name_liked_songs">Músicas favoritas</string>
     <string name="queue_name_all_songs_shuffled">Todas as músicas (ordem aleatória)</string>
     <string name="queue_name_liked_songs_shuffled">Músicas favoritas (ordem aleatória)</string>

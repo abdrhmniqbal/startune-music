@@ -19,7 +19,6 @@
     <string name="presentation_batch_b_playlist_empty_title">Tento zoznam skladieb je prázdny.</string>
     <string name="presentation_batch_b_playlist_empty_folder_body">V tomto priečinku nie sú žiadne skladby.</string>
     <string name="presentation_batch_b_playlist_empty_add_hint">Začnite ťuknutím na možnosť Pridať skladby.</string>
-    <string name="presentation_batch_b_playlist_empty_smart_body">Tomuto pravidlu zatiaľ nezodpovedajú žiadne skladby.</string>
     <string name="presentation_batch_b_playlist_options_title">Možnosti zoznamu skladieb</string>
     <string name="presentation_batch_b_edit_playlist">Upraviť zoznam skladieb</string>
     <string name="presentation_batch_b_delete_playlist">Odstrániť zoznam skladieb</string>

@@ -7,7 +7,6 @@
     <string name="song_info_open_source_failed">Tento odkaz se nepodařilo otevřít v žádné aplikaci</string>
     <string name="cd_playlist_artwork">Obal playlistu</string>
     <string name="home_your_mix_subtitle">Dnešní mix pro vás</string>
-    <string name="home_your_mix_queue_name">Váš mix</string>
     <string name="queue_name_liked_songs">Oblíbené skladby</string>
     <string name="queue_name_all_songs_shuffled">Všechny skladby (náhodně)</string>
     <string name="queue_name_liked_songs_shuffled">Oblíbené skladby (náhodně)</string>

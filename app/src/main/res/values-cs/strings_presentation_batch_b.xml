@@ -19,7 +19,6 @@
     <string name="presentation_batch_b_playlist_empty_title">Tento playlist je prázdný.</string>
     <string name="presentation_batch_b_playlist_empty_folder_body">V této složce nejsou žádné skladby.</string>
     <string name="presentation_batch_b_playlist_empty_add_hint">Začněte klepnutím na „Přidat skladby“.</string>
-    <string name="presentation_batch_b_playlist_empty_smart_body">Tomuto pravidlu zatím neodpovídá žádná skladba.</string>
     <string name="presentation_batch_b_playlist_options_title">Možnosti playlistu</string>
     <string name="presentation_batch_b_edit_playlist">Upravit playlist</string>
     <string name="presentation_batch_b_delete_playlist">Smazat playlist</string>
