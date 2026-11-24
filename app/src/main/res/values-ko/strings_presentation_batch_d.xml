@@ -29,7 +29,6 @@
     <string name="presentation_batch_d_library_tabs_sheet_subtitle">원하는 탭으로 바로 이동하거나 순서를 변경하세요.</string>
     <string name="presentation_batch_d_reorder_tabs_label">탭 순서 변경</string>
     <string name="presentation_batch_d_cd_folder">폴더</string>
-
     <!-- LibraryScreen — watch transfer dialog -->
     <string name="presentation_batch_d_watch_sending_title">워치로 전송 중</string>
     <string name="presentation_batch_d_watch_starting_transfer">전송 시작 중…</string>
@@ -40,13 +39,11 @@
     <string name="presentation_batch_d_watch_status_preparing">준비 중</string>
     <string name="presentation_batch_d_watch_preparing_transfer">전송 준비 중…</string>
     <string name="presentation_batch_d_watch_cancel_transfer">전송 취소</string>
-
     <!-- LibraryScreen — merge playlists -->
     <string name="presentation_batch_d_merge_playlists_title">플레이리스트 병합</string>
     <string name="presentation_batch_d_merge_playlists_prompt">병합된 플레이리스트의 이름을 입력하세요:</string>
     <string name="presentation_batch_d_merge_playlists_placeholder">병합된 플레이리스트</string>
     <string name="presentation_batch_d_merge_playlists_body">선택한 %1$d개의 플레이리스트를 하나로 병합합니다.</string>
-
     <!-- MashupScreen -->
     <string name="presentation_batch_d_mashup_title">DJ 스페이스</string>
     <string name="presentation_batch_d_loading">로드 중…</string>
@@ -61,7 +58,6 @@
     <string name="presentation_batch_d_mashup_deck_1">데크 1</string>
     <string name="presentation_batch_d_mashup_deck_2">데크 2</string>
     <string name="presentation_batch_d_mashup_select_song_title">곡 선택</string>
-
     <!-- EqualizerScreen -->
     <string name="presentation_batch_d_eq_change_view_mode_cd">보기 모드 변경</string>
     <string name="presentation_batch_d_eq_disable_cd">이퀄라이저 비활성화</string>
@@ -87,7 +83,6 @@
     <string name="presentation_batch_d_eq_band_mid_high">미드 / 하이</string>
     <string name="presentation_batch_d_eq_page_n">%1$d페이지</string>
     <string name="presentation_batch_d_eq_reset_duration_cd">지속 시간 초기화</string>
-
     <!-- EditTransitionScreen -->
     <string name="presentation_batch_d_transition_snackbar_using_global">글로벌 기본값 사용 중</string>
     <string name="presentation_batch_d_transition_snackbar_saved">변경 사항이 저장되었습니다</string>
@@ -117,7 +112,6 @@
     <string name="presentation_batch_d_transition_curves_subtitle">오디오 슬로프 미세 조정</string>
     <string name="presentation_batch_d_transition_fade_out">페이드 아웃</string>
     <string name="presentation_batch_d_transition_fade_in">페이드 인</string>
-
     <!-- ArtistDetailScreen -->
     <string name="presentation_batch_d_cd_play_title">%1$s 재생</string>
     <string name="presentation_batch_d_cd_collapse_title">%1$s 접기</string>
@@ -125,6 +119,16 @@
     <string name="presentation_batch_d_edit_artist_image_cd">아티스트 이미지 편집</string>
     <string name="presentation_batch_d_change_photo">사진 변경</string>
     <string name="presentation_batch_d_reset_to_default">기본값으로 초기화</string>
+    <string name="presentation_batch_d_select_artwork">Select artwork</string>
+    <string name="presentation_batch_d_search_deezer_hint">Search artist on Deezer...</string>
+    <string name="presentation_batch_d_choose_from_device">Choose from device</string>
+    <string name="presentation_batch_d_no_artwork_found">No artist images found on Deezer</string>
+    <string name="presentation_batch_d_artwork_updated">Artist artwork updated</string>
+    <string name="presentation_batch_d_artwork_update_failed">Failed to update artwork</string>
+    <string name="presentation_batch_d_artwork_removed">Artist artwork removed</string>
+    <string name="presentation_batch_d_artwork_remove_failed">Failed to remove artwork</string>
+    <string name="presentation_batch_d_fans">%1$s fans</string>
+    <string name="presentation_batch_d_albums">%1$d albums</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">아티스트 곡 셔플 재생</string>
     <string name="presentation_batch_d_cd_artist">아티스트</string>
 </resources>

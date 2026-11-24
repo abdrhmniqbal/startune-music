@@ -11,7 +11,6 @@
     <string name="widget_preview_artist">Künstler</string>
     <string name="cd_repeat">Wiederholen</string>
     <string name="widget_wavy_progress_bar_desc">Fortschrittsbalken, %1$d Prozent</string>
-
     <!-- Lyrics more bottom sheet -->
     <string name="lyrics_more_appearance">Darstellung</string>
     <string name="lyrics_more_alignment">Ausrichtung</string>
@@ -27,13 +26,11 @@
     <string name="cd_lyrics_align_left">Lyrics linksbündig</string>
     <string name="cd_lyrics_align_center">Lyrics zentriert</string>
     <string name="cd_lyrics_align_right">Lyrics rechtsbündig</string>
-
     <!-- No internet -->
     <string name="no_internet_dialog_title">Keine Internetverbindung</string>
     <string name="no_internet_dialog_message">Keine Verbindung – Netzwerkeinstellungen prüfen und nochmal versuchen.</string>
     <string name="offline_screen_title">Du bist offline</string>
     <string name="offline_screen_message">Internetverbindung prüfen und nochmal versuchen.</string>
-
     <!-- Equalizer preset dialogs -->
     <string name="equalizer_save_custom_preset_title">Eigenes Preset speichern</string>
     <string name="equalizer_save_custom_preset_body">Namen für dein Equalizer-Preset eingeben</string>
@@ -42,7 +39,6 @@
     <string name="error_name_empty">Name darf nicht leer sein</string>
     <string name="action_save">Speichern</string>
     <string name="action_rename">Umbenennen</string>
-
     <!-- AI metadata sheet -->
     <string name="ai_metadata_headline_success">Perfekt getaggt!</string>
     <string name="ai_metadata_headline_default">KI-Metadaten</string>
@@ -51,10 +47,11 @@
     <string name="song_field_title">Titel</string>
     <string name="song_field_artist">Künstler</string>
     <string name="song_field_album">Album</string>
+    <string name="song_field_album_artist">Albumkünstler</string>
     <string name="song_field_genre">Genre</string>
+    <string name="song_field_composer">Komponist</string>
     <string name="action_try_again">Erneut versuchen</string>
     <string name="action_apply_changes">Änderungen übernehmen</string>
-
     <!-- Edit song metadata sheet -->
     <string name="edit_song_info_dialog_title">Song-Metadaten bearbeiten</string>
     <string name="edit_song_info_dialog_body">Änderungen wirken sich auf Anzeige und Sortierung in der Bibliothek aus. Das lässt sich nicht rückgängig machen.</string>
@@ -85,7 +82,6 @@
     <string name="edit_song_crop_dialog_hint">Zum Zoomen zusammendrücken, zum Verschieben ziehen.</string>
     <string name="edit_song_apply_cover_art">Cover übernehmen</string>
     <string name="edit_song_unable_to_load_image">Bild konnte nicht geladen werden</string>
-
     <!-- Song info bottom sheet -->
     <string name="song_info_share_chooser_title">Song-Datei teilen via</string>
     <string name="cd_play_song_action">Song abspielen</string>
@@ -120,10 +116,11 @@
     <string name="song_info_tab_details">Details</string>
     <string name="song_info_tab_info_badge">INFO</string>
     <string name="cd_details_tab">Details</string>
-
     <!-- Multi-selection bottom sheet -->
     <string name="multi_selection_songs_count_upper">%1$d SONGS</string>
     <string name="multi_selection_selected">ausgewählt</string>
+    <string name="multi_selection_genres_count_upper">%1$d GENRES</string>
+    <string name="multi_selection_genres_queue_hint">Perform batch operations on all songs within these genres.</string>
     <string name="cd_play_all">Alle abspielen</string>
     <string name="action_play_all">Alle abspielen</string>
     <string name="cd_like_all">Alle liken</string>
@@ -132,7 +129,6 @@
     <string name="cd_add_all_to_queue">Alle zur Queue</string>
     <string name="cd_delete_all_songs">Alle löschen</string>
     <string name="action_delete_all">Alle löschen</string>
-
     <string name="playlist_dismissed_message">Playlist geschlossen</string>
     <string name="action_undo">Rückgängig</string>
     <string name="home_option_dj_mashup">DJ Mashup</string>
@@ -143,14 +139,12 @@
     <string name="playlist_picker_add_songs_title">%1$d Songs hinzufügen zu…</string>
     <string name="playlist_picker_select_playlists">Playlists auswählen</string>
     <string name="search_playlists_hint">Playlists suchen…</string>
-
     <string name="multi_selection_playlists_count_upper">%1$d PLAYLISTS</string>
     <string name="cd_export_all">Alle exportieren</string>
     <string name="cd_merge_all">Alle zusammenführen</string>
     <string name="cd_share_all">Alle teilen</string>
     <string name="action_export">Exportieren</string>
     <string name="action_merge">Zusammenführen</string>
-
     <string name="reorder_tabs_sheet_title">Bibliotheks-Tabs sortieren</string>
     <string name="reorder_tabs_reset_dialog_title">Reihenfolge zurücksetzen</string>
     <string name="reorder_tabs_reset_dialog_body">Tab-Reihenfolge auf Standard zurücksetzen?</string>
@@ -162,20 +156,50 @@
     <string name="cd_drag_handle">Ziehpunkt</string>
     <string name="cd_reset">Zurücksetzen</string>
     <string name="action_done">Fertig</string>
-
-    <!-- Backfilled translations -->
-    <string name="song_field_album_artist">Albumkünstler</string>
-    <string name="song_field_composer">Komponist</string>
-    <string name="song_info_tone_picker_body">Wähle aus, wo PixelPlayerOSS diesen Sound installieren soll.</string>
-    <string name="song_info_ringtone_permission_prompt">Aktiviere „Systemeinstellungen ändern“ und kehre dann zu PixelPlayerOSS zurück, damit der Vorgang automatisch abgeschlossen wird.</string>
-    <string name="edit_song_custom_metadata_heading">Optionale Metadaten</string>
-    <string name="edit_song_custom_metadata_description">Lege eine Bewertung von 0–5 fest oder füge Textfelder wie MOOD, COMMENT, YEAR oder BPM hinzu.</string>
-    <string name="edit_song_rating">Bewertung (0–5)</string>
-    <string name="edit_song_rating_not_set">Nicht festgelegt</string>
+    <string name="cd_add_selected_albums_to_queue">Add selected albums to queue</string>
+    <string name="cd_album_art_of">Album art of %1$s</string>
+    <string name="cd_album_art_placeholder">%1$s placeholder</string>
+    <string name="cd_choose_song_tone">Choose how to use this song as a system sound</string>
+    <string name="cd_cover_art">Cover art</string>
+    <string name="cd_play_selected_albums">Play selected albums</string>
+    <string name="cd_play_selected_albums_next">Play selected albums next</string>
+    <string name="cd_show_controls">Show controls</string>
+    <string name="edit_song_add_custom_field">Metadatenfeld hinzufügen</string>
     <string name="edit_song_custom_field_name">Feldname</string>
     <string name="edit_song_custom_field_value">Wert</string>
-    <string name="edit_song_add_custom_field">Metadatenfeld hinzufügen</string>
-    <string name="edit_song_remove_custom_field">Feld entfernen</string>
+    <string name="edit_song_custom_metadata_description">Lege eine Bewertung von 0–5 fest oder füge Textfelder wie MOOD, COMMENT, YEAR oder BPM hinzu.</string>
     <string name="edit_song_custom_metadata_formats">Bewertung und eigene Felder können in Dateien der Formate MP3, WAV, AIFF, FLAC, OGG, Opus, M4A, M4B und MP4 gespeichert werden.</string>
+    <string name="edit_song_custom_metadata_heading">Optionale Metadaten</string>
     <string name="edit_song_custom_metadata_invalid">Prüfe die optionalen Metadatenfelder.</string>
+    <string name="edit_song_rating">Bewertung (0–5)</string>
+    <string name="edit_song_rating_not_set">Nicht festgelegt</string>
+    <string name="edit_song_remove_custom_field">Feld entfernen</string>
+    <string name="equalizer_action_save_new">Save New</string>
+    <string name="folder_state_excluded">Excluded</string>
+    <string name="folder_state_included">Included</string>
+    <string name="playlist_created_songs_added_toast">Playlist created and songs added</string>
+    <string name="playlist_saved_toast">Saved</string>
+    <string name="playlist_songs_added_toast">Songs added to playlists</string>
+    <string name="song_info_choose_tone">Set as sound</string>
+    <string name="song_info_ringtone_failed">Couldn\'t set ringtone: %1$s</string>
+    <string name="song_info_ringtone_local_only">Only local songs can be used as ringtones.</string>
+    <string name="song_info_ringtone_missing_file">Couldn\'t prepare this audio file for ringtone.</string>
+    <string name="song_info_ringtone_permission_missing">Modify system settings was not enabled.</string>
+    <string name="song_info_ringtone_permission_prompt">Aktiviere „Systemeinstellungen ändern“ und kehre dann zu PixelPlayerOSS zurück, damit der Vorgang automatisch abgeschlossen wird.</string>
+    <string name="song_info_set_as_short">Set as</string>
+    <string name="song_info_tone_alarm_label">alarm sound</string>
+    <string name="song_info_tone_alarm_subtitle">Clock alarms</string>
+    <string name="song_info_tone_alarm_title">Alarm sound</string>
+    <string name="song_info_tone_confirm_action">Set sound</string>
+    <string name="song_info_tone_confirm_body">Set \"%1$s\" as your %2$s?</string>
+    <string name="song_info_tone_confirm_title">Confirm sound change</string>
+    <string name="song_info_tone_notification_label">notification sound</string>
+    <string name="song_info_tone_notification_subtitle">Messages and app alerts</string>
+    <string name="song_info_tone_notification_title">Notification sound</string>
+    <string name="song_info_tone_picker_body">Wähle aus, wo PixelPlayerOSS diesen Sound installieren soll.</string>
+    <string name="song_info_tone_picker_title">Use this song as</string>
+    <string name="song_info_tone_ringtone_label">ringtone</string>
+    <string name="song_info_tone_ringtone_subtitle">Incoming calls</string>
+    <string name="song_info_tone_ringtone_title">Phone ringtone</string>
+    <string name="song_info_tone_success">Set \"%1$s\" as your %2$s</string>
 </resources>

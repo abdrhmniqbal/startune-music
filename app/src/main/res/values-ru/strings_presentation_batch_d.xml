@@ -29,7 +29,6 @@
     <string name="presentation_batch_d_library_tabs_sheet_subtitle">Перейдите к любой вкладке или измените их порядок.</string>
     <string name="presentation_batch_d_reorder_tabs_label">Изменить порядок вкладок</string>
     <string name="presentation_batch_d_cd_folder">Папка</string>
-
     <!-- LibraryScreen — watch transfer dialog -->
     <string name="presentation_batch_d_watch_sending_title">Отправка на часы</string>
     <string name="presentation_batch_d_watch_starting_transfer">Начало передачи…</string>
@@ -40,13 +39,11 @@
     <string name="presentation_batch_d_watch_status_preparing">Подготовка</string>
     <string name="presentation_batch_d_watch_preparing_transfer">Подготовка к передаче…</string>
     <string name="presentation_batch_d_watch_cancel_transfer">Отменить передачу</string>
-
     <!-- LibraryScreen — merge playlists -->
     <string name="presentation_batch_d_merge_playlists_title">Объединить плейлисты</string>
     <string name="presentation_batch_d_merge_playlists_prompt">Введите название для объединенного плейлиста:</string>
     <string name="presentation_batch_d_merge_playlists_placeholder">Объединенный плейлист</string>
     <string name="presentation_batch_d_merge_playlists_body">Это объединит %1$d выбранных плейлистов в один.</string>
-
     <!-- MashupScreen -->
     <string name="presentation_batch_d_mashup_title">DJ Пространство</string>
     <string name="presentation_batch_d_loading">Загрузка…</string>
@@ -61,7 +58,6 @@
     <string name="presentation_batch_d_mashup_deck_1">Дека 1</string>
     <string name="presentation_batch_d_mashup_deck_2">Дека 2</string>
     <string name="presentation_batch_d_mashup_select_song_title">Выберите песню</string>
-
     <!-- EqualizerScreen -->
     <string name="presentation_batch_d_eq_change_view_mode_cd">Сменить вид</string>
     <string name="presentation_batch_d_eq_disable_cd">Выключить эквалайзер</string>
@@ -87,7 +83,6 @@
     <string name="presentation_batch_d_eq_band_mid_high">СЧ / ВЧ</string>
     <string name="presentation_batch_d_eq_page_n">Стр %1$d</string>
     <string name="presentation_batch_d_eq_reset_duration_cd">Сброс длительности</string>
-
     <!-- EditTransitionScreen -->
     <string name="presentation_batch_d_transition_snackbar_using_global">Используются глобальные настройки</string>
     <string name="presentation_batch_d_transition_snackbar_saved">Изменения сохранены</string>
@@ -117,7 +112,6 @@
     <string name="presentation_batch_d_transition_curves_subtitle">Тонкая настройка затухания</string>
     <string name="presentation_batch_d_transition_fade_out">Затухание (Fade Out)</string>
     <string name="presentation_batch_d_transition_fade_in">Нарастание (Fade In)</string>
-
     <!-- ArtistDetailScreen -->
     <string name="presentation_batch_d_cd_play_title">Играть %1$s</string>
     <string name="presentation_batch_d_cd_collapse_title">Свернуть %1$s</string>
@@ -125,6 +119,16 @@
     <string name="presentation_batch_d_edit_artist_image_cd">Правка фото исполнителя</string>
     <string name="presentation_batch_d_change_photo">Изменить фото</string>
     <string name="presentation_batch_d_reset_to_default">Сброс</string>
+    <string name="presentation_batch_d_select_artwork">Select artwork</string>
+    <string name="presentation_batch_d_search_deezer_hint">Search artist on Deezer...</string>
+    <string name="presentation_batch_d_choose_from_device">Choose from device</string>
+    <string name="presentation_batch_d_no_artwork_found">No artist images found on Deezer</string>
+    <string name="presentation_batch_d_artwork_updated">Artist artwork updated</string>
+    <string name="presentation_batch_d_artwork_update_failed">Failed to update artwork</string>
+    <string name="presentation_batch_d_artwork_removed">Artist artwork removed</string>
+    <string name="presentation_batch_d_artwork_remove_failed">Failed to remove artwork</string>
+    <string name="presentation_batch_d_fans">%1$s fans</string>
+    <string name="presentation_batch_d_albums">%1$d albums</string>
     <string name="presentation_batch_d_cd_shuffle_play_artist">Перемешать песни исполнителя</string>
     <string name="presentation_batch_d_cd_artist">Исполнитель</string>
 </resources>

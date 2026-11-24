@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Lyrics screen, More sheet: copies the whole song as plain text -->
     <string name="lyrics_more_copy_lyrics">Salin lirik</string>
+    <!-- Shown below Android 13, which confirms clipboard writes itself -->
     <string name="lyrics_copied">Lirik disalin ke papan klip</string>
     <string name="lyrics_line_copied">Baris disalin ke papan klip</string>
+    <!-- Accessibility label of the long-press action on a lyric line -->
     <string name="lyrics_copy_line_action">Salin baris</string>
 </resources>

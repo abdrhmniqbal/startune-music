@@ -13,11 +13,21 @@
     <string name="auth_password_placeholder">비밀번호 입력</string>
     <string name="auth_username_placeholder_admin">admin</string>
     <string name="toast_welcome_user">%1$s님, 환영합니다!</string>
-
     <string name="auth_server_url_placeholder_https">https://music.example.com</string>
     <string name="auth_prefill_https">https:// 자동 입력</string>
-
     <!-- Jellyfin -->
+    <string name="auth_navidrome_title">Subsonic / Navidrome</string>
+    <string name="auth_navidrome_subtitle">Connect to your self-hosted music server</string>
+    <string name="auth_navidrome_info_card">Supports Navidrome, Airsonic, Gonic, Ampache and other servers compatible with the Subsonic API.</string>
+    <string name="auth_connection_details_subtitle">Enter your server URL and account credentials.</string>
+    <string name="auth_navidrome_server_url_hint">Use the full server URL, including http:// for local servers or https:// for remote servers.</string>
+    <string name="auth_navidrome_username_hint">This is your Subsonic or Navidrome account name.</string>
+    <string name="auth_navidrome_password_hint">App password also works if your server supports it.</string>
+    <string name="auth_prefill_http">Prefill http://</string>
+    <string name="auth_navidrome_footer">Compatible with Navidrome, Gonic, Airsonic, and other Subsonic-compatible servers</string>
+    <string name="screen_subsonic_dashboard_title">Subsonic</string>
+    <string name="cd_navidrome_logo">Navidrome</string>
+    <string name="cd_subsonic_logo">Subsonic</string>
     <string name="auth_jellyfin_title">Jellyfin</string>
     <string name="auth_jellyfin_info_card">Jellyfin 서버에 연결합니다. 로컬 네트워크 액세스를 위해 HTTP와 HTTPS를 모두 지원합니다.</string>
     <string name="auth_jellyfin_subtitle">Jellyfin 미디어 서버에 연결</string>
@@ -28,8 +38,6 @@
     <string name="auth_jellyfin_password_hint">Jellyfin 계정 비밀번호입니다.</string>
     <string name="auth_jellyfin_footer">음악 스트리밍을 위해 Jellyfin 서버에 연결합니다.</string>
     <string name="cd_jellyfin_logo">Jellyfin</string>
-
-
     <string name="auth_web_exit_confirm_title_qq">QQ Music 로그인을 종료하시겠습니까?</string>
     <string name="auth_web_exit_confirm_body">나중에 다시 시도할 수 있습니다. 닫으면 현재 페이지 상태가 삭제됩니다.</string>
     <string name="auth_exit">종료</string>
@@ -50,6 +58,9 @@
     <string name="auth_http_error_loading_qq">QQ Music 로드 중 HTTP %1$d 오류 발생.</string>
     <string name="auth_error_no_cookies">쿠키를 찾을 수 없습니다. 먼저 로그인하세요.</string>
     <string name="auth_error_qq_login_incomplete">로그인이 감지되지 않았습니다. \'완료\'를 누르기 전에 QQ Music 로그인을 완료하세요.</string>
-
-    <!-- Backfilled translations -->
+    <string name="auth_local_network_permission_denied">Allow nearby devices access to connect to a server on your local network.</string>
+    <string name="auth_select_libraries_confirm">Save and sync</string>
+    <string name="auth_select_libraries_subtitle">This server has more than one music library. Pick which ones to sync — you can change this later from the server dashboard.</string>
+    <string name="auth_select_libraries_title">Choose libraries to sync</string>
+    <string name="auth_use_http">Use HTTP / VPN</string>
 </resources>

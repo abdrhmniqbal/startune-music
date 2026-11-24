@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- SettingsComponents -->
     <string name="presentation_batch_f_cd_selected">Выбрано</string>
@@ -38,7 +38,6 @@
     <string name="presentation_batch_f_ai_preset_sonic_enthusiast_prompt">Вы — аналитик-аудиофил, сосредоточенный на сложности продакшена и инструментарии. Отдавайте приоритет трекам с высоким динамическим диапазоном, сложными ритмами и превосходным качеством звуковой сцены. Предпочитайте произведения для активного прослушивания, вознаграждающие слушателя за внимание к техническим деталям.</string>
     <string name="presentation_batch_f_ai_preset_energy_catalyst_name">Катализатор энергии</string>
     <string name="presentation_batch_f_ai_preset_energy_catalyst_prompt">Вы — генератор мощного ритма. Ваша философия сосредоточена на драйвовых басовых линиях, перкуссионной интенсивности и заразительном груве. Отдавайте приоритет клубной совместимости с высоким BPM, синкопированной энергии и непрерывному ритмическому напряжению.</string>
-
     <!-- Create playlist -->
     <string name="presentation_batch_f_new_playlist">Новый плейлист</string>
     <string name="presentation_batch_f_add_songs">Добавить песни</string>
@@ -75,6 +74,10 @@
     <string name="mix_rule_forgotten_favorites_subtitle">Любимые треки, которые вы давно не включали.</string>
     <string name="mix_rule_new_gems_title">Новые находки</string>
     <string name="mix_rule_new_gems_subtitle">Недавно добавленные треки с малым числом прослушиваний.</string>
+    <string name="mix_rule_artists_title">By Artists</string>
+    <string name="mix_rule_artists_subtitle">Songs from artists you pick.</string>
+    <string name="mix_rule_genres_title">By Genres</string>
+    <string name="mix_rule_genres_subtitle">Songs from genres you pick.</string>
     <!-- Palette style -->
     <string name="presentation_batch_f_palette_style_heading">Стиль палитры</string>
     <string name="presentation_batch_f_palette_style_subtitle">Выберите цвета обложки для интерфейса плеера.</string>
@@ -96,7 +99,6 @@
     <string name="presentation_batch_f_accuracy_summary_subtle">%1$d • Мягкая</string>
     <string name="presentation_batch_f_accuracy_summary_balanced">%1$d • Баланс</string>
     <string name="presentation_batch_f_accuracy_summary_precise">%1$d • Точная</string>
-
     <!-- Experimental settings -->
     <string name="presentation_batch_f_exp_player_ui_tweaks_section">Настройки загрузки UI плеера</string>
     <string name="presentation_batch_f_exp_animated_lyrics_title">Анимированный текст (для мощных устройств)</string>
@@ -146,13 +148,11 @@
     <string name="presentation_batch_f_album_art_quality_medium_line">Среднее (512px) - Баланс</string>
     <string name="presentation_batch_f_album_art_quality_high_line">Высокое (800px) - Качество</string>
     <string name="presentation_batch_f_album_art_quality_original_line">Оригинал - Макс. качество</string>
-
     <!-- Settings category screen (composables) -->
     <string name="presentation_batch_f_percent">%1$d%%</string>
     <string name="presentation_batch_f_status_bullet_step">%1$s • %2$s</string>
     <string name="presentation_batch_f_dot_space_suffix"> · %1$s</string>
     <string name="presentation_batch_f_unknown_short">\?</string>
-
     <string name="presentation_batch_f_working">Работаем…</string>
     <string name="presentation_batch_f_phone_number_title">Номер телефона</string>
     <string name="presentation_batch_f_phone_number_hint">Номер телефона</string>
@@ -169,7 +169,6 @@
     <string name="presentation_batch_f_password_label">Пароль</string>
     <string name="presentation_batch_f_verify_password">Проверить пароль</string>
     <string name="presentation_batch_f_please_wait">Пожалуйста, подождите…</string>
-
     <string name="presentation_batch_f_add_channel_fab">Добавить канал</string>
     <string name="presentation_batch_f_syncing">Синхронизация</string>
     <string name="presentation_batch_f_sync_now">Синхронизировать сейчас</string>
@@ -181,11 +180,13 @@
     <string name="presentation_batch_f_fetch_latest_songs">Загрузить свежие песни из этого канала</string>
     <string name="presentation_batch_f_remove_channel">Удалить канал</string>
     <string name="presentation_batch_f_remove_channel_subtitle">Прекратить синхронизацию и удалить кэш</string>
+    <string name="presentation_batch_f_remove_channel_confirm_title">Удалить канал?</string>
+    <string name="presentation_batch_f_remove_channel_confirm_body">%1$s перестанет синхронизироваться, и все кэшированные треки этого канала будут удалены.</string>
+    <string name="presentation_batch_f_remove_channel_confirm_action">Удалить</string>
     <string name="presentation_batch_f_no_channels_synced">Нет синхронизированных каналов</string>
     <string name="presentation_batch_f_add_channel_button">Добавить канал</string>
     <string name="presentation_batch_f_never_synced">Ни разу не синхронизировалось</string>
     <string name="presentation_batch_f_synced_relative">Синхрон.: %1$s</string>
-
     <!-- Telegram channel search -->
     <string name="presentation_batch_f_add_channel_sheet_title">Добавить канал</string>
     <string name="presentation_batch_f_channel_search_placeholder">\@имя_канала или ссылка</string>
@@ -194,7 +195,6 @@
     <string name="presentation_batch_f_search_channel_title">Поиск канала</string>
     <string name="presentation_batch_f_search_channel_body">Введите имя публичного канала или ссылку,\nчтобы синхронизировать аудиофайлы</string>
     <string name="presentation_batch_f_done">Готово</string>
-
     <plurals name="presentation_batch_f_n_songs">
         <item quantity="one">%d песня</item>
         <item quantity="few">%d песни</item>
@@ -207,8 +207,28 @@
         <item quantity="many">%d тем</item>
         <item quantity="other">%d темы</item>
     </plurals>
-    <!-- Remove Telegram channel -->
-    <string name="presentation_batch_f_remove_channel_confirm_title">Удалить канал?</string>
-    <string name="presentation_batch_f_remove_channel_confirm_body">%1$s перестанет синхронизироваться, и все кэшированные треки этого канала будут удалены.</string>
-    <string name="presentation_batch_f_remove_channel_confirm_action">Удалить</string>
+    <string name="presentation_batch_f_adjust_cover_hint">Use pinch and drag gestures to find the perfect framing</string>
+    <string name="presentation_batch_f_adjust_cover_title">Adjust your cover art</string>
+    <string name="presentation_batch_f_change">Change</string>
+    <string name="presentation_batch_f_edit_cover_title">Edit Cover</string>
+    <string name="presentation_batch_f_remove">Remove</string>
+    <string name="mix_create_title">New mix</string>
+    <string name="mix_name_label">Mix name</string>
+    <string name="mix_name_placeholder">My mix</string>
+    <string name="mix_preset_label">Preset</string>
+    <string name="mix_generation_mode_label">Generation Mode</string>
+    <string name="mix_playlist_size_title">Playlist size</string>
+    <string name="mix_playlist_size_subtitle">Number of songs to generate</string>
+    <string name="mix_artists_label">Artists</string>
+    <string name="mix_artists_hint">Choose one or more artists for this mix.</string>
+    <string name="mix_artists_add">Add artists</string>
+    <string name="mix_artists_search_placeholder">Search artists</string>
+    <string name="mix_artists_empty">No artists in your library yet.</string>
+    <string name="mix_genres_label">Genres</string>
+    <string name="mix_genres_placeholder">Rock, K-Pop, Jazz</string>
+    <string name="mix_genres_hint">Separate genres with commas. Recognized genres become chips.</string>
+    <string name="mix_empty_title">No mixes yet</string>
+    <string name="mix_empty_hint">Create your first mix to get started.</string>
+    <string name="mix_cover_cd">Mix</string>
+    <string name="mix_see_all">See all</string>
 </resources>
