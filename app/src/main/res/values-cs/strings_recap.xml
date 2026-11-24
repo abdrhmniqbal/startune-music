@@ -16,7 +16,7 @@
     <string name="recap_action_previous_slide">Předchozí snímek</string>
     <string name="recap_close">Zavřít</string>
     <string name="recap_not_enough_title">Zatím není dost údajů o poslechu</string>
-    <string name="recap_not_enough_subtitle">Poslouchejte dál a ohlédnutí za rokem %1$d se postupně doplní.</string>
+    <string name="recap_not_enough_subtitle">Poslouchejte dál a ohlédnutí za rokem %1$s se postupně doplní.</string>
     <string name="recap_intro_kicker">Ohlédnutí PixelPlayerOSS</string>
     <string name="recap_intro_title">Váš rok v hudbě</string>
     <string name="recap_intro_title_so_far">Váš rok zatím</string>
@@ -55,11 +55,7 @@
     <string name="recap_summary_title">Můj rok %1$d v hudbě</string>
     <string name="recap_summary_title_so_far">Můj rok %1$d zatím</string>
     <string name="recap_summary_minutes">Minuty poslechu</string>
-    <string name="recap_summary_top_artist">Nejhranější interpret</string>
-    <string name="recap_summary_top_song">Nejhranější skladba</string>
     <string name="recap_summary_top_genre">Nejhranější žánr</string>
-    <string name="recap_summary_top_album">Nejhranější album</string>
-    <string name="recap_summary_listening_style">Styl poslechu</string>
     <string name="recap_share">Sdílet</string>
     <string name="recap_share_chooser_title">Sdílet ohlédnutí</string>
     <string name="recap_share_text">Můj rok %1$d v hudbě, vytvořeno v PixelPlayerOSS</string>

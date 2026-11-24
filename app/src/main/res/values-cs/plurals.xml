@@ -108,24 +108,6 @@
         <item quantity="many">%d skladby</item>
         <item quantity="other">%d skladeb</item>
     </plurals>
-    <plurals name="time_ago_minutes">
-        <item quantity="one">před %d minutou</item>
-        <item quantity="few">před %d minutami</item>
-        <item quantity="many">před %d min</item>
-        <item quantity="other">před %d minutami</item>
-    </plurals>
-    <plurals name="time_ago_hours">
-        <item quantity="one">před %d hodinou</item>
-        <item quantity="few">před %d hodinami</item>
-        <item quantity="many">před %d h</item>
-        <item quantity="other">před %d hodinami</item>
-    </plurals>
-    <plurals name="time_ago_days">
-        <item quantity="one">před %d dnem</item>
-        <item quantity="few">před %d dny</item>
-        <item quantity="many">před %d dny</item>
-        <item quantity="other">před %d dny</item>
-    </plurals>
     <plurals name="cloud_download_selected_started">
         <item quantity="one">Připravuje se %1$d skladba z cloudu k offline poslechu</item>
         <item quantity="few">Připravují se %1$d skladby z cloudu k offline poslechu</item>
@@ -191,24 +173,6 @@
         <item quantity="few">Přehráli jste %d různé skladby</item>
         <item quantity="many">Přehráli jste %d skladby</item>
         <item quantity="other">Přehráli jste %d různých skladeb</item>
-    </plurals>
-    <plurals name="audio_bookmarks_delete_folders_title">
-        <item quantity="one">Smazat tuto složku?</item>
-        <item quantity="few">Smazat %1$d složky?</item>
-        <item quantity="many">Smazat %1$d složky?</item>
-        <item quantity="other">Smazat %1$d složek?</item>
-    </plurals>
-    <plurals name="audio_bookmarks_delete_folders_message">
-        <item quantity="one">%1$d záložka bude trvale smazána. Tuto akci nelze vrátit zpět.</item>
-        <item quantity="few">%1$d záložky budou trvale smazány. Tuto akci nelze vrátit zpět.</item>
-        <item quantity="many">%1$d záložky bude trvale smazáno. Tuto akci nelze vrátit zpět.</item>
-        <item quantity="other">%1$d záložek bude trvale smazáno. Tuto akci nelze vrátit zpět.</item>
-    </plurals>
-    <plurals name="audio_bookmarks_delete_moments_title">
-        <item quantity="one">Smazat tuto záložku?</item>
-        <item quantity="few">Smazat %1$d záložky?</item>
-        <item quantity="many">Smazat %1$d záložky?</item>
-        <item quantity="other">Smazat %1$d záložek?</item>
     </plurals>
     <plurals name="mix_matching_songs">
         <item quantity="one">%1$d odpovídající skladba · %2$d min</item>

@@ -22,7 +22,6 @@
     <string name="accounts_listenbrainz_needs_reauth">Platnost tokenu vypršela. Znovu připojte účet, aby se poslech dál zaznamenával. Dosud neodeslané záznamy zůstanou zachovány.</string>
     <string name="accounts_listenbrainz_reconnect">Znovu připojit</string>
     <string name="accounts_listenbrainz_scrobble_local">Zaznamenávat poslech místních souborů</string>
-    <string name="accounts_listenbrainz_scrobble_navidrome">Zaznamenávat poslech ze Subsonicu</string>
     <string name="accounts_listenbrainz_scrobble_jellyfin">Zaznamenávat poslech z Jellyfinu</string>
     <string name="accounts_listenbrainz_toggle_hint">Pokud váš server už poslech na ListenBrainz zaznamenává, vypněte zde příslušný zdroj, aby se záznamy neduplikovaly.</string>
     <string name="accounts_listenbrainz_stat_listens">Celkový počet přehrání</string>
@@ -212,8 +211,6 @@
     <string name="batch_edit_remove_all_art">Odebrat obaly všech vybraných skladeb</string>
     <string name="batch_edit_multiple_covers">(různé obaly)</string>
     <string name="player_error_skipping">Skladbu nelze přehrát, přeskakuje se</string>
-    <string name="player_unsupported_format">Skladbu %1$s nelze přehrát: zařízení nemá dekodér pro %2$s</string>
-    <string name="player_unsupported_format_unknown">tento formát</string>
     <string name="sync_failed_toast">Synchronizace knihovny se nezdařila. Tažením dolů ji zkuste obnovit.</string>
     <string name="a11y_toggle_on">Zapnuto</string>
     <string name="a11y_toggle_off">Vypnuto</string>
@@ -269,13 +266,4 @@
     <string name="cloud_download_saved_offline">Skladba byla uložena pro offline poslech</string>
     <string name="cloud_download_saved_and_exported">Skladba byla uložena pro offline poslech a exportována</string>
     <string name="cloud_download_saved_export_failed">Skladba byla uložena pro offline poslech, ale export se nezdařil</string>
-    <string name="musicbrainz_lookup">Najít v MusicBrainz</string>
-    <string name="musicbrainz_searching">Vyhledávání odpovídajících nahrávek…</string>
-    <string name="musicbrainz_lookup_failed">Vyhledání v MusicBrainz se nezdařilo</string>
-    <string name="musicbrainz_search_failed_fallback">Vyhledávání v MusicBrainz selhalo</string>
-    <string name="musicbrainz_save_failed_fallback">Metadata z MusicBrainz se nepodařilo uložit</string>
-    <string name="musicbrainz_choose_match">Vyberte odpovídající záznam v MusicBrainz</string>
-    <string name="musicbrainz_no_results">Nenašly se žádné vhodné nahrávky.</string>
-    <string name="musicbrainz_match_score">Spolehlivost shody: %1$d %%</string>
-    <string name="musicbrainz_applied">Identifikátory MusicBrainz byly uloženy. Chybějící rok byl doplněn a zástupné názvy nahrazeny.</string>
 </resources>

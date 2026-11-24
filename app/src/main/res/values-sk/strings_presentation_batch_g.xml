@@ -133,19 +133,6 @@
     <string name="device_capabilities_output_wired">Káblový výstup</string>
     <string name="device_capabilities_output_digital">Digitálny výstup</string>
     <string name="device_capabilities_output_other">Iný výstup</string>
-    <string name="device_capabilities_report_title">Správa o výkone</string>
-    <string name="device_capabilities_report_description">Vytvorte diagnostickú správu, ktorú môžete zdieľať, aby sme ľahšie zistili príčinu oneskorení pri prehrávaní alebo prehľadávaní. Obsahuje len údaje o zariadení, knižnici a trvaní operácií, nie cesty k súborom, názvy skladieb ani interpretov.</string>
-    <string name="device_capabilities_report_generate">Vytvoriť správu</string>
-    <string name="device_capabilities_report_regenerate">Vytvoriť znova</string>
-    <string name="device_capabilities_report_copy">Kopírovať</string>
-    <string name="device_capabilities_report_share">Zdieľať</string>
-    <string name="device_capabilities_report_copied">Správa je skopírovaná do schránky</string>
-    <string name="device_capabilities_report_share_title">Správa o výkone prehrávača PixelPlayer</string>
-    <string name="device_capabilities_advanced_diagnostics_title">Rozšírená diagnostika výkonu</string>
-    <string name="device_capabilities_advanced_diagnostics_description">Predvolene vypnuté. Zaznamenáva krátky priebeh oneskorení na riešenie problémov vo verzii beta.</string>
-    <string name="device_capabilities_advanced_diagnostics_expires">Aktívne do %1$s</string>
-    <string name="device_capabilities_advanced_diagnostics_mark_lag">Označiť oneskorenie</string>
-    <string name="device_capabilities_advanced_diagnostics_marked">Okamih oneskorenia bol označený</string>
     <string name="presentation_batch_g_artist_section_multi_parsing">Rozpoznávanie viacerých interpretov</string>
     <string name="presentation_batch_g_artist_item_char_delimiters">Znakové oddeľovače</string>
     <string name="presentation_batch_g_artist_item_char_delimiters_current">Aktuálne: %1$s</string>
@@ -172,8 +159,6 @@
     <string name="presentation_batch_g_artist_rescan_banner_body">Nastavenia interpretov sa zmenili. Znova prehľadajte knižnicu, aby sa zmeny prejavili.</string>
     <string name="presentation_batch_g_artist_rescan_scanning">Prehľadáva sa…</string>
     <string name="presentation_batch_g_artist_rescan">Znova prehľadať</string>
-    <string name="presentation_batch_g_topbar_build_stable">Stabilná</string>
-    <string name="presentation_batch_g_topbar_build_debug">Ladiaca</string>
     <string name="presentation_batch_g_topbar_cd_changelog">Zmeny vo verziách</string>
     <string name="presentation_batch_g_lyrics_mode_synced">Synchronizované</string>
     <string name="presentation_batch_g_lyrics_mode_static">Bez časovania</string>
@@ -194,9 +179,6 @@
     <string name="presentation_batch_g_file_explorer_empty_folders">Nie sú tu žiadne podpriečinky</string>
     <string name="presentation_batch_g_file_explorer_cd_navigate_up">Prejsť o úroveň vyššie</string>
     <string name="presentation_batch_g_file_explorer_cd_go_root">Prejsť do koreňového priečinka</string>
-    <string name="presentation_batch_g_file_explorer_mode_folders">Priečinky</string>
-    <string name="presentation_batch_g_file_explorer_mode_all_subfolders">Všetky podpriečinky</string>
-    <string name="presentation_batch_g_file_explorer_loading_all_subfolders">Vyhľadávajú sa všetky priečinky s hudbou…</string>
     <string name="presentation_batch_g_daily_mix_queue_name">Denný mix</string>
     <string name="presentation_batch_g_daily_mix_heading">DENNÝ MIX</string>
     <string name="presentation_batch_g_daily_mix_based_on_history">Podľa histórie počúvania</string>
@@ -311,9 +293,6 @@
     <string name="presentation_batch_g_album_sel_queue_hint">Pri pridaní do frontu a prehrávaní sa zachová poradie výberu.</string>
     <string name="presentation_batch_g_album_sel_limit">Maximálny počet albumov na výber: %1$d.</string>
     <string name="presentation_batch_g_app_tagline">Hudobný prehrávač</string>
-    <string name="sidebar_edit_shortcuts">Upraviť skratky</string>
-    <string name="sidebar_shortcuts_dialog_title">Skratky bočného panela</string>
-    <string name="sidebar_open">Otvoriť ponuku</string>
     <string name="presentation_batch_g_brick_high">REKORD %1$d</string>
     <string name="presentation_batch_g_brick_cd_close">Zavrieť</string>
     <string name="presentation_batch_g_brick_stat_score">SKÓRE</string>
@@ -349,13 +328,6 @@
     <string name="presentation_batch_g_player_cd_collapse">Zbaliť prehrávač</string>
     <string name="presentation_batch_g_player_cd_queue">Front</string>
     <string name="presentation_batch_g_player_cd_lyrics">Text skladby</string>
-    <string name="presentation_batch_g_changelog_sec_initial_release">Prvé vydanie</string>
-    <string name="presentation_batch_g_changelog_sec_removed_for_foss">Odstránené z otvorenej verzie</string>
-    <string name="presentation_batch_g_changelog_sec_release_readiness">Príprava vydania</string>
-    <string name="presentation_batch_g_changelog_sec_security_privacy">Bezpečnosť a súkromie</string>
-    <string name="presentation_batch_g_changelog_sec_whats_new">Novinky</string>
-    <string name="presentation_batch_g_changelog_sec_improvements">Vylepšenia</string>
-    <string name="presentation_batch_g_changelog_sec_under_the_hood">Technické zmeny</string>
 
     <string-array name="presentation_batch_g_changelog_060_whats_new">
         <item>Nedávno prehrané skladby a obnovenie uloženého frontu vám umožnia pokračovať v počúvaní tam, kde ste prestali.</item>

@@ -4,14 +4,9 @@
     <string name="audio_bookmarks_back_to_top">Späť nahor</string>
     <string name="audio_bookmarks_clear_filter">Vymazať filter</string>
     <string name="audio_bookmarks_name_label">Názov záložky</string>
-    <string name="audio_bookmarks_actions">Možnosti záložky</string>
     <string name="audio_bookmarks_title">Záložky</string>
     <string name="audio_bookmarks_cd_open">Zvukové záložky</string>
     <string name="audio_bookmarks_cd_add">Uložiť záložku</string>
-    <string name="audio_bookmarks_selected_count">Počet vybraných položiek: %1$d</string>
-    <string name="audio_bookmarks_cd_selected">Vybrané</string>
-    <string name="audio_bookmarks_cd_delete_selected">Odstrániť vybrané</string>
-    <string name="audio_bookmarks_delete_moments_message">Vybrané uložené pozície sa natrvalo odstránia. Túto akciu nemožno vrátiť späť.</string>
     <string name="easter_egg_thank_you">Ďakujeme, že používate PixelPlayerOSS!</string>
     <string name="word_delimiter_section_title">Aktuálne slovné oddeľovače</string>
     <string name="word_delimiter_section_subtitle">Tieto slová oddeľujú mená interpretov, ak sú obklopené medzerami. Na veľkosti písmen nezáleží. Ťuknutím oddeľovač odstránite.</string>
@@ -187,7 +182,6 @@
     <string name="about_project_title">Projekt</string>
     <string name="about_project_subtitle">Zdrojový kód, vydania a odkazy na komunitu.</string>
     <string name="about_link_source_title">Zdrojový kód</string>
-    <string name="about_link_fdroid_subtitle">Dostupné v katalógu F-Droid</string>
     <string name="about_licenses_title">Licencie a autorstvo</string>
     <string name="about_licenses_subtitle">Otvorené knižnice, písma a priložené údaje</string>
     <string name="about_licenses_sheet_subtitle">Softvér, písma a údaje od tretích strán, ktoré sú súčasťou aplikácie.</string>
@@ -212,14 +206,7 @@
     <string name="about_signal_open_source">Otvorený zdrojový kód</string>
     <string name="about_signal_community_first">Zamerané na komunitu</string>
     <string name="about_signal_material3">Výrazný dizajn Material 3</string>
-    <string name="about_support_title">Podporte PixelPlayerOSS</string>
-    <string name="about_support_body">Pomôžte nám udržiavať, kontrolovať a testovať otvorenú verziu na skutočných zariadeniach s Androidom.</string>
-    <string name="about_support_chip_foss">Údržba otvorenej verzie</string>
-    <string name="about_support_chip_ci">Automatické kontroly a vydania</string>
-    <string name="about_support_chip_streaming">Hudba z vlastného servera</string>
-    <string name="about_support_cta">Podporiť na GitHube</string>
     <string name="cd_open_github_profile">Otvoriť profil na GitHube</string>
-    <string name="cd_open_telegram_profile">Otvoriť profil na Telegrame</string>
     <string name="cd_contributor_avatar">Profilový obrázok používateľa %1$s</string>
     <string name="cd_contributor_icon">Ikona používateľa %1$s</string>
     <string name="dash_playlists_synced_count">Synchronizované zoznamy skladieb: %1$d</string>
@@ -270,22 +257,4 @@
     <string name="cd_genre_illustration">Ilustrácia žánru</string>
     <string name="dash_last_synced_format">Naposledy synchronizované: %1$s</string>
 
-    <plurals name="audio_bookmarks_delete_folders_title">
-        <item quantity="one">Odstrániť tento priečinok?</item>
-        <item quantity="few">Odstrániť %1$d priečinky?</item>
-        <item quantity="many">Odstrániť %1$d priečinka?</item>
-        <item quantity="other">Odstrániť %1$d priečinkov?</item>
-    </plurals>
-    <plurals name="audio_bookmarks_delete_folders_message">
-        <item quantity="one">%1$d uložená pozícia sa natrvalo odstráni. Túto akciu nemožno vrátiť späť.</item>
-        <item quantity="few">%1$d uložené pozície sa natrvalo odstránia. Túto akciu nemožno vrátiť späť.</item>
-        <item quantity="many">%1$d uloženej pozície sa natrvalo odstráni. Túto akciu nemožno vrátiť späť.</item>
-        <item quantity="other">%1$d uložených pozícií sa natrvalo odstráni. Túto akciu nemožno vrátiť späť.</item>
-    </plurals>
-    <plurals name="audio_bookmarks_delete_moments_title">
-        <item quantity="one">Odstrániť túto pozíciu?</item>
-        <item quantity="few">Odstrániť %1$d pozície?</item>
-        <item quantity="many">Odstrániť %1$d pozície?</item>
-        <item quantity="other">Odstrániť %1$d pozícií?</item>
-    </plurals>
 </resources>

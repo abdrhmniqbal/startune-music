@@ -22,7 +22,6 @@
     <string name="accounts_listenbrainz_needs_reauth">Platnosť tokenu vypršala. Ak chcete pokračovať v zaznamenávaní počúvania, pripojte sa znova. Čakajúce záznamy sa zachovajú.</string>
     <string name="accounts_listenbrainz_reconnect">Pripojiť znova</string>
     <string name="accounts_listenbrainz_scrobble_local">Zaznamenávať počúvanie miestnych súborov</string>
-    <string name="accounts_listenbrainz_scrobble_navidrome">Zaznamenávať počúvanie zo Subsonicu</string>
     <string name="accounts_listenbrainz_scrobble_jellyfin">Zaznamenávať počúvanie z Jellyfinu</string>
     <string name="accounts_listenbrainz_toggle_hint">Ak server už odosiela záznamy do služby ListenBrainz, vypnite tu príslušný zdroj, aby sa počúvanie nezapočítavalo dvakrát.</string>
     <string name="accounts_listenbrainz_stat_listens">Celkový počet prehratí</string>
@@ -213,8 +212,6 @@
     <string name="batch_edit_remove_all_art">Odstrániť všetky obaly</string>
     <string name="batch_edit_multiple_covers">(Viacero rôznych obalov)</string>
     <string name="player_error_skipping">Skladbu sa nepodarilo prehrať, preto sa preskočí</string>
-    <string name="player_unsupported_format">Skladbu %1$s nemožno prehrať: zariadenie nemá dekodér pre %2$s</string>
-    <string name="player_unsupported_format_unknown">tento formát</string>
     <string name="sync_failed_toast">Synchronizácia knižnice zlyhala. Potiahnutím nadol ju obnovte a skúste to znova.</string>
     <string name="a11y_toggle_on">Zapnuté</string>
     <string name="a11y_toggle_off">Vypnuté</string>
@@ -270,13 +267,4 @@
     <string name="cloud_download_saved_offline">Skladba je uložená na počúvanie offline</string>
     <string name="cloud_download_saved_and_exported">Skladba je uložená na počúvanie offline aj exportovaná</string>
     <string name="cloud_download_saved_export_failed">Skladba je uložená na počúvanie offline, ale export zlyhal</string>
-    <string name="musicbrainz_lookup">Nájsť v službe MusicBrainz</string>
-    <string name="musicbrainz_searching">Vyhľadávajú sa zodpovedajúce nahrávky…</string>
-    <string name="musicbrainz_lookup_failed">Vyhľadávanie v službe MusicBrainz zlyhalo</string>
-    <string name="musicbrainz_search_failed_fallback">Vyhľadávanie v službe MusicBrainz zlyhalo</string>
-    <string name="musicbrainz_save_failed_fallback">Metadáta zo služby MusicBrainz sa nepodarilo uložiť</string>
-    <string name="musicbrainz_choose_match">Vyberte zodpovedajúcu nahrávku zo služby MusicBrainz</string>
-    <string name="musicbrainz_no_results">Nenašli sa žiadne vhodné nahrávky.</string>
-    <string name="musicbrainz_match_score">Miera zhody: %1$d %%</string>
-    <string name="musicbrainz_applied">Identifikátory MusicBrainz sa uložili. Chýbajúci rok sa doplnil a zástupné názvy sa nahradili.</string>
 </resources>

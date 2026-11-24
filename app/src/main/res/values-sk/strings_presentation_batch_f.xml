@@ -19,7 +19,6 @@
     <string name="presentation_batch_f_cd_refresh_lyrics">Obnoviť texty skladieb</string>
     <string name="presentation_batch_f_refresh_lyrics_processing">Spracované skladby: %1$d z %2$d</string>
     <string name="presentation_batch_f_save">Uložiť</string>
-    <string name="presentation_batch_f_new_smart_playlist">Nový inteligentný zoznam skladieb</string>
     <string name="presentation_batch_f_new_playlist">Nový zoznam skladieb</string>
     <string name="presentation_batch_f_add_songs">Pridať skladby</string>
     <string name="presentation_batch_f_cd_back_or_cancel">Späť alebo zrušiť</string>
@@ -37,9 +36,6 @@
     <string name="presentation_batch_f_edit_cover_title">Upraviť obal</string>
     <string name="presentation_batch_f_adjust_cover_title">Upraviť výrez obalu</string>
     <string name="presentation_batch_f_adjust_cover_hint">Priblížením dvoma prstami a posúvaním upravte výrez</string>
-    <string name="presentation_batch_f_creation_mode_manual">Ručne</string>
-    <string name="presentation_batch_f_creation_mode_smart">Inteligentne</string>
-    <string name="presentation_batch_f_smart_rule">Pravidlo výberu</string>
     <string name="presentation_batch_f_tab_default">Predvolené</string>
     <string name="presentation_batch_f_tab_image">Obrázok</string>
     <string name="presentation_batch_f_tab_icon">Ikona</string>
@@ -53,14 +49,6 @@
     <string name="presentation_batch_f_curve">Zakrivenie</string>
     <string name="presentation_batch_f_rotation">Otočenie</string>
     <string name="presentation_batch_f_scale">Mierka</string>
-    <string name="presentation_batch_f_smart_rule_top_played_title">Najhranejšie</string>
-    <string name="presentation_batch_f_smart_rule_top_played_subtitle">Skladby, ktoré počúvate najčastejšie.</string>
-    <string name="presentation_batch_f_smart_rule_recently_played_title">Nedávno prehrané</string>
-    <string name="presentation_batch_f_smart_rule_recently_played_subtitle">Skladby, ktoré ste počúvali naposledy.</string>
-    <string name="presentation_batch_f_smart_rule_forgotten_favorites_title">Zabudnuté obľúbené</string>
-    <string name="presentation_batch_f_smart_rule_forgotten_favorites_subtitle">Obľúbené skladby, ktoré ste dlho nepočúvali.</string>
-    <string name="presentation_batch_f_smart_rule_new_gems_title">Nové objavy</string>
-    <string name="presentation_batch_f_smart_rule_new_gems_subtitle">Nedávno pridané skladby s malým počtom prehratí.</string>
     <string name="presentation_batch_f_palette_style_heading">Štýl palety</string>
     <string name="presentation_batch_f_palette_style_subtitle">Vyberte farby albumu pre rozhranie prehrávača.</string>
     <string name="presentation_batch_f_colors_title">Farby</string>
