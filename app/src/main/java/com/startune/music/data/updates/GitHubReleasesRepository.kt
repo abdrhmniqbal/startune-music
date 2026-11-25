@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.startune.music.BuildConfig
 import com.google.gson.reflect.TypeToken
 import com.startune.music.utils.VersionCompare
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -124,11 +125,16 @@ class GitHubReleasesRepository @Inject constructor(
             val latest = newestEligible(fetchReleases(), currentVersion, includePrereleases)
                 ?: return null
             toUpdateInfo(latest, currentVersion)
-        } catch (e: IOException) {
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
             // The API is rate-limited to 60 unauthenticated requests per hour
-            // per IP, and a shared mobile IP exhausts that fast. Fall back to
-            // the changelog (raw file, served from a CDN with no such limit)
-            // and build the APK download URL from the release naming pattern.
+            // per IP, and a shared mobile IP exhausts that fast. It can also
+            // answer with a body the parser rejects (Gson's parse errors are
+            // RuntimeExceptions, not IOExceptions), e.g. a carrier middlebox
+            // answering the API host with a block page. Either way, fall back
+            // to the changelog (raw file, served from a CDN with no such
+            // limit) and build the APK download URL from the release naming
+            // pattern, so the check works whenever the API is unusable.
             Timber.w(e, "GitHub API update check failed, falling back to changelog")
             val latest = newestEligible(
                 parseChangelog(fetchChangelogMarkdown()),
@@ -138,7 +144,7 @@ class GitHubReleasesRepository @Inject constructor(
             toUpdateInfoFromChangelog(
                 latest,
                 currentVersion,
-                Build.SUPPORTED_ABIS.firstOrNull() ?: "arm64-v8a"
+                Build.SUPPORTED_ABIS?.firstOrNull() ?: "arm64-v8a"
             )
         }
     }

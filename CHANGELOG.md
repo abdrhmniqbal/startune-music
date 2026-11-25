@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Fixed the update check falling back to the changelog when the GitHub API returns a response it cannot parse.
+
 ## [2.0.1] - 2026-11-24
 
 - Artist bios now resolve shared names by MusicBrainz ID, with a picker when the name belongs to more than one artist.
