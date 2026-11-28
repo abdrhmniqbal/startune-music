@@ -347,7 +347,8 @@ fun PlaylistItems(
                     .align(Alignment.CenterEnd)
                     .padding(end = 4.dp, top = 16.dp, bottom = bottomPadding),
                 listState = listState,
-                dragLabelProvider = playlistFastScrollLabelProvider
+                dragLabelProvider = playlistFastScrollLabelProvider,
+                autoHide = false
             )
         } else {
             LazyVerticalGrid(

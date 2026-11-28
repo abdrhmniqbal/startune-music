@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlin.math.abs
@@ -210,6 +211,9 @@ private fun observeGridLayoutMetrics(
     return visibleLines
 }
 
+// Idle time after scrolling stops before an auto-hiding scrollbar fades out.
+private const val ScrollBarIdleHideDelayMs = 1500L
+
 @Composable
 fun ExpressiveScrollBar(
     modifier: Modifier = Modifier,
@@ -224,7 +228,11 @@ fun ExpressiveScrollBar(
     trackGap: Dp = 8.dp,
     dragLabelProvider: ((Int) -> String?)? = null,
     dragLabelSize: Dp = 40.dp,
-    dragLabelGap: Dp = 10.dp
+    dragLabelGap: Dp = 10.dp,
+    // True (default): the bar only shows while the list scrolls or the bar is
+    // grabbed, then fades out once idle. False: the bar stays visible as a
+    // jump control, for fast-scroll lists like Library.
+    autoHide: Boolean = true
 ) {
     if (!LocalShowScrollbar.current) return
 
@@ -245,6 +253,29 @@ fun ExpressiveScrollBar(
     val indicatorRightCornerRadiusPx = with(LocalDensity.current) { indicatorRightCornerRadius.toPx() }
 
     val isInteracting = isPressed || isDragging
+
+    // Auto-hide: on anything but a fast-scroll list the bar only shows while
+    // the list scrolls or the bar itself is grabbed, then fades out once idle,
+    // so it never sits on screen doing nothing.
+    val isScrolling by remember(listState, gridState) {
+        derivedStateOf {
+            listState?.isScrollInProgress == true || gridState?.isScrollInProgress == true
+        }
+    }
+    var barVisible by remember(autoHide) { mutableStateOf(!autoHide) }
+    LaunchedEffect(autoHide, isScrolling, isInteracting) {
+        if (!autoHide || isScrolling || isInteracting) {
+            barVisible = true
+        } else {
+            delay(ScrollBarIdleHideDelayMs)
+            barVisible = false
+        }
+    }
+    val barAlpha by animateFloatAsState(
+        targetValue = if (barVisible) 1f else 0f,
+        animationSpec = tween(durationMillis = 300),
+        label = "BarAlpha"
+    )
     
     val animatedWidth by animateDpAsState(
         targetValue = if (isInteracting) expandedIndicatorWidth else thickness,
@@ -262,6 +293,7 @@ fun ExpressiveScrollBar(
         modifier = modifier
             .fillMaxHeight()
             .width(expandedIndicatorWidth + paddingEnd)
+            .graphicsLayer { alpha = barAlpha }
     ) {
         val density = LocalDensity.current
         val constraintsMaxWidth = maxWidth
@@ -530,9 +562,11 @@ fun ExpressiveScrollBar(
 
         val indicatorPath = remember { Path() }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
+        // The bar only takes touches while it is shown; once it has faded out
+        // the strip lets touches reach the list underneath it, so a swipe
+        // starting at the edge scrolls the list instead of jumping it.
+        val barTouchModifier = if (barVisible) {
+            Modifier
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onPress = {
@@ -589,6 +623,14 @@ fun ExpressiveScrollBar(
                         }
                     )
                 }
+        } else {
+            Modifier
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(barTouchModifier)
         ) {
             val rightAnchorX = with(density) { (constraintsMaxWidth - paddingEnd).toPx() }
             val trackX = rightAnchorX - with(density) { thickness.toPx() / 2 }

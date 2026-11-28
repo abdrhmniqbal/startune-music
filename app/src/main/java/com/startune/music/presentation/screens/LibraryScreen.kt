@@ -3200,7 +3200,8 @@ fun LibraryFoldersTab(
                                 modifier = Modifier
                                     .align(Alignment.CenterEnd)
                                     .padding(end = 4.dp, top = 16.dp, bottom = bottomPadding),
-                                listState = listState
+                                listState = listState,
+                                autoHide = false
                             )
                         }
                     }

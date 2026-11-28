@@ -368,7 +368,8 @@ fun LibrarySongsTab(
                                 .align(Alignment.CenterEnd)
                                 .padding(end = 4.dp, top = 16.dp, bottom = bottomPadding),
                             listState = listState,
-                            dragLabelProvider = songFastScrollLabelProvider
+                            dragLabelProvider = songFastScrollLabelProvider,
+                            autoHide = false
                         )
                     }
                 }

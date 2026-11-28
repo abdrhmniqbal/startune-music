@@ -378,7 +378,8 @@ fun LibraryAlbumsTab(
                                     .align(Alignment.CenterEnd)
                                     .padding(end = 4.dp, top = 16.dp, bottom = bottomPadding),
                                 listState = listState,
-                                dragLabelProvider = albumFastScrollLabelProvider
+                                dragLabelProvider = albumFastScrollLabelProvider,
+                                autoHide = false
                             )
                         } else {
                             LazyVerticalGrid(
@@ -454,7 +455,8 @@ fun LibraryAlbumsTab(
                                     .align(Alignment.CenterEnd)
                                     .padding(end = 4.dp, top = 16.dp, bottom = bottomPadding),
                                 gridState = gridState,
-                                dragLabelProvider = albumFastScrollLabelProvider
+                                dragLabelProvider = albumFastScrollLabelProvider,
+                                autoHide = false
                             )
                         }
                     }
@@ -691,7 +693,8 @@ fun LibraryArtistsTab(
                                     .align(Alignment.CenterEnd)
                                     .padding(end = 4.dp, top = 16.dp, bottom = bottomPadding),
                                 listState = listState,
-                                dragLabelProvider = artistFastScrollLabelProvider
+                                dragLabelProvider = artistFastScrollLabelProvider,
+                                autoHide = false
                             )
                         } else {
                             LazyVerticalGrid(

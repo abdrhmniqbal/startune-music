@@ -300,7 +300,8 @@ fun LibraryFavoritesTab(
                             .align(Alignment.CenterEnd)
                             .padding(end = 4.dp, top = 16.dp, bottom = bottomPadding),
                         listState = listState,
-                        dragLabelProvider = favoriteFastScrollLabelProvider
+                        dragLabelProvider = favoriteFastScrollLabelProvider,
+                        autoHide = false
                     )
                 }
             }
@@ -504,7 +505,8 @@ fun LibrarySongsTabPaginated(
                             modifier = Modifier
                                 .align(Alignment.CenterEnd)
                                 .padding(end = 4.dp, top = 16.dp, bottom = bottomPadding),
-                            listState = listState
+                            listState = listState,
+                            autoHide = false
                         )
                     }
                 }
