@@ -67,32 +67,24 @@ fun JumpBackInSection(
     if (items.isEmpty()) return
     Column(
         modifier = modifier.fillMaxWidth().padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = stringResource(R.string.jump_back_in_title),
-            style = MaterialTheme.typography.titleLargeEmphasized,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items.chunked(2).forEach { rowItems ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    rowItems.forEach { item ->
-                        JumpBackInCard(
-                            item = item,
-                            isCurrentSource = currentPlaybackSource?.historyType == item.type &&
-                                currentPlaybackSource?.historyId == item.id,
-                            onClick = { onItemClick(item) },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    if (rowItems.size == 1) {
-                        Box(modifier = Modifier.weight(1f))
-                    }
+        items.chunked(2).forEach { rowItems ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                rowItems.forEach { item ->
+                    JumpBackInCard(
+                        item = item,
+                        isCurrentSource = currentPlaybackSource?.historyType == item.type &&
+                            currentPlaybackSource?.historyId == item.id,
+                        onClick = { onItemClick(item) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                if (rowItems.size == 1) {
+                    Box(modifier = Modifier.weight(1f))
                 }
             }
         }

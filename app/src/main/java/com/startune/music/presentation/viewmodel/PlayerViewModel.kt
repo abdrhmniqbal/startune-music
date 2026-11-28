@@ -666,6 +666,10 @@ class PlayerViewModel @Inject constructor(
     val albumNavigationRequests = _albumNavigationRequests.asSharedFlow()
     private val _artistNavigationRequests = MutableSharedFlow<Long>(extraBufferCapacity = 1)
     val artistNavigationRequests = _artistNavigationRequests.asSharedFlow()
+    private val _playlistNavigationRequests = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val playlistNavigationRequests = _playlistNavigationRequests.asSharedFlow()
+    private val _mixNavigationRequests = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val mixNavigationRequests = _mixNavigationRequests.asSharedFlow()
     private val _searchNavDoubleTapEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val searchNavDoubleTapEvents = _searchNavDoubleTapEvents.asSharedFlow()
     
@@ -674,6 +678,8 @@ class PlayerViewModel @Inject constructor(
     
     private var albumNavigationJob: Job? = null
     private var artistNavigationJob: Job? = null
+    private var playlistNavigationJob: Job? = null
+    private var mixNavigationJob: Job? = null
     private var fullQueuePlaybackJob: Job? = null
     private var fullQueuePlaybackToken: Long = 0L
     private var directPlaybackJob: Job? = null
@@ -2518,6 +2524,58 @@ class PlayerViewModel @Inject constructor(
             }
 
             _artistNavigationRequests.emit(resolvedId)
+        }
+    }
+
+    fun triggerPlaylistNavigationFromPlayer(playlistId: String) {
+        if (playlistId.isBlank()) {
+            Timber.tag("PlaylistDebug").d("triggerPlaylistNavigationFromPlayer ignored blank playlistId")
+            return
+        }
+
+        val existingJob = playlistNavigationJob
+        if (existingJob != null && existingJob.isActive) {
+            Timber.tag("PlaylistDebug").d("triggerPlaylistNavigationFromPlayer ignored; navigation already in progress for playlistId=$playlistId")
+            return
+        }
+
+        playlistNavigationJob?.cancel()
+        playlistNavigationJob = viewModelScope.launch {
+            Timber.tag("PlaylistDebug").d("triggerPlaylistNavigationFromPlayer: playlistId=$playlistId")
+            collapsePlayerSheet()
+
+            withTimeoutOrNull(900) {
+                awaitSheetState(PlayerSheetState.COLLAPSED)
+                awaitPlayerCollapse()
+            }
+
+            _playlistNavigationRequests.emit(playlistId)
+        }
+    }
+
+    fun triggerMixNavigationFromPlayer(mixId: String) {
+        if (mixId.isBlank()) {
+            Timber.tag("MixDebug").d("triggerMixNavigationFromPlayer ignored blank mixId")
+            return
+        }
+
+        val existingJob = mixNavigationJob
+        if (existingJob != null && existingJob.isActive) {
+            Timber.tag("MixDebug").d("triggerMixNavigationFromPlayer ignored; navigation already in progress for mixId=$mixId")
+            return
+        }
+
+        mixNavigationJob?.cancel()
+        mixNavigationJob = viewModelScope.launch {
+            Timber.tag("MixDebug").d("triggerMixNavigationFromPlayer: mixId=$mixId")
+            collapsePlayerSheet()
+
+            withTimeoutOrNull(900) {
+                awaitSheetState(PlayerSheetState.COLLAPSED)
+                awaitPlayerCollapse()
+            }
+
+            _mixNavigationRequests.emit(mixId)
         }
     }
 

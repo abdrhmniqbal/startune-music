@@ -411,6 +411,48 @@ class PlayerViewModelTest {
     }
 
     @Test
+    fun `playlist navigation from player emits the playlist id`() = runTest {
+        playerViewModel.playlistNavigationRequests.test {
+            playerViewModel.triggerPlaylistNavigationFromPlayer("playlist-1")
+            advanceUntilIdle()
+
+            assertEquals("playlist-1", awaitItem())
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `playlist navigation from player ignores a blank playlist id`() = runTest {
+        playerViewModel.playlistNavigationRequests.test {
+            playerViewModel.triggerPlaylistNavigationFromPlayer("")
+            advanceUntilIdle()
+
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `mix navigation from player emits the mix id`() = runTest {
+        playerViewModel.mixNavigationRequests.test {
+            playerViewModel.triggerMixNavigationFromPlayer("daily_mix")
+            advanceUntilIdle()
+
+            assertEquals("daily_mix", awaitItem())
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `mix navigation from player ignores a blank mix id`() = runTest {
+        playerViewModel.mixNavigationRequests.test {
+            playerViewModel.triggerMixNavigationFromPlayer("")
+            advanceUntilIdle()
+
+            expectNoEvents()
+        }
+    }
+
+    @Test
     fun `playlist playback keeps playlist id on the initial media item`() = runTest {
         mockkStatic(Uri::class)
         mockkConstructor(Bundle::class)

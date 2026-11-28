@@ -834,7 +834,7 @@ fun YourMixHeader(
         Column(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(top = 48.dp, start = 12.dp)
+                .padding(top = 16.dp, start = 12.dp)
                 .clickable(onClick = onOpenDetails)
         ) {
             Text(

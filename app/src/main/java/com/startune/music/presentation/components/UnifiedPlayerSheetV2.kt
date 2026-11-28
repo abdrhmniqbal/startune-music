@@ -63,6 +63,8 @@ import com.startune.music.data.model.Song
 import com.startune.music.data.preferences.sanitizeNavBarCornerRadius
 import com.startune.music.presentation.components.scoped.PlayerAlbumNavigationEffect
 import com.startune.music.presentation.components.scoped.PlayerArtistNavigationEffect
+import com.startune.music.presentation.components.scoped.PlayerMixNavigationEffect
+import com.startune.music.presentation.components.scoped.PlayerPlaylistNavigationEffect
 import com.startune.music.presentation.components.scoped.PlayerSheetPredictiveBackHandler
 import com.startune.music.presentation.components.scoped.QueuePredictiveBackHandler
 import com.startune.music.presentation.components.scoped.QueueSheetRuntimeEffects
@@ -287,6 +289,18 @@ fun UnifiedPlayerSheetV2(
         playerViewModel = playerViewModel
     )
     PlayerAlbumNavigationEffect(
+        navController = navController,
+        sheetCollapsedTargetY = sheetCollapsedTargetY,
+        sheetMotionController = sheetMotionController,
+        playerViewModel = playerViewModel
+    )
+    PlayerPlaylistNavigationEffect(
+        navController = navController,
+        sheetCollapsedTargetY = sheetCollapsedTargetY,
+        sheetMotionController = sheetMotionController,
+        playerViewModel = playerViewModel
+    )
+    PlayerMixNavigationEffect(
         navController = navController,
         sheetCollapsedTargetY = sheetCollapsedTargetY,
         sheetMotionController = sheetMotionController,

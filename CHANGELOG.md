@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Scrollbars now fade out when idle and only show while scrolling, except on the fast-scroll lists in Library where they stay visible as a jump control.
 - Added a Jump back in section on Home showing the four most recently played albums, artists, playlists and mixes.
 - The full player now shows the playback source under Now Playing, such as the album, artist, playlist or mix the queue came from.
+- The Jump back in section on Home no longer shows its title, and the gap to For You Mix is tighter.
+- Tapping the playback source under Now Playing opens that album, artist, playlist or mix, and a source name too long for the bar now scrolls instead of cutting off.
 
 ## [2.0.1] - 2026-11-24
 

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.net.Uri
 import com.startune.music.data.model.Lyrics
+import com.startune.music.data.model.PlaybackSource
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
@@ -24,9 +25,12 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -188,7 +192,7 @@ private suspend fun validateLyricsImport(
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @SuppressLint("StateFlowValueCalledInComposition")
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun FullPlayerContent(
     currentSong: Song?,
@@ -740,18 +744,37 @@ fun FullPlayerContent(
 
                                     // The queue's source, one step below "Now Playing": smaller
                                     // type and a muted color so it reads as a sub-label, never as
-                                    // a second title. Hidden when the queue has no entity source
-                                    // (search plays and restored queues carry no name).
-                                    val fromName = currentPlaybackSource?.historyName
-                                    if (fromName != null) {
+                                    // a second title. Tapping it opens the source's detail, and a
+                                    // name too long for the bar scrolls instead of cutting off.
+                                    // Hidden when the queue has no entity source (search plays
+                                    // and restored queues carry no name).
+                                    val fromSource = currentPlaybackSource
+                                    val fromName = fromSource?.historyName
+                                    if (fromName != null && fromSource != null) {
                                         Text(
-                                            modifier = Modifier.padding(start = 18.dp),
+                                            modifier = Modifier
+                                                .padding(start = 18.dp)
+                                                .clickable {
+                                                    when (fromSource) {
+                                                        is PlaybackSource.Album -> playerViewModel.triggerAlbumNavigationFromPlayer(fromSource.albumId)
+                                                        is PlaybackSource.Artist -> playerViewModel.triggerArtistNavigationFromPlayer(fromSource.artistId)
+                                                        is PlaybackSource.Playlist -> playerViewModel.triggerPlaylistNavigationFromPlayer(fromSource.playlistId)
+                                                        is PlaybackSource.Mix -> playerViewModel.triggerMixNavigationFromPlayer(fromSource.mixId)
+                                                        is PlaybackSource.Search -> Unit
+                                                    }
+                                                }
+                                                .basicMarquee(
+                                                    iterations = Int.MAX_VALUE,
+                                                    spacing = MarqueeSpacing(16.dp),
+                                                    velocity = 25.dp,
+                                                    initialDelayMillis = 2000
+                                                ),
                                             text = stringResource(
                                                 R.string.presentation_batch_g_player_playing_from,
                                                 fromName
                                             ),
                                             maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
+                                            softWrap = false,
                                             style = MaterialTheme.typography.labelMedium,
                                             color = LocalMaterialTheme.current.onPrimaryContainer.copy(alpha = 0.6f)
                                         )
