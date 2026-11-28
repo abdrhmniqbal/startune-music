@@ -138,6 +138,7 @@ import com.startune.music.utils.formatDuration
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 import timber.log.Timber
@@ -244,6 +245,9 @@ fun FullPlayerContent(
     val lyricsSearchUiState by playerViewModel.lyricsSearchUiState.collectAsStateWithLifecycle()
 
     val fullPlayerSlice by playerViewModel.fullPlayerSlice.collectAsStateWithLifecycle()
+    val currentPlaybackSource by remember(playerViewModel.playerUiState) {
+        playerViewModel.playerUiState.map { it.currentPlaybackSource }
+    }.collectAsStateWithLifecycle(initialValue = null)
     val currentSongArtists = fullPlayerSlice.currentSongArtists
     val lyricsSyncOffset = fullPlayerSlice.lyricsSyncOffset
     val albumArtQuality = fullPlayerSlice.albumArtQuality
@@ -713,22 +717,43 @@ fun FullPlayerContent(
                     title = {
                         if (!isOutputConnecting) {
                             AnimatedVisibility(visible = (!isExternalOutputActive)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        modifier = Modifier.padding(start = 18.dp),
-                                        text = stringResource(R.string.setcat_now_playing),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        style = MaterialTheme.typography.labelLargeEmphasized,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
+                                Column {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            modifier = Modifier.padding(start = 18.dp),
+                                            text = stringResource(R.string.setcat_now_playing),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            style = MaterialTheme.typography.labelLargeEmphasized,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
 
-                                    if (currentSong != null && currentSong.contentUriString.startsWith("http")) {
-                                        Icon(
-                                            imageVector = androidx.compose.material.icons.Icons.Rounded.Cloud,
-                                            contentDescription = stringResource(R.string.presentation_batch_g_player_cd_cloud_stream),
-                                            tint = LocalMaterialTheme.current.onPrimaryContainer.copy(alpha = 0.6f),
-                                            modifier = Modifier.padding(start = 8.dp).size(16.dp)
+                                        if (currentSong != null && currentSong.contentUriString.startsWith("http")) {
+                                            Icon(
+                                                imageVector = androidx.compose.material.icons.Icons.Rounded.Cloud,
+                                                contentDescription = stringResource(R.string.presentation_batch_g_player_cd_cloud_stream),
+                                                tint = LocalMaterialTheme.current.onPrimaryContainer.copy(alpha = 0.6f),
+                                                modifier = Modifier.padding(start = 8.dp).size(16.dp)
+                                            )
+                                        }
+                                    }
+
+                                    // The queue's source, one step below "Now Playing": smaller
+                                    // type and a muted color so it reads as a sub-label, never as
+                                    // a second title. Hidden when the queue has no entity source
+                                    // (search plays and restored queues carry no name).
+                                    val fromName = currentPlaybackSource?.historyName
+                                    if (fromName != null) {
+                                        Text(
+                                            modifier = Modifier.padding(start = 18.dp),
+                                            text = stringResource(
+                                                R.string.presentation_batch_g_player_playing_from,
+                                                fromName
+                                            ),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = LocalMaterialTheme.current.onPrimaryContainer.copy(alpha = 0.6f)
                                         )
                                     }
                                 }
