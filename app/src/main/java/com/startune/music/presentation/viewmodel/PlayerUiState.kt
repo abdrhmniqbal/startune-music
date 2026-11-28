@@ -5,6 +5,7 @@ import com.startune.music.data.model.Album
 import com.startune.music.data.model.Artist
 import com.startune.music.data.model.FolderSource
 import com.startune.music.data.model.MusicFolder
+import com.startune.music.data.model.PlaybackSource
 import com.startune.music.data.model.Song
 import com.startune.music.data.model.SearchResultItem
 import com.startune.music.data.model.SortOption
@@ -17,6 +18,12 @@ import kotlinx.collections.immutable.persistentListOf
 data class PlayerUiState(
     val currentPlaybackQueue: ImmutableList<Song> = persistentListOf(),
     val currentQueueSourceName: String = "All Songs",
+    /**
+     * The structured source of the current queue (album, artist, playlist, mix,
+     * or search), set when the queue is built. The player reads this later for
+     * its "From <name>" line; the queue source name stays the display fallback.
+     */
+    val currentPlaybackSource: PlaybackSource? = null,
     val searchResults: ImmutableList<SearchResultItem> = persistentListOf(),
     val musicFolders: ImmutableList<MusicFolder> = persistentListOf(),
     val sortOption: SortOption = SortOption.SongDefaultOrder,

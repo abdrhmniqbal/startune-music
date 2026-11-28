@@ -26,9 +26,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         ListenBrainzPendingListenEntity::class,
         LastFmPendingScrobbleEntity::class,
         AudioBookmarkEntity::class,
-        OfflineTrackEntity::class
+        OfflineTrackEntity::class,
+        PlayedEntityEntity::class
     ],
-    version = 14,
+    version = 15,
     exportSchema = true
 )
 abstract class StartuneDatabase : RoomDatabase() {
@@ -46,6 +47,7 @@ abstract class StartuneDatabase : RoomDatabase() {
     abstract fun lastFmDao(): LastFmDao
     abstract fun audioBookmarkDao(): AudioBookmarkDao
     abstract fun offlineTrackDao(): OfflineTrackDao
+    abstract fun playedEntityDao(): PlayedEntityDao
 
     companion object {
         fun installFavoriteSyncTriggers(db: SupportSQLiteDatabase) {

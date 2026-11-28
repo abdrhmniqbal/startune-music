@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the update check falling back to the changelog when the GitHub API returns a response it cannot parse.
 - Fixed the Top Songs, Recently Played and Listening Stats detail screens opening on the first range with activity, like Home does, instead of an empty default tab.
 - Scrollbars now fade out when idle and only show while scrolling, except on the fast-scroll lists in Library where they stay visible as a jump control.
+- Added a Jump back in section on Home showing the four most recently played albums, artists, playlists and mixes.
 
 ## [2.0.1] - 2026-11-24
 

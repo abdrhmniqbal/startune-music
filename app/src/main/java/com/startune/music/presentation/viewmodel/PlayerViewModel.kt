@@ -53,6 +53,7 @@ import com.startune.music.data.model.Genre
 import com.startune.music.data.model.ItemOptionsTarget
 import com.startune.music.data.model.Lyrics
 import com.startune.music.data.model.LyricsSourcePreference
+import com.startune.music.data.model.PlaybackSource
 import com.startune.music.data.model.SearchFilterType
 import com.startune.music.data.model.Song
 import com.startune.music.data.model.SortOption
@@ -71,6 +72,7 @@ import com.startune.music.data.preferences.SwipeToQueueAction
 import com.startune.music.data.preferences.ThemePreference
 import com.startune.music.data.repository.LyricsSearchResult
 import com.startune.music.data.repository.MusicRepository
+import com.startune.music.data.repository.PlayedEntityRepository
 import com.startune.music.data.service.MusicNotificationProvider
 import com.startune.music.data.service.MusicService
 import com.startune.music.data.service.player.DualPlayerEngine
@@ -282,6 +284,7 @@ class PlayerViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val themePreferencesRepository: ThemePreferencesRepository,
     private val albumArtThemeDao: AlbumArtThemeDao,
+    private val playedEntityRepository: PlayedEntityRepository,
     val syncManager: SyncManager,
 
     private val dualPlayerEngine: DualPlayerEngine,
@@ -2174,7 +2177,8 @@ class PlayerViewModel @Inject constructor(
         isVoluntaryPlay: Boolean = true,
         cancelPendingQueueBuild: Boolean = true,
         playlistId: String? = null,
-        indexInQueue: Int? = null
+        indexInQueue: Int? = null,
+        playbackSource: PlaybackSource? = null
     ) {
         if (cancelPendingQueueBuild) {
             cancelPendingFullQueuePlayback()
@@ -2209,10 +2213,17 @@ class PlayerViewModel @Inject constructor(
                 if (playlistId != null && queueName != "None") {
                     appShortcutManager.updateLastPlaylistShortcut(playlistId, queueName)
                 }
+                // The queue did not change, so only refresh the record when the
+                // tap came from the entity the queue already plays from.
+                if (playbackSource != null && playbackSource == _playerUiState.value.currentPlaybackSource) {
+                    viewModelScope.launch {
+                        runCatching { playedEntityRepository.recordPlayed(playbackSource) }
+                    }
+                }
             }
         } else {
             if (isVoluntaryPlay) incrementSongScore(song)
-            playSongs(playbackContext, song, queueName, playlistId)
+            playSongs(playbackContext, song, queueName, playlistId, playbackSource)
         }
         resetPredictiveBackState()
     }
@@ -3120,7 +3131,7 @@ class PlayerViewModel @Inject constructor(
     }
 
 
-    fun playSongs(songsToPlay: List<Song>, startSong: Song, queueName: String = "None", playlistId: String? = null) {
+    fun playSongs(songsToPlay: List<Song>, startSong: Song, queueName: String = "None", playlistId: String? = null, playbackSource: PlaybackSource? = null) {
         cancelPendingFullQueuePlayback()
         val requestToken = beginDirectPlaybackRequest()
         directPlaybackJob = viewModelScope.launch {
@@ -3163,7 +3174,7 @@ class PlayerViewModel @Inject constructor(
             }
             throwIfDirectPlaybackRequestIsStale(requestToken)
 
-            internalPlaySongs(finalSongsToPlay, validStartSong, queueName, playlistId)
+            internalPlaySongs(finalSongsToPlay, validStartSong, queueName, playlistId, playbackSource)
             if (requestToken == directPlaybackToken) {
                 directPlaybackJob = null
             }
@@ -3174,7 +3185,8 @@ class PlayerViewModel @Inject constructor(
         songsToPlay: List<Song>, 
         queueName: String = "None", 
         playlistId: String? = null,
-        startAtZero: Boolean = false
+        startAtZero: Boolean = false,
+        playbackSource: PlaybackSource? = null
     ) {
         cancelPendingFullQueuePlayback()
         val requestToken = beginDirectPlaybackRequest()
@@ -3196,7 +3208,7 @@ class PlayerViewModel @Inject constructor(
             playbackStateHolder.updateStablePlayerState { it.copy(isShuffleEnabled = true) }
             launch { userPreferencesRepository.setShuffleOn(true) }
 
-            internalPlaySongs(shuffledQueue, startSong, queueName, playlistId)
+            internalPlaySongs(shuffledQueue, startSong, queueName, playlistId, playbackSource)
             if (requestToken == directPlaybackToken) {
                 directPlaybackJob = null
             }
@@ -3361,7 +3373,7 @@ class PlayerViewModel @Inject constructor(
 
 
 
-    private suspend fun internalPlaySongs(songsToPlay: List<Song>, startSong: Song, queueName: String = "None", playlistId: String? = null) {
+    private suspend fun internalPlaySongs(songsToPlay: List<Song>, startSong: Song, queueName: String = "None", playlistId: String? = null, playbackSource: PlaybackSource? = null) {
         if (songsToPlay.isEmpty()) {
             clearPreparingSongIfMatching()
             return
@@ -3376,8 +3388,16 @@ class PlayerViewModel @Inject constructor(
         _playerUiState.update {
             it.copy(
                 currentPlaybackQueue = songsToPlay.toPlaybackQueue(),
-                currentQueueSourceName = queueName
+                currentQueueSourceName = queueName,
+                currentPlaybackSource = playbackSource
             )
+        }
+        // Record what the user played FROM. Detached from the playback job and
+        // failure-proof: a database error must never break playback.
+        if (playbackSource != null) {
+            viewModelScope.launch {
+                runCatching { playedEntityRepository.recordPlayed(playbackSource) }
+            }
         }
         playbackStateHolder.updateStablePlayerState {
             it.copy(
@@ -4339,7 +4359,8 @@ class PlayerViewModel @Inject constructor(
                             internalPlaySongs(
                                 currentQueue.toList(),
                                 currentSong,
-                                _playerUiState.value.currentQueueSourceName
+                                _playerUiState.value.currentQueueSourceName,
+                                playbackSource = _playerUiState.value.currentPlaybackSource
                             )
                         }
                     }

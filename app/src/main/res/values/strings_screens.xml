@@ -400,6 +400,11 @@
     <string name="artist_albums_title">Albums</string>
     <string name="artist_singles_eps_title">Singles &amp; EPs</string>
     <string name="action_see_all">See all</string>
+    <string name="jump_back_in_title">Jump back in</string>
+    <string name="jump_back_in_type_album">Album</string>
+    <string name="jump_back_in_type_artist">Artist</string>
+    <string name="jump_back_in_type_playlist">Playlist</string>
+    <string name="jump_back_in_type_mix">Mix</string>
     <string name="top_songs_title">Top Songs</string>
     <string name="top_songs_queue_name">Top Songs</string>
     <string name="top_songs_empty_title">No top songs in %1$s</string>

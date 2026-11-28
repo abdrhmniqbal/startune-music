@@ -11,6 +11,7 @@ import com.startune.music.presentation.components.rememberModalSheetState
 import com.startune.music.presentation.components.SongMultiSelectionHost
 import com.startune.music.data.model.MixRule
 import com.startune.music.data.model.fromPlaylistSource
+import com.startune.music.data.model.PlaybackSource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -329,7 +330,7 @@ fun MixDetailScreen(
                 onToggleFavorite = { playerViewModel.toggleFavoriteSpecificSong(song) },
                 onDismiss = { showSongInfoSheet = false },
                 onPlaySong = {
-                    playerViewModel.showAndPlaySong(song, mixSongs, mixTitle, isVoluntaryPlay = false)
+                    playerViewModel.showAndPlaySong(song, mixSongs, mixTitle, isVoluntaryPlay = false, playbackSource = PlaybackSource.Mix(mixId, mixTitle))
                     showSongInfoSheet = false
                 },
                 onAddToQueue = {
@@ -457,7 +458,8 @@ fun MixDetailScreen(
                                     playerViewModel.playSongsShuffled(
                                         songsToPlay = mixSongs,
                                         queueName = mixTitle,
-                                        startAtZero = true
+                                        startAtZero = true,
+                                        playbackSource = PlaybackSource.Mix(mixId, mixTitle)
                                     )
                                 }
                             },
@@ -466,7 +468,8 @@ fun MixDetailScreen(
                                     playerViewModel.playSongs(
                                         songsToPlay = mixSongs,
                                         startSong = mixSongs.first(),
-                                        queueName = mixTitle
+                                        queueName = mixTitle,
+                                        playbackSource = PlaybackSource.Mix(mixId, mixTitle)
                                     )
                                 }
                             },
@@ -519,7 +522,7 @@ fun MixDetailScreen(
                                 if (isSelectionMode) {
                                     multiSelectionState.toggleSelection(song)
                                 } else {
-                                    playerViewModel.showAndPlaySong(song, mixSongs, mixTitle, isVoluntaryPlay = false)
+                                    playerViewModel.showAndPlaySong(song, mixSongs, mixTitle, isVoluntaryPlay = false, playbackSource = PlaybackSource.Mix(mixId, mixTitle))
                                 }
                             },
                             onMoreOptionsClick = {
@@ -738,7 +741,7 @@ fun MixDetailScreen(
                         onClick = {
                             showMixOptionsSheet = false
                             if (mixSongs.isNotEmpty()) {
-                                playerViewModel.playSongs(mixSongs, mixSongs.first(), queueName = mixTitle)
+                                playerViewModel.playSongs(mixSongs, mixSongs.first(), queueName = mixTitle, playbackSource = PlaybackSource.Mix(mixId, mixTitle))
                             }
                         }
                     )
@@ -748,7 +751,7 @@ fun MixDetailScreen(
                         onClick = {
                             showMixOptionsSheet = false
                             if (mixSongs.isNotEmpty()) {
-                                playerViewModel.playSongsShuffled(mixSongs, mixTitle, startAtZero = true)
+                                playerViewModel.playSongsShuffled(mixSongs, mixTitle, startAtZero = true, playbackSource = PlaybackSource.Mix(mixId, mixTitle))
                             }
                         }
                     )

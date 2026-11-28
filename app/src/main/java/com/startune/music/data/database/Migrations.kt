@@ -307,6 +307,19 @@ val MIGRATION_13_14 = object : Migration(13, 14) {
     }
 }
 
+val MIGRATION_14_15 = object : Migration(14, 15) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `played_entities` (" +
+                "`entity_type` TEXT NOT NULL, " +
+                "`entity_id` TEXT NOT NULL, " +
+                "`entity_name` TEXT NOT NULL, " +
+                "`played_at` INTEGER NOT NULL, " +
+                "PRIMARY KEY(`entity_type`, `entity_id`))"
+        )
+    }
+}
+
 val MIGRATION_6_7 = object : Migration(6, 7) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("DELETE FROM song_artist_cross_ref WHERE song_id IN (SELECT id FROM songs WHERE source_type = 5)")

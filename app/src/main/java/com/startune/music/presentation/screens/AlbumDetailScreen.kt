@@ -129,6 +129,7 @@ import coil.size.Size
 import com.startune.music.R
 import com.startune.music.data.model.Album
 import com.startune.music.data.model.Artist
+import com.startune.music.data.model.PlaybackSource
 import com.startune.music.data.model.Song
 import com.startune.music.data.model.SortOption
 import com.startune.music.data.offline.CloudOfflineRepository
@@ -328,12 +329,12 @@ fun AlbumDetailScreen(
                 }
                 val onHeroShuffle: () -> Unit = {
                     if (songs.isNotEmpty()) {
-                        playerViewModel.playSongsShuffled(songs, album.title, startAtZero = true)
+                        playerViewModel.playSongsShuffled(songs, album.title, startAtZero = true, playbackSource = PlaybackSource.Album(album.id, album.title))
                     }
                 }
                 val onHeroPlay: () -> Unit = {
                     if (heroPlayState == HeroPlayState.Idle) {
-                        songs.firstOrNull()?.let { first -> playerViewModel.showAndPlaySong(first, songs) }
+                        songs.firstOrNull()?.let { first -> playerViewModel.showAndPlaySong(first, songs, playbackSource = PlaybackSource.Album(album.id, album.title)) }
                     } else {
                         playerViewModel.playPause()
                     }
@@ -639,7 +640,7 @@ fun AlbumDetailScreen(
                                             if (isSelectionMode) {
                                                 multiSelectionState.toggleSelection(song)
                                             } else {
-                                                playerViewModel.showAndPlaySong(song, displaySongs)
+                                                playerViewModel.showAndPlaySong(song, displaySongs, playbackSource = PlaybackSource.Album(album.id, album.title))
                                             }
                                         }
                                     )
@@ -673,7 +674,7 @@ fun AlbumDetailScreen(
                                             if (isSelectionMode) {
                                                 multiSelectionState.toggleSelection(song)
                                             } else {
-                                                playerViewModel.showAndPlaySong(song, displaySongs)
+                                                playerViewModel.showAndPlaySong(song, displaySongs, playbackSource = PlaybackSource.Album(album.id, album.title))
                                             }
                                         }
                                     )
@@ -754,12 +755,12 @@ fun AlbumDetailScreen(
                             },
                             onPlayClick = {
                                 if (immutableSongs.isNotEmpty()) {
-                                    playerViewModel.playSongs(immutableSongs, immutableSongs.first(), queueName = album.title)
+                                    playerViewModel.playSongs(immutableSongs, immutableSongs.first(), queueName = album.title, playbackSource = PlaybackSource.Album(album.id, album.title))
                                 }
                             },
                             onShuffleClick = {
                                 if (immutableSongs.isNotEmpty()) {
-                                    playerViewModel.playSongsShuffled(immutableSongs, album.title, startAtZero = true)
+                                    playerViewModel.playSongsShuffled(immutableSongs, album.title, startAtZero = true, playbackSource = PlaybackSource.Album(album.id, album.title))
                                 }
                             },
                             onAddToPlaylistClick = { showAlbumPlaylistSheet = true }
@@ -783,7 +784,7 @@ fun AlbumDetailScreen(
                             onPlayClick = {
                                 if (displaySongs.isNotEmpty()) {
                                     val randomSong = displaySongs.random()
-                                    playerViewModel.showAndPlaySong(randomSong, displaySongs)
+                                    playerViewModel.showAndPlaySong(randomSong, displaySongs, playbackSource = PlaybackSource.Album(album.id, album.title))
                                 }
                             }
                         )

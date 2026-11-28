@@ -94,6 +94,7 @@ import com.startune.music.data.model.Artist
 import com.startune.music.data.model.Album
 import com.startune.music.data.model.Song
 import com.startune.music.data.model.SortOption
+import com.startune.music.data.model.PlaybackSource
 import com.startune.music.presentation.components.CollapsibleCommonTopBar
 import com.startune.music.presentation.components.carouselItemScale
 import com.startune.music.presentation.components.ExpressiveScrollBar
@@ -375,12 +376,12 @@ fun ArtistDetailScreen(
                     }
                     val onHeroShuffle: () -> Unit = {
                         if (songs.isNotEmpty()) {
-                            playerViewModel.playSongsShuffled(songs, artist.name, startAtZero = true)
+                            playerViewModel.playSongsShuffled(songs, artist.name, startAtZero = true, playbackSource = PlaybackSource.Artist(artist.id, artist.name))
                         }
                     }
                     val onHeroPlay: () -> Unit = {
                         if (heroPlayState == HeroPlayState.Idle) {
-                            songs.firstOrNull()?.let { first -> playerViewModel.showAndPlaySong(first, songs) }
+                            songs.firstOrNull()?.let { first -> playerViewModel.showAndPlaySong(first, songs, playbackSource = PlaybackSource.Artist(artist.id, artist.name)) }
                         } else {
                             playerViewModel.playPause()
                         }
@@ -518,7 +519,7 @@ fun ArtistDetailScreen(
                                             playerViewModel.selectSongForInfo(song)
                                             showSongInfoBottomSheet = true
                                         },
-                                        onClick = { playerViewModel.showAndPlaySong(song, songs) }
+                                        onClick = { playerViewModel.showAndPlaySong(song, songs, playbackSource = PlaybackSource.Artist(artist.id, artist.name)) }
                                     )
                                 }
                             }
@@ -663,12 +664,12 @@ fun ArtistDetailScreen(
                             onBackPressed = { navController.popBackStack() },
                             onPlayClick = {
                                 if (songs.isNotEmpty()) {
-                                    playerViewModel.playSongs(songs, songs.first(), queueName = artist.name)
+                                    playerViewModel.playSongs(songs, songs.first(), queueName = artist.name, playbackSource = PlaybackSource.Artist(artist.id, artist.name))
                                 }
                             },
                             onShuffleClick = {
                                 if (songs.isNotEmpty()) {
-                                    playerViewModel.playSongsShuffled(songs, artist.name, startAtZero = true)
+                                    playerViewModel.playSongsShuffled(songs, artist.name, startAtZero = true, playbackSource = PlaybackSource.Artist(artist.id, artist.name))
                                 }
                             },
                             onPlayNextClick = {
@@ -704,18 +705,19 @@ fun ArtistDetailScreen(
                                     playerViewModel.playSongsShuffled(
                                         songs,
                                         artist.name,
-                                        startAtZero = true
+                                        startAtZero = true,
+                                        playbackSource = PlaybackSource.Artist(artist.id, artist.name)
                                     )
                                 }
                             },
                             onPlayClick = {
                                 if (songs.isNotEmpty()) {
-                                    playerViewModel.playSongs(songs, songs.first(), queueName = artist.name)
+                                    playerViewModel.playSongs(songs, songs.first(), queueName = artist.name, playbackSource = PlaybackSource.Artist(artist.id, artist.name))
                                 }
                             },
                             onShuffleClick = {
                                 if (songs.isNotEmpty()) {
-                                    playerViewModel.playSongsShuffled(songs, artist.name, startAtZero = true)
+                                    playerViewModel.playSongsShuffled(songs, artist.name, startAtZero = true, playbackSource = PlaybackSource.Artist(artist.id, artist.name))
                                 }
                             },
                             onPlayNextClick = {

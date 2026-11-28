@@ -17,6 +17,7 @@ import com.startune.music.data.model.StorageFilter
 import com.startune.music.data.preferences.ThemePreferencesRepository
 import com.startune.music.data.preferences.UserPreferencesRepository
 import com.startune.music.data.repository.MusicRepository
+import com.startune.music.data.repository.PlayedEntityRepository
 import com.startune.music.di.DispatcherProvider
 import io.mockk.*
 import androidx.media3.session.MediaController
@@ -68,6 +69,7 @@ class PlayerViewModelTest {
     private val mockUserPreferencesRepository: UserPreferencesRepository = mockk(relaxed = true)
     private val mockThemePreferencesRepository: ThemePreferencesRepository = mockk(relaxed = true)
     private val mockAlbumArtThemeDao: AlbumArtThemeDao = mockk(relaxed = true)
+    private val mockPlayedEntityRepository: PlayedEntityRepository = mockk(relaxed = true)
     private val mockContext: Context = mockk(relaxed = true)
 
     private val mockSyncManager: SyncManager = mockk(relaxed = true)
@@ -230,6 +232,7 @@ class PlayerViewModelTest {
             mockUserPreferencesRepository,
             mockThemePreferencesRepository,
             mockAlbumArtThemeDao,
+            mockPlayedEntityRepository,
             mockSyncManager,
             mockDualPlayerEngine,
             mockAppShortcutManager,

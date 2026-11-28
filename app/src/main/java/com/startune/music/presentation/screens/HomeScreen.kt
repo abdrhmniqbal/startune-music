@@ -82,6 +82,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
 import com.startune.music.R
 import com.startune.music.data.model.Song
+import com.startune.music.data.model.PlayedEntityType
 import com.startune.music.data.preferences.CollagePattern
 import com.startune.music.data.stats.StatsTimeRange
 import com.startune.music.presentation.components.AlbumArtCollage
@@ -91,6 +92,7 @@ import com.startune.music.presentation.components.ExpressiveScrollBar
 import com.startune.music.presentation.components.TopTracksSection
 import com.startune.music.presentation.components.HomeGradientTopBar
 import com.startune.music.presentation.components.HomeOptionsBottomSheet
+import com.startune.music.presentation.components.JumpBackInSection
 import com.startune.music.presentation.components.RecentlyPlayedSongOptionsSheet
 import com.startune.music.presentation.components.MiniPlayerHeight
 import com.startune.music.presentation.components.RecentlyPlayedSection
@@ -107,6 +109,7 @@ import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.components.StreamingProviderSheet
 import com.startune.music.presentation.recap.RecapHomeCard
 import com.startune.music.presentation.viewmodel.MixIds
+import com.startune.music.presentation.viewmodel.JumpBackInViewModel
 import com.startune.music.presentation.viewmodel.PlayerViewModel
 import com.startune.music.presentation.viewmodel.RecapEntryViewModel
 import com.startune.music.presentation.viewmodel.sharedPlayerViewModel
@@ -153,8 +156,13 @@ fun HomeScreen(
         (context as? android.app.Activity)?.intent?.getBooleanExtra("is_benchmark", false) ?: false
     }
     val statsViewModel: StatsViewModel = hiltViewModel()
+    val jumpBackInViewModel: JumpBackInViewModel = hiltViewModel()
     val recapEntryViewModel: RecapEntryViewModel = hiltViewModel()
     val settingsUiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
+    val jumpBackInItems by jumpBackInViewModel.items.collectAsStateWithLifecycle()
+    val currentPlaybackSource by remember(playerViewModel.playerUiState) {
+        playerViewModel.playerUiState.map { it.currentPlaybackSource }
+    }.collectAsStateWithLifecycle(initialValue = null)
     val dailyMixSongs by playerViewModel.dailyMixSongs.collectAsStateWithLifecycle()
     val curatedYourMixSongs by playerViewModel.yourMixSongs.collectAsStateWithLifecycle()
     val homeMixPreviewSongs by playerViewModel.homeMixPreviewSongs.collectAsStateWithLifecycle()
@@ -403,6 +411,35 @@ fun HomeScreen(
                     ),
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
+                    // Jump back in sits at the very top, before For You Mix.
+                    if (jumpBackInItems.isNotEmpty()) {
+                        item(
+                            key = "jump_back_in_section",
+                            contentType = "jump_back_in_section"
+                        ) {
+                            JumpBackInSection(
+                                items = jumpBackInItems,
+                                onItemClick = { item ->
+                                    when (item.type) {
+                                        PlayedEntityType.ALBUM -> item.id.toLongOrNull()?.let { albumId ->
+                                            navController.navigateSafely(Screen.AlbumDetail.createRoute(albumId))
+                                        }
+                                        PlayedEntityType.ARTIST -> item.id.toLongOrNull()?.let { artistId ->
+                                            navController.navigateSafely(Screen.ArtistDetail.createRoute(artistId))
+                                        }
+                                        PlayedEntityType.PLAYLIST -> navController.navigateSafely(
+                                            Screen.PlaylistDetail.createRoute(item.id)
+                                        )
+                                        PlayedEntityType.MIX -> navController.navigateSafely(
+                                            Screen.MixDetail.createRoute(item.id)
+                                        )
+                                    }
+                                },
+                                currentPlaybackSource = currentPlaybackSource
+                            )
+                        }
+                    }
+
                     // Seasonal: December to mid-January, until dismissed for that year.
                     recapHomeCard?.let { entry ->
                         item(

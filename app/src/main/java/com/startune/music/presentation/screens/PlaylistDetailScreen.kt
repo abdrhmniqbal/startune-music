@@ -153,6 +153,7 @@ import com.startune.music.presentation.components.LibrarySortBottomSheet
 import com.startune.music.data.model.SortOption
 import com.startune.music.data.model.PlaylistShapeType
 import com.startune.music.data.model.isMix
+import com.startune.music.data.model.PlaybackSource
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -598,6 +599,7 @@ fun PlaylistDetailScreen(
                                         localReorderableSongs.first(),
                                         currentPlaylist?.name ?: fallbackPlaylistName,
                                         currentPlaylist?.id,
+                                        playbackSource = currentPlaylist?.let { PlaybackSource.Playlist(it.id, it.name) },
                                     )
                                     if (playerStableState.isShuffleEnabled) playerViewModel.toggleShuffle()
                                 }
@@ -640,6 +642,7 @@ fun PlaylistDetailScreen(
                                         queueName = currentPlaylist?.name ?: fallbackPlaylistName,
                                         playlistId = currentPlaylist?.id,
                                         startAtZero = true,
+                                        playbackSource = currentPlaylist?.let { PlaybackSource.Playlist(it.id, it.name) },
                                     )
                                 }
                             },
@@ -791,7 +794,8 @@ fun PlaylistDetailScreen(
                                                         localReorderableSongs,
                                                         song,
                                                         currentPlaylist.name,
-                                                        currentPlaylist.id
+                                                        currentPlaylist.id,
+                                                        playbackSource = PlaybackSource.Playlist(currentPlaylist.id, currentPlaylist.name)
                                                     )
                                                 }
                                             },
@@ -951,7 +955,8 @@ fun PlaylistDetailScreen(
                                 playerViewModel.playSongs(
                                     localReorderableSongs,
                                     localReorderableSongs.first(),
-                                    queueName = currentPlaylist?.name ?: fallbackPlaylistName
+                                    queueName = currentPlaylist?.name ?: fallbackPlaylistName,
+                                    playbackSource = currentPlaylist?.let { PlaybackSource.Playlist(it.id, it.name) }
                                 )
                             }
                         }
@@ -966,7 +971,8 @@ fun PlaylistDetailScreen(
                                 playerViewModel.playSongsShuffled(
                                     localReorderableSongs,
                                     currentPlaylist?.name ?: fallbackPlaylistName,
-                                    startAtZero = true
+                                    startAtZero = true,
+                                    playbackSource = currentPlaylist?.let { PlaybackSource.Playlist(it.id, it.name) }
                                 )
                             }
                         }

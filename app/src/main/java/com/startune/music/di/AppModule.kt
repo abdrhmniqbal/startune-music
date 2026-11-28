@@ -38,8 +38,10 @@ import com.startune.music.data.database.MIGRATION_9_10
 import com.startune.music.data.database.MIGRATION_11_12
 import com.startune.music.data.database.MIGRATION_12_13
 import com.startune.music.data.database.MIGRATION_13_14
+import com.startune.music.data.database.MIGRATION_14_15
 import com.startune.music.data.database.MusicDao
 import com.startune.music.data.database.OfflineTrackDao
+import com.startune.music.data.database.PlayedEntityDao
 import com.startune.music.data.database.StartuneDatabase
 import com.startune.music.data.database.SearchHistoryDao
 import com.startune.music.data.database.TransitionDao
@@ -156,6 +158,7 @@ object AppModule {
                 MIGRATION_11_12,
                 MIGRATION_12_13,
                 MIGRATION_13_14,
+                MIGRATION_14_15,
             )
             .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
 
@@ -248,6 +251,12 @@ object AppModule {
     @Provides
     fun provideOfflineTrackDao(database: StartuneDatabase): OfflineTrackDao {
         return database.offlineTrackDao()
+    }
+
+    @Singleton
+    @Provides
+    fun providePlayedEntityDao(database: StartuneDatabase): PlayedEntityDao {
+        return database.playedEntityDao()
     }
 
     @Provides

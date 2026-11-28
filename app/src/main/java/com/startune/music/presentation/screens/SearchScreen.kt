@@ -86,6 +86,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.startune.music.data.model.Album
 import com.startune.music.data.model.Artist
 import com.startune.music.data.model.ItemOptionsTarget
+import com.startune.music.data.model.PlaybackSource
 import com.startune.music.data.model.Playlist
 import com.startune.music.data.model.SearchFilterType
 import com.startune.music.data.model.SearchHistoryItem
@@ -932,7 +933,7 @@ fun SearchResultsList(
             } else {
                 listOf(song)
             }
-            playerViewModel.showAndPlaySong(song, playbackQueue, searchQueueName)
+            playerViewModel.showAndPlaySong(song, playbackQueue, searchQueueName, playbackSource = PlaybackSource.Search(searchQuery))
             onItemSelected()
         }
     }
