@@ -96,6 +96,61 @@ class StatsViewModel @Inject constructor(
         )
     }
 
+    /**
+     * Detail-screen entry load. Home opens Top Tracks and the stats overview
+     * on the first range with activity (today, else this week, else this
+     * month...), but the detail screens always opened on their default range
+     * even when it was empty, so Home showed data the detail did not. This
+     * walks [fallbackRanges] in order and opens on the first range with
+     * activity, so the detail shows the same data Home showed. Explicit range
+     * taps keep using [onRangeSelected] and never fall back.
+     *
+     * [fallbackRanges] must start with [range]; ranges after it are tried in
+     * order. When no range has activity the default range's (empty) result
+     * is shown. The weekly overview is left alone: init already loaded it
+     * from this week.
+     */
+    fun onInitialRangeSelected(range: StatsTimeRange, fallbackRanges: List<StatsTimeRange>) {
+        val chain = listOf(range) + fallbackRanges.filter { it != range }
+        refreshJob?.cancel()
+        refreshJob = viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, isRefreshing = false, selectedRange = range) }
+            val loaded = runCatching {
+                withContext(dispatchers.io) {
+                    val songs = loadSongs()
+                    var defaultResult: Triple<StatsTimeRange, PlaybackStatsSummary, List<SongPlaybackSummary>>? = null
+                    var winner: Triple<StatsTimeRange, PlaybackStatsSummary, List<SongPlaybackSummary>>? = null
+                    for (candidate in chain) {
+                        val summary = playbackStatsRepository.loadSummary(candidate, songs)
+                        val topTracks = playbackStatsRepository.loadTopTracks(candidate, songs)
+                        val result = Triple(candidate, summary, topTracks)
+                        if (defaultResult == null) defaultResult = result
+                        if (summary.hasListeningActivity() || topTracks.isNotEmpty()) {
+                            winner = result
+                            break
+                        }
+                    }
+                    winner ?: defaultResult ?: Triple(
+                        range,
+                        playbackStatsRepository.loadSummary(range, songs),
+                        playbackStatsRepository.loadTopTracks(range, songs)
+                    )
+                }
+            }
+            _uiState.update { current ->
+                val result = loaded.getOrNull()
+                current.copy(
+                    isLoading = false,
+                    isRefreshing = false,
+                    summary = result?.second,
+                    topTracks = result?.third?.toImmutableList() ?: persistentListOf(),
+                    selectedRange = result?.first ?: range
+                )
+            }
+            loaded.exceptionOrNull()?.let { Timber.e(it, "Failed to load stats for initial range %s", range) }
+        }
+    }
+
     fun refreshWeeklyOverview() {
         viewModelScope.launch {
             runCatching {

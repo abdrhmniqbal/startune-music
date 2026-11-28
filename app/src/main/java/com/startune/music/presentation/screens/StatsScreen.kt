@@ -193,6 +193,25 @@ fun StatsScreen(
     val uiState by statsViewModel.uiState.collectAsStateWithLifecycle()
     val recapEntries by recapEntryViewModel.statsEntries.collectAsStateWithLifecycle()
     val summary = uiState.summary
+    // Entry-only fallback, same as Home's overview (week, month, year, all
+    // time): when this week has no listening yet, open on the first range
+    // with activity instead of an empty week. A tab the user taps is never
+    // moved, and the tabs already read the ViewModel's range directly.
+    var initialFallbackDone by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        if (!initialFallbackDone) {
+            initialFallbackDone = true
+            statsViewModel.onInitialRangeSelected(
+                StatsTimeRange.WEEK,
+                listOf(
+                    StatsTimeRange.WEEK,
+                    StatsTimeRange.MONTH,
+                    StatsTimeRange.YEAR,
+                    StatsTimeRange.ALL
+                )
+            )
+        }
+    }
     val lazyListState = rememberLazyListState()
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()

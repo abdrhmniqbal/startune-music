@@ -128,6 +128,36 @@ fun collectRecentlyPlayedSongIds(
     return seenSongIds.toList()
 }
 
+/**
+ * The first range, from [fromRange] towards broader ranges, with at least one
+ * play in [playbackHistory], or [fromRange] when none has any. The Recently
+ * Played detail opens on it so it shows the same data Home shows (Home lists
+ * recent plays with no range limit, while the detail defaults to this week,
+ * which can be empty while older plays exist). A range the user taps is never
+ * moved; this only picks the opening range. Ranges narrower than [fromRange]
+ * are never tried: an empty week implies an empty today.
+ */
+internal fun firstRecentlyPlayedRangeWithActivity(
+    playbackHistory: List<PlaybackStatsRepository.PlaybackHistoryEntry>,
+    fromRange: StatsTimeRange,
+    nowMillis: Long = System.currentTimeMillis()
+): StatsTimeRange {
+    if (playbackHistory.isEmpty()) return fromRange
+    val ranges = StatsTimeRange.entries.drop(StatsTimeRange.entries.indexOf(fromRange))
+    for (range in ranges) {
+        if (collectRecentlyPlayedSongIds(
+                playbackHistory = playbackHistory,
+                range = range,
+                nowMillis = nowMillis,
+                maxItems = 1
+            ).isNotEmpty()
+        ) {
+            return range
+        }
+    }
+    return fromRange
+}
+
 private fun StatsTimeRange?.resolveBounds(
     nowMillis: Long,
     zoneId: ZoneId

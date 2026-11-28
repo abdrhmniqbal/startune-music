@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Fixed the update check falling back to the changelog when the GitHub API returns a response it cannot parse.
+- Fixed the Top Songs, Recently Played and Listening Stats detail screens opening on the first range with activity, like Home does, instead of an empty default tab.
 
 ## [2.0.1] - 2026-11-24
 

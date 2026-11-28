@@ -114,8 +114,35 @@ fun TopTracksScreen(
     val topTracks = uiState.topTracks
 
     var selectedRange by rememberSaveable { mutableStateOf(StatsTimeRange.DAY) }
+    // Entry-only fallback: Home opens Top Tracks on the first range with
+    // activity, so the detail does the same instead of opening on an empty
+    // Today tab. A tab the user taps is never moved again.
+    var initialFallbackDone by rememberSaveable { mutableStateOf(false) }
+    var userHasTappedRange by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(selectedRange) {
-        statsViewModel.onRangeSelected(selectedRange)
+        if (initialFallbackDone) {
+            statsViewModel.onRangeSelected(selectedRange)
+        }
+    }
+    LaunchedEffect(Unit) {
+        if (!initialFallbackDone) {
+            initialFallbackDone = true
+            statsViewModel.onInitialRangeSelected(
+                selectedRange,
+                listOf(
+                    StatsTimeRange.DAY,
+                    StatsTimeRange.WEEK,
+                    StatsTimeRange.MONTH,
+                    StatsTimeRange.YEAR,
+                    StatsTimeRange.ALL
+                )
+            )
+        }
+    }
+    LaunchedEffect(uiState.selectedRange) {
+        if (initialFallbackDone && !userHasTappedRange) {
+            selectedRange = uiState.selectedRange
+        }
     }
 
     val currentSongId by remember(playerViewModel.stablePlayerState) {
@@ -260,7 +287,10 @@ fun TopTracksScreen(
                         } else {
                             RecentlyPlayedRangeSelector(
                                 selected = selectedRange,
-                                onRangeSelected = { selectedRange = it },
+                                onRangeSelected = {
+                                    userHasTappedRange = true
+                                    selectedRange = it
+                                },
                                 modifier = Modifier.padding(horizontal = 0.dp)
                             )
                         }

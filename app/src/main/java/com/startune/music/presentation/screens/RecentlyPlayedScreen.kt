@@ -75,6 +75,7 @@ import com.startune.music.presentation.components.subcomps.EnhancedSongListItem
 import com.startune.music.presentation.navigation.Screen
 import com.startune.music.presentation.model.RecentlyPlayedSongUiModel
 import com.startune.music.presentation.model.collectRecentlyPlayedSongIds
+import com.startune.music.presentation.model.firstRecentlyPlayedRangeWithActivity
 import com.startune.music.presentation.model.mapRecentlyPlayedSongs
 import com.startune.music.presentation.viewmodel.PlaylistViewModel
 import com.startune.music.presentation.viewmodel.PlayerViewModel
@@ -140,6 +141,20 @@ fun RecentlyPlayedScreen(
     val playlistUiState by playlistViewModel.uiState.collectAsStateWithLifecycle()
 
     var selectedRange by rememberSaveable { mutableStateOf(StatsTimeRange.WEEK) }
+    // Entry-only fallback: Home lists recent plays with no range limit, but
+    // this screen opens on Week, which can be empty while older plays exist.
+    // Open on the first range with a play instead. A tab the user taps is
+    // never moved again.
+    var initialFallbackDone by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(playbackHistory) {
+        if (!initialFallbackDone && playbackHistory.isNotEmpty()) {
+            initialFallbackDone = true
+            selectedRange = firstRecentlyPlayedRangeWithActivity(
+                playbackHistory = playbackHistory,
+                fromRange = selectedRange
+            )
+        }
+    }
     val lazyListState = rememberLazyListState()
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
@@ -296,7 +311,10 @@ fun RecentlyPlayedScreen(
                         } else {
                             RecentlyPlayedRangeSelector(
                                 selected = selectedRange,
-                                onRangeSelected = { selectedRange = it },
+                                onRangeSelected = {
+                                    initialFallbackDone = true
+                                    selectedRange = it
+                                },
                                 modifier = Modifier.padding(horizontal = 0.dp)
                             )
                         }
